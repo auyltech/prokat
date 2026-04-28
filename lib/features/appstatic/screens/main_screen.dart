@@ -270,7 +270,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: categoriesState.categories.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
                   itemBuilder: (context, i) {
                     final category = categoriesState.categories[i];
 

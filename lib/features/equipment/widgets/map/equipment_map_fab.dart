@@ -14,7 +14,7 @@ class EquipmentMapFab extends StatelessWidget {
         heroTag: 'equipment-map-fab',
         backgroundColor: Colors.orange,
         onPressed: () {
-          context.push(AppRoutes.createRequest);
+          context.push(AppRoutes.clientRequestsCreate);
         },
         child: const Icon(Icons.add),
       ),

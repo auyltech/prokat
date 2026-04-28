@@ -11,11 +11,11 @@ import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/features/user/widgets/user_category_selector.dart';
 import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dart';
 
-class EquipmentListScreen extends ConsumerStatefulWidget {
+class SearchEquipmentScreen extends ConsumerStatefulWidget {
   final String? query, category, city;
   final int? page, limit;
 
-  const EquipmentListScreen({
+  const SearchEquipmentScreen({
     super.key,
     this.query,
     this.category,
@@ -25,11 +25,11 @@ class EquipmentListScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<EquipmentListScreen> createState() =>
-      _EquipmentListScreenState();
+  ConsumerState<SearchEquipmentScreen> createState() =>
+      _SearchEquipmentScreenState();
 }
 
-class _EquipmentListScreenState extends ConsumerState<EquipmentListScreen> {
+class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   // bool _isSearchVisible = false;
 
   @override
@@ -65,6 +65,7 @@ class _EquipmentListScreenState extends ConsumerState<EquipmentListScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        top: false,
         child: CustomScrollView(
           slivers: [
             SliverAppBar(

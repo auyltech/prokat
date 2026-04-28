@@ -195,7 +195,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       await _loadSession();
     }
 
-    await socketService.connect(token: _sessionToken ?? '');
+    await socketService.connect(token: _sessionToken);
     socketService.onNewMessage(_handleIncomingMessage);
     await socketService.joinChat(chatId);
   }

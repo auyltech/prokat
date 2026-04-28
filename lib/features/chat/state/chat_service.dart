@@ -15,6 +15,7 @@ class ChatService {
   Future<List<ChatModel>> getConversations() async {
     try {
       final res = await _dio.get('/chats');
+
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
 
       if (data is! List) {

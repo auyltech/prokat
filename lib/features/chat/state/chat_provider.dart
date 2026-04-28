@@ -11,7 +11,9 @@ final chatServiceProvider = Provider<ChatService>((ref) {
 });
 
 final chatSocketServiceProvider = Provider<ChatSocketService>((ref) {
-  return ChatSocketService();
+  final apiClient = ref.watch(apiClientProvider);
+  final secureStorage = ref.watch(secureStorageProvider);
+  return ChatSocketService(apiClient, secureStorage);
 });
 
 final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {

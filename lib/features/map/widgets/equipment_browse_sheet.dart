@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 
 class EquipmentBrowseSheet extends StatelessWidget {
   const EquipmentBrowseSheet({super.key});
@@ -133,7 +134,8 @@ class EquipmentBrowseSheet extends StatelessWidget {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton.icon(
-                        onPressed: () => context.push('/requests/create'),
+                        onPressed: () =>
+                            context.push(AppRoutes.clientRequestsCreate),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: Colors.white,

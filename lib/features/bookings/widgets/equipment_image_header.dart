@@ -24,7 +24,7 @@ class EquipmentImageHeader extends StatelessWidget {
             child: Image.network(
               imageUrl ?? "",
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 color: Colors.grey[300],
                 child: const Center(
                   child: Icon(

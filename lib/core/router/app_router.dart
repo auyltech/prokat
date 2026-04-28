@@ -16,7 +16,7 @@ import 'package:prokat/features/chat/screens/client_chat_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_screen.dart';
-import 'package:prokat/features/equipment/screens/equipment_list_screen.dart';
+import 'package:prokat/features/equipment/screens/search_equipment_screen.dart';
 import 'package:prokat/features/layout/main_scaffold.dart';
 import 'package:prokat/features/auth/screens/forgot_password_screen.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
@@ -34,8 +34,8 @@ import 'package:prokat/features/equipment/screens/create_equipment_screen.dart';
 import 'package:prokat/features/equipment/screens/owner_equipment_list_screen.dart';
 import 'package:prokat/features/requests/screens/owner_requests_screen.dart';
 import 'package:prokat/features/requests/screens/create_request_screen.dart';
-import 'package:prokat/features/requests/screens/renter_requests_history_screen.dart';
-import 'package:prokat/features/requests/screens/renter_requests_screen.dart';
+import 'package:prokat/features/requests/screens/client_requests_history_screen.dart';
+import 'package:prokat/features/requests/screens/client_requests_screen.dart';
 import 'package:prokat/features/user/screens/owner_dashboard_screen.dart';
 import 'package:prokat/features/user/screens/owner_payments_screen.dart';
 import 'package:prokat/features/user/screens/owner_payments_topup_screen.dart';
@@ -50,15 +50,18 @@ import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 
-GoRouter createRouter(WidgetRef ref) {
+final routerProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = GoRouterRefreshNotifier<AppStartupState>(
+    ref,
+    appStartupProvider,
+  );
+  ref.onDispose(refreshNotifier.dispose);
+
   return GoRouter(
     initialLocation: AppRoutes.launch,
 
-    /// 🔁 REFRESH WHEN AUTH CHANGES
-    refreshListenable: GoRouterRefreshStream(
-      // ref.watch(authProvider.notifier).stream,
-      ref.watch(appStartupProvider.notifier).stream,
-    ),
+    /// 🔁 REFRESH WHEN STARTUP STATE CHANGES
+    refreshListenable: refreshNotifier,
 
     /// 🔐 AUTH GUARD
     redirect: (context, state) {
@@ -89,8 +92,9 @@ GoRouter createRouter(WidgetRef ref) {
           break;
 
         case AppStartupState.client:
+          // Redirect client after loading
           if (location == AppRoutes.launch) {
-            return AppRoutes.dashboard;
+            return AppRoutes.searchList;
           }
           break;
       }
@@ -207,7 +211,7 @@ GoRouter createRouter(WidgetRef ref) {
 
                   final city = state.uri.queryParameters['city'] ?? '';
 
-                  return EquipmentListScreen(
+                  return SearchEquipmentScreen(
                     query: query,
                     category: category,
                     city: city,
@@ -261,21 +265,21 @@ GoRouter createRouter(WidgetRef ref) {
                 },
               ),
               GoRoute(
-                path: '/requests',
+                path: AppRoutes.clientRequests,
                 builder: (context, state) {
-                  return RenterRequestsScreen();
+                  return const ClientRequestsScreen();
                 },
                 routes: [
                   GoRoute(
                     path: 'create',
                     builder: (context, state) {
-                      return CreateRequestScreen();
+                      return const CreateRequestScreen();
                     },
                   ),
                   GoRoute(
                     path: 'history',
                     builder: (context, state) {
-                      return RenterRequestsHistoryScreen();
+                      return const ClientRequestsHistoryScreen();
                     },
                   ),
                 ],
@@ -499,4 +503,4 @@ GoRouter createRouter(WidgetRef ref) {
       ),
     ],
   );
-}
+});

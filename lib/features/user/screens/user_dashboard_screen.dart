@@ -4,7 +4,6 @@ import 'package:prokat/features/bookings/widgets/client_bookings_section.dart';
 import 'package:prokat/features/bookings/widgets/client_requests_section.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
-import 'package:prokat/features/user/widgets/browse_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/user_dashboard_header.dart';
 
 class UserDashboardPage extends ConsumerStatefulWidget {
@@ -31,6 +30,7 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        top: false,
         child: CustomScrollView(
           slivers: [
             // SliverAppBar(
@@ -45,7 +45,7 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
             //     background: , // Your header widget
             //   ),
             // ),
-            SliverToBoxAdapter(child: UserDashboardHeader()),
+            const SliverToBoxAdapter(child: UserDashboardHeader()),
 
             // 1. Static components wrapped in SliverToBoxAdapter
             SliverToBoxAdapter(
@@ -63,9 +63,9 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
 
                     ClientRequestsSection(),
 
-                    const SizedBox(height: 12),
+                    // const SizedBox(height: 12),
 
-                    BrowseEquipmentTile(),
+                    // BrowseEquipmentTile(),
                   ],
                 ),
               ),

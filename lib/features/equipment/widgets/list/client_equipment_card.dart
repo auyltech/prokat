@@ -104,9 +104,8 @@ class ClientEquipmentCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title and Rating Row
+                // Equipment name + rating
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
@@ -115,10 +114,13 @@ class ClientEquipmentCard extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                           letterSpacing: -0.5,
                         ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 12),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.star_rounded,
@@ -128,9 +130,8 @@ class ClientEquipmentCard extends ConsumerWidget {
                         const SizedBox(width: 4),
                         Text(
                           "4.5",
-                          style: const TextStyle(
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
                           ),
                         ),
                       ],
@@ -140,27 +141,64 @@ class ClientEquipmentCard extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
+                // Owner under equipment name
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 16,
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.55,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        equipment.owner?.displayName ?? "Owner",
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
                 // Specs Row (Owner, Capacity, and Price integrated)
                 Row(
                   children: [
-                    const Icon(
-                      Icons.person_outline,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      equipment.owner?.displayName ?? "Owner",
-                      style: const TextStyle(color: Colors.grey),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.straighten,
+                            size: 16,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.55,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              "${equipment.capacity} ${equipment.capacityUnit}",
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(width: 12),
-                    const Icon(Icons.straighten, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${equipment.capacity} ${equipment.capacityUnit}",
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const Spacer(),
                     // The Price: Now a clean text element instead of a bubble
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,

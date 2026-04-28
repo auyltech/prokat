@@ -332,7 +332,6 @@ class OwnerBookingTile extends ConsumerWidget {
                                     ),
                                     TextButton(
                                       onPressed: () async {
-                                        print("accepting");
                                         // 2. Update backend
                                         await notifier.updateBookingStatus(
                                           id: booking.id,
@@ -340,8 +339,9 @@ class OwnerBookingTile extends ConsumerWidget {
                                         );
 
                                         // 3. Close dialog
-                                        if (context.mounted)
+                                        if (context.mounted) {
                                           Navigator.pop(context);
+                                        }
                                       },
                                       child: const Text(
                                         'Confirm',

@@ -5,7 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/bookings/widgets/booking_card.dart';
+import 'package:prokat/features/user/widgets/client_booking_tile.dart';
 
 class ClientBookingsHistoryScreen extends ConsumerStatefulWidget {
   const ClientBookingsHistoryScreen({super.key});
@@ -67,6 +67,7 @@ class ClientBookingsHistoryScreenState
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        top: false,
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -166,7 +167,7 @@ class ClientBookingsHistoryScreenState
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final booking = history[index];
-                        return BookingCard(booking: booking);
+                        return ClientBookingTile(booking: booking);
                       },
                     ),
                   ),

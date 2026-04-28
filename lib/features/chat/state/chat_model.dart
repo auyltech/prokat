@@ -1,182 +1,100 @@
+import 'package:prokat/features/auth/models/user_model.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
-
-class ChatParticipant {
-  final String id;
-  final String? username;
-  final String? firstName;
-  final String? lastName;
-  final String? role;
-  final String? profileImageUrl;
-
-  const ChatParticipant({
-    required this.id,
-    this.username,
-    this.firstName,
-    this.lastName,
-    this.role,
-    this.profileImageUrl,
-  });
-
-  String get displayName {
-    final fullName = '${firstName ?? ''} ${lastName ?? ''}'.trim();
-    if (fullName.isNotEmpty) {
-      return fullName;
-    }
-
-    if ((username ?? '').isNotEmpty) {
-      return username!;
-    }
-
-    return 'User';
-  }
-
-  factory ChatParticipant.fromJson(Map<String, dynamic> json) {
-    return ChatParticipant(
-      id:
-          json['id']?.toString() ??
-          json['userId']?.toString() ??
-          json['participantId']?.toString() ??
-          '',
-      username: json['username']?.toString(),
-      firstName: json['firstName']?.toString(),
-      lastName: json['lastName']?.toString(),
-      role: json['role']?.toString(),
-      profileImageUrl:
-          json['profileImageUrl']?.toString() ?? json['avatarUrl']?.toString(),
-    );
-  }
-}
+import 'package:prokat/features/requests/models/request_model.dart';
 
 class ChatModel {
   final String id;
-  final List<ChatParticipant> participants;
+
+  final User? client;
+  final User? owner;
+
   final String? bookingId;
+  final BookingModel? booking;
+
   final String? requestId;
+  final RequestModel? request;
+
   final ChatMessageModel? lastMessage;
-  final String? title;
-  final String? imageUrl;
-  final int unreadCount;
+  final List<ChatMessageModel> messages;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   const ChatModel({
     required this.id,
-    this.participants = const [],
     this.bookingId,
     this.requestId,
+    this.booking,
+    this.request,
+    this.client,
+    this.owner,
+    this.messages = const [],
     this.lastMessage,
-    this.title,
-    this.imageUrl,
-    this.unreadCount = 0,
     this.createdAt,
     this.updatedAt,
   });
 
-  List<String> get participantIds => participants
-      .map((participant) => participant.id)
-      .where((id) => id.isNotEmpty)
-      .toList(growable: false);
-
-  String displayTitle({String? currentUserId}) {
-    if ((title ?? '').isNotEmpty) {
-      return title!;
-    }
-
-    final otherParticipants = currentUserId == null
-        ? participants
-        : participants.where((participant) => participant.id != currentUserId);
-
-    final names = otherParticipants
-        .map((participant) => participant.displayName)
-        .where((name) => name.isNotEmpty)
-        .toList(growable: false);
-
-    if (names.isNotEmpty) {
-      return names.join(', ');
-    }
-
-    if (participants.isNotEmpty) {
-      return participants.first.displayName;
-    }
-
-    return 'Chat';
+  String displayTitle() {
+    return client?.displayName ?? owner?.displayName ?? "Chat";
   }
 
   String? displayImageUrl({String? currentUserId}) {
-    if ((imageUrl ?? '').isNotEmpty) {
-      return imageUrl;
-    }
-
-    final otherParticipant = currentUserId == null
-        ? participants.firstOrNull
-        : participants.firstWhere(
-            (participant) => participant.id != currentUserId,
-            orElse: () =>
-                participants.firstOrNull ?? const ChatParticipant(id: ''),
-          );
-
-    final avatar = otherParticipant?.profileImageUrl;
-    if ((avatar ?? '').isNotEmpty) {
-      return avatar;
-    }
-
-    return null;
+    return client?.imageUrl ?? owner?.imageUrl;
   }
 
   ChatModel copyWith({
     String? id,
-    List<ChatParticipant>? participants,
+    User? client,
+    User? owner,
     String? bookingId,
+    BookingModel? booking,
     String? requestId,
+    RequestModel? request,
     ChatMessageModel? lastMessage,
-    String? title,
-    String? imageUrl,
-    int? unreadCount,
+    List<ChatMessageModel>? messages,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return ChatModel(
       id: id ?? this.id,
-      participants: participants ?? this.participants,
+      client: client ?? this.client,
+      owner: owner ?? this.owner,
       bookingId: bookingId ?? this.bookingId,
+      booking: booking ?? this.booking,
       requestId: requestId ?? this.requestId,
+      request: request ?? this.request,
       lastMessage: lastMessage ?? this.lastMessage,
-      title: title ?? this.title,
-      imageUrl: imageUrl ?? this.imageUrl,
-      unreadCount: unreadCount ?? this.unreadCount,
+      messages: messages ?? this.messages,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
-    final rawParticipants = json['participants'];
-    final participants = <ChatParticipant>[
-      if (rawParticipants is List)
-        for (final participant in rawParticipants)
-          if (participant is Map<String, dynamic>)
-            ChatParticipant.fromJson(participant)
-          else if (participant is Map)
-            ChatParticipant.fromJson(Map<String, dynamic>.from(participant))
-          else
-            ChatParticipant(id: participant.toString()),
-    ];
-
     return ChatModel(
-      id:
-          json['id']?.toString() ??
-          json['chatId']?.toString() ??
-          json['conversationId']?.toString() ??
-          '',
-      participants: participants,
+      id: json['id']?.toString() ?? "",
+
+      client: json['client'] != null ? User.fromJson(json['client']) : null,
+      owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
+
       bookingId: json['bookingId']?.toString(),
+      booking: json['booking'] != null
+          ? BookingModel.fromJson(json['booking'])
+          : null,
       requestId: json['requestId']?.toString(),
+
+      request: json['request'] != null
+          ? RequestModel.fromJson(json['request'])
+          : null,
+
       lastMessage: _parseMessage(json['lastMessage']),
-      title: json['title']?.toString() ?? json['name']?.toString(),
-      imageUrl: json['imageUrl']?.toString() ?? json['avatarUrl']?.toString(),
-      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
-      createdAt: _parseDate(json['createdAt']),
-      updatedAt: _parseDate(json['updatedAt']),
+      messages: (json["messages"] as List<dynamic>? ?? [])
+          .map((e) => ChatMessageModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+
+      createdAt: _parseDate(json["createdAt"]),
+      updatedAt: _parseDate(json["updatedAt"]),
     );
   }
 

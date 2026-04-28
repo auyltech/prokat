@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:prokat/core/widgets/industrial_date_time_button.dart';
+import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -77,6 +77,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        top: false,
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -268,7 +269,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: IndustrialDateTimeBtn(
+                                child: DateTimeButton(
                                   icon: Icons.calendar_today_rounded,
                                   label: bookingState.selectedDate == null
                                       ? "Date"
@@ -294,7 +295,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               const SizedBox(width: 16),
 
                               Expanded(
-                                child: IndustrialDateTimeBtn(
+                                child: DateTimeButton(
                                   icon: Icons.access_time_rounded,
                                   label: bookingState.selectedTime == null
                                       ? "Time"

@@ -18,11 +18,16 @@ class ChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
-    final title = chat.displayTitle(currentUserId: currentUserId);
+
+    final title = chat.displayTitle();
+
     final preview = chat.lastMessage?.message ?? 'No messages yet';
+
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,
     );
+
+    final unreadCount = 2;
 
     return ListTile(
       onTap: onTap,
@@ -87,7 +92,7 @@ class ChatTile extends StatelessWidget {
             ),
         ],
       ),
-      trailing: chat.unreadCount > 0
+      trailing: unreadCount > 0
           ? Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
@@ -95,7 +100,7 @@ class ChatTile extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Text(
-                '${chat.unreadCount}',
+                '${unreadCount}',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,

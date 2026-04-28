@@ -59,8 +59,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final messages = chatState.messages;
     final currentChat = chatState.currentChat;
     final currentUserId = chatState.currentUserId;
-    final title =
-        currentChat?.displayTitle(currentUserId: currentUserId) ?? 'Chat';
+    final title = currentChat?.displayTitle() ?? 'Chat';
     final avatarUrl = currentChat?.displayImageUrl(
       currentUserId: currentUserId,
     );

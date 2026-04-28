@@ -63,7 +63,6 @@ class RequestService {
 
       return false;
     } catch (e) {
-      print("request service Error");
       return false;
     }
   }
@@ -79,10 +78,10 @@ class RequestService {
       final res = await _dio.patch(
         '/requests/$id',
         data: {
-          if (locationId != null) "locationId": locationId,
+          "locationId": ?locationId,
           if (requiredOn != null) "requiredOn": requiredOn.toIso8601String(),
           if (requiredAt != null) "requiredAt": requiredAt.toIso8601String(),
-          if (offeredRate != null) "offeredRate": offeredRate,
+          "offeredRate": ?offeredRate,
         },
       );
 

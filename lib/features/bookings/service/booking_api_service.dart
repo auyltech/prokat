@@ -28,6 +28,7 @@ class BookingApiService {
       return (res.data["data"] as List)
           .map((e) => BookingModel.fromJson(e))
           .toList();
+          
     } catch (e) {
       return [];
     }
@@ -64,8 +65,8 @@ class BookingApiService {
         "/bookings/$id/status",
         data: {
           "id": id,
-          if (status != null) "status": status,
-          if (workStatus != null) "workStatus": workStatus,
+          "status": ?status,
+          "workStatus": ?workStatus,
         },
       );
 

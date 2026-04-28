@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/user/widgets/user_booking_tile.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/bookings/widgets/client_dashboard_booking_tile.dart';
 
 class ClientBookingsSection extends ConsumerStatefulWidget {
   const ClientBookingsSection({super.key});
@@ -65,7 +65,7 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
           ],
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 6),
 
         if (upcoming.isEmpty)
           Container(
@@ -107,7 +107,7 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
                 .map(
                   (booking) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: UserBookingTile(booking: booking),
+                    child: ClientDashboardBookingTile(booking: booking),
                   ),
                 )
                 .toList(),

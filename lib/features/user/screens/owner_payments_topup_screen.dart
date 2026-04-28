@@ -116,13 +116,13 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
           const SizedBox(height: 12),
           OutlinedButton(
             onPressed: () => _submitManualRequest(),
-            child: const Text("Submit Manual Request (Offline Pay)"),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
+            child: const Text("Submit Manual Request (Offline Pay)"),
           ),
 
           const SizedBox(height: 40),

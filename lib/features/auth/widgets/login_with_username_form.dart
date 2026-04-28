@@ -4,6 +4,7 @@ import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginWithUsernameForm extends ConsumerStatefulWidget {
   final Function(String?) onError;
@@ -46,6 +47,7 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
       final res = await ref.read(authProvider.notifier).login(credentials);
 
       if (res == true) {
+        context.push("/login");
         // AuthNotifier.login() already reloads app startup state.
         // Router redirect will move the user off /login automatically.
       } else {

@@ -5,8 +5,8 @@ import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
 
-class RenterRequestsHistoryScreen extends ConsumerWidget {
-  const RenterRequestsHistoryScreen({super.key});
+class ClientRequestsHistoryScreen extends ConsumerWidget {
+  const ClientRequestsHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

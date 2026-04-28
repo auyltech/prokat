@@ -32,13 +32,13 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
         color: theme.cardColor,
         border: Border.all(color: theme.colorScheme.secondary, width: 2),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withValues(alpha: 0.3),
+        //     blurRadius: 4,
+        //     offset: const Offset(0, 6),
+        //   ),
+        // ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

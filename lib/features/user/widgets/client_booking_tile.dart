@@ -11,9 +11,9 @@ import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/utils/chat_navigation.dart';
 
-class UserBookingTile extends ConsumerWidget {
+class ClientBookingTile extends ConsumerWidget {
   final BookingModel booking;
-  const UserBookingTile({super.key, required this.booking});
+  const ClientBookingTile({super.key, required this.booking});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,55 +138,59 @@ class UserBookingTile extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Location',
-                        value: booking.location.street,
-                        onTap: () =>
-                            showLocationSheet(context, booking.location),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: InfoTile(
+                          label: 'Location',
+                          value: booking.location.street,
+                          onTap: () =>
+                              showLocationSheet(context, booking.location),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Date & time',
-                        value: booking.bookedOn != null
-                            ? DateFormat(
-                                'dd MMM yyyy • HH:mm',
-                              ).format(booking.bookedOn!)
-                            : "PENDING",
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InfoTile(
+                          label: 'Date & time',
+                          value: booking.bookedOn != null
+                              ? DateFormat(
+                                  'dd MMM yyyy • HH:mm',
+                                ).format(booking.bookedOn!)
+                              : "PENDING",
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 16),
                 // Second Row of InfoTiles
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InfoTile(
-                        label:
-                            booking.equipment.category?.capacityUnit ??
-                            "Capacity",
-                        value:
-                            "${booking.equipment.capacity.toUpperCase()} ${(booking.equipment.category?.capacityUnit ?? "").toUpperCase()}",
+                IntrinsicHeight(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: InfoTile(
+                          label:
+                              booking.equipment.category?.capacityUnit ??
+                              "Capacity",
+                          value:
+                              "${booking.equipment.capacity.toUpperCase()} ${(booking.equipment.category?.capacityUnit ?? "").toUpperCase()}",
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Offered rate',
-                        value:
-                            "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
-                        isHighlighted: true,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InfoTile(
+                          label: 'Offered rate',
+                          value:
+                              "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
+                          isHighlighted: true,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 12),
@@ -200,6 +204,7 @@ class UserBookingTile extends ConsumerWidget {
                 // Action Buttons
                 Row(
                   children: [
+                    // Chat Button
                     Expanded(
                       child: _actionButton(Icons.chat, Colors.green, () async {
                         await openChatFromLink(

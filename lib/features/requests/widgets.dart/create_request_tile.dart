@@ -11,7 +11,7 @@ class CreateRequestTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return GestureDetector(
-      onTap: () => context.push(AppRoutes.createRequest),
+      onTap: () => context.push(AppRoutes.clientRequestsCreate),
       child: InlineTile(
         child: Row(
           children: [

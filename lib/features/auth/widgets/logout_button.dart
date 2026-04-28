@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -65,36 +64,42 @@ class LogoutButton extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
     final authState = ref.watch(authProvider);
 
-    return BaseTile(
-      color: colorScheme.error.withValues(alpha: 0.3),
+    return GestureDetector(
       onTap: authState.isLoading ? null : () => _confirmLogout(context, ref),
-      child: Row(
-        children: [
-          /// Icon / Loader
-          authState.isLoading
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: colorScheme.error,
-                  ),
-                )
-              : Icon(Icons.logout, color: colorScheme.error),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            /// Icon / Loader
+            authState.isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colorScheme.error,
+                    ),
+                  )
+                : Icon(Icons.logout, color: colorScheme.error),
 
-          const SizedBox(width: 16),
+            const SizedBox(width: 16),
 
-          /// Text
-          Expanded(
-            child: Text(
-              'Logout',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: colorScheme.error,
-                fontWeight: FontWeight.w600,
+            /// Text
+            Expanded(
+              child: Text(
+                'Logout',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.error,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

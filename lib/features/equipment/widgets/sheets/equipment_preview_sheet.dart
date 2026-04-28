@@ -1,6 +1,8 @@
 // features/equipment/widgets/sheets/equipment_preview_sheet.dart
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 class EquipmentPreviewSheet extends StatelessWidget {
@@ -49,7 +51,7 @@ class EquipmentPreviewSheet extends StatelessWidget {
                   const SizedBox(width: 12),
                   OutlinedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/requests/create');
+                      context.push(AppRoutes.clientRequestsCreate);
                     },
                     child: const Text('Request'),
                   ),

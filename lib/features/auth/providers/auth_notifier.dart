@@ -95,6 +95,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final session = await api.login(credentials);
 
+      print(session.toJson());
+
       /// Save token string
       await storage.saveSession(session);
 

@@ -103,7 +103,7 @@ class AppStartupController extends StateNotifier<AppStartupState> {
     ]);
 
     /// Role-based
-    if (profile.role?.toLowerCase() == "owner") {
+    if (profile.role?.toLowerCase() == "owner" || profile.role?.toLowerCase() == "admin") {
       if (isOwnerMode) {
         await Future.wait([
           ref.read(bookingProvider.notifier).getOwnerBookings(),

@@ -35,15 +35,14 @@ class UserProfileService {
       final res = await _dio.patch(
         ApiRoutes.profile,
         data: {
-          if (firstName != null) "firstName": firstName,
-          if (lastName != null) "lastName": lastName,
-          if (phoneNumber != null) "phoneNumber": phoneNumber,
-          if (phoneCountryCode != null) "phoneCountryCode": phoneCountryCode,
-          if (profileImageUrl != null) "profileImageUrl": profileImageUrl,
-          if (darkMode != null) "darkMode": darkMode,
-          if (selectedCategoryId != null)
-            "selectedCategoryId": selectedCategoryId,
-          if (selectedAddressId != null) "selectedAddressId": selectedAddressId,
+          "firstName": ?firstName,
+          "lastName": ?lastName,
+          "phoneNumber": ?phoneNumber,
+          "phoneCountryCode": ?phoneCountryCode,
+          "profileImageUrl": ?profileImageUrl,
+          "darkMode": ?darkMode,
+          "selectedCategoryId": ?selectedCategoryId,
+          "selectedAddressId": ?selectedAddressId,
         },
       );
 
@@ -61,7 +60,7 @@ class UserProfileService {
     try {
       final res = await _dio.patch(
         ApiRoutes.username,
-        data: {if (username != null) "username": username},
+        data: {"username": ?username},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
@@ -79,8 +78,7 @@ class UserProfileService {
       final res = await _dio.patch(
         ApiRoutes.userCategory,
         data: {
-          if (selectedCategoryId != null)
-            "selectedCategoryId": selectedCategoryId,
+          "selectedCategoryId": ?selectedCategoryId,
         },
       );
 
@@ -98,7 +96,7 @@ class UserProfileService {
     try {
       final res = await _dio.patch(
         ApiRoutes.userCategory,
-        data: {if (addressId != null) "addressId": addressId},
+        data: {"addressId": ?addressId},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
@@ -119,8 +117,8 @@ class UserProfileService {
       final res = await _dio.patch(
         ApiRoutes.userCityRegion,
         data: {
-          if (city != null) "city": city,
-          if (region != null) "region": region,
+          "city": ?city,
+          "region": ?region,
         },
       );
 
@@ -148,8 +146,6 @@ class UserProfileService {
         "type": "avatar",
       });
 
-      print("image service");
-
       // 2. Send the POST request
       final res = await _dio.post(
         ApiRoutes.userProfileImage, // Ensure this points to your upload route
@@ -162,7 +158,6 @@ class UserProfileService {
 
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }

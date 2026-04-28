@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 
-class BookingCard extends StatelessWidget {
+class ClientDashboardBookingTile extends StatelessWidget {
   final BookingModel booking;
 
-  const BookingCard({super.key, required this.booking});
+  const ClientDashboardBookingTile({super.key, required this.booking});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class BookingCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 6,
             offset: const Offset(0, 4),
           ),

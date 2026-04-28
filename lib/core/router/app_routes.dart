@@ -27,8 +27,8 @@ class AppRoutes {
   static const String booking = '/equipment/:id/book';
 
   static const String clientRequests = '/requests';
-  static const String createRequest = '/requests/create';
-  static const String clientRequestHistory = '/requests/history';
+  static const String clientRequestsCreate = '$clientRequests/create';
+  static const String clientRequestsHistory = '$clientRequests/history';
 
   static const String clientOrders = '/orders';
   static const String clientOrdersHistory = '/history';

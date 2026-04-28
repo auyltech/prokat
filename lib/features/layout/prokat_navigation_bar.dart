@@ -38,8 +38,13 @@ final clientNavItems = [
   _NavItem(
     icon: Icons.add_box_rounded,
     label: 'Create',
-    path: AppRoutes.createRequest,
+    path: AppRoutes.clientRequestsCreate,
   ),
+  // _NavItem(
+  //   icon: Icons.description_outlined,
+  //   label: 'Requests',
+  //   path: AppRoutes.clientRequests,
+  // ),
   _NavItem(
     icon: Icons.list_alt_rounded,
     label: 'Orders',

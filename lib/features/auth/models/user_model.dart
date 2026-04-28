@@ -5,6 +5,7 @@ class User {
   final String? firstName;
   final String? lastName;
   final String? role;
+  final String? imageUrl;
 
   const User({
     this.id,
@@ -13,6 +14,7 @@ class User {
     this.firstName,
     this.lastName,
     this.role,
+    this.imageUrl,
   });
 
   String get displayName {
@@ -31,6 +33,7 @@ class User {
         username: json['username']?.toString(),
         phone: json['phone']?.toString(),
         role: json['role']?.toString(),
+        imageUrl: json['imageUrl']?.toString(),
       );
     } catch (e, stack) {
       print("❌ User parsing failed");
@@ -49,6 +52,7 @@ class User {
       'firstName': firstName,
       'lastName': lastName,
       'role': role,
+      'imageUrl': imageUrl,
     };
   }
 }

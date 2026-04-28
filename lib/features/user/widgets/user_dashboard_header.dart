@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/language_selector_tile.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class UserDashboardHeader extends ConsumerStatefulWidget {
   const UserDashboardHeader({super.key});
@@ -22,6 +22,7 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
     final userProfileState = ref.watch(userProfileProvider);
     final profileImageUrl = userProfileState.userProfile?.profileImageUrl ?? "";
     final theme = Theme.of(context);
+    final topInset = MediaQuery.of(context).padding.top;
     final onPrimary = theme.colorScheme.onPrimary;
     final name = (userProfileState.userProfile?.displayName ?? '').isNotEmpty
         ? userProfileState.userProfile!.displayName
@@ -30,9 +31,8 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
         : 'Hello!';
 
     return Container(
-      decoration: BoxDecoration(color: theme.primaryColor),
-      // Padding adjusted for the AppBar's safe area
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      decoration: BoxDecoration(color: theme.colorScheme.primary),
+      padding: EdgeInsets.fromLTRB(20, topInset + 20, 20, 20),
       child: Row(
         // mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

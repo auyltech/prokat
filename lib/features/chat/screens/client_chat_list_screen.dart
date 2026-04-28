@@ -109,17 +109,14 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
             _buildSliverEmptyState(theme)
           else
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final chat = chats[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: ChatTile(
-                      chat: chat,
-                      currentUserId: chatState.currentUserId,
-                      onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
-                    ),
+                  return ChatTile(
+                    chat: chat,
+                    currentUserId: chatState.currentUserId,
+                    onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
                   );
                 }, childCount: chats.length),
               ),

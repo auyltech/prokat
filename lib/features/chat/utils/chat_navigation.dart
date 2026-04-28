@@ -23,9 +23,11 @@ Future<void> openChatFromLink({
 
   if ((chatId ?? '').isEmpty) {
     final message = ref.read(chatProvider).error ?? 'Unable to open chat';
+
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+    
     return;
   }
 

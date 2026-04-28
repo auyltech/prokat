@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/industrial_text_field.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -76,6 +77,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        top: false,
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -169,7 +171,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: _DateTimeButton(
+                          child: DateTimeButton(
                             icon: Icons.calendar_today_rounded,
                             label: requestState.selectedDate == null
                                 ? "Select Date"
@@ -191,7 +193,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _DateTimeButton(
+                          child: DateTimeButton(
                             icon: Icons.access_time_rounded,
                             label: requestState.selectedTime == null
                                 ? "Select Time"
@@ -220,6 +222,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 40),
 
                     // Submit Button
@@ -255,51 +258,6 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DateTimeButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _DateTimeButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: theme.colorScheme.primary, size: 18),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                label,
-                style: theme.textTheme.bodyMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

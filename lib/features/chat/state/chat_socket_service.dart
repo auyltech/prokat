@@ -1,33 +1,44 @@
 import 'dart:async';
 
-import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/auth/services/auth_secure_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class ChatSocketService {
-  static const String joinChatEvent = 'join_chat';
-  static const String leaveChatEvent = 'leave_chat';
-  static const String sendMessageEvent = 'send_message';
-  static const String newMessageEvent = 'new_message';
+  static const String joinChatEvent = 'chat:join';
+  static const String leaveChatEvent = 'chat:leave';
+  static const String sendMessageEvent = 'chat:message:send';
+  static const String newMessageEvent = 'chat:message:new';
+
+  final ApiClient apiClient;
+  final AuthSecureStorage secureStorage;
 
   io.Socket? _socket;
   String? _joinedChatId;
 
+  ChatSocketService(this.apiClient, this.secureStorage);
+
   bool get isConnected => _socket?.connected ?? false;
 
-  Future<void> connect({required String token}) async {
+  Future<void> connect({String? token}) async {
     if (isConnected) {
       return;
     }
 
+    final resolvedToken = (token ?? '').trim().isNotEmpty
+        ? token!.trim()
+        : (await secureStorage.readSession())?.sessionToken ?? '';
+
     _socket?.dispose();
     _socket = io.io(
-      Env.baseUrl,
+      apiClient.dio.options.baseUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
           .setExtraHeaders({
-            if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+            if (resolvedToken.isNotEmpty)
+              'Authorization': 'Bearer $resolvedToken',
           })
           .build(),
     );
@@ -93,8 +104,8 @@ class ChatSocketService {
   }) {
     _socket?.emit(sendMessageEvent, {
       'chatId': chatId,
-      'message': message,
       'type': type,
+      'content': message,
       if ((clientTempId ?? '').isNotEmpty) 'clientTempId': clientTempId,
     });
   }
