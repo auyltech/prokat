@@ -2,24 +2,31 @@ class ChatMessageModel {
   final String id;
   final String chatId;
   final String senderId;
+  final String type;
+
+  // sender not sent from backend
   final String? senderName;
   final String? senderAvatarUrl;
-  final String message;
-  final String type;
   final String? clientTempId;
+
+  final String content;
+
   final bool isPending;
+  final bool isFailed;
+
   final DateTime? createdAt;
 
   const ChatMessageModel({
     required this.id,
     required this.chatId,
     required this.senderId,
-    required this.message,
+    required this.content,
     this.senderName,
     this.senderAvatarUrl,
     this.type = 'TEXT',
     this.clientTempId,
     this.isPending = false,
+    this.isFailed = false,
     this.createdAt,
   });
 
@@ -33,6 +40,7 @@ class ChatMessageModel {
     String? type,
     String? clientTempId,
     bool? isPending,
+    bool? isFailed,
     DateTime? createdAt,
   }) {
     return ChatMessageModel(
@@ -41,10 +49,11 @@ class ChatMessageModel {
       senderId: senderId ?? this.senderId,
       senderName: senderName ?? this.senderName,
       senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
-      message: message ?? this.message,
+      content: message ?? this.content,
       type: type ?? this.type,
       clientTempId: clientTempId ?? this.clientTempId,
       isPending: isPending ?? this.isPending,
+      isFailed: isFailed ?? this.isFailed,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -77,7 +86,7 @@ class ChatMessageModel {
           json['senderAvatarUrl']?.toString() ??
           senderMap?['profileImageUrl']?.toString() ??
           senderMap?['avatarUrl']?.toString(),
-      message:
+      content:
           json['message']?.toString() ??
           json['content']?.toString() ??
           json['text']?.toString() ??
@@ -95,9 +104,10 @@ class ChatMessageModel {
       'senderId': senderId,
       'senderName': senderName,
       'senderAvatarUrl': senderAvatarUrl,
-      'message': message,
+      'content': content,
       'type': type,
       'clientTempId': clientTempId,
+      'isFailed': isFailed,
       'createdAt': createdAt?.toIso8601String(),
     };
   }

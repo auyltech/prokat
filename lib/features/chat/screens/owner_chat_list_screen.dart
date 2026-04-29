@@ -20,7 +20,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(chatProvider.notifier).loadConversations();
+      ref.read(chatProvider.notifier).getChatThreads();
     });
   }
 
@@ -75,7 +75,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                     padding: const EdgeInsets.only(bottom: 16),
                     child: ChatTile(
                       chat: chat,
-                      currentUserId: chatState.currentUserId,
+                      currentUserId: chatState.currentUserId ?? "",
                       onTap: () =>
                           context.push('${AppRoutes.ownerChat}/${chat.id}'),
                     ),

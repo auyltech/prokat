@@ -36,10 +36,11 @@ class ChatSocketService {
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
-          .setExtraHeaders({
-            if (resolvedToken.isNotEmpty)
-              'Authorization': 'Bearer $resolvedToken',
-          })
+          .setAuth({'token': resolvedToken})
+          // .setExtraHeaders({
+          //   if (resolvedToken.isNotEmpty)
+          //     'Authorization': 'Bearer $resolvedToken',
+          // })
           .build(),
     );
 

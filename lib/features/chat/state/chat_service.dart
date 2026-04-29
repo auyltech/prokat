@@ -12,7 +12,9 @@ class ChatService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<ChatModel>> getConversations() async {
+  // Get Chats
+  // Fetch list of chat threads for owner/user
+  Future<List<ChatModel>> getChatThreads() async {
     try {
       final res = await _dio.get('/chats');
 
@@ -65,6 +67,27 @@ class ChatService {
     }
   }
 
+  Future<ChatModel?> getChatById(String chatId) async {
+    try {
+      final res = await _dio.get('/chats/$chatId');
+      final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
+
+      if (data == null) return null;
+
+      final json = data is Map<String, dynamic>
+          ? data
+          : Map<String, dynamic>.from(data as Map);
+
+      print(json.toString());
+
+      return ChatModel.fromJson(json);
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
+
+  // receive a bookingId or requestId and find the corresponding chatId
   Future<String?> getChatId({String? bookingId, String? requestId}) async {
     try {
       final res = await _dio.get(

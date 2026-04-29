@@ -4,14 +4,14 @@ import 'package:prokat/features/chat/state/chat_model.dart';
 
 class ChatTile extends StatelessWidget {
   final ChatModel chat;
-  final String? currentUserId;
+  final String currentUserId;
   final VoidCallback onTap;
 
   const ChatTile({
     super.key,
     required this.chat,
     required this.onTap,
-    this.currentUserId,
+    required this.currentUserId,
   });
 
   @override
@@ -19,9 +19,9 @@ class ChatTile extends StatelessWidget {
     final theme = Theme.of(context);
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
 
-    final title = chat.displayTitle();
+    final title = chat.displayTitle(currentUserId);
 
-    final preview = chat.lastMessage?.message ?? 'No messages yet';
+    final preview = chat.lastMessage?.content ?? 'No messages yet';
 
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,

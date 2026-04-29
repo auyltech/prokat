@@ -17,7 +17,7 @@ class OwnerChatInfoScreen extends ConsumerWidget {
         : chatState.conversations
               .where((item) => item.id == chatId)
               .firstOrNull;
-    final title = chat?.displayTitle() ?? 'Chat';
+    final title = chat?.displayTitle(chatState.currentUserId ?? "") ?? 'Chat';
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

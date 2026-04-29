@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/widgets/message_bubble.dart';
 
 class OwnerChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -55,11 +56,18 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     final chatState = ref.watch(chatProvider);
+    final authState = ref.watch(authProvider);
     final messages = chatState.messages;
     final currentChat = chatState.currentChat;
-    final currentUserId = chatState.currentUserId;
-    final title = currentChat?.displayTitle() ?? 'Chat';
+
+    final authUserId = authState.session?.user?.id;
+    final currentUserId = (authUserId ?? '').isNotEmpty
+        ? authUserId
+        : chatState.currentUserId;
+
+    final title = currentChat?.displayTitle(currentUserId ?? "") ?? 'Chat';
     final avatarUrl = currentChat?.displayImageUrl(
       currentUserId: currentUserId,
     );
@@ -143,11 +151,12 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                     final isMe =
                         message.senderId == currentUserId ||
                         message.senderId == 'me';
-                    return _MessageBubble(message: message, isMe: isMe);
+                    return MessageBubble(message: message, isMe: isMe);
                   },
                 ),
               ),
             ),
+            
           _buildInputSection(theme, chatState.isSendingMessage),
         ],
       ),
@@ -204,148 +213,28 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              onPressed: isSending ? null : _sendMessage,
-              icon: const Icon(
-                Icons.send_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MessageBubble extends StatelessWidget {
-  final ChatMessageModel message;
-  final bool isMe;
-
-  const _MessageBubble({required this.message, required this.isMe});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (message.type == 'OFFER' ||
-        message.type == 'BOOKING' ||
-        message.type == 'REQUEST') {
-      return _buildSpecializedBubble(context, theme);
-    }
-
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          gradient: isMe
-              ? LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.secondary,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isMe ? null : theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20),
-            topRight: const Radius.circular(20),
-            bottomLeft: Radius.circular(isMe ? 20 : 4),
-            bottomRight: Radius.circular(isMe ? 4 : 20),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.message,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: isMe ? Colors.white : theme.colorScheme.onSurfaceVariant,
-                height: 1.3,
-              ),
-            ),
-            if (message.isPending)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  'Sending...',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: isMe
-                        ? Colors.white.withValues(alpha: 0.8)
-                        : theme.colorScheme.onSurfaceVariant.withValues(
-                            alpha: 0.7,
+              onPressed: _sendMessage,
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                  if (isSending)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
-                  ),
-                ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSpecializedBubble(BuildContext context, ThemeData theme) {
-    final isBooking = message.type == 'BOOKING';
-    final isOffer = message.type == 'OFFER';
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isBooking
-            ? Colors.blue.withValues(alpha: 0.08)
-            : (isOffer
-                  ? Colors.green.withValues(alpha: 0.08)
-                  : Colors.orange.withValues(alpha: 0.08)),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isBooking
-              ? Colors.blue.withValues(alpha: 0.3)
-              : (isOffer
-                    ? Colors.green.withValues(alpha: 0.3)
-                    : Colors.orange.withValues(alpha: 0.3)),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                isBooking
-                    ? Icons.event_available
-                    : (isOffer ? Icons.local_offer : Icons.request_page),
-                color: isBooking
-                    ? Colors.blue
-                    : (isOffer ? Colors.green : Colors.orange),
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                message.type,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                  color: isBooking
-                      ? Colors.blue
-                      : (isOffer ? Colors.green : Colors.orange),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message.message,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],

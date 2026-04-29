@@ -32,7 +32,7 @@ class Category {
       print("***** CATEGORY PARSE FAILED");
       print(e);
       print(json);
-      rethrow; // important
+      rethrow;
     }
   }
 

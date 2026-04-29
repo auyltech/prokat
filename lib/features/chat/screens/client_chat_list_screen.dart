@@ -24,7 +24,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await ref.read(chatProvider.notifier).loadConversations();
+      await ref.read(chatProvider.notifier).getChatThreads();
       await _openLinkedChatIfNeeded();
     });
   }
@@ -91,7 +91,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
               },
             ),
             title: Text(
-              'Messages',
+              'Chat',
               style: theme.textTheme.titleLarge?.copyWith(
                 color: theme.colorScheme.onPrimary,
               ),
@@ -115,7 +115,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                   final chat = chats[index];
                   return ChatTile(
                     chat: chat,
-                    currentUserId: chatState.currentUserId,
+                    currentUserId: chatState.currentUserId ?? "",
                     onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
                   );
                 }, childCount: chats.length),

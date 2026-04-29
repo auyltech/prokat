@@ -6,17 +6,23 @@ class ChatState {
 
   final bool isLoadingConversations;
   final bool isLoadingMessages;
-  final bool isSendingMessage;
+
+  final Set<String> sendingMessageClientTempIds;
+
   final String? error;
+
   final List<ChatModel> conversations;
+
   final ChatModel? currentChat;
+
   final List<ChatMessageModel> messages;
+
   final String? currentUserId;
 
   const ChatState({
     this.isLoadingConversations = false,
     this.isLoadingMessages = false,
-    this.isSendingMessage = false,
+    this.sendingMessageClientTempIds = const <String>{},
     this.error,
     this.conversations = const [],
     this.currentChat,
@@ -24,10 +30,12 @@ class ChatState {
     this.currentUserId,
   });
 
+  bool get isSendingMessage => sendingMessageClientTempIds.isNotEmpty;
+
   ChatState copyWith({
     bool? isLoadingConversations,
     bool? isLoadingMessages,
-    bool? isSendingMessage,
+    Set<String>? sendingMessageClientTempIds,
     Object? error = _unset,
     List<ChatModel>? conversations,
     Object? currentChat = _unset,
@@ -38,7 +46,8 @@ class ChatState {
       isLoadingConversations:
           isLoadingConversations ?? this.isLoadingConversations,
       isLoadingMessages: isLoadingMessages ?? this.isLoadingMessages,
-      isSendingMessage: isSendingMessage ?? this.isSendingMessage,
+      sendingMessageClientTempIds:
+          sendingMessageClientTempIds ?? this.sendingMessageClientTempIds,
       error: identical(error, _unset) ? this.error : error as String?,
       conversations: conversations ?? this.conversations,
       currentChat: identical(currentChat, _unset)

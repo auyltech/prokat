@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/chat/utils/chat_navigation.dart';
 
-class ClientDashboardBookingTile extends StatelessWidget {
+class ClientDashboardBookingTile extends ConsumerWidget {
   final BookingModel booking;
 
   const ClientDashboardBookingTile({super.key, required this.booking});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Container(
-      // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
@@ -40,22 +43,54 @@ class ClientDashboardBookingTile extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Text(
-                          booking.equipment.name, // ?? 'Unknown Equipment',
-                          style: theme.textTheme.bodyMedium,
+                      SizedBox(
+                        width: 130, // Fixed width
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              booking.equipment.imageUrl ?? "",
+                              fit: BoxFit.cover,
+                              errorBuilder: (c, e, s) => Container(
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.image),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              booking.equipment.name, // ?? 'Unknown Equipment',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            Text(
+                              booking.equipment.owner?.displayName ??
+                                  "", // ?? 'Unknown Equipment',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            Text(
+                              "CAPACITY: 10 M3", // Hardcoded per your snippet
+                              style: theme.textTheme.labelMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
                       _StatusBadge(status: booking.status),
                     ],
                   ),
 
                   const SizedBox(height: 4),
-
-                  Text(
-                    "CAPACITY: 10 M3", // Hardcoded per your snippet
-                    style: theme.textTheme.labelMedium,
-                  ),
 
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -104,24 +139,44 @@ class ClientDashboardBookingTile extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("TOTAL PRICE", style: theme.textTheme.bodyMedium),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text:
-                              "${booking.price} ₸ ", // Switched to Tenge symbol for consistency
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
+                  Expanded(
+                    flex: 1,
+                    child: ActionButton(
+                      icon: Icons.chat,
+                      color: Colors.green,
+                      onTap: () async {
+                        await openChatFromLink(
+                          context: context,
+                          ref: ref,
+                          isOwner: false,
+                          bookingId: booking.id,
+                        );
+                      },
+                    ),
+                  ),
+
+                  Expanded(
+                    flex: 3,
+                    child: RichText(
+                      textAlign: TextAlign.end,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: formatPrice(
+                              booking.price,
+                            ), // Switched to Tenge symbol for consistency
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: "/ ${booking.priceRate}",
-                          style: theme.textTheme.labelMedium,
-                        ),
-                      ],
+                          TextSpan(
+                            text: getPriceRate(booking.priceRate),
+                            style: theme.textTheme.labelMedium,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

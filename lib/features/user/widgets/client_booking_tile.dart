@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -169,7 +170,7 @@ class ClientBookingTile extends ConsumerWidget {
                 // Second Row of InfoTiles
                 IntrinsicHeight(
                   child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
                         child: InfoTile(
@@ -206,22 +207,30 @@ class ClientBookingTile extends ConsumerWidget {
                   children: [
                     // Chat Button
                     Expanded(
-                      child: _actionButton(Icons.chat, Colors.green, () async {
-                        await openChatFromLink(
-                          context: context,
-                          ref: ref,
-                          isOwner: false,
-                          bookingId: booking.id,
-                        );
-                      }),
+                      child: ActionButton(
+                        icon: Icons.chat,
+                        color: Colors.green,
+                        onTap: () async {
+                          await openChatFromLink(
+                            context: context,
+                            ref: ref,
+                            isOwner: false,
+                            bookingId: booking.id,
+                          );
+                        },
+                      ),
                     ),
 
                     const SizedBox(width: 8),
 
                     Expanded(
-                      child: _actionButton(Icons.close, Colors.redAccent, () {
-                        _handleCancel(context, ref, booking);
-                      }),
+                      child: ActionButton(
+                        icon: Icons.close,
+                        color: Colors.redAccent,
+                        onTap: () {
+                          _handleCancel(context, ref, booking);
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -229,25 +238,6 @@ class ClientBookingTile extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _actionButton(IconData icon, Color color, VoidCallback onTap) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
-          ),
-          child: Icon(icon, size: 24, color: color),
-        ),
       ),
     );
   }

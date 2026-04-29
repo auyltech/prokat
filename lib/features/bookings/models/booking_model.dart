@@ -43,47 +43,54 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    DateTime? tryParseDate(dynamic value) {
-      if (value == null) return null;
-      try {
-        return DateTime.parse(value);
-      } catch (_) {
-        return null;
+    try {
+      DateTime? tryParseDate(dynamic value) {
+        if (value == null) return null;
+        try {
+          return DateTime.parse(value);
+        } catch (_) {
+          return null;
+        }
       }
+
+      return BookingModel(
+        id: json['id']?.toString() ?? '',
+
+        status: json['status']?.toString() ?? '',
+
+        bookedOn: tryParseDate(json['bookedOn']),
+        bookedAt: tryParseDate(json['bookedAt']),
+
+        price: (json['price'] as num?)?.toInt() ?? 0,
+        priceRate: json['priceRate']?.toString() ?? '',
+
+        comment: json['comment']?.toString(),
+        instructions: json['instructions']?.toString(),
+
+        renter: json['renter'] != null ? User.fromJson(json['renter']) : null,
+
+        equipment: json['equipment'] != null
+            ? Equipment.fromJson(json['equipment'])
+            : throw Exception("Equipment is required but missing"),
+
+        location: json['location'] != null
+            ? LocationModel.fromJson(json['location'])
+            : throw Exception("Location is required but missing"),
+
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
+
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : null,
+      );
+    } catch (e) {
+      print("***** BOOKING PARSE FAILED");
+      print(e);
+      print(json);
+      rethrow;
     }
-
-    return BookingModel(
-      id: json['id']?.toString() ?? '',
-
-      status: json['status']?.toString() ?? '',
-
-      bookedOn: tryParseDate(json['bookedOn']),
-      bookedAt: tryParseDate(json['bookedAt']),
-
-      price: (json['price'] as num?)?.toInt() ?? 0,
-      priceRate: json['priceRate']?.toString() ?? '',
-
-      comment: json['comment']?.toString(),
-      instructions: json['instructions']?.toString(),
-
-      renter: json['renter'] != null ? User.fromJson(json['renter']) : null,
-
-      equipment: json['equipment'] != null
-          ? Equipment.fromJson(json['equipment'])
-          : throw Exception("Equipment is required but missing"),
-
-      location: json['location'] != null
-          ? LocationModel.fromJson(json['location'])
-          : throw Exception("Location is required but missing"),
-
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : null,
-
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
-    );
   }
 
   Map<String, dynamic> toJson() {

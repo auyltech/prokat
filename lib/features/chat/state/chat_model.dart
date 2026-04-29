@@ -1,3 +1,4 @@
+import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
@@ -17,6 +18,7 @@ class ChatModel {
 
   final ChatMessageModel? lastMessage;
   final List<ChatMessageModel> messages;
+  final int? newMessagesCount;
 
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -33,10 +35,14 @@ class ChatModel {
     this.lastMessage,
     this.createdAt,
     this.updatedAt,
+    this.newMessagesCount,
   });
 
-  String displayTitle() {
-    return client?.displayName ?? owner?.displayName ?? "Chat";
+  String displayTitle(String currentUserId) {
+    return (currentUserId == client?.id
+            ? owner?.displayName
+            : client?.displayName) ??
+        "";
   }
 
   String? displayImageUrl({String? currentUserId}) {
@@ -72,30 +78,38 @@ class ChatModel {
   }
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
-    return ChatModel(
-      id: json['id']?.toString() ?? "",
+    try {
+      return ChatModel(
+        id: json['id']?.toString() ?? "",
 
-      client: json['client'] != null ? User.fromJson(json['client']) : null,
-      owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
+        client: json['client'] != null ? User.fromJson(json['client']) : null,
+        owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
 
-      bookingId: json['bookingId']?.toString(),
-      booking: json['booking'] != null
-          ? BookingModel.fromJson(json['booking'])
-          : null,
-      requestId: json['requestId']?.toString(),
+        bookingId: json['bookingId']?.toString() ?? "",
+        booking: json['booking'] != null
+            ? BookingModel.fromJson(json['booking'])
+            : null,
 
-      request: json['request'] != null
-          ? RequestModel.fromJson(json['request'])
-          : null,
+        requestId: json['requestId']?.toString(),
+        request: json['request'] != null
+            ? RequestModel.fromJson(json['request'])
+            : null,
 
-      lastMessage: _parseMessage(json['lastMessage']),
-      messages: (json["messages"] as List<dynamic>? ?? [])
-          .map((e) => ChatMessageModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+        lastMessage: _parseMessage(json['lastMessage']),
+        messages: (json["messages"] as List<dynamic>? ?? [])
+            .map((e) => ChatMessageModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        newMessagesCount: parseNullableInt(json["newMessagesCount"]),
 
-      createdAt: _parseDate(json["createdAt"]),
-      updatedAt: _parseDate(json["updatedAt"]),
-    );
+        createdAt: _parseDate(json["createdAt"]),
+        updatedAt: _parseDate(json["updatedAt"]),
+      );
+    } catch (e) {
+      print("***** CHAT PARSE FAILED");
+      print(e);
+      print(json);
+      rethrow;
+    }
   }
 
   static ChatMessageModel? _parseMessage(dynamic value) {
@@ -121,8 +135,4 @@ class ChatModel {
       return null;
     }
   }
-}
-
-extension<T> on List<T> {
-  T? get firstOrNull => isEmpty ? null : first;
 }
