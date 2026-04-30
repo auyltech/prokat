@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:prokat/core/api/api_interceptor.dart';
 import 'package:prokat/core/api/api_response.dart';
 import '../models/auth_session.dart';
 import '../models/auth_credentials.dart';
@@ -24,58 +25,64 @@ class AuthApiService {
     }
   }
 
-  Future<AuthSession> login(AuthCredentials credentials) async {
+  Future<ApiResponse<AuthSession>> loginWithCredentials(
+    LoginCredentials credentials,
+  ) async {
     try {
-      late Response response;
-
-      if (credentials is UsernamePasswordCredentials) {
-        response = await dio.post(
-          '/auth/login',
-          data: {
-            'authMethod': "PASSWORD",
-            'username': credentials.username,
-            'password': credentials.password,
-          },
-        );
-      } else if (credentials is PhoneOtpCredentials) {
-        response = await dio.post(
-          '/auth/login/otp',
-          data: {
-            'authMethod': "PHONE",
-            'phone': credentials.phone,
-            'otp': credentials.otp,
-          },
-        );
-      } else {
-        throw Exception("Unsupported credentials type");
-      }
+      final response = await dio.post(
+        '/auth/login',
+        data: {
+          'username': credentials.username,
+          'password': credentials.password,
+        },
+      );
 
       if (response.statusCode == 200) {
-        return AuthSession.fromJson(response.data);
+        return ApiResponse.success(
+          AuthSession.fromJson(response.data),
+          message: "Account created successfully",
+        );
       }
 
-      throw Exception("Login failed");
+      final message = extractBackendMessage(response.data);
+
+      throw Exception(message);
     } on DioException catch (e) {
-      throw _handleError(e);
+      String message = "Something went wrong";
+      // "Network error. Please try again."
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid credentials";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+      print("api service catch message: $message");
+
+      return ApiResponse.failure(
+        message: message, // real backend message: extractBackendMessage(e)
+        error: e.response?.data?["error"].toString(),
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<ApiResponse<AuthSession>> registerCredentials({
-    String? method,
-    String? username,
-    String? password,
-    String? firstName,
-    String? lastName,
-  }) async {
+  Future<ApiResponse<AuthSession>> registerCredentials(
+    RegisterCredentials credentials,
+  ) async {
     try {
       final response = await dio.post(
         '/auth/register',
         data: {
-          'authMethod': "PASSWORD",
-          'username': username,
-          'password': password,
-          'firstName': firstName,
-          'lastName': lastName,
+          'firstName': credentials.firstName,
+          'lastName': credentials.lastName,
+          'username': credentials.username,
+          'password': credentials.password,
         },
       );
 
@@ -102,7 +109,7 @@ class AuthApiService {
 
       return ApiResponse.failure(
         message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?.toString(),
+        error: e.response?.data?["error"].toString(),
       );
     } catch (e) {
       return ApiResponse.failure(

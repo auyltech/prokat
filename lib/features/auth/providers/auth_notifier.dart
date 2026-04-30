@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
-import 'package:prokat/features/auth/services/auth_secure_storage.dart';
+import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import '../models/auth_credentials.dart';
-import '../services/auth_api_service.dart';
+import 'auth_api_service.dart';
 import 'auth_state.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -61,8 +61,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       otpRequestedAt: null,
       clearOtp: true,
     );
-
-    print("OTP SESSION CLEARED");
   }
 
   Future<bool> refreshSession() async {
@@ -89,62 +87,52 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// LOGIN WITH USERNAME/PASSWORD
-  Future<bool> login(AuthCredentials credentials) async {
+  Future<bool> loginCredentials(LoginCredentials credentials) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final session = await api.login(credentials);
-
-      print(session.toJson());
-
-      /// Save token string
-      await storage.saveSession(session);
-
-      state = state.copyWith(session: session, isLoading: false);
-
-      await ref.read(appStartupProvider.notifier).reloadApp();
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Login failed');
-      return false;
-    }
-  }
-
-  /// REGISTER USER
-  Future<bool> registerCredentials({
-    String? username,
-    String? password,
-    String? firstName,
-    String? lastName,
-  }) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final result = await api.registerCredentials(
-        username: username,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-      );
+      final result = await api.loginWithCredentials(credentials);
 
       if (result.success && result.data != null) {
-        /// Save token
         await storage.saveSession(result.data as AuthSession);
-
-        state = state.copyWith(session: result.data, isLoading: false);
 
         await ref.read(appStartupProvider.notifier).reloadApp();
 
+        state = state.copyWith(session: result.data, isLoading: false);
+
         return true;
       } else {
-        print("Notifier ${result.error.toString()}");
         state = state.copyWith(isLoading: false, error: result.error);
 
         return false;
       }
     } catch (e) {
-      print(e.toString());
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  /// REGISTER USER WITH NAME, USERNAME PASSWORD
+  Future<bool> registerCredentials(RegisterCredentials credentials) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final result = await api.registerCredentials(credentials);
+
+      if (result.success && result.data != null) {
+        await storage.saveSession(result.data as AuthSession);
+
+        await ref.read(appStartupProvider.notifier).reloadApp();
+
+        state = state.copyWith(session: result.data, isLoading: false);
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.error);
+
+        return false;
+      }
+    } catch (e) {
       state = state.copyWith(isLoading: false, error: 'Registration failed');
 
       return false;
@@ -203,7 +191,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       return false;
     } catch (e) {
-      print(e.toString());
       state = state.copyWith(isLoading: false, error: 'Verification failed');
 
       return false;

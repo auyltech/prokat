@@ -24,9 +24,9 @@ import 'package:prokat/features/locations/screens/renter_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
 import 'package:prokat/features/map/screens/map_renter_equipment_screen.dart';
 import 'package:prokat/features/map/screens/map_renter_pin_address_screen.dart';
-import 'package:prokat/features/owner/addresses/screens/owner_address_create_screen.dart';
-import 'package:prokat/features/owner/addresses/screens/owner_address_edit_screen.dart';
-import 'package:prokat/features/owner/addresses/screens/owner_addresses_screen.dart';
+import 'package:prokat/features/owner/screens/owner_address_create_screen.dart';
+import 'package:prokat/features/owner/screens/owner_address_edit_screen.dart';
+import 'package:prokat/features/owner/screens/owner_addresses_screen.dart';
 import 'package:prokat/features/bookings/screens/owner_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/owner_bookings_screen.dart';
 import 'package:prokat/features/equipment/screens/owner_equipment_detail_screen.dart';
@@ -42,7 +42,7 @@ import 'package:prokat/features/user/screens/owner_payments_topup_screen.dart';
 import 'package:prokat/features/user/screens/owner_profile_screen.dart';
 import 'package:prokat/features/user/screens/owner_registration_screen.dart';
 import 'package:prokat/features/user/screens/owner_settings_screen.dart';
-import 'package:prokat/features/user/screens/register_owner_screen.dart';
+import 'package:prokat/features/owner/screens/register_owner_screen.dart';
 import 'package:prokat/features/user/screens/user_dashboard_screen.dart';
 import 'package:prokat/features/user/screens/user_profile_screen.dart';
 import 'package:prokat/features/user/screens/user_settings_screen.dart';
@@ -67,6 +67,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final startupState = ref.read(appStartupProvider);
       final location = state.matchedLocation;
+      print(location);
+      print(startupState);
 
       // 🚀 Handle startup routing FIRST
       switch (startupState) {
@@ -94,6 +96,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         case AppStartupState.client:
           // Redirect client after loading
           if (location == AppRoutes.launch) {
+            print("app startup lunch");
             return AppRoutes.searchList;
           }
           break;

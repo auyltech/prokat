@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/bookings/service/booking_api_service.dart';
+import 'package:prokat/features/bookings/state/booking_api_service.dart';
 import 'package:prokat/features/bookings/state/booking_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';

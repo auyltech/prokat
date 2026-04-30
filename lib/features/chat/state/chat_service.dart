@@ -70,6 +70,7 @@ class ChatService {
   Future<ChatModel?> getChatById(String chatId) async {
     try {
       final res = await _dio.get('/chats/$chatId');
+
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
 
       if (data == null) return null;
@@ -78,11 +79,8 @@ class ChatService {
           ? data
           : Map<String, dynamic>.from(data as Map);
 
-      print(json.toString());
-
       return ChatModel.fromJson(json);
     } catch (e) {
-      print(e.toString());
       rethrow;
     }
   }

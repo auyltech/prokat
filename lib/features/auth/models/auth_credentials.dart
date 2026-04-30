@@ -1,10 +1,24 @@
 sealed class AuthCredentials {}
 
-class UsernamePasswordCredentials extends AuthCredentials {
+class LoginCredentials extends AuthCredentials {
   final String username;
   final String password;
 
-  UsernamePasswordCredentials({required this.username, required this.password});
+  LoginCredentials({required this.username, required this.password});
+}
+
+class RegisterCredentials extends AuthCredentials {
+  final String firstName;
+  final String? lastName;
+  final String username;
+  final String password;
+
+  RegisterCredentials({
+    required this.username,
+    required this.password,
+    required this.firstName,
+    this.lastName,
+  });
 }
 
 class PhoneOtpCredentials extends AuthCredentials {

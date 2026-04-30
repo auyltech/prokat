@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_button.dart';
 import 'package:prokat/features/auth/widgets/auth_text_field.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterWithUsernameForm extends ConsumerStatefulWidget {
   final Function(String?) onError;
@@ -54,26 +55,20 @@ class _RegisterWithUsernameFormState
             ? nameParts.sublist(1).join(" ")
             : "";
 
-        final result = await ref
-            .read(authProvider.notifier)
-            .registerCredentials(
-              username: username,
-              password: password,
-              firstName: firstName,
-              lastName: lastName,
-            );
-
-        if (result == true) {
-          await ref.read(appStartupProvider.notifier).init();
-          // context.push("/dashboard");
-        } else {
-          widget.onError(authState.error ?? "Something went wrong!");
-        }
-      } catch (e) {
-        // 2. Handle Backend/Connection Errors
-        widget.onError(
-          "unknown error ${e.toString().replaceAll('Exception: ', '')}",
+        final credentials = RegisterCredentials(
+          firstName: firstName,
+          lastName: lastName,
+          username: username,
+          password: password,
         );
+
+        final res = await ref
+            .read(authProvider.notifier)
+            .registerCredentials(credentials);
+
+        if (res == true) context.push("/dashboard");
+      } catch (e) {
+        widget.onError("Something went wrong!");
       }
     }
 

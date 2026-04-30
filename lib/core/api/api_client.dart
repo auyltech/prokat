@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:prokat/features/auth/services/auth_secure_storage.dart';
+import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import '../config/env.dart';
 import 'api_interceptor.dart';
 

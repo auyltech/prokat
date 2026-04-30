@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
-import 'package:prokat/features/owner/addresses/widgets/address_search_box.dart';
+import 'package:prokat/features/owner/widgets/address_search_box.dart';
 import '../../locations/models/location_search_result.dart';
 import '../../locations/state/location_provider.dart';
 

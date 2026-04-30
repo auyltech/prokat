@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/error_box_tile.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/login_with_username_form.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? errorMessage;
   bool usePassword = false;
 
@@ -24,12 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final authState = ref.watch(authProvider);
+    final error = authState.error;
+
     return Scaffold(
       backgroundColor: theme.primaryColor,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
+            SliverAppBar( 
               floating: true,
               pinned: false,
               elevation: 0,
@@ -83,7 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               const SizedBox(height: 20),
 
-                              if (errorMessage != null) _buildErrorBox(theme),
+                              if (error != null)
+                                ErrorBoxTile(errorMessage: error),
 
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
@@ -154,34 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildErrorBox(ThemeData theme) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 25),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              errorMessage!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

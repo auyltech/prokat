@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/auth/services/auth_secure_storage.dart';
+import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class ChatSocketService {

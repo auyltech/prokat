@@ -92,9 +92,9 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       (item) => location.startsWith(item.path),
     );
 
-    if (currentIndex == -1) {
-      return const SizedBox.shrink();
-    }
+    // if (currentIndex == -1) {
+    //   return const SizedBox.shrink();
+    // }
 
     return Container(
       decoration: BoxDecoration(

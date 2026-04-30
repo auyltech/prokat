@@ -4,7 +4,6 @@ import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';
-import 'package:go_router/go_router.dart';
 
 class LoginWithUsernameForm extends ConsumerStatefulWidget {
   final Function(String?) onError;
@@ -39,23 +38,14 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
 
       widget.onError(null);
 
-      final credentials = UsernamePasswordCredentials(
+      final credentials = LoginCredentials(
         username: username,
         password: password,
       );
 
-      final res = await ref.read(authProvider.notifier).login(credentials);
-
-      if (res == true) {
-        context.push("/login");
-        // AuthNotifier.login() already reloads app startup state.
-        // Router redirect will move the user off /login automatically.
-      } else {
-        // Handle case where res is false but no exception was thrown
-        widget.onError("Invalid username or password");
-      }
+      await ref.read(authProvider.notifier).loginCredentials(credentials);
     } catch (e) {
-      widget.onError(e.toString().replaceAll('Exception: ', ''));
+      widget.onError("Something went wrong!");
     }
   }
 
@@ -71,8 +61,6 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
           label: "Username",
           icon: Icons.alternate_email,
           controller: usernameController,
-          // fillColor: Colors.white.withOpacity(0.05)
-          // textColor: Colors.white
         ),
 
         const SizedBox(height: 16),
@@ -91,7 +79,6 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
           text: "LOGIN",
           loadingText: "Signing in...",
           onPressed: _login,
-          // Button should use accentColor (0xFF4E73DF)
         ),
       ],
     );

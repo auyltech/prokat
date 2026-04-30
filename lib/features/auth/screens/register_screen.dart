@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/error_box_tile.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
 import 'package:prokat/features/auth/widgets/register_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/register_with_username_form.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   String? errorMessage;
   bool useEmail = false;
 
@@ -25,7 +28,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final colorScheme = theme.colorScheme;
 
     final accentColor = colorScheme.primary;
-    final errorColor = colorScheme.error;
+
+    final authState = ref.watch(authProvider);
+    final error = authState.error;
 
     return Scaffold(
       body: Container(
@@ -92,8 +97,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                                 const SizedBox(height: 32),
 
-                                if (errorMessage != null)
-                                  _buildErrorBox(context, errorColor),
+                                if (error != null)
+                                  ErrorBoxTile(errorMessage: error),
 
                                 AnimatedSwitcher(
                                   duration: const Duration(milliseconds: 300),
@@ -172,32 +177,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildErrorBox(BuildContext context, Color errorColor) {
-    final theme = Theme.of(context);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: errorColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: errorColor.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: errorColor, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              errorMessage!,
-              style: theme.textTheme.bodySmall?.copyWith(color: errorColor),
-            ),
-          ),
-        ],
       ),
     );
   }

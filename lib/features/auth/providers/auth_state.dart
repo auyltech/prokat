@@ -4,6 +4,7 @@ class AuthState {
   final AuthSession? session;
   final bool isLoading;
   final String? error;
+  final String? success;
 
   final String? otpPhone;
   final DateTime? otpRequestedAt;
@@ -17,6 +18,7 @@ class AuthState {
     this.session,
     this.isLoading = false,
     this.error,
+    this.success,
     this.otpPhone,
     this.otpRequestedAt,
   });

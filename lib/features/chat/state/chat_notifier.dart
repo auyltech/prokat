@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/auth/services/auth_secure_storage.dart';
+import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/providers/auth_state.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';

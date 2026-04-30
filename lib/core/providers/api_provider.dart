@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/auth/services/auth_secure_storage.dart';
+import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import '../api/api_client.dart';
 
 final secureStorageProvider = Provider<AuthSecureStorage>((ref) {
