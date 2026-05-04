@@ -101,7 +101,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
         border: Border(top: BorderSide(color: theme.dividerColor, width: 0.5)),
       ),
       child: BottomNavigationBar(
-        currentIndex: currentIndex,
+        currentIndex: currentIndex < 0 ? 0 : currentIndex,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         backgroundColor: theme.scaffoldBackgroundColor,

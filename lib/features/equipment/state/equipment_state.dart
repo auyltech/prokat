@@ -3,8 +3,11 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 
 class EquipmentState {
-  final bool isLoading;
+  final bool isLoading; // For initial load (Skeleton)
+  final bool isFetchingMore; // For bottom spinner
   final String? error;
+  final int currentPage;
+  final bool hasReachedMax;
 
   final List<Equipment> ownerEquipment;
   final List<Equipment> renterEquipment;
@@ -19,6 +22,9 @@ class EquipmentState {
 
   EquipmentState({
     this.isLoading = false,
+    this.isFetchingMore = false,
+    this.currentPage = 1,
+    this.hasReachedMax = false,
     this.error,
     this.ownerEquipment = const [],
     this.renterEquipment = const [],
@@ -30,6 +36,9 @@ class EquipmentState {
 
   EquipmentState copyWith({
     final bool? isLoading,
+    bool? isFetchingMore,
+    int? currentPage,
+    bool? hasReachedMax,
     final String? error,
     List<Equipment>? ownerEquipment,
     List<Equipment>? renterEquipment,
@@ -38,7 +47,10 @@ class EquipmentState {
   }) {
     return EquipmentState(
       isLoading: isLoading ?? this.isLoading,
+      isFetchingMore: isFetchingMore ?? this.isFetchingMore,
       error: error ?? this.error,
+      currentPage: currentPage ?? this.currentPage,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       ownerEquipment: ownerEquipment ?? this.ownerEquipment,
       renterEquipment: renterEquipment ?? this.renterEquipment,
       category: category ?? this.category,

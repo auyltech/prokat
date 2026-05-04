@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_skeleton.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -32,6 +35,14 @@ class SearchEquipmentScreen extends ConsumerStatefulWidget {
 class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   // bool _isSearchVisible = false;
 
+  void _loadMore(WidgetRef ref) {
+    // Add logic here to check if more items exist and call your provider
+    // Future.microtask ensures we don't trigger state changes during build
+    Future.microtask(
+      () => ref.read(equipmentProvider.notifier).fetchNextPage(),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,11 +52,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
       ref
           .read(equipmentProvider.notifier)
-          .getRenterEquipment(
+          .initFetch(
             categoryId: widget.category,
             query: widget.query,
-            page: widget.page,
-            limit: widget.limit,
             city: city,
           );
 
@@ -56,7 +65,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final equipmentState = ref.watch(equipmentProvider);
+
     final items = ref.watch(equipmentProvider).renterEquipment;
+
     final bookingNotifier = ref.read(bookingProvider.notifier);
 
     final locationState = ref.watch(locationProvider);
@@ -132,7 +144,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                     color: theme.colorScheme.onPrimary,
                   ),
                   label: Text(
-                    selectedCity ?? "Select City",
+                    (selectedCity ?? "").isEmpty
+                        ? "Select City"
+                        : (selectedCity ?? ""),
+                    style: TextStyle(fontWeight: FontWeight.w400),
                   ), // Replace with a dynamic state variable
                   style: TextButton.styleFrom(
                     foregroundColor: theme.colorScheme.onPrimary,
@@ -162,6 +177,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
               actionsPadding: EdgeInsets.only(right: 12),
             ),
 
+            // Search Box & category / service selector
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -188,22 +204,37 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
               ),
             ),
 
-            // 2. The dynamic list using SliverList
-            SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final equipment = items[index];
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                  child: ClientEquipmentCard(
-                    equipment: equipment,
-                    onTap: () {
-                      bookingNotifier.selectEquipment(equipment);
-                      context.push('/equipment/${equipment.id}/book');
-                    },
-                  ),
-                );
-              }, childCount: items.length),
-            ),
+            // Equipment List
+            if (equipmentState.isLoading)
+              const EquipmentSkeleton()
+            else if (equipmentState.error != null)
+              SliverToBoxAdapter(
+                child: EquipmentErrorTile(
+                  onRetry: () => ref.invalidate(equipmentProvider),
+                ),
+              )
+            else if (equipmentState.renterEquipment.isEmpty)
+              const SliverToBoxAdapter(child: EquipmentEmptyTile())
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index == items.length - 1) {
+                    _loadMore(ref);
+                  }
+
+                  final equipment = items[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                    child: ClientEquipmentCard(
+                      equipment: equipment,
+                      onTap: () {
+                        bookingNotifier.selectEquipment(equipment);
+                        context.push('/equipment/${equipment.id}/book');
+                      },
+                    ),
+                  );
+                }, childCount: items.length),
+              ),
 
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

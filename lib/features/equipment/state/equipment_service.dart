@@ -10,6 +10,32 @@ class EquipmentService {
 
   Dio get _dio => apiClient.dio;
 
+  Future<List<Equipment>> getClientEquipment({
+    String? categoryId,
+    String? query,
+    String? city,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await _dio.get(
+        ApiRoutes.equipment,
+        queryParameters: {
+          if (query?.isNotEmpty ?? false) 'query': query,
+          if (city?.isNotEmpty ?? false) 'city': city,
+          if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          'page': page,
+          'limit': limit,
+        },
+      );
+
+      final List<dynamic> data = response.data["data"] ?? [];
+      return data.map((json) => Equipment.fromJson(json)).toList();
+    } on DioException catch (e) {
+      throw e.message ?? "Failed to fetch equipment";
+    }
+  }
+
   Future<List<Equipment>> getRenterEquipment({
     String? categoryId,
     String? query,

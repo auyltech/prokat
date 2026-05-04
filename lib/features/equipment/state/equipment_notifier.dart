@@ -9,6 +9,8 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
   EquipmentNotifier(this.api) : super(EquipmentState());
 
+  static const int _limit = 10;
+
   void selectCategory(Category category) {
     state = state.copyWith(category: category);
   }
@@ -87,8 +89,65 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
       state = state.copyWith(renterEquipment: equipment, isLoading: false);
     } catch (e) {
-      print(e.toString());
       state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<void> initFetch({
+    String? categoryId,
+    String? city,
+    String? query,
+  }) async {
+    state = state.copyWith(
+      isLoading: true,
+      error: null,
+      renterEquipment: [],
+      currentPage: 1,
+    );
+
+    try {
+      final items = await api.getClientEquipment(
+        page: 1,
+        limit: _limit,
+        categoryId: categoryId,
+        city: city,
+        query: query,
+      );
+
+      state = state.copyWith(
+        renterEquipment: items,
+        isLoading: false,
+        hasReachedMax: items.length < _limit,
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<void> fetchNextPage({String? categoryId, String? city}) async {
+    // Prevent multiple simultaneous fetches or fetching if we hit the end
+    if (state.isFetchingMore || state.hasReachedMax) return;
+
+    state = state.copyWith(isFetchingMore: true);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      final newItems = await api.getClientEquipment(
+        page: nextPage,
+        limit: _limit,
+        categoryId: categoryId,
+        city: city,
+      );
+
+      state = state.copyWith(
+        renterEquipment: [...state.renterEquipment, ...newItems],
+        currentPage: nextPage,
+        isFetchingMore: false,
+        hasReachedMax: newItems.length < _limit,
+      );
+    } catch (e) {
+      state = state.copyWith(isFetchingMore: false);
+      // Optional: Show a snackbar error for fetch-more failures
     }
   }
 

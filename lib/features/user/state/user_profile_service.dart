@@ -77,9 +77,7 @@ class UserProfileService {
     try {
       final res = await _dio.patch(
         ApiRoutes.userCategory,
-        data: {
-          "selectedCategoryId": ?selectedCategoryId,
-        },
+        data: {"selectedCategoryId": ?selectedCategoryId},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
@@ -116,10 +114,7 @@ class UserProfileService {
     try {
       final res = await _dio.patch(
         ApiRoutes.userCityRegion,
-        data: {
-          "city": ?city,
-          "region": ?region,
-        },
+        data: {"city": ?city, "region": ?region},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
@@ -147,7 +142,7 @@ class UserProfileService {
       });
 
       // 2. Send the POST request
-      final res = await _dio.post(
+      await _dio.post(
         ApiRoutes.userProfileImage, // Ensure this points to your upload route
         data: formData,
         // Optional: Track upload progress
