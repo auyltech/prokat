@@ -9,6 +9,9 @@ class EquipmentState {
   final int currentPage;
   final bool hasReachedMax;
 
+  final Set<String> imageActionInProgressEquipmentIds;
+  final Map<String, String?> imageActionErrorByEquipmentId;
+
   final List<Equipment> ownerEquipment;
   final List<Equipment> renterEquipment;
 
@@ -26,6 +29,8 @@ class EquipmentState {
     this.currentPage = 1,
     this.hasReachedMax = false,
     this.error,
+    this.imageActionInProgressEquipmentIds = const {},
+    this.imageActionErrorByEquipmentId = const {},
     this.ownerEquipment = const [],
     this.renterEquipment = const [],
     this.equipment,
@@ -40,6 +45,8 @@ class EquipmentState {
     int? currentPage,
     bool? hasReachedMax,
     final String? error,
+    Set<String>? imageActionInProgressEquipmentIds,
+    Map<String, String?>? imageActionErrorByEquipmentId,
     List<Equipment>? ownerEquipment,
     List<Equipment>? renterEquipment,
     Category? category,
@@ -51,6 +58,10 @@ class EquipmentState {
       error: error ?? this.error,
       currentPage: currentPage ?? this.currentPage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      imageActionInProgressEquipmentIds:
+          imageActionInProgressEquipmentIds ?? this.imageActionInProgressEquipmentIds,
+      imageActionErrorByEquipmentId:
+          imageActionErrorByEquipmentId ?? this.imageActionErrorByEquipmentId,
       ownerEquipment: ownerEquipment ?? this.ownerEquipment,
       renterEquipment: renterEquipment ?? this.renterEquipment,
       category: category ?? this.category,

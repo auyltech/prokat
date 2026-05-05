@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:prokat/features/equipment/state/equipment_state.dart';
+import 'dart:io';
 
 class EquipmentNotifier extends StateNotifier<EquipmentState> {
   final EquipmentService api;
@@ -156,6 +158,143 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       return state.ownerEquipment.firstWhere((e) => e.id == id);
     } catch (_) {
       return null;
+    }
+  }
+
+  void _setImageActionInProgress(String equipmentId, bool inProgress) {
+    final set = {...state.imageActionInProgressEquipmentIds};
+
+    if (inProgress) {
+      set.add(equipmentId);
+    } else {
+      set.remove(equipmentId);
+    }
+
+    state = state.copyWith(imageActionInProgressEquipmentIds: set);
+  }
+
+  void _setImageActionError(String equipmentId, String? message) {
+    final map = {...state.imageActionErrorByEquipmentId};
+    map[equipmentId] = message;
+    state = state.copyWith(imageActionErrorByEquipmentId: map);
+  }
+
+  String _normalizeError(Object error) {
+    final text = error.toString();
+    const prefix = 'Exception: ';
+    if (text.startsWith(prefix)) return text.substring(prefix.length);
+    return text;
+  }
+
+  void _replaceOwnerEquipment(Equipment updated) {
+    final list = state.ownerEquipment
+        .map((e) => e.id == updated.id ? updated : e)
+        .toList();
+
+    state = state.copyWith(ownerEquipment: _sortEquipment(list));
+  }
+
+  Future<bool> uploadEquipmentImage({
+    required String equipmentId,
+    required File imageFile,
+  }) async {
+    _setImageActionError(equipmentId, null);
+    _setImageActionInProgress(equipmentId, true);
+
+    try {
+      final result = await api.uploadEquipmentImage(equipmentId, imageFile);
+
+      final updatedEquipment = result.equipment;
+      final newImage = result.image;
+
+      if (updatedEquipment != null) {
+        _replaceOwnerEquipment(updatedEquipment);
+        return true;
+      }
+
+      if (newImage != null) {
+        final existing = getById(equipmentId);
+        if (existing != null) {
+          final nextImages = [...existing.images, newImage];
+
+          final fixedImages = nextImages.length == 1
+              ? nextImages
+                  .map((e) => EquipmentImage(
+                        id: e.id,
+                        url: e.url,
+                        isPrimary: true,
+                        order: e.order,
+                        createdAt: e.createdAt,
+                      ))
+                  .toList()
+              : nextImages;
+
+          _replaceOwnerEquipment(existing.copyWith(images: fixedImages));
+        }
+
+        return true;
+      }
+
+      _setImageActionError(equipmentId, 'Upload succeeded but no data returned');
+      return false;
+    } catch (e) {
+      _setImageActionError(equipmentId, _normalizeError(e));
+      return false;
+    } finally {
+      _setImageActionInProgress(equipmentId, false);
+    }
+  }
+
+  Future<bool> deleteEquipmentImage({
+    required String equipmentId,
+    required String imageId,
+  }) async {
+    _setImageActionError(equipmentId, null);
+    _setImageActionInProgress(equipmentId, true);
+
+    try {
+      final updated = await api.deleteEquipmentImage(equipmentId, imageId);
+
+      if (updated != null) {
+        _replaceOwnerEquipment(updated);
+        return true;
+      }
+
+      _setImageActionError(equipmentId, 'Delete succeeded but no data returned');
+      return false;
+    } catch (e) {
+      _setImageActionError(equipmentId, _normalizeError(e));
+      return false;
+    } finally {
+      _setImageActionInProgress(equipmentId, false);
+    }
+  }
+
+  Future<bool> setPrimaryEquipmentImage({
+    required String equipmentId,
+    required String imageId,
+  }) async {
+    _setImageActionError(equipmentId, null);
+    _setImageActionInProgress(equipmentId, true);
+
+    try {
+      final updated = await api.setPrimaryEquipmentImage(equipmentId, imageId);
+
+      if (updated != null) {
+        _replaceOwnerEquipment(updated);
+        return true;
+      }
+
+      _setImageActionError(
+        equipmentId,
+        'Cover update succeeded but no data returned',
+      );
+      return false;
+    } catch (e) {
+      _setImageActionError(equipmentId, _normalizeError(e));
+      return false;
+    } finally {
+      _setImageActionInProgress(equipmentId, false);
     }
   }
 

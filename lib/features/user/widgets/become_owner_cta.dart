@@ -2,72 +2,158 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 
-class BecomeOwnerCTA extends ConsumerWidget {
+class BecomeOwnerCTA extends ConsumerStatefulWidget {
   const BecomeOwnerCTA({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final state = ref.watch(userProfileProvider);
-    final role = state.userProfile?.role;
-    final isOwner = role == 'OWNER';
+  ConsumerState<BecomeOwnerCTA> createState() => _BecomeOwnerCTAState();
+}
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        icon: Icon(
-          isOwner ? Icons.dashboard_rounded : Icons.storefront,
-          size: 32,
+class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final registrationRequestState = ref.watch(ownerRegistrationProvider);
+    final registrationRequest = registrationRequestState.registrationRequest;
+    final isOwner = ref.watch(userProfileProvider).userProfile?.role == 'OWNER';
+
+    // 1. Owner State (Keep it primary/bold)
+    if (isOwner) {
+      return _buildModernCTA(
+        context,
+        icon: Icons.dashboard_customize_outlined,
+        title: 'Owner Dashboard',
+        subtitle: 'Manage your assets and earnings',
+        bgColor: theme.colorScheme.primary,
+        contentColor: theme.colorScheme.onPrimary,
+        onTap: () async {
+          await ref.read(appStartupProvider.notifier).setOwnerMode();
+          if (context.mounted) context.go(AppRoutes.ownerDashboard);
+        },
+      );
+    }
+
+    // 2. Request Pending/Rejected State (Refined colors)
+    if (registrationRequest != null) {
+      final status = registrationRequest.status?.toUpperCase() ?? 'PENDING';
+      final config = _getStatusConfig(status, theme);
+
+      return _buildModernCTA(
+        context,
+        icon: config.icon,
+        title: 'Request: ${status.toLowerCase()}',
+        subtitle:
+            'Submitted on ${formatDate(date: registrationRequest.createdAt)}',
+        bgColor: config.bg,
+        contentColor: config.text,
+        onTap: () => context.push(AppRoutes.becomeOwner),
+      );
+    }
+
+    // 3. Default "Become an Owner"
+    return _buildModernCTA(
+      context,
+      icon: Icons.add_business_outlined,
+      title: 'Become an Owner',
+      subtitle: 'Start earning by listing your equipment',
+      bgColor: theme.colorScheme.surface.withValues(alpha: 0.5),
+      contentColor: theme.colorScheme.onSurfaceVariant,
+      onTap: () => context.push(AppRoutes.becomeOwner),
+    );
+  }
+
+  Widget _buildModernCTA(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color bgColor,
+    required Color contentColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
         ),
-        label: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            Text(
-              isOwner ? 'Go to Owner Section' : 'Become an Owner',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isOwner
-                    ? Colors.white
-                    : theme.colorScheme.onSecondaryContainer,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: contentColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: contentColor, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: contentColor,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: contentColor.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
               ),
             ),
-            if (!isOwner) const SizedBox(height: 4),
-            if (!isOwner)
-              Text(
-                'List your equipment, offer services, and connect with clients.',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSecondaryContainer,
-                ),
-              ),
+            Icon(
+              Icons.chevron_right,
+              color: contentColor.withValues(alpha: 0.5),
+            ),
           ],
         ),
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          backgroundColor: isOwner
-              ? theme.colorScheme.primary
-              : theme.colorScheme.secondaryContainer,
-          foregroundColor: isOwner
-              ? Colors.white
-              : theme.colorScheme.onSecondaryContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        onPressed: () async {
-          if (isOwner) {
-            await ref.read(appStartupProvider.notifier).setOwnerMode();
-            if (!context.mounted) return;
-            context.go(AppRoutes.ownerDashboard);
-          } else {
-            context.push(AppRoutes.becomeOwner);
-          }
-        },
       ),
     );
   }
+
+  _StatusTheme _getStatusConfig(String status, ThemeData theme) {
+    switch (status) {
+      case 'APPROVED':
+        return _StatusTheme(
+          bg: const Color(0xFFE8F5E9), // Soft Mint
+          text: const Color(0xFF2E7D32), // Dark Green
+          icon: Icons.check_circle_outline,
+        );
+      case 'REJECTED':
+        return _StatusTheme(
+          bg: const Color(0xFFFFEBEE), // Soft Rose
+          text: const Color(0xFFC62828), // Dark Red
+          icon: Icons.error_outline,
+        );
+      default: // PENDING
+        return _StatusTheme(
+          bg: const Color(0xFFFFF3E0), // Soft Cream/Amber
+          text: const Color(0xFFE65100), // Deep Orange
+          icon: Icons.history_toggle_off_rounded,
+        );
+    }
+  }
+}
+
+class _StatusTheme {
+  final Color bg;
+  final Color text;
+  final IconData icon;
+  _StatusTheme({required this.bg, required this.text, required this.icon});
 }

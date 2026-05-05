@@ -1,6 +1,7 @@
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/models/equipment_location.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 
@@ -22,6 +23,7 @@ class Equipment {
 
   final User? owner;
   final String? imageUrl;
+  final List<EquipmentImage> images;
 
   final List<PriceEntry> prices;
 
@@ -47,6 +49,7 @@ class Equipment {
 
     required this.status,
     this.imageUrl,
+    this.images = const [],
     required this.isVisible,
     this.owner,
     this.categoryId,
@@ -59,6 +62,47 @@ class Equipment {
 
     this.updatedAt,
   });
+
+  Equipment copyWith({
+    String? imageUrl,
+    List<EquipmentImage>? images,
+    DateTime? updatedAt,
+  }) {
+    return Equipment(
+      id: id,
+      name: name,
+      model: model,
+      plateNumber: plateNumber,
+      capacity: capacity,
+      capacityUnit: capacityUnit,
+      ownerComment: ownerComment,
+      rentCondition: rentCondition,
+      status: status,
+      isVisible: isVisible,
+      owner: owner,
+      imageUrl: imageUrl ?? this.imageUrl,
+      images: images ?? this.images,
+      prices: prices,
+      city: city,
+      location: location,
+      categoryId: categoryId,
+      category: category,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  String? get primaryImageUrl {
+    for (final img in images) {
+      if (img.isPrimary && img.url.isNotEmpty) return img.url;
+    }
+
+    final sorted = [...images]..sort((a, b) => (a.order ?? 999999).compareTo(b.order ?? 999999));
+    for (final img in sorted) {
+      if (img.url.isNotEmpty) return img.url;
+    }
+
+    return imageUrl;
+  }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{
@@ -85,6 +129,10 @@ class Equipment {
 
     if (imageUrl != null) {
       data["imageUrl"] = imageUrl;
+    }
+
+    if (images.isNotEmpty) {
+      data["images"] = images.map((e) => e.toJson()).toList();
     }
 
     if (prices.isNotEmpty) {
@@ -119,6 +167,12 @@ class Equipment {
             .toList(),
 
         imageUrl: json["imageUrl"] as String?,
+
+        images: (json["images"] as List<dynamic>? ?? [])
+            .whereType<Map<String, dynamic>>()
+            .map(EquipmentImage.fromJson)
+            .where((e) => e.url.isNotEmpty)
+            .toList(),
 
         isVisible: parseBoolean(json["isVisible"]),
 

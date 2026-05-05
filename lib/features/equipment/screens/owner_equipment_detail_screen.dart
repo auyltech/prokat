@@ -6,12 +6,11 @@ import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/delete_equipment_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/edit_equipment_details_form.dart';
-import 'package:prokat/features/equipment/widgets/owner/equipment_image_header.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
 import 'package:prokat/features/equipment/widgets/owner/location_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/open_location_picker_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/open_pricing_edit_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/pricing_section.dart';
-import 'package:prokat/features/equipment/widgets/owner/show_image_picker_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/visibility_status_section.dart';
 
 class OwnerEquipmentDetailScreen extends ConsumerStatefulWidget {
@@ -98,9 +97,10 @@ class _OwnerEquipmentDetailScreenState
           CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: EquipmentImageHeader(
-                  imageUrl: equipment.imageUrl,
-                  onEdit: () => showImagePickerSheet(context),
+                child: OwnerEquipmentImageHeader(
+                  equipmentId: equipment.id,
+                  images: equipment.images,
+                  legacyImageUrl: equipment.imageUrl,
                 ),
               ),
 

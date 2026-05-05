@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_interceptor.dart';
 import '../../../core/constants/api_routes.dart';
+import '../models/equipment_image_model.dart';
 import '../models/equipment_model.dart';
+import 'dart:io';
 
 class EquipmentService {
   final ApiClient apiClient;
@@ -216,6 +219,95 @@ class EquipmentService {
       await _dio.delete('/equipment/$equipmentId/priceEntry/$priceEntryId');
     } on DioException catch (e) {
       throw Exception(e.response?.data ?? 'Failed to delete price entry');
+    }
+  }
+
+  Future<({Equipment? equipment, EquipmentImage? image})> uploadEquipmentImage(
+    String equipmentId,
+    File imageFile,
+  ) async {
+    try {
+      final fileName = imageFile.path.split(Platform.pathSeparator).last;
+
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: fileName,
+        ),
+      });
+
+      final res = await _dio.post(
+        '/equipment/$equipmentId/images',
+        data: formData,
+      );
+
+      final payload = res.data;
+      final data = (payload is Map<String, dynamic>)
+          ? (payload['data'] ?? payload)
+          : payload;
+
+      if (data is Map<String, dynamic>) {
+        // Preferred: updated equipment object
+        if (data.containsKey('id') && (data.containsKey('images') || data.containsKey('imageUrl'))) {
+          return (equipment: Equipment.fromJson(data), image: null);
+        }
+
+        // Alternative: new image record
+        if (data.containsKey('url')) {
+          return (equipment: null, image: EquipmentImage.fromJson(data));
+        }
+      }
+
+      return (equipment: null, image: null);
+    } on DioException catch (e) {
+      throw Exception(extractBackendMessage(e));
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<Equipment?> deleteEquipmentImage(String equipmentId, String imageId) async {
+    try {
+      final res = await _dio.delete('/equipment/$equipmentId/images/$imageId');
+
+      final payload = res.data;
+      final data = (payload is Map<String, dynamic>)
+          ? (payload['data'] ?? payload)
+          : payload;
+
+      if (data is Map<String, dynamic>) {
+        return Equipment.fromJson(data);
+      }
+
+      return null;
+    } on DioException catch (e) {
+      throw Exception(extractBackendMessage(e));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Equipment?> setPrimaryEquipmentImage(
+    String equipmentId,
+    String imageId,
+  ) async {
+    try {
+      final res = await _dio.patch('/equipment/$equipmentId/images/$imageId/primary');
+
+      final payload = res.data;
+      final data = (payload is Map<String, dynamic>)
+          ? (payload['data'] ?? payload)
+          : payload;
+
+      if (data is Map<String, dynamic>) {
+        return Equipment.fromJson(data);
+      }
+
+      return null;
+    } on DioException catch (e) {
+      throw Exception(extractBackendMessage(e));
+    } catch (_) {
+      return null;
     }
   }
 }

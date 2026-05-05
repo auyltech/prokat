@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/become_owner_cta.dart';
 import 'package:prokat/features/user/widgets/edit_name_sheet.dart';
@@ -23,6 +24,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     super.initState();
 
     Future.microtask(() {
+      ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
+
       ref.read(userProfileProvider.notifier).getUserProfile();
     });
   }

@@ -1,3 +1,5 @@
+import 'package:prokat/core/utils/parse.dart';
+
 class RegistrationRequestModel {
   final String? id;
 
@@ -13,6 +15,8 @@ class RegistrationRequestModel {
   final String? adminComment;
   final String? status;
 
+  final DateTime? createdAt;
+
   RegistrationRequestModel({
     this.id,
 
@@ -26,6 +30,8 @@ class RegistrationRequestModel {
     this.message,
     this.adminComment,
     this.status,
+
+    this.createdAt,
   });
 
   factory RegistrationRequestModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +49,8 @@ class RegistrationRequestModel {
         message: json['message']?.toString(),
         adminComment: json['adminComment']?.toString(),
         status: json['status']?.toString(),
+
+        createdAt: parseNullableDate(json['createdAt']),
       );
     } catch (e, stack) {
       print("❌ Reqgistration request parsing failed");

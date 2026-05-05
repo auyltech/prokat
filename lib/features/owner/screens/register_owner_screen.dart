@@ -199,20 +199,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Join our team and offer your equipment or services to clients.",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onPrimary.withValues(alpha: 0.85),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Your request will be reviewed by the admin for further processing.",
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onPrimary.withValues(alpha: 0.8),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -230,6 +216,18 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                     children: [
+                      const SizedBox(height: 12),
+                      Text(
+                        "Join our team and offer your equipment or services to clients.",
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Your request will be reviewed by the admin for further processing.",
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 12),
+
                       if (request != null) _StatusCard(request: request),
                       if (request != null) const SizedBox(height: 16),
 
@@ -246,6 +244,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                           return null;
                         },
                       ),
+
                       _OwnerRegistrationField(
                         controller: _lastNameController,
                         label: "Last name",
@@ -309,7 +308,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                             "Briefly describe the service or equipment you can provide.",
                         icon: Icons.message_outlined,
                         enabled: !isAccepted,
-                        maxLines: 5,
+                        maxLines: 3,
                         keyboardType: TextInputType.multiline,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
@@ -319,7 +318,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      if (!isAccepted) ...[
+                      if (request != null && !isAccepted) ...[
                         const SizedBox(height: 12),
                         Text(
                           "Note: please describe your service/equipment briefly so we can review your request faster.",

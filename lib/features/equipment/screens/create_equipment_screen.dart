@@ -35,16 +35,20 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
         return;
       }
 
-      await ref.read(equipmentProvider.notifier).createEquipment({
+      final res = await ref.read(equipmentProvider.notifier).createEquipment({
         "name": _name.text.trim(),
         "model": _model.text.trim(),
+        "plateNumber": "plate",
+        "city": "Atyrau",
         "capacity": int.tryParse(_capacity.text.trim()) ?? 0,
         "rentCondition": _rentCondition.text.trim(),
         "ownerComment": _ownerComment.text.trim(),
         "categoryId": category.id,
       });
 
-      if (mounted) context.pop();
+      if (res == true && mounted) {
+        context.pop();
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
