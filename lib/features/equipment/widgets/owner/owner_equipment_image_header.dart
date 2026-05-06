@@ -36,13 +36,7 @@ class _OwnerEquipmentImageHeaderState
 
     final legacy = widget.legacyImageUrl;
     if (legacy != null && legacy.isNotEmpty) {
-      return [
-        EquipmentImage(
-          id: 'legacy',
-          url: legacy,
-          isPrimary: true,
-        ),
-      ];
+      return [EquipmentImage(id: 'legacy', imageUrl: legacy, isPrimary: true)];
     }
 
     return const [];
@@ -76,7 +70,9 @@ class _OwnerEquipmentImageHeaderState
 
     if (picked == null) return;
 
-    final ok = await ref.read(equipmentProvider.notifier).uploadEquipmentImage(
+    final ok = await ref
+        .read(equipmentProvider.notifier)
+        .uploadEquipmentImage(
           equipmentId: widget.equipmentId,
           imageFile: File(picked.path),
         );
@@ -85,12 +81,13 @@ class _OwnerEquipmentImageHeaderState
 
     if (!ok) {
       final state = ref.read(equipmentProvider);
-      final message = state.imageActionErrorByEquipmentId[widget.equipmentId] ??
+      final message =
+          state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           'Failed to upload photo';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     } else {
       final count = _displayImages.length;
       if (count > 0) {
@@ -129,7 +126,9 @@ class _OwnerEquipmentImageHeaderState
 
     if (confirmed != true) return;
 
-    final ok = await ref.read(equipmentProvider.notifier).deleteEquipmentImage(
+    final ok = await ref
+        .read(equipmentProvider.notifier)
+        .deleteEquipmentImage(
           equipmentId: widget.equipmentId,
           imageId: image.id,
         );
@@ -138,32 +137,35 @@ class _OwnerEquipmentImageHeaderState
 
     if (!ok) {
       final state = ref.read(equipmentProvider);
-      final message = state.imageActionErrorByEquipmentId[widget.equipmentId] ??
+      final message =
+          state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           'Failed to delete photo';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
   Future<void> _setAsCover(EquipmentImage image) async {
-    final ok =
-        await ref.read(equipmentProvider.notifier).setPrimaryEquipmentImage(
-              equipmentId: widget.equipmentId,
-              imageId: image.id,
-            );
+    final ok = await ref
+        .read(equipmentProvider.notifier)
+        .setPrimaryEquipmentImage(
+          equipmentId: widget.equipmentId,
+          imageId: image.id,
+        );
 
     if (!mounted) return;
 
     if (!ok) {
       final state = ref.read(equipmentProvider);
-      final message = state.imageActionErrorByEquipmentId[widget.equipmentId] ??
+      final message =
+          state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           'Failed to set cover photo';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -205,16 +207,18 @@ class _OwnerEquipmentImageHeaderState
     final canAddMore = images.length < 5;
     final current = images.isNotEmpty ? images[_currentIndex] : null;
 
-    final canDeleteCurrent = current != null &&
+    final canDeleteCurrent =
+        current != null &&
         images.isNotEmpty &&
         current.id.isNotEmpty &&
         current.id != 'legacy';
 
-    final canSetCoverCurrent = current != null &&
+    final canSetCoverCurrent =
+        current != null &&
         images.isNotEmpty &&
         current.id.isNotEmpty &&
         current.id != 'legacy' &&
-        !current.isPrimary;
+        !(current.isPrimary ?? false);
 
     return Stack(
       children: [
@@ -225,9 +229,10 @@ class _OwnerEquipmentImageHeaderState
               : PageView.builder(
                   controller: _pageController,
                   itemCount: images.length,
-                  onPageChanged: (index) => setState(() => _currentIndex = index),
+                  onPageChanged: (index) =>
+                      setState(() => _currentIndex = index),
                   itemBuilder: (context, index) {
-                    final url = images[index].url;
+                    final url = images[index].imageUrl;
                     return CachedNetworkImage(
                       imageUrl: url,
                       fit: BoxFit.cover,
@@ -248,10 +253,7 @@ class _OwnerEquipmentImageHeaderState
             left: 0,
             right: 0,
             bottom: 12,
-            child: _DotsIndicator(
-              count: images.length,
-              index: _currentIndex,
-            ),
+            child: _DotsIndicator(count: images.length, index: _currentIndex),
           ),
 
         Positioned(
@@ -275,9 +277,7 @@ class _OwnerEquipmentImageHeaderState
             child: Container(
               color: colorScheme.scrim.withValues(alpha: 0.15),
               alignment: Alignment.center,
-              child: CircularProgressIndicator(
-                color: colorScheme.primary,
-              ),
+              child: CircularProgressIndicator(color: colorScheme.primary),
             ),
           ),
       ],
@@ -316,10 +316,7 @@ class _DotsIndicator extends StatelessWidget {
   final int count;
   final int index;
 
-  const _DotsIndicator({
-    required this.count,
-    required this.index,
-  });
+  const _DotsIndicator({required this.count, required this.index});
 
   @override
   Widget build(BuildContext context) {

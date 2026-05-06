@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/industrial_input_container.dart';
@@ -29,14 +29,13 @@ Future<void> submitPriceEntry(
     final notifier = ref.read(equipmentProvider.notifier);
 
     if (priceEntry == null) {
-      await notifier.createPriceEntry(
-        equipmentId,
-        price,
-        selectedRate,
-        serviceTime,
-      );
+      await notifier.createPriceEntry({
+        "price": price,
+        "priceRate": selectedRate,
+        "serviceTime": serviceTime,
+      });
     } else {
-      await notifier.updatePriceEntry(equipmentId, {
+      await notifier.updatePriceEntry({
         "id": priceEntry.id,
         "price": price,
         "priceRate": selectedRate,

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
-import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:prokat/features/equipment/state/equipment_state.dart';
@@ -66,6 +65,27 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         ownerEquipment: _sortEquipment(equipment),
         isLoading: false,
       );
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<void> getOwnerEquipmentById(String id) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final result = await api.getOwnerEquipmentById(id);
+
+      if (result.success) {
+        print(result.data?.toJson());
+        state = state.copyWith(editEquipment: result.data, isLoading: false);
+      } else {
+        state = state.copyWith(
+          error: result.message,
+          editEquipment: result.data,
+          isLoading: false,
+        );
+      }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -202,41 +222,26 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     _setImageActionInProgress(equipmentId, true);
 
     try {
+      state = state.copyWith(isLoading: true, error: null);
+
       final result = await api.uploadEquipmentImage(equipmentId, imageFile);
 
-      final updatedEquipment = result.equipment;
-      final newImage = result.image;
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
 
-      if (updatedEquipment != null) {
-        _replaceOwnerEquipment(updatedEquipment);
-        return true;
-      }
-
-      if (newImage != null) {
-        final existing = getById(equipmentId);
-        if (existing != null) {
-          final nextImages = [...existing.images, newImage];
-
-          final fixedImages = nextImages.length == 1
-              ? nextImages
-                  .map((e) => EquipmentImage(
-                        id: e.id,
-                        url: e.url,
-                        isPrimary: true,
-                        order: e.order,
-                        createdAt: e.createdAt,
-                      ))
-                  .toList()
-              : nextImages;
-
-          _replaceOwnerEquipment(existing.copyWith(images: fixedImages));
-        }
+        await getOwnerEquipment();
 
         return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
       }
 
-      _setImageActionError(equipmentId, 'Upload succeeded but no data returned');
-      return false;
+      // _setImageActionError(
+      //   equipmentId,
+      //   'Upload succeeded but no data returned',
+      // );
+      // return false;
     } catch (e) {
       _setImageActionError(equipmentId, _normalizeError(e));
       return false;
@@ -260,7 +265,10 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         return true;
       }
 
-      _setImageActionError(equipmentId, 'Delete succeeded but no data returned');
+      _setImageActionError(
+        equipmentId,
+        'Delete succeeded but no data returned',
+      );
       return false;
     } catch (e) {
       _setImageActionError(equipmentId, _normalizeError(e));
@@ -301,41 +309,44 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   /// CREATE
   Future<bool> createEquipment(Map<String, dynamic> data) async {
     try {
-      final newEquipment = await api.createEquipment(data);
+      state = state.copyWith(isLoading: true, error: null);
 
-      state = state.copyWith(
-        ownerEquipment: [...state.ownerEquipment, newEquipment],
-      );
+      final result = await api.createEquipment(data);
 
-      await getOwnerEquipment();
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
 
-      return true;
+        await getOwnerEquipment();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(isLoading: false, error: e.toString());
 
       return false;
     }
   }
 
   /// UPDATE
-  Future<bool> updateEquipment(String id, Map<String, dynamic> data) async {
+  Future<bool> updateEquipment(Map<String, dynamic> data) async {
     try {
-      final updated = await api.updateEquipment(id, data);
+      state = state.copyWith(isLoading: true, error: null);
 
-      if (updated != null) {
+      final result = await api.updateEquipment(data);
+
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
         await getOwnerEquipment();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
       }
-
-      // final updatedList = state.ownerEquipment.map((e) {
-      //   if (e.id == id) {
-      //     return updated;
-      //   }
-      //   return e;
-      // }).toList();
-
-      // state = state.copyWith(ownerEquipment: updatedList);
-
-      return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());
 
@@ -348,28 +359,23 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     Map<String, dynamic> data,
   ) async {
     try {
-      final updated = await api.updateEquipmentLocation(id, data);
+      state = state.copyWith(isLoading: true, error: null);
 
-      // final updatedList = state.ownerEquipment.map((e) {
-      //   if (e.id == id) {
-      //     return updated;
-      //   }
-      //   return e;
-      // }).toList();
+      final result = await api.updateEquipmentLocation(id, data);
 
-      // state = state.copyWith(
-      //   ownerEquipment: updatedList,
-      //   editEquipment: updated,
-      // );
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
 
-      if (updated != null) {
         await getOwnerEquipment();
-      }
 
-      return true;
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
-      print(e);
       state = state.copyWith(error: e.toString());
+
       return false;
     }
   }
@@ -379,24 +385,26 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     required String categoryId,
   }) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isLoading: true, error: null);
 
-      final updated = await api.updateEquipmentCategory(
+      final result = await api.updateEquipmentCategory(
         equipmentId: equipmentId,
         categoryId: categoryId,
       );
 
-      if (updated == true) {
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
         await getOwnerEquipment();
 
         return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
       }
-
-      state = state.copyWith(isLoading: false);
-
-      return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
+
       return false;
     }
   }
@@ -407,80 +415,145 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String status,
   ) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isLoading: true, error: null);
 
-      final res = await api.updateVisibilityStatus(
-        equipmentId,
-        isVisible,
-        status,
+      final result = await api.updateVisibilityStatus(
+        equipmentId: equipmentId,
+        isVisible: isVisible,
+        status: status,
       );
 
-      if (res == true) await getOwnerEquipment();
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
 
-      state = state.copyWith(isLoading: false);
+        await getOwnerEquipment();
 
-      return res;
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: e.toString());
+
+      return false;
+    }
+  }
+
+  Future<bool> updateEquipmentSpecs(Map<String, dynamic> data) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+
+      final result = await api.updateEquipmentSpecs(data);
+
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
+        await getOwnerEquipment();
+        await getOwnerEquipmentById(data["id"] ?? "");
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false);
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+
       return false;
     }
   }
 
   /// DELETE
-  Future<void> deleteEquipment(String id) async {
+  Future<bool> deleteEquipment(String id) async {
     try {
-      await api.deleteEquipment(id);
+      state = state.copyWith(isLoading: true, error: null);
 
-      final updatedList = state.ownerEquipment
-          .where((e) => e.id != id)
-          .toList();
+      final result = await api.deleteEquipment(id);
 
-      state = state.copyWith(ownerEquipment: updatedList);
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
+        await getOwnerEquipment();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
       state = state.copyWith(error: e.toString());
+
+      return false;
     }
   }
 
-  Future<void> createPriceEntry(
-    String equipmentId,
-    int price,
-    String priceRate,
-    int serviceTime,
-  ) async {
+  Future<bool> createPriceEntry(Map<String, dynamic> data) async {
     try {
-      await api.addPriceEntry(equipmentId, {
-        "equipmentId": equipmentId,
-        "price": price,
-        "priceRate": priceRate,
-        "serviceTime": serviceTime,
-      });
+      state = state.copyWith(isLoading: true, error: null);
 
-      await getOwnerEquipment();
+      final result = await api.createPriceEntry(data);
+
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
+        await getOwnerEquipment();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
       state = state.copyWith(error: e.toString());
+
+      return false;
     }
   }
 
-  Future<void> updatePriceEntry(
-    String equipmentId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<bool> updatePriceEntry(Map<String, dynamic> data) async {
     try {
-      await api.updatePriceEntry(equipmentId, data);
-      await getOwnerEquipment();
+      state = state.copyWith(isLoading: true, error: null);
+
+      final result = await api.updatePriceEntry(data);
+
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
+        await getOwnerEquipment();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
       state = state.copyWith(error: e.toString());
+
+      return false;
     }
   }
 
-  Future<void> deletePriceEntry(String equipmentId, String priceEntryId) async {
+  Future<bool> deletePriceEntry(Map<String, dynamic> data) async {
     try {
-      await api.deletePriceEntry(equipmentId, priceEntryId);
+      state = state.copyWith(isLoading: true, error: null);
 
-      // reload equipment to refresh price entries
-      await getOwnerEquipment();
+      final result = await api.deletePriceEntry(data);
+
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
+
+        await getOwnerEquipment();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
+      }
     } catch (e) {
       state = state.copyWith(error: e.toString());
+
+      return false;
     }
   }
 }

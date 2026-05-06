@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -23,6 +23,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
   late TextEditingController _nameController;
   late TextEditingController _modelController;
   late TextEditingController _plateNumberController;
+  
   late TextEditingController _capacityController;
   late TextEditingController _commentController;
   late TextEditingController _rentConditionController;
@@ -77,7 +78,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
     try {
       final res = await widget.ref
           .read(equipmentProvider.notifier)
-          .updateEquipment(widget.equipment.id, {
+          .updateEquipment({
             "id": widget.equipment.id,
             "name": name,
             "model": _modelController.text.trim(),

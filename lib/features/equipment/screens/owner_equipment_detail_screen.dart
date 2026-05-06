@@ -7,6 +7,7 @@ import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.d
 import 'package:prokat/features/equipment/widgets/owner/delete_equipment_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/edit_equipment_details_form.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_equipment_specs.dart';
 import 'package:prokat/features/equipment/widgets/owner/location_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/open_location_picker_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/open_pricing_edit_sheet.dart';
@@ -31,6 +32,10 @@ class _OwnerEquipmentDetailScreenState
 
     Future.microtask(() async {
       await ref.read(categoriesProvider.notifier).getCategories();
+
+      await ref
+          .read(equipmentProvider.notifier)
+          .getOwnerEquipmentById(widget.equipmentId);
     });
   }
 
@@ -45,50 +50,48 @@ class _OwnerEquipmentDetailScreenState
 
     final state = ref.watch(equipmentProvider);
 
-    final equipment = state.ownerEquipment
-        .where((item) => item.id == widget.equipmentId)
-        .firstOrNull;
+    final equipment = state.editEquipment;
 
     /// ERROR STATE
-    if (equipment == null) {
-      return Scaffold(
-        backgroundColor: bgColor,
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: colorScheme.tertiary, // softer warning vs hard orange
-                size: 48,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "SYSTEM ERROR",
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: ghostGray,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-              Text(
-                "EQUIPMENT DATA NOT LOCATED",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              TextButton(
-                onPressed: () => context.pop(),
-                child: Text(
-                  "BACK TO FLEET",
-                  style: TextStyle(color: accentColor),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    // if (equipment == null) {
+    //   return Scaffold(
+    //     backgroundColor: bgColor,
+    //     body: Center(
+    //       child: Column(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children: [
+    //           Icon(
+    //             Icons.error_outline,
+    //             color: colorScheme.tertiary, // softer warning vs hard orange
+    //             size: 48,
+    //           ),
+    //           const SizedBox(height: 16),
+    //           Text(
+    //             "SYSTEM ERROR",
+    //             style: theme.textTheme.labelMedium?.copyWith(
+    //               color: ghostGray,
+    //               fontWeight: FontWeight.bold,
+    //               letterSpacing: 2,
+    //             ),
+    //           ),
+    //           Text(
+    //             "EQUIPMENT DATA NOT LOCATED",
+    //             style: theme.textTheme.titleMedium?.copyWith(
+    //               color: colorScheme.onSurface,
+    //             ),
+    //           ),
+    //           TextButton(
+    //             onPressed: () => context.pop(),
+    //             child: Text(
+    //               "BACK TO FLEET",
+    //               style: TextStyle(color: accentColor),
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // }
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -98,9 +101,9 @@ class _OwnerEquipmentDetailScreenState
             slivers: [
               SliverToBoxAdapter(
                 child: OwnerEquipmentImageHeader(
-                  equipmentId: equipment.id,
-                  images: equipment.images,
-                  legacyImageUrl: equipment.imageUrl,
+                  equipmentId: equipment?.id ?? "",
+                  images: equipment?.images ?? [],
+                  legacyImageUrl: equipment?.imageUrl ?? " ",
                 ),
               ),
 
@@ -112,49 +115,58 @@ class _OwnerEquipmentDetailScreenState
 
                     const SizedBox(height: 20),
 
-                    EditEquipmentDetailsForm(equipment: equipment, ref: ref),
+                    if (equipment != null)
+                      EditEquipmentDetailsForm(equipment: equipment, ref: ref),
 
                     const SizedBox(height: 20),
 
-                    PricingSection(
-                      prices: equipment.prices,
-                      onAdd: () =>
-                          openPricingEditSheet(context, ref, equipment.id),
-                      onEdit: (entry) => openPricingEditSheet(
-                        context,
-                        ref,
-                        equipment.id,
-                        priceEntry: entry,
+                    if (equipment != null)
+                      OwnerEquipmentSpecs(equipment: equipment),
+
+                    const SizedBox(height: 20),
+
+                    if (equipment != null)
+                      PricingSection(
+                        prices: equipment.prices,
+                        onAdd: () =>
+                            openPricingEditSheet(context, ref, equipment.id),
+                        onEdit: (entry) => openPricingEditSheet(
+                          context,
+                          ref,
+                          equipment.id,
+                          priceEntry: entry,
+                        ),
                       ),
-                    ),
 
                     const SizedBox(height: 20),
 
-                    LocationSection(
-                      ref: ref,
-                      equipment: equipment,
-                      location: equipment.location != null
-                          ? '${equipment.location?.street}, ${equipment.location?.city}'
-                          : "NO LOCATION SET",
-                      onAction: () =>
-                          openLocationPickerSheet(context, ref, equipment.id),
-                    ),
+                    if (equipment != null)
+                      LocationSection(
+                        ref: ref,
+                        equipment: equipment,
+                        location: equipment.location != null
+                            ? '${equipment.location?.street}, ${equipment.location?.city}'
+                            : "NO LOCATION SET",
+                        onAction: () =>
+                            openLocationPickerSheet(context, ref, equipment.id),
+                      ),
 
                     const SizedBox(height: 20),
 
-                    VisibilityStatusSection(
-                      isVisible: equipment.isVisible,
-                      status: equipment.status,
-                      onSave: (visible, status) {
-                        ref
-                            .read(equipmentProvider.notifier)
-                            .updateVisibilityStatus(
-                              equipment.id,
-                              visible,
-                              status,
-                            );
-                      },
-                    ),
+                    if (equipment != null)
+                      VisibilityStatusSection(
+                        isVisible: equipment.isVisible,
+                        status: equipment.status,
+                        onSave: (visible, status) {
+                          ref
+                              .read(equipmentProvider.notifier)
+                              .updateVisibilityStatus(
+                                equipment.id,
+                                visible,
+                                status,
+                              );
+                        },
+                      ),
 
                     const SizedBox(height: 20),
 

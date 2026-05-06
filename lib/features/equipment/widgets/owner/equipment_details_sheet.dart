@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +30,7 @@ Future<void> updateEquipmentDetails(
   }
 
   try {
-    await ref.read(equipmentProvider.notifier).updateEquipment(equipment.id, {
+    await ref.read(equipmentProvider.notifier).updateEquipment({
       "id": id,
       "name": name,
       "model": model,

@@ -1,4 +1,4 @@
-import 'package:prokat/features/categories/models/category.dart';
+﻿import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 

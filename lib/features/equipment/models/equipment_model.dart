@@ -3,6 +3,7 @@ import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/models/equipment_location.dart';
+import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 
 class Equipment {
@@ -11,6 +12,8 @@ class Equipment {
   final String name;
   final String model;
   final String? plateNumber;
+
+  final List<EquipmentSpec>? specs;
 
   final String capacity;
   final String capacityUnit;
@@ -36,17 +39,14 @@ class Equipment {
 
   Equipment({
     required this.id,
-
     required this.name,
     required this.model,
     this.plateNumber,
-
+    this.specs,
     required this.capacity,
     required this.capacityUnit,
-
     this.ownerComment,
     this.rentCondition,
-
     required this.status,
     this.imageUrl,
     this.images = const [],
@@ -54,51 +54,21 @@ class Equipment {
     this.owner,
     this.categoryId,
     this.category,
-
     this.city,
     this.location,
-
     required this.prices,
-
     this.updatedAt,
   });
 
-  Equipment copyWith({
-    String? imageUrl,
-    List<EquipmentImage>? images,
-    DateTime? updatedAt,
-  }) {
-    return Equipment(
-      id: id,
-      name: name,
-      model: model,
-      plateNumber: plateNumber,
-      capacity: capacity,
-      capacityUnit: capacityUnit,
-      ownerComment: ownerComment,
-      rentCondition: rentCondition,
-      status: status,
-      isVisible: isVisible,
-      owner: owner,
-      imageUrl: imageUrl ?? this.imageUrl,
-      images: images ?? this.images,
-      prices: prices,
-      city: city,
-      location: location,
-      categoryId: categoryId,
-      category: category,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
   String? get primaryImageUrl {
     for (final img in images) {
-      if (img.isPrimary && img.url.isNotEmpty) return img.url;
+      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty) return img.imageUrl;
     }
 
-    final sorted = [...images]..sort((a, b) => (a.order ?? 999999).compareTo(b.order ?? 999999));
+    final sorted = [...images]
+      ..sort((a, b) => (a.order ?? 999999).compareTo(b.order ?? 999999));
     for (final img in sorted) {
-      if (img.url.isNotEmpty) return img.url;
+      if (img.imageUrl.isNotEmpty) return img.imageUrl;
     }
 
     return imageUrl;
@@ -107,11 +77,10 @@ class Equipment {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{
       "id": id,
-
       "name": name,
       "model": model,
       "plateNumber": plateNumber,
-
+      if (specs != null) "specs": specs!.map((e) => e.toJson()).toList(),
       "capacity": capacity,
       "capacityUnit": capacityUnit,
       "rentCondition": rentCondition,
@@ -148,51 +117,47 @@ class Equipment {
 
   factory Equipment.fromJson(Map<String, dynamic> json) {
     try {
+      final rawSpecs = json['specs'];
+      final specs = rawSpecs is List
+          ? rawSpecs
+              .whereType<Map<String, dynamic>>()
+              .map(EquipmentSpec.fromJson)
+              .toList()
+          : null;
+
       return Equipment(
         id: json["id"] ?? '',
         name: json["name"] ?? '',
         model: json["model"] ?? '',
         plateNumber: json["plateNumber"] ?? '',
-
+        specs: specs,
         capacity: json["capacity"].toString(),
         capacityUnit: json["capacityUnit"]?.toString() ?? '',
-
         ownerComment: json["ownerComment"] ?? "",
         rentCondition: json["rentCondition"],
-
         status: json["status"],
-
         prices: (json["prices"] as List<dynamic>? ?? [])
             .map((e) => PriceEntry.fromJson(e as Map<String, dynamic>))
             .toList(),
-
         imageUrl: json["imageUrl"] as String?,
-
         images: (json["images"] as List<dynamic>? ?? [])
             .whereType<Map<String, dynamic>>()
             .map(EquipmentImage.fromJson)
-            .where((e) => e.url.isNotEmpty)
+            .where((e) => e.imageUrl.isNotEmpty)
             .toList(),
-
         isVisible: parseBoolean(json["isVisible"]),
-
         owner: json["owner"] != null ? User.fromJson(json["owner"]) : null,
-
         city: json["city"] ?? "",
         location: json['location'] != null
             ? EquipmentLocation.fromJson(json['location'])
             : null,
-
         categoryId: json["categoryId"]?.toString(),
-
-        category: json["category"] != null
-            ? Category.fromJson(json["category"])
-            : null,
-
+        category:
+            json["category"] != null ? Category.fromJson(json["category"]) : null,
         updatedAt: parseNullableDate(json['updatedAt']),
       );
     } catch (e, stack) {
-      print("❌ Equipment parsing failed");
+      print("Equipment parsing failed");
       print("JSON: $json");
       print(e);
       print(stack);
