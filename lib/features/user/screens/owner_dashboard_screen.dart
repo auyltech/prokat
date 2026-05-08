@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/owner_dashboard_booking_tile.dart';
@@ -131,11 +132,9 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
           else if (upcomingJobs.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(
-                child: Text(
-                  "No bookings yet",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: EmptyStateTile(title: "No Orders Yet"),
               ),
             )
           else

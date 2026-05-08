@@ -76,24 +76,22 @@ class RequestNotifier extends StateNotifier<RequestState> {
     }
   }
 
-  Future<bool> createRequest() async {
+  Future<bool> createRequest({
+    required String capacity,
+    required int offeredRate,
+    String? comment,
+  }) async {
     try {
-      // if (state.selectedLocation?.id == null ||
-      //     state.selectedDate == null ||
-      //     state.selectedTime == null) {
-      //   return false;
-      // }
-
       state = state.copyWith(isLoading: true);
 
       final created = await service.createRequest(
         categoryId: state.selectedCategory?.id ?? "",
         locationId: state.selectedLocation?.id ?? "",
-        capacity: state.capacity ?? "",
+        capacity: capacity,
         requiredOn: state.selectedDate ?? DateTime(2026),
         requiredAt: state.selectedTime,
-        comment: state.comment,
-        offeredRate: state.offeredRate ?? 0,
+        comment: comment,
+        offeredRate: offeredRate,
       );
 
       if (created == true) {

@@ -71,34 +71,35 @@ class EditSheet extends StatelessWidget {
             /// Custom Content (The Form Fields)
             child,
 
-            const SizedBox(height: 40),
+            if (buttonText.isNotEmpty) const SizedBox(height: 16),
 
             /// Primary Action Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: onSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentColor,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      16,
-                    ), // Small Item Radius
+            if (buttonText.isNotEmpty)
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: onSubmit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accentColor,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        16,
+                      ), // Small Item Radius
+                    ),
                   ),
-                ),
-                child: Text(
-                  buttonText,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    letterSpacing: 1.5,
+                  child: Text(
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

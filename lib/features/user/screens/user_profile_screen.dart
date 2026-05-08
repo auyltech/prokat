@@ -43,37 +43,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
-          // SliverAppBar(
-          //   expandedHeight: 180.0,
-          //   automaticallyImplyLeading: false,
-          // leading: IconButton(
-          //   icon: Icon(
-          //     Icons.arrow_back_ios_new_rounded,
-          //     size: 20,
-          //     color: theme.colorScheme.onPrimary,
-          //   ),
-          //   onPressed: () => context.pop(),
-          // ),
-          //   pinned: false,
-          //   stretch: true,
-          //   flexibleSpace: FlexibleSpaceBar(
-          //     background: Container(
-          //       decoration: BoxDecoration(
-          //         gradient: LinearGradient(
-          //           begin: Alignment.topLeft,
-          //           end: Alignment.bottomRight,
-          //           colors: [
-          //             theme.colorScheme.primary,
-          //             theme.colorScheme.primary.withValues(alpha: 0.7),
-          //           ],
-          //         ),
-          //       ),
-          //       child: SafeArea(
-          //         child: ,
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          // Page Header: Profile image, display name, ratings
           SliverToBoxAdapter(
             child: Container(
               decoration: BoxDecoration(color: theme.primaryColor),
@@ -107,14 +77,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                         ),
 
                         const SizedBox(width: 20),
-                        // Name and Rating Info
-                        // Note: Ensure _buildProfileInfo uses theme.colorScheme.onPrimary
-                        // for text colors to be readable against the gradient.
+
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const DisplayName(),
+
                             Row(
                               children: [
                                 const Icon(
@@ -161,7 +130,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
             ),
           ),
 
-          // 2. The Settings/Info List
+          // 2. Info List
           SliverPadding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,

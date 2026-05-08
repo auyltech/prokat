@@ -5,6 +5,8 @@ import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
+import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
+import 'package:prokat/features/appstatic/screens/terms_conditions_screen.dart';
 import 'package:prokat/features/auth/screens/register_screen.dart';
 import 'package:prokat/features/bookings/screens/client_booking_details_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
@@ -67,8 +69,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final startupState = ref.read(appStartupProvider);
       final location = state.matchedLocation;
-      print(location);
-      print(startupState);
 
       // 🚀 Handle startup routing FIRST
       switch (startupState) {
@@ -94,9 +94,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           break;
 
         case AppStartupState.client:
-          // Redirect client after loading
           if (location == AppRoutes.launch) {
-            print("app startup lunch");
             return AppRoutes.searchList;
           }
           break;
@@ -193,9 +191,21 @@ final routerProvider = Provider<GoRouter>((ref) {
                   );
                 },
               ),
+              // Static Pages
+              // Help And Customer Support
               GoRoute(
                 path: AppRoutes.helpSupport,
                 builder: (_, _) => const HelpScreen(),
+              ),
+              // Support us
+              GoRoute(
+                path: "/support-us",
+                builder: (_, _) => const SupportUsPage(),
+              ),
+              // Terms and conditions
+              GoRoute(
+                path: "/terms",
+                builder: (_, _) => const TermsConditionsScreen(),
               ),
               GoRoute(
                 path: AppRoutes.searchList,
@@ -411,10 +421,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                       );
                     },
                   ),
+                  // Enter / create address manually / form
                   GoRoute(
                     path: AppRoutes.createAddress,
                     builder: (context, state) {
-                      return OwnerAddressCreateScreen();
+                      final service =
+                          state.uri.queryParameters['service'] ?? "";
+
+                      return OwnerAddressCreateScreen(service: service);
                     },
                   ),
                   GoRoute(

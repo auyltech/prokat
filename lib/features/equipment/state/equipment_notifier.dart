@@ -77,7 +77,6 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       final result = await api.getOwnerEquipmentById(id);
 
       if (result.success) {
-        print(result.data?.toJson());
         state = state.copyWith(editEquipment: result.data, isLoading: false);
       } else {
         state = state.copyWith(

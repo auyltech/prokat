@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -35,27 +37,22 @@ class AddressFormState extends ConsumerState<AddressForm> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TextField(
-          controller: streetController,
-          decoration: const InputDecoration(labelText: "Street"),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: cityController,
-          decoration: const InputDecoration(labelText: "City"),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: countryController,
-          decoration: const InputDecoration(labelText: "Country"),
-        ),
-        const SizedBox(height: 12),
-        TextField(
+        InputField(
+          label: "House / Building / Staircase",
           controller: commentController,
-          decoration: const InputDecoration(labelText: "Comment"),
+          hint: "My House",
         ),
+        InputField(
+          label: "Street",
+          controller: streetController,
+          hint: "Stapayeva 123",
+        ),
+        InputField(label: "City", controller: cityController, hint: "Atyrau"),
+
         const SizedBox(height: 24),
-        ElevatedButton(
+
+        PrimaryButton(
+          label: "Save Location",
           onPressed: () async {
             final location = LocationModel(
               id: '',
@@ -71,11 +68,12 @@ class AddressFormState extends ConsumerState<AddressForm> {
               updatedAt: DateTime.now(),
             );
 
-            await ref.read(locationProvider.notifier).createLocation(location);
+            final res = await ref
+                .read(locationProvider.notifier)
+                .createLocation(location);
 
-            if (mounted) Navigator.pop(context);
+            if (res && mounted) Navigator.pop(context);
           },
-          child: const Text("Save Location"),
         ),
       ],
     );

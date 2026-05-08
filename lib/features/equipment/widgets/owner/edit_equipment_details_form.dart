@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
@@ -23,7 +24,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
   late TextEditingController _nameController;
   late TextEditingController _modelController;
   late TextEditingController _plateNumberController;
-  
+
   late TextEditingController _capacityController;
   late TextEditingController _commentController;
   late TextEditingController _rentConditionController;
@@ -126,19 +127,20 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
     final accent = colorScheme.primary;
 
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
-      ),
+      padding: const EdgeInsets.all(0),
+      // decoration: BoxDecoration(
+      //   color: theme.cardColor,
+      //   borderRadius: BorderRadius.circular(20),
+      //   border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
+      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("INFORMATION", style: theme.textTheme.titleLarge),
+              // Text("INFORMATION", style: theme.textTheme.titleLarge),
+              SectionTitle(title: "Information"),
 
               _isDirty
                   ? TextButton.icon(
@@ -174,7 +176,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             ],
           ),
 
-          SizedBox(height: 12),
+          // SizedBox(height: 12),
           _ThemedInputField(
             label: "Name",
             controller: _nameController,
@@ -194,14 +196,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             controller: _plateNumberController,
             onChanged: _onChanged,
           ),
-          SizedBox(height: 12),
-          _ThemedInputField(
-            label: "Capacity",
-            controller: _capacityController,
-            onChanged: _onChanged,
-            isNumeric: true,
-            suffixText: _selectedCategory?.capacityUnit,
-          ),
+
           SizedBox(height: 12),
           _ThemedInputField(
             label: "Rent Condition",
@@ -209,15 +204,15 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             onChanged: _onChanged,
             hintText: "Full load only...",
           ),
-          SizedBox(height: 12),
-          _ThemedInputField(
-            label: "Comments",
-            controller: _commentController,
-            onChanged: _onChanged,
-            isLast: true,
-            hintText: "15M Hose",
-          ),
 
+          // SizedBox(height: 12),
+          // _ThemedInputField(
+          //   label: "Comments",
+          //   controller: _commentController,
+          //   onChanged: _onChanged,
+          //   isLast: true,
+          //   hintText: "15M Hose",
+          // ),
           const SizedBox(height: 16),
         ],
       ),
@@ -230,18 +225,12 @@ class _ThemedInputField extends StatelessWidget {
   final String? hintText;
   final TextEditingController controller;
   final VoidCallback onChanged;
-  final bool isNumeric;
-  final bool isLast;
-  final String? suffixText;
 
   const _ThemedInputField({
     required this.label,
     this.hintText,
     required this.controller,
     required this.onChanged,
-    this.isNumeric = false,
-    this.isLast = false,
-    this.suffixText,
   });
 
   @override
@@ -255,9 +244,9 @@ class _ThemedInputField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.25)),
+        color: theme.colorScheme.surfaceBright,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,9 +263,7 @@ class _ThemedInputField extends StatelessWidget {
                 child: TextFormField(
                   controller: controller,
                   onChanged: (_) => onChanged(),
-                  keyboardType: isNumeric
-                      ? const TextInputType.numberWithOptions(decimal: true)
-                      : TextInputType.text,
+                  keyboardType: TextInputType.text,
                   cursorColor: accent,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
@@ -293,26 +280,6 @@ class _ThemedInputField extends StatelessWidget {
                   ),
                 ),
               ),
-
-              if (suffixText != null)
-                Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    suffixText!,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: accent,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
             ],
           ),
         ],

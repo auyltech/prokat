@@ -13,7 +13,7 @@ class IndustrialTextField extends StatelessWidget {
 
   const IndustrialTextField({
     super.key,
-    required this.controller,
+    required this.controller, 
     required this.label,
     required this.hint,
     required this.icon,

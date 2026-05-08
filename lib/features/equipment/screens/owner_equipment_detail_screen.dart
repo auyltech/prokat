@@ -9,7 +9,6 @@ import 'package:prokat/features/equipment/widgets/owner/edit_equipment_details_f
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_specs.dart';
 import 'package:prokat/features/equipment/widgets/owner/location_section.dart';
-import 'package:prokat/features/equipment/widgets/owner/open_location_picker_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/open_pricing_edit_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/pricing_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/visibility_status_section.dart';
@@ -42,12 +41,6 @@ class _OwnerEquipmentDetailScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final bgColor = colorScheme.surface;
-    final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
-    final accentColor = colorScheme.primary;
-
     final state = ref.watch(equipmentProvider);
 
     final equipment = state.editEquipment;
@@ -94,7 +87,7 @@ class _OwnerEquipmentDetailScreenState
     // }
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: theme.colorScheme.surface,
       body: Stack(
         children: [
           CustomScrollView(
@@ -111,15 +104,19 @@ class _OwnerEquipmentDetailScreenState
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    CategorySelectorTile(mode: "edit_equipment"),
+                    // Category
+                    if (equipment != null)
+                      CategorySelectorTile(mode: "edit_equipment"),
 
                     const SizedBox(height: 20),
 
+                    // Informaton, Name, Model, Plate, rent condition
                     if (equipment != null)
                       EditEquipmentDetailsForm(equipment: equipment, ref: ref),
 
-                    const SizedBox(height: 20),
+                    // const SizedBox(height: 20),
 
+                    // Specs, Equipment Technical Info / Tank Capacity / Lift Capacity
                     if (equipment != null)
                       OwnerEquipmentSpecs(equipment: equipment),
 
@@ -138,42 +135,28 @@ class _OwnerEquipmentDetailScreenState
                         ),
                       ),
 
-                    const SizedBox(height: 20),
-
                     if (equipment != null)
                       LocationSection(
                         ref: ref,
                         equipment: equipment,
                         location: equipment.location != null
                             ? '${equipment.location?.street}, ${equipment.location?.city}'
-                            : "NO LOCATION SET",
-                        onAction: () =>
-                            openLocationPickerSheet(context, ref, equipment.id),
+                            : "",
                       ),
 
                     const SizedBox(height: 20),
 
                     if (equipment != null)
                       VisibilityStatusSection(
+                        equipmentId: equipment.id,
                         isVisible: equipment.isVisible,
                         status: equipment.status,
-                        onSave: (visible, status) {
-                          ref
-                              .read(equipmentProvider.notifier)
-                              .updateVisibilityStatus(
-                                equipment.id,
-                                visible,
-                                status,
-                              );
-                        },
                       ),
 
                     const SizedBox(height: 20),
 
-                    DeleteEquipmentSection(
-                      onDelete: () =>
-                          _confirmDelete(context, ref, widget.equipmentId),
-                    ),
+                    if (equipment != null)
+                      DeleteEquipmentSection(equipmentId: equipment.id),
                   ]),
                 ),
               ),
@@ -202,122 +185,6 @@ class _OwnerEquipmentDetailScreenState
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        padding: EdgeInsets.fromLTRB(
-          24,
-          12,
-          24,
-          MediaQuery.of(context).padding.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            /// DRAG HANDLE
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            /// ICON
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colorScheme.errorContainer.withValues(alpha: 0.3),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.delete_sweep_rounded,
-                color: colorScheme.error,
-                size: 40,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            /// TITLE
-            Text(
-              "Delete Equipment?",
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            /// DESCRIPTION
-            Text(
-              "This will remove the item from the marketplace and delete all its rental history.",
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                height: 1.5,
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            /// DELETE BUTTON
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: colorScheme.error,
-                  foregroundColor: colorScheme.onError,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                onPressed: () async {
-                  await ref
-                      .read(equipmentProvider.notifier)
-                      .deleteEquipment(equipmentId);
-
-                  if (context.mounted && context.canPop()) context.pop();
-
-                  if (context.mounted) {
-                    context.pop();
-                  }
-                },
-                child: const Text(
-                  "Yes, Delete Permanently",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            /// CANCEL
-            TextButton(
-              onPressed: () => context.pop(),
-              child: Text(
-                "Keep it for now",
-                style: TextStyle(color: colorScheme.primary),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

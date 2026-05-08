@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/widgets/owner/price_entry_tile.dart';
 
@@ -28,12 +30,12 @@ class PricingSection extends StatelessWidget {
     final bool canAddMore = prices.length < maxRates;
 
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
-      ),
+      padding: const EdgeInsets.all(0),
+      // decoration: BoxDecoration(
+      //   color: theme.cardColor,
+      //   borderRadius: BorderRadius.circular(20),
+      //   border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
+      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,7 +43,7 @@ class PricingSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("PRICES", style: theme.textTheme.titleLarge),
+              SectionTitle(title: "Prices"),
 
               if (canAddMore)
                 IconButton(
@@ -53,19 +55,12 @@ class PricingSection extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 12),
-
           /// EMPTY STATE
           if (prices.isEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-              child: Text(
-                "No Prices Listed",
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: warning,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            EmptyStateTile(
+              title: "No Prices Listed",
+              icon: Icons.payments_outlined,
+              color: warning, // Pass your 'warning' color variable here
             )
           else
             Column(
@@ -95,7 +90,7 @@ class PricingSection extends StatelessWidget {
               ),
             ),
 
-          if (canAddMore && prices.isNotEmpty) const SizedBox(height: 16),
+          // if (canAddMore && prices.isNotEmpty) const SizedBox(height: 16),
         ],
       ),
     );

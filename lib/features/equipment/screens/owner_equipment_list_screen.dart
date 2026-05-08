@@ -151,7 +151,7 @@ class _OwnerEquipmentListScreenState
             ),
 
           // Bottom spacing for scroll comfort
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          // const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );

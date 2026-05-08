@@ -1,4 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/section_title.dart';
+
+final faqs = [
+  {
+    "q": "How do I rent equipment?",
+    "a":
+        "Browse available equipment, select your dates, and send a booking request to the owner.",
+  },
+  {
+    "q": "How do I list my equipment?",
+    "a":
+        "Go to your profile and tap 'Add Equipment'. Fill in details, pricing, and location.",
+  },
+  {
+    "q": "How do payments work?",
+    "a":
+        "Payments are handled securely through the platform. You’ll see the total before confirming.",
+  },
+  {
+    "q": "Can I cancel a booking?",
+    "a":
+        "Yes, depending on the owner's cancellation policy shown on the equipment page.",
+  },
+  {
+    "q": "What if equipment is damaged?",
+    "a":
+        "Report the issue through the app immediately. Our support team will assist you.",
+  },
+];
 
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
@@ -8,51 +39,60 @@ class HelpScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Help & Support")),
-      body: Column(
+      body: ListView(
         children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(color: theme.colorScheme.primary),
+            child: Row(
               children: [
-                _buildHeader(theme),
-                const SizedBox(height: 24),
-
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Search help...",
-                    prefixIcon: Icon(Icons.search),
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimary,
                   ),
+                  onPressed: () => context.pop(),
                 ),
-
-                const SizedBox(height: 24),
-
-                _buildSectionTitle("Frequently Asked Questions", theme),
-                const SizedBox(height: 12),
-                _buildFAQ(),
-
-                const SizedBox(height: 24),
-
-                _buildSectionTitle("Need more help?", theme),
-                const SizedBox(height: 12),
-                _buildHelpOptions(context),
+                const SizedBox(width: 8),
+                Text(
+                  "Help & Support",
+                  style: TextStyle(color: theme.colorScheme.onPrimary),
+                ),
               ],
             ),
           ),
 
-          /// 🔥 Contact Support CTA
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // TextField(
+                //   decoration: InputDecoration(
+                //     hintText: "Search help...",
+                //     prefixIcon: Icon(Icons.search),
+                //   ),
+                // ),
+
+                // const SizedBox(height: 24),
+                SectionTitle(title: "Frequently Asked Questions"),
+
+                _buildFAQ(),
+
+                const SizedBox(height: 12),
+
+                SectionTitle(title: "Need more help?"),
+
+                _buildHelpOptions(context, theme),
+
+                PrimaryButton(
+                  label: "Contact Support",
                   onPressed: () {
                     _openSupport(context);
                   },
-                  child: const Text("Contact Support"),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -60,55 +100,7 @@ class HelpScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("How can we help?", style: theme.textTheme.headlineSmall),
-        const SizedBox(height: 8),
-        Text(
-          "Find answers to common questions or reach out to our support team.",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Text(title, style: theme.textTheme.titleMedium);
-  }
-
   Widget _buildFAQ() {
-    final faqs = [
-      {
-        "q": "How do I rent equipment?",
-        "a":
-            "Browse available equipment, select your dates, and send a booking request to the owner.",
-      },
-      {
-        "q": "How do I list my equipment?",
-        "a":
-            "Go to your profile and tap 'Add Equipment'. Fill in details, pricing, and location.",
-      },
-      {
-        "q": "How do payments work?",
-        "a":
-            "Payments are handled securely through the platform. You’ll see the total before confirming.",
-      },
-      {
-        "q": "Can I cancel a booking?",
-        "a":
-            "Yes, depending on the owner's cancellation policy shown on the equipment page.",
-      },
-      {
-        "q": "What if equipment is damaged?",
-        "a":
-            "Report the issue through the app immediately. Our support team will assist you.",
-      },
-    ];
-
     return Column(
       children: faqs.map((faq) {
         return ExpansionTile(
@@ -121,28 +113,32 @@ class HelpScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHelpOptions(BuildContext context) {
+  Widget _buildHelpOptions(BuildContext context, ThemeData theme) {
     return Column(
       children: [
         _helpTile(
+          theme: theme,
           icon: Icons.book_outlined,
           title: "Using Prokat",
           subtitle: "Learn how the platform works",
           onTap: () {},
         ),
         _helpTile(
+          theme: theme,
           icon: Icons.payment_outlined,
           title: "Payments & Pricing",
           subtitle: "Fees, payouts, and billing",
           onTap: () {},
         ),
         _helpTile(
+          theme: theme,
           icon: Icons.security_outlined,
           title: "Safety & Trust",
           subtitle: "Guidelines and policies",
           onTap: () {},
         ),
         _helpTile(
+          theme: theme,
           icon: Icons.person_outline,
           title: "Account Help",
           subtitle: "Login, profile, and settings",
@@ -153,6 +149,7 @@ class HelpScreen extends StatelessWidget {
   }
 
   Widget _helpTile({
+    required ThemeData theme,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -160,6 +157,7 @@ class HelpScreen extends StatelessWidget {
   }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
+      color: theme.colorScheme.surfaceBright,
       child: ListTile(
         leading: Icon(icon),
         title: Text(title),

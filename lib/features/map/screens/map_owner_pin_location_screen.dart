@@ -12,7 +12,7 @@ class MapOwnerPinLocationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MapContainer(
       title: "Set Equipment Location",
-      redirectRoute: AppRoutes.ownerAddressCreate,
+      redirectRoute: "${AppRoutes.ownerAddressCreate}?service=equipment",
       redirectLabel: "Back to equipment",
       mobileMap: MapOwnerPinLocationContainer(equipmentId: equipmentId),
     );

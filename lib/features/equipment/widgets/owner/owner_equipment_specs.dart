@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
@@ -170,12 +172,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final valid = _validate();
     if (!valid) {
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please fix validation errors'),
-          backgroundColor: colorScheme.error,
-        ),
-      );
+
+      AppSnackBar.show(context, message: "Please provide missing information");
+
       return;
     }
 
@@ -191,6 +190,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       payload.add(
         EquipmentSpecUpdateInput(
           specId: spec.id,
+          categorySpecId: spec.id,
           value: _normalizeValue(controller.text, inputType: spec.inputType),
         ),
       );
@@ -224,32 +224,21 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           _errorsByKey.clear();
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Equipment Updated'),
-            backgroundColor: colorScheme.primary,
-          ),
+        AppSnackBar.show(
+          context,
+          message: "Equipment Updated",
+          isSuccess: true,
         );
       } else {
         setState(() => _isSaving = false);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Update Failed'),
-            backgroundColor: colorScheme.error,
-          ),
-        );
+        AppSnackBar.show(context, message: "Update Failed", isError: true);
       }
     } catch (_) {
       if (!mounted) return;
       setState(() => _isSaving = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Update Failed'),
-          backgroundColor: colorScheme.error,
-        ),
-      );
+      AppSnackBar.show(context, message: "Update Failed", isError: true);
     }
   }
 
@@ -279,19 +268,20 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final canSave = hasSpecs && _isDirty && !_isSaving && !_hasErrors();
 
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
-      ),
+      padding: const EdgeInsets.all(0),
+      // decoration: BoxDecoration(
+      //   color: theme.cardColor,
+      //   borderRadius: BorderRadius.circular(20),
+      //   border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
+      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('TECHNICAL SPECS', style: theme.textTheme.titleLarge),
+              SectionTitle(title: "Technical Specs"),
+
               _isDirty
                   ? TextButton.icon(
                       onPressed: canSave ? _handleSave : null,
@@ -328,16 +318,12 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                     ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Update equipment specs. Some specs may be visible to clients.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: ghostGray,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
+
+          // Text(
+          //   'Update equipment specs. Some specs may be visible to clients.',
+          //   style: theme.textTheme.labelSmall,
+          // ),
+          // const SizedBox(height: 12),
           if (!hasSpecs)
             Text(
               'No specs configured for this equipment yet.',
@@ -408,8 +394,6 @@ class _SpecField extends StatelessWidget {
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
     final accent = colorScheme.primary;
 
-    final fieldBg = colorScheme.surfaceContainerHighest.withValues(alpha: 0.6);
-
     Widget input;
     if (inputType == 'BOOLEAN') {
       final current = controller.text.trim().toLowerCase() == 'true';
@@ -461,10 +445,10 @@ class _SpecField extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           decoration: BoxDecoration(
-            color: fieldBg,
+            color: theme.colorScheme.surfaceBright,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: colorScheme.outline.withValues(alpha: 0.25),
+              color: colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(

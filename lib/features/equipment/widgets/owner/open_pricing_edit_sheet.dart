@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/industrial_input_container.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -19,9 +20,8 @@ Future<void> submitPriceEntry(
   final serviceTime = int.tryParse(serviceTimeController.text.trim()) ?? 0;
 
   if (price == null) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Please enter a valid price")));
+    AppSnackBar.show(context, message: "Please enter a valid price");
+
     return;
   }
 
@@ -29,36 +29,52 @@ Future<void> submitPriceEntry(
     final notifier = ref.read(equipmentProvider.notifier);
 
     if (priceEntry == null) {
-      await notifier.createPriceEntry({
+      final res = await notifier.createPriceEntry({
+        "equipmentId": equipmentId,
         "price": price,
         "priceRate": selectedRate,
         "serviceTime": serviceTime,
       });
+
+      if (res) {
+        AppSnackBar.show(context, message: "Price entry added");
+      } else {
+        AppSnackBar.show(
+          context,
+          message: "Failed to add price entry",
+          isError: true,
+        );
+      }
     } else {
-      await notifier.updatePriceEntry({
+      final res = await notifier.updatePriceEntry({
         "id": priceEntry.id,
+        "equipmentId": equipmentId,
         "price": price,
         "priceRate": selectedRate,
         "serviceTime": serviceTime,
       });
+
+      if (res) {
+        AppSnackBar.show(context, message: "Price entry saved");
+      } else {
+        AppSnackBar.show(
+          context,
+          message: "Failed to update price entry",
+          isError: true,
+        );
+      }
     }
 
     if (context.mounted) {
       // Close drawer
       Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            priceEntry == null ? "Price entry created" : "Price entry updated",
-          ),
-        ),
-      );
     }
   } catch (e) {
-    ScaffoldMessenger.of(
+    AppSnackBar.show(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Failed to save price entry")));
+      message: "Failed to save price entry",
+      isError: true,
+    );
   }
 }
 
@@ -146,10 +162,9 @@ void openPricingEditSheet(
                           (option) => DropdownMenuItem<String>(
                             value: option.value,
                             child: Text(
-                              option.label.toUpperCase(),
+                              option.label,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onSurface,
-                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -160,29 +175,6 @@ void openPricingEditSheet(
                         setLocalState(() => selectedRate = value);
                       }
                     },
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              /// 3. SERVICE TIME
-              IndustrialInputContainer(
-                label: "SERVICE DURATION (MINUTES)",
-                child: TextField(
-                  controller: serviceTimeController,
-                  keyboardType: TextInputType.number,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: "60",
-                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.4),
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
                   ),
                 ),
               ),

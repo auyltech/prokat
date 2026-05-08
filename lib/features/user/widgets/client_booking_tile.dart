@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -305,9 +306,7 @@ Future<void> _handleCancel(
     if (res == true) {
       Navigator.pop(context); // close sheet
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
+      AppSnackBar.show(context, message: "Order Cancelled");
     }
     // ScaffoldMessenger.of(context).showSnackBar(
     //   SnackBar(

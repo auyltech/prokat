@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 
@@ -18,13 +19,9 @@ class OfferTile extends ConsumerWidget {
     final success = await notifier.acceptOffer(offer.id);
 
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Offer $status")));
+      AppSnackBar.show(context, message: "Offer Updated", isSuccess: true);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Something went wrong")));
+      AppSnackBar.show(context, message: "Something went wrong", isError: true);
     }
   }
 

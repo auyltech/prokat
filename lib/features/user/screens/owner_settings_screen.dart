@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 
 class OwnerSettingsScreen extends StatelessWidget {
   const OwnerSettingsScreen({super.key});
@@ -8,68 +10,93 @@ class OwnerSettingsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Owner Settings")),
       body: ListView(
-        padding: const EdgeInsets.all(16),
         children: [
-          _sectionTitle("Availability", theme),
-          _card([
-            _switchTile("Auto-accept bookings", true, (v) {}),
-            _switchTile("Allow same-day bookings", false, (v) {}),
-            _tile("Minimum rental duration", "1 day", () {}),
-          ]),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(color: theme.colorScheme.primary),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                  onPressed: () => context.pop(),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Settings",
+                  style: TextStyle(color: theme.colorScheme.onPrimary),
+                ),
+              ],
+            ),
+          ),
 
-          const SizedBox(height: 16),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // SectionTitle(title: "Availability"),
 
-          _sectionTitle("Booking Preferences", theme),
-          _card([
-            _switchTile("Require approval", true, (v) {}),
-            _switchTile("Allow instant booking", false, (v) {}),
-            _tile("Advance notice", "2 hours", () {}),
-          ]),
+                // _card([
+                //   _switchTile("Auto-accept bookings", true, (v) {}),
+                //   _switchTile("Allow same-day bookings", false, (v) {}),
+                //   _tile("Minimum rental duration", "1 day", () {}),
+                // ]),
 
-          const SizedBox(height: 16),
+                // const SizedBox(height: 16),
 
-          _sectionTitle("Pricing Behavior", theme),
-          _card([
-            _switchTile("Enable dynamic pricing", false, (v) {}),
-            _switchTile("Weekend price adjustment", true, (v) {}),
-            _tile("Security deposit", "\$100", () {}),
-          ]),
+                // SectionTitle(title: "Booking Preferences"),
 
-          const SizedBox(height: 16),
+                // _card([
+                //   _switchTile("Require approval", true, (v) {}),
+                //   _switchTile("Allow instant booking", false, (v) {}),
+                //   _tile("Advance notice", "2 hours", () {}),
+                // ]),
 
-          _sectionTitle("Notifications", theme),
-          _card([
-            _switchTile("New booking requests", true, (v) {}),
-            _switchTile("Messages", true, (v) {}),
-            _switchTile("Reminders", true, (v) {}),
-          ]),
+                // const SizedBox(height: 16),
 
-          const SizedBox(height: 16),
+                // SectionTitle(title: "Pricing Behavior"),
+                // _card([
+                //   _switchTile("Enable dynamic pricing", false, (v) {}),
+                //   _switchTile("Weekend price adjustment", true, (v) {}),
+                //   _tile("Security deposit", "\$100", () {}),
+                // ]),
 
-          _sectionTitle("Safety & Rules", theme),
-          _card([
-            _tile("Cancellation policy", "Moderate", () {}),
-            _tile("Damage policy", "Standard coverage", () {}),
-          ]),
+                // const SizedBox(height: 16),
 
-          const SizedBox(height: 16),
+                SectionTitle(title: "Notifications"),
+                _card([
+                  _switchTile("New booking requests", true, (v) {}),
+                  _switchTile("Messages", true, (v) {}),
+                  _switchTile("Reminders", true, (v) {}),
+                ]),
 
-          _sectionTitle("Danger Zone", theme),
-          _card([
-            _dangerTile("Deactivate account", () {}),
-            _dangerTile("Delete account", () {}),
-          ]),
+                const SizedBox(height: 16),
+
+                SectionTitle(title: "Safety & Rules"),
+
+                _card([
+                  _tile("Cancellation policy", "Moderate", () {}),
+                  _tile("Damage policy", "Standard coverage", () {}),
+                ]),
+
+                const SizedBox(height: 16),
+
+                SectionTitle(title: "Danger Zone"),
+
+                _card([
+                  _dangerTile("Deactivate account", () {}),
+                  _dangerTile("Delete account", () {}),
+                ]),
+              ],
+            ),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _sectionTitle(String title, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(title, style: theme.textTheme.titleMedium),
     );
   }
 

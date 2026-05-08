@@ -61,8 +61,8 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       icon: Icons.add_business_outlined,
       title: 'Become an Owner',
       subtitle: 'Start earning by listing your equipment',
-      bgColor: theme.colorScheme.surface.withValues(alpha: 0.5),
-      contentColor: theme.colorScheme.onSurfaceVariant,
+      bgColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+      contentColor: theme.colorScheme.onSurface,
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
   }

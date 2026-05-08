@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
@@ -54,150 +56,108 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
       offersByRequest[requestId]!.add(offer);
     }
 
-    final slivers = <Widget>[
-      SliverAppBar(
-        automaticallyImplyLeading: false,
-        expandedHeight: 60,
-        floating: true,
-        pinned: true,
-        backgroundColor: theme.colorScheme.primary,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          "My Requests",
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onPrimary,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => authSession == null
-                ? null
-                : context.push(AppRoutes.clientRequestsCreate),
-            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 24),
-            tooltip: "Create Request",
-          ),
-        ],
-        actionsPadding: const EdgeInsets.only(right: 12),
-      ),
-    ];
-
-    if (authSession == null) {
-      slivers.add(
-        _buildCenteredFallback(
-          icon: Icons.login_outlined,
-          message: "Login to create and view requests",
-        ),
-      );
-    } else if (state.isLoading) {
-      slivers.add(
-        const SliverFillRemaining(
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      );
-    } else if (state.error != null) {
-      slivers.add(
-        _buildCenteredFallback(
-          icon: Icons.error_outline,
-          message: "Error: ${state.error}",
-        ),
-      );
-    } else if (active.isEmpty) {
-      slivers.add(
-        _buildCenteredFallback(
-          icon: Icons.description_outlined,
-          message: "No requests found",
-        ),
-      );
-    } else {
-      slivers.addAll([
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-            child: Text("ACTIVE REQUESTS", style: theme.textTheme.labelMedium),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final r = active[index];
-              final requestOffers = offersByRequest[r.id] ?? [];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: RequestWithOffers(
-                  request: r,
-                  offers: requestOffers,
-                  onCancel: () =>
-                      ref.read(requestProvider.notifier).cancelRequest(r.id),
-                ),
-              );
-            }, childCount: active.length),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-          sliver: SliverToBoxAdapter(
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () => authSession == null
-                    ? null
-                    : context.push(AppRoutes.clientRequestsCreate),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 0,
-                ),
-                icon: const Icon(Icons.add, size: 26),
-                label: const Text(
-                  "CREATE A NEW REQUEST",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ]);
-    }
-
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(top: false, child: CustomScrollView(slivers: slivers)),
-    );
-  }
+      body: ListView(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(color: theme.colorScheme.primary),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                  onPressed: () => context.pop(),
+                ),
 
-  Widget _buildCenteredFallback({
-    required IconData icon,
-    required String message,
-  }) {
-    return SliverFillRemaining(
-      hasScrollBody: false, // Prevents bounce if content is small
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 64, color: Colors.white.withValues(alpha: 0.2)),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: Text(
+                    "My Requests",
+                    style: TextStyle(color: theme.colorScheme.onPrimary),
+                  ),
+                ),
+
+                IconButton(
+                  onPressed: () => authSession == null
+                      ? null
+                      : context.push(AppRoutes.clientRequestsCreate),
+                  icon: Icon(
+                    Icons.add,
+                    color: theme.colorScheme.onPrimary,
+                    size: 24,
+                  ),
+                  tooltip: "Create Request",
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          if (authSession == null)
+            EmptyStateTile(
+              title: "Login to create and view requests",
+              icon: Icons.login_outlined,
+            )
+          else if (state.isLoading)
+            Center(child: CircularProgressIndicator())
+          else if (state.error != null)
+            EmptyStateTile(
+              title: "Something went wrong!",
+              subtitle: "Error loading requests",
+              icon: Icons.error_outline,
+            )
+          else if (active.isEmpty)
+            Padding(
+              padding: EdgeInsets.all(24),
+              child: EmptyStateTile(
+                title: "You don't have any active requests",
+                icon: Icons.description_outlined,
+              ),
+            )
+          else
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                  child: Text(
+                    "ACTIVE REQUESTS",
+                    style: theme.textTheme.labelMedium,
+                  ),
+                ),
+
+                ListView.builder(
+                  itemCount: active.length,
+                  padding: const EdgeInsets.only(
+                    bottom: 12,
+                  ), // Adjust as needed
+                  itemBuilder: (context, index) {
+                    final r = active[index];
+                    final requestOffers = offersByRequest[r.id] ?? [];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: RequestWithOffers(
+                        request: r,
+                        offers: requestOffers,
+                        onCancel: () => ref
+                            .read(requestProvider.notifier)
+                            .cancelRequest(r.id),
+                      ),
+                    );
+                  },
+                ),
+
+                PrimaryButton(
+                  label: "Create a new request",
+                  onPressed: () => context.push(AppRoutes.clientRequestsCreate),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }

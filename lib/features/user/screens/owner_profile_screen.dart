@@ -142,7 +142,7 @@ class OwnerProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   _buildMenuTile(
                     icon: Icons.help_outline,
-                    title: "Support & Help",
+                    title: "Help & Support",
                     subtitle: "FAQs, Contact Support",
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
@@ -176,7 +176,7 @@ class OwnerProfileScreen extends ConsumerWidget {
     return BaseTile(
       padding: EdgeInsets.zero,
       borderRadius: 12,
-      onTap: onTap, // 👈 move tap here if BaseTile supports InkWell
+      onTap: onTap, 
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Material(

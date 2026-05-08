@@ -65,7 +65,7 @@ void openLocationPickerSheet(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 child: Text(
                   "No saved locations yet",
-                  style: TextStyle(color: Colors.white24, fontSize: 13),
+                  style: TextStyle(color: Colors.black, fontSize: 13),
                 ),
               )
             else

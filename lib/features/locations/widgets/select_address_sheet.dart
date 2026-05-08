@@ -4,9 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
+  final String service;
   final String? equipmentId;
 
-  const SelectAddressSheet({super.key, this.equipmentId});
+  const SelectAddressSheet({
+    super.key,
+    this.equipmentId,
+    required this.service,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,7 +90,7 @@ class SelectAddressSheet extends ConsumerWidget {
                 Navigator.pop(context);
                 context.push(
                   '/addresses/pintomap',
-                  extra: {'equipmentId': equipmentId},
+                  extra: {'equipmentId': equipmentId, "service": service},
                 );
               },
               icon: const Icon(Icons.map_outlined, size: 20),

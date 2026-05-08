@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/cities.dart';
-import 'package:prokat/core/widgets/inline_tile.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/edit_sheet.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/owner/open_location_picker_sheet.dart';
 
 class LocationSection extends StatefulWidget {
   final Equipment equipment;
   final String? location;
-  final VoidCallback onAction;
   final WidgetRef ref;
 
   const LocationSection({
     super.key,
     required this.equipment,
     required this.location,
-    required this.onAction,
     required this.ref,
   });
 
@@ -30,9 +31,6 @@ class _LocationSectionState extends State<LocationSection> {
   bool _isSaving = false;
 
   Future<void> _handleSave() async {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     try {
       final res = await widget.ref
           .read(equipmentProvider.notifier)
@@ -47,11 +45,10 @@ class _LocationSectionState extends State<LocationSection> {
           _isSaving = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Equipment Updated"),
-            backgroundColor: colorScheme.primary,
-          ),
+        AppSnackBar.show(
+          context,
+          message: "Equipment Updated",
+          isSuccess: true,
         );
       } else {
         setState(() {
@@ -61,13 +58,7 @@ class _LocationSectionState extends State<LocationSection> {
       }
     } catch (_) {
       setState(() => _isSaving = false);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Update Failed"),
-          backgroundColor: colorScheme.error,
-        ),
-      );
+      AppSnackBar.show(context, message: "Update Failed", isError: true);
     }
   }
 
@@ -98,7 +89,8 @@ class _LocationSectionState extends State<LocationSection> {
     final location = widget.location;
     final bool hasLocation = location != null && location.isNotEmpty;
 
-    return InlineTile(
+    return Container(
+      padding: EdgeInsets.all(0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -106,7 +98,8 @@ class _LocationSectionState extends State<LocationSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("LOCATION", style: theme.textTheme.titleLarge),
+              SectionTitle(title: "Location"),
+
               _isDirty
                   ? TextButton.icon(
                       onPressed: _isSaving ? null : _handleSave,
@@ -141,8 +134,7 @@ class _LocationSectionState extends State<LocationSection> {
             ],
           ),
 
-          SizedBox(height: 12),
-
+          // Equipment City
           ValueListenableBuilder(
             valueListenable: _cityController,
             builder: (context, value, child) {
@@ -156,38 +148,39 @@ class _LocationSectionState extends State<LocationSection> {
                   //     ? cities.first
                   //     : cities[0];
 
-                  showModalBottomSheet(
+                  showEditSheet(
                     context: context,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
+                    sheet: EditSheet(
+                      title: "Select City",
+                      buttonText: "",
+                      onSubmit: () => {},
+                      child: StatefulBuilder(
+                        builder: (context, setLocalState) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 10),
+                                ...cities.map(
+                                  (city) => ListTile(
+                                    title: Text(city),
+                                    leading: const Icon(Icons.location_city),
+                                    trailing: _cityController.text == city
+                                        ? Icon(
+                                            Icons.check_circle,
+                                            color: accent,
+                                          )
+                                        : null,
+                                    onTap: () => _selectCity(city),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
-                    builder: (context) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "Select City",
-                              style: theme.textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 10),
-                            ...cities.map(
-                              (city) => ListTile(
-                                title: Text(city),
-                                leading: const Icon(Icons.location_city),
-                                trailing: _cityController.text == city
-                                    ? Icon(Icons.check_circle, color: accent)
-                                    : null,
-                                onTap: () => _selectCity(city),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
                   );
                 },
                 child: Container(
@@ -196,10 +189,10 @@ class _LocationSectionState extends State<LocationSection> {
                     horizontal: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: theme.colorScheme.surfaceBright,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.25),
+                      color: colorScheme.outline.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
@@ -244,16 +237,20 @@ class _LocationSectionState extends State<LocationSection> {
 
           SizedBox(height: 12),
 
-          /// CONTENT
+          /// Equipment Location
           GestureDetector(
-            onTap: widget.onAction,
+            onTap: () => openLocationPickerSheet(
+              context,
+              widget.ref,
+              widget.equipment.id,
+            ),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: theme.colorScheme.surfaceBright,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.25),
+                  color: colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -270,14 +267,14 @@ class _LocationSectionState extends State<LocationSection> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          hasLocation ? "CURRENT LOCATION" : "ENTER LOCATION",
+                          hasLocation ? "Current Location" : "Enter Location",
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.primaryColor,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          location ?? "Add a location to enable bookings",
+                          hasLocation ? location : "Equipment base location",
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: hasLocation
                                 ? colorScheme.onSurface

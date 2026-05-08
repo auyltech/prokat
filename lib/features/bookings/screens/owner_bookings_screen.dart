@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 
 class OwnerBookingsScreen extends ConsumerStatefulWidget {
   const OwnerBookingsScreen({super.key});
@@ -26,10 +28,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final state = ref.watch(bookingProvider);
+    final bookingState = ref.watch(bookingProvider);
 
     // Logic: Split into actionable categories
-    final newBookings = state.ownerBookings
+    final newBookings = bookingState.ownerBookings
         .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
         .toList();
 
@@ -71,18 +73,34 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
             ],
             actionsPadding: const EdgeInsets.only(right: 12),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: OwnerBookingTile(booking: newBookings[index]),
+
+          if (bookingState.isLoading)
+            SliverToBoxAdapter(child: RequestTileSkeleton())
+          else if (bookingState.error != null)
+            SliverToBoxAdapter(child: Text("Error loading orders"))
+          else if (newBookings.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: EmptyStateTile(
+                  title: "You don't have any active orders",
                 ),
-                childCount: newBookings.length,
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: OwnerBookingTile(booking: newBookings[index]),
+                  ),
+                  childCount: newBookings.length,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

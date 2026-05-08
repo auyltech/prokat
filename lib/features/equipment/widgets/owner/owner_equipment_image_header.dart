@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
@@ -85,9 +86,7 @@ class _OwnerEquipmentImageHeaderState
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           'Failed to upload photo';
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      AppSnackBar.show(context, message: message, isError: true);
     } else {
       final count = _displayImages.length;
       if (count > 0) {
@@ -141,9 +140,7 @@ class _OwnerEquipmentImageHeaderState
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           'Failed to delete photo';
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      AppSnackBar.show(context, message: message, isError: true);
     }
   }
 
@@ -163,9 +160,7 @@ class _OwnerEquipmentImageHeaderState
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           'Failed to set cover photo';
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      AppSnackBar.show(context, message: message, isError: true);
     }
   }
 

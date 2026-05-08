@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 
 class OwnerBookingHistoryScreen extends ConsumerStatefulWidget {
   const OwnerBookingHistoryScreen({super.key});
@@ -28,9 +30,9 @@ class _OwnerBookingHistoryScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final state = ref.watch(bookingProvider);
+    final bookingState = ref.watch(bookingProvider);
 
-    final bookingHistory = state.ownerBookings
+    final bookingHistory = bookingState.ownerBookings
         .where(
           (b) =>
               b.status.toLowerCase() == BookingStatus.completed.name ||
@@ -82,24 +84,39 @@ class _OwnerBookingHistoryScreenState
             ),
 
             SliverPadding(
-              padding: EdgeInsets.all(24),
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 0),
               sliver: SliverToBoxAdapter(
                 child: SearchBox(placeholder: "Search..."),
               ),
             ),
 
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: OwnerBookingTile(booking: bookingHistory[index]),
+            if (bookingState.isLoading)
+              SliverToBoxAdapter(child: RequestTileSkeleton())
+            else if (bookingState.error != null)
+              SliverToBoxAdapter(child: Text("Error Loading orders"))
+            else if (bookingHistory.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: EmptyStateTile(
+                    title: "There are no orders in your history",
                   ),
-                  childCount: bookingHistory.length,
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: OwnerBookingTile(booking: bookingHistory[index]),
+                    ),
+                    childCount: bookingHistory.length,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

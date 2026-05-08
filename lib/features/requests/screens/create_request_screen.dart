@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/utils/parse.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
-import 'package:prokat/core/widgets/industrial_text_field.dart';
+import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -30,7 +34,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => const SelectAddressSheet(),
+      builder: (context) => const SelectAddressSheet(service: "address",),
     );
   }
 
@@ -75,193 +79,165 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     });
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        top: false,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              automaticallyImplyLeading: false,
-              expandedHeight: 60, // Adjust height as needed
-              floating: true, // AppBar reappears immediately when scrolling up
-              pinned: true,
-              backgroundColor: theme.colorScheme.primary,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: theme.colorScheme.onPrimary,
+      body: ListView(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(color: theme.colorScheme.primary),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                  onPressed: () => context.pop(),
                 ),
-                onPressed: () => context.pop(),
-              ),
-              title: Text(
-                "New Request",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.onPrimary,
+
+                const SizedBox(width: 8),
+
+                Expanded(
+                  child: Text(
+                    "New Request",
+                    style: TextStyle(color: theme.colorScheme.onPrimary),
+                  ),
                 ),
-              ),
+              ],
             ),
+          ),
 
-            SliverPadding(
-              padding: const EdgeInsets.all(24.0),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CategorySelectorTile(mode: "create_request"),
+
+                const SizedBox(height: 24),
+
+                SectionTitle(title: "Delivery Location"),
+
+                const SizedBox(height: 6),
+
+                AddressPickerCard(
+                  selectedAddress: locationState.selectedAddress,
+                  onTap: () => _openAddressSheet(context),
+                ),
+
+                const SizedBox(height: 24),
+
+                SectionTitle(title: "Equipment Specs"),
+
+                const SizedBox(height: 6),
+
+                InputField(
+                  label: "Required Capacity",
+                  controller: capacityController,
+                  hint: "10 M3",
+                  icon: Icons.high_quality_rounded,
+                ),
+                InputField(
+                  label: "Offered Rate",
+                  controller: rateController,
+                  hint: "Price you're willing to pay",
+                  icon: Icons.payments_outlined,
+                ),
+                InputField(
+                  label: "Comments",
+                  controller: commentController,
+                  hint: "Additional details...",
+                  icon: Icons.chat_bubble_outline_rounded,
+                ),
+
+                const SizedBox(height: 24),
+
+                SectionTitle(title: "Date & Time"),
+
+                const SizedBox(height: 6),
+
+                Row(
                   children: [
-                    CategorySelectorTile(mode: "create_request"),
-                    const SizedBox(height: 24),
-
-                    Text(
-                      "Delivery Location",
-                      style: theme.textTheme.headlineMedium,
+                    Expanded(
+                      child: DateTimeButton(
+                        icon: Icons.calendar_today_rounded,
+                        label: requestState.selectedDate == null
+                            ? "Select Date"
+                            : DateFormat(
+                                'MMM dd, yyyy',
+                              ).format(requestState.selectedDate!),
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 365),
+                            ),
+                          );
+                          if (date != null) requestNotifier.setDate(date);
+                        },
+                      ),
                     ),
-
-                    const SizedBox(height: 6),
-                    AddressPickerCard(
-                      selectedAddress: locationState.selectedAddress,
-                      onTap: () => _openAddressSheet(context),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    Text(
-                      "Equipment Specs",
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 6),
-
-                    IndustrialTextField(
-                      controller: capacityController,
-                      label: "Required Capacity",
-                      hint: "e.g. 10 Kub",
-                      icon: Icons.high_quality_rounded,
-                      onChanged: (value) =>
-                          ref.read(requestProvider.notifier).setCapacity(value),
-                    ),
-
-                    IndustrialTextField(
-                      controller: rateController,
-                      label: "Offered Rate",
-                      hint: "Price you're willing to pay",
-                      icon: Icons.payments_outlined,
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        final rate = int.tryParse(value);
-                        if (rate != null) {
-                          ref
-                              .read(requestProvider.notifier)
-                              .setOfferedRate(rate);
-                        }
-                      },
-                    ),
-                    IndustrialTextField(
-                      controller: commentController,
-                      label: "Comments",
-                      hint: "Additional details...",
-                      icon: Icons.chat_bubble_outline_rounded,
-                      maxLines: 3,
-                      onChanged: (value) =>
-                          ref.read(requestProvider.notifier).setComment(value),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    Text("Date & Time", style: theme.textTheme.headlineMedium),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DateTimeButton(
-                            icon: Icons.calendar_today_rounded,
-                            label: requestState.selectedDate == null
-                                ? "Select Date"
-                                : DateFormat(
-                                    'MMM dd, yyyy',
-                                  ).format(requestState.selectedDate!),
-                            onTap: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime.now().add(
-                                  const Duration(days: 365),
-                                ),
-                              );
-                              if (date != null) requestNotifier.setDate(date);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: DateTimeButton(
-                            icon: Icons.access_time_rounded,
-                            label: requestState.selectedTime == null
-                                ? "Select Time"
-                                : TimeOfDay.fromDateTime(
-                                    requestState.selectedTime!,
-                                  ).format(context),
-                            onTap: () async {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now(),
-                              );
-                              if (time != null) {
-                                final now = DateTime.now();
-                                requestNotifier.setTime(
-                                  DateTime(
-                                    now.year,
-                                    now.month,
-                                    now.day,
-                                    time.hour,
-                                    time.minute,
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Submit Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 58,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final res = await requestNotifier.createRequest();
-                          if (context.mounted && res == true) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Request created")),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DateTimeButton(
+                        icon: Icons.access_time_rounded,
+                        label: requestState.selectedTime == null
+                            ? "Select Time"
+                            : TimeOfDay.fromDateTime(
+                                requestState.selectedTime!,
+                              ).format(context),
+                        onTap: () async {
+                          final time = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (time != null) {
+                            final now = DateTime.now();
+                            requestNotifier.setTime(
+                              DateTime(
+                                now.year,
+                                now.month,
+                                now.day,
+                                time.hour,
+                                time.minute,
+                              ),
                             );
-                            context.pop();
                           }
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0, // Flat design looks better in slivers
-                        ),
-                        child: const Text(
-                          "SUBMIT REQUEST",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
+
+                const SizedBox(height: 40),
+
+                PrimaryButton(
+                  label: "Create",
+                  onPressed: () async {
+                    final res = await requestNotifier.createRequest(
+                      capacity: capacityController.text.trim(),
+                      offeredRate:
+                          parseNullableInt(rateController.text.trim()) ?? 0,
+                      comment: commentController.text.trim(),
+                    );
+
+                    if (context.mounted && res == true) {
+                      AppSnackBar.show(
+                        context,
+                        message: "Request created",
+                        isSuccess: true,
+                      );
+
+                      context.pop();
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

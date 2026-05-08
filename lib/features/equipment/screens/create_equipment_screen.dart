@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -52,37 +53,19 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       if (res == true && mounted) {
         context.pop();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            content: Text("Equipment Added!"),
-          ),
-        );
+        AppSnackBar.show(context, message: "Equipment Added", isSuccess: true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            content: Text("Could not add equipment"),
-          ),
+        AppSnackBar.show(
+          context,
+          message: "Could not add equipment",
+          isError: true,
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Theme.of(context).colorScheme.error,
-          content: Text("SYSTEM ERROR: ${e.toString().toUpperCase()}"),
-        ),
-      );
+      AppSnackBar.show(context, message: "Something went wrong", isError: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
-  }
-
-  void _selectCity(String city) {
-    _cityController.text = city;
-
-    Navigator.pop(context); // Close the sheet
-    setState(() {});
   }
 
   @override
@@ -161,7 +144,14 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                                               color: theme.colorScheme.primary,
                                             )
                                           : null,
-                                      onTap: () => _selectCity(city),
+                                      onTap: () {
+                                        _cityController.text = city;
+
+                                        Navigator.pop(
+                                          context,
+                                        ); // Close the sheet
+                                        setState(() {});
+                                      },
                                     ),
                                   ),
                                 ],

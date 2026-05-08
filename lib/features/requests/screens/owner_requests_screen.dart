@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
@@ -86,13 +87,9 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
             else if (activeRequests.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: Center(
-                  child: Text(
-                    "No active requests",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: EmptyStateTile(title: "No Requests at the moment"),
                 ),
               )
             else

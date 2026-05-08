@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -18,9 +19,7 @@ class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
 
       context.push('/search/map');
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Logout failed: $e')));
+      AppSnackBar.show(context, message: "Logout failed");
     }
   }
 

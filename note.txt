@@ -37,7 +37,6 @@ pull-to-refresh
 favorites
 owner badges
 
-
 Map Screen Drawer:
  I want a drawer which views the current address, 
  when clicked provides options to select another address or create a new one on the map, 

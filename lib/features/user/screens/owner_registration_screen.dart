@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 
 enum OwnerVerificationStatus { incomplete, pending, approved, rejected }
 
@@ -15,35 +17,62 @@ class OwnerRegistrationScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Owner Verification")),
+      // appBar: AppBar(title: const Text("Owner Verification")),
       body: ListView(
-        padding: const EdgeInsets.all(16),
         children: [
-          _buildStatusCard(theme),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(color: theme.colorScheme.primary),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                  onPressed: () => context.pop(),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Owner Profile",
+                  style: TextStyle(color: theme.colorScheme.onPrimary),
+                ),
+              ],
+            ),
+          ),
 
-          _buildChecklist(theme),
-          const SizedBox(height: 16),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildStatusCard(theme),
 
-          _sectionTitle("Documents", theme),
-          _card([
-            _documentTile("ID / Passport", true, () {}),
-            _documentTile("Proof of Address", false, () {}),
-            _documentTile("Business License (optional)", false, () {}),
-          ]),
+                const SizedBox(height: 16),
 
-          const SizedBox(height: 16),
+                _sectionTitle("Legal Information", theme),
+                _card([
+                  _tile("Full Name", "Mohamad Rabbani", () {}),
+                  _tile("Address", "Atyrau, Kazakhstan", () {}),
+                  _tile("Phone Number", "+7 XXX XXX", () {}),
+                ]),
 
-          _sectionTitle("Legal Information", theme),
-          _card([
-            _tile("Full Name", "Mohamad Rabbani", () {}),
-            _tile("Address", "Atyrau, Kazakhstan", () {}),
-            _tile("Phone Number", "+7 XXX XXX", () {}),
-          ]),
+                const SizedBox(height: 16),
 
-          const SizedBox(height: 24),
+                _sectionTitle("Documents", theme),
+                _card([
+                  _documentTile("ID / Passport", true, () {}),
+                  _documentTile("Proof of Address", false, () {}),
+                  _documentTile("Business License (optional)", false, () {}),
+                ]),
 
-          _buildCTA(context),
+                const SizedBox(height: 16),
+
+                _buildCTA(context),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -93,36 +122,12 @@ class OwnerRegistrationScreen extends StatelessWidget {
     }
 
     return Card(
+      color: theme.colorScheme.surfaceBright,
       child: ListTile(
         leading: Icon(icon, color: color),
         title: Text(title),
         subtitle: Text(subtitle),
       ),
-    );
-  }
-
-  /// 📋 CHECKLIST
-  Widget _buildChecklist(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionTitle("Your Progress", theme),
-        const SizedBox(height: 8),
-
-        _checkItem("Upload ID", true),
-        _checkItem("Add address", true),
-        _checkItem("Upload proof of address", false),
-      ],
-    );
-  }
-
-  Widget _checkItem(String text, bool done) {
-    return ListTile(
-      leading: Icon(
-        done ? Icons.check_circle : Icons.radio_button_unchecked,
-        color: done ? Colors.green : null,
-      ),
-      title: Text(text),
     );
   }
 
@@ -179,12 +184,9 @@ class OwnerRegistrationScreen extends StatelessWidget {
         break;
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: status == OwnerVerificationStatus.pending ? null : () {},
-        child: Text(text),
-      ),
+    return PrimaryButton(
+      label: text,
+      onPressed: status == OwnerVerificationStatus.pending ? null : () {},
     );
   }
 }

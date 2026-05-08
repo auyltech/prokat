@@ -17,10 +17,10 @@ class IndustrialInputContainer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.1), // Inset Panel
+        color: theme.colorScheme.surfaceBright, // Inset Panel
         borderRadius: BorderRadius.circular(16), // Small Item Radius
         border: Border.all(
-          color: Colors.black.withValues(alpha: 0.15),
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
         ), // Rim Light
       ),
       child: Column(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -68,13 +69,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _cityController.text = profile.city ?? _cityController.text;
   }
 
-  void _showSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   Future<void> _submit() async {
     final state = ref.read(ownerRegistrationProvider);
     final request = state.registrationRequest;
@@ -116,7 +110,11 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     if (!mounted) return;
 
     if (success) {
-      _showSnackBar(request == null ? "Request submitted" : "Request updated");
+      AppSnackBar.show(
+        context,
+        message: request == null ? "Request submitted" : "Request updated",
+        isSuccess: true,
+      );
     }
   }
 
@@ -134,8 +132,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     ref.listen(ownerRegistrationProvider, (previous, next) {
       final prevError = previous?.error;
       final nextError = next.error;
+
       if (nextError != null && nextError.isNotEmpty && nextError != prevError) {
-        _showSnackBar(nextError);
+        AppSnackBar.show(context, message: nextError, isError: true);
       }
 
       final request = next.registrationRequest;

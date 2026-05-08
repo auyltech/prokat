@@ -21,13 +21,13 @@ class _OwnerEquipmentDetailScreenState
     final theme = Theme.of(context);
 
     final equipmentNotifier = ref.watch(equipmentProvider);
+
     final equipment = equipmentNotifier.ownerEquipment
         .where((item) => item.id == equipmentNotifier.editEquipment?.id)
         .firstOrNull;
 
     final categories = ref.read(categoriesProvider).categories;
 
-    final isSelected = equipment?.categoryId != null;
     final selectedCategory =
         widget.mode == "create_request" || widget.mode == "create_equipment"
         ? equipmentNotifier.category
@@ -88,65 +88,49 @@ class _OwnerEquipmentDetailScreenState
 
     return GestureDetector(
       onTap: onCategoryTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.4),
+      child: Row(
+        children: [
+          // Icon Container
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: hasCategory
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.surfaceDim,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              hasCategory
+                  ? _getCategoryIcon(selectedCategory.name)
+                  : Icons.category_outlined,
+              color: hasCategory
+                  ? theme.colorScheme.onPrimary
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              size: 24,
+            ),
           ),
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: Colors.black.withValues(alpha: 0.3),
-          //     blurRadius: 8,
-          //     offset: const Offset(0, 4),
-          //   ),
-          // ],
-        ),
-        child: Row(
-          children: [
-            // Icon Container
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? theme.colorScheme.primary.withValues(alpha: 0.6)
-                    : theme.colorScheme.primary.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                hasCategory
-                    ? _getCategoryIcon(selectedCategory.name)
-                    : Icons.category_outlined,
-                color: hasCategory
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.secondary.withValues(alpha: 0.3),
-                size: 24,
-              ),
+
+          const SizedBox(width: 16),
+          // Text Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Text("Service", style: theme.textTheme.labelLarge),
+                // const SizedBox(height: 2),
+                Text(
+                  hasCategory ? categoryName : "Select Service",
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            // Text Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Text("Service", style: theme.textTheme.labelLarge),
-                  // const SizedBox(height: 2),
-                  Text(
-                    hasCategory ? categoryName : "Select Service",
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-            ),
-            // Trailing arrow
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
-          ],
-        ),
+          ),
+          // Trailing arrow
+          Icon(
+            Icons.chevron_right_rounded,
+            color: Colors.white.withValues(alpha: 0.2),
+          ),
+        ],
       ),
     );
   }

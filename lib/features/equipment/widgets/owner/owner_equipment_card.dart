@@ -37,46 +37,38 @@ class OwnerEquipmentCard extends ConsumerWidget {
             children: [
               _buildImage(equipment.imageUrl),
               const SizedBox(width: 12),
+
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      equipment.name,
-                      style: theme.textTheme.titleLarge,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      equipment.model.toUpperCase(),
-                      style: theme.textTheme.labelMedium,
-                    ),
-                    Text(
-                      equipment.plateNumber?.toUpperCase() ?? "",
-                      style: theme.textTheme.labelMedium,
-                    ),
-                  ],
+                child: GestureDetector(
+                  onTap: () {
+                    ref
+                        .read(equipmentProvider.notifier)
+                        .selectEditEquipment(equipment);
+                    context.push('${AppRoutes.ownerEquiment}/${equipment.id}');
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        equipment.name,
+                        style: theme.textTheme.titleLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        equipment.model.toUpperCase(),
+                        style: theme.textTheme.labelMedium,
+                      ),
+                      Text(
+                        equipment.plateNumber?.toUpperCase() ?? "",
+                        style: theme.textTheme.labelMedium,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
-              // Dedicated Edit Button
-              ElevatedButton(
-                onPressed: () {
-                  ref
-                      .read(equipmentProvider.notifier)
-                      .selectEditEquipment(equipment);
-                  context.push('${AppRoutes.ownerEquiment}/${equipment.id}');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primaryContainer,
-                  foregroundColor: colorScheme.onPrimaryContainer,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Icon(Icons.edit, size: 16),
-              ),
+              _StatusBadge(status: equipment.status),
             ],
           ),
 
@@ -114,8 +106,6 @@ class OwnerEquipmentCard extends ConsumerWidget {
               ),
 
               Spacer(),
-
-              _StatusBadge(status: equipment.status),
 
               Spacer(),
 

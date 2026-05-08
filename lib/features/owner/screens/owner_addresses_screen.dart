@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import '../widgets/address_list_tile.dart';
 import '../widgets/address_empty_state.dart';
-import 'owner_address_create_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class OwnerAddressesScreen extends ConsumerWidget {
   const OwnerAddressesScreen({super.key});
@@ -29,10 +30,11 @@ class OwnerAddressesScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const OwnerAddressCreateScreen()),
-          );
+          context.push(AppRoutes.ownerAddressCreate);
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (_) => const OwnerAddressCreateScreen()),
+          // );
         },
       ),
     );
