@@ -38,7 +38,7 @@ class GuestEquipmentCard extends StatelessWidget {
               item.imageUrl ?? "",
               width: 100,
               height: 76,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               errorBuilder: (_, _, _) => Container(
                 width: 76,
                 height: 76,
@@ -90,6 +90,7 @@ class GuestEquipmentCard extends StatelessWidget {
                     style: theme.textTheme.labelMedium,
                   ),
                   const SizedBox(height: 6),
+
                   Row(
                     children: [
                       const Icon(
@@ -117,9 +118,11 @@ class GuestEquipmentCard extends StatelessWidget {
             padding: EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _StatusBadge(isTop: isTop),
+
+                SizedBox(height: 20),
 
                 RichText(
                   text: TextSpan(

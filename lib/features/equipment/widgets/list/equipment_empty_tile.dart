@@ -11,7 +11,7 @@ class EquipmentEmptyTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: theme.colorScheme.outlineVariant.withOpacity(0.4),
@@ -23,7 +23,7 @@ class EquipmentEmptyTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundColor: theme.colorScheme.surfaceVariant,
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
             child: Icon(
               Icons.inventory_2_outlined,
               color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),

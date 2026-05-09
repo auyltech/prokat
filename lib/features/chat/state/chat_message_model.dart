@@ -49,7 +49,7 @@ class ChatMessageModel {
       senderId: senderId ?? this.senderId,
       senderName: senderName ?? this.senderName,
       senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
-      content: message ?? this.content,
+      content: message ?? content,
       type: type ?? this.type,
       clientTempId: clientTempId ?? this.clientTempId,
       isPending: isPending ?? this.isPending,

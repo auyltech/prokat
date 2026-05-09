@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
+import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -75,355 +76,320 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final displayUrl = equipment?.imageUrl ?? "";
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        top: false,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              automaticallyImplyLeading: false,
-              expandedHeight: 60, // Adjust height as needed
-              floating: true, // AppBar reappears immediately when scrolling up
-              pinned: true,
-              backgroundColor: theme.colorScheme.primary,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: theme.colorScheme.onPrimary,
-                ),
-                onPressed: () => context.pop(),
-              ),
-              title: Text(
-                "Book Equipment",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.onPrimary,
-                ),
-              ),
-            ),
+      body: ListView(
+        children: [
+          PageHeader(title: "Create Booking"),
 
-            if (authSession == null)
-              _buildCenteredFallback(
-                icon: Icons.login_outlined,
-                message: "Login to book this equipment",
-              )
-            else if (equipment == null)
-              _buildCenteredFallback(
-                icon: Icons.login_outlined,
-                message: "Equipment not found",
-              )
-            else
-              SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// 1. ASSET HEADER CARD
-                    EquipmentImageHeader(imageUrl: displayUrl),
+          if (authSession == null)
+            _buildCenteredFallback(
+              icon: Icons.login_outlined,
+              message: "Login to book this equipment",
+            )
+          else if (equipment == null)
+            _buildCenteredFallback(
+              icon: Icons.login_outlined,
+              message: "Equipment not found",
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// 1. ASSET HEADER CARD
+                EquipmentImageHeader(imageUrl: displayUrl),
 
-                    Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              GestureDetector(
-                                onTap: isClient
-                                    ? () async {
-                                        ref
-                                            .read(favoriteProvider.notifier)
-                                            .toggleFavorite(equipment.id);
-                                      }
-                                    : null,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: Icon(
-                                    isFavorite
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: Colors.red,
-                                    size: 32,
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(width: 8),
-
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "${equipment.name} ${equipment.model}"
-                                        .toUpperCase(),
-                                    style: theme.textTheme.titleLarge,
-                                  ),
-                                  Text(
-                                    "${equipment.owner?.displayName}"
-                                        .toUpperCase(),
-                                    style: theme.textTheme.titleMedium,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          Text(
-                            "SPEC: ${equipment.capacity} ${equipment.capacityUnit}",
-                            style: theme.textTheme.titleMedium,
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          /// Pricing
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4, bottom: 12),
-                            child: Text(
-                              "Pricing Plan",
-                              style: theme.textTheme.headlineLarge,
-                            ),
-                          ),
-
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: List.generate(priceEntries?.length ?? 0, (
-                              index,
-                            ) {
-                              final entry = priceEntries?[index];
-                              final isSelected =
-                                  bookingState.selectedPriceEntry?.id ==
-                                  entry?.id;
-
-                              return GestureDetector(
-                                onTap: () {
-                                  if (entry != null) {
+                          GestureDetector(
+                            onTap: isClient
+                                ? () async {
                                     ref
-                                        .read(bookingProvider.notifier)
-                                        .selectPriceEntry(entry);
-                                    setState(() => selectedPriceIndex = index);
+                                        .read(favoriteProvider.notifier)
+                                        .toggleFavorite(equipment.id);
                                   }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? theme.colorScheme.primary
-                                        : theme.cardColor,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.outline
-                                                .withValues(alpha: 0.4),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    "${entry?.price} ₸ / ${entry?.priceRate}",
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: isSelected
-                                          ? theme.colorScheme.onPrimary
-                                          : theme.colorScheme.onSurface
-                                                .withValues(alpha: 0.7),
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          /// Address & Schedule
-                          Padding(
-                            padding: const EdgeInsets.only(left: 4, bottom: 12),
-                            child: Text(
-                              "Address & Schedule",
-                              style: theme.textTheme.headlineLarge,
-                            ),
-                          ),
-
-                          AddressPickerCard(
-                            selectedAddress: selectedAddress,
-                            onTap: () => showModalBottomSheet(
-                              context: context,
-                              backgroundColor:
-                                  Colors.transparent, // For rounded corners
-                              isScrollControlled: true,
-                              builder: (context) => SelectAddressSheet(
-                                equipmentId: equipment.id,
-                                service: "equipment",
+                                : null,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Icon(
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: Colors.red,
+                                size: 32,
                               ),
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(width: 8),
 
-                          Row(
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: DateTimeButton(
-                                  icon: Icons.calendar_today_rounded,
-                                  label: bookingState.selectedDate == null
-                                      ? "Date"
-                                      : DateFormat(
-                                          'MMM dd',
-                                        ).format(bookingState.selectedDate!),
-                                  onTap: () async {
-                                    final date = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime.now().add(
-                                        const Duration(days: 365),
-                                      ),
-                                    );
-                                    if (date != null) {
-                                      bookingNotifier.setDate(date);
-                                    }
-                                  },
-                                ),
+                              Text(
+                                "${equipment.name} ${equipment.model}"
+                                    .toUpperCase(),
+                                style: theme.textTheme.titleLarge,
                               ),
-
-                              const SizedBox(width: 16),
-
-                              Expanded(
-                                child: DateTimeButton(
-                                  icon: Icons.access_time_rounded,
-                                  label: bookingState.selectedTime == null
-                                      ? "Time"
-                                      : TimeOfDay.fromDateTime(
-                                          bookingState.selectedTime!,
-                                        ).format(context),
-                                  onTap: () async {
-                                    final time = await showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now(),
-                                    );
-                                    if (time != null) {
-                                      final now = DateTime.now();
-                                      bookingNotifier.setTime(
-                                        DateTime(
-                                          now.year,
-                                          now.month,
-                                          now.day,
-                                          time.hour,
-                                          time.minute,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
+                              Text(
+                                "${equipment.owner?.displayName}".toUpperCase(),
+                                style: theme.textTheme.titleMedium,
                               ),
                             ],
                           ),
+                        ],
+                      ),
 
-                          const SizedBox(height: 24),
+                      const SizedBox(height: 16),
 
-                          /// 4. ADDITIONAL NOTES
-                          Text(
-                            "Note to Operator",
-                            style: theme.textTheme.headlineLarge,
-                          ),
+                      /// Pricing
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 12),
+                        child: Text(
+                          "Service Plan",
+                          style: theme.textTheme.headlineLarge,
+                        ),
+                      ),
 
-                          const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: List.generate(priceEntries?.length ?? 0, (
+                          index,
+                        ) {
+                          final entry = priceEntries?[index];
+                          final isSelected =
+                              bookingState.selectedPriceEntry?.id == entry?.id;
 
-                          TextField(
-                            maxLines: 3,
-                            style: theme.textTheme.bodyMedium,
-                            onChanged: (v) => bookingNotifier.setComment(v),
-                            decoration: InputDecoration(
-                              hintText: "Site access details, conditions...",
-                              hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.4,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: theme.cardColor,
-
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: theme.colorScheme.outline.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                ),
-                              ),
-
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(
-                                  color: theme.colorScheme.primary,
-                                  width: 1.5,
-                                ),
-                              ),
-
-                              contentPadding: const EdgeInsets.symmetric(
+                          return GestureDetector(
+                            onTap: () {
+                              if (entry != null) {
+                                ref
+                                    .read(bookingProvider.notifier)
+                                    .selectPriceEntry(entry);
+                                setState(() => selectedPriceIndex = index);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 14,
+                                vertical: 12,
                               ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          /// 5. ACTION FOOTER
-                          SizedBox(
-                            width: double.infinity,
-                            height: 58,
-                            child: ElevatedButton(
-                              onPressed:
-                                  (bookingState.selectedLocationId == null ||
-                                      bookingState.selectedDate == null)
-                                  ? null
-                                  : () async {
-                                      final res = await bookingNotifier
-                                          .createBooking();
-                                      if (context.mounted && res == true) {
-                                        context.pop();
-                                      }
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.colorScheme.primary,
-                                foregroundColor: theme.colorScheme.onPrimary,
-                                disabledBackgroundColor: theme
-                                    .colorScheme
-                                    .secondary
-                                    .withValues(alpha: 0.5),
-                                disabledForegroundColor:
-                                    theme.colorScheme.onSurface,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? theme.colorScheme.primary
+                                    : theme.cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.outline.withValues(
+                                          alpha: 0.4,
+                                        ),
                                 ),
-                                elevation: 0,
                               ),
                               child: Text(
-                                "CONFIRM",
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.onPrimary,
-                                  letterSpacing: 1.2,
+                                "${entry?.price} ₸ / ${entry?.priceRate}",
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: isSelected
+                                      ? theme.colorScheme.onPrimary
+                                      : theme.colorScheme.onSurface.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
                                 ),
                               ),
+                            ),
+                          );
+                        }),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      /// Address & Schedule
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 12),
+                        child: Text(
+                          "Address & Schedule",
+                          style: theme.textTheme.headlineLarge,
+                        ),
+                      ),
+
+                      AddressPickerCard(
+                        selectedAddress: selectedAddress,
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          backgroundColor:
+                              Colors.transparent, // For rounded corners
+                          isScrollControlled: true,
+                          builder: (context) => SelectAddressSheet(
+                            equipmentId: equipment.id,
+                            service: "equipment",
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DateTimeButton(
+                              icon: Icons.calendar_today_rounded,
+                              label: bookingState.selectedDate == null
+                                  ? "Date"
+                                  : DateFormat(
+                                      'MMM dd',
+                                    ).format(bookingState.selectedDate!),
+                              onTap: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365),
+                                  ),
+                                );
+                                if (date != null) {
+                                  bookingNotifier.setDate(date);
+                                }
+                              },
+                            ),
+                          ),
+
+                          const SizedBox(width: 16),
+
+                          Expanded(
+                            child: DateTimeButton(
+                              icon: Icons.access_time_rounded,
+                              label: bookingState.selectedTime == null
+                                  ? "Time"
+                                  : TimeOfDay.fromDateTime(
+                                      bookingState.selectedTime!,
+                                    ).format(context),
+                              onTap: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now(),
+                                );
+                                if (time != null) {
+                                  final now = DateTime.now();
+                                  bookingNotifier.setTime(
+                                    DateTime(
+                                      now.year,
+                                      now.month,
+                                      now.day,
+                                      time.hour,
+                                      time.minute,
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+
+                      const SizedBox(height: 24),
+
+                      /// 4. ADDITIONAL NOTES
+                      Text(
+                        "Note to Operator",
+                        style: theme.textTheme.headlineLarge,
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      TextField(
+                        maxLines: 3,
+                        style: theme.textTheme.bodyMedium,
+                        onChanged: (v) => bookingNotifier.setComment(v),
+                        decoration: InputDecoration(
+                          hintText: "Site access details, conditions...",
+                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.4,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: theme.cardColor,
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary,
+                              width: 1.5,
+                            ),
+                          ),
+
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      /// 5. ACTION FOOTER
+                      SizedBox(
+                        width: double.infinity,
+                        height: 58,
+                        child: ElevatedButton(
+                          onPressed:
+                              (bookingState.selectedLocationId == null ||
+                                  bookingState.selectedDate == null)
+                              ? null
+                              : () async {
+                                  final res = await bookingNotifier
+                                      .createBooking();
+                                  if (context.mounted && res == true) {
+                                    context.pop();
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                            disabledBackgroundColor: theme.colorScheme.secondary
+                                .withValues(alpha: 0.5),
+                            disabledForegroundColor:
+                                theme.colorScheme.onSurface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            "CONFIRM",
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onPrimary,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-          ],
-        ),
+              ],
+            ),
+        ],
       ),
     );
   }

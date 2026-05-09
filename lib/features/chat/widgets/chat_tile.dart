@@ -100,7 +100,7 @@ class ChatTile extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Text(
-                '${unreadCount}',
+                '$unreadCount',
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.onPrimary,
                   fontWeight: FontWeight.bold,

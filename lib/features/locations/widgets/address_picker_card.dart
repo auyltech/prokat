@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/inline_tile.dart';
 
 class AddressPickerCard extends StatelessWidget {
   final dynamic selectedAddress; // Replace with your Address model

@@ -232,12 +232,12 @@ class _OwnerEquipmentImageHeaderState
                       imageUrl: url,
                       fit: BoxFit.cover,
                       memCacheHeight: 600,
-                      placeholder: (_, __) => Center(
+                      placeholder: (_, _) => Center(
                         child: CircularProgressIndicator(
                           color: colorScheme.primary,
                         ),
                       ),
-                      errorWidget: (_, __, ___) => _emptyState(context),
+                      errorWidget: (_, _, _) => _emptyState(context),
                     );
                   },
                 ),
@@ -284,7 +284,7 @@ class _OwnerEquipmentImageHeaderState
     final colorScheme = theme.colorScheme;
 
     return Container(
-      color: colorScheme.surfaceVariant,
+      color: colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -183,6 +183,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ],
               ),
             ),
+
             _HeroBanner(
               city: selectedCity,
               onCityTap: () => {
@@ -285,6 +286,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
+            // Popular Rents Header
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
               child: Column(
@@ -301,6 +303,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
+            // Popular Rents
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

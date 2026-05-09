@@ -68,7 +68,7 @@ class AppRoutes {
   static const String ownerAddresses = '/owner/addresses';
   // Sub paths for router
   static const String editAddress = '/edit';
-  
+
   // Full path for components
   static const String ownerAddressCreate = '$ownerAddresses$createAddress';
   static const String ownerAddressEdit = '$ownerAddresses$editAddress';

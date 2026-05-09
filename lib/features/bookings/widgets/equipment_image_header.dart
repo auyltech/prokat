@@ -23,7 +23,7 @@ class EquipmentImageHeader extends StatelessWidget {
             width: double.infinity,
             child: Image.network(
               imageUrl ?? "",
-              fit: BoxFit.cover,
+              fit: BoxFit.fitHeight,
               errorBuilder: (_, _, _) => Container(
                 color: Colors.grey[300],
                 child: const Center(

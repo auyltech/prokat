@@ -21,7 +21,7 @@ class GoRouterRefreshNotifier<T> extends ChangeNotifier {
   GoRouterRefreshNotifier(Ref ref, ProviderListenable<T> provider) {
     _subscription = ref.listen<T>(
       provider,
-      (_, __) => notifyListeners(),
+      (_, _) => notifyListeners(),
       fireImmediately: true,
     );
   }
