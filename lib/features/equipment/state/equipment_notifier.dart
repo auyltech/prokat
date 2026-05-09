@@ -100,7 +100,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final equipment = await api.getRenterEquipment(
+      final result = await api.getRenterEquipment(
         categoryId: categoryId,
         query: query,
         page: page,
@@ -108,7 +108,11 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         city: city,
       );
 
-      state = state.copyWith(renterEquipment: equipment, isLoading: false);
+      state = state.copyWith(
+        renterEquipment: result.data,
+        isLoading: false,
+        error: result.error,
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }

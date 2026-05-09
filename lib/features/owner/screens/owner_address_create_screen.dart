@@ -10,8 +10,13 @@ import 'package:prokat/core/widgets/input_field.dart';
 
 class OwnerAddressCreateScreen extends ConsumerStatefulWidget {
   final String service;
+  final String? equipmentId;
 
-  const OwnerAddressCreateScreen({super.key, required this.service});
+  const OwnerAddressCreateScreen({
+    super.key,
+    required this.service,
+    this.equipmentId,
+  });
 
   @override
   ConsumerState<OwnerAddressCreateScreen> createState() =>
@@ -117,7 +122,11 @@ class _OwnerAddressCreateScreenState
                       .read(locationProvider.notifier)
                       .createLocation(location);
 
-                  if (res && mounted) Navigator.pop(context);
+                  final url = widget.service == "equipment"
+                      ? "/owner/equipment/${widget.equipmentId}"
+                      : "/equipment/${widget.equipmentId}";
+
+                  if (res && mounted) context.push(url);
                 },
               ),
             ],

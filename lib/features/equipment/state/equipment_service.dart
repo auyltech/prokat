@@ -33,13 +33,14 @@ class EquipmentService {
       );
 
       final List<dynamic> data = response.data["data"] ?? [];
+
       return data.map((json) => Equipment.fromJson(json)).toList();
     } on DioException catch (e) {
       throw e.message ?? "Failed to fetch equipment";
     }
   }
 
-  Future<List<Equipment>> getRenterEquipment({
+  Future<ApiResponse<List<Equipment>?>> getRenterEquipment({
     String? categoryId,
     String? query,
     String? city,
@@ -59,27 +60,46 @@ class EquipmentService {
         },
       );
 
-      final data = response.data["data"];
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data["data"];
 
-      if (data is! List) {
-        return <Equipment>[];
+        if (data is! List) {
+          return ApiResponse.failure(
+            message: extractBackendMessage(response.data),
+          );
+        }
+
+        final parsed = data
+            .whereType<Map<String, dynamic>>() // safety check
+            .map((json) => Equipment.fromJson(json))
+            .toList();
+
+        return ApiResponse.success(parsed);
       }
 
-      final parsed = data
-          .whereType<Map<String, dynamic>>() // safety check
-          .map((json) => Equipment.fromJson(json))
-          // .where(
-          //   (e) =>
-          //       e.isVisible &&
-          //       e.location != null &&
-          //       e.location?.latitude != null &&
-          //       e.location?.longitude != null,
-          // )
-          .toList();
+      final message = extractBackendMessage(response.data);
 
-      return parsed;
+      throw Exception(message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid information";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+
+      return ApiResponse.failure(
+        message: message, // real backend message: extractBackendMessage(e)
+        error: e.response?.data?["error"].toString(),
+      );
     } catch (e) {
-      throw Exception(e);
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -97,7 +117,6 @@ class EquipmentService {
 
   Future<ApiResponse<Equipment?>> getOwnerEquipmentById(String id) async {
     try {
-      print(id);
       final response = await _dio.get("/equipment/owner/$id");
 
       final data = response.data["data"];

@@ -39,6 +39,13 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String settings = '/settings';
 
+  static const String addresses = '/addresses';
+  static const String createAddress = '/create';
+  static const String pinToMap = '/map';
+
+  static const String clientCreateAddress = '$addresses$createAddress';
+  static const String clientPinAddress = '$addresses$pinToMap';
+
   static const String becomeOwner = '/become-owner';
 
   // Owner Screens
@@ -60,9 +67,8 @@ class AppRoutes {
   // Owner Addresses
   static const String ownerAddresses = '/owner/addresses';
   // Sub paths for router
-  static const String createAddress = '/create';
   static const String editAddress = '/edit';
-  static const String pinToMap = '/map';
+  
   // Full path for components
   static const String ownerAddressCreate = '$ownerAddresses$createAddress';
   static const String ownerAddressEdit = '$ownerAddresses$editAddress';

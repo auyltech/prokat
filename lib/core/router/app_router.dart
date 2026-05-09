@@ -257,16 +257,27 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ],
               ),
               GoRoute(
-                path: '/addresses',
+                path: AppRoutes.addresses,
                 builder: (context, state) {
                   return RenterAddressesScreen();
                 },
                 routes: [
                   // Screen for creating a booking on an equipment
                   GoRoute(
-                    path: 'pintomap',
+                    path: AppRoutes.pinToMap,
                     builder: (context, state) {
                       return MapRenterPinAddressScreen(); //
+                    },
+                  ),
+                  GoRoute(
+                    path: AppRoutes.createAddress,
+                    builder: (context, state) {
+                      final service =
+                          state.uri.queryParameters['service'] ?? "";
+
+                      return OwnerAddressCreateScreen(
+                        service: service,
+                      ); // Pass service=address
                     },
                   ),
                 ],

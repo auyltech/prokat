@@ -10,7 +10,7 @@ class MapRenterPinAddressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MapContainer(
       title: "Set Delivery Address",
-      redirectRoute: "${AppRoutes.ownerAddressCreate}?service=address",
+      redirectRoute: "${AppRoutes.clientCreateAddress}?service=address",
       redirectLabel: "Back",
       mobileMap: MapRenterPinAddressContainer(),
     );
