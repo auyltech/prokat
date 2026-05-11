@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_response.dart';
 import '../../../core/constants/api_routes.dart';
 import '../models/category.dart';
 
@@ -10,7 +11,7 @@ class CategoryService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<Category>> getCategories() async {
+  Future<ApiResponse<List<Category>>> getCategories() async {
     try {
       final response = await _dio.get(ApiRoutes.categories);
 
@@ -20,9 +21,12 @@ class CategoryService {
 
       // categories.sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
 
-      return categories;
+      return ApiResponse(success: true, data: categories);
     } catch (e) {
-      return [];
+      return ApiResponse.failure(
+        error: "Could not load categories",
+        message: "",
+      );
     }
   }
 }

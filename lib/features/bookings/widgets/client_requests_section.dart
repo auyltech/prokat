@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_link_button.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
@@ -59,7 +60,11 @@ class _ClientRequestsSectionState extends ConsumerState<ClientRequestsSection> {
 
         SizedBox(height: 12),
 
-        if (activeRequests.isEmpty)
+        if (requestState.isLoading)
+          EmptyStateTile(title: "Loading...")
+        else if (requestState.error != null)
+          EmptyStateTile(title: "Error")
+        else if (activeRequests.isEmpty)
           CreateRequestTile()
         else
           ClientRequestTile(request: activeRequests[0]),

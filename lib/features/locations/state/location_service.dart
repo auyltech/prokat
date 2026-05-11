@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import '../models/location_model.dart';
 import '../models/location_search_result.dart';
@@ -14,6 +16,8 @@ class LocationService {
   Future<List<LocationModel>> getRenterLocations({String? mode}) async {
     try {
       final response = await _dio.get(ApiRoutes.locations);
+
+      print(response.data.toString());
 
       return (response.data["data"] as List)
           .map((e) => LocationModel.fromJson(e))
@@ -35,14 +39,40 @@ class LocationService {
     }
   }
 
-  Future<LocationModel> createLocation(LocationModel location) async {
-    final response = await _dio.post('/locations', data: location.toJson());
+  Future<ApiResponse<LocationModel?>> createLocation(
+    LocationModel location,
+  ) async {
+    try {
+      final response = await _dio.post('/locations', data: location.toJson());
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return LocationModel.fromJson(response.data["data"]);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse.success(null, message: "Address created");
+      }
+
+      final message = extractBackendMessage(response.data);
+
+      throw Exception(message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid information";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+
+      return ApiResponse.failure(
+        message: message, // real backend message: extractBackendMessage(e)
+        error: e.response?.data?["error"].toString(),
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
-
-    throw Exception("Location creation failed (${response.statusCode})");
   }
 
   Future<LocationModel> updateLocation(

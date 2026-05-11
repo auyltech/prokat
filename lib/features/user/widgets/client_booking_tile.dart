@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -11,7 +12,7 @@ import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
-import 'package:prokat/features/chat/utils/chat_navigation.dart';
+import 'package:go_router/go_router.dart';
 
 class ClientBookingTile extends ConsumerWidget {
   final BookingModel booking;
@@ -25,7 +26,6 @@ class ClientBookingTile extends ConsumerWidget {
     final bookingData = getBookingMessage(booking.bookedOn, booking.bookedAt);
 
     final String message = bookingData?['message'] ?? 'Status unavailable';
-    // final String status = bookingData?['status'] ?? 'unknown';
 
     final displayMessage = booking.status == BookingStatus.created.name
         ? "$minutesLeft min left"
@@ -92,7 +92,7 @@ class ClientBookingTile extends ConsumerWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.network(
-                            booking.equipment.imageUrl ?? "",
+                            booking.equipment?.imageUrl ?? "",
                             fit: BoxFit.cover,
                             errorBuilder: (c, e, s) => Container(
                               color: Colors.grey[200],
@@ -110,21 +110,21 @@ class ClientBookingTile extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            booking.equipment.name.toUpperCase(),
+                            booking.equipment?.name?.toUpperCase() ?? "",
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
                           ),
                           Text(
-                            booking.equipment.model.toUpperCase(),
+                            booking.equipment?.model?.toUpperCase() ?? "",
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
                           ),
                           Text(
-                            booking.equipment.owner?.displayName ?? "",
+                            booking.equipment?.ownerName ?? "",
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
@@ -173,16 +173,16 @@ class ClientBookingTile extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: InfoTile(
-                          label:
-                              booking.equipment.category?.capacityUnit ??
-                              "Capacity",
-                          value:
-                              "${booking.equipment.capacity.toUpperCase()} ${(booking.equipment.category?.capacityUnit ?? "").toUpperCase()}",
-                        ),
-                      ),
-                      const SizedBox(width: 12),
+                      // Expanded(
+                      //   child: InfoTile(
+                      //     label:
+                      //         booking.equipment?.category?.capacityUnit ??
+                      //         "Capacity",
+                      //     value:
+                      //         "${booking.equipment?.capacity.toUpperCase()} ${(booking.equipment?.category?.capacityUnit ?? "").toUpperCase()}",
+                      //   ),
+                      // ),
+                      // const SizedBox(width: 12),
                       Expanded(
                         child: InfoTile(
                           label: 'Offered rate',
@@ -211,13 +211,8 @@ class ClientBookingTile extends ConsumerWidget {
                       child: ActionButton(
                         icon: Icons.chat,
                         color: Colors.green,
-                        onTap: () async {
-                          await openChatFromLink(
-                            context: context,
-                            ref: ref,
-                            isOwner: false,
-                            bookingId: booking.id,
-                          );
+                        onTap: () {
+                          context.push('${AppRoutes.chat}/${booking.chatId}');
                         },
                       ),
                     ),

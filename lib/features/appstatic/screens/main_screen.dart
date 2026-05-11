@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
@@ -264,27 +265,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             ),
 
             // Categories / Services
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SizedBox(
-                height: 110, // control height of the row
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categoriesState.categories.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 10),
-                  itemBuilder: (context, i) {
-                    final category = categoriesState.categories[i];
+            if (categoriesState.error != null)
+              EmptyStateTile(title: "Error loading services")
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SizedBox(
+                  height: 110, // control height of the row
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categoriesState.categories.length,
+                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    itemBuilder: (context, i) {
+                      final category = categoriesState.categories[i];
 
-                    return CategoryCard(
-                      isSelected: selectedCategory == category.id,
-                      category: category,
-                      onTap: () =>
-                          _updateFilters(context, {'category': category.id}),
-                    );
-                  },
+                      return CategoryCard(
+                        isSelected: selectedCategory == category.id,
+                        category: category,
+                        onTap: () =>
+                            _updateFilters(context, {'category': category.id}),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
 
             // Popular Rents Header
             Padding(

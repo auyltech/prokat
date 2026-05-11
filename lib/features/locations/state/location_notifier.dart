@@ -51,24 +51,22 @@ class LocationNotifier extends StateNotifier<LocationState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final newLocation = await api.createLocation(location);
+      final result = await api.createLocation(location);
 
-      state = state.copyWith(
-        isLoading: false,
-        renterLocations: newLocation.service == "ADDRESS"
-            ? [...state.renterLocations, newLocation]
-            : [...state.renterLocations],
-        ownerLocations: newLocation.service == "EQUIPMENT"
-            ? [...state.ownerLocations, newLocation]
-            : [...state.ownerLocations],
-        error: null,
-      );
+      if (result.success) {
+        state = state.copyWith(isLoading: false);
 
-      if (newLocation.service == "EQUIPMENT") {
-        await ref.read(equipmentProvider.notifier).getOwnerEquipment();
+        if (location.service == "EQUIPMENT") {
+          await ref.read(equipmentProvider.notifier).getOwnerEquipment();
+        }
+
+        await getRenterLocations();
+
+        return true;
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+        return false;
       }
-
-      return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
@@ -95,12 +93,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
     try {
       await api.deleteLocation(id);
 
-      state = state.copyWith(
-        ownerLocations: state.ownerLocations.where((l) => l.id != id).toList(),
-        renterLocations: state.renterLocations
-            .where((l) => l.id != id)
-            .toList(),
-      );
+      await getRenterLocations();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

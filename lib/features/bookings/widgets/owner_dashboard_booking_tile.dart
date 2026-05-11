@@ -77,7 +77,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  booking.equipment.imageUrl ?? "",
+                  booking.equipment?.imageUrl ?? "",
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
@@ -98,7 +98,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${booking.equipment.name} • ${booking.equipment.plateNumber}",
+                      "${booking.equipment?.name} • ${booking.equipment?.model}",
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

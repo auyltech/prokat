@@ -81,7 +81,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       state = state.copyWith(isLoading: true);
 
-      final created = await api.createBooking({
+      final result = await api.createBooking({
         "bookedOn": state.selectedDate!.toIso8601String(),
         "bookedAt": state.selectedTime!.toIso8601String(),
         "price": (int.tryParse(
@@ -93,7 +93,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         "locationId": state.selectedLocation?.id,
       });
 
-      if (created == true) {
+      if (result.success == true) {
         await getUserBookings();
 
         return true;

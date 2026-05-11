@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import '../widgets/address_form.dart';
+import '../../owner/widgets/address_form.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 
-class OwnerAddressCreateScreen extends ConsumerStatefulWidget {
+class CreateAddressScreen extends ConsumerStatefulWidget {
   final String service;
+  final String? redirectUrl;
   final String? equipmentId;
 
-  const OwnerAddressCreateScreen({
+  const CreateAddressScreen({
     super.key,
     required this.service,
     this.equipmentId,
+    this.redirectUrl,
   });
 
   @override
-  ConsumerState<OwnerAddressCreateScreen> createState() =>
-      _OwnerAddressCreateScreenState();
+  ConsumerState<CreateAddressScreen> createState() =>
+      _CreateAddressScreenState();
 }
 
-class _OwnerAddressCreateScreenState
-    extends ConsumerState<OwnerAddressCreateScreen> {
+class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
   final formKey = GlobalKey<AddressFormState>();
 
   final streetController = TextEditingController();
@@ -48,6 +50,44 @@ class _OwnerAddressCreateScreenState
 
   void onAddressSelected(LocationSearchResult result) {
     formKey.currentState?.autofill(result);
+  }
+
+  Future<void> _onPressed() async {
+    final location = LocationModel(
+      id: '',
+      service: widget.service == "equipment" ? "EQUIPMENT" : "ADDRESS",
+      street: streetController.text,
+      city: cityController.text,
+      country: countryController.text,
+      comment: commentController.text,
+      instructions: null,
+      latitude: latitude ?? 0,
+      longitude: longitude ?? 0,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    final res = await ref
+        .read(locationProvider.notifier)
+        .createLocation(location);
+
+    if (res) {
+      final url = widget.service == "equipment"
+          ? "/owner/equipment/${widget.equipmentId}"
+          : "/equipment/${widget.equipmentId}";
+
+      if (res && mounted) {
+        context.push(url);
+
+        AppSnackBar.show(context, message: "Address created", isSuccess: true);
+      } else {
+        AppSnackBar.show(
+          context,
+          message: "Could not create address",
+          isError: true,
+        );
+      }
+    }
   }
 
   @override
@@ -81,55 +121,31 @@ class _OwnerAddressCreateScreenState
             ),
           ),
 
-          Column(
-            children: [
-              InputField(
-                label: "House / Building / Staircase",
-                controller: commentController,
-                hint: "My House",
-              ),
-              InputField(
-                label: "Street",
-                controller: streetController,
-                hint: "Stapayeva 123",
-              ),
-              InputField(
-                label: "City",
-                controller: cityController,
-                hint: "Atyrau",
-              ),
+          Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              children: [
+                InputField(
+                  label: "House / Building / Staircase",
+                  controller: commentController,
+                  hint: "My House",
+                ),
+                InputField(
+                  label: "Street",
+                  controller: streetController,
+                  hint: "Stapayeva 123",
+                ),
+                InputField(
+                  label: "City",
+                  controller: cityController,
+                  hint: "Atyrau",
+                ),
 
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              PrimaryButton(
-                label: "Save Location",
-                onPressed: () async {
-                  final location = LocationModel(
-                    id: '',
-                    service: "EQUIPMENT",
-                    street: streetController.text,
-                    city: cityController.text,
-                    country: countryController.text,
-                    comment: commentController.text,
-                    instructions: null,
-                    latitude: latitude ?? 0,
-                    longitude: longitude ?? 0,
-                    createdAt: DateTime.now(),
-                    updatedAt: DateTime.now(),
-                  );
-
-                  final res = await ref
-                      .read(locationProvider.notifier)
-                      .createLocation(location);
-
-                  final url = widget.service == "equipment"
-                      ? "/owner/equipment/${widget.equipmentId}"
-                      : "/equipment/${widget.equipmentId}";
-
-                  if (res && mounted) context.push(url);
-                },
-              ),
-            ],
+                PrimaryButton(label: "Save Location", onPressed: _onPressed),
+              ],
+            ),
           ),
         ],
       ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -56,108 +58,91 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            expandedHeight: 60, // Adjust height as needed
-            floating: true, // AppBar reappears immediately when scrolling up
-            pinned: false, // AppBar hides completely when scrolling down
-            backgroundColor: theme.colorScheme.primary,
-            leading: IconButton(
+      body: ListView(
+        children: [
+          PageHeader(
+            title: "My Orders",
+            onBack: () => context.pop(),
+            trailing: IconButton(
+              onPressed: () => context.push(
+                "${AppRoutes.clientOrders}${AppRoutes.clientOrdersHistory}",
+              ),
               icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 20,
+                Icons.history,
                 color: theme.colorScheme.onPrimary,
+                size: 24,
               ),
-              onPressed: () => context.pop(),
+              tooltip: "Order History",
             ),
-            title: Text(
-              "My Orders",
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-            centerTitle: false,
-            actions: [
-              IconButton(
-                onPressed: () => context.push(
-                  "${AppRoutes.clientOrders}${AppRoutes.clientOrdersHistory}",
-                ),
-                icon: Icon(
-                  Icons.history,
-                  color: theme.colorScheme.onPrimary,
-                  size: 24,
-                ),
-                tooltip: "Order History",
-              ),
-            ],
           ),
 
           // 1. High-Priority Draft Card (Refined Orange)
-          if (draft.isNotEmpty)
-            SliverToBoxAdapter(child: _EnhancedDraftCard(booking: draft.first)),
+          if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
 
           // 1. Remove Expanded - Slivers don't work inside it
-          authSession == null
-              ? SliverFillRemaining(
-                  // Fills the rest of the screen to center content
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.login_outlined,
-                          size: 64,
-                          color: Colors.white.withValues(alpha: 0.2),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Login to create and view bookings",
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.70),
-                          ),
-                        ),
-                      ],
+          if (authSession == null)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.login_outlined,
+                    size: 64,
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Login to create and view bookings",
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.70),
                     ),
                   ),
-                )
-              : upcoming.isEmpty
-              ? SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.inventory_2_outlined,
-                          size: 48,
-                          color: Colors.white.withValues(alpha: 0.05),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No bookings found',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                ],
+              ),
+            )
+          else if (bookingState.isLoading)
+            Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 1.5,
+                color: theme.primaryColor,
+              ),
+            )
+          else if (bookingState.error != null)
+            EmptyStateTile(title: "Error Loading Orders")
+          else if (upcoming.isEmpty)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 48,
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No bookings found',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      fontSize: 14,
                     ),
                   ),
-                )
-              : SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                  sliver: SliverList.separated(
-                    itemCount: upcoming.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final booking = upcoming[index];
-                      return ClientBookingTile(booking: booking) ;
-                    },
-                  ),
-                ),
+                ],
+              ),
+            )
+          else
+            Padding(
+              padding: EdgeInsets.all(24),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: upcoming.length,
+                itemBuilder: (context, index) {
+                  final booking = upcoming[index];
+                  return ClientBookingTile(booking: booking);
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -210,7 +195,7 @@ class _EnhancedDraftCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: () =>
-                context.push('/equipment/${booking.equipment.id}/book'),
+                context.push('/equipment/${booking.equipment?.id}/book'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
               backgroundColor: draftColor,

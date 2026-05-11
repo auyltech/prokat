@@ -38,6 +38,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
 
+  Future<void> _onPressed() async {
+    final bookingNotifier = ref.read(bookingProvider.notifier);
+
+    final res = await bookingNotifier.createBooking();
+
+    if (context.mounted && res == true) {
+      context.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -355,13 +365,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               (bookingState.selectedLocationId == null ||
                                   bookingState.selectedDate == null)
                               ? null
-                              : () async {
-                                  final res = await bookingNotifier
-                                      .createBooking();
-                                  if (context.mounted && res == true) {
-                                    context.pop();
-                                  }
-                                },
+                              : _onPressed,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.colorScheme.primary,
                             foregroundColor: theme.colorScheme.onPrimary,

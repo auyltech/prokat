@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 
 class BookingApiService {
@@ -28,30 +30,44 @@ class BookingApiService {
       return (res.data["data"] as List)
           .map((e) => BookingModel.fromJson(e))
           .toList();
-          
     } catch (e) {
       return [];
     }
   }
 
-  Future<bool> createBooking(Map<String, dynamic> data) async {
+  Future<ApiResponse<BookingModel?>> createBooking(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final res = await _dio.post("/bookings", data: data);
+      final response = await _dio.post("/bookings", data: data);
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ApiResponse.success(null);
       }
 
-      return false;
+      final message = extractBackendMessage(response.data);
+
+      throw Exception(message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid information";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+
+      return ApiResponse.failure(
+        message: message, // real backend message: extractBackendMessage(e)
+        error: e.response?.data?["error"].toString(),
+      );
     } catch (e) {
-      if (e is DioException) {
-        print("❌ DIO ERROR: ${e.message}");
-        print("❌ STATUS: ${e.response?.statusCode}");
-        print("❌ DATA: ${e.response?.data}");
-      } else {
-        print("❌ ERROR: $e");
-      }
-      return false;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -63,11 +79,7 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/status",
-        data: {
-          "id": id,
-          "status": ?status,
-          "workStatus": ?workStatus,
-        },
+        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {

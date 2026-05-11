@@ -31,32 +31,24 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         top: false,
-        child: CustomScrollView(
-          slivers: [
-            const SliverToBoxAdapter(child: UserDashboardHeader()),
+        child: ListView(
+          children: [
+            UserDashboardHeader(),
 
             // 1. Static components wrapped in SliverToBoxAdapter
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClientBookingsSection(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClientBookingsSection(),
 
-                    const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                    ClientRequestsSection(),
-                  ],
-                ),
+                  ClientRequestsSection(),
+                ],
               ),
             ),
-
-            // 3. Bottom padding
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
       ),

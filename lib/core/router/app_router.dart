@@ -26,7 +26,7 @@ import 'package:prokat/features/locations/screens/renter_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
 import 'package:prokat/features/map/screens/map_renter_equipment_screen.dart';
 import 'package:prokat/features/map/screens/map_renter_pin_address_screen.dart';
-import 'package:prokat/features/owner/screens/owner_address_create_screen.dart';
+import 'package:prokat/features/locations/screens/create_address_screen.dart';
 import 'package:prokat/features/owner/screens/owner_address_edit_screen.dart';
 import 'package:prokat/features/owner/screens/owner_addresses_screen.dart';
 import 'package:prokat/features/bookings/screens/owner_bookings_history_screen.dart';
@@ -275,7 +275,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                       final service =
                           state.uri.queryParameters['service'] ?? "";
 
-                      return OwnerAddressCreateScreen(
+                      return CreateAddressScreen(
                         service: service,
                       ); // Pass service=address
                     },
@@ -439,7 +439,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                       final service =
                           state.uri.queryParameters['service'] ?? "";
 
-                      return OwnerAddressCreateScreen(service: service);
+                      final redirectUrl =
+                          state.uri.queryParameters['redirectUrl'] ?? "";
+
+                      return CreateAddressScreen(
+                        service: service,
+                        redirectUrl: redirectUrl,
+                      );
                     },
                   ),
                   GoRoute(

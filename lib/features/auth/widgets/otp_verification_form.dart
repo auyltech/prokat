@@ -50,7 +50,15 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
       if (success == true) {
         await ref.read(userProfileProvider.notifier).getUserProfile();
 
-        if (mounted) context.go(AppRoutes.dashboard);
+        final role = ref.watch(userProfileProvider).userProfile?.role ?? "";
+
+        if (mounted) {
+          context.go(
+            role.toLowerCase() == "owner"
+                ? AppRoutes.ownerDashboard
+                : AppRoutes.searchList,
+          );
+        }
       } else {
         widget.onError("Invalid or expired OTP");
       }

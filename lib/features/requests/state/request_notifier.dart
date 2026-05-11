@@ -95,8 +95,9 @@ class RequestNotifier extends StateNotifier<RequestState> {
       );
 
       if (created == true) {
-        await getUserRequests();
         state = state.copyWith(isLoading: false);
+
+        await getUserRequests();
 
         return true;
       }

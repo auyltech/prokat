@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/chat/utils/chat_navigation.dart';
+import 'package:go_router/go_router.dart';
 
 class ClientDashboardBookingTile extends ConsumerWidget {
   final BookingModel booking;
@@ -50,7 +51,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              booking.equipment.imageUrl ?? "",
+                              booking.equipment?.imageUrl ?? "",
                               fit: BoxFit.cover,
                               errorBuilder: (c, e, s) => Container(
                                 color: Colors.grey[200],
@@ -68,11 +69,12 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              booking.equipment.name, // ?? 'Unknown Equipment',
+                              booking.equipment?.name ??
+                                  "", // ?? 'Unknown Equipment',
                               style: theme.textTheme.bodyMedium,
                             ),
                             Text(
-                              booking.equipment.owner?.displayName ??
+                              booking.equipment?.ownerName ??
                                   "", // ?? 'Unknown Equipment',
                               style: theme.textTheme.bodyMedium,
                             ),
@@ -139,18 +141,14 @@ class ClientDashboardBookingTile extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Go to chat
                   Expanded(
                     flex: 1,
                     child: ActionButton(
                       icon: Icons.chat,
                       color: Colors.green,
-                      onTap: () async {
-                        await openChatFromLink(
-                          context: context,
-                          ref: ref,
-                          isOwner: false,
-                          bookingId: booking.id,
-                        );
+                      onTap: () {
+                        context.push('${AppRoutes.chat}/${booking.chatId}');
                       },
                     ),
                   ),

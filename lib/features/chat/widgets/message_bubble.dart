@@ -29,7 +29,7 @@ class _MessageBubbleState extends State<MessageBubble> {
     final theme = Theme.of(context);
 
     final specialized = switch (widget.message.type) {
-      'BOOKING' => BookingMessageBubble(message: widget.message),
+      // 'BOOKING' => BookingMessageBubble(booking: ,),
       'OFFER' => OfferMessageBubble(message: widget.message),
       'REQUEST' => RequestMessageBubble(message: widget.message),
       _ => null,

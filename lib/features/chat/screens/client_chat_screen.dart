@@ -180,17 +180,19 @@ class _ChatContextHeader extends StatelessWidget {
     final theme = Theme.of(context);
 
     final List<Widget> bubbles = [];
+
     if (booking != null) {
       bubbles.add(
         BookingMessageBubble(
-          message: ChatMessageModel(
-            id: 'booking_header',
-            chatId: chatId,
-            senderId: '',
-            type: 'BOOKING',
-            content: _bookingSummary(booking as BookingModel),
-            createdAt: DateTime.now(),
-          ),
+          booking: booking as BookingModel,
+          // message: ChatMessageModel(
+          //   id: 'booking_header',
+          //   chatId: chatId,
+          //   senderId: '',
+          //   type: 'BOOKING',
+          //   content: _bookingSummary(booking as BookingModel),
+          //   createdAt: DateTime.now(),
+          // ),
         ),
       );
     }
@@ -224,26 +226,6 @@ class _ChatContextHeader extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  static String _bookingSummary(BookingModel booking) {
-    try {
-      final equipmentName = booking.equipment.name.trim().isNotEmpty
-          ? booking.equipment.name
-          : 'Equipment';
-      final price = booking.price.toString();
-      final rate = booking.priceRate.toString();
-      final status = booking.status.toString();
-
-      final parts = <String>[
-        'Booking • $equipmentName',
-        '$price $rate'.trim(),
-        status,
-      ];
-      return parts.join(' • ');
-    } catch (_) {
-      return 'Booking';
-    }
   }
 
   static String _requestSummary(RequestModel request) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_button.dart';
@@ -66,7 +67,11 @@ class _RegisterWithUsernameFormState
             .read(authProvider.notifier)
             .registerCredentials(credentials);
 
-        if (res == true) context.push("/dashboard");
+        if (res == true) {
+          if (mounted) {
+            context.go(AppRoutes.searchList);
+          }
+        }
       } catch (e) {
         widget.onError("Something went wrong!");
       }

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
-import 'package:prokat/features/categories/services/category_service.dart';
+import 'package:prokat/features/categories/state/category_service.dart';
 import 'package:prokat/features/categories/state/categories_state.dart';
 
 class CategoriesNotifier extends StateNotifier<CategoryState> {
@@ -22,15 +22,15 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final data = await service.getCategories();
+      final result = await service.getCategories();
 
-      state = state.copyWith(isLoading: false, categories: data);
+      if (result.success) {
+        state = state.copyWith(isLoading: false, categories: result.data);
+      } else {
+        state = state.copyWith(isLoading: false, error: result.error);
+      }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        categories: [],
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 }

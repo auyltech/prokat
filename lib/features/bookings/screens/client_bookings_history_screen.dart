@@ -224,7 +224,7 @@ class _EnhancedDraftCard extends StatelessWidget {
           ),
           TextButton(
             onPressed: () =>
-                context.push('/equipment/${booking.equipment.id}/book'),
+                context.push('/equipment/${booking.equipment?.id}/book'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
               backgroundColor: draftColor,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
@@ -59,41 +60,19 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     return Scaffold(
       body: ListView(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(color: theme.colorScheme.primary),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                  onPressed: () => context.pop(),
-                ),
-
-                const SizedBox(width: 8),
-
-                Expanded(
-                  child: Text(
-                    "My Requests",
-                    style: TextStyle(color: theme.colorScheme.onPrimary),
-                  ),
-                ),
-
-                IconButton(
-                  onPressed: () => authSession == null
-                      ? null
-                      : context.push(AppRoutes.clientRequestsCreate),
-                  icon: Icon(
-                    Icons.add,
-                    color: theme.colorScheme.onPrimary,
-                    size: 24,
-                  ),
-                  tooltip: "Create Request",
-                ),
-              ],
+          PageHeader(
+            title: "My Requests",
+            onBack: () => context.pop(),
+            trailing: IconButton(
+              onPressed: () => authSession == null
+                  ? null
+                  : context.push(AppRoutes.clientRequestsCreate),
+              icon: Icon(
+                Icons.add,
+                color: theme.colorScheme.onPrimary,
+                size: 24,
+              ),
+              tooltip: "Create Request",
             ),
           ),
 
@@ -111,51 +90,48 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               icon: Icons.error_outline,
             )
           else if (active.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(24),
-              child: EmptyStateTile(
-                title: "You don't have any active requests",
-                icon: Icons.description_outlined,
-              ),
+            EmptyStateTile(
+              title: "You don't have any active requests",
+              icon: Icons.description_outlined,
             )
           else
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-                  child: Text(
-                    "ACTIVE REQUESTS",
-                    style: theme.textTheme.labelMedium,
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  ListView.builder(
+                    shrinkWrap:
+                        true, // Tells the list to only take the space it needs
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
+                    itemCount: active.length,
+                    padding: const EdgeInsets.only(
+                      bottom: 12,
+                    ), // Adjust as needed
+                    itemBuilder: (context, index) {
+                      final r = active[index];
+                      final requestOffers = offersByRequest[r.id] ?? [];
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: RequestWithOffers(
+                          request: r,
+                          offers: requestOffers,
+                          onCancel: () => ref
+                              .read(requestProvider.notifier)
+                              .cancelRequest(r.id),
+                        ),
+                      );
+                    },
                   ),
-                ),
 
-                ListView.builder(
-                  itemCount: active.length,
-                  padding: const EdgeInsets.only(
-                    bottom: 12,
-                  ), // Adjust as needed
-                  itemBuilder: (context, index) {
-                    final r = active[index];
-                    final requestOffers = offersByRequest[r.id] ?? [];
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: RequestWithOffers(
-                        request: r,
-                        offers: requestOffers,
-                        onCancel: () => ref
-                            .read(requestProvider.notifier)
-                            .cancelRequest(r.id),
-                      ),
-                    );
-                  },
-                ),
-
-                PrimaryButton(
-                  label: "Create a new request",
-                  onPressed: () => context.push(AppRoutes.clientRequestsCreate),
-                ),
-              ],
+                  PrimaryButton(
+                    label: "Create a new request",
+                    onPressed: () =>
+                        context.push(AppRoutes.clientRequestsCreate),
+                  ),
+                ],
+              ),
             ),
         ],
       ),

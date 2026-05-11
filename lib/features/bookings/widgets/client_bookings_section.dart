@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/bookings/widgets/client_dashboard_booking_tile.dart';
@@ -67,7 +68,11 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
 
         const SizedBox(height: 6),
 
-        if (upcoming.isEmpty)
+        if (bookingState.isLoading)
+          EmptyStateTile(title: "Loading...")
+        else if (bookingState.error != null)
+          EmptyStateTile(title: "Error", subtitle: "Could not load orders")
+        else if (upcoming.isEmpty)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
@@ -94,7 +99,7 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Your current requests will appear here",
+                  "Your current orders will appear here",
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall,
                 ),

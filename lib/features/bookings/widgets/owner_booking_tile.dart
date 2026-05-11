@@ -149,7 +149,7 @@ class OwnerBookingTile extends ConsumerWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.network(
-                            booking.equipment.imageUrl ?? "",
+                            booking.equipment?.imageUrl ?? "",
                             fit: BoxFit.cover,
                             errorBuilder: (c, e, s) => Container(
                               color: Colors.grey[200],
@@ -167,26 +167,26 @@ class OwnerBookingTile extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            booking.equipment.name.toUpperCase(),
+                            booking.equipment?.name?.toUpperCase() ?? "",
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
                           ),
                           Text(
-                            booking.equipment.model.toUpperCase(),
+                            booking.equipment?.plateNumber?.toUpperCase() ?? "",
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
                           ),
-                          Text(
-                            "${booking.equipment.capacity.toUpperCase()} ${booking.equipment.capacityUnit.toUpperCase()}",
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+                          // Text(
+                          //   "${booking.equipment?.capacity.toUpperCase()} ${booking.equipment?.capacityUnit.toUpperCase()}",
+                          //   style: theme.textTheme.titleSmall?.copyWith(
+                          //     fontWeight: FontWeight.w800,
+                          //     letterSpacing: 0.5,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),

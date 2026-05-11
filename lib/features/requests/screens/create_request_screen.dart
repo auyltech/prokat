@@ -34,8 +34,24 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => const SelectAddressSheet(service: "address",),
+      builder: (context) => const SelectAddressSheet(service: "address"),
     );
+  }
+
+  Future<void> _onPressed() async {
+    final requestNotifier = ref.read(requestProvider.notifier);
+
+    final res = await requestNotifier.createRequest(
+      capacity: capacityController.text.trim(),
+      offeredRate: parseNullableInt(rateController.text.trim()) ?? 0,
+      comment: commentController.text.trim(),
+    );
+
+    if (mounted && res == true) {
+      AppSnackBar.show(context, message: "Request created", isSuccess: true);
+
+      context.pop();
+    }
   }
 
   @override
@@ -215,24 +231,8 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
 
                 PrimaryButton(
                   label: "Create",
-                  onPressed: () async {
-                    final res = await requestNotifier.createRequest(
-                      capacity: capacityController.text.trim(),
-                      offeredRate:
-                          parseNullableInt(rateController.text.trim()) ?? 0,
-                      comment: commentController.text.trim(),
-                    );
-
-                    if (context.mounted && res == true) {
-                      AppSnackBar.show(
-                        context,
-                        message: "Request created",
-                        isSuccess: true,
-                      );
-
-                      context.pop();
-                    }
-                  },
+                  onPressed: _onPressed,
+                  isLoading: requestState.isLoading,
                 ),
               ],
             ),

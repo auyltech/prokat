@@ -22,15 +22,20 @@ class PageHeader extends StatelessWidget {
 
     return SafeArea(
       bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        color: theme.primaryColor,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Stack(
           // Using Stack keeps the title perfectly centered
           alignment: Alignment.centerLeft,
           children: [
             if (showBack)
               IconButton(
-                icon: const Icon(LucideIcons.chevronLeft, size: 25),
+                icon: Icon(
+                  LucideIcons.chevronLeft,
+                  size: 20,
+                  color: theme.colorScheme.onPrimary,
+                ),
                 onPressed:
                     onBack ?? () => context.canPop() ? context.pop() : null,
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
@@ -39,7 +44,7 @@ class PageHeader extends StatelessWidget {
 
             if (title != null)
               Align(
-                alignment: Alignment.center,
+                alignment: Alignment.centerLeft,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: showBack ? 48.0 : 0,
@@ -49,8 +54,9 @@ class PageHeader extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       letterSpacing: -0.5,
+                      color: theme.colorScheme.onPrimary,
                     ),
                   ),
                 ),
