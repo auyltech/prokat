@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
-import 'package:prokat/features/chat/utils/chat_navigation.dart';
+import 'package:go_router/go_router.dart';
 
 // TODO: Delete / Replaced with owner booking tile
 
@@ -244,13 +245,8 @@ class OwnerBookingCard extends ConsumerWidget {
                 _ActionButton(
                   icon: Icons.chat_bubble_outline_rounded,
                   color: theme.colorScheme.secondary,
-                  onPressed: () async {
-                    await openChatFromLink(
-                      context: context,
-                      ref: ref,
-                      isOwner: true,
-                      bookingId: booking.id,
-                    );
+                  onPressed: () {
+                    context.push('${AppRoutes.ownerChat}/${booking.chatId}');
                   },
                 ),
 

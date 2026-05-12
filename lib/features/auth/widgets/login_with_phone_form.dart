@@ -99,7 +99,7 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
 
             // Logic is re-evaluated every time the text changes
             final canSubmit =
-                !isValidKazakhstanPhone(fullPhone) && !authState.isLoading;
+                isValidKazakhstanPhone(fullPhone) && !authState.isLoading;
 
             return PrimaryButton(
               label: authState.isLoading ? "Sending..." : "Send Otp",

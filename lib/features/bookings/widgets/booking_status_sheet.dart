@@ -4,7 +4,6 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/chat/state/chat_notifier.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 
 class BookingStatusSheet extends ConsumerWidget {

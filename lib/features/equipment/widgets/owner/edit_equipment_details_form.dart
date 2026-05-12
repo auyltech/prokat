@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -24,8 +25,6 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
   late TextEditingController _nameController;
   late TextEditingController _modelController;
   late TextEditingController _plateNumberController;
-
-  late TextEditingController _capacityController;
   late TextEditingController _commentController;
   late TextEditingController _rentConditionController;
 
@@ -42,9 +41,6 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
     _plateNumberController = TextEditingController(
       text: widget.equipment.plateNumber,
     );
-    _capacityController = TextEditingController(
-      text: widget.equipment.capacity.toString(),
-    );
     _commentController = TextEditingController(
       text: widget.equipment.ownerComment ?? "",
     );
@@ -58,21 +54,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
   }
 
   Future<void> _handleSave() async {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     final name = _nameController.text.trim();
-    final capacity = int.tryParse(_capacityController.text.trim());
-
-    if (name.isEmpty || capacity == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Invalid input data"),
-          backgroundColor: colorScheme.error,
-        ),
-      );
-      return;
-    }
 
     setState(() => _isSaving = true);
 
@@ -83,7 +65,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             "id": widget.equipment.id,
             "name": name,
             "model": _modelController.text.trim(),
-            "capacity": capacity,
+            "plateNumber": _plateNumberController.text.trim(),
             "ownerComment": _commentController.text.trim(),
             "rentCondition": _rentConditionController.text.trim(),
             "categoryId": _selectedCategory?.id,
@@ -95,13 +77,18 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           _isSaving = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text("Equipment Updated"),
-            backgroundColor: colorScheme.primary,
-          ),
+        AppSnackBar.show(
+          context,
+          message: "Equipment Updated",
+          isSuccess: true,
         );
       } else {
+        AppSnackBar.show(
+          context,
+          message: "Could not save equipment",
+          isError: true,
+        );
+
         setState(() {
           _isDirty = true;
           _isSaving = false;
@@ -110,11 +97,10 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
     } catch (_) {
       setState(() => _isSaving = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Update Failed"),
-          backgroundColor: colorScheme.error,
-        ),
+      AppSnackBar.show(
+        context,
+        message: "Something went wrong!",
+        isError: true,
       );
     }
   }
@@ -175,6 +161,8 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
                     ),
             ],
           ),
+
+          SizedBox(height: 12),
 
           // SizedBox(height: 12),
           _ThemedInputField(

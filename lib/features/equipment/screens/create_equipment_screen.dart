@@ -149,129 +149,81 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                         },
                       );
                     },
-
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: colorScheme.outline.withValues(alpha: 0.25),
-                        ),
-                      ),
-
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: hasLocation
-                                  ? theme.colorScheme.primary.withValues(
-                                      alpha: 0.2,
-                                    )
-                                  : theme.colorScheme.primary.withValues(
-                                      alpha: 0.2,
-                                    ),
-                              shape: BoxShape.circle,
-                            ),
-
-                            child: Icon(
-                              hasLocation
-                                  ? Icons.pin_drop
-                                  : Icons.pin_drop_outlined,
-                              color: hasLocation
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onPrimary,
-                              size: 24,
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Text(
-                                //   "City",
-                                //   style: theme.textTheme.labelMedium
-                                //       ?.copyWith(color: theme.primaryColor),
-                                // ),
-                                // const SizedBox(height: 4),
-                                Text(
-                                  hasLocation
-                                      ? location
-                                      : "Select City", // Fallback text
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: hasLocation
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurface,
-                                    fontWeight: FontWeight.w600,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: hasLocation
+                                ? theme.colorScheme.primary.withValues(
+                                    alpha: 0.2,
+                                  )
+                                : theme.colorScheme.primary.withValues(
+                                    alpha: 0.2,
                                   ),
-                                ),
-                              ],
-                            ),
+                            shape: BoxShape.circle,
                           ),
-                        ],
-                      ),
+
+                          child: Icon(
+                            hasLocation
+                                ? Icons.pin_drop
+                                : Icons.pin_drop_outlined,
+                            color: hasLocation
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.onPrimary,
+                            size: 24,
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Text(
+                              //   "City",
+                              //   style: theme.textTheme.labelMedium
+                              //       ?.copyWith(color: theme.primaryColor),
+                              // ),
+                              // const SizedBox(height: 4),
+                              Text(
+                                hasLocation
+                                    ? location
+                                    : "Select City", // Fallback text
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: hasLocation
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
                   const SizedBox(height: 16),
 
-                  Container(
-                    decoration: BoxDecoration(
-                      color: theme.cardColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: colorScheme.outline.withValues(alpha: 0.2),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // City Selector Button/Field
-                        // InkWell(
-                        //   onTap: _showCityPicker,
-                        //   child: IgnorePointer(
-                        //     child: InputField(
-                        //       label: "CITY",
-                        //       controller: _cityController,
-                        //       hint: "Select City",
-                        //       // suffixIcon: const Icon(
-                        //       //   Icons.location_city_rounded,
-                        //       // ),
-                        //     ),
-                        //   ),
-                        // ),
-                        InputField(
-                          label: "EQUIPMENT NAME",
-                          controller: _name,
-                          hint: "e.g. Septic Truck",
-                          validator: (v) => v!.isEmpty ? "REQUIRED" : null,
-                        ),
-                        InputField(
-                          label: "MODEL",
-                          controller: _model,
-                          hint: "e.g. KAMAZ-65115",
-                        ),
-                        InputField(
-                          label: "PLATE NUMBER",
-                          controller: _plateNumber,
-                          hint: "e.g. 777 ABC 01",
-                          isLast: true,
-                        ),
-                      ],
-                    ),
+                  InputField(
+                    label: "EQUIPMENT NAME",
+                    controller: _name,
+                    hint: "e.g. Septic Truck",
+                    validator: (v) => v!.isEmpty ? "REQUIRED" : null,
+                  ),
+
+                  InputField(
+                    label: "MODEL",
+                    controller: _model,
+                    hint: "e.g. KAMAZ-65115",
+                  ),
+                  InputField(
+                    label: "PLATE NUMBER",
+                    controller: _plateNumber,
+                    hint: "e.g. 777 ABC 01",
+                    isLast: true,
                   ),
 
                   const SizedBox(height: 24),

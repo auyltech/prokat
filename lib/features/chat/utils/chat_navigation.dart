@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 
 // TODO: remove

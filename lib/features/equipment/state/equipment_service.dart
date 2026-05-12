@@ -203,20 +203,19 @@ class EquipmentService {
       final response = await _dio.patch(
         '/equipment/${data["id"]}',
         data: {
+          "id": data["id"],
           "name": data["name"],
-          "equipmentId": data["equipmentId"],
           "model": data["model"] ?? "",
           "plateNumber": data["plateNumber"] ?? "",
+          "ownerComment": data["ownerComment"],
+          "rentCondition": data["rentCondition"],
           "city": data["city"],
           "categoryId": data["cateogryId"],
         },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
+        return ApiResponse.success(null, message: "Equipment saved");
       }
 
       final message = extractBackendMessage(response.data);
