@@ -81,54 +81,18 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
 
           // 1. Remove Expanded - Slivers don't work inside it
           if (authSession == null)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.login_outlined,
-                    size: 64,
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Login to create and view bookings",
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.70),
-                    ),
-                  ),
-                ],
-              ),
+            EmptyStateTile(
+              title: "Login to create and view bookings",
+              icon: Icons.login_outlined,
             )
           else if (bookingState.isLoading)
-            Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 1.5,
-                color: theme.primaryColor,
-              ),
-            )
+            EmptyStateTile(title: "Loading Orders...")
           else if (bookingState.error != null)
             EmptyStateTile(title: "Error Loading Orders")
           else if (upcoming.isEmpty)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.inventory_2_outlined,
-                    size: 48,
-                    color: Colors.white.withValues(alpha: 0.05),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No bookings found',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
+            EmptyStateTile(
+              title: 'No bookings found',
+              icon: Icons.inventory_2_outlined,
             )
           else
             Padding(

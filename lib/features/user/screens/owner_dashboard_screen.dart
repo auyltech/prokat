@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/bookings/widgets/owner_dashboard_booking_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
-import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
 import 'package:prokat/features/user/widgets/balance_tile.dart';
 import 'package:prokat/features/user/widgets/owner_dashboard_header.dart';
 import 'package:prokat/features/user/widgets/owner_equipment_section.dart';
@@ -64,14 +61,14 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          const SliverToBoxAdapter(child: OwnerDashboardHeader()),
+      body: ListView(
+        children: [
+          OwnerDashboardHeader(),
 
-          SliverPadding(
+          Padding(
             padding: const EdgeInsets.all(24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
+            child: Column(
+              children: [
                 BalanceTile(
                   minutes: 100,
                   burnRate: "~2 min/hr",
@@ -122,39 +119,12 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
                 // 4. Active Orders Section
                 OwnerOrdersSection(),
-              ]),
+
+                SizedBox(height: 24),
+
+                RentAnEquipmentTile(),
+              ],
             ),
-          ),
-
-          /// BOOKINGS SECTION
-          if (state.isLoading)
-            SliverToBoxAdapter(child: const OwnerBookingSkeleton())
-          else if (upcomingJobs.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: EmptyStateTile(title: "No Orders Yet"),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final booking = upcomingJobs[index];
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: OwnerDashboardBookingTile(booking: booking),
-                  );
-                }, childCount: upcomingJobs.length),
-              ),
-            ),
-
-          SliverPadding(
-            padding: EdgeInsets.all(24),
-            sliver: SliverToBoxAdapter(child: RentAnEquipmentTile()),
           ),
         ],
       ),

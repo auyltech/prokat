@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/inline_tile.dart';
 
 class SettingsLinkTile extends StatelessWidget {
   final IconData icon;
@@ -24,7 +23,6 @@ class SettingsLinkTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: InlineTile(
         child: Row(
           children: [
             Container(
@@ -60,7 +58,6 @@ class SettingsLinkTile extends StatelessWidget {
               color: colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ],
-        ),
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import '../widgets/auth_text_field.dart';
-import '../widgets/auth_button.dart';
+import 'package:prokat/features/auth/widgets/phone_input_field.dart';
 import 'otp_verification_form.dart';
 
 class LoginWithPhoneForm extends ConsumerStatefulWidget {
@@ -15,7 +15,7 @@ class LoginWithPhoneForm extends ConsumerStatefulWidget {
 }
 
 class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
-  final phoneController = TextEditingController(text: "+7");
+  final phoneController = TextEditingController(text: "");
 
   bool showOtp = false;
   String phone = "";
@@ -33,15 +33,18 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
   }
 
   Future<void> requestOtp() async {
-    final value = phoneController.text.trim();
+    final rawDigits = phoneController.text.replaceAll(RegExp(r'\D'), '');
 
-    // 1. Frontend Validation: No submit if empty or invalid
-    if (value == "+7" || value.isEmpty) {
+    if (rawDigits.isEmpty) {
       widget.onError("Please enter your phone number");
       return;
     }
 
-    if (!isValidKazakhstanPhone(value)) {
+    final fullPhone = "+7$rawDigits";
+
+    widget.onError(null);
+
+    if (!isValidKazakhstanPhone(fullPhone)) {
       widget.onError("Enter a valid Kazakhstan phone (+7 XXX XXX XXXX)");
       return;
     }
@@ -50,18 +53,15 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
     widget.onError(null);
 
     try {
-      final success = await ref.read(authProvider.notifier).requestOtp(value);
+      final success = await ref
+          .read(authProvider.notifier)
+          .requestOtp(fullPhone);
 
       if (!success) {
         widget.onError("Failed to send OTP. Please try again.");
       }
-      // setState(() {
-      //     phone = value;
-      //     showOtp = true;
-      //   });
     } catch (e) {
-      // Handle Backend/Connection Errors
-      widget.onError(e.toString().replaceAll('Exception: ', ''));
+      widget.onError("Something went wrong!");
     }
   }
 
@@ -84,20 +84,29 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
       children: [
         const SizedBox(height: 20),
 
-        AuthTextField(
-          label: "Phone Number",
-          icon: Icons.phone_android_outlined,
-          controller: phoneController,
-          keyboardType: TextInputType.phone,
-        ),
+        PhoneInputField(label: "Phone Number", controller: phoneController),
 
         const SizedBox(height: 24),
 
-        AuthButton(
-          loading: authState.isLoading,
-          text: "Send Otp",
-          loadingText: "Sending...",
-          onPressed: requestOtp,
+        ListenableBuilder(
+          listenable: phoneController, // Listens to every keystroke
+          builder: (context, _) {
+            final rawDigits = phoneController.text.replaceAll(
+              RegExp(r'\D'),
+              '',
+            );
+            final fullPhone = "+7$rawDigits";
+
+            // Logic is re-evaluated every time the text changes
+            final canSubmit =
+                !isValidKazakhstanPhone(fullPhone) && !authState.isLoading;
+
+            return PrimaryButton(
+              label: authState.isLoading ? "Sending..." : "Send Otp",
+              isLoading: authState.isLoading,
+              onPressed: canSubmit ? requestOtp : null,
+            );
+          },
         ),
       ],
     );

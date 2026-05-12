@@ -168,19 +168,31 @@ class AuthApiService {
         data: {"phoneNumber": phone, "otp": otp},
       );
 
+      print(response.toString());
+
       if (response.statusCode == 200) {
         return ApiResponse.success(
           AuthSession.fromJson(response.data),
           message: "Verification successfull",
         );
       } else {
-        return ApiResponse.failure(error: "Something went wrong");
+        final message = extractBackendMessage(response.data);
+        print(message);
+        return ApiResponse.failure(error: message);
       }
     } on DioException catch (e) {
       String message = "Something went wrong";
 
+      print("DIO_ERROR");
+      print(e.response?.statusCode);
+      print(e.response?.data["message"]);
+      print(e.response?.data["error"]);
+
       if (e.response?.statusCode == 400) {
         message = "Missing or invalid credentials";
+      }
+      if (e.response?.statusCode == 401) {
+        message = "Invalid OTP";
       } else if (e.response?.statusCode == 409) {
         message = "Username already registered";
       } else if (e.response?.statusCode == 410) {
@@ -191,9 +203,10 @@ class AuthApiService {
 
       return ApiResponse.failure(
         message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?.toString(),
+        error: e.response?.data["error"],
       );
     } catch (e) {
+      print("NOT_DIO_ERROR");
       return ApiResponse.failure(
         message: "Unexpected error",
         error: e.toString(),

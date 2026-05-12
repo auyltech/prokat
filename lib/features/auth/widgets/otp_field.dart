@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pinput/pinput.dart';
 
 class OtpField extends StatelessWidget {
   final TextEditingController controller;
@@ -9,52 +10,46 @@ class OtpField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      textAlign: TextAlign.center,
-      maxLength: 6,
-      // Large bold text for the OTP numbers
-      style: TextStyle(
-        color: theme.primaryColor,
+    // Define the look of each individual box
+    final defaultPinTheme = PinTheme(
+      width: 56,
+      height: 60,
+      textStyle: TextStyle(
         fontSize: 24,
+        color: theme.primaryColor,
         fontWeight: FontWeight.bold,
-        letterSpacing: 8, // Spaced out for better readability
       ),
-      cursorColor: const Color(0xFF4E73DF),
-      decoration: InputDecoration(
-        labelText: "OTP",
-        labelStyle: TextStyle(
-          color: theme.primaryColor,
-          letterSpacing: 1.2,
-          fontSize: 14,
-        ),
-        // floatingLabelStyle: const TextStyle(
-        //   color: Colors.white,
-        //   fontWeight: FontWeight.bold,
-        //   backgroundColor: Colors.transparent, // Prevents the 'box' look
-        // ),
-        floatingLabelAlignment: FloatingLabelAlignment.center,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        counterText: "", // Hides the 0/6 counter
-        filled: true,
-        fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.08),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
-        ),
-        // focusedBorder: OutlineInputBorder(
-        //   borderRadius: BorderRadius.circular(12),
-        //   borderSide: BorderSide(
-        //     color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        //     width: 1.5,
-        //   ),
-        // ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 20),
-        // border: OutlineInputBorder(
-        //   borderRadius: BorderRadius.circular(16),
-        //   borderSide: BorderSide.none,
-        // ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+      ),
+    );
+
+    // Define the look when a box is focused
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      decoration: defaultPinTheme.decoration!.copyWith(
+        border: Border.all(color: theme.primaryColor, width: 1.5),
+      ),
+    );
+
+    return Pinput(
+      length: 6,
+      controller: controller,
+      defaultPinTheme: defaultPinTheme,
+      focusedPinTheme: focusedPinTheme,
+      keyboardType: TextInputType.number,
+      hapticFeedbackType: HapticFeedbackType.lightImpact,
+      cursor: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            width: 22,
+            height: 1,
+            color: theme.primaryColor,
+          ),
+        ],
       ),
     );
   }

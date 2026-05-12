@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
 import 'package:shimmer/shimmer.dart';
@@ -39,164 +41,120 @@ class _OwnerEquipmentListScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            elevation: 0,
-            scrolledUnderElevation: 2,
-            backgroundColor: theme.colorScheme.primary,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 20,
-                color: theme.colorScheme.onPrimary,
-              ),
-              onPressed: () => context.pop(),
-            ),
-            title: Text(
-              "My Equipment",
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-            centerTitle: false,
-            actions: [
-              IconButton(
-                onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
-                icon: Icon(
-                  Icons.add,
-                  color: theme.colorScheme.onPrimary,
-                  size: 24,
-                ),
-                tooltip: "Add Equipment",
-              ),
-            ],
-            actionsPadding: EdgeInsets.only(right: 12),
-          ),
-
-          // Stats and Add Button Section
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _buildStatusItem(
-                      context,
-                      label: "ONLINE",
-                      count: state.ownerEquipment
-                          .where(
-                            (e) =>
-                                e.status.toLowerCase() == 'available' &&
-                                e.isVisible == true,
-                          )
-                          .length,
-                      color: Colors.greenAccent[700]!,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-
-                  Expanded(
-                    child: _buildStatusItem(
-                      context,
-                      label: "OFFLINE",
-                      count: state.ownerEquipment
-                          .where(
-                            (e) =>
-                                e.status.toLowerCase() == 'booked' ||
-                                e.isVisible == false,
-                          )
-                          .length,
-                      color: Colors.redAccent[400]!,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-
-                  Expanded(
-                    child: _buildStatusItem(
-                      context,
-                      label: "REPAIR",
-                      count: state.ownerEquipment
-                          .where((e) => e.status.toLowerCase() == 'maintenance')
-                          .length,
-                      color: Colors.orangeAccent[700]!,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // 3. Dynamic List Content
-          if (state.isLoading)
-            _buildSliverSkeleton(context)
-          else if (state.ownerEquipment.isEmpty)
-            _buildSliverEmptyState(context)
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: OwnerEquipmentCard(
-                      equipment: state.ownerEquipment[index],
-                    ),
-                  ),
-                  childCount: state.ownerEquipment.length,
-                ),
-              ),
-            ),
-
-          // Bottom spacing for scroll comfort
-          // const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSliverSkeleton(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => Shimmer.fromColors(
-            baseColor: Colors.grey.shade200,
-            highlightColor: Colors.grey.shade50,
-            child: Container(
-              height: 140,
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-          childCount: 4,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSliverEmptyState(BuildContext context) {
-    return SliverFillRemaining(
-      hasScrollBody: false,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: ListView(
         children: [
-          Icon(
-            Icons.inventory_2_outlined,
-            size: 64,
-            color: Colors.grey.shade300,
+          PageHeader(
+            title: "My Equipment",
+            trailing: IconButton(
+              onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
+              icon: Icon(
+                Icons.add,
+                color: theme.colorScheme.onPrimary,
+                size: 24,
+              ),
+              tooltip: "Add Equipment",
+            ),
+            primaryColor: const Color.fromARGB(255, 0, 116, 112),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            "No equipment listed yet",
-            style: TextStyle(color: Colors.grey, fontSize: 16),
+
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatusItem(
+                        context,
+                        label: "ONLINE",
+                        count: state.ownerEquipment
+                            .where(
+                              (e) =>
+                                  e.status.toLowerCase() == 'available' &&
+                                  e.isVisible == true,
+                            )
+                            .length,
+                        color: Colors.greenAccent[700]!,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+
+                    Expanded(
+                      child: _buildStatusItem(
+                        context,
+                        label: "OFFLINE",
+                        count: state.ownerEquipment
+                            .where(
+                              (e) =>
+                                  e.status.toLowerCase() == 'booked' ||
+                                  e.isVisible == false,
+                            )
+                            .length,
+                        color: Colors.redAccent[400]!,
+                      ),
+                    ),
+                    SizedBox(width: 12),
+
+                    Expanded(
+                      child: _buildStatusItem(
+                        context,
+                        label: "REPAIR",
+                        count: state.ownerEquipment
+                            .where(
+                              (e) => e.status.toLowerCase() == 'maintenance',
+                            )
+                            .length,
+                        color: Colors.orangeAccent[700]!,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 20),
+
+                if (state.isLoading)
+                  _builSkeleton(context)
+                else if (state.ownerEquipment.isEmpty)
+                  EmptyStateTile(
+                    title: "No equipment listed yet",
+                    icon: Icons.inventory_2_outlined,
+                  )
+                else
+                  ListView.builder(
+                    itemCount: state.ownerEquipment.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: OwnerEquipmentCard(
+                        equipment: state.ownerEquipment[index],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _builSkeleton(BuildContext context) {
+    return ListView.builder(
+      itemCount: 4,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => Shimmer.fromColors(
+        baseColor: Colors.grey.shade200,
+        highlightColor: Colors.grey.shade50,
+        child: Container(
+          height: 140,
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
       ),
     );
   }

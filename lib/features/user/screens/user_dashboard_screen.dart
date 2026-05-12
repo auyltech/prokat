@@ -5,6 +5,8 @@ import 'package:prokat/features/bookings/widgets/client_requests_section.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/user/widgets/user_dashboard_header.dart';
+import 'package:prokat/features/favorites/widgets/favorites_section.dart';
+import 'package:prokat/features/favorites/state/favorites_provider.dart';
 
 class UserDashboardPage extends ConsumerStatefulWidget {
   const UserDashboardPage({super.key});
@@ -14,13 +16,11 @@ class UserDashboardPage extends ConsumerStatefulWidget {
 }
 
 class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(equipmentProvider.notifier).getRenterEquipment();
-      ref.read(categoriesProvider.notifier).getCategories();
-    });
+  Future<void> _onRefresh() async {
+    ref.read(equipmentProvider.notifier).getRenterEquipment();
+    ref.read(categoriesProvider.notifier).getCategories();
+
+    ref.read(favoriteProvider.notifier).getFavorites();
   }
 
   @override
@@ -31,25 +31,35 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         top: false,
-        child: ListView(
-          children: [
-            UserDashboardHeader(),
+        child: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: ListView(
+            children: [
+              UserDashboardHeader(),
 
-            // 1. Static components wrapped in SliverToBoxAdapter
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClientBookingsSection(),
+              // 1. Static components wrapped in SliverToBoxAdapter
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClientBookingsSection(),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  ClientRequestsSection(),
-                ],
+                    ClientRequestsSection(),
+
+                    const SizedBox(height: 12),
+
+                    FavoritesSection(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

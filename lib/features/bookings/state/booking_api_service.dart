@@ -23,15 +23,40 @@ class BookingApiService {
     }
   }
 
-  Future<List<BookingModel>> getOwnerBookings() async {
+  Future<ApiResponse<List<BookingModel>>> getOwnerBookings() async {
     try {
       final res = await _dio.get("/bookings/owner");
 
-      return (res.data["data"] as List)
-          .map((e) => BookingModel.fromJson(e))
-          .toList();
+      if (res.statusCode == 200) {
+        final data = res.data["data"] as List;
+        final jsonData = data.map((e) => BookingModel.fromJson(e)).toList();
+
+        return ApiResponse.success(jsonData);
+      }
+
+      final message = extractBackendMessage(res.data);
+
+      throw Exception(message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid information";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+
+      return ApiResponse.failure(
+        message: message, // real backend message: extractBackendMessage(e)
+        error: e.response?.data?["error"].toString(),
+      );
     } catch (e) {
-      return [];
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -79,6 +104,28 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/status",
+        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return true;
+        // return BookingModel.fromJson(res.data["data"]);
+      }
+
+      return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> updateBookingWorkStatus({
+    required String id,
+    String? status,
+    String? workStatus,
+  }) async {
+    try {
+      final res = await _dio.patch(
+        "/bookings/$id/workstatus",
         data: {"id": id, "status": ?status, "workStatus": ?workStatus},
       );
 

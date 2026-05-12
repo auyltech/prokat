@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/inline_tile.dart';
 
 class UserProfileTile extends StatelessWidget {
   final IconData icon;
@@ -25,37 +24,35 @@ class UserProfileTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: InlineTile(
-        child: Row(
-          children: [
-            /// Icon container
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, size: 22, color: colorScheme.primary),
+      child: Row(
+        children: [
+          /// Icon container
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Icon(icon, size: 22, color: colorScheme.primary),
+          ),
 
-            const SizedBox(width: 16),
+          const SizedBox(width: 16),
 
-            /// Main content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: textTheme.labelMedium),
-                  const SizedBox(height: 4),
-                  Text(value, style: textTheme.bodyMedium),
-                ],
-              ),
+          /// Main content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: textTheme.labelMedium),
+                const SizedBox(height: 4),
+                Text(value, style: textTheme.bodyMedium),
+              ],
             ),
+          ),
 
-            /// Optional trailing widget
-            trailing ?? const SizedBox(),
-          ],
-        ),
+          /// Optional trailing widget
+          trailing ?? const SizedBox(),
+        ],
       ),
     );
   }

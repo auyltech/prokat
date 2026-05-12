@@ -158,14 +158,14 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Capacity',
-                        value:
-                            "${request.capacity} ${request.category?.capacityUnit}",
-                      ),
-                    ),
-                    const SizedBox(width: 12),
+                    // Expanded(
+                    //   child: InfoTile(
+                    //     label: 'Capacity',
+                    //     value:
+                    //         "${request.capacity} ${request.category?.capacityUnit}",
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 12),
                     Expanded(
                       child: InfoTile(
                         label: 'Offered rate',

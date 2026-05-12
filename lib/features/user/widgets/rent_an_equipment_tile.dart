@@ -31,7 +31,7 @@ class RentAnEquipmentTile extends ConsumerWidget {
             ],
           ),
           style: ElevatedButton.styleFrom(
-            elevation: 6,
+            elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             backgroundColor: theme.colorScheme.primary,
             foregroundColor: Colors.white,

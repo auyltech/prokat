@@ -179,14 +179,14 @@ class OwnerRequestTile extends ConsumerWidget {
                             color: colorScheme.primary,
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            "${request.category?.name ?? "Request"} • ${request.capacity}${request.category?.capacityUnit ?? ""}",
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
+                          // Text(
+                          //   "${request.category?.name ?? "Request"} • ${request.capacity}${request.category?.capacityUnit ?? ""}",
+                          //   style: theme.textTheme.titleMedium?.copyWith(
+                          //     fontWeight: FontWeight.bold,
+                          //     letterSpacing: -0.5,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 4),
                           Row(
                             children: [
                               Icon(

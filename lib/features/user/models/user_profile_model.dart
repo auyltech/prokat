@@ -50,7 +50,8 @@ class UserProfileModel {
     if (firstName != null || lastName != null) {
       return '${firstName ?? ''} ${lastName ?? ''}'.trim();
     }
-    return username ?? "User";
+
+    return username ?? "";
   }
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {

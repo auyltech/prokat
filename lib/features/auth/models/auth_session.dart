@@ -8,11 +8,21 @@ class AuthSession {
   const AuthSession({this.sessionToken, this.user, this.expires});
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
-    return AuthSession(
-      sessionToken: json['sessionToken'],
-      expires: json['expires'] != null ? DateTime.parse(json['expires']) : null,
-      user: json['user'] != null ? User.fromJson(json['user']) : null,
-    );
+    try {
+      return AuthSession(
+        sessionToken: json['sessionToken'],
+        expires: json['expires'] != null
+            ? DateTime.parse(json['expires'])
+            : null,
+        user: json['user'] != null ? User.fromJson(json['user']) : null,
+      );
+    } catch (e, stack) {
+      print("❌ AuthSession parsing failed");
+      print("JSON: $json");
+      print(e);
+      print(stack);
+      rethrow; // important
+    }
   }
 
   Map<String, dynamic> toJson() {

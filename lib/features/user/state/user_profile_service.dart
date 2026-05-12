@@ -1,5 +1,6 @@
 import 'package:prokat/core/api/api_client.dart';
 import 'package:dio/dio.dart';
+import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'dart:io';
@@ -21,11 +22,9 @@ class UserProfileService {
     }
   }
 
-  Future<UserProfileModel?> updateUserProfile({
+  Future<ApiResponse<UserProfileModel?>> updateUserProfile({
     String? firstName,
     String? lastName,
-    String? phoneNumber,
-    String? phoneCountryCode,
     String? profileImageUrl,
     String? darkMode,
     String? selectedCategoryId,
@@ -37,8 +36,6 @@ class UserProfileService {
         data: {
           "firstName": ?firstName,
           "lastName": ?lastName,
-          "phoneNumber": ?phoneNumber,
-          "phoneCountryCode": ?phoneCountryCode,
           "profileImageUrl": ?profileImageUrl,
           "darkMode": ?darkMode,
           "selectedCategoryId": ?selectedCategoryId,
@@ -47,12 +44,12 @@ class UserProfileService {
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return UserProfileModel.fromJson(res.data['data']);
+       return ApiResponse.success(null);
       }
 
-      return null;
+      return ApiResponse.failure(message: res.statusCode.toString());
     } catch (e) {
-      return null;
+      return ApiResponse.failure();
     }
   }
 

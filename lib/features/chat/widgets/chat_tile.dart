@@ -18,96 +18,98 @@ class ChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
-
     final title = chat.displayTitle(currentUserId);
-
     final preview = chat.lastMessage?.content ?? 'No messages yet';
-
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,
     );
 
-    final unreadCount = 2;
+    // Using a hardcoded unread count as per your snippet
+    const unreadCount = 2;
 
-    return ListTile(
+    return InkWell(
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      leading: CircleAvatar(
-        radius: 28,
-        backgroundImage: (avatarUrl ?? '').isNotEmpty
-            ? NetworkImage(avatarUrl!)
-            : null,
-        child: (avatarUrl ?? '').isEmpty
-            ? Text(
-                title.isNotEmpty ? title[0].toUpperCase() : 'C',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : null,
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+      child: Padding(
+        // Vertical padding provides breathing room between tiles,
+        // horizontal padding is set to 16 for standard alignment
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            // 1. Avatar
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: theme.colorScheme.primaryContainer,
+              backgroundImage: (avatarUrl ?? '').isNotEmpty
+                  ? NetworkImage(avatarUrl!)
+                  : null,
+              child: (avatarUrl ?? '').isEmpty
+                  ? Text(
+                      title.isNotEmpty ? title[0].toUpperCase() : 'C',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
             ),
-          ),
-          const SizedBox(width: 8),
-          Text(timestamp, style: theme.textTheme.labelSmall),
-        ],
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 4),
-          Text(
-            preview,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
-            ),
-          ),
-          if ((chat.bookingId ?? '').isNotEmpty ||
-              (chat.requestId ?? '').isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Wrap(
-                spacing: 6,
+            const SizedBox(width: 16),
+
+            // 2. Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if ((chat.bookingId ?? '').isNotEmpty)
-                    _ContextBadge(text: 'Booking linked'),
-                  if ((chat.requestId ?? '').isNotEmpty)
-                    _ContextBadge(text: 'Request linked'),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    preview,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.hintColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Time under the message
+                  Text(
+                    timestamp,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.disabledColor,
+                    ),
+                  ),
                 ],
               ),
             ),
-        ],
-      ),
-      trailing: unreadCount > 0
-          ? Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                '$unreadCount',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onPrimary,
-                  fontWeight: FontWeight.bold,
+
+            // 3. Unread Indicator
+            if (unreadCount > 0)
+              Container(
+                height: 20,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '$unreadCount',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
                 ),
               ),
-            )
-          : null,
+          ],
+        ),
+      ),
     );
   }
 

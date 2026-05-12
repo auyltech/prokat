@@ -287,6 +287,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                           return null;
                         },
                       ),
+
                       _OwnerRegistrationField(
                         controller: _cityController,
                         label: "City",
@@ -300,6 +301,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                           return null;
                         },
                       ),
+
                       _OwnerRegistrationField(
                         controller: _messageController,
                         label: "Message",
@@ -317,7 +319,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      if (request != null && !isAccepted) ...[
+                      if (request == null || !isAccepted) ...[
                         const SizedBox(height: 12),
                         Text(
                           "Note: please describe your service/equipment briefly so we can review your request faster.",

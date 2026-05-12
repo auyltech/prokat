@@ -88,7 +88,7 @@ class ClientEquipmentCard extends ConsumerWidget {
                   icon: Icon(
                     isFavorite ? Icons.favorite : Icons.favorite_border,
                   ),
-                  color: isFavorite ? Colors.red : Colors.white,
+                  color: Colors.red,
                   iconSize: 28,
                   onPressed: isClient
                       ? () => notifier.toggleFavorite(equipment.id)

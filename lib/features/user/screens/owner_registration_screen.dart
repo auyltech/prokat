@@ -53,9 +53,9 @@ class OwnerRegistrationScreen extends StatelessWidget {
 
                 _sectionTitle("Legal Information", theme),
                 _card([
-                  _tile("Full Name", "Mohamad Rabbani", () {}),
-                  _tile("Address", "Atyrau, Kazakhstan", () {}),
-                  _tile("Phone Number", "+7 XXX XXX", () {}),
+                  _tile("Full Name", "", () {}),
+                  _tile("Address", "", () {}),
+                  _tile("Phone Number", "", () {}),
                 ]),
 
                 const SizedBox(height: 16),

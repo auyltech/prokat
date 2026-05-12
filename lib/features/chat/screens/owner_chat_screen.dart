@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/widgets/booking_action_row.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 
 class OwnerChatScreen extends ConsumerStatefulWidget {
@@ -59,6 +64,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
     final chatState = ref.watch(chatProvider);
     final authState = ref.watch(authProvider);
+
     final messages = chatState.messages;
     final currentChat = chatState.currentChat;
 
@@ -72,10 +78,13 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       currentUserId: currentUserId,
     );
 
+    final booking = currentChat?.booking;
+    final request = currentChat?.request;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: AppColors.teal700,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
@@ -114,14 +123,18 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                         color: theme.colorScheme.onPrimary,
                       ),
                     ),
-                    Text(
-                      'Tap for details',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onPrimary.withValues(
-                          alpha: 0.7,
+                    if (messages.lastOrNull != null)
+                      Text(
+                        formatDateTime(
+                          messages.last.createdAt,
+                          messages.last.createdAt,
+                        ),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onPrimary.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -131,10 +144,20 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       ),
       body: Column(
         children: [
+          if (booking != null || request != null)
+            BookingMessageBubble(booking: booking as BookingModel),
+
+          if (booking != null || request != null)
+            BookingActionRow(booking: booking as BookingModel),
+
           if (chatState.isLoadingMessages)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (chatState.error != null && messages.isEmpty)
-            Expanded(child: Center(child: Text(chatState.error!)))
+            Expanded(
+              child: Center(
+                child: Text(chatState.error ?? "Error Loading Messages"),
+              ),
+            )
           else
             Expanded(
               child: Container(
@@ -156,7 +179,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 ),
               ),
             ),
-            
+
           _buildInputSection(theme, chatState.isSendingMessage),
         ],
       ),

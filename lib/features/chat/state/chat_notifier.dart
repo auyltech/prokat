@@ -100,6 +100,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   Future<void> _loadSessionFallback() async {
     final session = await secureStorage.readSession();
+
+    print(session);
+
     _sessionToken = _sessionToken ?? session?.sessionToken ?? '';
 
     state = state.copyWith(
@@ -137,8 +140,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
       }
 
       final knownChat = _findConversationById(chatId);
-
-      print(knownChat.toString());
 
       if (knownChat == null) {
         state = state.copyWith(
@@ -179,6 +180,16 @@ class ChatNotifier extends StateNotifier<ChatState> {
         isLoadingMessages: false,
         error: error.toString().replaceFirst('Exception: ', ''),
       );
+    }
+  }
+
+  Future<void> reloadChat(String chatId) async {
+    try {
+      final chatDetails = await service.getChatById(chatId);
+
+      state = state.copyWith(currentChat: chatDetails);
+    } catch (err) {
+      state = state.copyWith(error: "Error loading order");
     }
   }
 

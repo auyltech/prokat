@@ -24,9 +24,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
-
       ref.read(userProfileProvider.notifier).getUserProfile();
+
+      ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
     });
   }
 
@@ -41,117 +41,106 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          // Page Header: Profile image, display name, ratings
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(color: theme.primaryColor),
-              padding: EdgeInsets.fromLTRB(20, topInset + 20, 20, 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 20,
-                      color: theme.colorScheme.onPrimary,
-                    ),
-                    onPressed: () => context.pop(),
+      body: ListView(
+        children: [
+          Container(
+            decoration: BoxDecoration(color: theme.primaryColor),
+            padding: EdgeInsets.fromLTRB(20, topInset + 20, 20, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onPrimary,
                   ),
+                  onPressed: () => context.pop(),
+                ),
 
-                  const SizedBox(width: 20),
+                const SizedBox(width: 20),
 
-                  Expanded(
-                    child: Row(
-                      children: [
-                        ProfileImagePicker(
-                          onImageSelected: (file) async {
-                            if (file != null) {
-                              await profileNotifier.uploadProfileImage(file);
-                            }
-                          },
-                          initialImageUrl:
-                              state.userProfile?.profileImageUrl ?? "",
-                        ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      ProfileImagePicker(
+                        onImageSelected: (file) async {
+                          if (file != null) {
+                            await profileNotifier.uploadProfileImage(file);
+                          }
+                        },
+                        initialImageUrl:
+                            state.userProfile?.profileImageUrl ?? "",
+                      ),
 
-                        const SizedBox(width: 20),
+                      const SizedBox(width: 20),
 
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const DisplayName(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const DisplayName(),
 
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star_rate_rounded,
-                                  size: 30,
-                                  color: Colors.amber,
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.star_rate_rounded,
+                                size: 30,
+                                color: Colors.amber,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                (state.userProfile?.ratingStars ?? 0)
+                                    .toStringAsFixed(1),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onPrimary,
                                 ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  (state.userProfile?.ratingStars ?? 0)
-                                      .toStringAsFixed(1),
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onPrimary,
+                              ),
+
+                              const SizedBox(width: 8),
+                              Text(
+                                "- 0 Orders",
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w400,
+                                  color: theme.colorScheme.onPrimary.withValues(
+                                    alpha: 0.5,
                                   ),
                                 ),
-
-                                const SizedBox(width: 8),
-                                Text(
-                                  "- 2 Orders",
-                                  style: theme.textTheme.labelMedium?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    color: theme.colorScheme.onPrimary
-                                        .withValues(alpha: 0.5),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // if (state.userProfile?.createdAt != null)
-                            //   Text(
-                            //     "Member since ${DateFormat('MMMM yyyy').format(state.userProfile!.createdAt!)}",
-                            //     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            //       color: theme.colorScheme.onPrimary.withValues(alpha: 0.6),
-                            //     ),
-                            //   ),
-                          ],
-                        ),
-                      ],
-                    ),
+                              ),
+                            ],
+                          ),
+                          // if (state.userProfile?.createdAt != null)
+                          //   Text(
+                          //     "Member since ${DateFormat('MMMM yyyy').format(state.userProfile!.createdAt!)}",
+                          //     style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          //       color: theme.colorScheme.onPrimary.withValues(alpha: 0.6),
+                          //     ),
+                          //   ),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
 
-                  // Profile Image Stack
-                ],
-              ),
+                // Profile Image Stack
+              ],
             ),
           ),
 
-          // 2. Info List
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-            ), // Apply your padding here
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 20),
-
+          Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              children: [
                 UserProfileTile(
                   icon: Icons.phone_android_rounded,
                   label: "Phone Number",
                   value: state.userProfile?.phoneNumber ?? "+7 234 ...",
                   onTap: () {},
-                  // () => showEditPhoneSheet(
-                  //   context,
-                  //   ref,
-                  //   state.userProfile?.phoneNumber ?? "",
-                  // )
                   trailing: const Icon(Icons.edit, color: Colors.white54),
                 ),
 
+                // 2. Info List
                 const SizedBox(height: 20),
 
                 UserProfileTile(
@@ -209,9 +198,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 const SizedBox(height: 20),
 
                 const LogoutButton(),
-
-                const SizedBox(height: 40), // Bottom spacing
-              ]),
+              ],
             ),
           ),
         ],

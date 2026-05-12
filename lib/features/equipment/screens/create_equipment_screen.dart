@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 
@@ -78,241 +80,225 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            backgroundColor: theme.colorScheme.primary,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-              onPressed: () => Navigator.pop(context),
-              color: theme.colorScheme.onPrimary,
-            ),
-            title: Text(
-              "Add Equipment",
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
+      body: ListView(
+        children: [
+          PageHeader(
+            title: "Add Equipment",
+            primaryColor: AppColors.teal700,
+            showBack: true,
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-            sliver: SliverToBoxAdapter(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CategorySelectorTile(mode: "create_equipment"),
 
-                    const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CategorySelectorTile(mode: "create_equipment"),
 
-                    // City Selector
-                    GestureDetector(
-                      onTap: () {
-                        // Logic: If list has 1 value, take it. Otherwise, take the first.
-                        // final String defaultCity = cities.length == 1
-                        //     ? cities.first
-                        //     : cities[0];
+                  const SizedBox(height: 16),
 
-                        showModalBottomSheet(
-                          context: context,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (context) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "Select City",
-                                    style: theme.textTheme.headlineSmall,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  ..._cities.map(
-                                    (city) => ListTile(
-                                      title: Text(city),
-                                      leading: const Icon(Icons.location_city),
-                                      trailing: _cityController.text == city
-                                          ? Icon(
-                                              Icons.check_circle,
-                                              color: theme.colorScheme.primary,
-                                            )
-                                          : null,
-                                      onTap: () {
-                                        _cityController.text = city;
+                  // City Selector
+                  GestureDetector(
+                    onTap: () {
+                      // Logic: If list has 1 value, take it. Otherwise, take the first.
+                      // final String defaultCity = cities.length == 1
+                      //     ? cities.first
+                      //     : cities[0];
 
-                                        Navigator.pop(
-                                          context,
-                                        ); // Close the sheet
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.cardColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: colorScheme.outline.withValues(alpha: 0.25),
+                      showModalBottomSheet(
+                        context: context,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
                           ),
                         ),
+                        builder: (context) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Select City",
+                                  style: theme.textTheme.headlineSmall,
+                                ),
+                                const SizedBox(height: 10),
+                                ..._cities.map(
+                                  (city) => ListTile(
+                                    title: Text(city),
+                                    leading: const Icon(Icons.location_city),
+                                    trailing: _cityController.text == city
+                                        ? Icon(
+                                            Icons.check_circle,
+                                            color: theme.colorScheme.primary,
+                                          )
+                                        : null,
+                                    onTap: () {
+                                      _cityController.text = city;
 
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: hasLocation
-                                    ? theme.colorScheme.primary.withValues(
-                                        alpha: 0.2,
-                                      )
-                                    : theme.colorScheme.primary.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                shape: BoxShape.circle,
-                              ),
-
-                              child: Icon(
-                                hasLocation
-                                    ? Icons.pin_drop
-                                    : Icons.pin_drop_outlined,
-                                color: hasLocation
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.onPrimary,
-                                size: 24,
-                              ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Text(
-                                  //   "City",
-                                  //   style: theme.textTheme.labelMedium
-                                  //       ?.copyWith(color: theme.primaryColor),
-                                  // ),
-                                  // const SizedBox(height: 4),
-                                  Text(
-                                    hasLocation
-                                        ? location
-                                        : "Select City", // Fallback text
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: hasLocation
-                                          ? colorScheme.primary
-                                          : colorScheme.onSurface,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                      Navigator.pop(context); // Close the sheet
+                                      setState(() {});
+                                    },
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
+                      );
+                    },
+
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 12,
                       ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Container(
                       decoration: BoxDecoration(
                         color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: colorScheme.outline.withValues(alpha: 0.2),
+                          color: colorScheme.outline.withValues(alpha: 0.25),
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
                       ),
-                      child: Column(
+
+                      child: Row(
                         children: [
-                          // City Selector Button/Field
-                          // InkWell(
-                          //   onTap: _showCityPicker,
-                          //   child: IgnorePointer(
-                          //     child: InputField(
-                          //       label: "CITY",
-                          //       controller: _cityController,
-                          //       hint: "Select City",
-                          //       // suffixIcon: const Icon(
-                          //       //   Icons.location_city_rounded,
-                          //       // ),
-                          //     ),
-                          //   ),
-                          // ),
-                          InputField(
-                            label: "EQUIPMENT NAME",
-                            controller: _name,
-                            hint: "e.g. Septic Truck",
-                            validator: (v) => v!.isEmpty ? "REQUIRED" : null,
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: hasLocation
+                                  ? theme.colorScheme.primary.withValues(
+                                      alpha: 0.2,
+                                    )
+                                  : theme.colorScheme.primary.withValues(
+                                      alpha: 0.2,
+                                    ),
+                              shape: BoxShape.circle,
+                            ),
+
+                            child: Icon(
+                              hasLocation
+                                  ? Icons.pin_drop
+                                  : Icons.pin_drop_outlined,
+                              color: hasLocation
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.onPrimary,
+                              size: 24,
+                            ),
                           ),
-                          InputField(
-                            label: "MODEL",
-                            controller: _model,
-                            hint: "e.g. KAMAZ-65115",
-                          ),
-                          InputField(
-                            label: "PLATE NUMBER",
-                            controller: _plateNumber,
-                            hint: "e.g. 777 ABC 01",
-                            isLast: true,
+
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Text(
+                                //   "City",
+                                //   style: theme.textTheme.labelMedium
+                                //       ?.copyWith(color: theme.primaryColor),
+                                // ),
+                                // const SizedBox(height: 4),
+                                Text(
+                                  hasLocation
+                                      ? location
+                                      : "Select City", // Fallback text
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: hasLocation
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurface,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _loading
-                            ? null
-                            : _submit, // Add your _submit logic
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: _loading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                "Add Equipment",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: theme.cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: colorScheme.outline.withValues(alpha: 0.2),
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                    child: Column(
+                      children: [
+                        // City Selector Button/Field
+                        // InkWell(
+                        //   onTap: _showCityPicker,
+                        //   child: IgnorePointer(
+                        //     child: InputField(
+                        //       label: "CITY",
+                        //       controller: _cityController,
+                        //       hint: "Select City",
+                        //       // suffixIcon: const Icon(
+                        //       //   Icons.location_city_rounded,
+                        //       // ),
+                        //     ),
+                        //   ),
+                        // ),
+                        InputField(
+                          label: "EQUIPMENT NAME",
+                          controller: _name,
+                          hint: "e.g. Septic Truck",
+                          validator: (v) => v!.isEmpty ? "REQUIRED" : null,
+                        ),
+                        InputField(
+                          label: "MODEL",
+                          controller: _model,
+                          hint: "e.g. KAMAZ-65115",
+                        ),
+                        InputField(
+                          label: "PLATE NUMBER",
+                          controller: _plateNumber,
+                          hint: "e.g. 777 ABC 01",
+                          isLast: true,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _loading
+                          ? null
+                          : _submit, // Add your _submit logic
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: _loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Add Equipment",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

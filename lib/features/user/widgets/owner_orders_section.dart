@@ -4,6 +4,9 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
+import 'package:prokat/features/bookings/widgets/owner_dashboard_booking_tile.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 
 class OwnerOrdersSection extends ConsumerStatefulWidget {
   const OwnerOrdersSection({super.key});
@@ -93,6 +96,24 @@ class _OwnerOrdersSectionState extends ConsumerState<OwnerOrdersSection> {
             ),
           ],
         ),
+
+        SizedBox(height: 8),
+
+        if (bookingsState.isLoading)
+          OwnerBookingSkeleton()
+        else if (upcomingJobs.isEmpty)
+          EmptyStateTile(title: "No Orders Yet")
+        else
+          ListView.builder(
+            shrinkWrap: true, // Tells the list to only take the space it needs
+            physics:
+                const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
+            itemCount: upcomingJobs.length,
+            itemBuilder: (context, index) {
+              final booking = upcomingJobs[index];
+              return OwnerDashboardBookingTile(booking: booking);
+            },
+          ),
       ],
     );
   }

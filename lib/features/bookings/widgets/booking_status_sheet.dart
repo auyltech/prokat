@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/chat/state/chat_notifier.dart';
+import 'package:prokat/features/chat/state/chat_provider.dart';
 
 class BookingStatusSheet extends ConsumerWidget {
   final BookingModel booking;
@@ -13,6 +16,7 @@ class BookingStatusSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final notifier = ref.read(bookingProvider.notifier);
+    final chatNotifier = ref.watch(chatProvider.notifier);
 
     final currentStatus = booking.workStatus; //booking.workStatus;
     final isStarted = currentStatus.level >= WorkStatus.started.level;
@@ -60,13 +64,29 @@ class BookingStatusSheet extends ConsumerWidget {
                     status == WorkStatus.stopped,
                 onTap: () async {
                   // Update backend & send notification to client
-                  await notifier.updateBookingStatus(
+                  final res = await notifier.updateBookingWorkStatus(
                     id: booking.id,
-                    status: status.name,
+                    workStatus: status.name,
                   );
+
+                  await chatNotifier.reloadChat(booking.chatId ?? "");
 
                   // 3. Close sheet
                   Navigator.pop(context);
+
+                  if (res) {
+                    AppSnackBar.show(
+                      context,
+                      message: "Status updated",
+                      isSuccess: true,
+                    );
+                  } else {
+                    AppSnackBar.show(
+                      context,
+                      message: "Failed to save status",
+                      isError: true,
+                    );
+                  }
                 },
               );
             }),

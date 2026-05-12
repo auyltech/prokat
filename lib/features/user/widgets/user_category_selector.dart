@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/categories/widgets/empty_categories_tile.dart';
 import 'package:prokat/features/categories/widgets/error_categories_tile.dart';
-import 'package:prokat/features/user/widgets/category_tile.dart';
+import 'package:prokat/features/categories/widgets/category_tile.dart';
 
 class UserCategorySelector extends ConsumerWidget {
   const UserCategorySelector({super.key});

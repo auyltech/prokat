@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/core/router/app_routes.dart';
 
 class PageHeader extends StatelessWidget {
   final String? title;
+  final Color? primaryColor;
   final bool showBack;
   final VoidCallback? onBack;
   final Widget? trailing;
@@ -14,6 +16,7 @@ class PageHeader extends StatelessWidget {
     this.showBack = true,
     this.onBack,
     this.trailing,
+    this.primaryColor,
   });
 
   @override
@@ -23,7 +26,7 @@ class PageHeader extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Container(
-        color: theme.primaryColor,
+        color: primaryColor ?? theme.primaryColor,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Stack(
           // Using Stack keeps the title perfectly centered
@@ -36,8 +39,13 @@ class PageHeader extends StatelessWidget {
                   size: 20,
                   color: theme.colorScheme.onPrimary,
                 ),
-                onPressed:
-                    onBack ?? () => context.canPop() ? context.pop() : null,
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.push(AppRoutes.dashboard);
+                  }
+                },
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                 padding: EdgeInsets.zero,
               ),
@@ -53,7 +61,7 @@ class PageHeader extends StatelessWidget {
                     title!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.headlineSmall?.copyWith(
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w400,
                       letterSpacing: -0.5,
                       color: theme.colorScheme.onPrimary,

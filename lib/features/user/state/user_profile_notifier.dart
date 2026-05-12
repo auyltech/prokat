@@ -58,23 +58,23 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await service.updateUserProfile(
+      final result = await service.updateUserProfile(
         firstName: firstName,
         lastName: lastName,
-        phoneNumber: phoneNumber,
         profileImageUrl: profileImageUrl,
         darkMode: darkMode,
         selectedAddressId: selectedAddressId,
       );
 
-      if (updated != null) {
+      state = state.copyWith(isLoading: false);
+      print(result.data.toString());
+      if (result.success) {
         await getUserProfile();
-
-        return true;
       }
 
-      state = state.copyWith(isLoading: false);
-      return false;
+      print(result.success);
+
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;

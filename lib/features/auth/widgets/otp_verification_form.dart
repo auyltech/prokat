@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import '../widgets/auth_button.dart';
 import '../widgets/otp_field.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 
@@ -52,21 +52,16 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
 
         final role = ref.watch(userProfileProvider).userProfile?.role ?? "";
 
-        if (mounted) {
-          context.go(
-            role.toLowerCase() == "owner"
-                ? AppRoutes.ownerDashboard
-                : AppRoutes.searchList,
-          );
-        }
+        context.go(
+          role.toLowerCase() == "owner"
+              ? AppRoutes.ownerDashboard
+              : AppRoutes.searchList,
+        );
       } else {
         widget.onError("Invalid or expired OTP");
       }
     } catch (e) {
-      // 2. Handle Backend/Network Errors
-      widget.onError(
-        "Something went wrong!",
-      ); // e.toString().replaceAll('Exception: ', '')
+      widget.onError("Something went wrong!");
     }
   }
 
@@ -105,11 +100,23 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
 
         const SizedBox(height: 32),
 
-        AuthButton(
-          loading: authState.isLoading,
-          text: "Verify OTP",
-          loadingText: "Verifying...",
-          onPressed: verifyOtp,
+        ListenableBuilder(
+          listenable: otpController, // Listens to every keystroke
+          builder: (context, _) {
+            final temp = otpController.text.trim();
+
+            // Logic is re-evaluated every time the text changes
+            final canSubmit =
+                temp.length == 6 &&
+                num.tryParse(temp) != null &&
+                !authState.isLoading;
+
+            return PrimaryButton(
+              label: authState.isLoading ? " Verifying..." : "Verify OTP",
+              isLoading: authState.isLoading,
+              onPressed: canSubmit ? verifyOtp : null,
+            );
+          },
         ),
 
         const SizedBox(height: 16),

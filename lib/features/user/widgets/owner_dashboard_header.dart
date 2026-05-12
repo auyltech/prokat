@@ -32,7 +32,7 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [theme.primaryColor, theme.primaryColorDark],
+          colors: [const Color(0xFF006B54),const Color(0xFF008E7D)],
         ),
         border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
       ),
