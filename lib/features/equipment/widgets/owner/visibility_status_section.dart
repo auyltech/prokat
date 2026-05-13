@@ -81,7 +81,7 @@ class _VisibilityStatusSectionState
                     AppSnackBar.show(
                       context,
                       message: "Equipment submited for review",
-                      isSuccess: true
+                      isSuccess: true,
                     );
                   }
                 },
@@ -252,7 +252,15 @@ class _VisibilityStatusSectionState
                 AppSnackBar.show(
                   context,
                   message: "Equipment submited for review",
+                  isSuccess: true
                 );
+              } else {
+                AppSnackBar.show(
+                  context,
+                  message: "Failed to submit",
+                  isError: true
+                );
+
               }
             },
           ),

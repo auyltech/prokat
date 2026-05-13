@@ -19,6 +19,8 @@ class BookingApiService {
           .map((e) => BookingModel.fromJson(e))
           .toList();
     } catch (e) {
+      
+      print(e.toString());
       return [];
     }
   }

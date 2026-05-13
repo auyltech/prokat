@@ -53,6 +53,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       state = state.copyWith(isLoading: false, bookings: bookings);
     } catch (e) {
+      print(e.toString());
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

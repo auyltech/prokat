@@ -90,20 +90,18 @@ class _OwnerEquipmentDetailScreenState
       backgroundColor: theme.colorScheme.surface,
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: OwnerEquipmentImageHeader(
-                  equipmentId: equipment?.id ?? "",
-                  images: equipment?.images ?? [],
-                  legacyImageUrl: equipment?.imageUrl ?? " ",
-                ),
+          ListView(
+            children: [
+              OwnerEquipmentImageHeader(
+                equipmentId: equipment?.id ?? "",
+                images: equipment?.images ?? [],
+                legacyImageUrl: equipment?.imageUrl ?? " ",
               ),
 
-              SliverPadding(
+              Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
+                child: Column(
+                  children: [
                     // Category
                     if (equipment != null)
                       CategorySelectorTile(mode: "edit_equipment"),
@@ -157,7 +155,7 @@ class _OwnerEquipmentDetailScreenState
 
                     if (equipment != null)
                       DeleteEquipmentSection(equipmentId: equipment.id),
-                  ]),
+                  ],
                 ),
               ),
             ],

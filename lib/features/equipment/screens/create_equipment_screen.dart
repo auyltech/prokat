@@ -80,7 +80,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
+      extendBodyBehindAppBar: true,
       body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           PageHeader(
             title: "Add Equipment",
@@ -214,11 +216,13 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                     validator: (v) => v!.isEmpty ? "REQUIRED" : null,
                   ),
 
+                  const SizedBox(height: 8),
                   InputField(
                     label: "MODEL",
                     controller: _model,
                     hint: "e.g. KAMAZ-65115",
                   ),
+                  const SizedBox(height: 8),
                   InputField(
                     label: "PLATE NUMBER",
                     controller: _plateNumber,

@@ -354,13 +354,7 @@ class EquipmentService {
     } on DioException catch (e) {
       String message = "Something went wrong";
 
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      message = extractBackendMessage(e.response?.data);
 
       return ApiResponse.failure(
         message: message, // real backend message: extractBackendMessage(e)

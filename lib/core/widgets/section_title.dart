@@ -9,9 +9,6 @@ class SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(title, style: theme.textTheme.titleMedium),
-    );
+    return Text(title, style: theme.textTheme.titleLarge);
   }
 }

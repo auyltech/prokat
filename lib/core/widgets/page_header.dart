@@ -23,11 +23,12 @@ class PageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SafeArea(
-      bottom: false,
-      child: Container(
-        color: primaryColor ?? theme.primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    return Container(
+      color: primaryColor ?? theme.primaryColor,
+      // padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      // 2. SafeArea moves inside the container to push text below the status bar
+      child: SafeArea(
+        bottom: false,
         child: Stack(
           // Using Stack keeps the title perfectly centered
           alignment: Alignment.centerLeft,

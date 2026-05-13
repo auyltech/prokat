@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
 import 'package:shimmer/shimmer.dart';
@@ -68,71 +69,64 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            elevation: 0,
-            scrolledUnderElevation: 2,
-            backgroundColor: theme.colorScheme.primary,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 20,
-                color: theme.colorScheme.onPrimary,
-              ),
-              onPressed: () {
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  context.go(AppRoutes.dashboard);
-                }
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        title: Text(
+          'Chat',
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+      ),
+      body: ListView(
+        children: [
+          if (chatState.isLoadingConversations)
+            _buildSkeleton()
+          else if (chatState.error != null && chats.isEmpty)
+            EmptyStateTile(title: "Error", subtitle: "Could not load chats")
+          else if (chats.isEmpty)
+            EmptyStateTile(
+              title: "No Chats",
+              subtitle: "You don't have any chats",
+            )
+          else
+            ListView.builder(
+              shrinkWrap:
+                  true, // Tells the list to only take the space it needs
+              physics:
+                  const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final chat = chats[index];
+                return ChatTile(
+                  chat: chat,
+                  currentUserId: chatState.currentUserId ?? "",
+                  onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
+                );
               },
             ),
-            title: Text(
-              'Chat',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-            centerTitle: false,
-          ),
-          if (chatState.isLoadingConversations)
-            _buildSliverSkeleton()
-          else if (chatState.error != null && chats.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: Text(chatState.error!)),
-            )
-          else if (chats.isEmpty)
-            _buildSliverEmptyState(theme)
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final chat = chats[index];
-                  return ChatTile(
-                    chat: chat,
-                    currentUserId: chatState.currentUserId ?? "",
-                    onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
-                  );
-                }, childCount: chats.length),
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 
-  Widget _buildSliverSkeleton() {
-    return SliverPadding(
+  Widget _buildSkeleton() {
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => Shimmer.fromColors(
+      child: Column(
+        // Use ListView.builder if you need it to scroll
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(
+          5,
+          (index) => Shimmer.fromColors(
             baseColor: Colors.grey.shade200,
             highlightColor: Colors.grey.shade50,
             child: Container(
@@ -144,27 +138,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
               ),
             ),
           ),
-          childCount: 5,
         ),
-      ),
-    );
-  }
-
-  Widget _buildSliverEmptyState(ThemeData theme) {
-    return SliverFillRemaining(
-      hasScrollBody: false,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.chat_bubble_outline, size: 64, color: theme.disabledColor),
-          const SizedBox(height: 16),
-          Text(
-            'No conversations yet',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.disabledColor,
-            ),
-          ),
-        ],
       ),
     );
   }

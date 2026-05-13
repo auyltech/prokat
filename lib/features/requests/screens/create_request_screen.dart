@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
@@ -95,34 +96,26 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     });
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        title: Text(
+          "New Request",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        elevation: 0,
+      ),
       body: ListView(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(color: theme.colorScheme.primary),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                  onPressed: () => context.pop(),
-                ),
-
-                const SizedBox(width: 8),
-
-                Expanded(
-                  child: Text(
-                    "New Request",
-                    style: TextStyle(color: theme.colorScheme.onPrimary),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -153,12 +146,14 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                   hint: "10 M3",
                   icon: Icons.high_quality_rounded,
                 ),
+                const SizedBox(height: 12),
                 InputField(
                   label: "Offered Rate",
                   controller: rateController,
                   hint: "Price you're willing to pay",
                   icon: Icons.payments_outlined,
                 ),
+                const SizedBox(height: 12),
                 InputField(
                   label: "Comments",
                   controller: commentController,

@@ -38,7 +38,9 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: true,
       body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           PageHeader(
             title: "My Orders",

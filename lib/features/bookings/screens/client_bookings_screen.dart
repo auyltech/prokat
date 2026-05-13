@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -58,24 +57,39 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        title: Text(
+          "My Orders",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => context.push(
+              "${AppRoutes.clientOrders}${AppRoutes.clientOrdersHistory}",
+            ),
+            icon: Icon(
+              Icons.history,
+              color: theme.colorScheme.onPrimary,
+              size: 24,
+            ),
+            tooltip: "Order History",
+          ),
+        ],
+        elevation: 0,
+      ),
       body: ListView(
         children: [
-          PageHeader(
-            title: "My Orders",
-            onBack: () => context.pop(),
-            trailing: IconButton(
-              onPressed: () => context.push(
-                "${AppRoutes.clientOrders}${AppRoutes.clientOrdersHistory}",
-              ),
-              icon: Icon(
-                Icons.history,
-                color: theme.colorScheme.onPrimary,
-                size: 24,
-              ),
-              tooltip: "Order History",
-            ),
-          ),
-
           // 1. High-Priority Draft Card (Refined Orange)
           if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
 

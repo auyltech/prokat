@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -86,10 +86,26 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final displayUrl = equipment?.imageUrl ?? "";
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Create Booking",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.dashboard),
+        ),
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+      ),
       body: ListView(
         children: [
-          PageHeader(title: "Create Booking"),
-
           if (authSession == null)
             _buildCenteredFallback(
               icon: Icons.login_outlined,

@@ -61,7 +61,10 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar:
+          true, // Forces body to expand under the status bar
       body: ListView(
+        padding: EdgeInsets.zero, // Remove default top padding from ListView
         children: [
           OwnerDashboardHeader(),
 

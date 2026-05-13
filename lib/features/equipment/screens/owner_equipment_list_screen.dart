@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
 import 'package:shimmer/shimmer.dart';
@@ -41,25 +41,37 @@ class _OwnerEquipmentListScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
+            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 24),
+            tooltip: "Add Equipment",
+          ),
+        ],
+        title: Text(
+          "My Equipment",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        backgroundColor: AppColors.teal700,
+        elevation: 0,
+      ),
       body: ListView(
         children: [
-          PageHeader(
-            title: "My Equipment",
-            trailing: IconButton(
-              onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
-              icon: Icon(
-                Icons.add,
-                color: theme.colorScheme.onPrimary,
-                size: 24,
-              ),
-              tooltip: "Add Equipment",
-            ),
-            primaryColor: const Color.fromARGB(255, 0, 116, 112),
-          ),
-
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -77,6 +89,7 @@ class _OwnerEquipmentListScreenState
                         color: Colors.greenAccent[700]!,
                       ),
                     ),
+
                     SizedBox(width: 12),
 
                     Expanded(
@@ -93,6 +106,7 @@ class _OwnerEquipmentListScreenState
                         color: Colors.redAccent[400]!,
                       ),
                     ),
+
                     SizedBox(width: 12),
 
                     Expanded(
@@ -111,7 +125,7 @@ class _OwnerEquipmentListScreenState
                 ),
 
                 SizedBox(height: 20),
-
+                
                 if (state.isLoading)
                   _builSkeleton(context)
                 else if (state.ownerEquipment.isEmpty)
@@ -120,15 +134,13 @@ class _OwnerEquipmentListScreenState
                     icon: Icons.inventory_2_outlined,
                   )
                 else
-                  ListView.builder(
+                  ListView.separated(
+                    separatorBuilder: (context, index) => SizedBox(height: 12),
                     itemCount: state.ownerEquipment.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: OwnerEquipmentCard(
-                        equipment: state.ownerEquipment[index],
-                      ),
+                    itemBuilder: (context, index) => OwnerEquipmentCard(
+                      equipment: state.ownerEquipment[index],
                     ),
                   ),
               ],

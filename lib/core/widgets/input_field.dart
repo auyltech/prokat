@@ -9,6 +9,7 @@ class InputField extends StatelessWidget {
   final String? suffixText;
   final String? Function(String?)? validator;
   final IconData? icon;
+  final VoidCallback? onChanged;
 
   const InputField({
     super.key,
@@ -20,6 +21,7 @@ class InputField extends StatelessWidget {
     this.validator,
     this.suffixText,
     this.icon,
+    this.onChanged,
   });
 
   @override
@@ -28,15 +30,11 @@ class InputField extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
-        border: isLast
-            ? null
-            : Border(
-                bottom: BorderSide(
-                  color: colorScheme.outline.withValues(alpha: 0.15),
-                ),
-              ),
+        color: theme.colorScheme.surfaceBright,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment:
@@ -47,18 +45,15 @@ class InputField extends StatelessWidget {
             const SizedBox(width: 16), // Space between icon and text
           ],
 
-          // FIX: Wrapped Column in Expanded so it fits the remaining Row space
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label.toUpperCase(), // Uppercase for a more "label" look
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
+                  label, // Uppercase for a more "label" look
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.primaryColor,
                   ),
                 ),
 
@@ -70,14 +65,16 @@ class InputField extends StatelessWidget {
                       child: TextFormField(
                         controller: controller,
                         validator: validator,
+                        onChanged: (_) =>
+                            onChanged != null ? onChanged!() : null,
                         keyboardType: isNumeric
                             ? const TextInputType.numberWithOptions(
                                 decimal: true,
                               )
                             : TextInputType.text,
                         cursorColor: colorScheme.primary,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          // fontWeight: FontWeight.w500,
                         ),
                         decoration: InputDecoration(
                           hintText: hint,
@@ -96,6 +93,7 @@ class InputField extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     if (suffixText != null)
                       Container(
                         margin: const EdgeInsets.only(left: 8),

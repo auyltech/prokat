@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
 import 'package:shimmer/shimmer.dart';
@@ -34,14 +33,28 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: ListView(
-        children: [
-          PageHeader(
-            title: "Chat",
-            primaryColor: AppColors.teal700,
-            showBack: true,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
           ),
-
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        title: Text(
+          "Chat",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        backgroundColor: AppColors.teal700,
+        elevation: 0,
+      ),
+      body: ListView(
+        padding: EdgeInsets.zero,
+        children: [
           if (chatState.isLoadingConversations)
             _buildSkeleton()
           else if (chatState.error != null && chats.isEmpty)

@@ -130,11 +130,13 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
                   controller: commentController,
                   hint: "My House",
                 ),
+                const SizedBox(height: 8),
                 InputField(
                   label: "Street",
                   controller: streetController,
                   hint: "Stapayeva 123",
                 ),
+                const SizedBox(height: 8),
                 InputField(
                   label: "City",
                   controller: cityController,

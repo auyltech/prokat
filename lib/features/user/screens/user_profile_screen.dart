@@ -41,7 +41,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: true,
       body: ListView(
+        padding: EdgeInsets.zero,
         children: [
           Container(
             decoration: BoxDecoration(color: theme.primaryColor),

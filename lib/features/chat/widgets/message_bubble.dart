@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 

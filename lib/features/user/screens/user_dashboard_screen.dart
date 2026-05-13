@@ -29,11 +29,13 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: true,
       body: SafeArea(
         top: false,
         child: RefreshIndicator(
           onRefresh: _onRefresh,
           child: ListView(
+            padding: EdgeInsets.zero,
             children: [
               UserDashboardHeader(),
 

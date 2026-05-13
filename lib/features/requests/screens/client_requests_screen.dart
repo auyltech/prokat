@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
@@ -58,24 +57,38 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     }
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        title: Text(
+          "My Requests",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => context.push(AppRoutes.clientRequestsCreate),
+            icon: Icon(
+              Icons.add_rounded,
+              color: theme.colorScheme.onPrimary,
+              size: 24,
+            ),
+            tooltip: "Create Request",
+          ),
+        ],
+      ),
       body: ListView(
         children: [
-          PageHeader(
-            title: "My Requests",
-            onBack: () => context.pop(),
-            trailing: IconButton(
-              onPressed: () => authSession == null
-                  ? null
-                  : context.push(AppRoutes.clientRequestsCreate),
-              icon: Icon(
-                Icons.add,
-                color: theme.colorScheme.onPrimary,
-                size: 24,
-              ),
-              tooltip: "Create Request",
-            ),
-          ),
-
           if (authSession == null)
             EmptyStateTile(
               title: "Login to create and view requests",

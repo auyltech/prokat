@@ -156,32 +156,36 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                         ),
                       ),
                     ),
-                    // Toggle Button
-                    Column(
-                      children: [
-                        Switch.adaptive(
-                          value: isOnline,
-                          onChanged: (val) async {
-                            await ref
-                                .read(equipmentProvider.notifier)
-                                .updateVisibilityStatus(
-                                  item.id,
-                                  val,
-                                  item.status,
-                                );
-                          },
-                          activeThumbColor: Colors.green,
-                        ),
-                        Text(
-                          isOnline ? 'Online' : 'Offline',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: isOnline ? Colors.green : colorScheme.error,
-                            fontWeight: FontWeight.bold,
+
+                    if (item.status == "AVAILABLE" || item.status == "ACCEPTED")
+                      // Toggle Button
+                      Column(
+                        children: [
+                          Switch.adaptive(
+                            value: isOnline,
+                            onChanged: (val) async {
+                              await ref
+                                  .read(equipmentProvider.notifier)
+                                  .updateVisibilityStatus(
+                                    item.id,
+                                    val,
+                                    "AVAILABLE",
+                                  );
+                            },
+                            activeThumbColor: Colors.green,
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            isOnline ? 'Online' : 'Offline',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: isOnline
+                                  ? Colors.green
+                                  : colorScheme.error,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               );

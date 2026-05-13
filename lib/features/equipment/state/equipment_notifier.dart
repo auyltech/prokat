@@ -418,7 +418,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String status,
   ) async {
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      state = state.copyWith(isSubmitting: true, error: null);
 
       final result = await api.updateVisibilityStatus(
         equipmentId: equipmentId,
@@ -427,17 +427,18 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       );
 
       if (result.success) {
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(isSubmitting: false);
 
+        await getOwnerEquipmentById(equipmentId);
         await getOwnerEquipment();
 
         return true;
       } else {
-        state = state.copyWith(isLoading: false, error: result.message);
+        state = state.copyWith(isSubmitting: false, error: result.message);
         return false;
       }
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e.toString());
 
       return false;
     }

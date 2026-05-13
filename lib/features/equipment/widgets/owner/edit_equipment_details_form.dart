@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -124,6 +125,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Text("INFORMATION", style: theme.textTheme.titleLarge),
               SectionTitle(title: "Information"),
@@ -165,111 +167,48 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           SizedBox(height: 12),
 
           // SizedBox(height: 12),
-          _ThemedInputField(
+          InputField(
             label: "Name",
             controller: _nameController,
             onChanged: _onChanged,
+            hint: "",
           ),
 
           SizedBox(height: 12),
 
-          _ThemedInputField(
+          InputField(
             label: "Model",
             controller: _modelController,
             onChanged: _onChanged,
+            hint: "",
           ),
+
           SizedBox(height: 12),
-          _ThemedInputField(
+
+          InputField(
             label: "Plate Number",
             controller: _plateNumberController,
             onChanged: _onChanged,
+            hint: "",
           ),
 
           SizedBox(height: 12),
-          _ThemedInputField(
+
+          InputField(
             label: "Rent Condition",
             controller: _rentConditionController,
             onChanged: _onChanged,
-            hintText: "Full load only...",
+            hint: "Full load only...",
           ),
 
-          // SizedBox(height: 12),
-          // _ThemedInputField(
-          //   label: "Comments",
-          //   controller: _commentController,
-          //   onChanged: _onChanged,
-          //   isLast: true,
-          //   hintText: "15M Hose",
-          // ),
+          SizedBox(height: 12),
+          InputField(
+            label: "Comment / Notes",
+            controller: _commentController,
+            onChanged: _onChanged,
+            hint: "15M Hose",
+          ),
           const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-}
-
-class _ThemedInputField extends StatelessWidget {
-  final String label;
-  final String? hintText;
-  final TextEditingController controller;
-  final VoidCallback onChanged;
-
-  const _ThemedInputField({
-    required this.label,
-    this.hintText,
-    required this.controller,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
-    final accent = colorScheme.primary;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceBright,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.primaryColor,
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: controller,
-                  onChanged: (_) => onChanged(),
-                  keyboardType: TextInputType.text,
-                  cursorColor: accent,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    border: InputBorder.none,
-                    hintText: hintText,
-                    hintStyle: TextStyle(
-                      color: ghostGray.withValues(alpha: 0.4),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
