@@ -66,11 +66,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>MBXAccessToken</key>
-    <string>pk.eyJ1IjoibXJhYmJhbmkwMDciLCJhIjoiY21tOHE5N21lMTBlZDJ1cXVpZTBra2JyZyJ9.gHYXieEcDJiq81xN4oodvw</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>We use your location to find nearby equipment</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>We use your location to find nearby equipment</string>
 </dict>
 </plist>
