@@ -149,7 +149,11 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     }
   }
 
-  Future<void> fetchNextPage({String? categoryId, String? city}) async {
+  Future<void> fetchNextPage({
+    String? categoryId,
+    String? query,
+    String? city,
+  }) async {
     // Prevent multiple simultaneous fetches or fetching if we hit the end
     if (state.isFetchingMore || state.hasReachedMax) return;
 
@@ -162,6 +166,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         limit: _limit,
         categoryId: categoryId,
         city: city,
+        query: query,
       );
 
       state = state.copyWith(

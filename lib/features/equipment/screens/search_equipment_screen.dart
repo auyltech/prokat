@@ -35,10 +35,16 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   // bool _isSearchVisible = false;
 
   void _loadMore(WidgetRef ref) {
-    // Add logic here to check if more items exist and call your provider
     // Future.microtask ensures we don't trigger state changes during build
+    final locationState = ref.watch(locationProvider);
     Future.microtask(
-      () => ref.read(equipmentProvider.notifier).fetchNextPage(),
+      () => ref
+          .read(equipmentProvider.notifier)
+          .fetchNextPage(
+            categoryId: widget.category,
+            query: widget.query,
+            city: locationState.city,
+          ),
     );
   }
 
@@ -86,6 +92,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     final locationState = ref.watch(locationProvider);
     final selectedCity = locationState.city;
+
+    print(items.length);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -181,19 +189,19 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                 )
               else if (items.isEmpty)
                 const EquipmentEmptyTile()
-              else if (items.isNotEmpty)
+              else
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: items.length,
                   itemBuilder: (context, index) {
+                    if (index >= items.length) {
+                      return const SizedBox.shrink();
+                    }
+
                     if (index == items.length - 1) {
                       // Use microtask to delay execution until the layout build pass completes safely
                       Future.microtask(() => _loadMore(ref));
-                    }
-
-                    if (index >= items.length) {
-                      return const SizedBox.shrink();
                     }
 
                     final equipment = items[index];

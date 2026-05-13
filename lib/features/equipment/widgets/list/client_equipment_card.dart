@@ -32,10 +32,6 @@ class ClientEquipmentCard extends ConsumerWidget {
 
     final priceRate = getPriceRate(priceEntry?.priceRate);
 
-    final specs = equipment.specs ?? [];
-
-    print(specs?[0].toJson());
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
       decoration: BoxDecoration(
@@ -205,31 +201,6 @@ class ClientEquipmentCard extends ConsumerWidget {
                 // Specs Row (Owner, Capacity, and Price integrated)
                 Row(
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.straighten,
-                            size: 16,
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.55,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-
-                          Text(
-                            "${specs?[0].name ?? ""} ${equipment.specs?[0].value ?? ""}",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
-                              ),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
                     const SizedBox(width: 12),
                     // The Price: Now a clean text element instead of a bubble
                     Column(
@@ -255,8 +226,7 @@ class ClientEquipmentCard extends ConsumerWidget {
                   ],
                 ),
 
-                buildSpecsGrid(context, specs, theme),
-
+                buildSpecsGrid(context, equipment.specs ?? [], theme),
                 const SizedBox(height: 20),
 
                 /// 3. ACTION BUTTON
@@ -392,7 +362,7 @@ Widget buildSpecsGrid(
             // Constrain text blocks inside dynamically sizing horizontal arrays
             Flexible(
               child: Text(
-                "${spec.name ?? ""}: ${spec.value ?? ""}",
+                "${spec.name}: ${spec.value ?? ""}",
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
