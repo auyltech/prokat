@@ -179,9 +179,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                 EquipmentErrorTile(
                   onRetry: () => ref.invalidate(equipmentProvider),
                 )
-              else if (equipmentState.renterEquipment.isEmpty)
+              else if (items.isEmpty)
                 const EquipmentEmptyTile()
-              else if (equipmentState.renterEquipment.isNotEmpty)
+              else if (items.isNotEmpty)
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
