@@ -24,17 +24,9 @@ class CategoryCard extends StatelessWidget {
           Expanded(
             child: Container(
               // padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                // border: Border.all(
-                //   color: isSelected
-                //       ? theme.colorScheme.primary
-                //       : theme.colorScheme.outline.withValues(alpha: 0.2),
-                // ),
-                // borderRadius: BorderRadius.circular(16),
-              ),
+              decoration: BoxDecoration(color: theme.cardColor),
               child: Image.network(
-                height: 72, // 👈 image limit only
+                height: 70, // 👈 image limit only
                 category.imageUrl ?? "",
                 fit: BoxFit.contain,
                 errorBuilder: (_, _, _) => const Icon(
@@ -48,11 +40,11 @@ class CategoryCard extends StatelessWidget {
           // const SizedBox(height: 8),
           Text(
             category.name,
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w600,
               color: isSelected
                   ? theme.primaryColor
-                  : theme.textTheme.bodySmall?.color,
+                  : theme.textTheme.bodyMedium?.color,
             ),
           ),
         ],

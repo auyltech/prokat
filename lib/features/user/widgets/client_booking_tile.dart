@@ -8,7 +8,6 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
@@ -134,7 +133,7 @@ class ClientBookingTile extends ConsumerWidget {
                       ),
                     ),
 
-                    BookingStatusBadge(status: booking.status),
+                    // BookingStatusBadge(status: booking.status),
                   ],
                 ),
 

@@ -9,6 +9,7 @@ import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
+import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 
 const Color kBlue = Color(0xFF2563EB);
 const Color kBlueDark = Color(0xFF1E3A8A);
@@ -136,193 +137,202 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: RichText(
-                      softWrap: false,
-                      text: TextSpan(
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        children: [
-                          const TextSpan(text: 'PRO'),
-                          TextSpan(
-                            text: 'KAT',
-                            style: TextStyle(color: theme.colorScheme.primary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => showLanguageSheet(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        "EN",
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            _HeroBanner(
-              city: selectedCity,
-              onCityTap: () => {
-                showModalBottomSheet(
-                  context: context,
-                  backgroundColor: Colors.white,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  builder: (_) => _CityPickerSheet(
-                    selected: selectedCity,
-                    onSelect: (city) {
-                      // setState(() => _selectedCity = city);
-                      _updateFilters(context, {'city': city});
-
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              },
-            ),
-
-            // Login
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: GestureDetector(
-                onTap: () {
-                  context.push(AppRoutes.login);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Get Started',
-                        style: TextStyle(
-                          color: theme.colorScheme.onPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Icon(
-                        Icons.login,
-                        size: 24,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Services Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Services", style: theme.textTheme.titleLarge),
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Text(
-                      'See all',
-                      style: TextStyle(fontSize: 12, color: kBlue),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Categories / Services
-            if (categoriesState.error != null)
-              EmptyStateTile(title: "Error loading services")
-            else
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SizedBox(
-                  height: 110, // control height of the row
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categoriesState.categories.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 10),
-                    itemBuilder: (context, i) {
-                      final category = categoriesState.categories[i];
-
-                      return CategoryCard(
-                        isSelected: selectedCategory == category.id,
-                        category: category,
-                        onTap: () =>
-                            _updateFilters(context, {'category': category.id}),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-            // Popular Rents Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Popular rents", style: theme.textTheme.titleLarge),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Popular Rents
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              itemCount: equipmentState.renterEquipment.length,
-              itemBuilder: (context, index) {
-                final item = equipmentState.renterEquipment[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GuestEquipmentCard(item: item),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref
+                .read(equipmentProvider.notifier)
+                .getRenterEquipment(
+                  categoryId: widget.category,
+                  query: widget.query,
+                  page: widget.page,
+                  limit: widget.limit,
+                  city: widget.city,
                 );
-              },
-            ),
-          ],
+
+            ref.read(categoriesProvider.notifier).getCategories();
+          },
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {},
+                      child: RichText(
+                        softWrap: false,
+                        text: TextSpan(
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          children: [
+                            const TextSpan(text: 'PRO'),
+                            TextSpan(
+                              text: 'KAT',
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => showLanguageSheet(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "EN",
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: theme.colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              _HeroBanner(
+                city: selectedCity,
+                onCityTap: () => CityPickerSheet.show(
+                  context: context,
+                  city: selectedCity,
+                  mode: "guest",
+                ),
+              ),
+
+              // Login
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    context.push(AppRoutes.login);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Get Started',
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Icon(
+                          Icons.login,
+                          size: 24,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Services Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Services", style: theme.textTheme.titleLarge),
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Text(
+                        'See all',
+                        style: TextStyle(fontSize: 12, color: kBlue),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Categories / Services
+              if (categoriesState.error != null)
+                EmptyStateTile(title: "Error loading services")
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: SizedBox(
+                    height: 110, // control height of the row
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categoriesState.categories.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 10),
+                      itemBuilder: (context, i) {
+                        final category = categoriesState.categories[i];
+
+                        return CategoryCard(
+                          isSelected: selectedCategory == category.id,
+                          category: category,
+                          onTap: () => _updateFilters(context, {
+                            'category': category.id,
+                          }),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+              // Popular Rents Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Popular rents",
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Popular Rents
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                itemCount: equipmentState.renterEquipment.length,
+                itemBuilder: (context, index) {
+                  final item = equipmentState.renterEquipment[index];
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: GuestEquipmentCard(item: item),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -418,61 +428,3 @@ class _HeroBanner extends StatelessWidget {
 
 // ─── Filter Pills ─────────────────────────────────────────────────────────────
 const List<String> kFilters = ['All', 'Daily', 'Weekly', 'Monthly', 'Near me'];
-
-// ─── City Picker Bottom Sheet ─────────────────────────────────────────────────
-
-class _CityPickerSheet extends StatelessWidget {
-  final String selected;
-  final ValueChanged<String> onSelect;
-
-  const _CityPickerSheet({required this.selected, required this.onSelect});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title
-            Text('Select City', style: theme.textTheme.titleLarge),
-
-            const SizedBox(height: 12),
-
-            // City list
-            Flexible(
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: kazakhstanCities.length,
-                separatorBuilder: (_, _) => const Divider(),
-                itemBuilder: (context, index) {
-                  final city = kazakhstanCities[index];
-
-                  return ListTile(
-                    title: Text(
-                      city,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: city == selected ? kBlue : kTextPrimary,
-                        fontWeight: city == selected
-                            ? FontWeight.w500
-                            : FontWeight.normal,
-                      ),
-                    ),
-                    trailing: city == selected
-                        ? const Icon(Icons.check, color: kBlue, size: 18)
-                        : null,
-                    onTap: () => onSelect(city),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

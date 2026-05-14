@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 
 enum OwnerVerificationStatus { incomplete, pending, approved, rejected }
@@ -17,31 +19,27 @@ class OwnerRegistrationScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      // appBar: AppBar(title: const Text("Owner Verification")),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: Text(
+          "Owner Profile",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        backgroundColor: AppColors.teal700,
+        elevation: 0,
+      ),
       body: ListView(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(color: theme.colorScheme.primary),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                  onPressed: () => context.pop(),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Owner Profile",
-                  style: TextStyle(color: theme.colorScheme.onPrimary),
-                ),
-              ],
-            ),
-          ),
-
           Padding(
             padding: EdgeInsets.all(16),
             child: Column(

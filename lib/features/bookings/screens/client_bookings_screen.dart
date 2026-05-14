@@ -63,6 +63,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
           "My Orders",
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
+        centerTitle: false,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,

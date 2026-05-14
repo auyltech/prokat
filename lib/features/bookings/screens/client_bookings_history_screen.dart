@@ -91,17 +91,17 @@ class ClientBookingsHistoryScreenState
                 ),
               ),
               centerTitle: false,
-              actions: [
-                IconButton(
-                  onPressed: () => context.push(AppRoutes.clientOrders),
-                  icon: Icon(
-                    Icons.timelapse,
-                    color: theme.colorScheme.onPrimary,
-                    size: 24,
-                  ),
-                  tooltip: "Active Orders",
-                ),
-              ],
+              // actions: [
+              //   IconButton(
+              //     onPressed: () => context.push(AppRoutes.clientOrders),
+              //     icon: Icon(
+              //       Icons.timelapse,
+              //       color: theme.colorScheme.onPrimary,
+              //       size: 24,
+              //     ),
+              //     tooltip: "Active Orders",
+              //   ),
+              // ],
             ),
 
             // 1. High-Priority Draft Card (Refined Orange)

@@ -62,6 +62,10 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
         await getRenterLocations();
 
+        if (location.service == "ADDRESS" && state.renterLocations.isNotEmpty) {
+          selectAddress(state.renterLocations[0]);
+        }
+
         return true;
       } else {
         state = state.copyWith(isLoading: false, error: result.message);

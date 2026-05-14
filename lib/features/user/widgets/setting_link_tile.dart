@@ -26,14 +26,14 @@ class SettingsLinkTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              // padding: const EdgeInsets.all(10),
+              // decoration: BoxDecoration(
+              //   color: colorScheme.primary.withValues(alpha: 0.1),
+              //   borderRadius: BorderRadius.circular(12),
+              // ),
               child: Icon(
                 icon,
-                size: 22,
+                size: 32,
                 color: isDestructive ? colorScheme.error : colorScheme.primary,
               ),
             ),

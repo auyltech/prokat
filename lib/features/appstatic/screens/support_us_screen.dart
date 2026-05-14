@@ -10,33 +10,30 @@ class SupportUsPage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: false,
+      appBar: AppBar(
+        title: Text(
+          "Help Us Grow",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        centerTitle: false,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: theme.primaryColor,
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(color: theme.colorScheme.primary),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 20,
-                      color: theme.colorScheme.onPrimary,
-                    ),
-                    onPressed: () => context.pop(),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Help Us Grow",
-                    style: TextStyle(color: theme.colorScheme.onPrimary),
-                  ),
-                ],
-              ),
-            ),
-
             _buildHeroHeader(context),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             _buildSection(
               context,
               title: 'The Simple Stuff',
@@ -107,7 +104,7 @@ class SupportUsPage extends StatelessWidget {
   Widget _buildHeroHeader(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),

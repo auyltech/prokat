@@ -5,7 +5,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
-import 'package:prokat/features/user/widgets/language_selector_tile.dart';
 
 class UserDashboardHeader extends ConsumerStatefulWidget {
   const UserDashboardHeader({super.key});
@@ -15,8 +14,6 @@ class UserDashboardHeader extends ConsumerStatefulWidget {
 }
 
 class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
-  String selectedLanguage = 'EN';
-
   @override
   Widget build(BuildContext context) {
     final userProfileState = ref.watch(userProfileProvider);
@@ -80,6 +77,7 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
                       ),
                     ),
                     const SizedBox(width: 4),
+
                     Text(
                       '(${(userProfileState.userProfile?.ratingStars ?? 0).toStringAsFixed(0)} reviews)',
                       style: TextStyle(
@@ -91,11 +89,6 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
                 ),
               ],
             ),
-          ),
-
-          LanguageSelectorTile(
-            value: selectedLanguage,
-            onChanged: (lang) => setState(() => selectedLanguage = lang),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
 
 class LanguageSelectorTile extends StatelessWidget {
@@ -28,16 +29,16 @@ class LanguageSelectorTile extends StatelessWidget {
               MainAxisSize.min, // Prevents the container from stretching
           children: [
             Icon(
-              Icons.language_rounded, // The globe icon
-              size: 26,
+              LucideIcons.globe, // The globe icon
+              size: 32,
               color: theme.colorScheme.onPrimary,
+              fontWeight: FontWeight.w200,
             ),
             const SizedBox(width: 6), // Space between icon and text
             Text(
               "EN",
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onPrimary,
-                fontWeight: FontWeight.w400,
               ),
             ),
           ],

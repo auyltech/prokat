@@ -33,7 +33,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     });
 
     _loadSessionFallback();
-    getChatThreads();
+    // getChatThreads("client");
   }
 
   @override
@@ -114,11 +114,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
   }
 
-  Future<void> getChatThreads() async {
+  Future<void> getChatThreads(String? mode) async {
     try {
       state = state.copyWith(isLoadingConversations: true, error: null);
 
-      final conversations = await service.getChatThreads();
+      final conversations = await service.getChatThreads(mode);
 
       state = state.copyWith(
         isLoadingConversations: false,
@@ -263,7 +263,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
-  Future<String?> getChatId({String? bookingId, String? requestId}) async {
+  Future<String?> getChatId({String? bookingId, String? requestId, String? mode}) async {
     final normalizedBookingId = (bookingId ?? '').trim();
     final normalizedRequestId = (requestId ?? '').trim();
 
@@ -290,7 +290,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         requestId: normalizedRequestId.isEmpty ? null : normalizedRequestId,
       );
 
-      await getChatThreads();
+      await getChatThreads(mode);
       return resolvedId;
     } catch (error) {
       state = state.copyWith(

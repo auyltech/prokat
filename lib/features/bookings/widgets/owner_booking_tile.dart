@@ -531,7 +531,6 @@ Future<void> _handleCancel(
     );
 
     if (res == true) {
-      
       Navigator.pop(context); // close sheet
 
       ScaffoldMessenger.of(

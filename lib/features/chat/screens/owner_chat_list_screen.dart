@@ -21,7 +21,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(chatProvider.notifier).getChatThreads();
+      ref.read(chatProvider.notifier).getChatThreads("owner");
     });
   }
 
@@ -33,7 +33,6 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(
@@ -52,36 +51,41 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
         backgroundColor: AppColors.teal700,
         elevation: 0,
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          if (chatState.isLoadingConversations)
-            _buildSkeleton()
-          else if (chatState.error != null && chats.isEmpty)
-            EmptyStateTile(title: "Error", subtitle: "Could not load chats")
-          else if (chats.isEmpty)
-            EmptyStateTile(
-              title: "No Chats",
-              subtitle: "You don't have any chats",
-            )
-          else
-            ListView.builder(
-              shrinkWrap:
-                  true, // Tells the list to only take the space it needs
-              physics:
-                  const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
-              itemCount: chats.length,
-              itemBuilder: (context, index) {
-                final chat = chats[index];
-                return ChatTile(
-                  chat: chat,
-                  currentUserId: chatState.currentUserId ?? "",
-                  onTap: () =>
-                      context.push('${AppRoutes.ownerChat}/${chat.id}'),
-                );
-              },
-            ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(chatProvider.notifier).getChatThreads("owner");
+        },
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            if (chatState.isLoadingConversations)
+              _buildSkeleton()
+            else if (chatState.error != null && chats.isEmpty)
+              EmptyStateTile(title: "Error", subtitle: "Could not load chats")
+            else if (chats.isEmpty)
+              EmptyStateTile(
+                title: "No Chats",
+                subtitle: "You don't have any chats",
+              )
+            else
+              ListView.builder(
+                shrinkWrap:
+                    true, // Tells the list to only take the space it needs
+                physics:
+                    const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
+                itemCount: chats.length,
+                itemBuilder: (context, index) {
+                  final chat = chats[index];
+                  return ChatTile(
+                    chat: chat,
+                    currentUserId: chatState.currentUserId ?? "",
+                    onTap: () =>
+                        context.push('${AppRoutes.ownerChat}/${chat.id}'),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

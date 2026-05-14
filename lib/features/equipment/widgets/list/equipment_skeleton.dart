@@ -6,7 +6,8 @@ class EquipmentSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView.separated(
+      separatorBuilder: (_, _) => SizedBox(height: 8),
       // shrinkWrap and physics are often helpful if putting this inside another Scrollable
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -14,8 +15,8 @@ class EquipmentSkeleton extends StatelessWidget {
       itemBuilder: (context, index) => Shimmer.fromColors(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+        child: Container(
+          // padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
           child: Container(
             height: 100, // Match ClientEquipmentCard height
             decoration: BoxDecoration(

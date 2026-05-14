@@ -9,31 +9,27 @@ class TermsConditionsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: false,
+      appBar: AppBar(
+        title: Text(
+          "Terms & Conditions",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        centerTitle: false,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: theme.primaryColor,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(color: theme.colorScheme.primary),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 20,
-                      color: theme.colorScheme.onPrimary,
-                    ),
-                    onPressed: () => context.pop(),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Terms & Conditions",
-                    style: TextStyle(color: theme.colorScheme.onPrimary),
-                  ),
-                ],
-              ),
-            ),
-
             _buildHeader(),
 
             Padding(

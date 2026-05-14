@@ -86,11 +86,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final displayUrl = equipment?.imageUrl ?? "";
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           "Create Booking",
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
+        centerTitle: false,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -131,6 +133,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          // Favorite Button
                           GestureDetector(
                             onTap: isClient
                                 ? () async {
@@ -153,20 +156,31 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                           const SizedBox(width: 8),
 
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${equipment.name} ${equipment.model}"
-                                    .toUpperCase(),
-                                style: theme.textTheme.titleLarge,
-                              ),
-                              Text(
-                                "${equipment.owner?.displayName}".toUpperCase(),
-                                style: theme.textTheme.titleMedium,
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${equipment.name} ${equipment.model}"
+                                      .toUpperCase(),
+                                  style: theme.textTheme.titleLarge,
+                                  maxLines:
+                                      2, // Caps rendering at two lines max
+                                  overflow: TextOverflow
+                                      .ellipsis, // Clips extra text with "..."
+                                ),
+                                Text(
+                                  "${equipment.owner?.displayName}"
+                                      .toUpperCase(),
+                                  style: theme.textTheme.titleMedium,
+                                  maxLines:
+                                      2, // Caps rendering at two lines max
+                                  overflow: TextOverflow
+                                      .ellipsis, // Clips extra text with "..."
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

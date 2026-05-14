@@ -28,22 +28,22 @@ class UserProfileTile extends StatelessWidget {
         children: [
           /// Icon container
           Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 22, color: colorScheme.primary),
+            // padding: const EdgeInsets.all(10),
+            // decoration: BoxDecoration(
+            //   color: colorScheme.primary.withValues(alpha: 0.1),
+            //   borderRadius: BorderRadius.circular(12),
+            // ),
+            child: Icon(icon, size: 32, color: colorScheme.primary),
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
 
           /// Main content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: textTheme.labelMedium),
+                Text(label, style: textTheme.labelLarge),
                 const SizedBox(height: 4),
                 Text(value, style: textTheme.bodyMedium),
               ],

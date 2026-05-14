@@ -39,63 +39,61 @@ class HelpScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: ListView(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(color: theme.colorScheme.primary),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimary,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: false,
+      appBar: AppBar(
+        title: Text(
+          "Help & Support",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        centerTitle: false,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: theme.primaryColor,
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // TextField(
+                  //   decoration: InputDecoration(
+                  //     hintText: "Search help...",
+                  //     prefixIcon: Icon(Icons.search),
+                  //   ),
+                  // ),
+
+                  // const SizedBox(height: 24),
+                  SectionTitle(title: "Frequently Asked Questions"),
+
+                  _buildFAQ(),
+
+                  const SizedBox(height: 12),
+
+                  SectionTitle(title: "Need more help?"),
+
+                  _buildHelpOptions(context, theme),
+
+                  PrimaryButton(
+                    label: "Contact Support",
+                    onPressed: () {
+                      _openSupport(context);
+                    },
                   ),
-                  onPressed: () => context.pop(),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Help & Support",
-                  style: TextStyle(color: theme.colorScheme.onPrimary),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // TextField(
-                //   decoration: InputDecoration(
-                //     hintText: "Search help...",
-                //     prefixIcon: Icon(Icons.search),
-                //   ),
-                // ),
-
-                // const SizedBox(height: 24),
-                SectionTitle(title: "Frequently Asked Questions"),
-
-                _buildFAQ(),
-
-                const SizedBox(height: 12),
-
-                SectionTitle(title: "Need more help?"),
-
-                _buildHelpOptions(context, theme),
-
-                PrimaryButton(
-                  label: "Contact Support",
-                  onPressed: () {
-                    _openSupport(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

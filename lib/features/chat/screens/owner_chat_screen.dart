@@ -10,6 +10,7 @@ import 'package:prokat/features/bookings/widgets/booking_action_row.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
+import 'package:prokat/features/chat/widgets/user_avatar.dart';
 
 class OwnerChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -69,11 +70,13 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final currentChat = chatState.currentChat;
 
     final authUserId = authState.session?.user?.id;
+
     final currentUserId = (authUserId ?? '').isNotEmpty
         ? authUserId
         : chatState.currentUserId;
 
     final title = currentChat?.displayTitle(currentUserId ?? "") ?? 'Chat';
+
     final avatarUrl = currentChat?.displayImageUrl(
       currentUserId: currentUserId,
     );
@@ -87,7 +90,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         backgroundColor: AppColors.teal700,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
+          icon: Icon( 
             Icons.arrow_back_ios_new_rounded,
             size: 20,
             color: theme.colorScheme.onPrimary,
@@ -100,16 +103,10 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               context.push('${AppRoutes.ownerChat}/${widget.chatId}/info'),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundImage: (avatarUrl ?? '').isNotEmpty
-                    ? NetworkImage(avatarUrl!)
-                    : null,
-                child: (avatarUrl ?? '').isEmpty
-                    ? Text(title.isNotEmpty ? title[0].toUpperCase() : 'C')
-                    : null,
-              ),
+              UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
+
               const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,12 +141,6 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       ),
       body: Column(
         children: [
-          if (booking != null || request != null)
-            BookingMessageBubble(booking: booking as BookingModel),
-
-          if (booking != null || request != null)
-            BookingActionRow(booking: booking as BookingModel),
-
           if (chatState.isLoadingMessages)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (chatState.error != null && messages.isEmpty)
@@ -163,13 +154,36 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               child: Container(
                 color: theme.colorScheme.surface,
                 child: ListView.builder(
-                  reverse: true,
+                  reverse:
+                      true, // Newest messages at bottom, oldest + booking tiles at top
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 24,
                   ),
-                  itemCount: messages.length,
+                  // Increase item count by 2 if booking/request tiles exist
+                  itemCount:
+                      messages.length +
+                      ((booking != null || request != null) ? 2 : 0),
                   itemBuilder: (context, index) {
+                    final hasBookingHeader = booking != null || request != null;
+
+                    if (hasBookingHeader) {
+                      // In a reversed list, the highest indices are rendered at the top of the viewport
+                      final totalItems = messages.length + 2;
+
+                      if (index == totalItems - 1) {
+                        return BookingMessageBubble(
+                          booking: booking as BookingModel,
+                        );
+                      }
+                      if (index == totalItems - 2) {
+                        return BookingActionRow(
+                          booking: booking as BookingModel,
+                        );
+                      }
+                    }
+
+                    // Normal message processing
                     final message = messages[index];
                     final isMe =
                         message.senderId == currentUserId ||
@@ -179,8 +193,19 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 ),
               ),
             ),
-
-          _buildInputSection(theme, chatState.isSendingMessage),
+          Container(
+            decoration: BoxDecoration(color: theme.cardColor),
+            child: SafeArea(
+              top: false,
+              left: false,
+              right: false,
+              bottom: true,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
+                child: _buildInputSection(theme, chatState.isSendingMessage),
+              ),
+            ),
+          ),
         ],
       ),
     );

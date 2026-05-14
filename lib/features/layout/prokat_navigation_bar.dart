@@ -92,6 +92,29 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       (item) => location.startsWith(item.path),
     );
 
+    final List<String> segments = GoRouterState.of(context).uri.pathSegments;
+
+    // Check conditions based on list length and keyword placement
+    bool isChatDetailScreen = false;
+
+    if (segments.length >= 2) {
+      // Matches: /chat/id
+      if (segments[0] == 'chat' && segments[1] != 'list') {
+        isChatDetailScreen = true;
+      }
+
+      // Matches: /owner/chat/id
+      if (segments.length >= 3 &&
+          segments[0] == 'owner' &&
+          segments[1] == 'chat') {
+        isChatDetailScreen = true;
+      }
+    }
+
+    if (isChatDetailScreen) {
+      return const SizedBox.shrink();
+    }
+
     // if (currentIndex == -1) {
     //   return const SizedBox.shrink();
     // }

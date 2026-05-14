@@ -9,7 +9,7 @@ import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_skeleton.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:prokat/features/user/widgets/city_picker_trigger.dart';
 import 'package:prokat/features/user/widgets/user_category_selector.dart';
 import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dart';
 
@@ -68,16 +68,18 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   }
 
   Future<void> _onRefresh() async {
-    final city = ref.watch(locationProvider).city;
+    final selectedCity = ref.watch(locationProvider).city;
 
-    ref.read(categoriesProvider.notifier).getCategories();
+    final cat = ref.read(categoriesProvider).categories;
+
+    if (cat.isEmpty) ref.read(categoriesProvider.notifier).getCategories();
 
     ref
         .read(equipmentProvider.notifier)
         .initFetch(
           categoryId: widget.category,
           query: widget.query,
-          city: city,
+          city: selectedCity,
         );
   }
 
@@ -93,75 +95,34 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final locationState = ref.watch(locationProvider);
     final selectedCity = locationState.city;
 
-    print(items.length);
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: Text(
           "Search",
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
-        backgroundColor: theme.primaryColor,
-        elevation: 0,
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled:
-                    true, // Recommended if CityPickerSheet has a list
-                backgroundColor: Colors.transparent,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (context) {
-                  return DraggableScrollableSheet(
-                    initialChildSize: 0.7, // Opens at 70% height
-                    maxChildSize: 0.9, // Can be dragged up to 90%
-                    minChildSize: 0.4, // Can be dragged down to 40%
-                    expand: false,
-                    builder: (context, scrollController) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        child: CityPickerSheet(
-                          // IMPORTANT: Pass this controller to your ListView/GridView
-                          scrollController: scrollController,
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-            icon: Icon(
-              Icons.location_on_outlined,
-              size: 20,
-              color: theme.colorScheme.onPrimary,
-            ),
-            label: Text(
-              (selectedCity ?? "").isEmpty
-                  ? "Select City"
-                  : (selectedCity ?? ""),
-              style: TextStyle(fontWeight: FontWeight.w400),
-            ), // Replace with a dynamic state variable
-            style: TextButton.styleFrom(
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
+        centerTitle: false,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
           ),
-        ],
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: theme.primaryColor,
+        elevation: 10,
+        actions: [CityPickerTrigger(selectedCity: selectedCity)],
+        actionsPadding: EdgeInsets.only(right: 8),
       ),
       body: SafeArea(
         top: false,
         child: RefreshIndicator(
           onRefresh: _onRefresh,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            padding: const EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               SearchBox(),
@@ -180,6 +141,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                 ),
               ),
 
+              const SizedBox(height: 12),
+
               // Equipment List
               if (equipmentState.isLoading)
                 const EquipmentSkeleton()
@@ -190,7 +153,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
               else if (items.isEmpty)
                 const EquipmentEmptyTile()
               else
-                ListView.builder(
+                ListView.separated(
+                  separatorBuilder: (_, _) => SizedBox(height: 18),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: items.length,
@@ -219,29 +183,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class AnimatedVisibility extends StatelessWidget {
-  final bool visible;
-  final Widget child;
-
-  const AnimatedVisibility({
-    super.key,
-    required this.visible,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      firstChild: child,
-      secondChild: const SizedBox(width: double.infinity),
-      crossFadeState: visible
-          ? CrossFadeState.showFirst
-          : CrossFadeState.showSecond,
-      duration: const Duration(milliseconds: 250),
     );
   }
 }

@@ -1,29 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/appstatic/widgets/category_card.dart';
+import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/categories/widgets/empty_categories_tile.dart';
 import 'package:prokat/features/categories/widgets/error_categories_tile.dart';
-import 'package:prokat/features/categories/widgets/category_tile.dart';
+import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:go_router/go_router.dart';
 
-class UserCategorySelector extends ConsumerWidget {
+class UserCategorySelector extends ConsumerStatefulWidget {
   const UserCategorySelector({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UserCategorySelector> createState() =>
+      _UserCategorySelectorState();
+}
+
+class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
+  Future<void> onCategorySelected(
+    BuildContext context,
+    Category category,
+  ) async {
+    ref.read(categoriesProvider.notifier).selectCategory(category);
+    final userProfileState = ref.read(userProfileProvider.notifier);
+
+    await userProfileState.selectCategory(category.id);
+
+    if (context.mounted) {
+      final uri = Uri(
+        path: AppRoutes.searchList,
+        queryParameters: {'category': category.id},
+      ).toString();
+      context.push(uri);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final categoriesState = ref.watch(categoriesProvider);
     final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-          child: Text(
-            "Explore Services", // More engaging title
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.8,
-            ),
+        Text(
+          "Services", // More engaging title
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.8,
           ),
         ),
 
@@ -46,7 +71,11 @@ class UserCategorySelector extends ConsumerWidget {
                 final isSelected =
                     categoriesState.selectedCategory?.id == cat.id;
 
-                return CategoryTile(cat: cat, isSelected: isSelected);
+                return CategoryCard(
+                  category: cat,
+                  onTap: () => onCategorySelected(context, cat),
+                  isSelected: isSelected,
+                );
               },
             ),
           ),

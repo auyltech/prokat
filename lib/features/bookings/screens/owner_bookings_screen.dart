@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
@@ -38,25 +37,38 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        title: Text(
+          "My Orders",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        backgroundColor: AppColors.teal700,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () => context.push(AppRoutes.ownerBookingsHistory),
+            icon: Icon(
+              Icons.history_toggle_off_rounded,
+              color: theme.colorScheme.onPrimary,
+              size: 24,
+            ),
+            tooltip: "Job History",
+          ),
+        ],
+      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          PageHeader(
-            title: "My Orders",
-            primaryColor: AppColors.teal700,
-            showBack: true,
-            trailing: IconButton(
-              onPressed: () => context.push(AppRoutes.ownerBookingsHistory),
-              icon: Icon(
-                Icons.history_toggle_off_rounded,
-                color: theme.colorScheme.onPrimary,
-                size: 24,
-              ),
-              tooltip: "Job History",
-            ),
-          ),
-
           Padding(
             padding: EdgeInsets.all(24),
             child: Column(

@@ -33,15 +33,14 @@ class ClientEquipmentCard extends ConsumerWidget {
     final priceRate = getPriceRate(priceEntry?.priceRate);
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(24), // Softer corners
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35), // Much softer shadow
-            blurRadius: 6,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.4), // Much softer shadow
+            blurRadius: 2,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -61,6 +60,7 @@ class ClientEquipmentCard extends ConsumerWidget {
                   fit: BoxFit.cover,
                 ),
               ),
+
               // Floating Badges
               Positioned(
                 top: 16,
@@ -134,6 +134,39 @@ class ClientEquipmentCard extends ConsumerWidget {
                   ),
                 ),
               ),
+
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainer.withValues(
+                      alpha: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        priceEntry != null ? "${priceEntry.price} ₸" : "POA",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                      Text(
+                        priceRate,
+                        style: TextStyle(fontSize: 12, color: const Color.fromARGB(255, 65, 65, 65), fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
 
@@ -147,6 +180,8 @@ class ClientEquipmentCard extends ConsumerWidget {
                 Row(
                   children: [
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           equipment.name,
@@ -199,34 +234,8 @@ class ClientEquipmentCard extends ConsumerWidget {
                 const SizedBox(height: 10),
 
                 // Specs Row (Owner, Capacity, and Price integrated)
-                Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    // The Price: Now a clean text element instead of a bubble
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          priceEntry != null ? "${priceEntry.price} ₸" : "POA",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                        Text(
-                          priceRate,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
                 buildSpecsGrid(context, equipment.specs ?? [], theme),
+
                 const SizedBox(height: 20),
 
                 /// 3. ACTION BUTTON

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 
@@ -79,17 +79,28 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     final bool hasLocation = location.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
-      extendBodyBehindAppBar: true,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: theme.colorScheme.onPrimary,
+          ),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.push(AppRoutes.ownerDashboard),
+        ),
+        title: Text(
+          "Add Equipment",
+          style: TextStyle(color: theme.colorScheme.onPrimary),
+        ),
+        backgroundColor: AppColors.teal700,
+        elevation: 0,
+      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          PageHeader(
-            title: "Add Equipment",
-            primaryColor: AppColors.teal700,
-            showBack: true,
-          ),
-
           Padding(
             padding: const EdgeInsets.all(24),
             child: Form(

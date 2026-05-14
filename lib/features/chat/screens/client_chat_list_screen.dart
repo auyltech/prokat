@@ -22,10 +22,11 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
   bool _handledLinkedNavigation = false;
 
   @override
-  void initState() {
+  void initState() { 
     super.initState();
     Future.microtask(() async {
-      await ref.read(chatProvider.notifier).getChatThreads();
+      await ref.read(chatProvider.notifier).getChatThreads("client");
+
       await _openLinkedChatIfNeeded();
     });
   }

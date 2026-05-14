@@ -10,6 +10,7 @@ import 'package:prokat/features/user/widgets/user_profile_tile.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:prokat/features/user/widgets/setting_link_tile.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/widgets/language_selector_tile.dart';
 
 class UserProfileScreen extends ConsumerStatefulWidget {
   const UserProfileScreen({super.key});
@@ -37,6 +38,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     final profileNotifier = ref.read(userProfileProvider.notifier);
     final topInset = MediaQuery.of(context).padding.top;
 
+    String selectedLanguage = 'EN';
     final username = state.userProfile?.username;
 
     return Scaffold(
@@ -45,26 +47,27 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
+          // User Profile Header
           Container(
             decoration: BoxDecoration(color: theme.primaryColor),
             padding: EdgeInsets.fromLTRB(20, topInset + 20, 20, 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                  onPressed: () => context.pop(),
-                ),
+                // IconButton(
+                //   icon: Icon(
+                //     Icons.arrow_back_ios_new_rounded,
+                //     size: 20,
+                //     color: theme.colorScheme.onPrimary,
+                //   ),
+                //   onPressed: () => context.pop(),
+                // ),
 
-                const SizedBox(width: 20),
-
+                // const SizedBox(width: 20),
                 Expanded(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       ProfileImagePicker(
                         onImageSelected: (file) async {
@@ -125,7 +128,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   ),
                 ),
 
-                // Profile Image Stack
+                LanguageSelectorTile(
+                  value: selectedLanguage,
+                  onChanged: (lang) => setState(() => selectedLanguage = lang),
+                ),
               ],
             ),
           ),

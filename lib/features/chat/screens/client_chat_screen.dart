@@ -113,44 +113,84 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
           ),
         ),
       ),
-      body: SafeArea(
-        top: false, // AppBar handles the top safe area
-        child: Column(
-          children: [
-            // 1. Top banner area (e.g. Booking requests)
-            if (booking != null || request != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                child: BookingMessageBubble(booking: booking as BookingModel),
-              ),
-
-            // 2. Chat history area (Fills the remaining middle section)
+      body: Column(
+        children: [
+          if (chatState.isLoadingMessages)
+            const Expanded(child: Center(child: CircularProgressIndicator()))
+          else if (chatState.error != null && messages.isEmpty)
             Expanded(
-              child: chatState.isLoadingMessages
-                  ? const Center(child: CircularProgressIndicator())
-                  : chatState.error != null && messages.isEmpty
-                  ? Center(child: Text(chatState.error!))
-                  : ListView.builder(
-                      reverse: true, // New messages appear at the bottom
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                        vertical: 12.0,
-                      ),
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final message = messages[index];
-                        final isMe =
-                            message.senderId == currentUserId ||
-                            message.senderId == 'me';
-                        return MessageBubble(message: message, isMe: isMe);
-                      },
-                    ),
+              child: Center(
+                child: Text(chatState.error ?? "Error Loading Messages"),
+              ),
+            )
+          else
+            // 1. Chat history area (Fills screen, scrollable, handles banner inside)
+            Expanded(
+              child: Container(
+                color: theme.colorScheme.surface,
+                child: ListView.builder(
+                  reverse:
+                      true, // Newest messages stay locked to the bottom input box
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 12.0,
+                  ),
+                  // Add 1 extra slot to the list length if the booking banner needs to render
+                  itemCount: (booking != null || request != null)
+                      ? messages.length + 1
+                      : messages.length,
+                  itemBuilder: (context, index) {
+                    final hasBookingHeader = booking != null || request != null;
+                    // In a reversed list, the very last index (top of screen) holds the oldest item
+                    if (hasBookingHeader) {
+                      // In a reversed list, the highest indices are rendered at the top of the viewport
+                      final totalItems = messages.length + 1;
+
+                      if (index == totalItems - 1) {
+                        return BookingMessageBubble(
+                          booking: booking as BookingModel,
+                        );
+                      }
+                    }
+
+                    final message = messages[index];
+                    final isMe =
+                        message.senderId == currentUserId ||
+                        message.senderId == 'me';
+
+                    return MessageBubble(message: message, isMe: isMe);
+                  },
+                ),
+              ),
             ),
 
-            // 3. Static input area pinned to the bottom of the viewport
-            const SendMessageForm(),
-          ],
-        ),
+          // 2. Static input area perfectly pinned to the absolute viewport bottom
+          Container(
+            decoration: BoxDecoration(
+              color: theme.cardColor,
+              border: Border(
+                // top: BorderSide(
+                //   color: theme.dividerColor.withValues(alpha: 0.2),
+                //   width: 1.0,
+                // ),
+              ),
+            ),
+            child: SafeArea(
+              top: false,
+              left: false,
+              right: false,
+              bottom:
+                  true, // Offsets input safely away from home system bar pill
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 0.0,
+                  bottom: 12.0,
+                ), // Extra layout lift padding
+                child: const SendMessageForm(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
