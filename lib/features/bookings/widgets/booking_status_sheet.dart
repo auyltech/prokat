@@ -15,7 +15,7 @@ class BookingStatusSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final notifier = ref.read(bookingProvider.notifier);
-    final chatNotifier = ref.watch(chatProvider.notifier);
+    final chatNotifier = ref.read(chatProvider.notifier);
 
     final currentStatus = booking.workStatus; //booking.workStatus;
     final isStarted = currentStatus.level >= WorkStatus.started.level;
@@ -68,7 +68,10 @@ class BookingStatusSheet extends ConsumerWidget {
                     workStatus: status.name,
                   );
 
-                  await chatNotifier.reloadChat(booking.chatId ?? "");
+                  final chatId = booking.chatId;
+                  if ((chatId ?? '').isNotEmpty) {
+                    await chatNotifier.reloadChat(chatId!);
+                  }
 
                   // 3. Close sheet
                   Navigator.pop(context);

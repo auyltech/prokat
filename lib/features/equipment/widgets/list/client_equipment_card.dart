@@ -101,40 +101,27 @@ class ClientEquipmentCard extends ConsumerWidget {
                 ),
               ),
 
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceBright.withValues(
-                      alpha: 0.9,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        color: Colors.amber,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        "4.5",
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Positioned(
+              //   bottom: 8,
+              //   left: 8,
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: 10,
+              //       vertical: 6,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: theme.colorScheme.surfaceBright.withValues(
+              //         alpha: 0.9,
+              //       ),
+              //       borderRadius: BorderRadius.circular(20),
+              //     ),
+              //     child: Row(
+              //       children: [
 
+              //       ],
+              //     ),
+              //   ),
+              // ),
               Positioned(
                 bottom: 8,
                 right: 8,
@@ -161,7 +148,11 @@ class ClientEquipmentCard extends ConsumerWidget {
                       ),
                       Text(
                         priceRate,
-                        style: TextStyle(fontSize: 12, color: const Color.fromARGB(255, 65, 65, 65), fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: const Color.fromARGB(255, 65, 65, 65),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                   ),
@@ -177,42 +168,43 @@ class ClientEquipmentCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Equipment name + rating
-                Row(
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          equipment.name,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          equipment.model,
-                          style: theme.textTheme.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  equipment.name,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-
-                const SizedBox(height: 12),
+                // Text(
+                //   equipment.model,
+                //   style: theme.textTheme.titleSmall,
+                //   maxLines: 1,
+                //   overflow: TextOverflow.ellipsis,
+                // ),
 
                 // Owner under equipment name
                 Row(
                   children: [
-                    Icon(
-                      Icons.person_outline,
-                      size: 16,
-                      color: theme.colorScheme.onSurface.withValues(
-                        alpha: 0.55,
+                    // Icon(
+                    //   Icons.person_outline,
+                    //   size: 16,
+                    //   color: theme.colorScheme.onSurface.withValues(
+                    //     alpha: 0.55,
+                    //   ),
+                    // ),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "4.5",
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -.5,
                       ),
                     ),
                     const SizedBox(width: 6),

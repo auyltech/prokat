@@ -6,8 +6,9 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/bookings/widgets/booking_action_row.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_bar.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
@@ -90,7 +91,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         backgroundColor: AppColors.teal700,
         elevation: 0,
         leading: IconButton(
-          icon: Icon( 
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 20,
             color: theme.colorScheme.onPrimary,
@@ -163,21 +164,16 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                   // Increase item count by 2 if booking/request tiles exist
                   itemCount:
                       messages.length +
-                      ((booking != null || request != null) ? 2 : 0),
+                      ((booking != null || request != null) ? 1 : 0),
                   itemBuilder: (context, index) {
                     final hasBookingHeader = booking != null || request != null;
 
                     if (hasBookingHeader) {
                       // In a reversed list, the highest indices are rendered at the top of the viewport
-                      final totalItems = messages.length + 2;
+                      final totalItems = messages.length + 1;
 
                       if (index == totalItems - 1) {
                         return BookingMessageBubble(
-                          booking: booking as BookingModel,
-                        );
-                      }
-                      if (index == totalItems - 2) {
-                        return BookingActionRow(
                           booking: booking as BookingModel,
                         );
                       }
@@ -192,6 +188,12 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                   },
                 ),
               ),
+            ),
+          if (booking != null)
+            BookingChatActionBar(
+              chatId: widget.chatId,
+              booking: booking as BookingModel,
+              role: BookingChatRole.owner,
             ),
           Container(
             decoration: BoxDecoration(color: theme.cardColor),

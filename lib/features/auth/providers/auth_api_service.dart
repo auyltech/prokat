@@ -144,7 +144,7 @@ class AuthApiService {
     }
   }
 
-  Future<bool> requestOtp(String phone) async {
+  Future<ApiResponse<bool>> requestOtp(String phone) async {
     try {
       final response = await dio.post(
         '/auth/otp',
@@ -152,41 +152,14 @@ class AuthApiService {
       );
 
       if (response.statusCode == 200) {
-        return true;
+        return ApiResponse.success(true);
       }
 
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
+      final message = extractBackendMessage(response.data);
 
-  Future<ApiResponse<AuthSession>> verifyOtp(String phone, String otp) async {
-    try {
-      final response = await dio.post(
-        '/auth/otp/verify',
-        data: {"phoneNumber": phone, "otp": otp},
-      );
-
-      print(response.toString());
-
-      if (response.statusCode == 200) {
-        return ApiResponse.success(
-          AuthSession.fromJson(response.data),
-          message: "Verification successfull",
-        );
-      } else {
-        final message = extractBackendMessage(response.data);
-        print(message);
-        return ApiResponse.failure(error: message);
-      }
+      return ApiResponse.failure(error: message);
     } on DioException catch (e) {
       String message = "Something went wrong";
-
-      print("DIO_ERROR");
-      print(e.response?.statusCode);
-      print(e.response?.data["message"]);
-      print(e.response?.data["error"]);
 
       if (e.response?.statusCode == 400) {
         message = "Missing or invalid credentials";
@@ -199,14 +172,59 @@ class AuthApiService {
         message = "Wrong data";
       } else if (e.response?.statusCode == 500) {
         message = "Server Error";
+      } else {
+        message = extractBackendMessage(e);
+      }
+
+      return ApiResponse.failure(message: message, error: e.message);
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<ApiResponse<AuthSession>> verifyOtp(String phone, String otp) async {
+    try {
+      final response = await dio.post(
+        '/auth/otp/verify',
+        data: {"phoneNumber": phone, "otp": otp},
+      );
+
+      if (response.statusCode == 200) {
+        return ApiResponse.success(
+          AuthSession.fromJson(response.data),
+          message: "Verification successfull",
+        );
+      } else {
+        final message = extractBackendMessage(response.data);
+
+        return ApiResponse.failure(error: message);
+      }
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid credentials";
+      }
+      if (e.response?.statusCode == 401) {
+        message = "Invalid OTP";
+      } else if (e.response?.statusCode == 409) {
+        message = "Username already registered";
+      } else if (e.response?.statusCode == 410) {
+        message = "Wrong data";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else {
+        message = extractBackendMessage(e);
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data["error"],
+        message: message,
+        error: e.message, // real backend message
       );
     } catch (e) {
-      print("NOT_DIO_ERROR");
       return ApiResponse.failure(
         message: "Unexpected error",
         error: e.toString(),

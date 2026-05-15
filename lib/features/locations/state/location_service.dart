@@ -17,8 +17,6 @@ class LocationService {
     try {
       final response = await _dio.get(ApiRoutes.locations);
 
-      print(response.data.toString());
-
       return (response.data["data"] as List)
           .map((e) => LocationModel.fromJson(e))
           .toList();

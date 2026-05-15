@@ -79,8 +79,11 @@ String extractBackendMessage(DioException e) {
   final data = e.response?.data;
 
   if (data is Map<String, dynamic>) {
-    if (data["message"] is String) return data["message"];
-    if (data["error"] is String) return data["error"];
+    final message = data['message'] ?? data['error'] ?? data['detail'];
+
+    if (message is List) {
+      return message.join(', ');
+    }
 
     /// Handle validation errors like:
     /// { errors: { email: ["Invalid"] } }
@@ -93,7 +96,9 @@ String extractBackendMessage(DioException e) {
       }
     }
 
-    return "Request failed";
+    if (message != null) {
+      return message.toString();
+    }
   }
 
   if (data is String) return data;
@@ -102,8 +107,10 @@ String extractBackendMessage(DioException e) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.receiveTimeout:
       return "Connection timeout";
+
     case DioExceptionType.connectionError:
       return "Network error";
+
     default:
       return "Request failed";
   }

@@ -144,9 +144,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final success = await api.requestOtp(phone);
+      final result = await api.requestOtp(phone);
 
-      if (success) {
+      if (result.success) {
         final now = DateTime.now();
 
         // SAVE TO STORAGE
@@ -159,11 +159,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false, error: result.error);
 
-      return success;
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: "Failed to request OTP");
+
       return false;
     }
   }
@@ -182,7 +183,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         state = state.copyWith(session: result.data, isLoading: false);
 
-        await ref.read(appStartupProvider.notifier).reloadApp();
+        // DO NOT AWAIT RELOADING TO ALLOW REDIRECT FROM LOGIN
+        ref.read(appStartupProvider.notifier).reloadApp();
 
         return true;
       }

@@ -19,7 +19,6 @@ class BookingApiService {
           .map((e) => BookingModel.fromJson(e))
           .toList();
     } catch (e) {
-      
       print(e.toString());
       return [];
     }
@@ -106,7 +105,11 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/status",
-        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+        data: {
+          "id": id,
+          if (status != null) "status": status,
+          if (workStatus != null) "workStatus": workStatus,
+        },
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
@@ -128,7 +131,11 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/workstatus",
-        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+        data: {
+          "id": id,
+          if (status != null) "status": status,
+          if (workStatus != null) "workStatus": workStatus,
+        },
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {

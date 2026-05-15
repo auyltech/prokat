@@ -35,6 +35,7 @@ class OwnerBookingTile extends ConsumerWidget {
       ),
       child: Column(
         children: [
+          // Tile Header, Status, Time
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -74,6 +75,7 @@ class OwnerBookingTile extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // TOP ROW, client info
                 // Header with title and offer badge
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -97,6 +99,7 @@ class OwnerBookingTile extends ConsumerWidget {
                         size: 30,
                       ),
                     ),
+
                     const SizedBox(width: 12),
 
                     Expanded(
@@ -196,6 +199,7 @@ class OwnerBookingTile extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
+                // Booking Details
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -252,6 +256,7 @@ class OwnerBookingTile extends ConsumerWidget {
                 // Action buttons
                 Row(
                   children: [
+                    // Cancel Button
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
@@ -282,6 +287,7 @@ class OwnerBookingTile extends ConsumerWidget {
 
                     const SizedBox(width: 12),
 
+                    // Chat Link (go to chat to send counter offers)
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
@@ -309,6 +315,7 @@ class OwnerBookingTile extends ConsumerWidget {
 
                     const SizedBox(width: 12),
 
+                    // Accept order (no counter offers)
                     if (booking.status.toUpperCase() == "CREATED")
                       Expanded(
                         child: ElevatedButton(
@@ -372,6 +379,7 @@ class OwnerBookingTile extends ConsumerWidget {
                         ),
                       )
                     else
+                    // Update Work Status
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () => showModalBottomSheet(

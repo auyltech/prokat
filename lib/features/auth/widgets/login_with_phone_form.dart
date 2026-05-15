@@ -61,6 +61,7 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
         widget.onError("Failed to send OTP. Please try again.");
       }
     } catch (e) {
+      print(e);
       widget.onError("Something went wrong!");
     }
   }
