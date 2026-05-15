@@ -27,6 +27,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
         source: source,
         maxWidth: 1080, // Optimize for performance
         maxHeight: 1080,
+        imageQuality: 85,
       );
 
       if (pickedFile == null) return;
@@ -38,6 +39,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
           ratioX: 1,
           ratioY: 1,
         ), // Force square for profiles
+        compressQuality: 85,
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Crop Profile Picture',

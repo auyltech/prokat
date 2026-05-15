@@ -5,6 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -90,13 +91,11 @@ class ClientBookingTile extends ConsumerWidget {
                         aspectRatio: 16 / 9,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            booking.equipment?.imageUrl ?? "",
+                          child: OptimizedNetworkImage(
+                            imageUrl: booking.equipment?.imageUrl ?? "",
                             fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.image),
-                            ),
+                            fallbackIcon: Icons.image,
+                            backgroundColor: Colors.grey[200],
                           ),
                         ),
                       ),
