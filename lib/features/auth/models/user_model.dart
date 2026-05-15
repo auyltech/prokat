@@ -35,12 +35,8 @@ class User {
         role: json['role']?.toString(),
         imageUrl: json['imageUrl']?.toString(),
       );
-    } catch (e, stack) {
-      print("❌ User parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
-      rethrow; // important
+    } catch (e) {
+      rethrow;
     }
   }
 

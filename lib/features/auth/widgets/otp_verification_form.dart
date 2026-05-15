@@ -50,7 +50,8 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
       if (success == true) {
         await ref.read(userProfileProvider.notifier).getUserProfile();
 
-        final role = ref.watch(userProfileProvider).userProfile?.role ?? "";
+        if (!mounted) return;
+        final role = ref.read(userProfileProvider).userProfile?.role ?? "";
 
         context.go(
           role.toLowerCase() == "owner"

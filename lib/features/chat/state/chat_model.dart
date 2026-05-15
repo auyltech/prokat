@@ -105,9 +105,6 @@ class ChatModel {
         updatedAt: _parseDate(json["updatedAt"]),
       );
     } catch (e) {
-      print("***** CHAT PARSE FAILED");
-      print(e);
-      print(json);
       rethrow;
     }
   }

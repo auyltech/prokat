@@ -16,7 +16,6 @@ class ChatService {
   // Fetch list of chat threads for owner/user
   Future<List<ChatModel>> getChatThreads(String? mode) async {
     try {
-      print(mode);
       final res = await _dio.get(mode == "owner" ? '/chats/owner' : '/chats');
 
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;

@@ -80,12 +80,8 @@ class UserProfileModel {
 
         darkMode: json['darkMode']?.toString(),
       );
-    } catch (e, stack) {
-      print("❌ User Profile parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
-      rethrow; // important
+    } catch (e) {
+      rethrow;
     }
   }
 

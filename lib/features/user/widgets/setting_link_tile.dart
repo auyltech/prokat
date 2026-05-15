@@ -25,17 +25,10 @@ class SettingsLinkTile extends StatelessWidget {
       onTap: onTap,
         child: Row(
           children: [
-            Container(
-              // padding: const EdgeInsets.all(10),
-              // decoration: BoxDecoration(
-              //   color: colorScheme.primary.withValues(alpha: 0.1),
-              //   borderRadius: BorderRadius.circular(12),
-              // ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: isDestructive ? colorScheme.error : colorScheme.primary,
-              ),
+            Icon(
+              icon,
+              size: 32,
+              color: isDestructive ? colorScheme.error : colorScheme.primary,
             ),
 
             const SizedBox(width: 16),

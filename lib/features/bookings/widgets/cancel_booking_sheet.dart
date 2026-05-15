@@ -136,8 +136,8 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                             workStatus: selectedReason,
                           );
 
-                          if (res == true) {
-                            if (context.mounted) Navigator.pop(context);
+                          if (res == true && context.mounted) {
+                            Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text("Order Cancelled")),
                             );

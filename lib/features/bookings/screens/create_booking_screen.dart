@@ -43,7 +43,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final res = await bookingNotifier.createBooking();
 
-    if (context.mounted && res == true) {
+    if (mounted && res == true) {
       context.pop();
     }
   }

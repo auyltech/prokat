@@ -26,15 +26,7 @@ class UserProfileTile extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          /// Icon container
-          Container(
-            // padding: const EdgeInsets.all(10),
-            // decoration: BoxDecoration(
-            //   color: colorScheme.primary.withValues(alpha: 0.1),
-            //   borderRadius: BorderRadius.circular(12),
-            // ),
-            child: Icon(icon, size: 32, color: colorScheme.primary),
-          ),
+          Icon(icon, size: 32, color: colorScheme.primary),
 
           const SizedBox(width: 12),
 

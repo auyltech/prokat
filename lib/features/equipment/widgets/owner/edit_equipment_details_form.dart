@@ -83,7 +83,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           message: "Equipment Updated",
           isSuccess: true,
         );
-      } else {
+      } else if (mounted) {
         AppSnackBar.show(
           context,
           message: "Could not save equipment",
@@ -98,11 +98,13 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
     } catch (_) {
       setState(() => _isSaving = false);
 
-      AppSnackBar.show(
-        context,
-        message: "Something went wrong!",
-        isError: true,
-      );
+      if (mounted) {
+        AppSnackBar.show(
+          context,
+          message: "Something went wrong!",
+          isError: true,
+        );
+      }
     }
   }
 

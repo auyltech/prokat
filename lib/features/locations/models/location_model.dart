@@ -57,12 +57,8 @@ class LocationModel {
         userId: json['userId'] ?? '',
         equipmentId: json['equipmentId'] ?? '',
       );
-    } catch (e, stack) {
-      print("❌ Location parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
-      rethrow; // important
+    } catch (e) {
+      rethrow;
     }
   }
 

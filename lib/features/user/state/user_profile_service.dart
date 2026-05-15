@@ -143,9 +143,6 @@ class UserProfileService {
         ApiRoutes.userProfileImage, // Ensure this points to your upload route
         data: formData,
         // Optional: Track upload progress
-        onSendProgress: (sent, total) {
-          print("Upload progress: ${(sent / total * 100).toStringAsFixed(0)}%");
-        },
       );
 
       return true;

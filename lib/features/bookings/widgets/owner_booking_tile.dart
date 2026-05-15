@@ -530,24 +530,18 @@ Future<void> _handleCancel(
       workStatus: "cancelled in $difference minutes",
     );
 
-    if (res == true) {
+    if (res == true && context.mounted) {
       Navigator.pop(context); // close sheet
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
     }
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text(
-    //       "You can only cancel within $cancelWindowMinutes minutes of booking.",
-    //     ),
-    //   ),
-    // );
     return;
   }
 
   // Open reason sheet
+  if (!context.mounted) return;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

@@ -43,9 +43,6 @@ class CategorySpec {
         imageUrl: json["imageUrl"] ?? "",
       );
     } catch (e) {
-      print("***** CATEGORY SPEC PARSE FAILED");
-      print(e);
-      print(json);
       rethrow;
     }
   }

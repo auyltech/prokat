@@ -68,15 +68,15 @@ class _OwnerEquipmentDetailScreenState
               );
 
           if (mounted && res == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            ScaffoldMessenger.of(this.context).showSnackBar(
               SnackBar(
                 content: const Text("Equipment Updated"),
                 backgroundColor: theme.colorScheme.primary,
               ),
             );
           }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
+        } else if (mounted) {
+          ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
               content: const Text("Update Failed"),
               backgroundColor: theme.colorScheme.error,

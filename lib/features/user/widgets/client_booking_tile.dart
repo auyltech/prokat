@@ -281,6 +281,7 @@ Future<void> _handleCancel(
   );
 
   if (confirmed != true) return;
+  if (!context.mounted) return;
 
   // ⏱️ Time restriction check
   final createdAt = booking.createdAt ?? DateTime(2026);
@@ -297,9 +298,8 @@ Future<void> _handleCancel(
       workStatus: "cancelled in $difference minutes",
     );
 
-    if (res == true) {
-      Navigator.pop(context); // close sheet
-
+    if (res == true && context.mounted) {
+      Navigator.pop(context);
       AppSnackBar.show(context, message: "Order Cancelled");
     }
     // ScaffoldMessenger.of(context).showSnackBar(
@@ -311,6 +311,8 @@ Future<void> _handleCancel(
     // );
     return;
   }
+
+  if (!context.mounted) return;
 
   // Open reason sheet
   showModalBottomSheet(
