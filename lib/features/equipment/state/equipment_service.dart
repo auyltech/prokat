@@ -36,7 +36,7 @@ class EquipmentService {
 
       return data.map((json) => Equipment.fromJson(json)).toList();
     } on DioException catch (e) {
-      throw e.message ?? "Failed to fetch equipment";
+      throw Exception(e.message ?? "Failed to fetch equipment");
     }
   }
 
@@ -92,8 +92,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -137,8 +137,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -185,8 +185,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -233,8 +233,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -276,8 +276,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -319,8 +319,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -357,8 +357,8 @@ class EquipmentService {
       message = extractBackendMessage(e.response?.data);
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -402,8 +402,13 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
       );
     }
   }
@@ -434,8 +439,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -486,8 +491,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -540,8 +545,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -584,8 +589,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -658,8 +663,8 @@ class EquipmentService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(

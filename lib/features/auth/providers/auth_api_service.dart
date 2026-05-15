@@ -58,11 +58,9 @@ class AuthApiService {
       } else if (e.response?.data != null) {
         message = extractBackendMessage(e.response?.data);
       }
-      print("api service catch message: $message");
-
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -108,8 +106,8 @@ class AuthApiService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -168,8 +166,6 @@ class AuthApiService {
         data: {"phoneNumber": phone, "otp": otp},
       );
 
-      print(response.toString());
-
       if (response.statusCode == 200) {
         return ApiResponse.success(
           AuthSession.fromJson(response.data),
@@ -177,16 +173,10 @@ class AuthApiService {
         );
       } else {
         final message = extractBackendMessage(response.data);
-        print(message);
         return ApiResponse.failure(error: message);
       }
     } on DioException catch (e) {
       String message = "Something went wrong";
-
-      print("DIO_ERROR");
-      print(e.response?.statusCode);
-      print(e.response?.data["message"]);
-      print(e.response?.data["error"]);
 
       if (e.response?.statusCode == 400) {
         message = "Missing or invalid credentials";
@@ -202,11 +192,10 @@ class AuthApiService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data["error"],
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
-      print("NOT_DIO_ERROR");
       return ApiResponse.failure(
         message: "Unexpected error",
         error: e.toString(),

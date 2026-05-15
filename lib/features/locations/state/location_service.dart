@@ -17,8 +17,6 @@ class LocationService {
     try {
       final response = await _dio.get(ApiRoutes.locations);
 
-      print(response.data.toString());
-
       return (response.data["data"] as List)
           .map((e) => LocationModel.fromJson(e))
           .toList();
@@ -64,8 +62,8 @@ class LocationService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(

@@ -53,7 +53,6 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       state = state.copyWith(isLoading: false, bookings: bookings);
     } catch (e) {
-      print(e.toString());
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -64,15 +63,12 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       final result = await api.getOwnerBookings();
 
-      print(result.data);
-
       state = state.copyWith(
         isLoading: false,
         ownerBookings: result.data,
         error: null,
       );
     } catch (e) {
-      print(e.toString());
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -125,13 +121,13 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await api.updateBookingStatus(
+      await api.updateBookingStatus(
         id: id,
         status: status,
         workStatus: workStatus,
       );
 
-      state = state.copyWith(isLoading: updated);
+      state = state.copyWith(isLoading: false);
 
       await getOwnerBookings();
 
@@ -151,13 +147,13 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await api.updateBookingWorkStatus(
+      await api.updateBookingWorkStatus(
         id: id,
         status: status,
         workStatus: workStatus,
       );
 
-      state = state.copyWith(isLoading: updated);
+      state = state.copyWith(isLoading: false);
 
       await getOwnerBookings();
 

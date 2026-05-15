@@ -75,18 +75,30 @@ class ApiInterceptor extends Interceptor {
   }
 }
 
-String extractBackendMessage(DioException e) {
-  final data = e.response?.data;
+String extractBackendMessage(dynamic data) {
+  dynamic responseData = data;
 
-  if (data is Map<String, dynamic>) {
-    if (data["message"] is String) return data["message"];
-    if (data["error"] is String) return data["error"];
+  if (data is DioException) {
+    responseData = data.response?.data;
+    if (responseData == null) {
+      switch (data.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.receiveTimeout:
+          return "Connection timeout";
+        case DioExceptionType.connectionError:
+          return "Network error";
+        default:
+          return "Request failed";
+      }
+    }
+  }
 
-    /// Handle validation errors like:
-    /// { errors: { email: ["Invalid"] } }
-    if (data["errors"] is Map) {
-      final errors = data["errors"] as Map;
+  if (responseData is Map<String, dynamic>) {
+    if (responseData["message"] is String) return responseData["message"];
+    if (responseData["error"] is String) return responseData["error"];
 
+    if (responseData["errors"] is Map) {
+      final errors = responseData["errors"] as Map;
       final firstError = errors.values.first;
       if (firstError is List && firstError.isNotEmpty) {
         return firstError.first.toString();
@@ -96,15 +108,7 @@ String extractBackendMessage(DioException e) {
     return "Request failed";
   }
 
-  if (data is String) return data;
+  if (responseData is String) return responseData;
 
-  switch (e.type) {
-    case DioExceptionType.connectionTimeout:
-    case DioExceptionType.receiveTimeout:
-      return "Connection timeout";
-    case DioExceptionType.connectionError:
-      return "Network error";
-    default:
-      return "Request failed";
-  }
+  return "Request failed";
 }
