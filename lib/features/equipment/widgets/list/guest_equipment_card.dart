@@ -21,8 +21,8 @@ class GuestEquipmentCard extends StatelessWidget {
     final isTop = true;
 
     return Container(
-      height: 120,
-      padding: const EdgeInsets.all(12),
+      height: 130,
+      padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         color: Colors.grey.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),

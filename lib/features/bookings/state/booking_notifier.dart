@@ -49,11 +49,19 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final bookings = await api.getUserBookings();
+      final result = await api.getUserBookings();
 
-      state = state.copyWith(isLoading: false, bookings: bookings);
+      state = state.copyWith(
+        isLoading: false,
+        bookings: result.data,
+        error: result.error,
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+        bookings: [],
+      );
     }
   }
 

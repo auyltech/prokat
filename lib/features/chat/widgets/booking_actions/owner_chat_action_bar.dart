@@ -21,6 +21,7 @@ class OwnerChatActionBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final controller = ref.read(bookingChatActionControllerProvider);
+
     const resolver = BookingChatActionResolver();
 
     final resolution = resolver.resolve(
@@ -37,6 +38,7 @@ class OwnerChatActionBar extends ConsumerWidget {
 
     final primary = resolution.primaryAction;
     final secondary = resolution.secondaryActions;
+    final overflow = resolution.overflowActions;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -59,34 +61,57 @@ class OwnerChatActionBar extends ConsumerWidget {
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
+
           const SizedBox(height: 8),
+
           Row(
             children: [
+              if (overflow.isNotEmpty)
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: overflow.first.isEnabled
+                        ? () => _runAction(
+                            context: context,
+                            ref: ref,
+                            controller: controller,
+                            action: overflow.first,
+                          )
+                        : null,
+                    child: Text(overflow.first.label),
+                  ),
+                ),
+
+              if (overflow.isNotEmpty && primary != null)
+                const SizedBox(width: 12),
+
               if (secondary.isNotEmpty)
                 Expanded(
                   child: OutlinedButton(
                     onPressed: secondary.first.isEnabled
                         ? () => _runAction(
-                              context: context,
-                              ref: ref,
-                              controller: controller,
-                              action: secondary.first,
-                            )
+                            context: context,
+                            ref: ref,
+                            controller: controller,
+                            action: secondary.first,
+                          )
                         : null,
                     child: Text(secondary.first.label),
                   ),
                 ),
-              if (secondary.isNotEmpty && primary != null) const SizedBox(width: 12),
+
+              if (secondary.isNotEmpty && primary != null)
+                const SizedBox(width: 12),
+
               if (primary != null)
                 Expanded(
                   child: ElevatedButton(
                     onPressed: primary.isEnabled
                         ? () => _runAction(
-                              context: context,
-                              ref: ref,
-                              controller: controller,
-                              action: primary,
-                            )
+                            context: context,
+                            ref: ref,
+                            controller: controller,
+                            action: primary,
+                          )
                         : null,
                     child: Text(primary.label),
                   ),
@@ -134,6 +159,7 @@ class OwnerChatActionBar extends ConsumerWidget {
           actionId: action.id,
         );
         return;
+
       case BookingChatActionId.rejectBooking:
         showModalBottomSheet(
           context: context,
@@ -146,6 +172,7 @@ class OwnerChatActionBar extends ConsumerWidget {
               CancelBookingSheet(booking: booking, useCase: 'owner'),
         );
         return;
+
       case BookingChatActionId.updateWorkStatus:
         showModalBottomSheet(
           context: context,
@@ -157,6 +184,7 @@ class OwnerChatActionBar extends ConsumerWidget {
           builder: (_) => BookingStatusSheet(booking: booking),
         );
         return;
+
       case BookingChatActionId.markWorkCompleted:
         final confirmed = await showDialog<bool>(
           context: context,
@@ -176,7 +204,9 @@ class OwnerChatActionBar extends ConsumerWidget {
             ],
           ),
         );
+
         if (confirmed != true) return;
+
         await controller.runAction(
           context: context,
           chatId: chatId,
@@ -189,6 +219,7 @@ class OwnerChatActionBar extends ConsumerWidget {
     }
   }
 }
+
 class _StatusOnlyBar extends StatelessWidget {
   final String text;
 

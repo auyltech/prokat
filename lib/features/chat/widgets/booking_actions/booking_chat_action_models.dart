@@ -6,12 +6,16 @@ enum BookingChatActionId {
   acceptBooking,
   rejectBooking,
   cancelBooking,
+
   createCounterOffer,
   acceptCounterOffer,
   rejectCounterOffer,
+
   updateWorkStatus,
   markWorkCompleted,
+
   confirmCompletion,
+  
   leaveReview,
 }
 

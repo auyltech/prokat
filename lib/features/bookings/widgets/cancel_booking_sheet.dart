@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -146,12 +147,25 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
                           if (res == true) {
                             final chatId = widget.booking.chatId;
+
                             if ((chatId ?? '').isNotEmpty) {
                               await chatNotifier.reloadChat(chatId!);
                             }
+
                             if (context.mounted) Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Order Cancelled")),
+
+                            AppSnackBar.show(
+                              context,
+                              message: "Order Cancelled",
+                              isSuccess: true,
+                            );
+
+                            return;
+                          } else {
+                            AppSnackBar.show(
+                              context,
+                              message: "Failed to cancel order",
+                              isError: true,
                             );
                           }
                         },

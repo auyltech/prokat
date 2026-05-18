@@ -5,8 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_bar.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
@@ -168,11 +167,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
             ),
 
           if (booking != null)
-            BookingChatActionBar(
-              chatId: widget.chatId,
-              booking: booking,
-              role: BookingChatRole.client,
-            ),
+            ClientChatActionBar(chatId: widget.chatId, booking: booking),
 
           // 2. Static input area perfectly pinned to the absolute viewport bottom
           Container(

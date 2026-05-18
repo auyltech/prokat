@@ -93,7 +93,7 @@ class EquipmentService {
 
       return ApiResponse.failure(
         message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"] ?? "Failed to load services",
+        error: e.response?.data?["error"] ?? "Failed to load equipment",
       );
     } catch (e) {
       return ApiResponse.failure(

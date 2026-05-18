@@ -35,33 +35,39 @@ class BookingChatActionController {
             id: bookingId,
             status: BookingStatus.confirmed.name,
           ),
+
         BookingChatActionId.rejectBooking =>
           bookingNotifier.updateBookingStatus(
             id: bookingId,
             status: BookingStatus.rejected.name,
             workStatus: reason,
           ),
+
         BookingChatActionId.cancelBooking =>
           bookingNotifier.updateBookingStatus(
             id: bookingId,
             status: BookingStatus.cancelled.name,
             workStatus: reason,
           ),
+
         BookingChatActionId.updateWorkStatus =>
           bookingNotifier.updateBookingWorkStatus(
             id: bookingId,
             workStatus: (workStatus ?? WorkStatus.pending).name,
           ),
+
         BookingChatActionId.markWorkCompleted =>
           bookingNotifier.updateBookingWorkStatus(
             id: bookingId,
             workStatus: WorkStatus.completed.name,
           ),
+
         BookingChatActionId.confirmCompletion =>
           bookingNotifier.updateBookingStatus(
             id: bookingId,
             status: BookingStatus.completed.name,
           ),
+          
         _ => Future<bool>.value(false),
       };
 

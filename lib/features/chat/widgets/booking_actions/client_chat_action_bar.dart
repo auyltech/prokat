@@ -62,10 +62,10 @@ class ClientChatActionBar extends ConsumerWidget {
             ElevatedButton(
               onPressed: primary.isEnabled
                   ? () => _runAction(
-                        context: context,
-                        controller: controller,
-                        action: primary,
-                      )
+                      context: context,
+                      controller: controller,
+                      action: primary,
+                    )
                   : null,
               child: Text(primary.label),
             ),
@@ -94,6 +94,7 @@ class ClientChatActionBar extends ConsumerWidget {
               CancelBookingSheet(booking: booking, useCase: 'client'),
         );
         return;
+        
       case BookingChatActionId.confirmCompletion:
         final confirmed = await showDialog<bool>(
           context: context,

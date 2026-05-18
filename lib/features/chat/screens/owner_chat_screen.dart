@@ -7,8 +7,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_bar.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
@@ -189,12 +188,10 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 ),
               ),
             ),
+
           if (booking != null)
-            BookingChatActionBar(
-              chatId: widget.chatId,
-              booking: booking as BookingModel,
-              role: BookingChatRole.owner,
-            ),
+            OwnerChatActionBar(chatId: widget.chatId, booking: booking),
+
           Container(
             decoration: BoxDecoration(color: theme.cardColor),
             child: SafeArea(

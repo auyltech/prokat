@@ -14,6 +14,7 @@ class BookingChatActionResolver {
     ReviewState? reviewState,
   }) {
     final status = booking.status.trim().toLowerCase();
+    
     final workStatus = booking.workStatus;
 
     final isFinal = _isFinalBookingStatus(status);
@@ -60,8 +61,8 @@ class BookingChatActionResolver {
         overflowActions: [
           BookingChatActionVm(
             id: BookingChatActionId.createCounterOffer,
-            label: 'Counter offer',
-            isEnabled: false,
+            label: 'Counter',
+            isEnabled: true,
             disabledReason: 'Negotiation not implemented',
             requiresSheet: true,
           ),

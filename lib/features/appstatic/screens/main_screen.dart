@@ -299,7 +299,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
                         itemCount: equipmentState.renterEquipment.length,
                         itemBuilder: (context, index) {
                           final item = equipmentState.renterEquipment[index];
