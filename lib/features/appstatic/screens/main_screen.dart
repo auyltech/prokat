@@ -211,125 +211,104 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ),
               ),
 
-              // Login
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    context.push(AppRoutes.login);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Get Started',
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Icon(
-                          Icons.login,
-                          size: 24,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Services Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Services", style: theme.textTheme.titleLarge),
+                    // Login
                     GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        'See all',
-                        style: TextStyle(fontSize: 12, color: kBlue),
+                      onTap: () {
+                        context.push(AppRoutes.login);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: theme.primaryColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Get Started',
+                              style: TextStyle(
+                                color: theme.colorScheme.onPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Icon(
+                              Icons.login,
+                              size: 24,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
 
-              // Categories / Services
-              if (categoriesState.error != null)
-                EmptyStateTile(title: "Error loading services")
-              else
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: SizedBox(
-                    height: 110, // control height of the row
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categoriesState.categories.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 10),
-                      itemBuilder: (context, i) {
-                        final category = categoriesState.categories[i];
+                    SizedBox(height: 12),
 
-                        return CategoryCard(
-                          isSelected: selectedCategory == category.id,
-                          category: category,
-                          onTap: () => _updateFilters(context, {
-                            'category': category.id,
-                          }),
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                    // Services Header
+                    Text("Services", style: theme.textTheme.titleLarge),
 
-              // Popular Rents Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
+                    SizedBox(height: 8),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Popular rents",
-                          style: theme.textTheme.titleLarge,
+                    // Categories / Services
+                    if (categoriesState.isLoading)
+                      EmptyStateTile(title: "Loading...")
+                    else if (categoriesState.error != null)
+                      EmptyStateTile(title: "Error loading services")
+                    else
+                      SizedBox(
+                        height: 110, // control height of the row
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categoriesState.categories.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 10),
+                          itemBuilder: (context, i) {
+                            final category = categoriesState.categories[i];
+
+                            return CategoryCard(
+                              isSelected: selectedCategory == category.id,
+                              category: category,
+                              onTap: () => _updateFilters(context, {
+                                'category': category.id,
+                              }),
+                            );
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+
+                    SizedBox(height: 12),
+
+                    // Popular Rents Header
+                    Text("Popular rents", style: theme.textTheme.titleLarge),
+
+                    SizedBox(height: 8),
+
+                    if (equipmentState.isLoading)
+                      EmptyStateTile(title: "Loading...")
+                    else if (equipmentState.error != null)
+                      EmptyStateTile(title: "Error loading equipment")
+                    else
+                      // Popular Rents
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        itemCount: equipmentState.renterEquipment.length,
+                        itemBuilder: (context, index) {
+                          final item = equipmentState.renterEquipment[index];
+
+                          return GuestEquipmentCard(item: item);
+                        },
+                      ),
                   ],
                 ),
-              ),
-
-              // Popular Rents
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                itemCount: equipmentState.renterEquipment.length,
-                itemBuilder: (context, index) {
-                  final item = equipmentState.renterEquipment[index];
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: GuestEquipmentCard(item: item),
-                  );
-                },
               ),
             ],
           ),

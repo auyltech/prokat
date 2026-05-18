@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/chat/state/chat_provider.dart';
 
 class CancelBookingSheet extends ConsumerStatefulWidget {
   final BookingModel booking;
@@ -36,14 +38,18 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final notifier = ref.read(bookingProvider.notifier);
+    final chatNotifier = ref.read(chatProvider.notifier);
 
-    final sheetTitle = widget.useCase == "owner"
+    final isOwner = widget.useCase == "owner";
+    final isClient = widget.useCase == "client";
+
+    final sheetTitle = isOwner
         ? widget.booking.status.toUpperCase() == "CREATED"
               ? "Reject Order"
               : "Cancel Order"
-        : widget.useCase == "client"
-        ? ""
-        : "";
+        : isClient
+        ? "Cancel Order"
+        : "Cancel Order";
 
     final reasons = widget.useCase == "owner"
         ? ownerCancelReasons
@@ -127,19 +133,39 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                   onPressed: selectedReason == null
                       ? null
                       : () async {
+                          final status = isOwner
+                              ? widget.booking.status.toUpperCase() == "CREATED"
+                                    ? BookingStatus.rejected.name
+                                    : BookingStatus.cancelled.name
+                              : BookingStatus.cancelled.name;
+
                           final res = await notifier.updateBookingStatus(
                             id: widget.booking.id,
-                            status:
-                                widget.booking.status.toUpperCase() == "CREATED"
-                                ? BookingStatus.rejected.name
-                                : BookingStatus.failed.name,
+                            status: status,
                             workStatus: selectedReason,
                           );
 
                           if (res == true) {
+                            final chatId = widget.booking.chatId;
+
+                            if ((chatId ?? '').isNotEmpty) {
+                              await chatNotifier.reloadChat(chatId!);
+                            }
+
                             if (context.mounted) Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Order Cancelled")),
+
+                            AppSnackBar.show(
+                              context,
+                              message: "Order Cancelled",
+                              isSuccess: true,
+                            );
+
+                            return;
+                          } else {
+                            AppSnackBar.show(
+                              context,
+                              message: "Failed to cancel order",
+                              isError: true,
                             );
                           }
                         },

@@ -11,17 +11,42 @@ class BookingApiService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<BookingModel>> getUserBookings() async {
+  Future<ApiResponse<List<BookingModel>>> getUserBookings() async {
     try {
       final res = await _dio.get("/bookings");
 
-      return (res.data["data"] as List)
-          .map((e) => BookingModel.fromJson(e))
-          .toList();
+      if (res.statusCode == 200) {
+        final raw = res.data["data"] as List;
+
+        final data = raw.map((e) => BookingModel.fromJson(e)).toList();
+
+        return ApiResponse.success(data);
+      }
+
+      final message = extractBackendMessage(res.data);
+
+      throw Exception(message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid information";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+
+      return ApiResponse.failure(
+        message: message, // real backend message: extractBackendMessage(e)
+        error: e.response?.data?["error"].toString(),
+      );
     } catch (e) {
-      
-      print(e.toString());
-      return [];
+      print(e);
+      return ApiResponse.failure(
+        message: "GetUserBookings_Unexpected_Error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -56,7 +81,7 @@ class BookingApiService {
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "Unexpected error",
+        message: "GetOwnerBookings_Unexpected_error",
         error: e.toString(),
       );
     }
@@ -92,7 +117,7 @@ class BookingApiService {
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "Unexpected error",
+        message: "CreateBooking_Unexpected_error",
         error: e.toString(),
       );
     }
@@ -106,7 +131,11 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/status",
-        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+        data: {
+          "id": id,
+          if (status != null) "status": status,
+          if (workStatus != null) "workStatus": workStatus,
+        },
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
@@ -128,7 +157,11 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/workstatus",
-        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+        data: {
+          "id": id,
+          if (status != null) "status": status,
+          if (workStatus != null) "workStatus": workStatus,
+        },
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {

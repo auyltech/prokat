@@ -5,6 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
@@ -129,31 +130,32 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
               child: Container(
                 color: theme.colorScheme.surface,
                 child: ListView.builder(
-                  reverse:
-                      true, // Newest messages stay locked to the bottom input box
+                  reverse: false,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24.0,
                     vertical: 12.0,
                   ),
-                  // Add 1 extra slot to the list length if the booking banner needs to render
                   itemCount: (booking != null || request != null)
                       ? messages.length + 1
                       : messages.length,
                   itemBuilder: (context, index) {
                     final hasBookingHeader = booking != null || request != null;
-                    // In a reversed list, the very last index (top of screen) holds the oldest item
-                    if (hasBookingHeader) {
-                      // In a reversed list, the highest indices are rendered at the top of the viewport
-                      final totalItems = messages.length + 1;
 
-                      if (index == totalItems - 1) {
+                    if (hasBookingHeader) {
+                      if (index == 0) {
                         return BookingMessageBubble(
                           booking: booking as BookingModel,
                         );
                       }
                     }
 
-                    final message = messages[index];
+                    // 1. Shift index by 1 if header is present
+                    final messageIndex = hasBookingHeader ? index - 1 : index;
+
+                    // 2. Invert the index so oldest messages (index 0 in data) render at the top
+                    final invertedIndex = messages.length - 1 - messageIndex;
+
+                    final message = messages[invertedIndex];
                     final isMe =
                         message.senderId == currentUserId ||
                         message.senderId == 'me';
@@ -163,6 +165,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                 ),
               ),
             ),
+
+          if (booking != null)
+            ClientChatActionBar(chatId: widget.chatId, booking: booking),
 
           // 2. Static input area perfectly pinned to the absolute viewport bottom
           Container(

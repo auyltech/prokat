@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_interceptor.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_model.dart';
 
@@ -16,7 +17,6 @@ class ChatService {
   // Fetch list of chat threads for owner/user
   Future<List<ChatModel>> getChatThreads(String? mode) async {
     try {
-      print(mode);
       final res = await _dio.get(mode == "owner" ? '/chats/owner' : '/chats');
 
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
@@ -36,7 +36,7 @@ class ChatService {
           )
           .toList(growable: false);
     } on DioException catch (error) {
-      throw Exception(_extractErrorMessage(error));
+      throw Exception(extractBackendMessage(error));
     } catch (error) {
       throw Exception(error.toString());
     }
@@ -47,6 +47,7 @@ class ChatService {
       final res = await _dio.get('/chats/$chatId/messages');
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
 
+      print(data);
       if (data is! List) {
         return const [];
       }
@@ -62,7 +63,7 @@ class ChatService {
           )
           .toList(growable: false);
     } on DioException catch (error) {
-      throw Exception(_extractErrorMessage(error));
+      throw Exception(extractBackendMessage(error));
     } catch (error) {
       throw Exception(error.toString());
     }
@@ -86,6 +87,7 @@ class ChatService {
     }
   }
 
+  // TODO: DELETE: chatId is sent as part of booking and request
   // receive a bookingId or requestId and find the corresponding chatId
   Future<String?> getChatId({String? bookingId, String? requestId}) async {
     try {
@@ -117,29 +119,9 @@ class ChatService {
 
       return null;
     } on DioException catch (error) {
-      throw Exception(_extractErrorMessage(error));
+      throw Exception(extractBackendMessage(error));
     } catch (error) {
       throw Exception(error.toString());
     }
-  }
-
-  String _extractErrorMessage(DioException error) {
-    final data = error.response?.data;
-
-    if (data is Map<String, dynamic>) {
-      final message = data['message'] ?? data['error'] ?? data['detail'];
-      if (message is List) {
-        return message.join(', ');
-      }
-      if (message != null) {
-        return message.toString();
-      }
-    }
-
-    if (data is String && data.isNotEmpty) {
-      return data;
-    }
-
-    return error.message ?? 'Chat request failed';
   }
 }

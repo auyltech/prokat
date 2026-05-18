@@ -49,12 +49,19 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final bookings = await api.getUserBookings();
+      final result = await api.getUserBookings();
 
-      state = state.copyWith(isLoading: false, bookings: bookings);
+      state = state.copyWith(
+        isLoading: false,
+        bookings: result.data,
+        error: result.error,
+      );
     } catch (e) {
-      print(e.toString());
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+        bookings: [],
+      );
     }
   }
 
@@ -64,15 +71,12 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       final result = await api.getOwnerBookings();
 
-      print(result.data);
-
       state = state.copyWith(
         isLoading: false,
         ownerBookings: result.data,
         error: null,
       );
     } catch (e) {
-      print(e.toString());
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -102,10 +106,14 @@ class BookingNotifier extends StateNotifier<BookingState> {
       });
 
       if (result.success == true) {
+        state = state.copyWith(isLoading: false);
+
         await getUserBookings();
 
         return true;
       }
+
+      state = state.copyWith(isLoading: false, error: result.message);
 
       return false;
     } catch (e) {
@@ -131,11 +139,11 @@ class BookingNotifier extends StateNotifier<BookingState> {
         workStatus: workStatus,
       );
 
-      state = state.copyWith(isLoading: updated);
+      state = state.copyWith(isLoading: false);
 
       await getOwnerBookings();
 
-      return true;
+      return updated;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
 
@@ -157,11 +165,11 @@ class BookingNotifier extends StateNotifier<BookingState> {
         workStatus: workStatus,
       );
 
-      state = state.copyWith(isLoading: updated);
+      state = state.copyWith(isLoading: false);
 
       await getOwnerBookings();
 
-      return true;
+      return updated;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
 

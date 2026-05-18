@@ -30,7 +30,7 @@ abstract class BaseRepository {
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     } catch (e) {
-      throw ApiException(message: "Unexpected error");
+      throw ApiException(message: "BaseRepository_Unexpected error");
     }
   }
 }

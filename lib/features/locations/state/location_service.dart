@@ -17,8 +17,6 @@ class LocationService {
     try {
       final response = await _dio.get(ApiRoutes.locations);
 
-      print(response.data.toString());
-
       return (response.data["data"] as List)
           .map((e) => LocationModel.fromJson(e))
           .toList();
@@ -69,7 +67,7 @@ class LocationService {
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "Unexpected error",
+        message: "CreateLocation_Unexpected_Error",
         error: e.toString(),
       );
     }
