@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -94,13 +95,11 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                         aspectRatio: 16 / 9,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            request.category?.imageUrl ?? "",
+                          child: OptimizedNetworkImage(
+                            imageUrl: request.category?.imageUrl ?? "",
                             fit: BoxFit.contain,
-                            errorBuilder: (c, e, s) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.image),
-                            ),
+                            fallbackIcon: Icons.image,
+                            backgroundColor: Colors.grey[200],
                           ),
                         ),
                       ),

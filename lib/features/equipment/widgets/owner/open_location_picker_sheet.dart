@@ -83,7 +83,7 @@ void openLocationPickerSheet(
                           "locationId": loc.id,
                         });
 
-                    if (res == true) {
+                    if (res == true && context.mounted) {
                       Navigator.pop(context);
                     }
                   },

@@ -17,9 +17,9 @@ class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
     try {
       await ref.read(authProvider.notifier).logout();
 
-      context.push('/search/map');
+      if (context.mounted) context.push('/search/map');
     } catch (e) {
-      AppSnackBar.show(context, message: "Logout failed");
+      if (context.mounted) AppSnackBar.show(context, message: "Logout failed");
     }
   }
 

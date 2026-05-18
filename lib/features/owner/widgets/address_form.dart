@@ -72,7 +72,7 @@ class AddressFormState extends ConsumerState<AddressForm> {
                 .read(locationProvider.notifier)
                 .createLocation(location);
 
-            if (res && mounted) Navigator.pop(context);
+            if (res && context.mounted) Navigator.pop(context);
           },
         ),
       ],

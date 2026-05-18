@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 class GuestEquipmentCard extends StatelessWidget {
@@ -34,35 +35,12 @@ class GuestEquipmentCard extends StatelessWidget {
           // ── Thumbnail ────────────────────────────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              item.imageUrl ?? "",
+            child: OptimizedNetworkImage(
+              imageUrl: item.imageUrl ?? "",
               width: 100,
               height: 76,
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => Container(
-                width: 76,
-                height: 76,
-                color: const Color(0xFFEFF6FF),
-                child: Icon(
-                  Icons.inventory_2_outlined,
-                  color: theme.colorScheme.error,
-                  size: 28,
-                ),
-              ),
-              loadingBuilder: (_, child, progress) {
-                if (progress == null) return child;
-                return Container(
-                  width: 76,
-                  height: 76,
-                  color: const Color(0xFFF3F4F6),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.5,
-                      color: theme.primaryColor,
-                    ),
-                  ),
-                );
-              },
+              fallbackIcon: Icons.inventory_2_outlined,
             ),
           ),
           const SizedBox(width: 12),

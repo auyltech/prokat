@@ -156,12 +156,8 @@ class Equipment {
             json["category"] != null ? Category.fromJson(json["category"]) : null,
         updatedAt: parseNullableDate(json['updatedAt']),
       );
-    } catch (e, stack) {
-      print("Equipment parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
-      rethrow; // important
+    } catch (e) {
+      rethrow;
     }
   }
 }

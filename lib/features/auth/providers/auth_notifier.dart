@@ -193,7 +193,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       return false;
     } catch (e) {
-      print(e.toString());
       state = state.copyWith(isLoading: false, error: 'Verification failed');
 
       return false;

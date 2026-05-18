@@ -101,8 +101,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
   Future<void> _loadSessionFallback() async {
     final session = await secureStorage.readSession();
 
-    print(session);
-
     _sessionToken = _sessionToken ?? session?.sessionToken ?? '';
 
     state = state.copyWith(

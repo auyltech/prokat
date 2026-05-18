@@ -62,8 +62,8 @@ class LocationService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(

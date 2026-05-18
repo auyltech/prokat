@@ -85,11 +85,12 @@ String extractBackendMessage(DioException e) {
       return message.join(', ');
     }
 
-    /// Handle validation errors like:
-    /// { errors: { email: ["Invalid"] } }
-    if (data["errors"] is Map) {
-      final errors = data["errors"] as Map;
+  if (responseData is Map<String, dynamic>) {
+    if (responseData["message"] is String) return responseData["message"];
+    if (responseData["error"] is String) return responseData["error"];
 
+    if (responseData["errors"] is Map) {
+      final errors = responseData["errors"] as Map;
       final firstError = errors.values.first;
       if (firstError is List && firstError.isNotEmpty) {
         return firstError.first.toString();
@@ -101,7 +102,7 @@ String extractBackendMessage(DioException e) {
     }
   }
 
-  if (data is String) return data;
+  if (responseData is String) return responseData;
 
   switch (e.type) {
     case DioExceptionType.connectionTimeout:

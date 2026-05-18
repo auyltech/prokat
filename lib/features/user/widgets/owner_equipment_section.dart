@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -121,15 +122,13 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                     // Image
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        item.imageUrl ?? "",
+                      child: OptimizedNetworkImage(
+                        imageUrl: item.imageUrl ?? "",
                         width: 90,
                         height: 60,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          color: colorScheme.surface,
-                          child: const Icon(Icons.image),
-                        ),
+                        fallbackIcon: Icons.image,
+                        backgroundColor: colorScheme.surface,
                       ),
                     ),
                     const SizedBox(width: 12),

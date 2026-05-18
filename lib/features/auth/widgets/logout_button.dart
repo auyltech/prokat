@@ -55,7 +55,7 @@ class LogoutButton extends ConsumerWidget {
 
     await ref.read(appStartupProvider.notifier).init();
 
-    context.go('/login');
+    if (context.mounted) context.go('/login');
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -152,13 +153,11 @@ class OwnerBookingTile extends ConsumerWidget {
                         aspectRatio: 16 / 9,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            booking.equipment?.imageUrl ?? "",
+                          child: OptimizedNetworkImage(
+                            imageUrl: booking.equipment?.imageUrl ?? "",
                             fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.image),
-                            ),
+                            fallbackIcon: Icons.image,
+                            backgroundColor: Colors.grey[200],
                           ),
                         ),
                       ),
@@ -538,24 +537,18 @@ Future<void> _handleCancel(
       workStatus: "cancelled in $difference minutes",
     );
 
-    if (res == true) {
+    if (res == true && context.mounted) {
       Navigator.pop(context); // close sheet
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
     }
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text(
-    //       "You can only cancel within $cancelWindowMinutes minutes of booking.",
-    //     ),
-    //   ),
-    // );
     return;
   }
 
   // Open reason sheet
+  if (!context.mounted) return;
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

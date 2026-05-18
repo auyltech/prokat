@@ -164,9 +164,6 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   }
 
   Future<void> _handleSave() async {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     if (!_isDirty || _isSaving) return;
 
     final valid = _validate();

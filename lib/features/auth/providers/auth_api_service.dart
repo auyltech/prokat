@@ -58,11 +58,9 @@ class AuthApiService {
       } else if (e.response?.data != null) {
         message = extractBackendMessage(e.response?.data);
       }
-      print("api service catch message: $message");
-
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -108,8 +106,8 @@ class AuthApiService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -199,7 +197,6 @@ class AuthApiService {
         );
       } else {
         final message = extractBackendMessage(response.data);
-
         return ApiResponse.failure(error: message);
       }
     } on DioException catch (e) {
@@ -222,7 +219,7 @@ class AuthApiService {
 
       return ApiResponse.failure(
         message: message,
-        error: e.message, // real backend message
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
