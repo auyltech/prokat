@@ -68,12 +68,8 @@ class OwnerProfileModel {
         isVerified: parseBoolean(json['isVerified']),
         verifiedAt: parseNullableDate(json['verifiedAt']),
       );
-    } catch (e, stack) {
-      print("❌ Reqgistration request parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
-      rethrow; 
+    } catch (e) {
+      rethrow;
     }
   }
 }

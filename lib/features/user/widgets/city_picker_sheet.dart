@@ -77,7 +77,7 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
       if (profile != null) {
         ref
             .read(userProfileProvider.notifier)
-            .selectselectCityRegion(city, "No Region");
+            .selectCityRegion(city, "No Region");
       }
     }
 

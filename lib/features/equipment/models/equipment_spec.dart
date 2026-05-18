@@ -46,9 +46,6 @@ class EquipmentSpec {
         imageUrl: json["imageUrl"] ?? "",
       );
     } catch (e) {
-      print("***** EQUIPMENT SPEC PARSE FAILED");
-      print(e);
-      print(json);
       rethrow;
     }
   }

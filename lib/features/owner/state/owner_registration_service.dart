@@ -15,8 +15,6 @@ class OwnerRegistrationService {
     try {
       final res = await _dio.get("/owner/become-owner");
 
-      print(res.data["data"].toString());
-
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
 
       if (data == null) return null;
@@ -68,13 +66,6 @@ class OwnerRegistrationService {
           ? extractBackendMessage(e)
           : e.toString();
 
-      if (e is DioException) {
-        print("❌ DIO ERROR: ${e.message}");
-        print("❌ STATUS: ${e.response?.statusCode}");
-        print("❌ DATA: ${e.response?.data}");
-      } else {
-        print("❌ ERROR: $e");
-      }
       throw Exception(errorMessage);
     }
   }

@@ -67,10 +67,8 @@ class _RegisterWithUsernameFormState
             .read(authProvider.notifier)
             .registerCredentials(credentials);
 
-        if (res == true) {
-          if (mounted) {
-            context.go(AppRoutes.searchList);
-          }
+        if (res == true && context.mounted) {
+          context.go(AppRoutes.searchList);
         }
       } catch (e) {
         widget.onError("Something went wrong!");

@@ -1,12 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
-import 'dart:io';
 
 class OwnerEquipmentImageHeader extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -65,17 +67,38 @@ class _OwnerEquipmentImageHeaderState
   Future<void> _pickAndUpload(ImageSource source) async {
     final picked = await _picker.pickImage(
       source: source,
-      maxWidth: 1080,
-      maxHeight: 1080,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
     );
 
     if (picked == null) return;
+
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
+      compressQuality: 85,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop equipment photo',
+          initAspectRatio: CropAspectRatioPreset.ratio4x3,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: 'Crop equipment photo',
+          aspectRatioLockEnabled: true,
+          resetButtonHidden: true,
+        ),
+      ],
+    );
+
+    if (cropped == null) return;
 
     final ok = await ref
         .read(equipmentProvider.notifier)
         .uploadEquipmentImage(
           equipmentId: widget.equipmentId,
-          imageFile: File(picked.path),
+          imageFile: File(cropped.path),
         );
 
     if (!mounted) return;
@@ -228,16 +251,11 @@ class _OwnerEquipmentImageHeaderState
                       setState(() => _currentIndex = index),
                   itemBuilder: (context, index) {
                     final url = images[index].imageUrl;
-                    return CachedNetworkImage(
+                    return OptimizedNetworkImage(
                       imageUrl: url,
                       fit: BoxFit.cover,
-                      memCacheHeight: 600,
-                      placeholder: (_, _) => Center(
-                        child: CircularProgressIndicator(
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      errorWidget: (_, _, _) => _emptyState(context),
+                      maxCacheHeight: 900,
+                      fallbackIcon: Icons.image_outlined,
                     );
                   },
                 ),

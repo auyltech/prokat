@@ -24,7 +24,7 @@ class EmptyStateTile extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: displayColor.withOpacity(0.2)),
+        border: Border.all(color: displayColor.withValues(alpha:0.2)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -49,7 +49,7 @@ class EmptyStateTile extends StatelessWidget {
               subtitle!,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                color: theme.textTheme.bodySmall?.color?.withValues(alpha:0.6),
               ),
             ),
           ],

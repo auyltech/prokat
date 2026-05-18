@@ -219,25 +219,21 @@ class BookingActionRow extends ConsumerWidget {
       );
 
       if (res == true) {
+        if (!context.mounted) return;
         Navigator.pop(context); // close sheet
 
         await chatNotifier.reloadChat(booking.chatId ?? "");
 
+        if (!context.mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
       }
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text(
-      //       "You can only cancel within $cancelWindowMinutes minutes of booking.",
-      //     ),
-      //   ),
-      // );
       return;
     }
 
     // Open reason sheet
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

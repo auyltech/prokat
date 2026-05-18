@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -214,11 +215,12 @@ class _FavoriteCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(18)),
-              child: Image.network(
-                equipment.imageUrl ?? "",
+              child: OptimizedNetworkImage(
+                imageUrl: equipment.imageUrl ?? "",
                 height: 90,
                 width: 120,
                 fit: BoxFit.cover,
+                fallbackIcon: Icons.precision_manufacturing_outlined,
               ),
             ),
             // Container(

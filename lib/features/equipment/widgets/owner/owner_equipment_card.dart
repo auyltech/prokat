@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_status_badge.dart';
@@ -127,15 +127,11 @@ class OwnerEquipmentCard extends ConsumerWidget {
   Widget _buildImage(String? url) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: CachedNetworkImage(
+      child: OptimizedNetworkImage(
         imageUrl: url ?? "",
         width: 110,
         height: 70,
         fit: BoxFit.cover,
-        errorWidget: (context, url, error) => Container(
-          color: Colors.grey.shade100,
-          child: const Icon(Icons.image_not_supported, color: Colors.grey),
-        ),
       ),
     );
   }

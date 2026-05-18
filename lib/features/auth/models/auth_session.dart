@@ -16,12 +16,8 @@ class AuthSession {
             : null,
         user: json['user'] != null ? User.fromJson(json['user']) : null,
       );
-    } catch (e, stack) {
-      print("❌ AuthSession parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
-      rethrow; // important
+    } catch (e) {
+      rethrow;
     }
   }
 

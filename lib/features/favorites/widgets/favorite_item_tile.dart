@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -52,19 +53,13 @@ class FavoriteItemTile extends ConsumerWidget {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(24),
                   ),
-                  child: Image.network(
-                    equipment.imageUrl ?? "",
+                  child: OptimizedNetworkImage(
+                    imageUrl: equipment.imageUrl ?? "",
                     height: 120, // Slightly taller for better aspect ratio
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      height: 120,
-                      color: theme.colorScheme.surfaceBright,
-                      child: const Icon(
-                        Icons.broken_image_outlined,
-                        color: Colors.grey,
-                      ),
-                    ),
+                    fallbackIcon: Icons.broken_image_outlined,
+                    backgroundColor: theme.colorScheme.surfaceBright,
                   ),
                 ),
                 // Clean glass-effect favorite toggle

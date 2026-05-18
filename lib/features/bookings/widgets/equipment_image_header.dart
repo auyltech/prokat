@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 
 class EquipmentImageHeader extends StatelessWidget {
   final String? imageUrl;
@@ -21,19 +22,11 @@ class EquipmentImageHeader extends StatelessWidget {
           SizedBox(
             height: height,
             width: double.infinity,
-            child: Image.network(
-              imageUrl ?? "",
+            child: OptimizedNetworkImage(
+              imageUrl: imageUrl ?? "",
               fit: BoxFit.fitHeight,
-              errorBuilder: (_, _, _) => Container(
-                color: Colors.grey[300],
-                child: const Center(
-                  child: Icon(
-                    Icons.image_not_supported,
-                    size: 50,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
+              fallbackIcon: Icons.image_not_supported,
+              backgroundColor: Colors.grey[300],
             ),
           ),
 

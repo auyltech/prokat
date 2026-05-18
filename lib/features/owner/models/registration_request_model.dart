@@ -52,11 +52,7 @@ class RegistrationRequestModel {
 
         createdAt: parseNullableDate(json['createdAt']),
       );
-    } catch (e, stack) {
-      print("❌ Reqgistration request parsing failed");
-      print("JSON: $json");
-      print(e);
-      print(stack);
+    } catch (e) {
       rethrow;
     }
   }

@@ -10,8 +10,6 @@ class OnlineToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSubmitting = ref.watch(equipmentProvider).isSubmitting;
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

@@ -42,7 +42,7 @@ class _CounterOfferSheetState extends State<CounterOfferSheet> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _selectedRate,
+            initialValue: _selectedRate,
             decoration: const InputDecoration(border: OutlineInputBorder()),
             items: ["per hour", "for full job", "per day"]
                 .map((rate) => DropdownMenuItem(value: rate, child: Text(rate)))

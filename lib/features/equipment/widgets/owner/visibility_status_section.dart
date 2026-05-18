@@ -77,7 +77,7 @@ class _VisibilityStatusSectionState
                         widget.status,
                       );
 
-                  if (res) {
+                  if (res && context.mounted) {
                     AppSnackBar.show(
                       context,
                       message: "Equipment submited for review",
@@ -248,6 +248,7 @@ class _VisibilityStatusSectionState
                     "CREATED",
                   );
 
+              if (!context.mounted) return;
               if (res) {
                 AppSnackBar.show(
                   context,

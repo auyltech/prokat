@@ -75,8 +75,8 @@ class BookingApiService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -93,7 +93,7 @@ class BookingApiService {
       final response = await _dio.post("/bookings", data: data);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        ApiResponse.success(null);
+        return ApiResponse.success(null);
       }
 
       final message = extractBackendMessage(response.data);
@@ -111,8 +111,8 @@ class BookingApiService {
       }
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -139,7 +139,6 @@ class BookingApiService {
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         return true;
-        // return BookingModel.fromJson(res.data["data"]);
       }
 
       return false;
@@ -165,7 +164,6 @@ class BookingApiService {
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         return true;
-        // return BookingModel.fromJson(res.data["data"]);
       }
 
       return false;

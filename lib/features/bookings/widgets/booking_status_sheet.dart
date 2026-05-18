@@ -73,6 +73,8 @@ class BookingStatusSheet extends ConsumerWidget {
                     await chatNotifier.reloadChat(chatId!);
                   }
 
+                  if (!context.mounted) return;
+
                   // 3. Close sheet
                   Navigator.pop(context);
 
