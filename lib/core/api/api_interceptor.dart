@@ -75,23 +75,15 @@ class ApiInterceptor extends Interceptor {
   }
 }
 
-String extractBackendMessage(dynamic data) {
-  dynamic responseData = data;
+String extractBackendMessage(DioException e) {
+  final data = e.response?.data;
 
-  if (data is DioException) {
-    responseData = data.response?.data;
-    if (responseData == null) {
-      switch (data.type) {
-        case DioExceptionType.connectionTimeout:
-        case DioExceptionType.receiveTimeout:
-          return "Connection timeout";
-        case DioExceptionType.connectionError:
-          return "Network error";
-        default:
-          return "Request failed";
-      }
+  if (data is Map<String, dynamic>) {
+    final message = data['message'] ?? data['error'] ?? data['detail'];
+
+    if (message is List) {
+      return message.join(', ');
     }
-  }
 
   if (responseData is Map<String, dynamic>) {
     if (responseData["message"] is String) return responseData["message"];
@@ -105,10 +97,22 @@ String extractBackendMessage(dynamic data) {
       }
     }
 
-    return "Request failed";
+    if (message != null) {
+      return message.toString();
+    }
   }
 
   if (responseData is String) return responseData;
 
-  return "Request failed";
+  switch (e.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.receiveTimeout:
+      return "Connection timeout";
+
+    case DioExceptionType.connectionError:
+      return "Network error";
+
+    default:
+      return "Request failed";
+  }
 }

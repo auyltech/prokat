@@ -18,24 +18,6 @@ class ClientBookingsScreen extends ConsumerStatefulWidget {
 
 class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(bookingProvider.notifier).getUserBookings();
-    });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -89,40 +71,46 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
         ],
         elevation: 0,
       ),
-      body: ListView(
-        children: [
-          // 1. High-Priority Draft Card (Refined Orange)
-          if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(bookingProvider.notifier).getUserBookings();
+        },
+        child: ListView(
+          children: [
+            // 1. High-Priority Draft Card (Refined Orange)
+            if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
 
-          // 1. Remove Expanded - Slivers don't work inside it
-          if (authSession == null)
-            EmptyStateTile(
-              title: "Login to create and view bookings",
-              icon: Icons.login_outlined,
-            )
-          else if (bookingState.isLoading)
-            EmptyStateTile(title: "Loading Orders...")
-          else if (bookingState.error != null)
-            EmptyStateTile(title: "Error Loading Orders")
-          else if (upcoming.isEmpty)
-            EmptyStateTile(
-              title: 'No bookings found',
-              icon: Icons.inventory_2_outlined,
-            )
-          else
-            Padding(
-              padding: EdgeInsets.all(24),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: upcoming.length,
-                itemBuilder: (context, index) {
-                  final booking = upcoming[index];
-                  return ClientBookingTile(booking: booking);
-                },
+            // 1. Remove Expanded - Slivers don't work inside it
+            if (authSession == null)
+              EmptyStateTile(
+                title: "Login to create and view bookings",
+                icon: Icons.login_outlined,
+              )
+            else if (bookingState.isLoading)
+              EmptyStateTile(title: "Loading Orders...")
+            else if (bookingState.error.toString() != "null")
+              EmptyStateTile(title: "Error Loading Orders")
+            else if (upcoming.isEmpty)
+              EmptyStateTile(
+                title: 'No bookings found',
+                icon: Icons.inventory_2_outlined,
+              )
+            else
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: ListView.separated(
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: upcoming.length,
+                  itemBuilder: (context, index) {
+                    final booking = upcoming[index];
+                    return ClientBookingTile(booking: booking);
+                  },
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

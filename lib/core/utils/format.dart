@@ -95,6 +95,8 @@ String getPriceRate(dynamic priceRate) {
       ? "/ M3"
       : temp == "PER_HOUR"
       ? "/ Hour"
+      : temp == "PER_DAY"
+      ? "/ Day"
       : temp;
 }
 

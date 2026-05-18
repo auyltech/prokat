@@ -63,7 +63,7 @@ Future<void> showEditUsernameSheet(
                 decoration: InputDecoration(
                   hintText: 'username',
                   hintStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha:0.4),
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                   filled: true,
                   fillColor: theme.cardColor,

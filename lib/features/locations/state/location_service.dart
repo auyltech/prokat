@@ -67,7 +67,7 @@ class LocationService {
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "Unexpected error",
+        message: "CreateLocation_Unexpected_Error",
         error: e.toString(),
       );
     }

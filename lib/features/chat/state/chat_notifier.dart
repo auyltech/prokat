@@ -185,7 +185,43 @@ class ChatNotifier extends StateNotifier<ChatState> {
     try {
       final chatDetails = await service.getChatById(chatId);
 
-      state = state.copyWith(currentChat: chatDetails);
+      if (chatDetails == null) {
+        throw Exception('Chat not found');
+      }
+
+      final fetchedMessages = _sortMessages(
+        chatDetails.messages.take(50).toList(growable: false),
+      );
+
+      final pendingLocal = state.messages
+          .where(
+            (m) =>
+                m.isPending &&
+                (m.clientTempId ?? '').trim().isNotEmpty &&
+                state.sendingMessageClientTempIds.contains(
+                  m.clientTempId!.trim(),
+                ),
+          )
+          .toList(growable: false);
+
+      final merged = List<ChatMessageModel>.from(fetchedMessages);
+      for (final pending in pendingLocal) {
+        final exists = merged.any(
+          (m) =>
+              (m.clientTempId ?? '').trim().isNotEmpty &&
+              m.clientTempId == pending.clientTempId,
+        );
+        if (!exists) {
+          merged.insert(0, pending);
+        }
+      }
+
+      state = state.copyWith(
+        conversations: _upsertChat(state.conversations, chatDetails),
+        currentChat: chatDetails,
+        messages: _sortMessages(merged),
+        error: null,
+      );
     } catch (err) {
       state = state.copyWith(error: "Error loading order");
     }
@@ -261,7 +297,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
-  Future<String?> getChatId({String? bookingId, String? requestId, String? mode}) async {
+  Future<String?> getChatId({
+    String? bookingId,
+    String? requestId,
+    String? mode,
+  }) async {
     final normalizedBookingId = (bookingId ?? '').trim();
     final normalizedRequestId = (requestId ?? '').trim();
 
@@ -304,15 +344,19 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
 
     await socketService.connect(token: _sessionToken);
+
     socketService.onNewMessage(_handleIncomingMessage);
+
     await socketService.joinChat(chatId);
   }
 
   void _handleIncomingMessage(ChatMessageModel incoming) {
     final isCurrentChat = state.currentChat?.id == incoming.chatId;
+
     final mergedMessages = isCurrentChat
         ? _mergeMessages(state.messages, incoming)
         : state.messages;
+
     final nextSendingIds = mergedMessages
         .where((m) => m.isPending && (m.clientTempId ?? '').trim().isNotEmpty)
         .map((m) => m.clientTempId!.trim())
@@ -377,6 +421,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final exactIndex = updated.indexWhere(
       (message) => message.id.isNotEmpty && message.id == incoming.id,
     );
+
     if (exactIndex != -1) {
       updated[exactIndex] = incoming.copyWith(
         isPending: false,
@@ -390,6 +435,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           (message.clientTempId ?? '').isNotEmpty &&
           message.clientTempId == incoming.clientTempId,
     );
+
     if (tempIndex != -1) {
       updated[tempIndex] = incoming.copyWith(isPending: false, isFailed: false);
       return _sortMessages(updated);
@@ -402,6 +448,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           message.content.trim() == incoming.content.trim() &&
           _withinThirtySeconds(message.createdAt, incoming.createdAt),
     );
+
     if (fallbackPendingIndex != -1) {
       updated[fallbackPendingIndex] = incoming.copyWith(
         isPending: false,
@@ -416,11 +463,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   List<ChatMessageModel> _sortMessages(List<ChatMessageModel> messages) {
     final sorted = List<ChatMessageModel>.from(messages);
+
     sorted.sort((a, b) {
       final aDate = a.createdAt ?? DateTime(1970);
       final bDate = b.createdAt ?? DateTime(1970);
+
       return bDate.compareTo(aDate);
     });
+
     return sorted;
   }
 }

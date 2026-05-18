@@ -5,7 +5,6 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import '../widgets/otp_field.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
 
 class OtpVerificationForm extends ConsumerStatefulWidget {
   final String phone;
@@ -48,13 +47,10 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
           .verifyOtp(widget.phone, otp);
 
       if (success == true) {
-        await ref.read(userProfileProvider.notifier).getUserProfile();
-
-        if (!mounted) return;
-        final role = ref.read(userProfileProvider).userProfile?.role ?? "";
+        final role = ref.watch(authProvider).session?.user?.role;
 
         context.go(
-          role.toLowerCase() == "owner"
+          role?.toLowerCase() == "owner"
               ? AppRoutes.ownerDashboard
               : AppRoutes.searchList,
         );

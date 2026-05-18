@@ -142,7 +142,7 @@ class AuthApiService {
     }
   }
 
-  Future<bool> requestOtp(String phone) async {
+  Future<ApiResponse<bool>> requestOtp(String phone) async {
     try {
       final response = await dio.post(
         '/auth/otp',
@@ -150,12 +150,36 @@ class AuthApiService {
       );
 
       if (response.statusCode == 200) {
-        return true;
+        return ApiResponse.success(true);
       }
 
-      return false;
+      final message = extractBackendMessage(response.data);
+
+      return ApiResponse.failure(error: message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid credentials";
+      }
+      if (e.response?.statusCode == 401) {
+        message = "Invalid OTP";
+      } else if (e.response?.statusCode == 409) {
+        message = "Username already registered";
+      } else if (e.response?.statusCode == 410) {
+        message = "Wrong data";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else {
+        message = extractBackendMessage(e);
+      }
+
+      return ApiResponse.failure(message: message, error: e.message);
     } catch (e) {
-      return false;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -189,6 +213,8 @@ class AuthApiService {
         message = "Wrong data";
       } else if (e.response?.statusCode == 500) {
         message = "Server Error";
+      } else {
+        message = extractBackendMessage(e);
       }
 
       return ApiResponse.failure(

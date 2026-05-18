@@ -17,10 +17,7 @@ class ApiResponse<T> {
   }
 
   /// Error response
-  factory ApiResponse.failure({
-    String message = "Something went wrong",
-    String? error,
-  }) {
+  factory ApiResponse.failure({String? message, String? error}) {
     return ApiResponse(
       success: false,
       data: null,

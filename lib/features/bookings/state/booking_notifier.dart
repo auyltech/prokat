@@ -49,11 +49,19 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final bookings = await api.getUserBookings();
+      final result = await api.getUserBookings();
 
-      state = state.copyWith(isLoading: false, bookings: bookings);
+      state = state.copyWith(
+        isLoading: false,
+        bookings: result.data,
+        error: result.error,
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+        bookings: [],
+      );
     }
   }
 
@@ -98,10 +106,14 @@ class BookingNotifier extends StateNotifier<BookingState> {
       });
 
       if (result.success == true) {
+        state = state.copyWith(isLoading: false);
+
         await getUserBookings();
 
         return true;
       }
+
+      state = state.copyWith(isLoading: false, error: result.message);
 
       return false;
     } catch (e) {
@@ -131,7 +143,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       await getOwnerBookings();
 
-      return true;
+      return updated;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
 
@@ -157,7 +169,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       await getOwnerBookings();
 
-      return true;
+      return updated;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
 

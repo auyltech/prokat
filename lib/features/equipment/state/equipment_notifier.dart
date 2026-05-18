@@ -107,7 +107,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         limit: limit,
         city: city,
       );
-
+      
       state = state.copyWith(
         renterEquipment: result.data,
         isLoading: false,

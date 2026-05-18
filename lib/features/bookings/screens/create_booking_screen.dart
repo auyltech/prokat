@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -43,8 +45,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final res = await bookingNotifier.createBooking();
 
-    if (mounted && res == true) {
-      context.pop();
+    if (res == true) {
+      AppSnackBar.show(context, message: "Order created", isSuccess: true);
+
+      if (mounted && context.canPop()) context.pop();
+    } else {
+      AppSnackBar.show(
+        context,
+        message: "Failed to create order",
+        isError: true,
+      );
     }
   }
 
@@ -386,38 +396,45 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       const SizedBox(height: 20),
 
-                      /// 5. ACTION FOOTER
-                      SizedBox(
-                        width: double.infinity,
-                        height: 58,
-                        child: ElevatedButton(
-                          onPressed:
-                              (bookingState.selectedLocationId == null ||
-                                  bookingState.selectedDate == null)
-                              ? null
-                              : _onPressed,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primary,
-                            foregroundColor: theme.colorScheme.onPrimary,
-                            disabledBackgroundColor: theme.colorScheme.secondary
-                                .withValues(alpha: 0.5),
-                            disabledForegroundColor:
-                                theme.colorScheme.onSurface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            "CONFIRM",
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onPrimary,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ),
+                      PrimaryButton(
+                        label: "CONFIRM",
+                        onPressed:
+                            (bookingState.selectedLocationId == null ||
+                                bookingState.selectedDate == null)
+                            ? null
+                            : _onPressed,
+                        isLoading: bookingState.isLoading,
                       ),
+
+                      /// 5. ACTION FOOTER
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   height: 58,
+                      //   child: ElevatedButton(
+                      //     onPressed:
+                      //         ,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: theme.colorScheme.primary,
+                      //       foregroundColor: theme.colorScheme.onPrimary,
+                      //       disabledBackgroundColor: theme.colorScheme.secondary
+                      //           .withValues(alpha: 0.5),
+                      //       disabledForegroundColor:
+                      //           theme.colorScheme.onSurface,
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(20),
+                      //       ),
+                      //       elevation: 0,
+                      //     ),
+                      //     child: Text(
+                      //       ,
+                      //       style: theme.textTheme.bodyLarge?.copyWith(
+                      //         fontWeight: FontWeight.bold,
+                      //         color: theme.colorScheme.onPrimary,
+                      //         letterSpacing: 1.2,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

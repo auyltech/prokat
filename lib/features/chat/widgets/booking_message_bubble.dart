@@ -49,7 +49,7 @@ class BookingMessageBubble extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'BOOKING REQUEST',
+                      'ORDER',
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.blue[800],

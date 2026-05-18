@@ -72,8 +72,8 @@ class _MessageBubbleState extends State<MessageBubble> {
                 gradient: widget.isMe
                     ? LinearGradient(
                         colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
+                          theme.colorScheme.primary.withValues(alpha: 0.9),
+                          theme.colorScheme.primary.withValues(alpha: 0.8),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -123,7 +123,6 @@ class _MessageBubbleState extends State<MessageBubble> {
                   ? Alignment.centerRight
                   : Alignment.centerLeft,
             ),
-            const SizedBox(height: 10),
           ],
         ),
       ),
