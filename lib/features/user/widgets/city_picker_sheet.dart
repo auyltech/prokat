@@ -63,14 +63,10 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
       queryParameters: currentParams.isEmpty ? null : currentParams,
     );
 
-    print(newUri);
-
     context.go(newUri.toString());
   }
 
   Future<void> _onCitySelected(String city) async {
-    print(widget.mode);
-
     if (widget.mode == "guest") {
       _updateFilters(context, {'city': city});
     } else {

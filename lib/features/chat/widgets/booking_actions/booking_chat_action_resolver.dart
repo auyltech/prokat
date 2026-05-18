@@ -2,6 +2,8 @@ import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_state.dart';
+import 'package:prokat/features/reviews/state/review_state.dart';
 
 class BookingChatActionResolver {
   const BookingChatActionResolver();
@@ -10,15 +12,34 @@ class BookingChatActionResolver {
     required BookingModel booking,
     required BookingChatRole role,
     required DateTime now,
-    NegotiationState? negotiation,
+    PriceNegotiationState? negotiation,
     ReviewState? reviewState,
+    String? currentUserId,
+    String? chatOwnerId,
+    String? chatClientId,
   }) {
     final status = booking.status.trim().toLowerCase();
-    
+
     final workStatus = booking.workStatus;
 
-    final isFinal = _isFinalBookingStatus(status);
+    if (status == 'reviewed') {
+      return const BookingChatActionResolution(
+        statusText: 'Reviews submitted',
+        primaryAction: null,
+      );
+    }
 
+    if (status == BookingStatus.completed.name) {
+      return _resolveCompleted(
+        role: role,
+        booking: booking,
+        reviewState: reviewState,
+        chatOwnerId: chatOwnerId,
+        chatClientId: chatClientId,
+      );
+    }
+
+    final isFinal = _isFinalBookingStatus(status);
     if (isFinal) {
       return BookingChatActionResolution(
         statusText: _finalStatusText(status),
@@ -27,7 +48,11 @@ class BookingChatActionResolver {
     }
 
     if (status == BookingStatus.created.name) {
-      return _resolveCreated(role: role);
+      return _resolveCreated(
+        role: role,
+        negotiation: negotiation,
+        currentUserId: currentUserId,
+      );
     }
 
     if (status == BookingStatus.confirmed.name) {
@@ -41,7 +66,100 @@ class BookingChatActionResolver {
     );
   }
 
-  BookingChatActionResolution _resolveCreated({required BookingChatRole role}) {
+  BookingChatActionResolution _resolveCompleted({
+    required BookingChatRole role,
+    required BookingModel booking,
+    ReviewState? reviewState,
+    String? chatOwnerId,
+    String? chatClientId,
+  }) {
+    final hasSubmitted =
+        reviewState?.hasSubmitted == true || booking.myReviewId != null;
+
+    final revieweeId = role == BookingChatRole.owner
+        ? ((booking.renter?.id ?? '').trim().isNotEmpty
+              ? booking.renter?.id
+              : chatClientId)
+        : ((booking.equipment?.ownerId ?? '').trim().isNotEmpty
+              ? booking.equipment?.ownerId
+              : chatOwnerId);
+
+    if (!hasSubmitted && (revieweeId ?? '').trim().isNotEmpty) {
+      return BookingChatActionResolution(
+        statusText: 'Booking completed',
+        primaryAction: BookingChatActionVm(
+          id: BookingChatActionId.leaveReview,
+          label: role == BookingChatRole.owner
+              ? 'Review client'
+              : 'Review owner',
+          isPrimary: true,
+          requiresSheet: true,
+          payloadId: revieweeId,
+        ),
+      );
+    }
+
+    return BookingChatActionResolution(
+      statusText: hasSubmitted ? 'Review submitted' : 'Booking completed',
+      primaryAction: null,
+    );
+  }
+
+  BookingChatActionResolution _resolveCreated({
+    required BookingChatRole role,
+    PriceNegotiationState? negotiation,
+    String? currentUserId,
+  }) {
+    final pending = negotiation?.latestPending;
+    final pendingId = (pending?.id ?? '').trim();
+
+    final userId = (currentUserId ?? '').trim();
+    final isPendingFromMe =
+        pendingId.isNotEmpty &&
+        userId.isNotEmpty &&
+        (pending?.senderId ?? '').trim() == userId;
+
+    if (pendingId.isNotEmpty) {
+      if (isPendingFromMe) {
+        return BookingChatActionResolution(
+          statusText: 'Waiting for response',
+          primaryAction: BookingChatActionVm(
+            id: BookingChatActionId.cancelCounterOffer,
+            label: 'Cancel counter',
+            isPrimary: true,
+            requiresConfirmDialog: true,
+            payloadId: pendingId,
+          ),
+        );
+      }
+
+      return BookingChatActionResolution(
+        statusText: 'New counter offer',
+        primaryAction: BookingChatActionVm(
+          id: BookingChatActionId.acceptCounterOffer,
+          label: 'Accept',
+          isPrimary: true,
+          requiresConfirmDialog: true,
+          payloadId: pendingId,
+        ),
+        secondaryActions: [
+          BookingChatActionVm(
+            id: BookingChatActionId.rejectCounterOffer,
+            label: 'Reject',
+            requiresConfirmDialog: true,
+            payloadId: pendingId,
+          ),
+        ],
+        overflowActions: const [
+          BookingChatActionVm(
+            id: BookingChatActionId.createCounterOffer,
+            label: 'Counter',
+            requiresSheet: true,
+          ),
+        ],
+      );
+    }
+
     if (role == BookingChatRole.owner) {
       return const BookingChatActionResolution(
         statusText: 'New booking request',
@@ -63,7 +181,6 @@ class BookingChatActionResolver {
             id: BookingChatActionId.createCounterOffer,
             label: 'Counter',
             isEnabled: true,
-            disabledReason: 'Negotiation not implemented',
             requiresSheet: true,
           ),
         ],
@@ -82,8 +199,7 @@ class BookingChatActionResolver {
         BookingChatActionVm(
           id: BookingChatActionId.createCounterOffer,
           label: 'Counter offer',
-          isEnabled: false,
-          disabledReason: 'Negotiation not implemented',
+          isEnabled: true,
           requiresSheet: true,
         ),
       ],
@@ -141,18 +257,15 @@ class BookingChatActionResolver {
   }
 
   bool _isFinalBookingStatus(String status) {
-    return status == BookingStatus.completed.name ||
-        status == BookingStatus.cancelled.name ||
+    return status == BookingStatus.cancelled.name ||
         status == BookingStatus.rejected.name ||
         status == BookingStatus.failed.name;
   }
 
   String _finalStatusText(String status) {
-    if (status == BookingStatus.completed.name) return 'Booking completed';
     if (status == BookingStatus.cancelled.name) return 'Booking cancelled';
     if (status == BookingStatus.rejected.name) return 'Booking rejected';
     if (status == BookingStatus.failed.name) return 'Booking failed';
     return 'Booking closed';
   }
 }
-

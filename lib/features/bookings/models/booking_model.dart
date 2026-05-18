@@ -70,6 +70,8 @@ class BookingModel {
   final BookingEquiment? equipment;
   final LocationModel location;
 
+  final String? myReviewId;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -87,6 +89,8 @@ class BookingModel {
     this.renter,
     this.equipment,
     required this.location,
+
+    this.myReviewId,
     this.createdAt,
     this.updatedAt,
   });
@@ -102,10 +106,22 @@ class BookingModel {
         }
       }
 
+      WorkStatus parseWorkStatus(dynamic value) {
+        if (value == null) return WorkStatus.pending;
+        final normalized = value.toString().trim().toLowerCase();
+        for (final status in WorkStatus.values) {
+          if (status.name.toLowerCase() == normalized) {
+            return status;
+          }
+        }
+        return WorkStatus.pending;
+      }
+
       return BookingModel(
         id: json['id']?.toString() ?? '',
 
         status: json['status']?.toString() ?? '',
+        workStatus: parseWorkStatus(json['workStatus']),
 
         bookedOn: tryParseDate(json['bookedOn']),
         bookedAt: tryParseDate(json['bookedAt']),
@@ -117,6 +133,8 @@ class BookingModel {
         instructions: json['instructions']?.toString(),
 
         chatId: json['chatId']?.toString(),
+
+        myReviewId: json['myReviewId']?.toString(),
 
         renter: json['renter'] != null ? User.fromJson(json['renter']) : null,
 

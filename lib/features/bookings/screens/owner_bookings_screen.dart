@@ -66,36 +66,34 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              children: [
-                if (bookingState.isLoading)
-                  RequestTileSkeleton()
-                else if (bookingState.error != null)
-                  EmptyStateTile(
-                    title: "Error Loading Orders",
-                    subtitle: bookingState.error.toString(),
-                  )
-                else if (newBookings.isEmpty)
-                  EmptyStateTile(title: "You don't have any active orders")
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: newBookings.length,
-                    itemBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: OwnerBookingTile(booking: newBookings[index]),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(bookingProvider.notifier).getUserBookings();
+        },
+        child: ListView(
+          padding: EdgeInsets.all(24),
+          children: [
+            if (bookingState.isLoading)
+              RequestTileSkeleton()
+            else if (bookingState.error != null)
+              EmptyStateTile(
+                title: "Error Loading Orders",
+                subtitle: bookingState.error.toString(),
+              )
+            else if (newBookings.isEmpty)
+              EmptyStateTile(title: "You don't have any active orders")
+            else
+              ListView.separated(
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 24),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: newBookings.length,
+                itemBuilder: (context, index) =>
+                    OwnerBookingTile(booking: newBookings[index]),
+              ),
+          ],
+        ),
       ),
     );
   }

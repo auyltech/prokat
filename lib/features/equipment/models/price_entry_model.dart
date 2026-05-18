@@ -21,7 +21,6 @@ class PriceEntry {
       );
     } catch (e) {
       print("***** PRICE ENTRY PARSE FAILED");
-      print(e);
       rethrow;
     }
   }

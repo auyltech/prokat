@@ -3,24 +3,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_resolver.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
+import 'package:prokat/features/reviews/state/review_provider.dart';
+import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
 class OwnerChatActionBar extends ConsumerWidget {
   final String chatId;
   final BookingModel booking;
+  final String? chatOwnerId;
+  final String? chatClientId;
 
   const OwnerChatActionBar({
     super.key,
     required this.chatId,
     required this.booking,
+    this.chatOwnerId,
+    this.chatClientId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final controller = ref.read(bookingChatActionControllerProvider);
+    final currentUserId = ref.watch(authProvider).session?.user?.id;
+    final negotiation = ref.watch(
+      priceNegotiationByBookingProvider(booking.id),
+    );
+    final reviewState = ref.watch(reviewByBookingProvider(booking.id));
 
     const resolver = BookingChatActionResolver();
 
@@ -28,6 +42,11 @@ class OwnerChatActionBar extends ConsumerWidget {
       booking: booking,
       role: BookingChatRole.owner,
       now: DateTime.now(),
+      negotiation: negotiation,
+      reviewState: reviewState,
+      currentUserId: currentUserId,
+      chatOwnerId: chatOwnerId,
+      chatClientId: chatClientId,
     );
 
     if (resolution.primaryAction == null &&
@@ -185,6 +204,55 @@ class OwnerChatActionBar extends ConsumerWidget {
         );
         return;
 
+      case BookingChatActionId.createCounterOffer:
+        final created = await showModalBottomSheet<bool>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: theme.colorScheme.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (_) => CounterOfferSheet(
+            bookingId: booking.id,
+            initialPrice: booking.price,
+            initialPriceRate: booking.priceRate,
+            counterType: "OWNER_COUNTER",
+          ),
+        );
+        if (created == true) {
+          await controller.refreshAfterNegotiation(
+            chatId: chatId,
+            bookingId: booking.id,
+          );
+        }
+        return;
+
+      case BookingChatActionId.leaveReview:
+        final revieweeId = (action.payloadId ?? '').trim();
+        if (revieweeId.isEmpty) return;
+
+        final submitted = await showModalBottomSheet<bool>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: theme.colorScheme.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (_) => ReviewSheet(
+            bookingId: booking.id,
+            revieweeId: revieweeId,
+            title: 'Review client',
+          ),
+        );
+
+        if (submitted == true) {
+          await controller.refreshAfterReview(
+            chatId: chatId,
+            bookingId: booking.id,
+          );
+        }
+        return;
+
       case BookingChatActionId.markWorkCompleted:
         final confirmed = await showDialog<bool>(
           context: context,
@@ -212,6 +280,20 @@ class OwnerChatActionBar extends ConsumerWidget {
           chatId: chatId,
           bookingId: booking.id,
           actionId: action.id,
+          payloadId: action.payloadId,
+        );
+
+        return;
+
+      case BookingChatActionId.acceptCounterOffer:
+      case BookingChatActionId.rejectCounterOffer:
+      case BookingChatActionId.cancelCounterOffer:
+        await controller.runAction(
+          context: context,
+          chatId: chatId,
+          bookingId: booking.id,
+          actionId: action.id,
+          payloadId: action.payloadId,
         );
         return;
       default:

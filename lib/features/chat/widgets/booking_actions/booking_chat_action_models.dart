@@ -10,6 +10,7 @@ enum BookingChatActionId {
   createCounterOffer,
   acceptCounterOffer,
   rejectCounterOffer,
+  cancelCounterOffer,
 
   updateWorkStatus,
   markWorkCompleted,
@@ -27,6 +28,7 @@ class BookingChatActionVm {
   final String? disabledReason;
   final bool requiresSheet;
   final bool requiresConfirmDialog;
+  final String? payloadId;
 
   const BookingChatActionVm({
     required this.id,
@@ -36,6 +38,7 @@ class BookingChatActionVm {
     this.disabledReason,
     this.requiresSheet = false,
     this.requiresConfirmDialog = false,
+    this.payloadId,
   });
 }
 
@@ -53,17 +56,6 @@ class BookingChatActionResolution {
   });
 }
 
-/// Placeholder until backend negotiation model is wired into booking/chat payloads.
-class NegotiationState {
-  const NegotiationState();
-}
-
-/// Placeholder until rating/review endpoints and state are implemented on mobile.
-class ReviewState {
-  const ReviewState();
-}
-
 String normalizeBookingStatus(BookingModel booking) {
   return booking.status.trim().toLowerCase();
 }
-

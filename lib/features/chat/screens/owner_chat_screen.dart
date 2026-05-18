@@ -5,12 +5,15 @@ import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
+import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
+import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
+import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/providers/offers_provider.dart';
 
 class OwnerChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -29,6 +32,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.initState();
     Future.microtask(() {
       ref.read(chatProvider.notifier).openChatById(widget.chatId);
+      ref.read(offersProvider.notifier).getOwnerOffers();
     });
   }
 
@@ -38,6 +42,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() {
         ref.read(chatProvider.notifier).openChatById(widget.chatId);
+        ref.read(offersProvider.notifier).getOwnerOffers();
       });
     }
   }
@@ -83,6 +88,18 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
     final booking = currentChat?.booking;
     final request = currentChat?.request;
+    final chatOwnerId = currentChat?.owner?.id;
+    final chatClientId = currentChat?.client?.id;
+    final offersState = ref.watch(offersProvider);
+    OfferModel? requestOffer;
+    if (request != null) {
+      for (final offer in offersState.ownerOffers) {
+        if (offer.requestId == request.id) {
+          requestOffer = offer;
+          break;
+        }
+      }
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -172,9 +189,13 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                       final totalItems = messages.length + 1;
 
                       if (index == totalItems - 1) {
-                        return BookingMessageBubble(
-                          booking: booking as BookingModel,
-                        );
+                        if (booking != null) {
+                          return BookingMessageBubble(booking: booking);
+                        }
+                        if (request != null) {
+                          return RequestHeaderBubble(request: request);
+                        }
+                        return const SizedBox.shrink();
                       }
                     }
 
@@ -190,21 +211,47 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             ),
 
           if (booking != null)
-            OwnerChatActionBar(chatId: widget.chatId, booking: booking),
+            OwnerChatActionBar(
+              chatId: widget.chatId,
+              booking: booking,
+              chatOwnerId: chatOwnerId,
+              chatClientId: chatClientId,
+            ),
+          if (booking == null && request != null && requestOffer != null)
+            OfferChatActionBar(
+              chatId: widget.chatId,
+              offer: requestOffer,
+              type: "OWNER_COUNTER",
+            ),
 
-          Container(
-            decoration: BoxDecoration(color: theme.cardColor),
-            child: SafeArea(
-              top: false,
-              left: false,
-              right: false,
-              bottom: true,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
-                child: _buildInputSection(theme, chatState.isSendingMessage),
+          if ((booking?.status ?? '').trim().toLowerCase() == 'reviewed')
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              decoration: BoxDecoration(color: theme.cardColor),
+              child: SafeArea(
+                top: false,
+                child: Text(
+                  'Chat locked',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+            )
+          else
+            Container(
+              decoration: BoxDecoration(color: theme.cardColor),
+              child: SafeArea(
+                top: false,
+                left: false,
+                right: false,
+                bottom: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
+                  child: _buildInputSection(theme, chatState.isSendingMessage),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

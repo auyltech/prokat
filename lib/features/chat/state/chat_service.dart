@@ -47,7 +47,6 @@ class ChatService {
       final res = await _dio.get('/chats/$chatId/messages');
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
 
-      print(data);
       if (data is! List) {
         return const [];
       }

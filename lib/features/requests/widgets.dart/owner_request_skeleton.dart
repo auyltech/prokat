@@ -29,7 +29,6 @@ class RequestTileSkeleton extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(24),

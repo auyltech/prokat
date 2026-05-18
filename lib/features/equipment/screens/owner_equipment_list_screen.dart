@@ -73,58 +73,56 @@ class _OwnerEquipmentListScreenState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatusItem(
-                        context,
-                        label: "ONLINE",
-                        count: state.ownerEquipment
-                            .where(
-                              (e) =>
-                                  e.status.toLowerCase() == 'available' &&
-                                  e.isVisible == true,
-                            )
-                            .length,
-                        color: Colors.greenAccent[700]!,
-                      ),
-                    ),
+                // Row(
+                //   children: [
+                //     Expanded(
+                //       child: _buildStatusItem(
+                //         context,
+                //         label: "ONLINE",
+                //         count: state.ownerEquipment
+                //             .where(
+                //               (e) =>
+                //                   e.status.toLowerCase() == 'available' &&
+                //                   e.isVisible == true,
+                //             )
+                //             .length,
+                //         color: Colors.greenAccent[700]!,
+                //       ),
+                //     ),
 
-                    SizedBox(width: 12),
+                //     SizedBox(width: 12),
 
-                    Expanded(
-                      child: _buildStatusItem(
-                        context,
-                        label: "OFFLINE",
-                        count: state.ownerEquipment
-                            .where(
-                              (e) =>
-                                  e.status.toLowerCase() == 'booked' ||
-                                  e.isVisible == false,
-                            )
-                            .length,
-                        color: Colors.redAccent[400]!,
-                      ),
-                    ),
+                //     Expanded(
+                //       child: _buildStatusItem(
+                //         context,
+                //         label: "OFFLINE",
+                //         count: state.ownerEquipment
+                //             .where(
+                //               (e) =>
+                //                   e.status.toLowerCase() == 'booked' ||
+                //                   e.isVisible == false,
+                //             )
+                //             .length,
+                //         color: Colors.redAccent[400]!,
+                //       ),
+                //     ),
 
-                    SizedBox(width: 12),
+                //     SizedBox(width: 12),
 
-                    Expanded(
-                      child: _buildStatusItem(
-                        context,
-                        label: "REPAIR",
-                        count: state.ownerEquipment
-                            .where(
-                              (e) => e.status.toLowerCase() == 'maintenance',
-                            )
-                            .length,
-                        color: Colors.orangeAccent[700]!,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 20),
+                //     Expanded(
+                //       child: _buildStatusItem(
+                //         context,
+                //         label: "REPAIR",
+                //         count: state.ownerEquipment
+                //             .where(
+                //               (e) => e.status.toLowerCase() == 'maintenance',
+                //             )
+                //             .length,
+                //         color: Colors.orangeAccent[700]!,
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 
                 if (state.isLoading)
                   _builSkeleton(context)

@@ -42,7 +42,6 @@ class BookingApiService {
         error: e.response?.data?["error"].toString(),
       );
     } catch (e) {
-      print(e);
       return ApiResponse.failure(
         message: "GetUserBookings_Unexpected_Error",
         error: e.toString(),

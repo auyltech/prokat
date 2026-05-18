@@ -7,9 +7,7 @@ import 'package:prokat/features/requests/state/request_state.dart';
 class RequestNotifier extends StateNotifier<RequestState> {
   final RequestService service;
 
-  RequestNotifier(this.service) : super(RequestState()) {
-    getUserRequests();
-  }
+  RequestNotifier(this.service) : super(RequestState());
 
   void selectLocation(LocationModel location) {
     state = state.copyWith(
@@ -50,7 +48,6 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       state = state.copyWith(isLoading: false, requests: data);
     } catch (e) {
-      print(e);
       state = state.copyWith(
         isLoading: false,
         requests: [],
@@ -67,7 +64,6 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       state = state.copyWith(isLoading: false, ownerRequests: data);
     } catch (e) {
-      print(e);
       state = state.copyWith(
         isLoading: false,
         requests: [],

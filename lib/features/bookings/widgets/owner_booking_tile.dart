@@ -7,8 +7,8 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
-import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
-import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
+import 'package:prokat/features/bookings/widgets/owner_booking_action_button.dart';
+import 'package:prokat/features/bookings/widgets/owner_cancel_booking_button.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:go_router/go_router.dart';
 
@@ -257,33 +257,7 @@ class OwnerBookingTile extends ConsumerWidget {
                 Row(
                   children: [
                     // Cancel Button
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          _handleCancel(context, ref, booking);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: theme.colorScheme.error,
-                            width: 2,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          booking.status.toUpperCase() == "CREATED"
-                              ? 'Decline'
-                              : 'Cancel',
-                          style: TextStyle(
-                            color: theme.colorScheme.error,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
+                    Expanded(child: OwnerCancelBookingButton(booking: booking)),
 
                     const SizedBox(width: 12),
 
@@ -379,37 +353,9 @@ class OwnerBookingTile extends ConsumerWidget {
                         ),
                       )
                     else
-                    // Update Work Status
+                      // Update Work Status
                       Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: theme.colorScheme.surface,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                              ),
-                            ),
-                            builder: (_) =>
-                                BookingStatusSheet(booking: booking),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.primaryColor,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            'Start Work',
-                            style: TextStyle(
-                              color: theme.colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
+                        child: OwnerBookingActionButton(booking: booking),
                       ),
                   ],
                 ),
@@ -477,94 +423,4 @@ class InfoTile extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<void> _handleCancel(
-  BuildContext context,
-  WidgetRef ref,
-  BookingModel booking,
-) async {
-  final theme = Theme.of(context);
-  final notifier = ref.read(bookingProvider.notifier);
-
-  final modalTitle = booking.status.toUpperCase() == "CREATED"
-      ? "Reject Order"
-      : "Cancel Order";
-
-  final modalText = booking.status.toUpperCase() == "CREATED"
-      ? "Are you sure you want to reject this order?"
-      : "Are you sure you want to cancel this order?";
-
-  final submitButton = booking.status.toUpperCase() == "CREATED"
-      ? "Yes, Reject"
-      : "Yes, Cancel";
-
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(modalTitle, style: theme.textTheme.titleMedium),
-        content: Text(modalText, style: theme.textTheme.bodyMedium),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("No"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(submitButton),
-          ),
-        ],
-      );
-    },
-  );
-
-  if (confirmed != true) return;
-
-  // ⏱️ Time restriction check
-  final createdAt = booking.createdAt ?? DateTime(2026);
-  final now = DateTime.now();
-
-  const cancelWindowMinutes = 10;
-
-  final difference = now.difference(createdAt).inMinutes;
-
-  if (difference < cancelWindowMinutes) {
-    final res = await notifier.updateBookingStatus(
-      id: booking.id,
-      status: "CANCELLED",
-      workStatus: "cancelled in $difference minutes",
-    );
-
-    if (res == true) {
-      Navigator.pop(context); // close sheet
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
-    }
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text(
-    //       "You can only cancel within $cancelWindowMinutes minutes of booking.",
-    //     ),
-    //   ),
-    // );
-    return;
-  }
-
-  // Open reason sheet
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: theme.colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return CancelBookingSheet(booking: booking);
-    },
-  );
 }

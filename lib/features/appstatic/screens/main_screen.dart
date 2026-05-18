@@ -292,7 +292,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
                     if (equipmentState.isLoading)
                       EmptyStateTile(title: "Loading...")
-                    else if (equipmentState.error != null)
+                    else if (equipmentState.error != null &&
+                        equipmentState.error.toString().isNotEmpty)
                       EmptyStateTile(title: "Error loading equipment")
                     else
                       // Popular Rents

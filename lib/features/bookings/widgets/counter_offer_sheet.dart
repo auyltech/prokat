@@ -49,7 +49,9 @@ class _CounterOfferSheetState extends State<CounterOfferSheet> {
                 .toList(),
             onChanged: (val) => setState(() => _selectedRate = val!),
           ),
+          
           const SizedBox(height: 24),
+
           SizedBox(
             width: double.infinity,
             height: 50,
