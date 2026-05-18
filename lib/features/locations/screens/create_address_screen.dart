@@ -71,22 +71,21 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
         .read(locationProvider.notifier)
         .createLocation(location);
 
+    if (!mounted) return;
+
     if (res) {
       final url = widget.service == "equipment"
           ? "/owner/equipment/${widget.equipmentId}"
           : "/equipment/${widget.equipmentId}";
 
-      if (res && mounted) {
-        context.push(url);
-
-        AppSnackBar.show(context, message: "Address created", isSuccess: true);
-      } else {
-        AppSnackBar.show(
-          context,
-          message: "Could not create address",
-          isError: true,
-        );
-      }
+      context.push(url);
+      AppSnackBar.show(context, message: "Address created", isSuccess: true);
+    } else {
+      AppSnackBar.show(
+        context,
+        message: "Could not create address",
+        isError: true,
+      );
     }
   }
 

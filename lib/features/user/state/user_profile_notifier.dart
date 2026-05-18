@@ -67,12 +67,9 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       );
 
       state = state.copyWith(isLoading: false);
-      print(result.data.toString());
       if (result.success) {
         await getUserProfile();
       }
-
-      print(result.success);
 
       return result.success;
     } catch (e) {
@@ -141,7 +138,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     }
   }
 
-  Future<bool> selectselectCityRegion(String city, String region) async {
+  Future<bool> selectCityRegion(String city, String region) async {
     try {
       state = state.copyWith(isLoading: true);
 
@@ -165,8 +162,6 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      print("upload image");
-
       final response = await service.uploadProfileImage(imageFile);
 
       await service.getUserProfile();
@@ -175,7 +170,6 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
       return response;
     } catch (e) {
-      print('Error during upload: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
 
       return false;

@@ -36,6 +36,7 @@ Future<void> submitPriceEntry(
         "serviceTime": serviceTime,
       });
 
+      if (!context.mounted) return;
       if (res) {
         AppSnackBar.show(context, message: "Price entry added");
       } else {
@@ -54,6 +55,7 @@ Future<void> submitPriceEntry(
         "serviceTime": serviceTime,
       });
 
+      if (!context.mounted) return;
       if (res) {
         AppSnackBar.show(context, message: "Price entry saved");
       } else {
@@ -65,16 +67,15 @@ Future<void> submitPriceEntry(
       }
     }
 
-    if (context.mounted) {
-      // Close drawer
-      Navigator.pop(context);
-    }
+    Navigator.pop(context);
   } catch (e) {
-    AppSnackBar.show(
-      context,
-      message: "Failed to save price entry",
-      isError: true,
-    );
+    if (context.mounted) {
+      AppSnackBar.show(
+        context,
+        message: "Failed to save price entry",
+        isError: true,
+      );
+    }
   }
 }
 

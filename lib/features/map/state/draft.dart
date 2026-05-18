@@ -104,7 +104,7 @@
 //   await _annotationManager!.createMulti(options);
 // }
 
-/// Renders saved equipment as Red Circles (to avoid icon loading issues)
+// Renders saved equipment as Red Circles (to avoid icon loading issues)
 // Future<void> renderEquipment(List<Equipment> equipment) async {
 //   if (_map == null) return;
 

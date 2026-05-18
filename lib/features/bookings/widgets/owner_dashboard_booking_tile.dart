@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 
@@ -76,20 +77,13 @@ class OwnerDashboardBookingTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  booking.equipment?.imageUrl ?? "",
+                child: OptimizedNetworkImage(
+                  imageUrl: booking.equipment?.imageUrl ?? "",
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    width: 50,
-                    height: 50,
-                    color: colorScheme.surface,
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 20,
-                    ),
-                  ),
+                  fallbackIcon: Icons.image_not_supported_outlined,
+                  backgroundColor: colorScheme.surface,
                 ),
               ),
               const SizedBox(width: 12),

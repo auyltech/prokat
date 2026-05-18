@@ -67,11 +67,8 @@ class OfferModel {
 
         priceRate: json['priceRate']?.toString() ?? '',
       );
-    } catch (e, stack) {
-      print("Offer Parse Failed");
-      print(json);
-      print(stack);
-      rethrow; // importan
+    } catch (e) {
+      rethrow;
     }
   }
 

@@ -1,6 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 
@@ -17,19 +17,6 @@ class UserEquipmentTile extends ConsumerWidget {
     required this.onTap,
     this.isRenter = false,
   });
-
-  Widget _fallback() {
-    return Container(
-      color: Colors.white.withValues(alpha: 0.05),
-      child: const Center(
-        child: Icon(
-          Icons.precision_manufacturing_rounded,
-          size: 28,
-          color: Colors.white24,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,11 +71,11 @@ class UserEquipmentTile extends ConsumerWidget {
               child: SizedBox(
                 width: 100,
                 height: 110,
-                child: CachedNetworkImage(
+                child: OptimizedNetworkImage(
                   imageUrl: displayUrl,
                   fit: BoxFit.cover,
-                  placeholder: (_, _) => _fallback(),
-                  errorWidget: (_, _, _) => _fallback(),
+                  fallbackIcon: Icons.precision_manufacturing_rounded,
+                  backgroundColor: Colors.white.withValues(alpha: 0.05),
                 ),
               ),
             ),

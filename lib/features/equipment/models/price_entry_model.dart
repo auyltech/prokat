@@ -20,8 +20,6 @@ class PriceEntry {
         serviceTime: (json['serviceTime'] as num?)?.toInt() ?? 0,
       );
     } catch (e) {
-      print("***** PRICE ENTRY PARSE FAILED");
-      print(e);
       rethrow;
     }
   }

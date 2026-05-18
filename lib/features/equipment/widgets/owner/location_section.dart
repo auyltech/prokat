@@ -58,7 +58,7 @@ class _LocationSectionState extends State<LocationSection> {
       }
     } catch (_) {
       setState(() => _isSaving = false);
-      AppSnackBar.show(context, message: "Update Failed", isError: true);
+      if (mounted) AppSnackBar.show(context, message: "Update Failed", isError: true);
     }
   }
 

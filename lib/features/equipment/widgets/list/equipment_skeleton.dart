@@ -16,8 +16,6 @@ class EquipmentSkeleton extends StatelessWidget {
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: Container(
-          // padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: Container(
             height: 100, // Match ClientEquipmentCard height
             decoration: BoxDecoration(
               color: Colors.white,
@@ -49,7 +47,6 @@ class EquipmentSkeleton extends StatelessWidget {
               ],
             ),
           ),
-        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -154,16 +155,11 @@ class OwnerRequestTile extends ConsumerWidget {
                         child: SizedBox(
                           width: 110,
                           height: 64,
-                          child: Image.network(
-                            request.category?.imageUrl ?? "",
+                          child: OptimizedNetworkImage(
+                            imageUrl: request.category?.imageUrl ?? "",
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.category_outlined,
-                                color: Colors.grey,
-                              ),
-                            ),
+                            fallbackIcon: Icons.category_outlined,
+                            backgroundColor: Colors.grey[200],
                           ),
                         ),
                       ),

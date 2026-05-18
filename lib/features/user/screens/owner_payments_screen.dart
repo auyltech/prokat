@@ -14,7 +14,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final humanReadable = _formatMinutes(balanceMinutes);
-    final burnRate = _calculateDailyCost(equipmentCount);
 
     final List<int> weeklyConsumption = [120, 150, 80, 200, 180, 450, 310];
     final List<Map<String, dynamic>> paymentHistoryExamples = [
@@ -268,42 +267,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     );
   }
 
-  /// 🔥 BALANCE CARD
-  Widget _balanceCard(ThemeData theme, String humanReadable, int burnRate) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Your Balance", style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-
-            Text("$balanceMinutes min", style: theme.textTheme.headlineSmall),
-
-            Text(
-              humanReadable,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text("$balanceKzt ₸", style: theme.textTheme.bodyLarge),
-
-            const Divider(height: 24),
-
-            Text(
-              "Estimated time remaining: ${_estimateRemainingDays(burnRate)}",
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// ⚡ USAGE CARD
   Widget _usageCard(BuildContext context, int equipmentCount, int dailyCost) {
     final theme = Theme.of(context);
@@ -379,73 +342,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     );
   }
 
-  /// 💰 TOP UP
-  Widget _topUpCard(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text("Top Up Balance"),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                _amountButton("500 ₸"),
-                _amountButton("1000 ₸"),
-                _amountButton("2000 ₸"),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _payWithKaspi();
-                },
-                child: const Text("Pay with Kaspi"),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _amountButton(String label) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: OutlinedButton(onPressed: () {}, child: Text(label)),
-      ),
-    );
-  }
-
-  /// 📜 HISTORY
-  Widget _historySection(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Recent Payments", style: theme.textTheme.titleMedium),
-        const SizedBox(height: 8),
-
-        _historyTile("1000 ₸", "Apr 10"),
-        _historyTile("500 ₸", "Apr 05"),
-        _historyTile("2000 ₸", "Mar 28"),
-      ],
-    );
-  }
-
-  Widget _historyTile(String amount, String date) {
-    return ListTile(
-      title: Text(amount),
-      subtitle: Text(date),
-      trailing: const Icon(Icons.check_circle, color: Colors.green),
-    );
-  }
-
   /// ------------------------
   /// 🧠 LOGIC HELPERS
   /// ------------------------
@@ -458,93 +354,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     return "$hours hours";
   }
 
-  int _calculateDailyCost(int equipmentCount) {
-    switch (equipmentCount) {
-      case 1:
-        return 60;
-      case 2:
-        return 110;
-      case 3:
-        return 150;
-      default:
-        return 150 + (equipmentCount - 3) * 40;
-    }
-  }
-
-  String _estimateRemainingDays(int dailyCost) {
-    if (dailyCost == 0) return "Unlimited";
-
-    final days = balanceKzt ~/ dailyCost;
-    return "$days days";
-  }
-
-  void _payWithKaspi() {
-    /// TODO: integrate Kaspi payment
-  }
-}
-
-Widget _activeEquipmentTile(
-  BuildContext context,
-  String name,
-  String plate,
-  String tierLabel,
-  String rate,
-) {
-  final theme = Theme.of(context);
-  final colorScheme = theme.colorScheme;
-
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: theme.cardColor,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-      ),
-    ),
-    child: Row(
-      children: [
-        // Equipment Icon with "Active" pulse feel
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.bolt, color: Colors.green, size: 24),
-        ),
-        const SizedBox(width: 16),
-        // Info
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(plate, style: theme.textTheme.bodySmall),
-            ],
-          ),
-        ),
-        // Tier Status
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              tierLabel,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              rate,
-              style: TextStyle(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
 }
 
 Widget _tierRow(

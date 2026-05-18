@@ -47,9 +47,11 @@ Future<void> updateEquipmentDetails(
       );
     }
   } catch (e) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Failed to update equipment")));
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Failed to update equipment")));
+    }
   }
 }
 

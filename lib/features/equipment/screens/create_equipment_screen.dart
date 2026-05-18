@@ -56,7 +56,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
         context.pop();
 
         AppSnackBar.show(context, message: "Equipment Added", isSuccess: true);
-      } else {
+      } else if (mounted) {
         AppSnackBar.show(
           context,
           message: "Could not add equipment",
@@ -64,7 +64,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
         );
       }
     } catch (e) {
-      AppSnackBar.show(context, message: "Something went wrong", isError: true);
+      if (mounted) AppSnackBar.show(context, message: "Something went wrong", isError: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

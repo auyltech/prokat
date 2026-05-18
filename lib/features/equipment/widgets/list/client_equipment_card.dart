@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
@@ -53,11 +54,12 @@ class ClientEquipmentCard extends ConsumerWidget {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
-                child: Image.network(
-                  equipment.imageUrl ?? "",
+                child: OptimizedNetworkImage(
+                  imageUrl: equipment.imageUrl ?? "",
                   height: 200, // Slightly taller for better presence
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  fallbackIcon: Icons.precision_manufacturing_outlined,
                 ),
               ),
 

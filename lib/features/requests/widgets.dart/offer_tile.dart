@@ -18,6 +18,7 @@ class OfferTile extends ConsumerWidget {
 
     final success = await notifier.acceptOffer(offer.id);
 
+    if (!context.mounted) return;
     if (success) {
       AppSnackBar.show(context, message: "Offer Updated", isSuccess: true);
     } else {

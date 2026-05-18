@@ -137,9 +137,6 @@ class BookingModel {
             : null,
       );
     } catch (e) {
-      print("***** BOOKING PARSE FAILED");
-      print(e);
-      print(json);
       rethrow;
     }
   }

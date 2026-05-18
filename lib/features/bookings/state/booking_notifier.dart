@@ -133,7 +133,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await api.updateBookingStatus(
+      await api.updateBookingStatus(
         id: id,
         status: status,
         workStatus: workStatus,
@@ -159,7 +159,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await api.updateBookingWorkStatus(
+      await api.updateBookingWorkStatus(
         id: id,
         status: status,
         workStatus: workStatus,

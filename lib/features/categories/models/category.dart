@@ -20,9 +20,6 @@
         imageUrl: json["imageUrl"] ?? "",
       );
     } catch (e) {
-      print("***** CATEGORY PARSE FAILED");
-      print(e);
-      print(json);
       rethrow;
     }
   }

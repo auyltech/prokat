@@ -41,12 +41,13 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
           lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
         );
 
-    if (mounted) context.pop();
-
-    if (success) {
-      AppSnackBar.show(context, message: "Name Updated");
-    } else {
-      AppSnackBar.show(context, message: "Failed to save name", isError: true);
+    if (mounted) {
+      context.pop();
+      if (success) {
+        AppSnackBar.show(context, message: "Name Updated");
+      } else {
+        AppSnackBar.show(context, message: "Failed to save name", isError: true);
+      }
     }
   }
 
