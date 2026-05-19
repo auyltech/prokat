@@ -8,7 +8,6 @@ import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
-import 'package:prokat/features/reviews/state/review_provider.dart';
 
 final bookingChatActionControllerProvider =
     Provider<BookingChatActionController>((ref) {
@@ -24,7 +23,9 @@ class BookingChatActionController {
     required String chatId,
     required String bookingId,
   }) async {
-    await ref.read(priceNegotiationByBookingProvider(bookingId).notifier).refresh();
+    await ref
+        .read(priceNegotiationByBookingProvider(bookingId).notifier)
+        .refresh();
     await ref.read(chatProvider.notifier).reloadChat(chatId);
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
@@ -115,7 +116,7 @@ class BookingChatActionController {
           bookingId: bookingId,
           negotiationId: payloadId,
         ),
-          
+
         _ => Future<bool>.value(false),
       };
 
@@ -129,7 +130,9 @@ class BookingChatActionController {
       await Future.wait([
         bookingNotifier.getOwnerBookings(),
         bookingNotifier.getUserBookings(),
-        ref.read(priceNegotiationByBookingProvider(bookingId).notifier).refresh(),
+        ref
+            .read(priceNegotiationByBookingProvider(bookingId).notifier)
+            .refresh(),
       ]);
 
       if (!context.mounted) return;
@@ -163,7 +166,9 @@ class BookingChatActionController {
   }) async {
     final id = (negotiationId ?? '').trim();
     if (id.isEmpty) return false;
-    await ref.read(priceNegotiationByBookingProvider(bookingId).notifier).cancel(id);
+    await ref
+        .read(priceNegotiationByBookingProvider(bookingId).notifier)
+        .cancel(id);
     return true;
   }
 }

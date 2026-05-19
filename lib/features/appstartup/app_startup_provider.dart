@@ -1,38 +1,81 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/categories/providers/category_provider.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
-import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 
-enum AppStartupState { loading, guest, otp, client, owner, error }
+enum AppStartupRouteState { loading, guest, otp, client, owner, error }
+
+enum AppStartupStep {
+  loadSavedMode,
+  restoreSession,
+  restoreOtpSession,
+  refreshSession,
+  fetchProfileMinimal,
+  decideRoute,
+  done,
+}
+
+class AppStartupStatus {
+  final AppStartupRouteState routeState;
+  final AppStartupStep step;
+  final double progress; // 0..1
+  final String stepLabel;
+  final Map<AppStartupStep, int> timingsMs;
+  final String? errorMessage;
+
+  const AppStartupStatus({
+    required this.routeState,
+    required this.step,
+    required this.progress,
+    required this.stepLabel,
+    this.timingsMs = const {},
+    this.errorMessage,
+  });
+
+  const AppStartupStatus.loading()
+    : routeState = AppStartupRouteState.loading,
+      step = AppStartupStep.loadSavedMode,
+      progress = 0,
+      stepLabel = 'Starting…',
+      timingsMs = const {},
+      errorMessage = null;
+
+  AppStartupStatus copyWith({
+    AppStartupRouteState? routeState,
+    AppStartupStep? step,
+    double? progress,
+    String? stepLabel,
+    Map<AppStartupStep, int>? timingsMs,
+    String? errorMessage,
+  }) {
+    return AppStartupStatus(
+      routeState: routeState ?? this.routeState,
+      step: step ?? this.step,
+      progress: progress ?? this.progress,
+      stepLabel: stepLabel ?? this.stepLabel,
+      timingsMs: timingsMs ?? this.timingsMs,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+}
 
 final appStartupProvider =
-    StateNotifierProvider<AppStartupController, AppStartupState>((ref) {
+    StateNotifierProvider<AppStartupController, AppStartupStatus>((ref) {
       return AppStartupController(ref, AppModeStorage());
     });
 
-class AppStartupController extends StateNotifier<AppStartupState> {
+class AppStartupController extends StateNotifier<AppStartupStatus> {
   final Ref ref;
   final AppModeStorage modeStorage;
   AppMode _currentMode = AppMode.clientMode;
-  // bool _initialized = false;
-  // bool _isInitializing = false;
+  bool _isInitializing = false;
 
   AppStartupController(this.ref, this.modeStorage)
-    : super(AppStartupState.loading) {
+    : super(const AppStartupStatus.loading()) {
     Future.microtask(() async {
-      // final authState = ref.read(authProvider);
-
-      // TODO: Remove Duplicate call
-      // if (authState.session != null) {
-      // await init();
-      // } else {
-      // state = AppStartupState.guest;
-      // }
+      // Startup init is triggered from MyApp (lib/app.dart). Keep constructor
+      // side effects minimal to avoid duplicate init calls / flicker.
     });
   }
 
@@ -41,7 +84,7 @@ class AppStartupController extends StateNotifier<AppStartupState> {
   bool get isOwnerMode => _currentMode == AppMode.ownerMode;
 
   Future<void> reloadApp() async {
-    state = await loadAppData();
+    await init();
   }
 
   Future<AppMode> loadSavedMode() async {
@@ -62,134 +105,157 @@ class AppStartupController extends StateNotifier<AppStartupState> {
     _currentMode = mode;
     await modeStorage.saveMode(mode);
 
-    if (ref.read(authProvider).session != null) {
-      state = await loadAppData();
-    }
-  }
-
-  Future<AppStartupState> loadAppData() async {
-    await loadSavedMode();
-
-    /// Fetch profile
-    await ref.read(userProfileProvider.notifier).getUserProfile();
+    if (ref.read(authProvider).session == null) return;
 
     final profile = ref.read(userProfileProvider).userProfile;
-
     if (profile == null) {
-      return AppStartupState.guest;
+      await init();
+      return;
     }
 
-    /// Load Selected Service
-    final selectedCategory = profile.selectedCategoryId;
-    final categories = ref.read(categoriesProvider).categories;
+    state = _statusForStep(
+      AppStartupStep.done,
+      routeState: _decideRouteFromRole(profile.role),
+    );
+  }
 
-    final foundCategory = categories
-        .where((cat) => cat.id == selectedCategory)
-        .firstOrNull;
+  AppStartupRouteState _decideRouteFromRole(String? role) {
+    final normalized = role?.toLowerCase();
+    final isOwnerRole = normalized == 'owner' || normalized == 'admin';
 
-    if (foundCategory != null) {
-      ref.read(categoriesProvider.notifier).selectCategory(foundCategory);
-    }
-
-    // Load Selected City / Region
-    final selectedCity = profile.city;
-    if (selectedCity != null) {
-      ref.read(locationProvider.notifier).selectCity(selectedCity);
-    }
-
-    /// Shared data
-    await Future.wait([
-      ref.read(locationProvider.notifier).getRenterLocations(),
-    ]);
-
-    /// Role-based
-    if (profile.role?.toLowerCase() == "owner" || profile.role?.toLowerCase() == "admin") {
-      if (isOwnerMode) {
-        await Future.wait([
-          ref.read(bookingProvider.notifier).getOwnerBookings(),
-          ref.read(equipmentProvider.notifier).getOwnerEquipment(),
-          ref.read(locationProvider.notifier).getOwnerLocations(),
-        ]);
-
-        return AppStartupState.owner;
-      }
-
-      await Future.wait([
-        ref.read(bookingProvider.notifier).getUserBookings(),
-        ref.read(requestProvider.notifier).getUserRequests(),
-      ]);
-
-      return AppStartupState.client;
-    } else {
+    if (!isOwnerRole) {
       _currentMode = AppMode.clientMode;
-      await modeStorage.saveMode(_currentMode);
-
-      await Future.wait([
-        ref.read(bookingProvider.notifier).getUserBookings(),
-        ref.read(requestProvider.notifier).getUserRequests(),
-      ]);
-
-      return AppStartupState.client;
+      // Persisted mode does not affect routing, but keep it consistent.
+      modeStorage.saveMode(_currentMode);
+      return AppStartupRouteState.client;
     }
+
+    return isOwnerMode
+        ? AppStartupRouteState.owner
+        : AppStartupRouteState.client;
+  }
+
+  AppStartupStatus _statusForStep(
+    AppStartupStep step, {
+    AppStartupRouteState? routeState,
+    Map<AppStartupStep, int>? timingsMs,
+    String? errorMessage,
+  }) {
+    const steps = AppStartupStep.values;
+    final index = steps.indexOf(step).clamp(0, steps.length - 1);
+    final progress = steps.length <= 1
+        ? 0.0
+        : (index / (steps.length - 1)).clamp(0.0, 1.0);
+
+    final label = switch (step) {
+      AppStartupStep.loadSavedMode => 'Loading app mode…',
+      AppStartupStep.restoreSession => 'Restoring session…',
+      AppStartupStep.restoreOtpSession => 'Restoring OTP session…',
+      AppStartupStep.refreshSession => 'Refreshing session…',
+      AppStartupStep.fetchProfileMinimal => 'Loading profile…',
+      AppStartupStep.decideRoute => 'Finalizing…',
+      AppStartupStep.done => 'Done',
+    };
+
+    return state.copyWith(
+      routeState: routeState ?? state.routeState,
+      step: step,
+      progress: progress,
+      stepLabel: label,
+      timingsMs: timingsMs ?? state.timingsMs,
+      errorMessage: errorMessage,
+    );
   }
 
   Future<void> init() async {
-    // if (_initialized || _isInitializing) return;
-
-    // _isInitializing = true;
+    if (_isInitializing) return;
+    _isInitializing = true;
 
     try {
-      final start = DateTime.now();
-      await loadSavedMode();
+      state = _statusForStep(
+        AppStartupStep.loadSavedMode,
+        routeState: AppStartupRouteState.loading,
+      );
 
-      final elapsed = DateTime.now().difference(start);
-      const minDuration = Duration(milliseconds: 800);
+      final timings = <AppStartupStep, int>{};
 
-      await ref.read(categoriesProvider.notifier).getCategories();
+      Future<T> measure<T>(AppStartupStep step, Future<T> Function() fn) async {
+        final start = DateTime.now();
+        final result = await fn();
+        if (!kReleaseMode) {
+          timings[step] = DateTime.now().difference(start).inMilliseconds;
+          state = state.copyWith(timingsMs: Map.unmodifiable(timings));
+        }
+        return result;
+      }
+
+      await measure(AppStartupStep.loadSavedMode, loadSavedMode);
 
       final auth = ref.read(authProvider.notifier);
 
-      /// Restore session
-      final session = await auth.restoreSession();
+      state = _statusForStep(AppStartupStep.restoreSession);
+      final session = await measure(
+        AppStartupStep.restoreSession,
+        auth.restoreSession,
+      );
 
-      // If no session
       if (session == null) {
-        final otpSession = await auth.restoreOtpSession();
+        state = _statusForStep(AppStartupStep.restoreOtpSession);
+        final otpSession = await measure(
+          AppStartupStep.restoreOtpSession,
+          auth.restoreOtpSession,
+        );
 
-        // check if there is OTP session
-        if (otpSession == true) {
-          state = AppStartupState.otp; // ✅ go to login/otp screen
-        } else {
-          state = AppStartupState.guest;
-        }
-
-        if (elapsed < minDuration) {
-          await Future.delayed(minDuration - elapsed);
-        }
+        state = _statusForStep(
+          AppStartupStep.done,
+          routeState: otpSession == true
+              ? AppStartupRouteState.otp
+              : AppStartupRouteState.guest,
+        );
 
         return;
       }
 
-      /// Refresh / validate
-      final isValid = await auth.refreshSession();
+      state = _statusForStep(AppStartupStep.refreshSession);
+      final isValid = await measure(
+        AppStartupStep.refreshSession,
+        auth.refreshSession,
+      );
 
       if (!isValid) {
-        state = AppStartupState.guest;
-
-        if (elapsed < minDuration) {
-          await Future.delayed(minDuration - elapsed);
-        }
-
+        state = _statusForStep(
+          AppStartupStep.done,
+          routeState: AppStartupRouteState.guest,
+        );
         return;
       }
 
-      state = await loadAppData();
+      state = _statusForStep(AppStartupStep.fetchProfileMinimal);
+      await measure(
+        AppStartupStep.fetchProfileMinimal,
+        () => ref.read(userProfileProvider.notifier).getUserProfile(),
+      );
 
-      // _initialized = true;
+      final profile = ref.read(userProfileProvider).userProfile;
+      if (profile == null) {
+        state = _statusForStep(
+          AppStartupStep.done,
+          routeState: AppStartupRouteState.guest,
+        );
+        return;
+      }
+
+      state = _statusForStep(AppStartupStep.decideRoute);
+      final route = _decideRouteFromRole(profile.role);
+      state = _statusForStep(AppStartupStep.done, routeState: route);
     } catch (e) {
-      state = AppStartupState.error;
+      state = _statusForStep(
+        AppStartupStep.done,
+        routeState: AppStartupRouteState.error,
+        errorMessage: e.toString(),
+      );
     } finally {
-      // _isInitializing = false;
+      _isInitializing = false;
     }
   }
 }

@@ -60,22 +60,24 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   Timer? _debounce;
 
+  Future<void> _fetchData() async {
+    await ref
+        .read(equipmentProvider.notifier)
+        .getRenterEquipment(
+          categoryId: widget.category,
+          query: widget.query,
+          page: widget.page,
+          limit: widget.limit,
+          city: widget.city,
+        );
+
+    await ref.read(categoriesProvider.notifier).getCategories();
+  }
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref
-          .read(equipmentProvider.notifier)
-          .getRenterEquipment(
-            categoryId: widget.category,
-            query: widget.query,
-            page: widget.page,
-            limit: widget.limit,
-            city: widget.city,
-          );
-
-      ref.read(categoriesProvider.notifier).getCategories();
-    });
+    Future.microtask(() => _fetchData());
   }
 
   void _updateFilters(BuildContext context, Map<String, String?> newParams) {
@@ -134,23 +136,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final selectedCity = widget.city ?? "";
     final selectedCategory = widget.category ?? "";
 
+    print(equipmentState.error);
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async {
-            ref
-                .read(equipmentProvider.notifier)
-                .getRenterEquipment(
-                  categoryId: widget.category,
-                  query: widget.query,
-                  page: widget.page,
-                  limit: widget.limit,
-                  city: widget.city,
-                );
-
-            ref.read(categoriesProvider.notifier).getCategories();
-          },
+          onRefresh: _fetchData,
           child: ListView(
             children: [
               Padding(
@@ -292,8 +284,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
                     if (equipmentState.isLoading)
                       EmptyStateTile(title: "Loading...")
-                    else if (equipmentState.error != null &&
-                        equipmentState.error.toString().isNotEmpty)
+                    else if (equipmentState.error != null)
                       EmptyStateTile(title: "Error loading equipment")
                     else
                       // Popular Rents

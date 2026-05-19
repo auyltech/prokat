@@ -71,6 +71,10 @@ dependencies:
   image_cropper: ^12.2.1
   pinput: ^6.0.2
   mask_text_input_formatter: ^2.9.0
+  flutter_launcher_icons: ^0.14.4
+  firebase_core: ^4.9.0
+  firebase_messaging: ^16.2.2
+  flutter_local_notifications: ^21.0.0
 
 dev_dependencies:
   flutter_test:
@@ -130,3 +134,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/prokat_app_icon.png"
+  adaptive_icon_background: "#121417"
+  adaptive_icon_foreground: "assets/icons/prokat_app_icon.png"
+  remove_alpha_ios: true

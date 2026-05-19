@@ -7,6 +7,7 @@ import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
 
 class OwnerProfileScreen extends ConsumerWidget {
   const OwnerProfileScreen({super.key});
@@ -141,6 +142,13 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
+                RentAnEquipmentTile(),
+
+                const SizedBox(height: 12),
+
+                const Divider(),
+
+                const SizedBox(height: 12),
                 LogoutButton(),
               ],
             ),

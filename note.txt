@@ -168,3 +168,11 @@ Become an owner, register as an owner, publish / advertise your equipment and Se
 
 
 flutter build apk --release
+
+run app
+
+flutter run --dart-define-from-file=config.json
+
+build app
+
+flutter build apk --dart-define-from-file=config.json

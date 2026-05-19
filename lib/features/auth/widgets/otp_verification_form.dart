@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import '../widgets/otp_field.dart';
@@ -46,15 +44,9 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
           .read(authProvider.notifier)
           .verifyOtp(widget.phone, otp);
 
-      if (success == true) {
-        final role = ref.watch(authProvider).session?.user?.role;
-
-        context.go(
-          role?.toLowerCase() == "owner"
-              ? AppRoutes.ownerDashboard
-              : AppRoutes.searchList,
-        );
-      } else {
+      // Navigation is handled by GoRouter redirect based on startup/auth state.
+      // This is important to support deep-link resume after login.
+      if (success != true) {
         widget.onError("Invalid or expired OTP");
       }
     } catch (e) {

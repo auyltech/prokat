@@ -5,8 +5,8 @@ import "package:prokat/features/bookings/models/booking_status.dart";
 import "package:prokat/features/bookings/state/booking_provider.dart";
 import "package:prokat/features/bookings/widgets/booking_status_sheet.dart";
 import "package:prokat/features/bookings/widgets/cancel_booking_sheet.dart";
-import "package:prokat/features/bookings/widgets/counter_offer_sheet.dart";
 import "package:prokat/features/chat/state/chat_provider.dart";
+import "package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart";
 
 class BookingActionRow extends ConsumerWidget {
   final BookingModel booking;
@@ -136,7 +136,7 @@ class BookingActionRow extends ConsumerWidget {
                   backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: theme.primaryColor)
+                    side: BorderSide(color: theme.primaryColor),
                   ),
                   elevation: 0,
                 ),
@@ -152,7 +152,12 @@ class BookingActionRow extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => CounterOfferSheet(booking: booking),
+      builder: (context) => CounterOfferSheet(
+        bookingId: booking.id,
+        initialPrice: booking.price,
+        initialPriceRate: booking.priceRate,
+        counterType: "CLIENT_COUNTER",
+      ),
     );
   }
 

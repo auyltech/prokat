@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
-// Import your BookingStatusSheet model and widget paths here
-// import 'path_to_booking_model.dart';
-// import 'path_to_booking_status_sheet.dart';
 
 class OwnerBookingActionButton extends StatelessWidget {
-  final dynamic booking; // Replace 'dynamic' with your actual Booking model type
+  final BookingModel booking; // Replace 'dynamic' with your actual Booking model type
 
   const OwnerBookingActionButton({
     super.key,

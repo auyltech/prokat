@@ -100,4 +100,8 @@ class AppRoutes {
   // Sub paths for router
   static const String chatDetail = ':id';
   static const String chatInfo = 'info';
+
+  // Notifications
+  static const String notifications = '/notifications';
+  static const String ownerNotifications = '/owner/notifications';
 }

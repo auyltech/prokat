@@ -122,7 +122,7 @@ class BookingApiService {
     }
   }
 
-  Future<bool> updateBookingStatus({
+  Future<ApiResponse<bool>> updateBookingStatus({
     required String id,
     String? status,
     String? workStatus,
@@ -130,24 +130,20 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/status",
-        data: {
-          "id": id,
-          if (status != null) "status": status,
-          if (workStatus != null) "workStatus": workStatus,
-        },
+        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
+        return ApiResponse.success(true);
       }
 
-      return false;
+      return ApiResponse.failure();
     } catch (e) {
-      rethrow;
+      return ApiResponse.failure();
     }
   }
 
-  Future<bool> updateBookingWorkStatus({
+  Future<ApiResponse<bool>> updateBookingWorkStatus({
     required String id,
     String? status,
     String? workStatus,
@@ -155,20 +151,16 @@ class BookingApiService {
     try {
       final res = await _dio.patch(
         "/bookings/$id/workstatus",
-        data: {
-          "id": id,
-          if (status != null) "status": status,
-          if (workStatus != null) "workStatus": workStatus,
-        },
+        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
+        return ApiResponse.success(true);
       }
 
-      return false;
+      return ApiResponse.failure();
     } catch (e) {
-      rethrow;
+      return ApiResponse.failure();
     }
   }
 }

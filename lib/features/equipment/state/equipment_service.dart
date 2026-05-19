@@ -210,7 +210,7 @@ class EquipmentService {
           "ownerComment": data["ownerComment"],
           "rentCondition": data["rentCondition"],
           "city": data["city"],
-          "categoryId": data["cateogryId"],
+          "categoryId": data["categoryId"],
         },
       );
 

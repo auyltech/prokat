@@ -4,13 +4,25 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/notifications/providers/notification_provider.dart';
+import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 
 final ownerNavItems = [
   _NavItem(
-    icon: Icons.home_rounded,
+    icon: Icons.home_filled,
     label: 'Home',
     path: AppRoutes.ownerDashboard,
   ),
+  _NavItem(
+    icon: Icons.person_rounded,
+    label: 'Profile',
+    path: AppRoutes.ownerProfile,
+  ),
+  // _NavItem(
+  //   icon: Icons.notifications_rounded,
+  //   label: 'Alerts',
+  //   path: AppRoutes.ownerNotifications,
+  // ),
   _NavItem(
     icon: Icons.local_shipping_rounded,
     label: 'My Fleet',
@@ -29,7 +41,16 @@ final ownerNavItems = [
 ];
 
 final clientNavItems = [
-  _NavItem(icon: Icons.home_rounded, label: 'Home', path: AppRoutes.dashboard),
+  _NavItem(
+    icon: Icons.person_rounded,
+    label: 'Profile',
+    path: AppRoutes.profile,
+  ),
+  // _NavItem(
+  //   icon: Icons.notifications_rounded,
+  //   label: 'Alerts',
+  //   path: AppRoutes.notifications,
+  // ),
   _NavItem(
     icon: Icons.search_rounded,
     label: 'Search',
@@ -66,19 +87,34 @@ class ProkatNavigationBar extends ConsumerStatefulWidget {
 }
 
 class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
+  Widget _buildIcon(_NavItem item) {
+    final unread = ref.watch(notificationProvider).unreadCount;
+    final icon = Icon(item.icon, size: 28);
+
+    final isNotifications =
+        item.path == AppRoutes.notifications ||
+        item.path == AppRoutes.ownerNotifications;
+
+    if (!isNotifications) {
+      return icon;
+    }
+
+    return NotificationBadge(count: unread, child: icon);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authState = ref.watch(authProvider);
-    final startupState = ref.watch(appStartupProvider);
+    final startupState = ref.watch(appStartupProvider).routeState;
 
     if (authState.session == null) {
       return const SizedBox.shrink();
     }
 
     final navItems = switch (startupState) {
-      AppStartupState.owner => ownerNavItems,
-      AppStartupState.client => clientNavItems,
+      AppStartupRouteState.owner => ownerNavItems,
+      AppStartupRouteState.client => clientNavItems,
       _ => const <_NavItem>[],
     };
 
@@ -141,7 +177,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
         items: navItems
             .map(
               (item) => BottomNavigationBarItem(
-                icon: Icon(item.icon, size: 28),
+                icon: _buildIcon(item),
                 label: item.label,
               ),
             )

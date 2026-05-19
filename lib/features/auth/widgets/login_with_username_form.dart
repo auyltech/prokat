@@ -1,12 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';
-import 'package:go_router/go_router.dart';
 
 class LoginWithUsernameForm extends ConsumerStatefulWidget {
   final Function(String?) onError;
@@ -50,15 +47,9 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
           .read(authProvider.notifier)
           .loginCredentials(credentials);
 
-      if (res == true && mounted) {
-        final role = ref.watch(userProfileProvider).userProfile?.role ?? "";
-
-        context.go(
-          role.toLowerCase() == "owner"
-              ? AppRoutes.ownerDashboard
-              : AppRoutes.searchList,
-        );
-      }
+      // Navigation is handled by GoRouter redirect based on startup/auth state.
+      // This is important to support deep-link resume after login.
+      if (res == true && mounted) {}
     } catch (e) {
       widget.onError("Something went wrong!");
     }

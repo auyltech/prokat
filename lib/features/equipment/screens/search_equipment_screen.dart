@@ -53,17 +53,17 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
-      // final city = ref.watch(locationProvider).city;
+      final city = ref.read(locationProvider).city;
 
-      // ref.read(categoriesProvider.notifier).getCategories();
+      ref.read(categoriesProvider.notifier).getCategories();
 
-      // ref
-      //     .read(equipmentProvider.notifier)
-      //     .initFetch(
-      //       categoryId: widget.category,
-      //       query: widget.query,
-      //       city: city,
-      //     );
+      ref
+          .read(equipmentProvider.notifier)
+          .initFetch(
+            categoryId: widget.category,
+            query: widget.query,
+            city: city,
+          );
     });
   }
 

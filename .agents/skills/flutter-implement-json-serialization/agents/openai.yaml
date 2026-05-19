@@ -1,0 +1,6 @@
+display_name: Flutter: Manual JSON Serialization
+short_description: Implement `fromJson`/`toJson` by hand with defensive parsing.
+default_prompt: >-
+  Implement the needed model(s) with manual `fromJson`/`toJson` (no codegen),
+  keeping parsing defensive and aligning JSON keys with the backend DTO naming.
+  Put networking/parsing in `services/` and expose state via Riverpod `providers/`.

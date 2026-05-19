@@ -174,6 +174,9 @@ class AuthApiService {
         message = extractBackendMessage(e);
       }
 
+      print(e.response?.statusCode);
+      print(e.response?.data);
+
       return ApiResponse.failure(message: message, error: e.message);
     } catch (e) {
       return ApiResponse.failure(

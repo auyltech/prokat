@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
@@ -40,7 +41,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             size: 24,
             color: theme.colorScheme.onPrimary,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go(AppRoutes.main),
         ),
       ),
       body: SafeArea(

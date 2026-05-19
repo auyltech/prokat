@@ -1,4 +1,4 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/refresh_stream.dart';
@@ -51,9 +51,10 @@ import 'package:prokat/features/user/screens/user_settings_screen.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
+import 'package:prokat/features/notifications/screens/notifications_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final refreshNotifier = GoRouterRefreshNotifier<AppStartupState>(
+  final refreshNotifier = GoRouterRefreshNotifier<AppStartupStatus>(
     ref,
     appStartupProvider,
   );
@@ -67,33 +68,35 @@ final routerProvider = Provider<GoRouter>((ref) {
 
     /// 🔐 AUTH GUARD
     redirect: (context, state) {
-      final startupState = ref.read(appStartupProvider);
+      final startupStatus = ref.read(appStartupProvider);
+      final startupState = startupStatus.routeState;
       final location = state.matchedLocation;
+      final fullLocation = state.uri.toString();
 
       // 🚀 Handle startup routing FIRST
       switch (startupState) {
-        case AppStartupState.loading:
+        case AppStartupRouteState.loading:
           return AppRoutes.launch;
 
-        case AppStartupState.error:
+        case AppStartupRouteState.error:
           return AppRoutes.error;
 
-        case AppStartupState.otp:
+        case AppStartupRouteState.otp:
           return AppRoutes.login;
 
-        case AppStartupState.guest:
+        case AppStartupRouteState.guest:
           if (location == AppRoutes.launch) {
             return AppRoutes.main;
           }
           break;
 
-        case AppStartupState.owner:
+        case AppStartupRouteState.owner:
           if (location == AppRoutes.launch) {
             return AppRoutes.ownerDashboard;
           }
           break;
 
-        case AppStartupState.client:
+        case AppStartupRouteState.client:
           if (location == AppRoutes.launch) {
             return AppRoutes.searchList;
           }
@@ -101,10 +104,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       final isLoggedIn =
-          startupState == AppStartupState.client ||
-          startupState == AppStartupState.owner;
+          startupState == AppStartupRouteState.client ||
+          startupState == AppStartupRouteState.owner;
 
-      final isOwner = startupState == AppStartupState.owner;
+      final isOwner = startupState == AppStartupRouteState.owner;
 
       /// 🔒 ROUTES THAT REQUIRE LOGIN
       final requiresAuth = <String>[
@@ -112,6 +115,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         AppRoutes.settings,
         AppRoutes.dashboard,
         AppRoutes.favorites,
+        AppRoutes.notifications,
+        AppRoutes.ownerNotifications,
       ].any((path) => location == path || location.startsWith('$path/'));
 
       /// 🔒 BOOKING (nested route)
@@ -122,7 +127,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       /// 🔐 USER AUTH GUARD
       if (!isLoggedIn && (requiresAuth || isBookingRoute || isOwnerRoute)) {
-        return AppRoutes.login;
+        final from = Uri.encodeComponent(fullLocation);
+        return '${AppRoutes.login}?from=$from';
       }
 
       /// 🏗 OWNER ROLE GUARD
@@ -133,7 +139,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       /// 🚫 BLOCK AUTH SCREENS WHEN LOGGED IN
       if (isLoggedIn &&
           (location == AppRoutes.login || location == AppRoutes.register)) {
-        return isOwner ? AppRoutes.ownerDashboard : AppRoutes.dashboard;
+        final from = state.uri.queryParameters['from'];
+        if (from != null && from.isNotEmpty) {
+          return Uri.decodeComponent(from);
+        }
+
+        return isOwner ? AppRoutes.ownerDashboard : AppRoutes.searchList;
       }
 
       return null;
@@ -369,6 +380,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const FavoritesScreen(),
               ),
               GoRoute(
+                path: AppRoutes.notifications,
+                builder: (_, _) => const NotificationsScreen(),
+              ),
+              GoRoute(
                 path: AppRoutes.profile,
                 builder: (_, _) => const UserProfileScreen(),
               ),
@@ -391,6 +406,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.ownerDashboard,
                 builder: (_, _) => const OwnerDashboardScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.ownerNotifications,
+                builder: (_, _) => const NotificationsScreen(),
               ),
               //
               // Owner Equipment

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/appstartup/app_startup_provider.dart';
 
-class LaunchScreen extends StatefulWidget {
+class LaunchScreen extends ConsumerStatefulWidget {
   const LaunchScreen({super.key});
 
   @override
-  State<LaunchScreen> createState() => _LaunchScreenState();
+  ConsumerState<LaunchScreen> createState() => _LaunchScreenState();
 }
 
-class _LaunchScreenState extends State<LaunchScreen>
+class _LaunchScreenState extends ConsumerState<LaunchScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
@@ -67,6 +70,11 @@ class _LaunchScreenState extends State<LaunchScreen>
     final theme = Theme.of(context);
     final accentColor = const Color(0xFF00489B);
     final textTheme = theme.textTheme;
+
+    final startup = ref.watch(appStartupProvider);
+    final showDetails = !kReleaseMode;
+    final progress = startup.progress.clamp(0.0, 1.0);
+    final percentText = '${(progress * 100).round()}%';
 
     return Scaffold(
       extendBody: true,
@@ -174,6 +182,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
+                    value: showDetails ? progress : null,
                     valueColor: AlwaysStoppedAnimation<Color>(accentColor),
                     backgroundColor: accentColor.withValues(alpha: 0.1),
                     minHeight: 4,
@@ -184,7 +193,9 @@ class _LaunchScreenState extends State<LaunchScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'INITIALIZING SYSTEMS...',
+                      showDetails
+                          ? startup.stepLabel.toUpperCase()
+                          : 'INITIALIZING SYSTEMS...',
                       style: textTheme.labelSmall?.copyWith(
                         letterSpacing: 1.5,
                         color: theme.colorScheme.onSurface.withValues(
@@ -193,7 +204,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                       ),
                     ),
                     Text(
-                      'v1.0.4', // Small detail makes it feel "real"
+                      showDetails ? percentText : 'v1.0.4',
                       style: textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.4,

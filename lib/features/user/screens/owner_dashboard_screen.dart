@@ -10,7 +10,6 @@ import 'package:prokat/features/user/widgets/balance_tile.dart';
 import 'package:prokat/features/user/widgets/owner_dashboard_header.dart';
 import 'package:prokat/features/user/widgets/owner_equipment_section.dart';
 import 'package:prokat/features/user/widgets/owner_orders_section.dart';
-import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
 
 class OwnerDashboardScreen extends ConsumerStatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -26,6 +25,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
     super.initState();
 
     Future.microtask(() {
+      ref.read(bookingProvider.notifier).getOwnerBookings();
       ref.read(equipmentProvider.notifier).getOwnerEquipment();
       ref.read(requestProvider.notifier).getOwnerRequests();
     });
@@ -122,10 +122,6 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
                 // 4. Active Orders Section
                 OwnerOrdersSection(),
-
-                SizedBox(height: 24),
-
-                RentAnEquipmentTile(),
               ],
             ),
           ),

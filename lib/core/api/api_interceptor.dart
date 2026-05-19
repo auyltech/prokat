@@ -79,22 +79,21 @@ String extractBackendMessage(DioException e) {
   final data = e.response?.data;
 
   if (data is Map<String, dynamic>) {
-    final message = data['message'] ?? data['error'] ?? data['detail'];
+    if (data["message"] is String) return data["message"];
+    if (data["error"] is String) return data["error"];
 
-    if (message is List) {
-      return message.join(', ');
-    }
-
-  if (responseData is Map<String, dynamic>) {
-    if (responseData["message"] is String) return responseData["message"];
-    if (responseData["error"] is String) return responseData["error"];
-
-    if (responseData["errors"] is Map) {
-      final errors = responseData["errors"] as Map;
+    if (data["errors"] is Map) {
+      final errors = data["errors"] as Map;
       final firstError = errors.values.first;
       if (firstError is List && firstError.isNotEmpty) {
         return firstError.first.toString();
       }
+    }
+
+    final message = data['message'] ?? data['error'] ?? data['detail'];
+
+    if (message is List) {
+      return message.join(', ');
     }
 
     if (message != null) {
@@ -102,7 +101,7 @@ String extractBackendMessage(DioException e) {
     }
   }
 
-  if (responseData is String) return responseData;
+  if (data is String) return data;
 
   switch (e.type) {
     case DioExceptionType.connectionTimeout:

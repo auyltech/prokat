@@ -90,7 +90,7 @@ class UserProfileService {
   Future<UserProfileModel?> selectAddress(String? addressId) async {
     try {
       final res = await _dio.patch(
-        ApiRoutes.userCategory,
+        ApiRoutes.userAddress,
         data: {"addressId": ?addressId},
       );
 

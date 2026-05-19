@@ -1,7 +1,16 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 void setupMapbox() {
-  MapboxOptions.setAccessToken(
-    "pk.eyJ1IjoibXJhYmJhbmkwMDciLCJhIjoiY21tOHE5N21lMTBlZDJ1cXVpZTBra2JyZyJ9.gHYXieEcDJiq81xN4oodvw",
+  // Reads MAPBOX_ACCESS_TOKEN from the build configuration
+  const String mapboxToken = String.fromEnvironment(
+    'MAPBOX_TOKEN',
+    defaultValue: '',
   );
+
+  if (mapboxToken.isNotEmpty) {
+    MapboxOptions.setAccessToken(mapboxToken);
+  } else {
+    // Handle the missing token case appropriately for your app
+    print("Warning: Mapbox Access Token is missing.");
+  }
 }

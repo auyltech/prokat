@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/api_provider.dart';
+import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_notifier.dart';
 import 'package:prokat/features/chat/state/chat_service.dart';
@@ -12,9 +13,8 @@ final chatServiceProvider = Provider<ChatService>((ref) {
 });
 
 final chatSocketServiceProvider = Provider<ChatSocketService>((ref) {
-  final apiClient = ref.watch(apiClientProvider);
-  final secureStorage = ref.watch(secureStorageProvider);
-  return ChatSocketService(apiClient, secureStorage);
+  final appSocket = ref.watch(appSocketProvider);
+  return ChatSocketService(appSocket);
 });
 
 final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
