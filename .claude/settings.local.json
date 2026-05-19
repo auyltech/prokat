@@ -5,7 +5,9 @@
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(flutter analyze *)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\" -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(git add *)",
+      "Bash(Remove-Item \"lib/features/navigation/sidebar/sidebar_menu_config.dart\")"
     ]
   }
 }

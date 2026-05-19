@@ -62,7 +62,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
         left: 24,
         right: 24,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + 20,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

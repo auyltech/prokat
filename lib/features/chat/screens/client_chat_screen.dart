@@ -120,7 +120,29 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
           else if (chatState.error != null && messages.isEmpty)
             Expanded(
               child: Center(
-                child: Text(chatState.error ?? "Error Loading Messages"),
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      Text(
+                        chatState.error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () => ref
+                            .read(chatProvider.notifier)
+                            .openChatById(widget.chatId),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             )
           else

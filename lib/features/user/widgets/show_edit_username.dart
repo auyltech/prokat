@@ -31,7 +31,7 @@ Future<void> showEditUsernameSheet(
             left: 24,
             right: 24,
             top: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            bottom: MediaQuery.viewInsetsOf(context).bottom + 16,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

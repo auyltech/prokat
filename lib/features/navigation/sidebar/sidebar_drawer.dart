@@ -31,12 +31,6 @@ class SidebarDrawer extends ConsumerWidget {
     final user = authState.session?.user;
     final isOwner = user?.role == "OWNER" || user?.role == "ADMIN";
 
-    // final menu = <SidebarMenuItem>[
-    //   ...publicMenu,
-    //   if (isLoggedIn) ...userMenu,
-    //   if (role == 'OWNER') ...ownerMenu,
-    // ];
-
     return Drawer(
       backgroundColor: bgColor,
       child: Column(
@@ -70,8 +64,8 @@ class SidebarDrawer extends ConsumerWidget {
                   route: "/dashboard",
                 ),
                 SidebarTile(
-                  icon: Icons.search,
-                  label: "Search",
+                  icon: Icons.map_rounded,
+                  label: "Map",
                   route: AppRoutes.searchMap,
                 ),
                 SidebarTile(

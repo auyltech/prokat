@@ -17,7 +17,7 @@ class _CounterOfferSheetState extends State<CounterOfferSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + 24,
         left: 24,
         right: 24,
         top: 24,

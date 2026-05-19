@@ -61,13 +61,13 @@ class EquipmentListTile extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: IntrinsicHeight(
+            child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               /// 1. IMAGE (Filled to left edges)
               SizedBox(
                 width: 120,
-                height: 140, // Increased height to match new content density
                 child: OptimizedNetworkImage(
                   imageUrl: displayUrl,
                   fit: BoxFit.cover,
@@ -214,6 +214,7 @@ class EquipmentListTile extends ConsumerWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

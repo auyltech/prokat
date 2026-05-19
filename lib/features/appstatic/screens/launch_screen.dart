@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,11 +14,15 @@ class _LaunchScreenState extends State<LaunchScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
-  // late final Animation<double> _scaleAnimation;
+  bool _showWarmupMessage = false;
+  Timer? _warmupTimer;
 
   @override
   void initState() {
     super.initState();
+    _warmupTimer = Timer(const Duration(seconds: 6), () {
+      if (mounted) setState(() => _showWarmupMessage = true);
+    });
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -58,6 +64,7 @@ class _LaunchScreenState extends State<LaunchScreen>
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
     );
+    _warmupTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -193,7 +200,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                       ),
                     ),
                     Text(
-                      'v1.0.4', // Small detail makes it feel "real"
+                      'v1.0.4',
                       style: textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.4,
@@ -202,6 +209,17 @@ class _LaunchScreenState extends State<LaunchScreen>
                     ),
                   ],
                 ),
+                if (_showWarmupMessage) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Server is warming up, please wait...',
+                    textAlign: TextAlign.center,
+                    style: textTheme.labelSmall?.copyWith(
+                      color: accentColor.withValues(alpha: 0.7),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
