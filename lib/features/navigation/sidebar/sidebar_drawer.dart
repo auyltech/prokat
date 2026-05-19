@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/navigation/sidebar/sidebar_tile.dart';
+import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'sidebar_header.dart';
-import 'package:go_router/go_router.dart';
 
 class SidebarDrawer extends ConsumerWidget {
   const SidebarDrawer({super.key});
@@ -60,7 +61,7 @@ class SidebarDrawer extends ConsumerWidget {
                           categoriesState.selectedCategory?.name ?? "",
                         )
                       : Icons.local_shipping_rounded,
-                  onTap: () => context.go(AppRoutes.categories),
+                  onTap: () => _showCategoriesSheet(context, ref),
                 ),
 
                 SidebarTile(
@@ -154,6 +155,96 @@ class SidebarDrawer extends ConsumerWidget {
   }
 }
 
+void _showCategoriesSheet(BuildContext context, WidgetRef ref) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: const Color(0xFF121417),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => Consumer(
+      builder: (ctx, sheetRef, _) {
+        final categoriesState = sheetRef.watch(categoriesProvider);
+        const accentColor = Color(0xFF4E73DF);
+
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.65,
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Text(
+                "Select Service",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: categoriesState.isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: accentColor,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : categoriesState.categories.isEmpty
+                    ? Center(
+                        child: Text(
+                          "No categories available",
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                      )
+                    : GridView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 0.85,
+                            ),
+                        itemCount: categoriesState.categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categoriesState.categories[index];
+                          return _SheetCategoryCard(
+                            category: category,
+                            isSelected:
+                                categoriesState.selectedCategory?.id ==
+                                category.id,
+                            onTap: () {
+                              sheetRef
+                                  .read(categoriesProvider.notifier)
+                                  .selectCategory(category);
+                              sheetRef
+                                  .read(userProfileProvider.notifier)
+                                  .selectCategory(category.id);
+                              Navigator.of(ctx).pop();
+                            },
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
+
 class _ActiveServiceTile extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -190,6 +281,75 @@ class _ActiveServiceTile extends StatelessWidget {
           Icons.chevron_right,
           color: Colors.white54,
           size: 18,
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetCategoryCard extends StatelessWidget {
+  final Category category;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SheetCategoryCard({
+    required this.category,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  IconData _getIcon(String name) {
+    final n = name.toLowerCase();
+    if (n.contains('septic')) return Icons.local_shipping_rounded;
+    if (n.contains('truck')) return Icons.fire_truck_rounded;
+    if (n.contains('excavator')) return Icons.precision_manufacturing_rounded;
+    return Icons.construction_rounded;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const cardColor = Color(0xFF1E2125);
+    const accentColor = Color(0xFF4E73DF);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? accentColor.withValues(alpha: 0.15) : cardColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(_getIcon(category.name), color: accentColor, size: 36),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              category.name.toUpperCase(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
         ),
       ),
     );
