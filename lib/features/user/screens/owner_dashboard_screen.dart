@@ -7,7 +7,6 @@ import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/user/widgets/balance_tile.dart';
-import 'package:prokat/features/user/widgets/owner_dashboard_header.dart';
 import 'package:prokat/features/user/widgets/owner_equipment_section.dart';
 import 'package:prokat/features/user/widgets/owner_orders_section.dart';
 
@@ -66,8 +65,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
       body: ListView(
         padding: EdgeInsets.zero, // Remove default top padding from ListView
         children: [
-          OwnerDashboardHeader(),
-
+ 
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(

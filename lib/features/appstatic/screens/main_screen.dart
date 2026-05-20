@@ -136,8 +136,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final selectedCity = widget.city ?? "";
     final selectedCategory = widget.category ?? "";
 
-    print(equipmentState.error);
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(

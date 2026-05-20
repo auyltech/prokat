@@ -11,9 +11,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthApiService api;
   final AuthSecureStorage storage;
 
-  AuthNotifier(this.ref, this.api, this.storage) : super(const AuthState()) {
-    // restore session in app startup provider: below can cause flickers/async side effect
-    // restoreSession();
+  AuthNotifier(this.ref, this.api, this.storage) : super(const AuthState());
+
+  Future<void> clearLocalSession() async {
+    await storage.clearSession();
+    state = const AuthState();
   }
 
   /// Restore token from secure storage
@@ -28,6 +30,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return session;
     }
 
+    state = state.copyWith(session: null);
     return null;
   }
 
@@ -69,15 +72,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (session == null) return false;
 
     try {
-      final refreshed = await api.refreshSession();
+      final result = await api.refreshSession();
 
-      if (refreshed == null) {
+      if ((!result.success) || (result.data == null)) {
         await logout();
         return false;
+      } else {
+        state = state.copyWith(session: result.data);
+        await storage.saveSession(result.data as AuthSession);
       }
-
-      state = state.copyWith(session: refreshed);
-      await storage.saveSession(refreshed);
 
       return true;
     } catch (_) {
@@ -102,7 +105,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         return true;
       } else {
-        state = state.copyWith(isLoading: false, error: result.error);
+        state = state.copyWith(isLoading: false, error: result.message);
 
         return false;
       }
@@ -128,7 +131,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         return true;
       } else {
-        state = state.copyWith(isLoading: false, error: result.error);
+        state = state.copyWith(isLoading: false, error: result.message);
 
         return false;
       }
@@ -156,10 +159,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isLoading: false,
           otpPhone: phone,
           otpRequestedAt: now,
+          error: null,
         );
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
       }
-
-      state = state.copyWith(isLoading: false, error: result.error);
 
       return result.success;
     } catch (e) {
@@ -177,7 +181,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await api.verifyOtp(phone, otp);
 
       if (result.data != null) {
-        await storage.saveSession(result.data as AuthSession);
+        print(result.data?.user.toString());
+        await storage.saveSession(result.data!);
 
         await storage.clearOtpSession();
 
@@ -189,7 +194,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return true;
       }
 
-      state = state.copyWith(isLoading: false, error: result.error);
+      state = state.copyWith(isLoading: false, error: result.message);
 
       return false;
     } catch (e) {

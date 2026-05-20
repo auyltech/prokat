@@ -1,10 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/unauthorized_signal_provider.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 
-enum AppStartupRouteState { loading, guest, otp, client, owner, error }
+enum AppStartupRouteState {
+  loading,
+  guest,
+  otp,
+  client,
+  owner,
+  unauthorized,
+  error,
+}
 
 enum AppStartupStep {
   loadSavedMode,
@@ -77,6 +88,11 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       // Startup init is triggered from MyApp (lib/app.dart). Keep constructor
       // side effects minimal to avoid duplicate init calls / flicker.
     });
+
+    ref.listen<int>(unauthorizedSignalProvider, (prev, next) {
+      if (prev == next) return;
+      unawaited(_handleUnauthorized());
+    });
   }
 
   AppMode get currentMode => _currentMode;
@@ -85,6 +101,21 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
   Future<void> reloadApp() async {
     await init();
+  }
+
+  Future<void> _handleUnauthorized() async {
+    try {
+      await ref.read(authProvider.notifier).clearLocalSession();
+    } catch (_) {
+      // Ignore errors to ensure we still force reroute.
+    }
+
+    ref.invalidate(userProfileProvider);
+
+    state = _statusForStep(
+      AppStartupStep.done,
+      routeState: AppStartupRouteState.unauthorized,
+    );
   }
 
   Future<AppMode> loadSavedMode() async {
@@ -142,7 +173,9 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     String? errorMessage,
   }) {
     const steps = AppStartupStep.values;
+
     final index = steps.indexOf(step).clamp(0, steps.length - 1);
+
     final progress = steps.length <= 1
         ? 0.0
         : (index / (steps.length - 1)).clamp(0.0, 1.0);
@@ -201,6 +234,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
       if (session == null) {
         state = _statusForStep(AppStartupStep.restoreOtpSession);
+
         final otpSession = await measure(
           AppStartupStep.restoreOtpSession,
           auth.restoreOtpSession,
@@ -217,6 +251,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       }
 
       state = _statusForStep(AppStartupStep.refreshSession);
+
       final isValid = await measure(
         AppStartupStep.refreshSession,
         auth.refreshSession,

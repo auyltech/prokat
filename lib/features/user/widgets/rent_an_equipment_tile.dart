@@ -42,7 +42,7 @@ class RentAnEquipmentTile extends ConsumerWidget {
           onPressed: () async {
             await ref.read(appStartupProvider.notifier).setClientMode();
             if (!context.mounted) return;
-            context.go(AppRoutes.dashboard);
+            context.go(AppRoutes.searchList);
           },
         ),
       ),

@@ -29,6 +29,7 @@ class MyMapView extends ConsumerWidget {
     return Stack(
       children: [
         MapWidget(
+          styleUri: MapboxStyles.MAPBOX_STREETS,
           cameraOptions: CameraOptions(
             center: Point(
               coordinates: Position(

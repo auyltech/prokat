@@ -42,7 +42,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         title: Text(
           "Chat",

@@ -89,7 +89,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         title: Text(
           "Add Equipment",

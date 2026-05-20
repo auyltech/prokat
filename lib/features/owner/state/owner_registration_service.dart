@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 

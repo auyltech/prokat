@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import '../models/location_model.dart';

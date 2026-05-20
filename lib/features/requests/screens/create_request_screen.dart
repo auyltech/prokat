@@ -110,7 +110,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         elevation: 0,
       ),

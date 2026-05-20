@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import '../../../core/constants/api_routes.dart';
 import '../models/equipment_model.dart';
 import 'dart:io';
@@ -13,7 +14,7 @@ class EquipmentService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<Equipment>> getClientEquipment({
+  Future<ApiResponse<List<Equipment>>> getClientEquipment({
     String? categoryId,
     String? query,
     String? city,
@@ -32,11 +33,38 @@ class EquipmentService {
         },
       );
 
-      final List<dynamic> data = response.data["data"] ?? [];
+      return handleApiResponse<List<Equipment>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected equipment list");
+          }
 
-      return data.map((json) => Equipment.fromJson(json)).toList();
-    } on DioException catch (e) {
-      throw Exception(e.message ?? "Failed to fetch equipment");
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid equipment item");
+            }
+
+            return Equipment.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load equipment",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -60,40 +88,32 @@ class EquipmentService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = response.data["data"];
+      return handleApiResponse<List<Equipment>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected equipment list");
+          }
 
-        if (data is! List) {
-          return ApiResponse.failure(
-            message: extractBackendMessage(response.data),
-          );
-        }
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid equipment item");
+            }
 
-        final parsed = data
-            .whereType<Map<String, dynamic>>() // safety check
-            .map((json) => Equipment.fromJson(json))
-            .toList();
-
-        return ApiResponse.success(parsed);
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+            return Equipment.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load equipment",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"] ?? "Failed to load equipment",
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -103,15 +123,42 @@ class EquipmentService {
     }
   }
 
-  Future<List<Equipment>> getOwnerEquipment() async {
+  Future<ApiResponse<List<Equipment>>> getOwnerEquipment() async {
     try {
       final response = await _dio.get(ApiRoutes.ownerEquipment);
 
-      final List data = response.data["data"];
+      return handleApiResponse<List<Equipment>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected equipment list");
+          }
 
-      return data.map((e) => Equipment.fromJson(e)).toList();
-    } on DioException catch (e) {
-      throw Exception(e.response?.data ?? 'Failed to load equipment');
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid equipment item");
+            }
+
+            return Equipment.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load equipment",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -119,26 +166,20 @@ class EquipmentService {
     try {
       final response = await _dio.get("/equipment/owner/$id");
 
-      final data = response.data["data"];
-
-      return ApiResponse.success(
-        data != null ? Equipment.fromJson(data) : null,
-        message: "Equipment created successfully",
+      return handleApiResponse<Equipment>(
+        response: response,
+        parser: (data) => Equipment.fromJson(data),
+        fallbackMessage: "Failed to load equipment",
       );
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -148,9 +189,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> createEquipment(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> createEquipment(Map<String, dynamic> data) async {
     try {
       final response = await _dio.post(
         ApiRoutes.equipment,
@@ -163,30 +202,19 @@ class EquipmentService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment created successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -196,9 +224,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> updateEquipment(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> updateEquipment(Map<String, dynamic> data) async {
     try {
       final response = await _dio.patch(
         '/equipment/${data["id"]}',
@@ -214,27 +240,19 @@ class EquipmentService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(null, message: "Equipment saved");
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -244,7 +262,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> updateEquipmentLocation(
+  Future<ApiResponse<void>> updateEquipmentLocation(
     String equipmentId,
     Map<String, dynamic> data,
   ) async {
@@ -254,30 +272,19 @@ class EquipmentService {
         data: data,
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -287,7 +294,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> updateEquipmentCategory({
+  Future<ApiResponse<void>> updateEquipmentCategory({
     required String equipmentId,
     required String categoryId,
   }) async {
@@ -297,30 +304,19 @@ class EquipmentService {
         data: {"id": equipmentId, "categoryId": categoryId},
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -330,7 +326,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> updateVisibilityStatus({
+  Future<ApiResponse<void>> updateVisibilityStatus({
     required String equipmentId,
     required bool isVisible,
     required String status,
@@ -341,24 +337,19 @@ class EquipmentService {
         data: {"id": equipmentId, "isVisible": isVisible, "status": status},
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      message = extractBackendMessage(e.response?.data);
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -368,7 +359,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> updateEquipmentSpecs(
+  Future<ApiResponse<void>> updateEquipmentSpecs(
     Map<String, dynamic> data,
   ) async {
     try {
@@ -380,30 +371,19 @@ class EquipmentService {
         data: {"id": equipmentId, "specs": specs},
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -413,34 +393,23 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> deleteEquipment(String equipmentId) async {
+  Future<ApiResponse<void>> deleteEquipment(String equipmentId) async {
     try {
       final response = await _dio.delete('/equipment/$equipmentId');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -450,9 +419,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> createPriceEntry(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> createPriceEntry(Map<String, dynamic> data) async {
     try {
       final equipmentId = data["equipmentId"];
       final price = data["price"];
@@ -469,30 +436,19 @@ class EquipmentService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Price entry created successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -502,9 +458,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> updatePriceEntry(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> updatePriceEntry(Map<String, dynamic> data) async {
     try {
       final equipmentId = data["equipmentId"];
       final priceEntryId = data["id"];
@@ -523,30 +477,19 @@ class EquipmentService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Price entry updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -556,9 +499,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> deletePriceEntry(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> deletePriceEntry(Map<String, dynamic> data) async {
     try {
       final equipmentId = data["equipmentId"];
       final priceEntryId = data["id"];
@@ -567,30 +508,19 @@ class EquipmentService {
         '/equipment/$equipmentId/priceEntry/$priceEntryId',
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Equipment created successfully",
-        );
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Price entry deleted successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -600,7 +530,7 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<Equipment?>> uploadEquipmentImage(
+  Future<ApiResponse<void>> uploadEquipmentImage(
     String equipmentId,
     File imageFile,
   ) async {
@@ -620,51 +550,19 @@ class EquipmentService {
         data: formData,
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(
-          null,
-          message: "Image Uploaded Successfully",
-        );
-      }
-
-      // final payload = res.data;
-
-      // final data = (payload is Map<String, dynamic>)
-      //     ? (payload['data'] ?? payload)
-      //     : payload;
-
-      // if (data is Map<String, dynamic>) {
-      //   // Preferred: updated equipment object
-      //   if (data.containsKey('id') &&
-      //       (data.containsKey('images') || data.containsKey('imageUrl'))) {
-      //     return (equipment: Equipment.fromJson(data), image: null);
-      //   }
-
-      //   // Alternative: new image record
-      //   if (data.containsKey('url')) {
-      //     return (equipment: null, image: EquipmentImage.fromJson(data));
-      //   }
-      // }
-
-      // return (equipment: null, image: null);
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Image uploaded",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -674,53 +572,65 @@ class EquipmentService {
     }
   }
 
-  Future<Equipment?> deleteEquipmentImage(
+  Future<ApiResponse<void>> deleteEquipmentImage(
     String equipmentId,
     String imageId,
   ) async {
     try {
-      final res = await _dio.delete('/equipment/$equipmentId/images/$imageId');
+      final response = await _dio.delete(
+        '/equipment/$equipmentId/images/$imageId',
+      );
 
-      final payload = res.data;
-      final data = (payload is Map<String, dynamic>)
-          ? (payload['data'] ?? payload)
-          : payload;
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Image deleted",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      if (data is Map<String, dynamic>) {
-        return Equipment.fromJson(data);
-      }
-
-      return null;
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
-    } catch (_) {
-      return null;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<Equipment?> setPrimaryEquipmentImage(
+  Future<ApiResponse<void>> setPrimaryEquipmentImage(
     String equipmentId,
     String imageId,
   ) async {
     try {
-      final res = await _dio.patch(
+      final response = await _dio.patch(
         '/equipment/$equipmentId/images/$imageId/primary',
       );
 
-      final payload = res.data;
-      final data = (payload is Map<String, dynamic>)
-          ? (payload['data'] ?? payload)
-          : payload;
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Image updated",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      if (data is Map<String, dynamic>) {
-        return Equipment.fromJson(data);
-      }
-
-      return null;
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
-    } catch (_) {
-      return null;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 }

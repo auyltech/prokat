@@ -58,6 +58,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     ref,
     appStartupProvider,
   );
+
   ref.onDispose(refreshNotifier.dispose);
 
   return GoRouter(
@@ -72,6 +73,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final startupState = startupStatus.routeState;
       final location = state.matchedLocation;
       final fullLocation = state.uri.toString();
+
+      print("app_router");
+      print(startupState);
+      print(location);
 
       // 🚀 Handle startup routing FIRST
       switch (startupState) {
@@ -90,9 +95,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
           break;
 
+        case AppStartupRouteState.unauthorized:
+          return AppRoutes.login;
+
         case AppStartupRouteState.owner:
           if (location == AppRoutes.launch) {
-            return AppRoutes.ownerDashboard;
+            return AppRoutes.ownerProfile;
           }
           break;
 
@@ -140,11 +148,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isLoggedIn &&
           (location == AppRoutes.login || location == AppRoutes.register)) {
         final from = state.uri.queryParameters['from'];
+
         if (from != null && from.isNotEmpty) {
           return Uri.decodeComponent(from);
         }
 
-        return isOwner ? AppRoutes.ownerDashboard : AppRoutes.searchList;
+        return isOwner ? AppRoutes.ownerBookings : AppRoutes.searchList;
       }
 
       return null;

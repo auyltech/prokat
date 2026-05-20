@@ -30,6 +30,8 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
     final theme = Theme.of(context);
     final bookingState = ref.watch(bookingProvider);
 
+    print(bookingState.error);
+
     // Logic: Split into actionable categories
     final newBookings = bookingState.ownerBookings
         .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
@@ -46,7 +48,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         title: Text(
           "My Orders",

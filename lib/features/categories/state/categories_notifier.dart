@@ -6,9 +6,7 @@ import 'package:prokat/features/categories/state/categories_state.dart';
 class CategoriesNotifier extends StateNotifier<CategoryState> {
   final CategoryService service;
 
-  CategoriesNotifier(this.service) : super(CategoryState()) {
-    // getCategories();
-  }
+  CategoriesNotifier(this.service) : super(CategoryState());
 
   void selectCategory(Category? category) {
     state = state.copyWith(selectedCategory: category, showSelect: false);
@@ -27,7 +25,7 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
       if (result.success) {
         state = state.copyWith(isLoading: false, categories: result.data);
       } else {
-        state = state.copyWith(isLoading: false, error: result.error);
+        state = state.copyWith(isLoading: false, error: result.message);
       }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

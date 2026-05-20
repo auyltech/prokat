@@ -1,16 +1,28 @@
+import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void setupMapbox() {
-  // Reads MAPBOX_ACCESS_TOKEN from the build configuration
-  const String mapboxToken = String.fromEnvironment(
-    'MAPBOX_TOKEN',
-    defaultValue: '',
-  );
+  final runtimeToken = dotenv.env['MAPBOX_TOKEN'];
 
-  if (mapboxToken.isNotEmpty) {
-    MapboxOptions.setAccessToken(mapboxToken);
+  // Fallback to build-time token:
+  // flutter run --dart-define=MAPBOX_TOKEN=...
+  // (or --dart-define-from-file=.env)
+  const buildTimeToken = String.fromEnvironment('MAPBOX_TOKEN', defaultValue: '');
+
+  final token =
+      (runtimeToken != null && runtimeToken.isNotEmpty)
+          ? runtimeToken
+          : buildTimeToken;
+
+  if (token.isNotEmpty) {
+    MapboxOptions.setAccessToken(token);
   } else {
-    // Handle the missing token case appropriately for your app
-    print("Warning: Mapbox Access Token is missing.");
+    if (!kReleaseMode) {
+      debugPrint(
+        'Mapbox token missing. Set MAPBOX_TOKEN in `.env` or pass '
+        '`--dart-define=MAPBOX_TOKEN=...` (or `--dart-define-from-file=.env`).',
+      );
+    }
   }
 }

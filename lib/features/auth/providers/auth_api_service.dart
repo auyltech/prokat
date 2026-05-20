@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import '../models/auth_session.dart';
 import '../models/auth_credentials.dart';
 
@@ -9,19 +10,36 @@ class AuthApiService {
 
   AuthApiService(this.dio);
 
-  Future<AuthSession?> refreshSession() async {
+  Future<ApiResponse<AuthSession>> refreshSession() async {
     try {
-      late Response response;
+      final response = await dio.post('/auth/session/refresh');
 
-      response = await dio.post('/auth/session/refresh');
+      return handleApiResponse<AuthSession>(
+        response: response,
+        parser: (data) {
+          if (data is! Map<String, dynamic>) {
+            throw FormatException("Invalid session item");
+          }
 
-      if (response.statusCode == 200) {
-        return AuthSession.fromJson(response.data);
-      }
+          return AuthSession.fromJson(data);
+        },
+        fallbackMessage: "Failed to refresh session",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return null;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return null;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
@@ -37,30 +55,26 @@ class AuthApiService {
         },
       );
 
-      if (response.statusCode == 200) {
-        return ApiResponse.success(
-          AuthSession.fromJson(response.data),
-          message: "Account created successfully",
-        );
-      }
+      return handleApiResponse<AuthSession>(
+        response: response,
+        parser: (data) {
+          if (data is! Map<String, dynamic>) {
+            throw FormatException("Invalid session item");
+          }
 
-      final message = extractBackendMessage(response.data);
+          return AuthSession.fromJson(data);
+        },
+        fallbackMessage: "Failed to login",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-      // "Network error. Please try again."
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid credentials";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -84,30 +98,26 @@ class AuthApiService {
         },
       );
 
-      if (response.statusCode == 201) {
-        return ApiResponse.success(
-          AuthSession.fromJson(response.data),
-          message: "Account created successfully",
-        );
-      } else {
-        return ApiResponse.failure(error: "Something went wrong");
-      }
-    } on DioException catch (e) {
-      String message = "Something went wrong";
+      return handleApiResponse<AuthSession>(
+        response: response,
+        parser: (data) {
+          if (data is! Map<String, dynamic>) {
+            throw FormatException("Invalid session item");
+          }
 
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid credentials";
-      } else if (e.response?.statusCode == 409) {
-        message = "Username already registered";
-      } else if (e.response?.statusCode == 410) {
-        message = "Wrong data";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      }
+          return AuthSession.fromJson(data);
+        },
+        fallbackMessage: "Failed to create account",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -117,67 +127,81 @@ class AuthApiService {
     }
   }
 
-  Future<void> forgotPassword(String usernameOrPhone) async {
+  Future<ApiResponse<void>> forgotPassword(String usernameOrPhone) async {
     try {
-      await dio.post(
+      // TODO: implement or remove password
+      final response = await dio.post(
         '/auth/forgot-password',
         data: {'identifier': usernameOrPhone},
       );
-    } on DioException catch (e) {
-      throw _handleError(e);
+
+      return handleEmptyApiResponse(response: response);
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<void> resetPassword({
+  Future<ApiResponse<void>> resetPassword({
     required String token,
     required String newPassword,
   }) async {
     try {
-      await dio.post(
+      // TODO: implement or remove password
+      final response = await dio.post(
         '/auth/reset-password',
         data: {'token': token, 'password': newPassword},
       );
-    } on DioException catch (e) {
-      throw _handleError(e);
+
+      return handleEmptyApiResponse(response: response);
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<ApiResponse<bool>> requestOtp(String phone) async {
+  Future<ApiResponse<void>> requestOtp(String phone) async {
     try {
       final response = await dio.post(
         '/auth/otp',
         data: {"phoneNumber": phone},
       );
 
-      if (response.statusCode == 200) {
-        return ApiResponse.success(true);
-      }
+      return handleEmptyApiResponse(response: response);
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      final message = extractBackendMessage(response.data);
-
-      return ApiResponse.failure(error: message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid credentials";
-      }
-      if (e.response?.statusCode == 401) {
-        message = "Invalid OTP";
-      } else if (e.response?.statusCode == 409) {
-        message = "Username already registered";
-      } else if (e.response?.statusCode == 410) {
-        message = "Wrong data";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else {
-        message = extractBackendMessage(e);
-      }
-
-      print(e.response?.statusCode);
-      print(e.response?.data);
-
-      return ApiResponse.failure(message: message, error: e.message);
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
       return ApiResponse.failure(
         message: "Unexpected error",
@@ -193,36 +217,26 @@ class AuthApiService {
         data: {"phoneNumber": phone, "otp": otp},
       );
 
-      if (response.statusCode == 200) {
-        return ApiResponse.success(
-          AuthSession.fromJson(response.data),
-          message: "Verification successfull",
-        );
-      } else {
-        final message = extractBackendMessage(response.data);
-        return ApiResponse.failure(error: message);
-      }
-    } on DioException catch (e) {
-      String message = "Something went wrong";
+      return handleApiResponse<AuthSession>(
+        response: response,
+        parser: (data) {
+          if (data is! Map<String, dynamic>) {
+            throw FormatException("Invalid session item");
+          }
 
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid credentials";
-      }
-      if (e.response?.statusCode == 401) {
-        message = "Invalid OTP";
-      } else if (e.response?.statusCode == 409) {
-        message = "Username already registered";
-      } else if (e.response?.statusCode == 410) {
-        message = "Wrong data";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else {
-        message = extractBackendMessage(e);
-      }
+          return AuthSession.fromJson(data);
+        },
+        fallbackMessage: "Failed to verify OTP",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
@@ -232,21 +246,26 @@ class AuthApiService {
     }
   }
 
-  Future<void> logout() async {
-    await dio.post('/auth/logout');
-  }
+  Future<ApiResponse<void>> logout() async {
+    try {
+      final response = await dio.post('/auth/logout');
 
-  Exception _handleError(DioException e) {
-    if (e.response != null) {
-      final data = e.response?.data;
+      return handleEmptyApiResponse(response: response);
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      if (data is Map && data['message'] != null) {
-        return Exception(data['message']);
-      }
-
-      return Exception("Server error (${e.response?.statusCode})");
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
-
-    return Exception("Network error");
   }
 }

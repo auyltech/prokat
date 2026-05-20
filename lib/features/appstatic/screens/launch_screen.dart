@@ -42,17 +42,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
       curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
     );
 
-    // _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
-    //   CurvedAnimation(parent: _controller, curve: const _OutProposedCurve()),
-    // );
-
     _controller.forward();
-
-    // Future.delayed(const Duration(seconds: 3), () {
-    //   if (context.mounted) {
-    //     context.go(AppRoutes.dashboard);
-    //   }
-    // });
   }
 
   @override

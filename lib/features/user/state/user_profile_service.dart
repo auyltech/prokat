@@ -1,5 +1,6 @@
 import 'package:prokat/core/api/api_client.dart';
 import 'package:dio/dio.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
@@ -49,7 +50,7 @@ class UserProfileService {
 
       return ApiResponse.failure(message: res.statusCode.toString());
     } catch (e) {
-      return ApiResponse.failure();
+      return ApiResponse.failure(message: extractBackendMessage(e));
     }
   }
 

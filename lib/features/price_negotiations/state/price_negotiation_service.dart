@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
 

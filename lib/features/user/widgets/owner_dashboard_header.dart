@@ -41,7 +41,7 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
           // Profile Image
           GestureDetector(
             onTap: () {
-              context.push(AppRoutes.ownerProfile);
+              // context.push(AppRoutes.ownerProfile);
             },
             child: Stack(
               clipBehavior: Clip.none,

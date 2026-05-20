@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 
 class BookingApiService {
@@ -13,37 +14,38 @@ class BookingApiService {
 
   Future<ApiResponse<List<BookingModel>>> getUserBookings() async {
     try {
-      final res = await _dio.get("/bookings");
+      final response = await _dio.get("/bookings");
 
-      if (res.statusCode == 200) {
-        final raw = res.data["data"] as List;
+      return handleApiResponse<List<BookingModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected booking list");
+          }
 
-        final data = raw.map((e) => BookingModel.fromJson(e)).toList();
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid booking item");
+            }
 
-        return ApiResponse.success(data);
-      }
-
-      final message = extractBackendMessage(res.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+            return BookingModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load bookings",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message, // real backend message: extractBackendMessage(e)
-        error: e.response?.data?["error"].toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "GetUserBookings_Unexpected_Error",
+        message: "Unexpected error",
         error: e.toString(),
       );
     }
@@ -51,116 +53,132 @@ class BookingApiService {
 
   Future<ApiResponse<List<BookingModel>>> getOwnerBookings() async {
     try {
-      final res = await _dio.get("/bookings/owner");
+      final response = await _dio.get("/bookings/owner");
 
-      if (res.statusCode == 200) {
-        final data = res.data["data"] as List;
-        final jsonData = data.map((e) => BookingModel.fromJson(e)).toList();
+      return handleApiResponse<List<BookingModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected booking list");
+          }
 
-        return ApiResponse.success(jsonData);
-      }
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid booking item");
+            }
 
-      final message = extractBackendMessage(res.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+            return BookingModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load bookings",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "GetOwnerBookings_Unexpected_error",
+        message: "Unexpected error",
         error: e.toString(),
       );
     }
   }
 
-  Future<ApiResponse<BookingModel?>> createBooking(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> createBooking(Map<String, dynamic> data) async {
     try {
       final response = await _dio.post("/bookings", data: data);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(null);
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
-    } on DioException catch (e) {
-      String message = "Something went wrong";
-
-      if (e.response?.statusCode == 400) {
-        message = "Missing or invalid information";
-      } else if (e.response?.statusCode == 500) {
-        message = "Server Error";
-      } else if (e.response?.data != null) {
-        message = extractBackendMessage(e.response?.data);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Booking created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
       return ApiResponse.failure(
-        message: message,
-        error: e.response?.data?["error"]?.toString(),
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
       return ApiResponse.failure(
-        message: "CreateBooking_Unexpected_error",
+        message: "Unexpected error",
         error: e.toString(),
       );
     }
   }
 
-  Future<ApiResponse<bool>> updateBookingStatus({
+  Future<ApiResponse<void>> updateBookingStatus({
     required String id,
     String? status,
     String? workStatus,
   }) async {
     try {
-      final res = await _dio.patch(
+      final response = await _dio.patch(
         "/bookings/$id/status",
         data: {"id": id, "status": ?status, "workStatus": ?workStatus},
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return ApiResponse.success(true);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Booking created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return ApiResponse.failure();
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return ApiResponse.failure();
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<ApiResponse<bool>> updateBookingWorkStatus({
+  Future<ApiResponse<void>> updateBookingWorkStatus({
     required String id,
     String? status,
     String? workStatus,
   }) async {
     try {
-      final res = await _dio.patch(
+      final response = await _dio.patch(
         "/bookings/$id/workstatus",
         data: {"id": id, "status": ?status, "workStatus": ?workStatus},
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return ApiResponse.success(true);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Booking created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return ApiResponse.failure();
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return ApiResponse.failure();
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 }

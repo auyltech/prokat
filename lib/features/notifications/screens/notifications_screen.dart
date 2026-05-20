@@ -81,7 +81,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
               return ListView.separated(
                 itemCount: state.items.length + (state.hasMore ? 1 : 0),
-                separatorBuilder: (_, __) => Divider(
+                separatorBuilder: (_, _) => Divider(
                   height: 1,
                   color: theme.dividerColor.withValues(alpha: 0.5),
                 ),

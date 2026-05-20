@@ -73,7 +73,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         actions: [
           IconButton(

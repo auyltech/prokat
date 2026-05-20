@@ -6,7 +6,10 @@ import 'api_interceptor.dart';
 class ApiClient {
   late final Dio dio;
 
-  ApiClient(AuthSecureStorage secureStorage) {
+  ApiClient(
+    AuthSecureStorage secureStorage, {
+    required void Function() onUnauthorized,
+  }) {
     dio = Dio(
       BaseOptions(
         baseUrl: Env.baseUrl,
@@ -14,19 +17,16 @@ class ApiClient {
         receiveTimeout: const Duration(seconds: 15),
         sendTimeout: const Duration(seconds: 15),
         responseType: ResponseType.json,
+
+        // Let service methods receive backend errors normally.
+        validateStatus: (status) {
+          return status != null && status < 600;
+        },
       ),
     );
 
-    dio.interceptors.add(ApiInterceptor(secureStorage));
-
-    // Log api requests / responses
-    // dio.interceptors.add(
-    //   LogInterceptor(
-    //     request: true,
-    //     requestBody: true,
-    //     responseBody: true,
-    //     error: true,
-    //   ),
-    // );
+    dio.interceptors.add(
+      ApiInterceptor(secureStorage, onUnauthorized: onUnauthorized),
+    );
   }
 }

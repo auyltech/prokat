@@ -54,7 +54,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       state = state.copyWith(
         isLoading: false,
         bookings: result.data,
-        error: result.error,
+        error: result.success ? null : result.message,
       );
     } catch (e) {
       state = state.copyWith(
@@ -74,7 +74,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       state = state.copyWith(
         isLoading: false,
         ownerBookings: result.data,
-        error: null,
+        error: result.success ? null : result.message,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

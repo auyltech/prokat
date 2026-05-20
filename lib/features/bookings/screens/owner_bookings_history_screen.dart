@@ -54,7 +54,7 @@ class _OwnerBookingHistoryScreenState
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         title: Text(
           "Order History",

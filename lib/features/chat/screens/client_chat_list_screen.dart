@@ -19,47 +19,12 @@ class ClientChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
-  bool _handledLinkedNavigation = false;
-
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     Future.microtask(() async {
       await ref.read(chatProvider.notifier).getChatThreads("client");
-
-      await _openLinkedChatIfNeeded();
     });
-  }
-
-  Future<void> _openLinkedChatIfNeeded() async {
-    if (_handledLinkedNavigation) {
-      return;
-    }
-
-    final hasBookingId = (widget.bookingId ?? '').isNotEmpty;
-    final hasRequestId = (widget.requestId ?? '').isNotEmpty;
-    if (!hasBookingId && !hasRequestId) {
-      return;
-    }
-
-    _handledLinkedNavigation = true;
-    final chatId = await ref
-        .read(chatProvider.notifier)
-        .getChatId(bookingId: widget.bookingId, requestId: widget.requestId);
-
-    if (!mounted) {
-      return;
-    }
-
-    if ((chatId ?? '').isEmpty) {
-      final error = ref.read(chatProvider).error ?? 'Unable to open chat';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error)));
-      return;
-    }
-
-    context.push('${AppRoutes.chat}/$chatId');
   }
 
   @override
@@ -84,37 +49,42 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
       ),
-      body: ListView(
-        children: [
-          if (chatState.isLoadingConversations)
-            _buildSkeleton()
-          else if (chatState.error != null && chats.isEmpty)
-            EmptyStateTile(title: "Error", subtitle: "Could not load chats")
-          else if (chats.isEmpty)
-            EmptyStateTile(
-              title: "No Chats",
-              subtitle: "You don't have any chats",
-            )
-          else
-            ListView.builder(
-              shrinkWrap:
-                  true, // Tells the list to only take the space it needs
-              physics:
-                  const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
-              itemCount: chats.length,
-              itemBuilder: (context, index) {
-                final chat = chats[index];
-                return ChatTile(
-                  chat: chat,
-                  currentUserId: chatState.currentUserId ?? "",
-                  onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
-                );
-              },
-            ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(chatProvider.notifier).getChatThreads("client");
+        },
+        child: ListView(
+          children: [
+            if (chatState.isLoadingConversations)
+              _buildSkeleton()
+            else if (chatState.error != null && chats.isEmpty)
+              EmptyStateTile(title: "Error", subtitle: "Could not load chats")
+            else if (chats.isEmpty)
+              EmptyStateTile(
+                title: "No Chats",
+                subtitle: "You don't have any chats",
+              )
+            else
+              ListView.builder(
+                shrinkWrap:
+                    true, // Tells the list to only take the space it needs
+                physics:
+                    const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
+                itemCount: chats.length,
+                itemBuilder: (context, index) {
+                  final chat = chats[index];
+                  return ChatTile(
+                    chat: chat,
+                    currentUserId: chatState.currentUserId ?? "",
+                    onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

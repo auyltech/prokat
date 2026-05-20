@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:prokat/core/api/api_interceptor.dart';
+import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 
 class NotificationApiService {

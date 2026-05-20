@@ -3,8 +3,11 @@ import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 
 class ApiInterceptor extends Interceptor {
   final AuthSecureStorage secureStorage;
+  final void Function() onUnauthorized;
 
-  ApiInterceptor(this.secureStorage);
+  DateTime? _lastUnauthorizedAt;
+
+  ApiInterceptor(this.secureStorage, {required this.onUnauthorized});
 
   /// Attach auth token
   @override
@@ -40,27 +43,19 @@ class ApiInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final statusCode = err.response?.statusCode;
-    // final data = err.response?.data;
-
-    /// Extract backend error message
-    // String message = "Dio Error: Something went wrong";
-
-    // if (data is Map && data["message"] != null) {
-    //   message = data["message"];
-    // } else if (statusCode == 500) {
-    //   message = "Server error";
-    // } else if (err.type == DioExceptionType.connectionTimeout ||
-    //     err.type == DioExceptionType.receiveTimeout) {
-    //   message = "Connection timeout";
-    // } else if (err.type == DioExceptionType.connectionError) {
-    //   message = "Network error";
-    // }
 
     /// Session expired
     if (statusCode == 401) {
       // message = "Dio Error: session expired";
 
       await secureStorage.clearSession();
+
+      final now = DateTime.now();
+      final last = _lastUnauthorizedAt;
+      if (last == null || now.difference(last) > const Duration(seconds: 1)) {
+        _lastUnauthorizedAt = now;
+        onUnauthorized();
+      }
     }
 
     handler.next(err);
@@ -72,46 +67,5 @@ class ApiInterceptor extends Interceptor {
     //     error: message,
     //   ),
     // );
-  }
-}
-
-String extractBackendMessage(DioException e) {
-  final data = e.response?.data;
-
-  if (data is Map<String, dynamic>) {
-    if (data["message"] is String) return data["message"];
-    if (data["error"] is String) return data["error"];
-
-    if (data["errors"] is Map) {
-      final errors = data["errors"] as Map;
-      final firstError = errors.values.first;
-      if (firstError is List && firstError.isNotEmpty) {
-        return firstError.first.toString();
-      }
-    }
-
-    final message = data['message'] ?? data['error'] ?? data['detail'];
-
-    if (message is List) {
-      return message.join(', ');
-    }
-
-    if (message != null) {
-      return message.toString();
-    }
-  }
-
-  if (data is String) return data;
-
-  switch (e.type) {
-    case DioExceptionType.connectionTimeout:
-    case DioExceptionType.receiveTimeout:
-      return "Connection timeout";
-
-    case DioExceptionType.connectionError:
-      return "Network error";
-
-    default:
-      return "Request failed";
   }
 }

@@ -111,7 +111,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.dashboard),
+              : context.push(AppRoutes.searchList),
         ),
         backgroundColor: theme.primaryColor,
         elevation: 0,

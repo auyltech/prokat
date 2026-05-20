@@ -7,6 +7,7 @@ import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/widgets/owner_dashboard_header.dart';
 import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
 
 class OwnerProfileScreen extends ConsumerWidget {
@@ -36,56 +37,59 @@ class OwnerProfileScreen extends ConsumerWidget {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          Container(
-            padding: EdgeInsets.fromLTRB(24, topInset + 20, 24, 24),
-            color: AppColors.teal700,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: theme.colorScheme.surface,
-                  child: ClipOval(
-                    child: Image.network(
-                      profileImageUrl,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          const Icon(Icons.person, size: 40),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+          // Container(
+          //   padding: EdgeInsets.fromLTRB(24, topInset + 20, 24, 24),
+          //   color: AppColors.teal700,
+          //   child: Column(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       CircleAvatar(
+          //         radius: 50,
+          //         backgroundColor: theme.colorScheme.surface,
+          //         child: ClipOval(
+          //           child: Image.network(
+          //             profileImageUrl,
+          //             width: 100,
+          //             height: 100,
+          //             fit: BoxFit.cover,
+          //             errorBuilder: (_, _, _) =>
+          //                 const Icon(Icons.person, size: 40),
+          //           ),
+          //         ),
+          //       ),
 
-                DisplayName(),
+          //       const SizedBox(height: 12),
 
-                const SizedBox(height: 4),
-                // Registration Status Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade400,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.verified, color: Colors.white, size: 14),
-                      SizedBox(width: 4),
-                      Text(
-                        "Verified Owner",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          //       DisplayName(),
+
+          //       const SizedBox(height: 4),
+          //       // Registration Status Badge
+          //       Container(
+          //         padding: const EdgeInsets.symmetric(
+          //           horizontal: 12,
+          //           vertical: 4,
+          //         ),
+          //         decoration: BoxDecoration(
+          //           color: Colors.green.shade400,
+          //           borderRadius: BorderRadius.circular(20),
+          //         ),
+          //         child: const Row(
+          //           mainAxisSize: MainAxisSize.min,
+          //           children: [
+          //             Icon(Icons.verified, color: Colors.white, size: 14),
+          //             SizedBox(width: 4),
+          //             Text(
+          //               "Verified Owner",
+          //               style: TextStyle(color: Colors.white, fontSize: 12),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          OwnerDashboardHeader(),
+
           // 2. Body Content
           Padding(
             padding: const EdgeInsets.all(16.0),

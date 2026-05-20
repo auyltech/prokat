@@ -54,7 +54,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         actions: [
           IconButton(

@@ -8,11 +8,11 @@ import 'package:prokat/features/notifications/providers/notification_provider.da
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 
 final ownerNavItems = [
-  _NavItem(
-    icon: Icons.home_filled,
-    label: 'Home',
-    path: AppRoutes.ownerDashboard,
-  ),
+  // _NavItem(
+  //   icon: Icons.home_filled,
+  //   label: 'Home',
+  //   path: AppRoutes.ownerDashboard,
+  // ),
   _NavItem(
     icon: Icons.person_rounded,
     label: 'Profile',

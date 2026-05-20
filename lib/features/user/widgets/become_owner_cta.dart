@@ -33,7 +33,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         contentColor: theme.colorScheme.onPrimary,
         onTap: () async {
           await ref.read(appStartupProvider.notifier).setOwnerMode();
-          if (context.mounted) context.go(AppRoutes.ownerDashboard);
+          if (context.mounted) context.go(AppRoutes.ownerProfile);
         },
       );
     }

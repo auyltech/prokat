@@ -26,7 +26,7 @@ class OwnerSettingsScreen extends StatelessWidget {
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         backgroundColor: AppColors.teal700,
         elevation: 0,

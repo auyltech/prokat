@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import '../../../core/constants/api_routes.dart';
 import '../models/category.dart';
+import 'package:prokat/core/api/api_helper.dart';
 
 class CategoryService {
   final ApiClient apiClient;
@@ -15,17 +17,37 @@ class CategoryService {
     try {
       final response = await _dio.get(ApiRoutes.categories);
 
-      final List data = response.data["data"];
+      return handleApiResponse<List<Category>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected category list");
+          }
 
-      final categories = data.map((json) => Category.fromJson(json)).toList();
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid category item");
+            }
 
-      // categories.sort((a, b) => a.sortIndex.compareTo(b.sortIndex));
+            return Category.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load categories",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return ApiResponse(success: true, data: categories);
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
       return ApiResponse.failure(
-        error: "Could not load categories",
-        message: "",
+        message: "Unexpected error",
+        error: e.toString(),
       );
     }
   }

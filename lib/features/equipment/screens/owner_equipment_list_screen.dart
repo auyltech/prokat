@@ -50,15 +50,16 @@ class _OwnerEquipmentListScreenState
           ),
           onPressed: () => context.canPop()
               ? context.pop()
-              : context.push(AppRoutes.ownerDashboard),
+              : context.push(AppRoutes.ownerProfile),
         ),
         actions: [
           IconButton(
             onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
-            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 24),
+            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 32),
             tooltip: "Add Equipment",
           ),
         ],
+        actionsPadding: EdgeInsets.only(right: 12),
         title: Text(
           "My Equipment",
           style: TextStyle(color: theme.colorScheme.onPrimary),
@@ -69,7 +70,7 @@ class _OwnerEquipmentListScreenState
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -123,7 +124,6 @@ class _OwnerEquipmentListScreenState
                 //     ),
                 //   ],
                 // ),
-                
                 if (state.isLoading)
                   _builSkeleton(context)
                 else if (state.ownerEquipment.isEmpty)
@@ -133,7 +133,13 @@ class _OwnerEquipmentListScreenState
                   )
                 else
                   ListView.separated(
-                    separatorBuilder: (context, index) => SizedBox(height: 12),
+                    separatorBuilder: (context, index) => Divider(
+                      height: 2,
+                      thickness: 1,
+                      indent: 16,
+                      endIndent: 16,
+                      color: AppColors.teal700,
+                    ),
                     itemCount: state.ownerEquipment.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
