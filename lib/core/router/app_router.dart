@@ -50,6 +50,7 @@ import 'package:prokat/features/user/screens/user_profile_screen.dart';
 import 'package:prokat/features/user/screens/user_settings_screen.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
+import 'package:prokat/features/categories/screens/categories_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -206,6 +207,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: "/terms",
                 builder: (_, _) => const TermsConditionsScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.categories,
+                builder: (_, _) => const CategoriesScreen(),
               ),
               GoRoute(
                 path: AppRoutes.searchList,

@@ -5,13 +5,24 @@ Priorities: **P0** = ship blocker for credible tests, **P1** = high value / trus
 
 ---
 
+## ✅ Completed
+
+| Date | Area | Work done |
+|------|------|-----------|
+| 2026-05-20 | i18n | **Full app translation EN/RU/KK** — all user-visible strings replaced with `AppLocalizations` keys across every screen and widget. 33 new ARB keys added. `flutter analyze` clean. |
+| 2026-05-20 | Bug fix | **`create_booking_screen.dart`**: `_buildCenteredFallback` returned `SliverFillRemaining` inside a `ListView` (runtime crash) — replaced with `SizedBox`. |
+| 2026-05-20 | Bug fix | **`client_bookings_section.dart`**: removed empty dead block `if (completed.isNotEmpty) {}`. |
+| 2026-05-20 | Bug fix | **`equipment_city_selector.dart`**: deprecated `desiredAccuracy` param replaced with `LocationSettings(accuracy: ...)`. |
+| 2026-05-20 | Analyze | **`flutter analyze`** passes with 0 issues. |
+| 2026-05-20 | P0-01 | **`/categories` route** added to `GoRouter` → `CategoriesScreen`. |
+| 2026-05-20 | P0-02 | **Verified fixed** — `selectAddress` already patches `ApiRoutes.userAddress` correctly. |
+| 2026-05-20 | P0-03 | **Verified fixed** — `updateEquipment` already sends `categoryId` (no typo in current code). |
+
+---
+
 ## P0 — Correctness & ship blockers
 
-| ID | Area | Finding | Suggested work |
-|----|------|-----------|----------------|
-| P0-01 | Router | **`/categories` not registered** in `GoRouter` while `SidebarDrawer` calls `context.go(AppRoutes.categories)`. `CategoriesScreen` exists but is unreachable. | Add `GoRoute` for `AppRoutes.categories` → `CategoriesScreen`, or change sidebar to a sheet/modal that does not rely on a missing route. |
-| P0-02 | API / Profile | **`UserProfileService.selectAddress`** PATCHes `ApiRoutes.userCategory` with `addressId` — likely wrong endpoint vs `userAddress` (or backend contract). | Align with backend: correct path + body keys; verify default address updates in DB. |
-| P0-03 | API / Equipment | **`EquipmentService.updateEquipment`** sends typo key **`cateogryId`** instead of `categoryId`. | Fix key name; regression-test owner category change from edit form. |
+✅ All P0 items resolved.
 
 ---
 
@@ -19,7 +30,7 @@ Priorities: **P0** = ship blocker for credible tests, **P1** = high value / trus
 
 | ID | Area | Finding | Suggested work |
 |----|------|-----------|----------------|
-| P1-01 | UX | **Cold start** (e.g. Render sleep): first API can hang; 15s timeouts in `ApiClient` may feel like a broken app. | User-visible “server starting” + **Retry**; optional keep-warm ping during test window (respect host ToS). |
+| P1-01 | UX | **Cold start / backend hosting**: currently local testing only. When production server is provisioned, address cold start UX (Render sleep or equivalent). | User-visible “server starting” banner + **Retry**; upgrade to always-on tier before real user tests. **Deferred — waiting on server.** |
 | P1-02 | UX | **Sidebar “Search”** → `searchMap`; **bottom nav “Search”** → `searchList` — same label, different destinations. | Rename (“Map” / “List”) or unify default + secondary entry. |
 | P1-03 | Product | **Counter-offer** (`CounterOfferSheet`): button only pops sheet; **TODO: no API**. | Wire to backend contract or **hide / “Coming soon”** until implemented. |
 | P1-04 | Onboarding | Guest vs logged-in value prop not spelled out in-product. | Short copy: browse as guest → sign in to book / chat / favorites (single screen or tooltip). |
@@ -53,7 +64,7 @@ Priorities: **P0** = ship blocker for credible tests, **P1** = high value / trus
 | P2-04 | Router | **`/orders/:id`** uses **`bookingId` query param** instead of path param — surprising for API-like URLs. | Align path param with `bookingId` or document in router + tests. |
 | P2-05 | Startup | **`AppStartupController`**: commented TODO on **duplicate init** / microtask. | Verify single init path; remove dead code; avoid double category/profile fetch. |
 | P2-06 | Dependencies | **`hive` / `hive_flutter`** in `pubspec` but **unused** in `lib/`. | Remove or implement offline cache (categories, last search). |
-| P2-07 | Dead code | **`owner_booking_card.dart`**, **`user_equipment_tile.dart`**: comments **TODO DELETE**. | Delete if unused; grep references first. |
+| P2-07 | Dead code | **`owner_booking_card.dart`**, **`user_equipment_tile.dart`**: comments **TODO DELETE**. `owner_booking_card.dart` translated but still in codebase. | Delete if unused; grep references first. |
 | P2-08 | Stub | **`MapLocationService`**: only `fakeLat` / `fakeLng` — placeholder. | Implement real helper or delete to prevent misuse. |
 | P2-09 | Chat | **`chat_navigation.dart`**: TODO remove. | Inline or delete obsolete helper. |
 | P2-10 | Routes | **`AppRoutes.ownerEquimentMap`**: “Screen not implemented” TODO. | Implement or remove from docs/nav. |
@@ -80,7 +91,7 @@ Priorities: **P0** = ship blocker for credible tests, **P1** = high value / trus
 | P3-04 | Copy | **`AuthApiService.loginWithCredentials`** success path message says **“Account created successfully”** (wrong for login). | Fix user-facing strings per action. |
 | P3-05 | Images (from `report.md`) | **Mandatory 4:3 crop** on equipment photos — product risk for gallery vs cover-only. | Decide policy; document; adjust `ImageCropper` scope if needed. |
 | P3-06 | Images | Shimmer / blur on high-DPR devices — verify after `OptimizedNetworkImage` rollout. | Visual QA checklist (light/dark). |
-| P3-07 | CI / local | `report.md`: **`dart format` / `flutter analyze`** not completed in that session. | Add pre-merge checklist or CI job. |
+| P3-07 | CI / local | `report.md`: **`dart format` / `flutter analyze`** — `flutter analyze` now clean ✅; `dart format` pass still pending. | Add pre-merge checklist or CI job. |
 
 ---
 
@@ -139,4 +150,4 @@ _Then_ pick P1-09–P1-11 and P2 items by capacity.
 
 ---
 
-*Last consolidated: conversation-derived backlog for Prokat MVP / user-test readiness.*
+*Last updated: 2026-05-20 — all P0 items resolved; translation complete; `flutter analyze` clean. Local testing phase — backend server migration deferred.*
