@@ -3,6 +3,7 @@ import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/widgets/owner/price_entry_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class PricingSection extends StatelessWidget {
   final List<PriceEntry> prices;
@@ -22,6 +23,7 @@ class PricingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
     final accent = colorScheme.primary;
@@ -31,11 +33,6 @@ class PricingSection extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(0),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(20),
-      //   border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
-      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,7 +40,7 @@ class PricingSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SectionTitle(title: "Prices"),
+              SectionTitle(title: l10n.prices),
 
               if (canAddMore)
                 IconButton(
@@ -58,9 +55,9 @@ class PricingSection extends StatelessWidget {
           /// EMPTY STATE
           if (prices.isEmpty)
             EmptyStateTile(
-              title: "No Prices Listed",
+              title: l10n.noPricesListed,
               icon: Icons.payments_outlined,
-              color: warning, // Pass your 'warning' color variable here
+              color: warning,
             )
           else
             Column(
@@ -81,7 +78,7 @@ class PricingSection extends StatelessWidget {
                 ),
               ),
               child: Text(
-                "All Rating Options Listed",
+                l10n.allRatingOptionsListed,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: ghostGray,
@@ -89,8 +86,6 @@ class PricingSection extends StatelessWidget {
                 ),
               ),
             ),
-
-          // if (canAddMore && prices.isNotEmpty) const SizedBox(height: 16),
         ],
       ),
     );

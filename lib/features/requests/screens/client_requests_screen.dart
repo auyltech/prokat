@@ -8,6 +8,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_with_offers.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientRequestsScreen extends ConsumerStatefulWidget {
   const ClientRequestsScreen({super.key});
@@ -31,6 +32,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final authSession = ref.watch(authProvider).session;
     final state = ref.watch(requestProvider);
@@ -62,7 +64,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
         backgroundColor: theme.primaryColor,
         elevation: 0,
         title: Text(
-          "My Requests",
+          l10n.myRequests,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         leading: IconButton(
@@ -83,7 +85,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               color: theme.colorScheme.onPrimary,
               size: 24,
             ),
-            tooltip: "Create Request",
+            tooltip: l10n.createRequest,
           ),
         ],
       ),
@@ -91,20 +93,20 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
         children: [
           if (authSession == null)
             EmptyStateTile(
-              title: "Login to create and view requests",
+              title: l10n.loginToViewRequests,
               icon: Icons.login_outlined,
             )
           else if (state.isLoading)
-            Center(child: CircularProgressIndicator())
+            const Center(child: CircularProgressIndicator())
           else if (state.error != null)
             EmptyStateTile(
-              title: "Something went wrong!",
-              subtitle: "Error loading requests",
+              title: l10n.somethingWentWrong,
+              subtitle: l10n.errorLoadingRequests,
               icon: Icons.error_outline,
             )
           else if (active.isEmpty)
             EmptyStateTile(
-              title: "You don't have any active requests",
+              title: l10n.noActiveRequests,
               icon: Icons.description_outlined,
             )
           else
@@ -113,14 +115,10 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               child: Column(
                 children: [
                   ListView.builder(
-                    shrinkWrap:
-                        true, // Tells the list to only take the space it needs
-                    physics:
-                        const NeverScrollableScrollPhysics(), // Stops the inner list from trying to scroll separately
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: active.length,
-                    padding: const EdgeInsets.only(
-                      bottom: 12,
-                    ), // Adjust as needed
+                    padding: const EdgeInsets.only(bottom: 12),
                     itemBuilder: (context, index) {
                       final r = active[index];
                       final requestOffers = offersByRequest[r.id] ?? [];
@@ -139,7 +137,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                   ),
 
                   PrimaryButton(
-                    label: "Create a new request",
+                    label: l10n.createNewRequest,
                     onPressed: () =>
                         context.push(AppRoutes.clientRequestsCreate),
                   ),

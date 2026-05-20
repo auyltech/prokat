@@ -4,6 +4,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class VisibilityStatusSection extends ConsumerStatefulWidget {
   final bool isVisible;
@@ -41,6 +42,7 @@ class _VisibilityStatusSectionState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
     final accent = colorScheme.primary;
@@ -64,7 +66,7 @@ class _VisibilityStatusSectionState
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SectionTitle(title: "Status"),
+            SectionTitle(title: l10n.status),
 
             if (_isDirty)
               FilledButton.icon(
@@ -80,13 +82,13 @@ class _VisibilityStatusSectionState
                   if (res && context.mounted) {
                     AppSnackBar.show(
                       context,
-                      message: "Equipment submited for review",
+                      message: l10n.submittedForReview,
                       isSuccess: true,
                     );
                   }
                 },
                 icon: const Icon(Icons.sync_rounded, size: 16),
-                label: const Text("Save"),
+                label: Text(l10n.save),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -108,7 +110,7 @@ class _VisibilityStatusSectionState
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Available for rent", style: theme.textTheme.bodyMedium),
+              Text(l10n.availableForRent, style: theme.textTheme.bodyMedium),
 
               SizedBox(height: 8),
 
@@ -136,7 +138,7 @@ class _VisibilityStatusSectionState
                         ),
                       ),
                       child: Text(
-                        "Online",
+                        l10n.online,
                         style: theme.textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1,
@@ -169,7 +171,7 @@ class _VisibilityStatusSectionState
                         ),
                       ),
                       child: Text(
-                        "Offline",
+                        l10n.offline,
                         style: theme.textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1,
@@ -185,9 +187,8 @@ class _VisibilityStatusSectionState
 
               SizedBox(height: 12),
 
-              Text("Operating status", style: theme.textTheme.bodyMedium),
+              Text(l10n.operatingStatus, style: theme.textTheme.bodyMedium),
 
-              /// STATUS LABEL
               SizedBox(height: 8),
 
               SingleChildScrollView(
@@ -238,7 +239,7 @@ class _VisibilityStatusSectionState
 
         if (isDraft)
           PrimaryButton(
-            label: "Submit for Review",
+            label: l10n.submitForReview,
             onPressed: () async {
               final res = await ref
                   .read(equipmentProvider.notifier)
@@ -252,16 +253,15 @@ class _VisibilityStatusSectionState
               if (res) {
                 AppSnackBar.show(
                   context,
-                  message: "Equipment submited for review",
-                  isSuccess: true
+                  message: l10n.submittedForReview,
+                  isSuccess: true,
                 );
               } else {
                 AppSnackBar.show(
                   context,
-                  message: "Failed to submit",
-                  isError: true
+                  message: l10n.failedToSubmit,
+                  isError: true,
                 );
-
               }
             },
           ),

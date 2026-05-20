@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BalanceTile extends StatelessWidget {
   final int minutes;
@@ -20,6 +21,7 @@ class BalanceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -34,18 +36,16 @@ class BalanceTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header Row: Title + Plus Button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Minutes Balance",
+                l10n.minutesBalance,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              // Compact Top Up Button
               GestureDetector(
                 onTap: () {
                   context.push(AppRoutes.ownerPaymentTopUp);
@@ -64,15 +64,12 @@ class BalanceTile extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Main Balance: Clickable area
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => context.push(
-                    AppRoutes.ownerPayment,
-                  ), // Navigates to payments
+                  onTap: () => context.push(AppRoutes.ownerPayment),
                   behavior: HitTestBehavior.opaque,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -88,7 +85,7 @@ class BalanceTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        "Min",
+                        l10n.minutesUnit,
                         style: TextStyle(
                           fontSize: 18,
                           color: colorScheme.primary.withValues(alpha: 0.7),
@@ -104,12 +101,11 @@ class BalanceTile extends StatelessWidget {
                   ),
                 ),
               ),
-              // Burn Rate Info
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "Burn Rate",
+                    l10n.burnRate,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -128,7 +124,6 @@ class BalanceTile extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          // Progress Bar
           Stack(
             children: [
               Container(
@@ -145,7 +140,7 @@ class BalanceTile extends StatelessWidget {
                     height: 8,
                     width: constraints.maxWidth * progress.clamp(0.0, 1.0),
                     decoration: BoxDecoration(
-                      color: colorScheme.primary, // Primary fill
+                      color: colorScheme.primary,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   );

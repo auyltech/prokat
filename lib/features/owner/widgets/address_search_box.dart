@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'address_search_suggestions.dart';
 
 class AddressSearchBox extends ConsumerStatefulWidget {
@@ -20,7 +21,6 @@ class _AddressSearchBoxState extends ConsumerState<AddressSearchBox> {
 
   void onSearchChanged(String value) {
     debounce?.cancel();
-
     debounce = Timer(const Duration(milliseconds: 400), () {
       ref.read(locationProvider.notifier).searchLocations(value);
     });
@@ -28,6 +28,7 @@ class _AddressSearchBoxState extends ConsumerState<AddressSearchBox> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ref.watch(locationProvider);
     return Column(
       children: [
@@ -35,12 +36,11 @@ class _AddressSearchBoxState extends ConsumerState<AddressSearchBox> {
           controller: controller,
           onChanged: onSearchChanged,
           decoration: InputDecoration(
-            hintText: "Search address",
+            hintText: l10n.searchAddress,
             prefixIcon: const Icon(Icons.search),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
-
         AddressSearchSuggestions(
           onSelected: (result) {
             controller.text = result.street;

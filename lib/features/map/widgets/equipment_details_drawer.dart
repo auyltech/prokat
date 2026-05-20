@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentDetailsDrawer extends ConsumerWidget {
   final Equipment equipment; // Use your Equipment model
@@ -13,6 +14,7 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     const bgColor = Color(0xFF121417);
     const cardColor = Color(0xFF1E2125);
     const accentColor = Color(0xFF4E73DF);
@@ -84,8 +86,11 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          /// Status Badge (Optional but looks premium)
-                          _buildBadge("AVAILABLE", Colors.green),
+                          /// Status Badge
+                          _buildBadge(
+                            l10n.available.toUpperCase(),
+                            Colors.green,
+                          ),
 
                           const SizedBox(height: 12),
 
@@ -111,9 +116,9 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                           const SizedBox(height: 24),
 
                           /// 💰 Industrial Pricing Grid
-                          const Text(
-                            "PRICING RATES",
-                            style: TextStyle(
+                          Text(
+                            l10n.pricingRates,
+                            style: const TextStyle(
                               color: Colors.white30,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -191,15 +196,14 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: accentColor,
                                     foregroundColor: Colors.white,
-                                    // height: 56,
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text(
-                                    "START BOOKING",
-                                    style: TextStyle(
+                                  child: Text(
+                                    l10n.startBooking,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1,
                                     ),

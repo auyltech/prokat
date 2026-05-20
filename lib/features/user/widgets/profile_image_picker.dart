@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ProfileImagePicker extends StatefulWidget {
   final Function(File?) onImageSelected;
@@ -22,34 +23,31 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickAndCropImage(ImageSource source) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
-        maxWidth: 1080, // Optimize for performance
+        maxWidth: 1080,
         maxHeight: 1080,
         imageQuality: 85,
       );
 
       if (pickedFile == null) return;
 
-      // Launching the Cropper
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
-        aspectRatio: const CropAspectRatio(
-          ratioX: 1,
-          ratioY: 1,
-        ), // Force square for profiles
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         compressQuality: 85,
         uiSettings: [
           AndroidUiSettings(
-            toolbarTitle: 'Crop Profile Picture',
+            toolbarTitle: l10n.cropProfilePicture,
             toolbarColor: Colors.deepPurple,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
           ),
           IOSUiSettings(
-            title: 'Crop Profile Picture',
+            title: l10n.cropProfilePicture,
             aspectRatioLockEnabled: true,
             resetButtonHidden: true,
           ),
@@ -58,7 +56,6 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
 
       if (croppedFile != null) {
         setState(() => _selectedImage = File(croppedFile.path));
-
         widget.onImageSelected(_selectedImage);
       }
     } catch (e) {
@@ -68,6 +65,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
   }
 
   void _showPickerOptions() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -78,7 +76,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Photo Gallery'),
+              title: Text(l10n.photoGallery),
               onTap: () {
                 Navigator.of(context).pop();
                 _pickAndCropImage(ImageSource.gallery);
@@ -86,7 +84,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
+              title: Text(l10n.camera),
               onTap: () {
                 Navigator.of(context).pop();
                 _pickAndCropImage(ImageSource.camera);
@@ -113,9 +111,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
               backgroundImage: _selectedImage != null
                   ? FileImage(_selectedImage!)
                   : (widget.initialImageUrl != null &&
-                            widget
-                                .initialImageUrl!
-                                .isNotEmpty // Check for empty string
+                            widget.initialImageUrl!.isNotEmpty
                         ? NetworkImage(widget.initialImageUrl!)
                         : null),
               child:

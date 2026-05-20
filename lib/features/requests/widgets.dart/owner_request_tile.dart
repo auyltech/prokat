@@ -7,27 +7,7 @@ import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_create_offer_sheet.dart';
-
-String getOwnerRequestStateLabel(
-  RequestModel request,
-  List<OfferModel> offers,
-) {
-  final requestStatus = request.status.toLowerCase();
-
-  if (offers.isEmpty) {
-    if (requestStatus == "created") return "New Request";
-    if (requestStatus == "viewed") return "Viewed";
-    return "Request";
-  }
-
-  final offer = offers.first;
-  final offerStatus = offer.status.toLowerCase();
-
-  if (offerStatus == "accepted") return "Accepted";
-  if (offerStatus == "rejected") return "Rejected";
-
-  return "Offer Sent";
-}
+import 'package:prokat/l10n/app_localizations.dart';
 
 bool hasOffer(List<OfferModel> offers) => offers.isNotEmpty;
 
@@ -35,11 +15,11 @@ bool isAccepted(List<OfferModel> offers) =>
     offers.isNotEmpty && offers.first.status.toLowerCase() == "accepted";
 
 enum OwnerRequestUIState {
-  newRequest, // request CREATED, no offer
-  viewed, // request VIEWED, no offer
-  offerSent, // offer exists (CREATED/VIEWED)
-  hidden, // hidden locally
-  accepted, // offer ACCEPTED
+  newRequest,
+  viewed,
+  offerSent,
+  hidden,
+  accepted,
 }
 
 OwnerRequestUIState getOwnerRequestState(
@@ -51,45 +31,13 @@ OwnerRequestUIState getOwnerRequestState(
     if (request.status == "VIEWED") return OwnerRequestUIState.viewed;
   }
 
-  final offer = offers.first; // you said 1 offer per request
+  final offer = offers.first;
 
   if (offer.status == "ACCEPTED") {
     return OwnerRequestUIState.accepted;
   }
 
   return OwnerRequestUIState.offerSent;
-}
-
-class OwnerRequestUIConfig {
-  final String label;
-  final Color color;
-
-  const OwnerRequestUIConfig({required this.label, required this.color});
-}
-
-OwnerRequestUIConfig getOwnerRequestUIConfig(OwnerRequestUIState state) {
-  switch (state) {
-    case OwnerRequestUIState.newRequest:
-      return const OwnerRequestUIConfig(
-        label: "NEW REQUEST",
-        color: Colors.orange,
-      );
-
-    case OwnerRequestUIState.viewed:
-      return const OwnerRequestUIConfig(label: "VIEWED", color: Colors.white54);
-
-    case OwnerRequestUIState.offerSent:
-      return const OwnerRequestUIConfig(
-        label: "OFFER SENT",
-        color: Colors.blue,
-      );
-
-    case OwnerRequestUIState.accepted:
-      return const OwnerRequestUIConfig(label: "ACCEPTED", color: Colors.green);
-
-    case OwnerRequestUIState.hidden:
-      return const OwnerRequestUIConfig(label: "HIDDEN", color: Colors.white24);
-  }
 }
 
 class OwnerRequestTile extends ConsumerWidget {
@@ -106,11 +54,31 @@ class OwnerRequestTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
-    final stateLabel = getOwnerRequestStateLabel(request, offers);
-    final hasOffer = offers.isNotEmpty;
+    final uiState = getOwnerRequestState(request, offers);
+    final hasOffers = offers.isNotEmpty;
     final isAccepted =
-        hasOffer && offers.first.status.toLowerCase() == "accepted";
+        hasOffers && offers.first.status.toLowerCase() == "accepted";
+
+    String stateLabel;
+    switch (uiState) {
+      case OwnerRequestUIState.newRequest:
+        stateLabel = l10n.newRequestBadge;
+        break;
+      case OwnerRequestUIState.viewed:
+        stateLabel = l10n.viewedBadge;
+        break;
+      case OwnerRequestUIState.offerSent:
+        stateLabel = l10n.offerSentBadge;
+        break;
+      case OwnerRequestUIState.accepted:
+        stateLabel = l10n.acceptedBadge;
+        break;
+      case OwnerRequestUIState.hidden:
+        stateLabel = l10n.hiddenBadge;
+        break;
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
@@ -137,7 +105,7 @@ class OwnerRequestTile extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// --- HEADER ---
+                /// HEADER
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -175,14 +143,6 @@ class OwnerRequestTile extends ConsumerWidget {
                             color: colorScheme.primary,
                           ),
                           const SizedBox(height: 8),
-                          // Text(
-                          //   "${request.category?.name ?? "Request"} • ${request.capacity}${request.category?.capacityUnit ?? ""}",
-                          //   style: theme.textTheme.titleMedium?.copyWith(
-                          //     fontWeight: FontWeight.bold,
-                          //     letterSpacing: -0.5,
-                          //   ),
-                          // ),
-                          // const SizedBox(height: 4),
                           Row(
                             children: [
                               Icon(
@@ -219,14 +179,14 @@ class OwnerRequestTile extends ConsumerWidget {
                   child: Divider(height: 1, thickness: 0.5),
                 ),
 
-                /// --- FOOTER (Price & Actions) ---
+                /// FOOTER
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Offered Rate", style: theme.textTheme.labelSmall),
+                        Text(l10n.offeredRate, style: theme.textTheme.labelSmall),
                         Text(
                           formatPrice(request.offeredRate),
                           style: theme.textTheme.titleLarge?.copyWith(
@@ -238,7 +198,7 @@ class OwnerRequestTile extends ConsumerWidget {
                     ),
                     Row(
                       children: [
-                        if (!hasOffer) ...[
+                        if (!hasOffers) ...[
                           IconButton.filledTonal(
                             onPressed: () => ref
                                 .read(requestProvider.notifier)
@@ -276,8 +236,8 @@ class OwnerRequestTile extends ConsumerWidget {
                           ),
                           child: Text(
                             isAccepted
-                                ? "View Booking"
-                                : (hasOffer ? "View Offer" : "Send Offer"),
+                                ? l10n.viewBooking
+                                : (hasOffers ? l10n.viewOffer : l10n.sendOffer),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class SupportUsPage extends StatelessWidget {
   const SupportUsPage({super.key});
@@ -8,13 +9,14 @@ class SupportUsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: Text(
-          "Help Us Grow",
+          l10n.helpUsGrow,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: false,
@@ -32,64 +34,62 @@ class SupportUsPage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            _buildHeroHeader(context),
+            _buildHeroHeader(context, l10n),
             const SizedBox(height: 12),
             _buildSection(
               context,
-              title: 'The Simple Stuff',
+              title: l10n.theSimpleStuff,
               items: [
                 _SupportItem(
                   icon: Icons.star_outline_rounded,
                   color: Colors.amber,
-                  title: 'Rate us on the Store',
-                  subtitle: '5-star reviews help others find us.',
-                  actionText: 'Rate Now',
+                  title: l10n.rateOnStore,
+                  subtitle: l10n.starReviewsHint,
+                  actionText: l10n.rateNow,
                   onTap: () => _launchUrl('https://apple.com'),
                 ),
                 _SupportItem(
                   icon: Icons.share_outlined,
                   color: Colors.blue,
-                  title: 'Spread the Word',
-                  subtitle: 'Share the app with a friend who needs gear.',
-                  actionText: 'Share App',
-                  onTap: () {
-                    /* Use share_plus package here */
-                  },
+                  title: l10n.spreadTheWord,
+                  subtitle: l10n.shareAppHint,
+                  actionText: l10n.shareApp,
+                  onTap: () {},
                 ),
               ],
             ),
             _buildSection(
               context,
-              title: 'Contribute to the App',
+              title: l10n.contributeToApp,
               items: [
                 _SupportItem(
                   icon: Icons.bug_report_outlined,
                   color: Colors.orange,
-                  title: 'Beta Test & Feedback',
-                  subtitle: 'Report bugs or suggest new rental features.',
-                  actionText: 'Submit Ideas',
+                  title: l10n.betaTestFeedback,
+                  subtitle: l10n.reportBugsHint,
+                  actionText: l10n.submitIdeas,
                   onTap: () => _launchUrl('mailto:feedback@yourapp.com'),
                 ),
                 _SupportItem(
                   icon: Icons.work_outline_rounded,
                   color: Colors.purple,
-                  title: 'Join our Team',
-                  subtitle: 'We are looking for developers & ops help.',
-                  actionText: 'View Careers',
+                  title: l10n.joinOurTeam,
+                  subtitle: l10n.lookingForDevelopers,
+                  actionText: l10n.viewCareers,
                   onTap: () => _launchUrl('https://yourapp.com'),
                 ),
               ],
             ),
             _buildSection(
               context,
-              title: 'Fuel the Mission',
+              title: l10n.fuelTheMission,
               items: [
                 _SupportItem(
                   icon: Icons.coffee_outlined,
                   color: Colors.brown,
-                  title: 'Buy the Devs a Coffee',
-                  subtitle: 'A small tip to keep the servers running.',
-                  actionText: 'Donate',
+                  title: l10n.buyDevsACoffee,
+                  subtitle: l10n.tipToKeepServersHint,
+                  actionText: l10n.donate,
                   onTap: () => _launchUrl('https://buymeacoffee.com'),
                 ),
               ],
@@ -101,7 +101,7 @@ class SupportUsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroHeader(BuildContext context) {
+  Widget _buildHeroHeader(BuildContext context, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -113,10 +113,10 @@ class SupportUsPage extends StatelessWidget {
         children: [
           const Icon(Icons.favorite, size: 64, color: Colors.white),
           const SizedBox(height: 16),
-          const Text(
-            'We are building this together',
+          Text(
+            l10n.buildingTogether,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class SupportUsPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Our mission is to make equipment accessible to everyone. Here is how you can help us get there.',
+            l10n.missionStatement,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.7),

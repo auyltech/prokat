@@ -8,6 +8,7 @@ import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class OwnerBookingHistoryScreen extends ConsumerStatefulWidget {
@@ -31,6 +32,7 @@ class _OwnerBookingHistoryScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final bookingState = ref.watch(bookingProvider);
 
     final bookingHistory = bookingState.ownerBookings
@@ -57,7 +59,7 @@ class _OwnerBookingHistoryScreenState
               : context.push(AppRoutes.ownerDashboard),
         ),
         title: Text(
-          "Order History",
+          l10n.orderHistory,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: AppColors.teal700,
@@ -67,19 +69,19 @@ class _OwnerBookingHistoryScreenState
         padding: EdgeInsets.zero,
         children: [
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                SearchBox(placeholder: "Search..."),
+                SearchBox(placeholder: l10n.search),
 
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 if (bookingState.isLoading)
-                  RequestTileSkeleton()
+                  const RequestTileSkeleton()
                 else if (bookingState.error != null)
-                  Text("Error Loading orders")
+                  EmptyStateTile(title: l10n.errorLoadingOrders)
                 else if (bookingHistory.isEmpty)
-                  EmptyStateTile(title: "There are no orders in your history")
+                  EmptyStateTile(title: l10n.noOrderHistory)
                 else
                   ListView.builder(
                     itemCount: bookingHistory.length,

@@ -7,6 +7,7 @@ import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/categories/widgets/empty_categories_tile.dart';
 import 'package:prokat/features/categories/widgets/error_categories_tile.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
@@ -40,12 +41,13 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
   Widget build(BuildContext context) {
     final categoriesState = ref.watch(categoriesProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Services", // More engaging title
+          l10n.services,
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w900,
             letterSpacing: -0.8,
@@ -60,7 +62,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
           const EmptyCategoriesCard()
         else
           SizedBox(
-            height: 140, // Slightly shorter for better vertical rhythm
+            height: 140,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: categoriesState.categories.length,

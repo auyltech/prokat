@@ -7,6 +7,7 @@ import 'package:prokat/features/auth/widgets/login_with_username_form.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -27,6 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
     final error = authState.error;
@@ -72,13 +74,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const LogoTile(),
                           const SizedBox(height: 32),
                           Text(
-                            "Get Started", // "Welcome Back"
+                            l10n.getStarted,
                             style: theme.textTheme.headlineSmall?.copyWith(
                               letterSpacing: -1,
                             ),
                           ),
                           Text(
-                            "Pickup where you left off", // "Enter your phone number"
+                            l10n.loginSubtitle,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withValues(
                                 alpha: 0.6,

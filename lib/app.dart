@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/core/theme/app_theme.dart';
@@ -26,6 +28,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'Prokat',
@@ -34,6 +37,9 @@ class _MyAppState extends ConsumerState<MyApp> {
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

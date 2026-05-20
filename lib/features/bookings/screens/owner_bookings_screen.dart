@@ -7,6 +7,7 @@ import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerBookingsScreen extends ConsumerStatefulWidget {
   const OwnerBookingsScreen({super.key});
@@ -28,9 +29,9 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final bookingState = ref.watch(bookingProvider);
 
-    // Logic: Split into actionable categories
     final newBookings = bookingState.ownerBookings
         .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
         .toList();
@@ -49,7 +50,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
               : context.push(AppRoutes.ownerDashboard),
         ),
         title: Text(
-          "My Orders",
+          l10n.myOrders,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: AppColors.teal700,
@@ -62,7 +63,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
               color: theme.colorScheme.onPrimary,
               size: 24,
             ),
-            tooltip: "Job History",
+            tooltip: l10n.orderHistory,
           ),
         ],
       ),
@@ -70,18 +71,18 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
         padding: EdgeInsets.zero,
         children: [
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: [
                 if (bookingState.isLoading)
-                  RequestTileSkeleton()
+                  const RequestTileSkeleton()
                 else if (bookingState.error != null)
                   EmptyStateTile(
-                    title: "Error Loading Orders",
+                    title: l10n.errorLoadingOrders,
                     subtitle: bookingState.error.toString(),
                   )
                 else if (newBookings.isEmpty)
-                  EmptyStateTile(title: "You don't have any active orders")
+                  EmptyStateTile(title: l10n.noActiveOrders)
                 else
                   ListView.builder(
                     shrinkWrap: true,

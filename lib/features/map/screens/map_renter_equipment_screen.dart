@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/map/containers/map_container.dart';
 import 'package:prokat/features/map/containers/map_renter_equipment_container.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import '../../../core/router/app_routes.dart';
 
 class MapRenterEquipmentScreen extends ConsumerStatefulWidget {
@@ -26,11 +27,13 @@ class _MapRenterEquipmentScreenState
 
   @override
   Widget build(BuildContext context) {
-    return const MapContainer(
-      title: "Equipment Map",
+    final l10n = AppLocalizations.of(context)!;
+
+    return MapContainer(
+      title: l10n.equipmentMap,
       redirectRoute: AppRoutes.searchList,
-      redirectLabel: "View equipment list",
-      mobileMap: MapRenterEquipmentContainer(),
+      redirectLabel: l10n.viewEquipmentList,
+      mobileMap: const MapRenterEquipmentContainer(),
     );
   }
 }

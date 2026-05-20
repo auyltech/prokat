@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/phone_input_field.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'otp_verification_form.dart';
 
 class LoginWithPhoneForm extends ConsumerStatefulWidget {
@@ -16,9 +17,16 @@ class LoginWithPhoneForm extends ConsumerStatefulWidget {
 
 class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
   final phoneController = TextEditingController(text: "");
+  late AppLocalizations _l10n;
 
   bool showOtp = false;
   String phone = "";
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   @override
   void dispose() {
@@ -27,7 +35,6 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
   }
 
   bool isValidKazakhstanPhone(String phone) {
-    // Matches +7 followed by 10 digits
     final regex = RegExp(r'^\+7\d{10}$');
     return regex.hasMatch(phone);
   }
@@ -36,7 +43,7 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
     final rawDigits = phoneController.text.replaceAll(RegExp(r'\D'), '');
 
     if (rawDigits.isEmpty) {
-      widget.onError("Please enter your phone number");
+      widget.onError(_l10n.pleaseEnterPhone);
       return;
     }
 
@@ -45,11 +52,10 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
     widget.onError(null);
 
     if (!isValidKazakhstanPhone(fullPhone)) {
-      widget.onError("Enter a valid Kazakhstan phone (+7 XXX XXX XXXX)");
+      widget.onError(_l10n.validKazakhPhone);
       return;
     }
 
-    // Clear previous errors
     widget.onError(null);
 
     try {
@@ -58,10 +64,10 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
           .requestOtp(fullPhone);
 
       if (!success) {
-        widget.onError("Failed to send OTP. Please try again.");
+        widget.onError(_l10n.failedSendOtp);
       }
     } catch (e) {
-      widget.onError("Something went wrong!");
+      widget.onError(_l10n.somethingWentWrong);
     }
   }
 
@@ -73,7 +79,6 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
         authState.otpPhone != null && authState.otpRequestedAt != null;
 
     if (hasOtpSession) {
-      // Passing onError to the next form as well
       return OtpVerificationForm(
         phone: authState.otpPhone!,
         onError: widget.onError,
@@ -84,12 +89,12 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
       children: [
         const SizedBox(height: 20),
 
-        PhoneInputField(label: "Phone Number", controller: phoneController),
+        PhoneInputField(label: _l10n.phoneNumber, controller: phoneController),
 
         const SizedBox(height: 24),
 
         ListenableBuilder(
-          listenable: phoneController, // Listens to every keystroke
+          listenable: phoneController,
           builder: (context, _) {
             final rawDigits = phoneController.text.replaceAll(
               RegExp(r'\D'),
@@ -97,12 +102,11 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
             );
             final fullPhone = "+7$rawDigits";
 
-            // Logic is re-evaluated every time the text changes
             final canSubmit =
                 isValidKazakhstanPhone(fullPhone) && !authState.isLoading;
 
             return PrimaryButton(
-              label: authState.isLoading ? "Sending..." : "Send Otp",
+              label: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
               isLoading: authState.isLoading,
               onPressed: canSubmit ? requestOtp : null,
             );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> showEditPhoneSheet(
   BuildContext context,
@@ -9,6 +10,7 @@ Future<void> showEditPhoneSheet(
   String currentPhone,
 ) {
   final controller = TextEditingController(text: currentPhone);
+  final l10n = AppLocalizations.of(context)!;
 
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
@@ -35,7 +37,7 @@ Future<void> showEditPhoneSheet(
             mainAxisSize: MainAxisSize.min,
             children: [
               /// Title
-              Text('Edit Phone', style: textTheme.titleLarge),
+              Text(l10n.editPhone, style: textTheme.titleLarge),
 
               const SizedBox(height: 16),
 
@@ -71,7 +73,7 @@ Future<void> showEditPhoneSheet(
                   Expanded(
                     child: TextButton(
                       onPressed: () => context.pop(),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -89,7 +91,7 @@ Future<void> showEditPhoneSheet(
                           context.pop();
                         }
                       },
-                      child: const Text('Save'),
+                      child: Text(l10n.save),
                     ),
                   ),
                 ],

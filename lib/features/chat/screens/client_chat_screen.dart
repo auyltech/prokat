@@ -8,6 +8,7 @@ import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -46,6 +47,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final chatState = ref.watch(chatProvider);
     final authState = ref.watch(authProvider);
@@ -138,7 +140,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                             .read(chatProvider.notifier)
                             .openChatById(widget.chatId),
                         icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Retry'),
+                        label: Text(l10n.retry),
                       ),
                     ],
                   ),

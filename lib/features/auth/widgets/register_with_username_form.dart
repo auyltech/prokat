@@ -5,6 +5,7 @@ import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_button.dart';
 import 'package:prokat/features/auth/widgets/auth_text_field.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class RegisterWithUsernameForm extends ConsumerStatefulWidget {
@@ -22,6 +23,13 @@ class _RegisterWithUsernameFormState
   final nameController = TextEditingController();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   @override
   void dispose() {
@@ -40,13 +48,11 @@ class _RegisterWithUsernameFormState
       final username = usernameController.text.trim();
       final password = passwordController.text;
 
-      // 1. Frontend Validation: Prevent submission if empty
       if (fullName.isEmpty || username.isEmpty || password.isEmpty) {
-        widget.onError("Please fill in all registration fields");
+        widget.onError(_l10n.pleaseEnterAllFields);
         return;
       }
 
-      // Clear previous errors
       widget.onError(null);
 
       try {
@@ -71,7 +77,7 @@ class _RegisterWithUsernameFormState
           context.go(AppRoutes.searchList);
         }
       } catch (e) {
-        widget.onError("Something went wrong!");
+        widget.onError(_l10n.somethingWentWrong);
       }
     }
 
@@ -82,7 +88,7 @@ class _RegisterWithUsernameFormState
           const SizedBox(height: 20),
 
           AuthTextField(
-            label: "Full Name",
+            label: _l10n.fullName,
             icon: Icons.person_outline,
             controller: nameController,
           ),
@@ -90,7 +96,7 @@ class _RegisterWithUsernameFormState
           const SizedBox(height: 16),
 
           AuthTextField(
-            label: "Username",
+            label: _l10n.username,
             icon: Icons.alternate_email,
             controller: usernameController,
           ),
@@ -98,7 +104,7 @@ class _RegisterWithUsernameFormState
           const SizedBox(height: 16),
 
           AuthTextField(
-            label: "Password",
+            label: _l10n.password,
             icon: Icons.lock_outline,
             controller: passwordController,
             isPassword: true,
@@ -108,8 +114,8 @@ class _RegisterWithUsernameFormState
 
           AuthButton(
             loading: authState.isLoading,
-            text: "CREATE ACCOUNT",
-            loadingText: "CREATING...",
+            text: _l10n.createAccount,
+            loadingText: _l10n.creating,
             onPressed: register,
           ),
 

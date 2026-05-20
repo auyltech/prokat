@@ -4,6 +4,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 void openResponseSheet(BuildContext context, RequestModel request) {
   showModalBottomSheet(
@@ -14,6 +15,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
       return Consumer(
         builder: (context, ref, _) {
           final theme = Theme.of(context);
+          final l10n = AppLocalizations.of(context)!;
 
           final offersState = ref.watch(offersProvider);
           final offersNotifier = ref.read(offersProvider.notifier);
@@ -48,14 +50,12 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                 ),
               ],
             ),
-
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// 🔹 HEADER
                   Text(
-                    "Send Offer",
+                    l10n.sendOffer,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -63,8 +63,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
 
                   const SizedBox(height: 20),
 
-                  /// 🔹 EQUIPMENT
-                  Text("Equipment", style: theme.textTheme.labelMedium),
+                  Text(l10n.navEquipment, style: theme.textTheme.labelMedium),
                   const SizedBox(height: 6),
 
                   Container(
@@ -78,7 +77,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                       child: DropdownButton(
                         isExpanded: true,
                         value: offersState.selectedEquipment,
-                        hint: const Text("Select equipment"),
+                        hint: Text(l10n.selectEquipment),
                         items: equipmentOptions.map((e) {
                           return DropdownMenuItem(
                             value: e,
@@ -96,13 +95,12 @@ void openResponseSheet(BuildContext context, RequestModel request) {
 
                   const SizedBox(height: 20),
 
-                  /// 🔹 PRICE + RATE
                   Row(
                     children: [
                       Expanded(
                         child: _inputBox(
                           theme,
-                          label: "Price (₸)",
+                          label: l10n.priceKZT,
                           child: TextField(
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
@@ -119,7 +117,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                       Expanded(
                         child: _dropdownBox(
                           theme,
-                          label: "Rate",
+                          label: l10n.priceRateLabel,
                           value: offersState.priceRate,
                           hint: "Per day",
                           items: ["Per hour", "Per day", "Fixed"],
@@ -133,13 +131,12 @@ void openResponseSheet(BuildContext context, RequestModel request) {
 
                   const SizedBox(height: 20),
 
-                  /// 🔹 DATE + TIME
                   Row(
                     children: [
                       Expanded(
                         child: _inputBox(
                           theme,
-                          label: "Start Date",
+                          label: l10n.startDate,
                           child: InkWell(
                             onTap: () async {
                               final date = await showDatePicker(
@@ -159,7 +156,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                             child: Text(
                               offersState.selectedDate != null
                                   ? formatDate(date: offersState.selectedDate!)
-                                  : "Select date",
+                                  : l10n.selectDate,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -171,7 +168,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                       Expanded(
                         child: _inputBox(
                           theme,
-                          label: "Start Time",
+                          label: l10n.startTime,
                           child: InkWell(
                             onTap: () async {
                               final time = await showTimePicker(
@@ -198,7 +195,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                                       context,
                                       offersState.selectedTime!,
                                     )
-                                  : "Select time",
+                                  : l10n.selectTime,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -211,17 +208,16 @@ void openResponseSheet(BuildContext context, RequestModel request) {
 
                   const SizedBox(height: 20),
 
-                  /// 🔹 COMMENT
                   _inputBox(
                     theme,
-                    label: "Comment",
+                    label: l10n.comments,
                     child: TextField(
                       maxLines: 3,
                       onChanged: (value) {
                         offersNotifier.setComment(value);
                       },
-                      decoration: const InputDecoration(
-                        hintText: "Optional notes or terms...",
+                      decoration: InputDecoration(
+                        hintText: l10n.optionalNotesHint,
                         border: InputBorder.none,
                       ),
                     ),
@@ -229,7 +225,6 @@ void openResponseSheet(BuildContext context, RequestModel request) {
 
                   const SizedBox(height: 24),
 
-                  /// 🔥 SUBMIT BUTTON
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -247,7 +242,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                         }
                       },
                       child: Text(
-                        "Send Offer",
+                        l10n.sendOffer,
                         style: TextStyle(
                           fontSize: 16,
                           color: theme.colorScheme.onPrimary,

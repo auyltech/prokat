@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class AdaptiveFooterCard extends StatelessWidget {
-  final double progress; // 0.0 at top/middle, 1.0 at very bottom
+  final double progress;
 
   const AdaptiveFooterCard({super.key, required this.progress});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isExpanded = progress > 0.5;
 
     return Container(
@@ -36,7 +38,6 @@ class AdaptiveFooterCard extends StatelessWidget {
             child: isExpanded
                 ? Stack(
                     children: [
-                      // Decorative background icon (Subtle "Truck" watermark)
                       Positioned(
                         right: -20,
                         bottom: -10,
@@ -51,7 +52,6 @@ class AdaptiveFooterCard extends StatelessWidget {
                         padding: const EdgeInsets.all(24),
                         child: Row(
                           children: [
-                            // Icon Container
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -59,7 +59,7 @@ class AdaptiveFooterCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Icon(
-                                Icons.search_rounded, // Search or ManageSearch
+                                Icons.search_rounded,
                                 color: Colors.white,
                                 size: 32,
                               ),
@@ -67,13 +67,12 @@ class AdaptiveFooterCard extends StatelessWidget {
 
                             const SizedBox(width: 20),
 
-                            // Text
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Find & Rent",
+                                    l10n.findAndRent,
                                     style: theme.textTheme.headlineSmall
                                         ?.copyWith(
                                           color: Colors.white,
@@ -83,11 +82,9 @@ class AdaptiveFooterCard extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "Browse heavy equipment near you",
+                                    l10n.browseHeavyEquipment,
                                     style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ),
+                                      color: Colors.white.withValues(alpha: 0.9),
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
                                     ),
@@ -96,7 +93,6 @@ class AdaptiveFooterCard extends StatelessWidget {
                               ),
                             ),
 
-                            // Small White Chevron
                             const Icon(
                               Icons.arrow_forward_ios_rounded,
                               color: Colors.white,
@@ -106,24 +102,27 @@ class AdaptiveFooterCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ) // Your full Row/Stack code
-                : _buildCollapsedContent(),
+                  )
+                : _buildCollapsedContent(l10n),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCollapsedContent() {
-    return const Row(
+  Widget _buildCollapsedContent(AppLocalizations l10n) {
+    return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.search, color: Colors.white, size: 20),
-        SizedBox(width: 8),
+        const Icon(Icons.search, color: Colors.white, size: 20),
+        const SizedBox(width: 8),
         Text(
-          "Find & Rent",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          l10n.findAndRent,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

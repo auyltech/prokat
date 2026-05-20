@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class AddressForm extends ConsumerStatefulWidget {
   const AddressForm({super.key});
@@ -26,33 +27,36 @@ class AddressFormState extends ConsumerState<AddressForm> {
     streetController.text = result.street;
     cityController.text = result.city ?? "";
     countryController.text = result.country ?? "";
-
     latitude = result.latitude;
     longitude = result.longitude;
-
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         InputField(
-          label: "House / Building / Staircase",
+          label: l10n.houseBuilding,
           controller: commentController,
-          hint: "My House",
+          hint: l10n.myHouseHint,
         ),
         InputField(
-          label: "Street",
+          label: l10n.street,
           controller: streetController,
-          hint: "Stapayeva 123",
+          hint: l10n.streetHint,
         ),
-        InputField(label: "City", controller: cityController, hint: "Atyrau"),
+        InputField(
+          label: l10n.city,
+          controller: cityController,
+          hint: l10n.cityHint,
+        ),
 
         const SizedBox(height: 24),
 
         PrimaryButton(
-          label: "Save Location",
+          label: l10n.saveLocation,
           onPressed: () async {
             final location = LocationModel(
               id: '',

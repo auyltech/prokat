@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,13 @@ class LoginWithUsernameForm extends ConsumerStatefulWidget {
 class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   @override
   void dispose() {
@@ -35,7 +43,7 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
       final password = passwordController.text;
 
       if (username.isEmpty || password.isEmpty) {
-        widget.onError("Please enter both username and password");
+        widget.onError(_l10n.pleaseEnterBothFields);
         return;
       }
 
@@ -60,7 +68,7 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
         );
       }
     } catch (e) {
-      widget.onError("Something went wrong!");
+      widget.onError(_l10n.somethingWentWrong);
     }
   }
 
@@ -73,7 +81,7 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
         const SizedBox(height: 20),
 
         AuthTextField(
-          label: "Username",
+          label: _l10n.username,
           icon: Icons.alternate_email,
           controller: usernameController,
         ),
@@ -81,7 +89,7 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
         const SizedBox(height: 16),
 
         AuthTextField(
-          label: "Password",
+          label: _l10n.password,
           icon: Icons.lock_outline,
           controller: passwordController,
           isPassword: true,
@@ -91,8 +99,8 @@ class _LoginWithUsernameFormState extends ConsumerState<LoginWithUsernameForm> {
 
         AuthButton(
           loading: authState.isLoading,
-          text: "LOGIN",
-          loadingText: "Signing in...",
+          text: _l10n.navLogin,
+          loadingText: _l10n.signingIn,
           onPressed: _login,
         ),
       ],

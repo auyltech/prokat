@@ -4,6 +4,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientRequestsHistoryScreen extends ConsumerWidget {
   const ClientRequestsHistoryScreen({super.key});
@@ -11,6 +12,7 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final authSession = ref.watch(authProvider).session;
     final state = ref.watch(requestProvider);
 
@@ -37,7 +39,7 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
               onPressed: () => context.pop(),
             ),
             title: Text(
-              "Requests History", // Changed title to differentiate from Active
+              l10n.requestsHistory,
               style: theme.textTheme.titleLarge?.copyWith(
                 color: theme.colorScheme.onPrimary,
               ),
@@ -46,17 +48,16 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
               IconButton(
                 onPressed: () => authSession == null ? null : context.pop(),
                 icon: Icon(
-                  Icons.list, // Icon changed to represent "Active List"
+                  Icons.list,
                   color: theme.colorScheme.onPrimary,
                   size: 24,
                 ),
-                tooltip: "Active Requests",
+                tooltip: l10n.activeRequestsTooltip,
               ),
             ],
-            actionsPadding: EdgeInsets.only(right: 12),
+            actionsPadding: const EdgeInsets.only(right: 12),
           ),
 
-          // Logic-based Sliver sections
           if (state.isLoading)
             const SliverFillRemaining(
               child: Center(
@@ -86,7 +87,7 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      "No history found",
+                      l10n.noHistoryFound,
                       style: TextStyle(
                         color: Colors.grey.withValues(alpha: 0.7),
                       ),
@@ -96,17 +97,15 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
               ),
             )
           else ...[
-            // Header for the list
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
                 child: Text(
-                  "PAST REQUESTS",
+                  l10n.pastRequests,
                   style: theme.textTheme.labelMedium,
                 ),
               ),
             ),
-            // The History List
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(

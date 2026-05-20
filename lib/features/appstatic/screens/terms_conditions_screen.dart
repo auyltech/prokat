@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class TermsConditionsScreen extends StatelessWidget {
   const TermsConditionsScreen({super.key});
@@ -7,13 +8,14 @@ class TermsConditionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: Text(
-          "Terms & Conditions",
+          l10n.termsConditions,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: false,
@@ -30,40 +32,34 @@ class TermsConditionsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
 
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
                   _buildLegalSection(
-                    title: '1. Rental Eligibility',
-                    summary:
-                        'You must be 18+ and have a valid ID to rent heavy machinery.',
-                    content:
-                        'By using this app, you represent that you are at least 18 years of age and possess the legal authority to enter into this agreement. Certain high-value equipment may require additional verification or specialized licenses.',
+                    title: l10n.rentalEligibilityTitle,
+                    summary: l10n.rentalEligibilitySummary,
+                    content: l10n.rentalEligibilityContent,
                   ),
                   _buildLegalSection(
-                    title: '2. Damage & Liability',
-                    summary:
-                        'You are responsible for the gear while you have it.',
-                    content:
-                        'Equipment must be returned in the condition it was received. You accept full responsibility for any damage, loss, or theft. Ordinary wear and tear is accepted, but negligence (e.g., exposing electronics to rain) is not covered.',
+                    title: l10n.damageLiabilityTitle,
+                    summary: l10n.damageLiabilitySummary,
+                    content: l10n.damageLiabilityContent,
                   ),
                   _buildLegalSection(
-                    title: '3. Late Returns & Fees',
-                    summary: 'Return it on time or extra daily rates apply.',
-                    content:
-                        'Late returns disrupt other users. If equipment is not returned by the agreed deadline, you will be charged the daily rental rate for every 24-hour period (or part thereof) until the item is returned.',
+                    title: l10n.lateReturnsTitle,
+                    summary: l10n.lateReturnsSummary,
+                    content: l10n.lateReturnsContent,
                   ),
                   _buildLegalSection(
-                    title: '4. Cancellations',
-                    summary: 'Full refund if cancelled 24 hours in advance.',
-                    content:
-                        'Cancellations made within 24 hours of the rental start time may be subject to a 50% convenience fee. No-shows will be charged the full rental amount.',
+                    title: l10n.cancellationsTitle,
+                    summary: l10n.cancellationsSummary,
+                    content: l10n.cancellationsContent,
                   ),
                   const SizedBox(height: 20),
-                  _buildAcceptanceNotice(),
+                  _buildAcceptanceNotice(l10n),
                 ],
               ),
             ),
@@ -73,7 +69,7 @@ class TermsConditionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
@@ -82,13 +78,13 @@ class TermsConditionsScreen extends StatelessWidget {
         children: [
           const Icon(Icons.gavel_rounded, size: 48, color: Colors.blueGrey),
           const SizedBox(height: 16),
-          const Text(
-            'The Legal Stuff',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            l10n.legalStuff,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'Last Updated: May 2026',
+            l10n.lastUpdated,
             style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
           ),
         ],
@@ -114,9 +110,9 @@ class TermsConditionsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha:0.05),
+              color: Colors.blue.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue.withValues(alpha:0.1)),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
             ),
             child: Row(
               children: [
@@ -153,17 +149,17 @@ class TermsConditionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAcceptanceNotice() {
+  Widget _buildAcceptanceNotice(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Text(
-        'By continuing to use the Equipment Rental App, you acknowledge that you have read and agree to be bound by these terms.',
+      child: Text(
+        l10n.termsAcceptanceNotice,
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           fontStyle: FontStyle.italic,
           color: Colors.grey,

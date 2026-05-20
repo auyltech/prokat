@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
   final String service;
@@ -17,6 +18,7 @@ class SelectAddressSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
     final addresses = locationState.renterLocations.take(3).toList();
@@ -48,7 +50,7 @@ class SelectAddressSheet extends ConsumerWidget {
           ),
 
           Text(
-            "SELECT ADDRESS",
+            l10n.selectAddress,
             style: theme.textTheme.labelMedium?.copyWith(
               letterSpacing: 1.5,
               fontWeight: FontWeight.bold,
@@ -63,7 +65,7 @@ class SelectAddressSheet extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Text(
-                "No recent addresses",
+                l10n.noRecentAddresses,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                 ),
@@ -96,7 +98,7 @@ class SelectAddressSheet extends ConsumerWidget {
               },
               icon: const Icon(Icons.map_outlined, size: 20),
               label: Text(
-                "CHOOSE ON MAP",
+                l10n.chooseOnMap,
                 style: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,

@@ -8,6 +8,7 @@ import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/map/widgets/map_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class MapRenterPinAddressContainer extends ConsumerStatefulWidget {
   const MapRenterPinAddressContainer({super.key});
@@ -74,7 +75,7 @@ class _MapRenterPinAddressContainerState
 
     try {
       final location = LocationModel(
-        service: "ADDRESS", // 👈 KEY DIFFERENCE
+        service: "ADDRESS",
         street: selectedAddress!.street,
         city: selectedAddress!.city ?? "",
         country: selectedAddress!.country ?? "",
@@ -90,16 +91,17 @@ class _MapRenterPinAddressContainerState
         context.pop(location); // return to booking screen
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Failed to save address")));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.failedSaveAddress)),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-    // final equipmentId = extra?['equipmentId'] as String?;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Stack(
@@ -171,7 +173,7 @@ class _MapRenterPinAddressContainerState
                         onPressed: selectedAddress == null
                             ? null
                             : createAddress,
-                        child: const Text("Save Address"),
+                        child: Text(l10n.saveAddress),
                       ),
                     ),
                   ],

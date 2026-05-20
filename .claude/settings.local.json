@@ -7,7 +7,16 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\" -Directory)",
       "Bash(Select-Object Name)",
       "Bash(git add *)",
-      "Bash(Remove-Item \"lib/features/navigation/sidebar/sidebar_menu_config.dart\")"
+      "Bash(Remove-Item \"lib/features/navigation/sidebar/sidebar_menu_config.dart\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\\\\lib\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(flutter pub *)",
+      "Bash(flutter gen-l10n *)",
+      "Bash(dir .dart_tool\\\\flutter_gen\\\\gen_l10n)",
+      "WebSearch",
+      "WebFetch(domain:translate.yandex.com)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\\\\lib\\\\features\" -Directory)"
     ]
   }
 }

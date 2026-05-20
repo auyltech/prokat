@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/edit_name_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class DisplayName extends ConsumerWidget {
   const DisplayName({super.key});
@@ -21,10 +22,11 @@ class DisplayName extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(userProfileProvider);
     final name = (state.userProfile?.displayName ?? '').isNotEmpty
         ? state.userProfile!.displayName
-        : 'Hello!';
+        : l10n.hello;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

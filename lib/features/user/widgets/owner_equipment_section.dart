@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class OwnerEquipmentSection extends ConsumerStatefulWidget {
@@ -18,16 +19,15 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final equipment = ref.watch(equipmentProvider).ownerEquipment;
 
     final equipmentCount = equipment.length;
     final hasEquipment = equipmentCount > 0;
 
-    return // Place this inside your SliverList or as a SliverToBoxAdapter
-    Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- Header Section ---
         Row(
           children: [
             Container(
@@ -50,15 +50,15 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'My fleet',
+                    l10n.myFleet,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
                     hasEquipment
-                        ? '${equipmentCount.toString().padLeft(2, '0')} ${equipmentCount == 1 ? 'Item' : 'Items'}'
-                        : 'No items • Tap to add',
+                        ? '${equipmentCount.toString().padLeft(2, '0')} ${equipmentCount == 1 ? l10n.equipmentItemSingular : l10n.equipmentItemsPlural}'
+                        : l10n.noItemsTapToAdd,
                     style: theme.textTheme.labelMedium,
                   ),
                 ],
@@ -71,35 +71,31 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 visualDensity: VisualDensity.compact,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'View All',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    l10n.viewAll,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 12,
-                  ), // Small chevron for a premium feel
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_ios, size: 12),
                 ],
               ),
             ),
           ],
         ),
 
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
-        // --- Equipment List ---
         if (equipment.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Text('No equipment found.'),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Text(l10n.noEquipmentFound),
           )
         else
           ListView.separated(
-            shrinkWrap: true, // Crucial inside a scrollable view
+            shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 0),
             itemCount: equipment.length,
@@ -119,7 +115,6 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                 ),
                 child: Row(
                   children: [
-                    // Image
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: OptimizedNetworkImage(
@@ -132,7 +127,6 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Info
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -157,7 +151,6 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                     ),
 
                     if (item.status == "AVAILABLE" || item.status == "ACCEPTED")
-                      // Toggle Button
                       Column(
                         children: [
                           Switch.adaptive(
@@ -174,7 +167,7 @@ class _OwnerEquipmentSectionState extends ConsumerState<OwnerEquipmentSection> {
                             activeThumbColor: Colors.green,
                           ),
                           Text(
-                            isOnline ? 'Online' : 'Offline',
+                            isOnline ? l10n.onlineStatus : l10n.offlineStatus,
                             style: TextStyle(
                               fontSize: 10,
                               color: isOnline

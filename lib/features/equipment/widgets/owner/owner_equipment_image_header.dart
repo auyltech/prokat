@@ -9,6 +9,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentImageHeader extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -33,6 +34,13 @@ class _OwnerEquipmentImageHeaderState
   final _picker = ImagePicker();
 
   int _currentIndex = 0;
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   List<EquipmentImage> get _displayImages {
     if (widget.images.isNotEmpty) return widget.images;
@@ -80,12 +88,12 @@ class _OwnerEquipmentImageHeaderState
       compressQuality: 85,
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Crop equipment photo',
+          toolbarTitle: _l10n.cropEquipmentPhoto,
           initAspectRatio: CropAspectRatioPreset.ratio4x3,
           lockAspectRatio: true,
         ),
         IOSUiSettings(
-          title: 'Crop equipment photo',
+          title: _l10n.cropEquipmentPhoto,
           aspectRatioLockEnabled: true,
           resetButtonHidden: true,
         ),
@@ -107,7 +115,7 @@ class _OwnerEquipmentImageHeaderState
       final state = ref.read(equipmentProvider);
       final message =
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
-          'Failed to upload photo';
+          _l10n.failedToUploadPhoto;
 
       AppSnackBar.show(context, message: message, isError: true);
     } else {
@@ -128,19 +136,19 @@ class _OwnerEquipmentImageHeaderState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete photo?'),
-        content: const Text('This action cannot be undone.'),
+        title: Text(_l10n.deletePhotoQuestion),
+        content: Text(_l10n.deletePhotoConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(_l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: theme.colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(_l10n.delete),
           ),
         ],
       ),
@@ -161,7 +169,7 @@ class _OwnerEquipmentImageHeaderState
       final state = ref.read(equipmentProvider);
       final message =
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
-          'Failed to delete photo';
+          _l10n.failedToDeletePhoto;
 
       AppSnackBar.show(context, message: message, isError: true);
     }
@@ -181,7 +189,7 @@ class _OwnerEquipmentImageHeaderState
       final state = ref.read(equipmentProvider);
       final message =
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
-          'Failed to set cover photo';
+          _l10n.failedToSetCoverPhoto;
 
       AppSnackBar.show(context, message: message, isError: true);
     }
@@ -201,7 +209,7 @@ class _OwnerEquipmentImageHeaderState
         return EquipmentImageActionsSheet(
           canAddMore: canAddMore,
           isBusy: isBusy,
-          limitMessage: canAddMore ? null : 'Max 5 photos reached',
+          limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
           onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
           onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
           onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
@@ -314,7 +322,7 @@ class _OwnerEquipmentImageHeaderState
           ),
           const SizedBox(height: 8),
           Text(
-            'No photos yet',
+            _l10n.noPhotosYet,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),

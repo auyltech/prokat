@@ -12,6 +12,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_trigger.dart';
 import 'package:prokat/features/user/widgets/user_category_selector.dart';
 import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
   final String? query, category, city;
@@ -86,6 +87,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final equipmentState = ref.watch(equipmentProvider);
 
     final items = ref.watch(equipmentProvider).renterEquipment;
@@ -100,7 +102,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
       extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: Text(
-          "Search",
+          l10n.search,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: false,
@@ -134,7 +136,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
               const SizedBox(height: 12),
 
               Text(
-                "Search",
+                l10n.search,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,

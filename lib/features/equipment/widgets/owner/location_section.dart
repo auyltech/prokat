@@ -7,6 +7,7 @@ import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/open_location_picker_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LocationSection extends StatefulWidget {
   final Equipment equipment;
@@ -30,7 +31,7 @@ class _LocationSectionState extends State<LocationSection> {
   bool _isDirty = false;
   bool _isSaving = false;
 
-  Future<void> _handleSave() async {
+  Future<void> _handleSave(AppLocalizations l10n) async {
     try {
       final res = await widget.ref
           .read(equipmentProvider.notifier)
@@ -47,7 +48,7 @@ class _LocationSectionState extends State<LocationSection> {
 
         AppSnackBar.show(
           context,
-          message: "Equipment Updated",
+          message: l10n.equipmentUpdated,
           isSuccess: true,
         );
       } else {
@@ -58,14 +59,13 @@ class _LocationSectionState extends State<LocationSection> {
       }
     } catch (_) {
       setState(() => _isSaving = false);
-      if (mounted) AppSnackBar.show(context, message: "Update Failed", isError: true);
+      if (mounted) AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
     }
   }
 
   @override
   void initState() {
     super.initState();
-
     _cityController = TextEditingController(text: widget.equipment.city);
   }
 
@@ -74,14 +74,15 @@ class _LocationSectionState extends State<LocationSection> {
     if (!_isDirty && city != widget.equipment.city) {
       setState(() => _isDirty = true);
     }
-    Navigator.pop(context); // Close the sheet
-    setState(() {}); // Refresh the UI (icons/colors)
+    Navigator.pop(context);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final accent = colorScheme.primary;
     final warning = colorScheme.tertiary;
@@ -98,11 +99,11 @@ class _LocationSectionState extends State<LocationSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SectionTitle(title: "Location"),
+              SectionTitle(title: l10n.location),
 
               _isDirty
                   ? TextButton.icon(
-                      onPressed: _isSaving ? null : _handleSave,
+                      onPressed: _isSaving ? null : () => _handleSave(l10n),
                       icon: _isSaving
                           ? SizedBox(
                               width: 14,
@@ -113,7 +114,7 @@ class _LocationSectionState extends State<LocationSection> {
                               ),
                             )
                           : const Icon(Icons.save_rounded, size: 16),
-                      label: const Text("Save"),
+                      label: Text(l10n.save),
                       style: TextButton.styleFrom(
                         foregroundColor: colorScheme.onPrimary,
                         backgroundColor: accent,
@@ -138,20 +139,14 @@ class _LocationSectionState extends State<LocationSection> {
           ValueListenableBuilder(
             valueListenable: _cityController,
             builder: (context, value, child) {
-              // Check if the text is not empty to determine 'hasLocation'
               final bool hasLocation = value.text.isNotEmpty;
 
               return GestureDetector(
                 onTap: () {
-                  // Logic: If list has 1 value, take it. Otherwise, take the first.
-                  // final String defaultCity = cities.length == 1
-                  //     ? cities.first
-                  //     : cities[0];
-
                   showEditSheet(
                     context: context,
                     sheet: EditSheet(
-                      title: "Select City",
+                      title: l10n.selectCity,
                       buttonText: "",
                       onSubmit: () => {},
                       child: StatefulBuilder(
@@ -208,16 +203,14 @@ class _LocationSectionState extends State<LocationSection> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "City",
+                              l10n.city,
                               style: theme.textTheme.labelMedium?.copyWith(
                                 color: theme.primaryColor,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              hasLocation
-                                  ? value.text
-                                  : "Select City", // Fallback text
+                              hasLocation ? value.text : l10n.selectCity,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: hasLocation
                                     ? colorScheme.onSurface
@@ -267,14 +260,14 @@ class _LocationSectionState extends State<LocationSection> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          hasLocation ? "Current Location" : "Enter Location",
+                          hasLocation ? l10n.currentLocation : l10n.enterLocation,
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: theme.primaryColor,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          hasLocation ? location : "Equipment base location",
+                          hasLocation ? location : l10n.equipmentBaseLocation,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: hasLocation
                                 ? colorScheme.onSurface

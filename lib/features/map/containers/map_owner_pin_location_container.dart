@@ -7,6 +7,7 @@ import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/map/widgets/map_view.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class MapOwnerPinLocationContainer extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -92,8 +93,10 @@ class _MapOwnerPinLocationContainerState
         Navigator.pop(context, created);
       }
     } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to create location")),
+        SnackBar(content: Text(l10n.failedCreateLocation)),
       );
     }
   }
@@ -106,6 +109,8 @@ class _MapOwnerPinLocationContainerState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -174,7 +179,7 @@ class _MapOwnerPinLocationContainerState
                         onPressed: selectedAddress == null
                             ? null
                             : confirmLocation,
-                        child: const Text("Confirm Location"),
+                        child: Text(l10n.confirmLocation),
                       ),
                     ),
                   ],

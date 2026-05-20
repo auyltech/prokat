@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_link_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/favorites/widgets/favorite_item_tile.dart';
 
@@ -12,25 +13,24 @@ class FavoritesSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    // Assuming favoriteProvider returns a list of Equipment objects
+    final l10n = AppLocalizations.of(context)!;
     final favorites = ref.watch(favoriteProvider).favorites;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- HEADER SECTION ---
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "My Favorites",
+              l10n.myFavorites,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
             ),
             if (favorites?.isNotEmpty == true)
               AppLinkButton(
-                label: "View All",
+                label: l10n.viewAll,
                 onTap: () => context.push(AppRoutes.favorites),
               ),
           ],
@@ -38,12 +38,11 @@ class FavoritesSection extends ConsumerWidget {
 
         const SizedBox(height: 12),
 
-        // --- CONTENT SECTION ---
         if (favorites?.isEmpty == true)
-          _buildEmptyFavorites(theme)
+          _buildEmptyFavorites(theme, l10n)
         else
           SizedBox(
-            height: 200, // Adjust height based on your equipment tile design
+            height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: favorites?.length,
@@ -64,7 +63,7 @@ class FavoritesSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyFavorites(ThemeData theme) {
+  Widget _buildEmptyFavorites(ThemeData theme, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
@@ -84,7 +83,7 @@ class FavoritesSection extends ConsumerWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              "Items you favorite will appear here",
+              l10n.favoritesEmptyHint,
               style: theme.textTheme.bodySmall,
             ),
           ),

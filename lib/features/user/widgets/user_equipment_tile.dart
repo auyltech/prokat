@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 // TODO: DELETE
 
@@ -22,6 +23,7 @@ class UserEquipmentTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final accent = theme.colorScheme.primary;
+    final l10n = AppLocalizations.of(context)!;
 
     final notifier = ref.read(favoriteProvider.notifier);
     final bool isFavorite = notifier.isFavorite(equipment.id);
@@ -38,11 +40,11 @@ class UserEquipmentTile extends ConsumerWidget {
 
     final priceRate = priceEntry != null
         ? priceEntry.priceRate.toUpperCase() == "PER_TRIP"
-              ? "/ Trip"
+              ? l10n.perTrip
               : priceEntry.priceRate.toUpperCase() == "PER_CUBIC_METER"
-              ? "/ M3"
+              ? l10n.perM3
               : priceEntry.priceRate.toUpperCase() == "PER_HOUR"
-              ? "/ Hour"
+              ? l10n.perHour
               : ""
         : "";
 
@@ -54,7 +56,7 @@ class UserEquipmentTile extends ConsumerWidget {
         border: Border.all(color: accent.withValues(alpha: 0.35), width: 1.5),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           bottomLeft: Radius.circular(16),
         ),
@@ -62,9 +64,8 @@ class UserEquipmentTile extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// IMAGE
             ClipRRect(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 bottomLeft: Radius.circular(12),
               ),
@@ -80,19 +81,17 @@ class UserEquipmentTile extends ConsumerWidget {
               ),
             ),
 
-            /// CONTENT
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// TOP ROW
                     Row(
                       children: [
                         Expanded(
                           child: Text(
-                            equipment.owner?.displayName ?? "Private Owner",
+                            equipment.owner?.displayName ?? l10n.privateOwner,
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -120,7 +119,6 @@ class UserEquipmentTile extends ConsumerWidget {
                                 ),
                               ),
 
-                        /// RATING
                         Row(
                           children: [
                             const Icon(
@@ -146,7 +144,6 @@ class UserEquipmentTile extends ConsumerWidget {
 
                     const SizedBox(height: 4),
 
-                    /// NAME
                     Text(
                       equipment.name,
                       style: const TextStyle(
@@ -157,7 +154,6 @@ class UserEquipmentTile extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
 
-                    /// MODEL + CAPACITY
                     Text(
                       "${equipment.model} • ${equipment.capacity} ${equipment.capacityUnit}",
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
@@ -165,10 +161,8 @@ class UserEquipmentTile extends ConsumerWidget {
 
                     const SizedBox(height: 8),
 
-                    /// LOCATION + PRICE
                     Row(
                       children: [
-                        /// LOCATION
                         Expanded(
                           child: Row(
                             children: [
@@ -188,13 +182,12 @@ class UserEquipmentTile extends ConsumerWidget {
                           ),
                         ),
 
-                        /// PRICE
                         Row(
                           children: [
                             Text(
                               priceEntry != null
                                   ? "${priceEntry.price} ₸"
-                                  : "POA",
+                                  : l10n.poa,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,

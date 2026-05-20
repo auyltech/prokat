@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
@@ -112,9 +113,10 @@ class GuestEquipmentCard extends StatelessWidget {
                           color: Color(0xFF1D4ED8),
                         ),
                       ),
-                      const TextSpan(
-                        text: ' / day',
-                        style: TextStyle(fontSize: 11), // color: kTextMuted
+                      TextSpan(
+                        text:
+                            ' ${AppLocalizations.of(context)!.perDay}',
+                        style: const TextStyle(fontSize: 11),
                       ),
                     ],
                   ),
@@ -145,7 +147,9 @@ class _StatusBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        isTop ? 'Top rated' : 'Available',
+        isTop
+            ? AppLocalizations.of(context)!.topRated
+            : AppLocalizations.of(context)!.available,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,

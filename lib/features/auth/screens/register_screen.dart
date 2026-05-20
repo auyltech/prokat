@@ -6,6 +6,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
 import 'package:prokat/features/auth/widgets/register_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/register_with_username_form.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -26,6 +27,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final accentColor = colorScheme.primary;
 
@@ -39,8 +41,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(255, 0, 72, 155), // Your accent color
-              Color.fromARGB(255, 0, 36, 78), // The darker shade
+              Color.fromARGB(255, 0, 72, 155),
+              Color.fromARGB(255, 0, 36, 78),
             ],
           ),
         ),
@@ -57,16 +59,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
-
                         children: [
-                          Text(""),
-                          Spacer(),
+                          const Text(""),
+                          const Spacer(),
 
                           Container(
                             margin: const EdgeInsets.all(0),
                             padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(
+                              borderRadius: const BorderRadius.all(
                                 Radius.circular(32),
                               ),
                               color: theme.scaffoldBackgroundColor,
@@ -74,12 +75,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                LogoTile(),
+                                const LogoTile(),
 
                                 const SizedBox(height: 45),
 
                                 Text(
-                                  "Create Account",
+                                  l10n.createAccount,
                                   style: theme.textTheme.headlineMedium
                                       ?.copyWith(
                                         fontWeight: FontWeight.w500,
@@ -88,7 +89,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       ),
                                 ),
                                 Text(
-                                  "Join the Prokat community today",
+                                  l10n.joinCommunity,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.6),
@@ -115,7 +116,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                                 const SizedBox(height: 16),
 
-                                /// TOGGLE METHOD
                                 Center(
                                   child: TextButton(
                                     onPressed: () => setState(() {
@@ -124,8 +124,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                     }),
                                     child: Text(
                                       useEmail
-                                          ? "Register with Phone instead"
-                                          : "Use Email & Password",
+                                          ? l10n.registerWithPhone
+                                          : l10n.useEmailPassword,
                                       style: theme.textTheme.labelLarge
                                           ?.copyWith(
                                             color: accentColor,
@@ -138,23 +138,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ),
                           ),
 
-                          Spacer(),
+                          const Spacer(),
 
-                          /// BOTTOM LINK
                           Padding(
                             padding: const EdgeInsets.only(bottom: 20),
                             child: GestureDetector(
                               onTap: () => context.go('/login'),
                               child: RichText(
                                 text: TextSpan(
-                                  text: "Already Registered? ",
+                                  text: "${l10n.alreadyRegistered} ",
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onPrimary
                                         .withValues(alpha: 0.6),
                                   ),
                                   children: [
                                     TextSpan(
-                                      text: "Login",
+                                      text: l10n.loginLink,
                                       style: theme.textTheme.bodySmall
                                           ?.copyWith(
                                             color: theme.colorScheme.onPrimary,

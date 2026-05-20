@@ -16,6 +16,7 @@ import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateRequestScreen extends ConsumerStatefulWidget {
   const CreateRequestScreen({super.key});
@@ -29,6 +30,13 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   final capacityController = TextEditingController();
   final rateController = TextEditingController();
   final commentController = TextEditingController();
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   void _openAddressSheet(BuildContext context) {
     showModalBottomSheet(
@@ -49,8 +57,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     );
 
     if (mounted && res == true) {
-      AppSnackBar.show(context, message: "Request created", isSuccess: true);
-
+      AppSnackBar.show(context, message: _l10n.requestCreated, isSuccess: true);
       context.pop();
     }
   }
@@ -68,13 +75,13 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
     final requestState = ref.watch(requestProvider);
     final requestNotifier = ref.read(requestProvider.notifier);
     final categoriesProv = ref.watch(categoriesProvider);
 
-    // Auto sync address
     ref.listen(locationProvider, (previous, next) {
       final address = next.selectedAddress;
 
@@ -99,7 +106,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         title: Text(
-          "New Request",
+          l10n.newRequest,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         leading: IconButton(
@@ -125,7 +132,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
 
                 const SizedBox(height: 24),
 
-                SectionTitle(title: "Delivery Location"),
+                SectionTitle(title: l10n.deliveryLocation),
 
                 const SizedBox(height: 6),
 
@@ -136,34 +143,34 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
 
                 const SizedBox(height: 24),
 
-                SectionTitle(title: "Equipment Specs"),
+                SectionTitle(title: l10n.equipmentSpecs),
 
                 const SizedBox(height: 6),
 
                 InputField(
-                  label: "Required Capacity",
+                  label: l10n.requiredCapacity,
                   controller: capacityController,
-                  hint: "10 M3",
+                  hint: l10n.capacityHint,
                   icon: Icons.high_quality_rounded,
                 ),
                 const SizedBox(height: 12),
                 InputField(
-                  label: "Offered Rate",
+                  label: l10n.offeredRate,
                   controller: rateController,
-                  hint: "Price you're willing to pay",
+                  hint: l10n.offeredRateHint,
                   icon: Icons.payments_outlined,
                 ),
                 const SizedBox(height: 12),
                 InputField(
-                  label: "Comments",
+                  label: l10n.comments,
                   controller: commentController,
-                  hint: "Additional details...",
+                  hint: l10n.additionalDetails,
                   icon: Icons.chat_bubble_outline_rounded,
                 ),
 
                 const SizedBox(height: 24),
 
-                SectionTitle(title: "Date & Time"),
+                SectionTitle(title: l10n.dateAndTime),
 
                 const SizedBox(height: 6),
 
@@ -173,7 +180,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                       child: DateTimeButton(
                         icon: Icons.calendar_today_rounded,
                         label: requestState.selectedDate == null
-                            ? "Select Date"
+                            ? l10n.selectDate
                             : DateFormat(
                                 'MMM dd, yyyy',
                               ).format(requestState.selectedDate!),
@@ -195,7 +202,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                       child: DateTimeButton(
                         icon: Icons.access_time_rounded,
                         label: requestState.selectedTime == null
-                            ? "Select Time"
+                            ? l10n.selectTime
                             : TimeOfDay.fromDateTime(
                                 requestState.selectedTime!,
                               ).format(context),
@@ -225,7 +232,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
                 const SizedBox(height: 40),
 
                 PrimaryButton(
-                  label: "Create",
+                  label: l10n.create,
                   onPressed: _onPressed,
                   isLoading: requestState.isLoading,
                 ),

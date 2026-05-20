@@ -6,6 +6,7 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentSpecs extends ConsumerStatefulWidget {
   final Equipment equipment;
@@ -82,7 +83,6 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   }
 
   String _controllerKey(EquipmentSpec spec, int index) {
-    // Defensive: allow duplicates by appending index.
     return '${spec.id}::$index';
   }
 
@@ -105,7 +105,6 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
     setState(() {
       _isDirty = dirty;
-      // Keep save disabled if invalid; actual button logic uses _hasErrors.
       if (valid) {
         // no-op; _errorsByKey already updated.
       }
@@ -146,13 +145,13 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       final value = _normalizeValue(controller.text, inputType: spec.inputType);
 
       if (isRequired && value.isEmpty) {
-        _errorsByKey[key] = 'Required';
+        _errorsByKey[key] = 'required';
         ok = false;
         continue;
       }
 
       if (type == 'NUMBER' && value.isNotEmpty && num.tryParse(value) == null) {
-        _errorsByKey[key] = 'Invalid number';
+        _errorsByKey[key] = 'invalidNumber';
         ok = false;
         continue;
       }
@@ -163,15 +162,13 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     return ok;
   }
 
-  Future<void> _handleSave() async {
+  Future<void> _handleSave(AppLocalizations l10n) async {
     if (!_isDirty || _isSaving) return;
 
     final valid = _validate();
     if (!valid) {
       setState(() {});
-
-      AppSnackBar.show(context, message: "Please provide missing information");
-
+      AppSnackBar.show(context, message: l10n.pleaseFillMissingInfo);
       return;
     }
 
@@ -223,19 +220,17 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
         AppSnackBar.show(
           context,
-          message: "Equipment Updated",
+          message: l10n.equipmentUpdated,
           isSuccess: true,
         );
       } else {
         setState(() => _isSaving = false);
-
-        AppSnackBar.show(context, message: "Update Failed", isError: true);
+        AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
       }
     } catch (_) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-
-      AppSnackBar.show(context, message: "Update Failed", isError: true);
+      AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
     }
   }
 
@@ -257,6 +252,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final accent = colorScheme.primary;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
@@ -266,22 +262,17 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
     return Container(
       padding: const EdgeInsets.all(0),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(20),
-      //   border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
-      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SectionTitle(title: "Technical Specs"),
+              SectionTitle(title: l10n.technicalSpecs),
 
               _isDirty
                   ? TextButton.icon(
-                      onPressed: canSave ? _handleSave : null,
+                      onPressed: canSave ? () => _handleSave(l10n) : null,
                       icon: _isSaving
                           ? SizedBox(
                               width: 14,
@@ -292,7 +283,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                               ),
                             )
                           : const Icon(Icons.save_rounded, size: 16),
-                      label: const Text('Save'),
+                      label: Text(l10n.save),
                       style: TextButton.styleFrom(
                         foregroundColor: colorScheme.onPrimary,
                         backgroundColor: canSave ? accent : ghostGray,
@@ -316,14 +307,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
             ],
           ),
 
-          // Text(
-          //   'Update equipment specs. Some specs may be visible to clients.',
-          //   style: theme.textTheme.labelSmall,
-          // ),
-          // const SizedBox(height: 12),
           if (!hasSpecs)
             Text(
-              'No specs configured for this equipment yet.',
+              l10n.noSpecsConfigured,
               style: theme.textTheme.bodyMedium?.copyWith(color: ghostGray),
             )
           else
@@ -335,7 +321,12 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
               if (controller == null) return const SizedBox.shrink();
 
               final type = (spec.inputType ?? 'TEXT').toUpperCase();
-              final error = _errorsByKey[key];
+              final errorKey = _errorsByKey[key];
+              final String? errorText = errorKey == 'required'
+                  ? l10n.required
+                  : errorKey == 'invalidNumber'
+                  ? l10n.invalidNumber
+                  : null;
 
               final label = spec.name.trim().isNotEmpty
                   ? spec.name.trim()
@@ -353,7 +344,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                   unit: spec.unit.trim().isEmpty ? null : spec.unit.trim(),
                   inputType: type,
                   controller: controller,
-                  errorText: error,
+                  errorText: errorText,
                   onChanged: _onFieldChanged,
                 ),
               );

@@ -8,6 +8,7 @@ import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerRequestsScreen extends ConsumerStatefulWidget {
   const OwnerRequestsScreen({super.key});
@@ -32,16 +33,15 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final requestState = ref.watch(requestProvider);
     final offersState = ref.watch(offersProvider);
 
-    /// 🎯 Filter active requests
     final activeRequests = requestState.ownerRequests
         .where((r) => ["CREATED", "VIEWED"].contains(r.status))
         .toList();
 
-    /// 🎯 Group offers by requestId
     final offersByRequest = <String, List<OfferModel>>{};
 
     for (final offer in offersState.ownerOffers) {
@@ -58,9 +58,9 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
           slivers: [
             SliverAppBar(
               automaticallyImplyLeading: false,
-              expandedHeight: 60, // Adjust height as needed
-              floating: true, // AppBar reappears immediately when scrolling up
-              pinned: false, // AppBar hides completely when scrolling down
+              expandedHeight: 60,
+              floating: true,
+              pinned: false,
               backgroundColor: theme.colorScheme.primary,
               leading: IconButton(
                 icon: Icon(
@@ -71,7 +71,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
                 onPressed: () => context.pop(),
               ),
               title: Text(
-                "Requests",
+                l10n.navRequests,
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: theme.colorScheme.onPrimary,
                 ),
@@ -79,17 +79,16 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
               centerTitle: false,
             ),
 
-            /// 🔹 Empty state
             if (requestState.isLoading)
               SliverToBoxAdapter(child: RequestTileSkeleton())
             else if (requestState.error != null)
-              SliverToBoxAdapter(child: Text("Error Loading Requests"))
+              SliverToBoxAdapter(child: Text(l10n.errorLoadingRequests))
             else if (activeRequests.isEmpty)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: EmptyStateTile(title: "No Requests at the moment"),
+                  padding: const EdgeInsets.all(24),
+                  child: EmptyStateTile(title: l10n.noRequestsAtMoment),
                 ),
               )
             else

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class UserLocationTile extends ConsumerWidget {
   const UserLocationTile({super.key});
@@ -10,6 +11,7 @@ class UserLocationTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationState = ref.watch(locationProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     final theme = Theme.of(context);
     final accent = theme.colorScheme.primary;
@@ -35,8 +37,8 @@ class UserLocationTile extends ConsumerWidget {
                 children: [
                   Text(
                     selectedCity != null && selectedCity != ""
-                        ? "City"
-                        : "Location",
+                        ? l10n.city
+                        : l10n.location,
                     style: theme.textTheme.labelMedium,
                   ),
 
@@ -45,7 +47,7 @@ class UserLocationTile extends ConsumerWidget {
                   Text(
                     selectedCity != null && selectedCity != ""
                         ? selectedCity
-                        : "Select City",
+                        : l10n.selectCity,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

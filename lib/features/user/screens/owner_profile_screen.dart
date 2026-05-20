@@ -7,6 +7,7 @@ import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerProfileScreen extends ConsumerWidget {
   const OwnerProfileScreen({super.key});
@@ -14,6 +15,7 @@ class OwnerProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(userProfileProvider);
     final profileImageUrl = state.userProfile?.profileImageUrl ?? "";
 
@@ -22,16 +24,6 @@ class OwnerProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   leading: IconButton(
-      //     icon: Icon(
-      //       Icons.arrow_back_ios_new_rounded,
-      //       size: 20,
-      //       color: theme.colorScheme.onPrimary,
-      //     ),
-      //     onPressed: () => context.pop(),
-      //   ),
-      // ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -57,10 +49,9 @@ class OwnerProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
 
-                DisplayName(),
+                const DisplayName(),
 
                 const SizedBox(height: 4),
-                // Registration Status Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -70,14 +61,17 @@ class OwnerProfileScreen extends ConsumerWidget {
                     color: Colors.green.shade400,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.verified, color: Colors.white, size: 14),
-                      SizedBox(width: 4),
+                      const Icon(Icons.verified, color: Colors.white, size: 14),
+                      const SizedBox(width: 4),
                       Text(
-                        "Verified Owner",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
+                        l10n.verifiedOwner,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
@@ -94,7 +88,7 @@ class OwnerProfileScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
-                    "Account",
+                    l10n.fullyVerified,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -105,7 +99,7 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 _buildMenuTile(
                   icon: Icons.assignment_turned_in_outlined,
-                  title: "Registration Status",
+                  title: l10n.registrationStatus,
                   subtitle: "Fully Verified (Expires 2025)",
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
@@ -117,8 +111,8 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 _buildMenuTile(
                   icon: Icons.settings_outlined,
-                  title: "App Settings",
-                  subtitle: "Notifications, Privacy, Theme",
+                  title: l10n.appSettings,
+                  subtitle: l10n.appSettingsSubtitle,
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.push(AppRoutes.ownerSettings);
@@ -127,8 +121,8 @@ class OwnerProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _buildMenuTile(
                   icon: Icons.help_outline,
-                  title: "Help & Support",
-                  subtitle: "FAQs, Contact Support",
+                  title: l10n.helpSupportTitle,
+                  subtitle: l10n.helpFaqsSubtitle,
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.push(AppRoutes.helpSupport);
@@ -141,7 +135,7 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
-                LogoutButton(),
+                const LogoutButton(),
               ],
             ),
           ),

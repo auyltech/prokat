@@ -4,6 +4,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/page_header.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class UserSettingsScreen extends ConsumerStatefulWidget {
   const UserSettingsScreen({super.key});
@@ -13,21 +14,30 @@ class UserSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
+
   void _handleLogout(BuildContext context, WidgetRef ref) async {
     try {
       await ref.read(authProvider.notifier).logout();
 
       if (context.mounted) context.push('/search/map');
     } catch (e) {
-      if (context.mounted) AppSnackBar.show(context, message: "Logout failed");
+      if (context.mounted) {
+        AppSnackBar.show(context, message: _l10n.logoutFailed);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const bgColor = Color(0xFF121417);
-    // const cardColor = Color(0xFF1E2125);
-    // const accentColor = Color(0xFF4E73DF);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -36,26 +46,24 @@ class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const PageHeader(title: "Settings"),
+              PageHeader(title: l10n.navSettings),
 
               const SizedBox(height: 20),
 
               // SECTION: PREFERENCES
-              const _SettingsSectionHeader(title: "PREFERENCES"),
+              _SettingsSectionHeader(title: l10n.preferences),
 
-              // Theme toggle
-              // _ThemeSelectionTile(),
               _SettingsSwitchTile(
                 icon: Icons.notifications_none_rounded,
-                title: "Push Notifications",
-                subtitle: "Alerts for new bookings & requests",
+                title: l10n.pushNotifications,
+                subtitle: l10n.bookingAlerts,
                 value: true,
                 onChanged: (val) {},
               ),
               _SettingsSwitchTile(
                 icon: Icons.fingerprint_rounded,
-                title: "Biometric Login",
-                subtitle: "Secure access with FaceID/TouchID",
+                title: l10n.biometricLogin,
+                subtitle: l10n.secureAccess,
                 value: false,
                 onChanged: (val) {},
               ),
@@ -63,22 +71,22 @@ class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
               const SizedBox(height: 24),
 
               // SECTION: SUPPORT
-              const _SettingsSectionHeader(title: "SUPPORT"),
+              _SettingsSectionHeader(title: l10n.supportSection),
               _SettingsActionTile(
                 icon: Icons.help_outline_rounded,
-                title: "Help Center",
+                title: l10n.helpCenter,
                 onTap: () {},
               ),
               _SettingsActionTile(
                 icon: Icons.description_outlined,
-                title: "Terms of Service",
+                title: l10n.termsOfService,
                 onTap: () {},
               ),
 
               const SizedBox(height: 32),
 
-              // SECTION: ACCOUNT ACTIONS (Danger Zone)
-              const _SettingsSectionHeader(title: "ACCOUNT"),
+              // SECTION: ACCOUNT ACTIONS
+              _SettingsSectionHeader(title: l10n.accountSection),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -87,14 +95,14 @@ class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
                 child: Column(
                   children: [
                     _DangerActionBtn(
-                      label: "Logout",
+                      label: l10n.logout,
                       icon: Icons.logout_rounded,
                       color: Colors.white.withValues(alpha: 0.7),
                       onPressed: () => _handleLogout(context, ref),
                     ),
                     const SizedBox(height: 12),
                     _DangerActionBtn(
-                      label: "Delete Account",
+                      label: l10n.deleteAccount,
                       icon: Icons.delete_forever_outlined,
                       color: Colors.redAccent.withValues(alpha: 0.8),
                       onPressed: () {},
@@ -104,11 +112,11 @@ class _UserSettingsScreenState extends ConsumerState<UserSettingsScreen> {
               ),
 
               const SizedBox(height: 40),
-              Center(
+              const Center(
                 child: Text(
                   "Version 1.0.4 (Build 22)",
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Color(0x33FFFFFF),
                     fontSize: 12,
                   ),
                 ),

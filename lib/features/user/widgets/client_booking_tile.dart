@@ -12,6 +12,7 @@ import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class ClientBookingTile extends ConsumerWidget {
@@ -21,6 +22,7 @@ class ClientBookingTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final minutesLeft = getRemainingMinutes(booking.bookedAt);
     final bookingData = getBookingMessage(booking.bookedOn, booking.bookedAt);
@@ -28,7 +30,7 @@ class ClientBookingTile extends ConsumerWidget {
     final String message = bookingData?['message'] ?? 'Status unavailable';
 
     final displayMessage = booking.status == BookingStatus.created.name
-        ? "$minutesLeft min left"
+        ? l10n.minutesLeft(minutesLeft)
         : (booking.status == BookingStatus.confirmed.name)
         ? message
         : "";
@@ -39,7 +41,7 @@ class ClientBookingTile extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // CRITICAL: Hugs contents
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -47,7 +49,7 @@ class ClientBookingTile extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: theme.primaryColor,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(13),
                 topRight: Radius.circular(13),
               ),
@@ -81,12 +83,11 @@ class ClientBookingTile extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Equipment Image and info
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: 130, // Fixed width
+                      width: 130,
                       child: AspectRatio(
                         aspectRatio: 16 / 9,
                         child: ClipRRect(
@@ -131,8 +132,6 @@ class ClientBookingTile extends ConsumerWidget {
                         ],
                       ),
                     ),
-
-                    // BookingStatusBadge(status: booking.status),
                   ],
                 ),
 
@@ -144,20 +143,17 @@ class ClientBookingTile extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: InfoTile(
-                          label: 'Location',
+                          label: l10n.location,
                           value: booking.location.street,
-                          onTap: () =>
-                              showLocationSheet(context, booking.location),
+                          onTap: () => showLocationSheet(context, booking.location),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: InfoTile(
-                          label: 'Date & time',
+                          label: l10n.dateAndTime,
                           value: booking.bookedOn != null
-                              ? DateFormat(
-                                  'dd MMM yyyy • HH:mm',
-                                ).format(booking.bookedOn!)
+                              ? DateFormat('dd MMM yyyy • HH:mm').format(booking.bookedOn!)
                               : "PENDING",
                         ),
                       ),
@@ -166,26 +162,15 @@ class ClientBookingTile extends ConsumerWidget {
                 ),
 
                 const SizedBox(height: 16),
-                // Second Row of InfoTiles
+
                 IntrinsicHeight(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Expanded(
-                      //   child: InfoTile(
-                      //     label:
-                      //         booking.equipment?.category?.capacityUnit ??
-                      //         "Capacity",
-                      //     value:
-                      //         "${booking.equipment?.capacity.toUpperCase()} ${(booking.equipment?.category?.capacityUnit ?? "").toUpperCase()}",
-                      //   ),
-                      // ),
-                      // const SizedBox(width: 12),
                       Expanded(
                         child: InfoTile(
-                          label: 'Offered rate',
-                          value:
-                              "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
+                          label: l10n.offeredRate,
+                          value: "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
                           isHighlighted: true,
                         ),
                       ),
@@ -195,16 +180,13 @@ class ClientBookingTile extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
-                // Comment Tile (Full Width - No Expanded wrapper)
                 if (booking.comment != null && booking.comment!.isNotEmpty)
-                  InfoTile(label: 'Comment', value: booking.comment!),
+                  InfoTile(label: l10n.comments, value: booking.comment!),
 
                 const SizedBox(height: 16),
 
-                // Action Buttons
                 Row(
                   children: [
-                    // Chat Button
                     Expanded(
                       child: ActionButton(
                         icon: Icons.chat,
@@ -222,7 +204,7 @@ class ClientBookingTile extends ConsumerWidget {
                         icon: Icons.close,
                         color: Colors.redAccent,
                         onTap: () {
-                          _handleCancel(context, ref, booking);
+                          _handleCancel(context, ref, booking, l10n);
                         },
                       ),
                     ),
@@ -241,21 +223,22 @@ Future<void> _handleCancel(
   BuildContext context,
   WidgetRef ref,
   BookingModel booking,
+  AppLocalizations l10n,
 ) async {
   final theme = Theme.of(context);
   final notifier = ref.read(bookingProvider.notifier);
 
   final modalTitle = booking.status.toUpperCase() == "CREATED"
-      ? "Reject Order"
-      : "Cancel Order";
+      ? l10n.rejectOrder
+      : l10n.cancelBooking;
 
   final modalText = booking.status.toUpperCase() == "CREATED"
-      ? "Are you sure you want to reject this order?"
-      : "Are you sure you want to cancel this order?";
+      ? l10n.rejectOrderQuestion
+      : l10n.cancelOrderQuestion;
 
   final submitButton = booking.status.toUpperCase() == "CREATED"
-      ? "Yes, Reject"
-      : "Yes, Cancel";
+      ? l10n.yesReject
+      : l10n.yesCancel;
 
   final confirmed = await showDialog<bool>(
     context: context,
@@ -268,7 +251,7 @@ Future<void> _handleCancel(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("No"),
+            child: Text(l10n.no),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -282,12 +265,9 @@ Future<void> _handleCancel(
   if (confirmed != true) return;
   if (!context.mounted) return;
 
-  // ⏱️ Time restriction check
   final createdAt = booking.createdAt ?? DateTime(2026);
   final now = DateTime.now();
-
   const cancelWindowMinutes = 10;
-
   final difference = now.difference(createdAt).inMinutes;
 
   if (difference < cancelWindowMinutes) {
@@ -299,21 +279,13 @@ Future<void> _handleCancel(
 
     if (res == true && context.mounted) {
       Navigator.pop(context);
-      AppSnackBar.show(context, message: "Order Cancelled");
+      AppSnackBar.show(context, message: l10n.orderCancelled);
     }
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text(
-    //       "You can only cancel within $cancelWindowMinutes minutes of booking.",
-    //     ),
-    //   ),
-    // );
     return;
   }
 
   if (!context.mounted) return;
 
-  // Open reason sheet
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -321,8 +293,6 @@ Future<void> _handleCancel(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) {
-      return CancelBookingSheet(booking: booking, useCase: "client");
-    },
+    builder: (context) => CancelBookingSheet(booking: booking, useCase: "client"),
   );
 }

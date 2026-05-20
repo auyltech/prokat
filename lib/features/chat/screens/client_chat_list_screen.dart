@@ -5,6 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ClientChatListScreen extends ConsumerStatefulWidget {
@@ -65,6 +66,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final chatState = ref.watch(chatProvider);
     final chats = chatState.conversations;
 
@@ -73,7 +75,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         title: Text(
-          'Chat',
+          l10n.navChats,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         leading: IconButton(
@@ -92,11 +94,11 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
           if (chatState.isLoadingConversations)
             _buildSkeleton()
           else if (chatState.error != null && chats.isEmpty)
-            EmptyStateTile(title: "Error", subtitle: "Could not load chats")
+            EmptyStateTile(title: l10n.error, subtitle: l10n.couldNotLoadChats)
           else if (chats.isEmpty)
             EmptyStateTile(
-              title: "No Chats",
-              subtitle: "You don't have any chats",
+              title: l10n.noChats,
+              subtitle: l10n.youHaveNoChats,
             )
           else
             ListView.builder(

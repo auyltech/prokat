@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class RentAnEquipmentTile extends ConsumerWidget {
   const RentAnEquipmentTile({super.key});
@@ -10,19 +11,20 @@ class RentAnEquipmentTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
-          icon: Icon(Icons.storefront, size: 32),
+          icon: const Icon(Icons.storefront, size: 32),
           label: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Rent an equipment',
+                l10n.rentAnEquipment,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

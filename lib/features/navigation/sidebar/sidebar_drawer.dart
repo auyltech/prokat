@@ -6,6 +6,7 @@ import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/navigation/sidebar/sidebar_tile.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'sidebar_header.dart';
 
 class SidebarDrawer extends ConsumerWidget {
@@ -22,7 +23,7 @@ class SidebarDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const bgColor = Color(0xFF121417);
-    // const accentColor = Color(0xFF4E73DF);
+    final l10n = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
     final categoriesState = ref.watch(categoriesProvider);
@@ -36,20 +37,18 @@ class SidebarDrawer extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SidebarHeader(), // Assumed custom header
+          const SidebarHeader(),
 
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 const SizedBox(height: 10),
-                // SECTION: SERVICES
 
-                // MAIN SELECTED SERVICE
                 _ActiveServiceTile(
                   title:
                       categoriesState.selectedCategory?.name ??
-                      "Select Service",
+                      l10n.selectService,
                   icon: categoriesState.selectedCategory?.name != null
                       ? _getCategoryIcon(
                           categoriesState.selectedCategory?.name ?? "",
@@ -60,47 +59,46 @@ class SidebarDrawer extends ConsumerWidget {
 
                 SidebarTile(
                   icon: Icons.home,
-                  label: "Dashboard",
+                  label: l10n.navDashboard,
                   route: "/dashboard",
                 ),
                 SidebarTile(
                   icon: Icons.map_rounded,
-                  label: "Map",
+                  label: l10n.navMap,
                   route: AppRoutes.searchMap,
                 ),
                 SidebarTile(
                   icon: Icons.ads_click,
-                  label: "My Requests",
+                  label: l10n.navMyRequests,
                   route: AppRoutes.clientRequests,
                 ),
                 SidebarTile(
                   icon: Icons.favorite_border,
-                  label: "Favorites",
+                  label: l10n.navFavorites,
                   route: AppRoutes.favorites,
                 ),
                 SidebarTile(
                   icon: Icons.calendar_month_outlined,
-                  label: "My Orders",
+                  label: l10n.navMyOrders,
                   route: AppRoutes.clientOrders,
                 ),
 
                 if (isOwner) ...[
                   const SizedBox(height: 32),
 
-                  // SECTION: OWNER (Conditional logic can be added here)
                   SidebarTile(
                     icon: Icons.construction,
-                    label: "Equipment",
+                    label: l10n.navEquipment,
                     route: AppRoutes.ownerEquiment,
                   ),
                   SidebarTile(
                     icon: Icons.book_online_outlined,
-                    label: "Bookings",
+                    label: l10n.navBookings,
                     route: AppRoutes.ownerBookings,
                   ),
                   SidebarTile(
                     icon: Icons.message_outlined,
-                    label: "Requests",
+                    label: l10n.navRequests,
                     route: AppRoutes.ownerRequests,
                   ),
                 ],
@@ -108,7 +106,6 @@ class SidebarDrawer extends ConsumerWidget {
             ),
           ),
 
-          // BOTTOM SECTION: PROFILE & SETTINGS
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -122,12 +119,12 @@ class SidebarDrawer extends ConsumerWidget {
                     children: [
                       SidebarTile(
                         icon: Icons.person_outline,
-                        label: "Profile",
+                        label: l10n.navProfile,
                         route: "/profile",
                       ),
                       SidebarTile(
                         icon: Icons.settings_outlined,
-                        label: "Settings",
+                        label: l10n.navSettings,
                         route: "/settings",
                       ),
                       const SizedBox(height: 10),
@@ -137,7 +134,7 @@ class SidebarDrawer extends ConsumerWidget {
                     children: [
                       SidebarTile(
                         icon: Icons.person_outline,
-                        label: "Login",
+                        label: l10n.navLogin,
                         route: "/login",
                       ),
                     ],
@@ -175,9 +172,9 @@ void _showCategoriesSheet(BuildContext context, WidgetRef ref) {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const Text(
-                "Select Service",
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(ctx)!.selectService,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -195,7 +192,7 @@ void _showCategoriesSheet(BuildContext context, WidgetRef ref) {
                     : categoriesState.categories.isEmpty
                     ? Center(
                         child: Text(
-                          "No categories available",
+                          AppLocalizations.of(ctx)!.noCategories,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.3),
                           ),

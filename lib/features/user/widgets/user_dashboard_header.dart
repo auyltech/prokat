@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class UserDashboardHeader extends ConsumerStatefulWidget {
   const UserDashboardHeader({super.key});
@@ -21,17 +22,20 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
     final theme = Theme.of(context);
     final topInset = MediaQuery.of(context).padding.top;
     final onPrimary = theme.colorScheme.onPrimary;
+    final l10n = AppLocalizations.of(context)!;
+
     final name = (userProfileState.userProfile?.displayName ?? '').isNotEmpty
         ? userProfileState.userProfile!.displayName
         : (userProfileState.userProfile?.phoneNumber ?? '').isNotEmpty
         ? formatPhoneNumber(userProfileState.userProfile!.phoneNumber!)
-        : 'Hello!';
+        : l10n.hello;
+
+    final ratingStars = userProfileState.userProfile?.ratingStars ?? 0;
 
     return Container(
       decoration: BoxDecoration(color: theme.colorScheme.primary),
       padding: EdgeInsets.fromLTRB(20, topInset + 20, 20, 20),
       child: Row(
-        // mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
@@ -61,7 +65,7 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: onPrimary, // Use onPrimary
+                    color: onPrimary,
                   ),
                 ),
                 Row(
@@ -69,17 +73,15 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
                     const Icon(LucideIcons.star, size: 16, color: Colors.amber),
                     const SizedBox(width: 4),
                     Text(
-                      (userProfileState.userProfile?.ratingStars ?? 0)
-                          .toStringAsFixed(1),
+                      ratingStars.toStringAsFixed(1),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: onPrimary,
                       ),
                     ),
                     const SizedBox(width: 4),
-
                     Text(
-                      '(${(userProfileState.userProfile?.ratingStars ?? 0).toStringAsFixed(0)} reviews)',
+                      '(${ratingStars.toStringAsFixed(0)} ${l10n.reviews})',
                       style: TextStyle(
                         color: onPrimary.withValues(alpha: 0.8),
                         fontSize: 13,

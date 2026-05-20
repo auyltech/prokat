@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> showEditUsernameSheet(
   BuildContext context,
@@ -9,6 +10,7 @@ Future<void> showEditUsernameSheet(
   String? currentUsername,
 ) {
   final isLocked = currentUsername != null && currentUsername.isNotEmpty;
+  final l10n = AppLocalizations.of(context)!;
 
   final controller = TextEditingController(text: currentUsername ?? '');
 
@@ -37,18 +39,18 @@ Future<void> showEditUsernameSheet(
             mainAxisSize: MainAxisSize.min,
             children: [
               /// Title
-              Text('Set Username', style: textTheme.titleLarge),
+              Text(l10n.setUsername, style: textTheme.titleLarge),
 
               const SizedBox(height: 8),
 
               /// Info text
               Text(
                 isLocked
-                    ? 'Username cannot be changed once set.'
-                    : 'Choose a username. This can only be set once.',
+                    ? l10n.usernameCannotBeChanged
+                    : l10n.chooseUsername,
                 textAlign: TextAlign.center,
                 style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurface.withValues(alpha:0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
 
@@ -63,7 +65,7 @@ Future<void> showEditUsernameSheet(
                 decoration: InputDecoration(
                   hintText: 'username',
                   hintStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha:0.4),
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                   filled: true,
                   fillColor: theme.cardColor,
@@ -86,7 +88,7 @@ Future<void> showEditUsernameSheet(
                   Expanded(
                     child: TextButton(
                       onPressed: () => context.pop(),
-                      child: const Text('Close'),
+                      child: Text(l10n.close),
                     ),
                   ),
 
@@ -106,7 +108,7 @@ Future<void> showEditUsernameSheet(
                             context.pop();
                           }
                         },
-                        child: const Text('Save'),
+                        child: Text(l10n.save),
                       ),
                     ),
                   ],

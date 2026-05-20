@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LaunchScreen extends StatefulWidget {
   const LaunchScreen({super.key});
@@ -158,7 +159,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                   ),
 
                   Text(
-                    'HEAVY EQUIPMENT RENTALS',
+                    AppLocalizations.of(context)!.heavyEquipmentRentals,
                     style: textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w800,
                       letterSpacing: 3,
@@ -191,7 +192,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'INITIALIZING SYSTEMS...',
+                      AppLocalizations.of(context)!.initializingSystems,
                       style: textTheme.labelSmall?.copyWith(
                         letterSpacing: 1.5,
                         color: theme.colorScheme.onSurface.withValues(
@@ -212,7 +213,7 @@ class _LaunchScreenState extends State<LaunchScreen>
                 if (_showWarmupMessage) ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Server is warming up, please wait...',
+                    AppLocalizations.of(context)!.serverWarmingUp,
                     textAlign: TextAlign.center,
                     style: textTheme.labelSmall?.copyWith(
                       color: accentColor.withValues(alpha: 0.7),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerPaymentsScreen extends StatelessWidget {
   const OwnerPaymentsScreen({super.key});
@@ -11,6 +12,7 @@ class OwnerPaymentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
 
     final humanReadable = _formatMinutes(balanceMinutes);
@@ -22,7 +24,7 @@ class OwnerPaymentsScreen extends StatelessWidget {
         'amount': '5,000 ₸',
         'date': '01 Nov, 10:00',
         'method': 'Kaspi.kz',
-        'packageId': 'pkg_month', // Useful for the "Repeat" logic
+        'packageId': 'pkg_month',
       },
       {
         'title': '10 Days Package',
@@ -48,7 +50,7 @@ class OwnerPaymentsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Payments & Balance")),
+      appBar: AppBar(title: Text(l10n.paymentsBalance)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -61,7 +63,7 @@ class OwnerPaymentsScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Text("Total Balance", style: theme.textTheme.labelLarge),
+                Text(l10n.totalBalance, style: theme.textTheme.labelLarge),
                 const SizedBox(height: 8),
                 Text(
                   "1,234 min",
@@ -71,14 +73,14 @@ class OwnerPaymentsScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "≈ $humanReadable for 2 equipment", // Human-friendly calculation
+                  "≈ $humanReadable for 2 equipment",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const Divider(height: 32),
                 Text(
-                  "370.2 KZT", // Value in local currency
+                  "370.2 KZT",
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: colorScheme.secondary,
                   ),
@@ -89,10 +91,10 @@ class OwnerPaymentsScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          _usageCard(context, 4, 300),
+          _usageCard(context, l10n, 4, 300),
 
           const SizedBox(height: 16),
-          _quickTopUpTile(context, () {}),
+          _quickTopUpTile(context, l10n, () {}),
 
           const SizedBox(height: 16),
           Container(
@@ -109,13 +111,13 @@ class OwnerPaymentsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Billing Tiers",
+                      l10n.billingTiers,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Badge(
-                      label: Text("Save 15%"),
+                    Badge(
+                      label: Text(l10n.save15Percent),
                       backgroundColor: Colors.green,
                     ),
                   ],
@@ -138,19 +140,18 @@ class OwnerPaymentsScreen extends StatelessWidget {
                   "200 KZT/day",
                   isCurrent: false,
                   colorScheme: colorScheme,
-                ), // Future discount
+                ),
               ],
             ),
           ),
 
           const SizedBox(height: 16),
 
-          _consumptionChart(context, weeklyConsumption),
+          _consumptionChart(context, l10n, weeklyConsumption),
 
           const SizedBox(height: 16),
 
-          // _activeEquipmentTile(context, "test", "123", "min", "12"),
-          _paymentHistory(context, paymentHistoryExamples),
+          _paymentHistory(context, l10n, paymentHistoryExamples),
         ],
       ),
     );
@@ -158,6 +159,7 @@ class OwnerPaymentsScreen extends StatelessWidget {
 
   Widget _paymentHistory(
     BuildContext context,
+    AppLocalizations l10n,
     List<Map<String, dynamic>> payments,
   ) {
     final theme = Theme.of(context);
@@ -169,7 +171,7 @@ class OwnerPaymentsScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Text(
-            "Payment History",
+            l10n.paymentHistory,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -195,7 +197,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Method Icon
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -215,7 +216,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Title and Date
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +234,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Amount and Repeat
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -246,9 +245,9 @@ class OwnerPaymentsScreen extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => /* Trigger top-up with same package */ {},
+                        onTap: () {},
                         child: Text(
-                          "Repeat",
+                          l10n.repeat,
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.primary,
@@ -267,8 +266,12 @@ class OwnerPaymentsScreen extends StatelessWidget {
     );
   }
 
-  /// ⚡ USAGE CARD
-  Widget _usageCard(BuildContext context, int equipmentCount, int dailyCost) {
+  Widget _usageCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    int equipmentCount,
+    int dailyCost,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -283,7 +286,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 1. Icon Box (Matching your Fleet/Orders style)
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -299,20 +301,19 @@ class OwnerPaymentsScreen extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // 2. Info Section
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Active Equipment: $equipmentCount",
+                  "${l10n.activeEquipment}: $equipmentCount",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Daily cost: $dailyCost ₸",
+                  "${l10n.dailyCost}: $dailyCost ₸",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -321,7 +322,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
             ),
           ),
 
-          // 3. Rate Badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -342,10 +342,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     );
   }
 
-  /// ------------------------
-  /// 🧠 LOGIC HELPERS
-  /// ------------------------
-
   String _formatMinutes(int minutes) {
     final days = minutes ~/ 1440;
     final hours = (minutes % 1440) ~/ 60;
@@ -353,7 +349,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     if (days > 0) return "$days days $hours hours";
     return "$hours hours";
   }
-
 }
 
 Widget _tierRow(
@@ -366,7 +361,6 @@ Widget _tierRow(
     padding: const EdgeInsets.symmetric(vertical: 8),
     child: Row(
       children: [
-        // Status Indicator
         Container(
           width: 8,
           height: 8,
@@ -377,7 +371,6 @@ Widget _tierRow(
         ),
         const SizedBox(width: 12),
 
-        // Label
         Expanded(
           child: Text(
             label,
@@ -390,7 +383,6 @@ Widget _tierRow(
           ),
         ),
 
-        // Rate
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
@@ -415,7 +407,11 @@ Widget _tierRow(
   );
 }
 
-Widget _quickTopUpTile(BuildContext context, VoidCallback onTap) {
+Widget _quickTopUpTile(
+  BuildContext context,
+  AppLocalizations l10n,
+  VoidCallback onTap,
+) {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
 
@@ -446,20 +442,20 @@ Widget _quickTopUpTile(BuildContext context, VoidCallback onTap) {
           child: const Icon(Icons.add_moderator, color: Colors.white),
         ),
         const SizedBox(width: 16),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Running low?",
-                style: TextStyle(
+                l10n.runningLow,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                "Top up minutes via Kaspi",
-                style: TextStyle(color: Colors.white70, fontSize: 12),
+                l10n.topUpViaKaspi,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
           ),
@@ -475,9 +471,9 @@ Widget _quickTopUpTile(BuildContext context, VoidCallback onTap) {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16),
           ),
-          child: const Text(
-            "Add",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          child: Text(
+            l10n.add,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -485,12 +481,15 @@ Widget _quickTopUpTile(BuildContext context, VoidCallback onTap) {
   );
 }
 
-Widget _consumptionChart(BuildContext context, List<int> weeklyData) {
+Widget _consumptionChart(
+  BuildContext context,
+  AppLocalizations l10n,
+  List<int> weeklyData,
+) {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
   final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-  // Find max to scale the bars
   final maxUsage = weeklyData
       .reduce((a, b) => a > b ? a : b)
       .clamp(1, double.infinity);
@@ -511,13 +510,13 @@ Widget _consumptionChart(BuildContext context, List<int> weeklyData) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Usage Trend",
+              l10n.usageTrend,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              "Last 7 Days",
+              l10n.last7Days,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -526,7 +525,7 @@ Widget _consumptionChart(BuildContext context, List<int> weeklyData) {
         ),
         const SizedBox(height: 24),
         SizedBox(
-          height: 120, // Fixed height for the chart area
+          height: 120,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -537,20 +536,17 @@ Widget _consumptionChart(BuildContext context, List<int> weeklyData) {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // The Bar
                   Container(
                     width: 12,
-                    height: 80 * percentage, // Scales based on max value
+                    height: 80 * percentage,
                     decoration: BoxDecoration(
                       color: index == weeklyData.length - 1
-                          ? colorScheme
-                                .primary // Highlight today
+                          ? colorScheme.primary
                           : colorScheme.primary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Day Label
                   Text(
                     days[index],
                     style: TextStyle(
