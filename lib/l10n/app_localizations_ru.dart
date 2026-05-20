@@ -1746,4 +1746,41 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get logoutConfirmation => 'Вы уверены, что хотите выйти?';
+
+  @override
+  String get reserveNow => 'Забронировать';
+
+  @override
+  String get postWhatAndGetOffers =>
+      'Опубликуйте что нужно и получите предложения';
+
+  @override
+  String get bookingRequestLabel => 'ЗАПРОС БРОНИРОВАНИЯ';
+
+  @override
+  String get newOrder => 'Новый заказ';
+
+  @override
+  String get statusDraft => 'Черновик';
+
+  @override
+  String get statusConfirmed => 'Подтверждено';
+
+  @override
+  String get statusCanceled => 'Отменено';
+
+  @override
+  String get statusCompleted => 'Завершено';
+
+  @override
+  String get statusRequestSent => 'Заявка отправлена';
+
+  @override
+  String get statusOffersReceived => 'Предложения получены';
+
+  @override
+  String get statusBookingCreated => 'Бронирование создано';
+
+  @override
+  String get statusExpired => 'Истёк';
 }

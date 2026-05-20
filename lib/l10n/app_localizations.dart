@@ -3471,6 +3471,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to logout?'**
   String get logoutConfirmation;
+
+  /// No description provided for @reserveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve Now'**
+  String get reserveNow;
+
+  /// No description provided for @postWhatAndGetOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Post what you need and get offers'**
+  String get postWhatAndGetOffers;
+
+  /// No description provided for @bookingRequestLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'BOOKING REQUEST'**
+  String get bookingRequestLabel;
+
+  /// No description provided for @newOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New Order'**
+  String get newOrder;
+
+  /// No description provided for @statusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get statusDraft;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get statusConfirmed;
+
+  /// No description provided for @statusCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceled'**
+  String get statusCanceled;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Sent'**
+  String get statusRequestSent;
+
+  /// No description provided for @statusOffersReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers Received'**
+  String get statusOffersReceived;
+
+  /// No description provided for @statusBookingCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Created'**
+  String get statusBookingCreated;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get statusExpired;
 }
 
 class _AppLocalizationsDelegate

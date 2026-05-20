@@ -58,7 +58,7 @@ class ClientBookingTile extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  getBookingStatus(booking.status),
+                  getBookingStatus(booking.status, l10n: l10n),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -170,7 +170,7 @@ class ClientBookingTile extends ConsumerWidget {
                       Expanded(
                         child: InfoTile(
                           label: l10n.offeredRate,
-                          value: "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
+                          value: "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
                           isHighlighted: true,
                         ),
                       ),

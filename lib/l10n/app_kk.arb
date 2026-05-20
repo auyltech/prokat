@@ -603,5 +603,17 @@
   "clientBookingDetails": "Клиент брондауының мәліметтері",
   "confirm": "Растау",
   "orderCancelled": "Тапсырыс болдырылмады",
-  "logoutConfirmation": "Жүйеден шыққыңыз келетіні сенімдісіз бе?"
+  "logoutConfirmation": "Жүйеден шыққыңыз келетіні сенімдісіз бе?",
+  "reserveNow": "Брондау",
+  "postWhatAndGetOffers": "Не қажет екенін жазыңыз және ұсыныстар алыңыз",
+  "bookingRequestLabel": "БРОНДАУ СҰРАНЫМЫ",
+  "newOrder": "Жаңа тапсырыс",
+  "statusDraft": "Жоба",
+  "statusConfirmed": "Расталды",
+  "statusCanceled": "Болдырылмады",
+  "statusCompleted": "Аяқталды",
+  "statusRequestSent": "Сұраным жіберілді",
+  "statusOffersReceived": "Ұсыныстар алынды",
+  "statusBookingCreated": "Брондау жасалды",
+  "statusExpired": "Мерзімі өтті"
 }

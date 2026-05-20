@@ -603,5 +603,17 @@
   "clientBookingDetails": "Детали брони клиента",
   "confirm": "Подтвердить",
   "orderCancelled": "Заказ отменён",
-  "logoutConfirmation": "Вы уверены, что хотите выйти?"
+  "logoutConfirmation": "Вы уверены, что хотите выйти?",
+  "reserveNow": "Забронировать",
+  "postWhatAndGetOffers": "Опубликуйте что нужно и получите предложения",
+  "bookingRequestLabel": "ЗАПРОС БРОНИРОВАНИЯ",
+  "newOrder": "Новый заказ",
+  "statusDraft": "Черновик",
+  "statusConfirmed": "Подтверждено",
+  "statusCanceled": "Отменено",
+  "statusCompleted": "Завершено",
+  "statusRequestSent": "Заявка отправлена",
+  "statusOffersReceived": "Предложения получены",
+  "statusBookingCreated": "Бронирование создано",
+  "statusExpired": "Истёк"
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 String formatRequestTime(String date) {
   final dt = DateTime.parse(date).toLocal();
@@ -82,12 +83,19 @@ String formatPrice(dynamic price) {
   return "₸ $formatted";
 }
 
-String getPriceRate(dynamic priceRate) {
+String getPriceRate(dynamic priceRate, {AppLocalizations? l10n}) {
   if (priceRate == null || priceRate.toString().isEmpty) {
     return "";
   }
 
   final temp = priceRate.toString().trim().replaceAll(" ", "_").toUpperCase();
+
+  if (l10n != null) {
+    if (temp == "PER_TRIP") return l10n.perTrip;
+    if (temp == "PER_CUBIC_METER") return l10n.perM3;
+    if (temp == "PER_HOUR") return l10n.perHour;
+    return temp;
+  }
 
   return temp == "PER_TRIP"
       ? "/ Trip"
@@ -98,8 +106,29 @@ String getPriceRate(dynamic priceRate) {
       : temp;
 }
 
-String getBookingStatus(dynamic status) {
+String getBookingStatus(dynamic status, {AppLocalizations? l10n}) {
   final temp = status.toString().trim().toUpperCase();
+
+  if (l10n != null) {
+    switch (temp) {
+      case "DRAFT":
+        return l10n.statusDraft;
+      case "CREATED":
+        return l10n.newOrder;
+      case "CONFIRMED":
+        return l10n.statusConfirmed;
+      case "REJECTED":
+        return l10n.statusRejected;
+      case "WITHDRAW":
+        return l10n.statusCanceled;
+      case "FAILED":
+        return l10n.statusCanceled;
+      case "COMPLETED":
+        return l10n.statusCompleted;
+      default:
+        return "";
+    }
+  }
 
   switch (temp) {
     case "DRAFT":
@@ -121,8 +150,27 @@ String getBookingStatus(dynamic status) {
   }
 }
 
-String getRequestStatus(dynamic status) {
+String getRequestStatus(dynamic status, {AppLocalizations? l10n}) {
   final temp = status.toString().trim().toUpperCase();
+
+  if (l10n != null) {
+    switch (temp) {
+      case "DRAFT":
+        return l10n.statusDraft;
+      case "CREATED":
+        return l10n.statusRequestSent;
+      case "RESPONDED":
+        return l10n.statusOffersReceived;
+      case "ACCEPTED":
+        return l10n.statusBookingCreated;
+      case "CANCELLED":
+        return l10n.statusCanceled;
+      case "EXPIRED":
+        return l10n.statusExpired;
+      default:
+        return "";
+    }
+  }
 
   switch (temp) {
     case "DRAFT":

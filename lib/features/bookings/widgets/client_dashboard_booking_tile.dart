@@ -7,6 +7,7 @@ import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientDashboardBookingTile extends ConsumerWidget {
   final BookingModel booking;
@@ -16,6 +17,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -144,7 +146,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                         ),
                       ),
                       TextSpan(
-                        text: getPriceRate(booking.priceRate),
+                        text: getPriceRate(booking.priceRate, l10n: l10n),
                         style: theme.textTheme.labelMedium,
                       ),
                     ],

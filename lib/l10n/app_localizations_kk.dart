@@ -1744,4 +1744,41 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get logoutConfirmation => 'Жүйеден шыққыңыз келетіні сенімдісіз бе?';
+
+  @override
+  String get reserveNow => 'Брондау';
+
+  @override
+  String get postWhatAndGetOffers =>
+      'Не қажет екенін жазыңыз және ұсыныстар алыңыз';
+
+  @override
+  String get bookingRequestLabel => 'БРОНДАУ СҰРАНЫМЫ';
+
+  @override
+  String get newOrder => 'Жаңа тапсырыс';
+
+  @override
+  String get statusDraft => 'Жоба';
+
+  @override
+  String get statusConfirmed => 'Расталды';
+
+  @override
+  String get statusCanceled => 'Болдырылмады';
+
+  @override
+  String get statusCompleted => 'Аяқталды';
+
+  @override
+  String get statusRequestSent => 'Сұраным жіберілді';
+
+  @override
+  String get statusOffersReceived => 'Ұсыныстар алынды';
+
+  @override
+  String get statusBookingCreated => 'Брондау жасалды';
+
+  @override
+  String get statusExpired => 'Мерзімі өтті';
 }

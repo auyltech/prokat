@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingStatusBadge extends StatelessWidget {
   final String status;
@@ -8,6 +9,7 @@ class BookingStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -18,7 +20,7 @@ class BookingStatusBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        getBookingStatus(status),
+        getBookingStatus(status, l10n: l10n),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,

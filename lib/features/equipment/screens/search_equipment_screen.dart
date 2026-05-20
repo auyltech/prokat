@@ -106,14 +106,16 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: false,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
+        leading: context.canPop()
+            ? IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 20,
+                  color: theme.colorScheme.onPrimary,
+                ),
+                onPressed: () => context.pop(),
+              )
+            : null,
         backgroundColor: theme.primaryColor,
         elevation: 10,
         actions: [CityPickerTrigger(selectedCity: selectedCity)],
@@ -127,7 +129,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
             padding: const EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              SearchBox(),
+              SearchBox(placeholder: l10n.searchEquipment),
 
               const SizedBox(height: 24),
 

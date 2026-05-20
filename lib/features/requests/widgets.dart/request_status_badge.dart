@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class RequestStatusBadge extends StatelessWidget {
   final String status;
@@ -25,6 +26,7 @@ class RequestStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -33,7 +35,7 @@ class RequestStatusBadge extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
-        getRequestStatus(status),
+        getRequestStatus(status, l10n: l10n),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/inline_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateRequestTile extends StatelessWidget {
   const CreateRequestTile({super.key});
@@ -9,6 +10,7 @@ class CreateRequestTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () => context.push(AppRoutes.clientRequestsCreate),
@@ -44,7 +46,7 @@ class CreateRequestTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Create a request",
+                    l10n.createRequest,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5, // Tighter tracking for modern look
@@ -52,7 +54,7 @@ class CreateRequestTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Post what you need and get offers",
+                    l10n.postWhatAndGetOffers,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.textTheme.bodySmall?.color?.withValues(
                         alpha: 0.8,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:prokat/features/bookings/models/booking_model.dart'; // For date formatting
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends StatelessWidget {
   final BookingModel booking; // Pass the booking model directly for rich data
@@ -10,6 +12,7 @@ class BookingMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final equipment = booking.equipment;
 
     return Container(
@@ -49,7 +52,7 @@ class BookingMessageBubble extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'BOOKING REQUEST',
+                      l10n.bookingRequestLabel,
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.blue[800],
@@ -69,7 +72,7 @@ class BookingMessageBubble extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    booking.status.toUpperCase(),
+                    getBookingStatus(booking.status, l10n: l10n).toUpperCase(),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -139,7 +142,7 @@ class BookingMessageBubble extends StatelessWidget {
                         color: theme.primaryColor,
                       ),
                     ),
-                    Text(booking.priceRate, style: theme.textTheme.bodySmall),
+                    Text(getPriceRate(booking.priceRate, l10n: l10n), style: theme.textTheme.bodySmall),
                   ],
                 ),
               ],
@@ -155,7 +158,7 @@ class BookingMessageBubble extends StatelessWidget {
               children: [
                 _infoTile(
                   Icons.calendar_today_outlined,
-                  "Date",
+                  l10n.date,
                   booking.bookedOn != null
                       ? DateFormat('MMM dd, yyyy').format(booking.bookedOn!)
                       : "TBD",
@@ -163,8 +166,8 @@ class BookingMessageBubble extends StatelessWidget {
                 const Spacer(),
                 _infoTile(
                   Icons.location_on_outlined,
-                  "Location",
-                  booking.location.street, // Assuming LocationModel has a name
+                  l10n.location,
+                  booking.location.street,
                 ),
               ],
             ),

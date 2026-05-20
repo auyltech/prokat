@@ -4,6 +4,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerDashboardBookingTile extends StatelessWidget {
   final BookingModel booking;
@@ -13,6 +14,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
 
     final minutesLeft = getRemainingMinutes(booking.createdAt);
@@ -120,7 +122,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                 ),
               ),
               Text(
-                "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
+                "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.bold,

@@ -40,7 +40,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     final profileNotifier = ref.read(userProfileProvider.notifier);
     final topInset = MediaQuery.of(context).padding.top;
 
-    String selectedLanguage = 'EN';
     final username = state.userProfile?.username;
 
     return Scaffold(
@@ -113,10 +112,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   ),
                 ),
 
-                LanguageSelectorTile(
-                  value: selectedLanguage,
-                  onChanged: (lang) => setState(() => selectedLanguage = lang),
-                ),
+                const LanguageSelectorTile(),
               ],
             ),
           ),

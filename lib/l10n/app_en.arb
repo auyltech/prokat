@@ -604,5 +604,17 @@
   "clientBookingDetails": "Client Booking Details",
   "confirm": "Confirm",
   "orderCancelled": "Order Cancelled",
-  "logoutConfirmation": "Are you sure you want to logout?"
+  "logoutConfirmation": "Are you sure you want to logout?",
+  "reserveNow": "Reserve Now",
+  "postWhatAndGetOffers": "Post what you need and get offers",
+  "bookingRequestLabel": "BOOKING REQUEST",
+  "newOrder": "New Order",
+  "statusDraft": "Draft",
+  "statusConfirmed": "Confirmed",
+  "statusCanceled": "Canceled",
+  "statusCompleted": "Completed",
+  "statusRequestSent": "Request Sent",
+  "statusOffersReceived": "Offers Received",
+  "statusBookingCreated": "Booking Created",
+  "statusExpired": "Expired"
 }

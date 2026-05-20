@@ -37,10 +37,10 @@ class FavoriteNotifier extends StateNotifier<FavoritesState> {
       final current = state.favoritesIds;
 
       // Optimistic update
-      final isFav = current?.contains(equipmentId);
+      final isFav = current?.contains(equipmentId) ?? false;
       final updated = Set<String>.from(current ?? []);
 
-      if (isFav != null) {
+      if (isFav) {
         updated.remove(equipmentId);
       } else {
         updated.add(equipmentId);

@@ -1738,4 +1738,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logoutConfirmation => 'Are you sure you want to logout?';
+
+  @override
+  String get reserveNow => 'Reserve Now';
+
+  @override
+  String get postWhatAndGetOffers => 'Post what you need and get offers';
+
+  @override
+  String get bookingRequestLabel => 'BOOKING REQUEST';
+
+  @override
+  String get newOrder => 'New Order';
+
+  @override
+  String get statusDraft => 'Draft';
+
+  @override
+  String get statusConfirmed => 'Confirmed';
+
+  @override
+  String get statusCanceled => 'Canceled';
+
+  @override
+  String get statusCompleted => 'Completed';
+
+  @override
+  String get statusRequestSent => 'Request Sent';
+
+  @override
+  String get statusOffersReceived => 'Offers Received';
+
+  @override
+  String get statusBookingCreated => 'Booking Created';
+
+  @override
+  String get statusExpired => 'Expired';
 }

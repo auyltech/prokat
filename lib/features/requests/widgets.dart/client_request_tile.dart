@@ -55,7 +55,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  getRequestStatus(request.status),
+                  getRequestStatus(request.status, l10n: l10n),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
