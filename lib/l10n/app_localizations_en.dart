@@ -1656,4 +1656,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error => 'Error';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get book => 'Book';
+
+  @override
+  String get viewRequests => 'View Requests';
+
+  @override
+  String get couldNotLoadOrders => 'Could not load orders';
+
+  @override
+  String get currentOrdersWillAppearHere =>
+      'Your current orders will appear here';
+
+  @override
+  String get requestedBy => 'Requested by';
+
+  @override
+  String get sendCounterOffer => 'Send Counter Offer';
+
+  @override
+  String get newPrice => 'New Price';
+
+  @override
+  String get noEquipmentAvailable => 'No equipment available';
+
+  @override
+  String get searchEquipment => 'Search equipment...';
+
+  @override
+  String get couldNotLoadEquipment => 'Couldn\'t load equipment';
+
+  @override
+  String get selectEquipmentLocation => 'Select Equipment Location';
+
+  @override
+  String get noEquipmentMatchingCategory =>
+      'We couldn\'t find any items matching this category at the moment.';
+
+  @override
+  String get cancelOrderConfirmation =>
+      'Are you sure you want to cancel this order?';
+
+  @override
+  String get loadEquipmentErrorHint =>
+      'We ran into an issue loading the list. Please try again.';
+
+  @override
+  String get createBooking => 'Create Booking';
+
+  @override
+  String get loginToBook => 'Login to book this equipment';
+
+  @override
+  String get equipmentNotFound => 'Equipment not found';
+
+  @override
+  String get servicePlan => 'Service Plan';
+
+  @override
+  String get addressAndSchedule => 'Address & Schedule';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get noteToOperator => 'Note to Operator';
+
+  @override
+  String get siteAccessHint => 'Site access details, conditions...';
+
+  @override
+  String get clientBookingDetails => 'Client Booking Details';
+
+  @override
+  String get logoutConfirmation => 'Are you sure you want to logout?';
 }

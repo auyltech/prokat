@@ -3315,6 +3315,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error'**
   String get error;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @book.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get book;
+
+  /// No description provided for @viewRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'View Requests'**
+  String get viewRequests;
+
+  /// No description provided for @couldNotLoadOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load orders'**
+  String get couldNotLoadOrders;
+
+  /// No description provided for @currentOrdersWillAppearHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current orders will appear here'**
+  String get currentOrdersWillAppearHere;
+
+  /// No description provided for @requestedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested by'**
+  String get requestedBy;
+
+  /// No description provided for @sendCounterOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Counter Offer'**
+  String get sendCounterOffer;
+
+  /// No description provided for @newPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'New Price'**
+  String get newPrice;
+
+  /// No description provided for @noEquipmentAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No equipment available'**
+  String get noEquipmentAvailable;
+
+  /// No description provided for @searchEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Search equipment...'**
+  String get searchEquipment;
+
+  /// No description provided for @couldNotLoadEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load equipment'**
+  String get couldNotLoadEquipment;
+
+  /// No description provided for @selectEquipmentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Equipment Location'**
+  String get selectEquipmentLocation;
+
+  /// No description provided for @noEquipmentMatchingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find any items matching this category at the moment.'**
+  String get noEquipmentMatchingCategory;
+
+  /// No description provided for @cancelOrderConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this order?'**
+  String get cancelOrderConfirmation;
+
+  /// No description provided for @loadEquipmentErrorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We ran into an issue loading the list. Please try again.'**
+  String get loadEquipmentErrorHint;
+
+  /// No description provided for @createBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Booking'**
+  String get createBooking;
+
+  /// No description provided for @loginToBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Login to book this equipment'**
+  String get loginToBook;
+
+  /// No description provided for @equipmentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment not found'**
+  String get equipmentNotFound;
+
+  /// No description provided for @servicePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Plan'**
+  String get servicePlan;
+
+  /// No description provided for @addressAndSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Address & Schedule'**
+  String get addressAndSchedule;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @noteToOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to Operator'**
+  String get noteToOperator;
+
+  /// No description provided for @siteAccessHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Site access details, conditions...'**
+  String get siteAccessHint;
+
+  /// No description provided for @clientBookingDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Client Booking Details'**
+  String get clientBookingDetails;
+
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirmation;
 }
 
 class _AppLocalizationsDelegate

@@ -4,6 +4,7 @@ import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CategorySelectorTile extends ConsumerStatefulWidget {
   final String mode;
@@ -19,6 +20,7 @@ class _OwnerEquipmentDetailScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final equipmentNotifier = ref.watch(equipmentProvider);
 
@@ -35,7 +37,7 @@ class _OwnerEquipmentDetailScreenState
               .where((cat) => cat.id == equipment?.categoryId)
               .firstOrNull;
 
-    final categoryName = selectedCategory?.name ?? "Select Service";
+    final categoryName = selectedCategory?.name ?? l10n.selectService;
     final bool hasCategory =
         widget.mode == "create_request" || widget.mode == "create_equipment"
         ? selectedCategory != null
@@ -70,7 +72,7 @@ class _OwnerEquipmentDetailScreenState
           if (mounted && res == true) {
             ScaffoldMessenger.of(this.context).showSnackBar(
               SnackBar(
-                content: const Text("Equipment Updated"),
+                content: Text(l10n.equipmentUpdated),
                 backgroundColor: theme.colorScheme.primary,
               ),
             );
@@ -78,7 +80,7 @@ class _OwnerEquipmentDetailScreenState
         } else if (mounted) {
           ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
-              content: const Text("Update Failed"),
+              content: Text(l10n.updateFailed),
               backgroundColor: theme.colorScheme.error,
             ),
           );
@@ -119,7 +121,7 @@ class _OwnerEquipmentDetailScreenState
                 // Text("Service", style: theme.textTheme.labelLarge),
                 // const SizedBox(height: 2),
                 Text(
-                  hasCategory ? categoryName : "Select Service",
+                  hasCategory ? categoryName : l10n.selectService,
                   style: theme.textTheme.bodyLarge,
                 ),
               ],

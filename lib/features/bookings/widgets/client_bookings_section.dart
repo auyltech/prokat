@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/bookings/widgets/client_dashboard_booking_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientBookingsSection extends ConsumerStatefulWidget {
   const ClientBookingsSection({super.key});
@@ -27,18 +28,13 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final bookingState = ref.watch(bookingProvider);
 
     final upcoming = bookingState.bookings
         .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
         .toList();
-
-    final completed = bookingState.bookings
-        .where((b) => b.status == "COMPLETED")
-        .toList();
-
-    if (completed.isNotEmpty) {}
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +43,7 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Active Orders",
+              l10n.activeOrders,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
@@ -61,7 +57,7 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
                 color: theme.colorScheme.secondary,
                 size: 24,
               ),
-              tooltip: "My Orders",
+              tooltip: l10n.myRequests,
             ),
           ],
         ),
@@ -69,9 +65,9 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
         const SizedBox(height: 6),
 
         if (bookingState.isLoading)
-          EmptyStateTile(title: "Loading...")
+          EmptyStateTile(title: l10n.loading)
         else if (bookingState.error != null)
-          EmptyStateTile(title: "Error", subtitle: "Could not load orders")
+          EmptyStateTile(title: l10n.error, subtitle: l10n.couldNotLoadOrders)
         else if (upcoming.isEmpty)
           Container(
             width: double.infinity,
@@ -92,14 +88,14 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  "No active orders right now",
+                  l10n.noActiveOrders,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Your current orders will appear here",
+                  l10n.currentOrdersWillAppearHere,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall,
                 ),

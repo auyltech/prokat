@@ -562,7 +562,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentUpdated => 'Техника обновлена';
 
   @override
-  String get pleaseEnterValidValues => 'Введите корректные значения';
+  String get pleaseEnterValidValues =>
+      'Пожалуйста, введите корректные значения';
 
   @override
   String get equipmentUpdatedSuccessfully => 'Техника успешно обновлена';
@@ -1663,4 +1664,86 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get error => 'Ошибка';
+
+  @override
+  String get price => 'Цена';
+
+  @override
+  String get book => 'Забронировать';
+
+  @override
+  String get viewRequests => 'Просмотреть заявки';
+
+  @override
+  String get couldNotLoadOrders => 'Не удалось загрузить заказы';
+
+  @override
+  String get currentOrdersWillAppearHere =>
+      'Здесь появятся ваши текущие заказы';
+
+  @override
+  String get requestedBy => 'Запросил';
+
+  @override
+  String get sendCounterOffer => 'Отправить встречное предложение';
+
+  @override
+  String get newPrice => 'Новая цена';
+
+  @override
+  String get noEquipmentAvailable => 'Техника не найдена';
+
+  @override
+  String get searchEquipment => 'Найти технику...';
+
+  @override
+  String get couldNotLoadEquipment => 'Не удалось загрузить технику';
+
+  @override
+  String get selectEquipmentLocation => 'Выбрать местоположение техники';
+
+  @override
+  String get noEquipmentMatchingCategory =>
+      'По данной категории техника не найдена.';
+
+  @override
+  String get cancelOrderConfirmation =>
+      'Вы уверены, что хотите отменить этот заказ?';
+
+  @override
+  String get loadEquipmentErrorHint =>
+      'Произошла ошибка при загрузке списка. Попробуйте снова.';
+
+  @override
+  String get createBooking => 'Создать бронирование';
+
+  @override
+  String get loginToBook => 'Войдите, чтобы забронировать';
+
+  @override
+  String get equipmentNotFound => 'Техника не найдена';
+
+  @override
+  String get servicePlan => 'Тарифный план';
+
+  @override
+  String get addressAndSchedule => 'Адрес и расписание';
+
+  @override
+  String get date => 'Дата';
+
+  @override
+  String get time => 'Время';
+
+  @override
+  String get noteToOperator => 'Примечание оператору';
+
+  @override
+  String get siteAccessHint => 'Детали доступа к объекту, условия...';
+
+  @override
+  String get clientBookingDetails => 'Детали брони клиента';
+
+  @override
+  String get logoutConfirmation => 'Вы уверены, что хотите выйти?';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CounterOfferSheet extends StatefulWidget {
   final BookingModel booking;
@@ -15,6 +16,7 @@ class _CounterOfferSheetState extends State<CounterOfferSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.viewInsetsOf(context).bottom + 24,
@@ -27,17 +29,17 @@ class _CounterOfferSheetState extends State<CounterOfferSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Send Counter Offer",
+            l10n.sendCounterOffer,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "New Price",
+            decoration: InputDecoration(
+              labelText: l10n.newPrice,
               suffixText: "KZT",
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -58,7 +60,7 @@ class _CounterOfferSheetState extends State<CounterOfferSheet> {
                 // TODO: API Call with _priceController.text and _selectedRate
                 Navigator.pop(context);
               },
-              child: const Text("Send Offer"),
+              child: Text(l10n.sendOffer),
             ),
           ),
         ],

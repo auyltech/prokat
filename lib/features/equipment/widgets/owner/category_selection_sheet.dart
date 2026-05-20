@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CategorySelectionSheet extends ConsumerWidget {
   final String service;
@@ -12,6 +13,7 @@ class CategorySelectionSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final categories = ref.watch(categoriesProvider).categories;
 
     return Container(
@@ -34,7 +36,7 @@ class CategorySelectionSheet extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          Text("Select Service", style: theme.textTheme.titleLarge),
+          Text(l10n.selectService, style: theme.textTheme.titleLarge),
 
           const SizedBox(height: 16),
 

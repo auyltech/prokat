@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/equipment/models/equipment_location.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LocationPickerSheet extends StatelessWidget {
   final List<EquipmentLocation> locations;
@@ -9,6 +10,7 @@ class LocationPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final previewLocations = locations.take(2).toList();
 
     return SafeArea(
@@ -18,9 +20,9 @@ class LocationPickerSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Select Equipment Location",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.selectEquipmentLocation,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -44,7 +46,7 @@ class LocationPickerSheet extends StatelessWidget {
             if (locations.length > 2)
               ListTile(
                 leading: const Icon(Icons.list_rounded),
-                title: const Text("View all locations"),
+                title: Text(l10n.viewAllLocations),
                 onTap: () {
                   context.push("/owner/addresses");
                 },
@@ -55,7 +57,7 @@ class LocationPickerSheet extends StatelessWidget {
             /// ADD MANUALLY
             ListTile(
               leading: const Icon(Icons.add_location_alt_rounded),
-              title: const Text("Add address manually"),
+              title: Text(l10n.addAddressManually),
               onTap: () {
                 context.push("/owner/addresses/create");
               },
@@ -64,7 +66,7 @@ class LocationPickerSheet extends StatelessWidget {
             /// SET ON MAP
             ListTile(
               leading: const Icon(Icons.map_rounded),
-              title: const Text("Set on map"),
+              title: Text(l10n.setOnMap),
               onTap: () {
                 context.push("/owner/addresses/map");
               },

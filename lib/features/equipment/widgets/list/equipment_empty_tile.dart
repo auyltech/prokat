@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentEmptyTile extends StatelessWidget {
   const EquipmentEmptyTile({super.key});
@@ -6,6 +7,7 @@ class EquipmentEmptyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -31,7 +33,7 @@ class EquipmentEmptyTile extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "No equipment available",
+            l10n.noEquipmentAvailable,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurfaceVariant,
@@ -39,7 +41,7 @@ class EquipmentEmptyTile extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "We couldn't find any items matching this category at the moment.",
+            l10n.noEquipmentMatchingCategory,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha:0.7),

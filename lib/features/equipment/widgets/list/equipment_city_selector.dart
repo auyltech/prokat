@@ -32,7 +32,9 @@ class _EquipmentCitySelectorState extends State<EquipmentCitySelector> {
           permission == LocationPermission.always) {
         // 2. Get Coordinates
         Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low,
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.low,
+          ),
         );
 
         // 3. Convert Lat/Long to City Name

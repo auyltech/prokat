@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class LogoutButton extends ConsumerWidget {
@@ -10,6 +11,7 @@ class LogoutButton extends ConsumerWidget {
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
@@ -19,11 +21,11 @@ class LogoutButton extends ConsumerWidget {
         backgroundColor: theme.cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Logout',
+          l10n.logout,
           style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
         content: Text(
-          'Are you sure you want to logout?',
+          l10n.logoutConfirmation,
           style: textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
@@ -31,14 +33,14 @@ class LogoutButton extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => context.pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => context.pop(true),
             style: TextButton.styleFrom(foregroundColor: colorScheme.error),
-            child: const Text(
-              'Logout',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              l10n.logout,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -61,6 +63,7 @@ class LogoutButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final authState = ref.watch(authProvider);
 
@@ -91,7 +94,7 @@ class LogoutButton extends ConsumerWidget {
             /// Text
             Expanded(
               child: Text(
-                'Logout',
+                l10n.logout,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: colorScheme.error,
                   fontWeight: FontWeight.w600,

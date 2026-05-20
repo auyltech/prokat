@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientBookingDetailsScreen extends StatelessWidget {
   final String? bookingId;
@@ -7,6 +8,7 @@ class ClientBookingDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Client Booking Details");
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(body: Center(child: Text(l10n.clientBookingDetails)));
   }
 }

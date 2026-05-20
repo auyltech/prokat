@@ -16,7 +16,9 @@
       "Bash(dir .dart_tool\\\\flutter_gen\\\\gen_l10n)",
       "WebSearch",
       "WebFetch(domain:translate.yandex.com)",
-      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\\\\lib\\\\features\" -Directory)"
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\\\\lib\\\\features\" -Directory)",
+      "Bash(xargs grep -l \"\\\\\"[A-Z]\")",
+      "Bash(grep -v \"//.*Text\")"
     ]
   }
 }

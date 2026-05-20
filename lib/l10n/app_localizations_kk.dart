@@ -382,7 +382,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get startWork => 'Жұмысты бастау';
 
   @override
-  String get orderCancelled => 'Тапсырыс жойылды';
+  String get orderCancelled => 'Тапсырыс болдырылмады';
 
   @override
   String get cancelBooking => 'Брондауды жою';
@@ -562,13 +562,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentUpdated => 'Техника жаңартылды';
 
   @override
-  String get pleaseEnterValidValues => 'Дұрыс мәндерді енгізіңіз';
+  String get pleaseEnterValidValues => 'Жарамды мәндерді енгізіңіз';
 
   @override
   String get equipmentUpdatedSuccessfully => 'Техника сәтті жаңартылды';
 
   @override
-  String get failedToUpdateEquipment => 'Техниканы жаңарту сәтсіз аяқталды';
+  String get failedToUpdateEquipment => 'Техниканы жаңарту мүмкін болмады';
 
   @override
   String get editEquipment => 'Техниканы өзгерту';
@@ -1662,4 +1662,86 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get error => 'Қате';
+
+  @override
+  String get price => 'Баға';
+
+  @override
+  String get book => 'Брондау';
+
+  @override
+  String get viewRequests => 'Сұраныстарды қарау';
+
+  @override
+  String get couldNotLoadOrders => 'Тапсырыстарды жүктеу мүмкін болмады';
+
+  @override
+  String get currentOrdersWillAppearHere =>
+      'Ағымдағы тапсырыстарыңыз осында пайда болады';
+
+  @override
+  String get requestedBy => 'Сұраған';
+
+  @override
+  String get sendCounterOffer => 'Қарсы ұсыныс жіберу';
+
+  @override
+  String get newPrice => 'Жаңа баға';
+
+  @override
+  String get noEquipmentAvailable => 'Техника табылмады';
+
+  @override
+  String get searchEquipment => 'Техника іздеу...';
+
+  @override
+  String get couldNotLoadEquipment => 'Техниканы жүктеу мүмкін болмады';
+
+  @override
+  String get selectEquipmentLocation => 'Техника орнын таңдаңыз';
+
+  @override
+  String get noEquipmentMatchingCategory =>
+      'Бұл санат бойынша техника табылмады.';
+
+  @override
+  String get cancelOrderConfirmation =>
+      'Бұл тапсырысты болдырмауды қалайсыз ба?';
+
+  @override
+  String get loadEquipmentErrorHint =>
+      'Тізімді жүктеу кезінде қате орын алды. Қайталаңыз.';
+
+  @override
+  String get createBooking => 'Брондау жасау';
+
+  @override
+  String get loginToBook => 'Брондау үшін жүйеге кіріңіз';
+
+  @override
+  String get equipmentNotFound => 'Техника табылмады';
+
+  @override
+  String get servicePlan => 'Қызмет жоспары';
+
+  @override
+  String get addressAndSchedule => 'Мекен-жай және кесте';
+
+  @override
+  String get date => 'Күн';
+
+  @override
+  String get time => 'Уақыт';
+
+  @override
+  String get noteToOperator => 'Операторға жазба';
+
+  @override
+  String get siteAccessHint => 'Нысанға кіру мәліметтері, шарттар...';
+
+  @override
+  String get clientBookingDetails => 'Клиент брондауының мәліметтері';
+
+  @override
+  String get logoutConfirmation => 'Жүйеден шыққыңыз келетіні сенімдісіз бе?';
 }
