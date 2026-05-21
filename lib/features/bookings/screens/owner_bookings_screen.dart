@@ -30,8 +30,6 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
     final theme = Theme.of(context);
     final bookingState = ref.watch(bookingProvider);
 
-    print(bookingState.error);
-
     // Logic: Split into actionable categories
     final newBookings = bookingState.ownerBookings
         .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
@@ -73,7 +71,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
           await ref.read(bookingProvider.notifier).getUserBookings();
         },
         child: ListView(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(0),
           children: [
             if (bookingState.isLoading)
               RequestTileSkeleton()
@@ -86,8 +84,12 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
               EmptyStateTile(title: "You don't have any active orders")
             else
               ListView.separated(
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 24),
+                separatorBuilder: (context, index) => const Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 16,
+                  endIndent: 16,
+                ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: newBookings.length,

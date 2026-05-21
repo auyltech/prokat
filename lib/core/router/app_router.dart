@@ -46,7 +46,7 @@ import 'package:prokat/features/user/screens/owner_registration_screen.dart';
 import 'package:prokat/features/user/screens/owner_settings_screen.dart';
 import 'package:prokat/features/owner/screens/register_owner_screen.dart';
 import 'package:prokat/features/user/screens/user_dashboard_screen.dart';
-import 'package:prokat/features/user/screens/user_profile_screen.dart';
+import 'package:prokat/features/user/screens/client_profile_screen.dart';
 import 'package:prokat/features/user/screens/user_settings_screen.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
@@ -73,10 +73,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       final startupState = startupStatus.routeState;
       final location = state.matchedLocation;
       final fullLocation = state.uri.toString();
-
-      print("app_router");
-      print(startupState);
-      print(location);
 
       // 🚀 Handle startup routing FIRST
       switch (startupState) {
@@ -394,7 +390,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: AppRoutes.profile,
-                builder: (_, _) => const UserProfileScreen(),
+                builder: (_, _) => const ClientProfileScreen(),
               ),
               GoRoute(
                 path: AppRoutes.settings,

@@ -25,6 +25,8 @@ Future<void> submitPriceEntry(
     return;
   }
 
+  Navigator.pop(context);
+
   try {
     final notifier = ref.read(equipmentProvider.notifier);
 
@@ -37,8 +39,13 @@ Future<void> submitPriceEntry(
       });
 
       if (!context.mounted) return;
+
       if (res) {
-        AppSnackBar.show(context, message: "Price entry added");
+        AppSnackBar.show(
+          context,
+          message: "Price entry added",
+          isSuccess: true,
+        );
       } else {
         AppSnackBar.show(
           context,
@@ -56,6 +63,7 @@ Future<void> submitPriceEntry(
       });
 
       if (!context.mounted) return;
+
       if (res) {
         AppSnackBar.show(context, message: "Price entry saved");
       } else {
@@ -66,8 +74,6 @@ Future<void> submitPriceEntry(
         );
       }
     }
-
-    Navigator.pop(context);
   } catch (e) {
     if (context.mounted) {
       AppSnackBar.show(

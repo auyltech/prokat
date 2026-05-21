@@ -1,7 +1,7 @@
 class User {
   final String? id;
   final String? username;
-  final String? phone;
+  final String? phoneNumber;
   final String? firstName;
   final String? lastName;
   final String? role;
@@ -10,18 +10,29 @@ class User {
   const User({
     this.id,
     this.username,
-    this.phone,
+    this.phoneNumber,
     this.firstName,
     this.lastName,
     this.role,
     this.imageUrl,
   });
 
+  @override
+  String toString() {
+    return 'User(firstName: $firstName, lastName: $lastName, phoneNumber: $phoneNumber)';
+  }
+
   String get displayName {
-    if (firstName != null || lastName != null) {
+    // Check if at least one name field has text
+    if ((firstName != null && firstName!.trim().isNotEmpty) ||
+        (lastName != null && lastName!.trim().isNotEmpty)) {
       return '${firstName ?? ''} ${lastName ?? ''}'.trim();
     }
-    return username ?? "User";
+
+    // Fallback to phone, or "User" if phone is also missing
+    return (phoneNumber != null && phoneNumber!.trim().isNotEmpty)
+        ? phoneNumber!.trim()
+        : "User";
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -31,7 +42,7 @@ class User {
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
         username: json['username']?.toString(),
-        phone: json['phone']?.toString(),
+        phoneNumber: json['phoneNumber']?.toString(),
         role: json['role']?.toString(),
         imageUrl: json['imageUrl']?.toString(),
       );
@@ -44,7 +55,7 @@ class User {
     return {
       'id': id,
       'username': username,
-      'phone': phone,
+      'phoneNumber': phoneNumber,
       'firstName': firstName,
       'lastName': lastName,
       'role': role,

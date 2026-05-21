@@ -142,7 +142,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
               ),
             )
           else
-            // 1. Chat history area (Fills screen, scrollable, handles banner inside)
             Expanded(
               child: Container(
                 color: theme.colorScheme.surface,

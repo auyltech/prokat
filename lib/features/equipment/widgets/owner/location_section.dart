@@ -238,57 +238,57 @@ class _LocationSectionState extends State<LocationSection> {
           SizedBox(height: 12),
 
           /// Equipment Location
-          GestureDetector(
-            onTap: () => openLocationPickerSheet(
-              context,
-              widget.ref,
-              widget.equipment.id,
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceBright,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    hasLocation ? Icons.pin_drop : Icons.pin_drop_outlined,
-                    color: hasLocation ? accent : warning,
-                    size: 26,
-                  ),
-                  const SizedBox(width: 12),
+          // GestureDetector(
+          //   onTap: () => openLocationPickerSheet(
+          //     context,
+          //     widget.ref,
+          //     widget.equipment.id,
+          //   ),
+          //   child: Container(
+          //     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          //     decoration: BoxDecoration(
+          //       color: theme.colorScheme.surfaceBright,
+          //       borderRadius: BorderRadius.circular(16),
+          //       border: Border.all(
+          //         color: colorScheme.outline.withValues(alpha: 0.2),
+          //       ),
+          //     ),
+          //     child: Row(
+          //       children: [
+          //         Icon(
+          //           hasLocation ? Icons.pin_drop : Icons.pin_drop_outlined,
+          //           color: hasLocation ? accent : warning,
+          //           size: 26,
+          //         ),
+          //         const SizedBox(width: 12),
 
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          hasLocation ? "Current Location" : "Enter Location",
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          hasLocation ? location : "Equipment base location",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: hasLocation
-                                ? colorScheme.onSurface
-                                : warning,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          //         Expanded(
+          //           child: Column(
+          //             crossAxisAlignment: CrossAxisAlignment.start,
+          //             children: [
+          //               Text(
+          //                 hasLocation ? "Current Location" : "Enter Location",
+          //                 style: theme.textTheme.labelMedium?.copyWith(
+          //                   color: theme.primaryColor,
+          //                 ),
+          //               ),
+          //               const SizedBox(height: 4),
+          //               Text(
+          //                 hasLocation ? location : "Equipment base location",
+          //                 style: theme.textTheme.bodyMedium?.copyWith(
+          //                   color: hasLocation
+          //                       ? colorScheme.onSurface
+          //                       : warning,
+          //                   fontWeight: FontWeight.w600,
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

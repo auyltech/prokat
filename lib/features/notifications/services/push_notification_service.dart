@@ -111,7 +111,7 @@ class PushNotificationService {
     final normalizedToken = token.trim();
     if (normalizedToken.isEmpty) return;
 
-    final userId = session.user?.id ?? session.user?.username ?? session.user?.phone;
+    final userId = session.user?.id ?? session.user?.username ?? session.user?.phoneNumber;
 
     final last = await storage.readLastRegisteredToken();
     final lastToken = last?.token.trim();

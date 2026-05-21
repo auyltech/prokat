@@ -24,6 +24,7 @@ class AppSocketService {
         : (await secureStorage.readSession())?.sessionToken ?? '';
 
     _socket?.dispose();
+
     _socket = io.io(
       apiClient.dio.options.baseUrl,
       io.OptionBuilder()
@@ -72,4 +73,3 @@ class AppSocketService {
     _socket = null;
   }
 }
-

@@ -103,18 +103,97 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     await init();
   }
 
-  Future<void> _handleUnauthorized() async {
+  Future<void> reloadAfterAuthChanged() async {
+    if (_isInitializing) return;
+    _isInitializing = true;
+
     try {
+      state = _statusForStep(
+        AppStartupStep.loadSavedMode,
+        routeState: AppStartupRouteState.loading,
+      );
+
+      await loadSavedMode();
+
+      final auth = ref.read(authProvider.notifier);
+
+      state = _statusForStep(AppStartupStep.restoreSession);
+
+      var session = ref.read(authProvider).session;
+
+      session ??= await auth.restoreSession();
+
+      if (session == null) {
+        state = _statusForStep(AppStartupStep.restoreOtpSession);
+
+        final otpSession = await auth.restoreOtpSession();
+
+        state = _statusForStep(
+          AppStartupStep.done,
+          routeState: otpSession == true
+              ? AppStartupRouteState.otp
+              : AppStartupRouteState.guest,
+        );
+
+        return;
+      }
+
+      state = _statusForStep(AppStartupStep.fetchProfileMinimal);
+
+      await ref.read(userProfileProvider.notifier).getUserProfile();
+
+      final profile = ref.read(userProfileProvider).userProfile;
+
+      if (profile == null) {
+        state = _statusForStep(
+          AppStartupStep.done,
+          routeState: AppStartupRouteState.guest,
+        );
+        return;
+      }
+
+      state = _statusForStep(AppStartupStep.decideRoute);
+
+      final route = _decideRouteFromRole(profile.role);
+
+      state = _statusForStep(AppStartupStep.done, routeState: route);
+    } catch (e) {
+      state = _statusForStep(
+        AppStartupStep.done,
+        routeState: AppStartupRouteState.error,
+        errorMessage: e.toString(),
+      );
+    } finally {
+      _isInitializing = false;
+    }
+  }
+
+  Future<void> _handleUnauthorized() async {
+    await forceSignedOut(unauthorized: true);
+  }
+
+  Future<void> forceSignedOut({bool unauthorized = false}) async {
+    try {
+      await ref.read(authProvider.notifier).logout();
       await ref.read(authProvider.notifier).clearLocalSession();
     } catch (_) {
       // Ignore errors to ensure we still force reroute.
     }
 
+    // Kill global provider caches
     ref.invalidate(userProfileProvider);
 
+    ///
+    ///
+    // Add more providers here if they are carrying over cache!
+    ///
+    ///
+    
     state = _statusForStep(
       AppStartupStep.done,
-      routeState: AppStartupRouteState.unauthorized,
+      routeState: unauthorized
+          ? AppStartupRouteState.unauthorized
+          : AppStartupRouteState.guest,
     );
   }
 
@@ -134,13 +213,16 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
   Future<void> _setMode(AppMode mode) async {
     _currentMode = mode;
+
     await modeStorage.saveMode(mode);
 
     if (ref.read(authProvider).session == null) return;
 
     final profile = ref.read(userProfileProvider).userProfile;
+
     if (profile == null) {
       await init();
+
       return;
     }
 
@@ -158,6 +240,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       _currentMode = AppMode.clientMode;
       // Persisted mode does not affect routing, but keep it consistent.
       modeStorage.saveMode(_currentMode);
+
       return AppStartupRouteState.client;
     }
 
@@ -227,6 +310,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       final auth = ref.read(authProvider.notifier);
 
       state = _statusForStep(AppStartupStep.restoreSession);
+
       final session = await measure(
         AppStartupStep.restoreSession,
         auth.restoreSession,
@@ -266,12 +350,14 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       }
 
       state = _statusForStep(AppStartupStep.fetchProfileMinimal);
+
       await measure(
         AppStartupStep.fetchProfileMinimal,
         () => ref.read(userProfileProvider.notifier).getUserProfile(),
       );
 
       final profile = ref.read(userProfileProvider).userProfile;
+
       if (profile == null) {
         state = _statusForStep(
           AppStartupStep.done,
@@ -281,7 +367,9 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       }
 
       state = _statusForStep(AppStartupStep.decideRoute);
+
       final route = _decideRouteFromRole(profile.role);
+
       state = _statusForStep(AppStartupStep.done, routeState: route);
     } catch (e) {
       state = _statusForStep(

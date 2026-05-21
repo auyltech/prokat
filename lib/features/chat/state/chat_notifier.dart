@@ -42,15 +42,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     super.dispose();
   }
 
-  ChatModel? _findConversationById(String chatId) {
-    for (final chat in state.conversations) {
-      if (chat.id == chatId) {
-        return chat;
-      }
-    }
-    return null;
-  }
-
   List<ChatModel> _sortConversations(List<ChatModel> conversations) {
     final sorted = List<ChatModel>.from(conversations);
     sorted.sort((a, b) {
@@ -91,7 +82,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     final user = session.user;
     final resolvedUserId =
-        user?.id ?? user?.username ?? user?.phone ?? user?.displayName;
+        user?.id ?? user?.username ?? user?.phoneNumber ?? user?.displayName;
 
     if ((resolvedUserId ?? '').isNotEmpty) {
       state = state.copyWith(currentUserId: resolvedUserId);
@@ -107,7 +98,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       currentUserId:
           session?.user?.id ??
           session?.user?.username ??
-          session?.user?.phone ??
+          session?.user?.phoneNumber ??
           session?.user?.displayName,
     );
   }
@@ -131,29 +122,61 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  Future<void> getChatById(String chatId) async {
+    try {
+      state = state.copyWith(isLoadingConversations: true, error: null);
+
+      final result = await service.getChatById(chatId);
+
+      if (result.success && result.data is ChatModel) {
+        state = state.copyWith(
+          isLoadingConversations: false,
+          conversations: _sortConversations(
+            _upsertChat(state.conversations, result.data as ChatModel),
+          ),
+          error: null,
+        );
+      } else {
+        state = state.copyWith(
+          isLoadingConversations: false,
+          error: result.message,
+        );
+      }
+    } catch (error) {
+      state = state.copyWith(
+        isLoadingConversations: false,
+        error: error.toString().replaceFirst('Exception: ', ''),
+      );
+    }
+  }
+
   Future<void> openChatById(String chatId) async {
     try {
       if ((_sessionToken ?? '').isEmpty) {
         await _loadSessionFallback();
       }
 
-      final knownChat = _findConversationById(chatId);
+      await getChatById(chatId);
 
-      if (knownChat == null) {
-        state = state.copyWith(
-          currentChat: ChatModel(id: chatId),
-          isLoadingMessages: false,
-          messages: const <ChatMessageModel>[],
-          error: "Error loading chat",
-        );
-      }
+      // final knownChat = state.conversations
+      //     .where((item) => item.id == chatId)
+      //     .firstOrNull;
 
-      state = state.copyWith(
-        currentChat: knownChat ?? ChatModel(id: chatId),
-        isLoadingMessages: true,
-        messages: const <ChatMessageModel>[],
-        error: null,
-      );
+      // if (knownChat == null) {
+      //   state = state.copyWith(
+      //     currentChat: ChatModel(id: chatId),
+      //     isLoadingMessages: false,
+      //     messages: const <ChatMessageModel>[],
+      //     error: "Error loading chat",
+      //   );
+      // }
+
+      // state = state.copyWith(
+      //   currentChat: knownChat ?? ChatModel(id: chatId),
+      //   isLoadingMessages: true,
+      //   messages: const <ChatMessageModel>[],
+      //   error: null,
+      // );
 
       final chatDetails = state.conversations
           .where((item) => item.id == chatId)
@@ -300,48 +323,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
     }
   }
-
-// TODO: DELETE
-  // Future<String?> getChatId({
-  //   String? bookingId,
-  //   String? requestId,
-  //   String? mode,
-  // }) async {
-  //   final normalizedBookingId = (bookingId ?? '').trim();
-  //   final normalizedRequestId = (requestId ?? '').trim();
-
-  //   if (normalizedBookingId.isEmpty && normalizedRequestId.isEmpty) {
-  //     return null;
-  //   }
-
-  //   final localMatch = state.conversations.firstWhere(
-  //     (chat) =>
-  //         (normalizedBookingId.isNotEmpty &&
-  //             chat.bookingId == normalizedBookingId) ||
-  //         (normalizedRequestId.isNotEmpty &&
-  //             chat.requestId == normalizedRequestId),
-  //     orElse: () => const ChatModel(id: ''),
-  //   );
-
-  //   if (localMatch.id.isNotEmpty) {
-  //     return localMatch.id;
-  //   }
-
-  //   try {
-  //     final resolvedId = await service.getChatId(
-  //       bookingId: normalizedBookingId.isEmpty ? null : normalizedBookingId,
-  //       requestId: normalizedRequestId.isEmpty ? null : normalizedRequestId,
-  //     );
-
-  //     await getChatThreads(mode);
-  //     return resolvedId;
-  //   } catch (error) {
-  //     state = state.copyWith(
-  //       error: error.toString().replaceFirst('Exception: ', ''),
-  //     );
-  //     return null;
-  //   }
-  // }
 
   Future<void> _connectToChat(String chatId) async {
     if ((_sessionToken ?? '').isEmpty) {

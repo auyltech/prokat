@@ -70,9 +70,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   Future<void> _onRefresh() async {
     final selectedCity = ref.watch(locationProvider).city;
 
-    final cat = ref.read(categoriesProvider).categories;
+    // final cat = ref.read(categoriesProvider).categories;
 
-    if (cat.isEmpty) ref.read(categoriesProvider.notifier).getCategories();
+    // if (cat.isEmpty) ref.read(categoriesProvider.notifier).getCategories();
 
     ref
         .read(equipmentProvider.notifier)

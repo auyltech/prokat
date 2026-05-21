@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class LogoutButton extends ConsumerWidget {
@@ -47,15 +46,11 @@ class LogoutButton extends ConsumerWidget {
 
     if (confirm != true) return;
 
-    await ref.read(authProvider.notifier).logout();
+    /// Call app startup provider
+    /// handles logout local, backend, reset app state
+    await ref.read(appStartupProvider.notifier).forceSignedOut();
 
-    // Kill global provider caches
-    ref.invalidate(userProfileProvider);
-    // You can also add more providers here if they are carrying over cache!
-
-    await ref.read(appStartupProvider.notifier).init();
-
-    if (context.mounted) context.go('/login');
+    // if (context.mounted) context.go('/login');
   }
 
   @override

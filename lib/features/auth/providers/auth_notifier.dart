@@ -74,15 +74,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final result = await api.refreshSession();
 
-      if ((!result.success) || (result.data == null)) {
-        await logout();
-        return false;
-      } else {
+      if ((result.success) && (result.data != null)) {
         state = state.copyWith(session: result.data);
         await storage.saveSession(result.data as AuthSession);
+        return true;
+      } else {
+        await logout();
+        return false;
       }
-
-      return true;
     } catch (_) {
       await logout();
       return false;
@@ -210,12 +209,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: true);
 
       await api.logout();
-
-      await storage.clearSession();
+      await clearLocalSession();
 
       state = const AuthState();
     } catch (e) {
-      await storage.clearSession();
+      await clearLocalSession();
       state = const AuthState();
     }
   }

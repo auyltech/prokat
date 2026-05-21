@@ -107,23 +107,39 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
         onTap: _showPickerOptions,
         child: Stack(
           children: [
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: theme.colorScheme.surface,
-              backgroundImage: _selectedImage != null
-                  ? FileImage(_selectedImage!)
-                  : (widget.initialImageUrl != null &&
-                            widget
-                                .initialImageUrl!
-                                .isNotEmpty // Check for empty string
-                        ? NetworkImage(widget.initialImageUrl!)
-                        : null),
-              child:
-                  (_selectedImage == null &&
-                      (widget.initialImageUrl == null ||
-                          widget.initialImageUrl!.isEmpty))
-                  ? const Icon(Icons.person, size: 60)
-                  : null,
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 35,
+                backgroundColor: theme.colorScheme.primaryContainer,
+                backgroundImage: _selectedImage != null
+                    ? FileImage(_selectedImage!)
+                    : (widget.initialImageUrl != null &&
+                              widget
+                                  .initialImageUrl!
+                                  .isNotEmpty // Check for empty string
+                          ? NetworkImage(widget.initialImageUrl!)
+                          : null),
+                child:
+                    (_selectedImage == null &&
+                        (widget.initialImageUrl == null ||
+                            widget.initialImageUrl!.isEmpty))
+                    ? const Icon(Icons.person, size: 40)
+                    : null,
+              ),
             ),
             Positioned(
               bottom: 0,

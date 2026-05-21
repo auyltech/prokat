@@ -55,37 +55,12 @@ class OwnerEquipmentCard extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  equipment.name,
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              EquipmentStatusBadge(status: equipment.status),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ghostGray,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.location_on_outlined,
-                                size: 14,
+                                size: 20,
                                 color: ghostGray,
                               ),
                               const SizedBox(width: 2),
@@ -95,7 +70,28 @@ class OwnerEquipmentCard extends ConsumerWidget {
                                   color: ghostGray,
                                 ),
                               ),
+                              const SizedBox(width: 2),
+                              Spacer(),
+                              EquipmentStatusBadge(status: equipment.status),
                             ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          Text(
+                            equipment.name,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: ghostGray,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),

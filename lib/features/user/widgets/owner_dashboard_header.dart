@@ -4,6 +4,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/widgets/profile_image_picker.dart';
 
 class OwnerDashboardHeader extends ConsumerStatefulWidget {
   const OwnerDashboardHeader({super.key});
@@ -19,7 +20,7 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
   @override
   Widget build(BuildContext context) {
     final userProfileState = ref.watch(userProfileProvider);
-    final profileImageUrl = userProfileState.userProfile?.profileImageUrl ?? "";
+    final profileNotifier = ref.read(userProfileProvider.notifier);
 
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
@@ -32,53 +33,21 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [const Color(0xFF006B54),const Color(0xFF008E7D)],
+          colors: [const Color(0xFF006B54), const Color(0xFF008E7D)],
         ),
         border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
       ),
       child: Row(
         children: [
           // Profile Image
-          GestureDetector(
-            onTap: () {
-              // context.push(AppRoutes.ownerProfile);
+          ProfileImagePicker(
+            onImageSelected: (file) async {
+              if (file != null) {
+                await profileNotifier.uploadProfileImage(file);
+              }
             },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Profile image
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundColor: colorScheme.primaryContainer,
-                    child: ClipOval(
-                      child: Image.network(
-                        profileImageUrl,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
-                            const Icon(Icons.person, size: 40),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            initialImageUrl:
+                userProfileState.userProfile?.profileImageUrl ?? "",
           ),
 
           const SizedBox(width: 16),

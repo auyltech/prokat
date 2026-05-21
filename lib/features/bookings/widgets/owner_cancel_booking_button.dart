@@ -3,10 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
-// Replace these with your actual import paths
-// import 'path_to_booking_model.dart';
-// import 'path_to_booking_provider.dart';
-// import 'path_to_cancel_booking_sheet.dart';
 
 class OwnerCancelBookingButton extends ConsumerWidget {
   final BookingModel booking;
@@ -16,22 +12,22 @@ class OwnerCancelBookingButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Check states using the string checks exactly from your source code
     final isCreatedStatus = booking.status.toUpperCase() == "CREATED";
 
-    return OutlinedButton(
+    return IconButton(
       onPressed: () => _handleCancel(context, ref, theme, isCreatedStatus),
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(color: theme.colorScheme.error, width: 2),
-        padding: const EdgeInsets.symmetric(vertical: 20),
+      tooltip: isCreatedStatus ? 'Decline Order' : 'Cancel Order',
+      icon: Icon(Icons.close_rounded, color: colorScheme.error),
+      style: IconButton.styleFrom(
+        // Clean matching background container tint matching our design system
+        backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.15),
+        padding: const EdgeInsets.all(10),
+        minimumSize: const Size(44, 44),
+        maximumSize: const Size(44, 44),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        isCreatedStatus ? 'Decline' : 'Cancel',
-        style: TextStyle(
-          color: theme.colorScheme.error,
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
       ),
     );
   }
@@ -67,6 +63,7 @@ class OwnerCancelBookingButton extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.error,
               foregroundColor: theme.colorScheme.onError,
+              elevation: 0,
             ),
             child: Text(submitButton),
           ),
@@ -76,7 +73,7 @@ class OwnerCancelBookingButton extends ConsumerWidget {
 
     if (confirmed != true || !context.mounted) return;
 
-    // Time restriction check
+    // Time restriction check implementation
     final createdAt = booking.createdAt ?? DateTime.now();
     final now = DateTime.now();
     const cancelWindowMinutes = 10;
@@ -90,7 +87,8 @@ class OwnerCancelBookingButton extends ConsumerWidget {
       );
 
       if (res == true && context.mounted) {
-        Navigator.pop(context); // Closes the active bottom sheet if open
+        // Closes the active dialog context framework safely
+        Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
@@ -98,7 +96,7 @@ class OwnerCancelBookingButton extends ConsumerWidget {
       return;
     }
 
-    // Open reason sheet if past time window
+    // Open step option modal form sheet past strict time restriction window
     if (context.mounted) {
       showModalBottomSheet(
         context: context,

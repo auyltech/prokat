@@ -5,12 +5,12 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
-import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:go_router/go_router.dart';
 

@@ -139,6 +139,8 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         query: query,
       );
 
+      
+
       state = state.copyWith(
         renterEquipment: result.data,
         isLoading: false,
@@ -216,29 +218,6 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     return text;
   }
 
-  void _replaceOwnerEquipment(Equipment updated) {
-    final list = state.ownerEquipment
-        .map((e) => e.id == updated.id ? updated : e)
-        .toList();
-
-    state = state.copyWith(ownerEquipment: _sortEquipment(list));
-  }
-
-  Future<bool> _refetchEquipment(String equipmentId) async {
-    final result = await api.getOwnerEquipmentById(equipmentId);
-    final equipment = result.data;
-
-    if (!result.success || equipment == null) return false;
-
-    _replaceOwnerEquipment(equipment);
-
-    if (state.editEquipment?.id == equipmentId) {
-      state = state.copyWith(editEquipment: equipment);
-    }
-
-    return true;
-  }
-
   Future<bool> uploadEquipmentImage({
     required String equipmentId,
     required File imageFile,
@@ -254,7 +233,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         state = state.copyWith(isLoading: false);
 
-        await getOwnerEquipment();
+        await getOwnerEquipmentById(equipmentId);
 
         return true;
       } else {
@@ -285,17 +264,11 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     try {
       final result = await api.deleteEquipmentImage(equipmentId, imageId);
 
-      // if (!result.success || result.data != true) {
-      //   _setImageActionError(equipmentId, result.message);
-      //   return false;
-      // }
-
-      final updated = await _refetchEquipment(equipmentId);
-      if (!updated) {
-        await getOwnerEquipment();
+      if (result.success) {
+        await getOwnerEquipmentById(equipmentId);
       }
 
-      return true;
+      return result.success;
     } catch (e) {
       _setImageActionError(equipmentId, _normalizeError(e));
       return false;
@@ -314,18 +287,12 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     try {
       final result = await api.setPrimaryEquipmentImage(equipmentId, imageId);
 
-      // if (!result.success || result.data != true) {
-      //   _setImageActionError(equipmentId, result.message);
-      //   return false;
-      // }
-
-      final updated = await _refetchEquipment(equipmentId);
-
-      if (!updated) {
-        await getOwnerEquipment();
+      if (result.success) {
+        await getOwnerEquipmentById(equipmentId);
       }
 
-      return true;
+      state = state.copyWith(isLoading: false);
+      return result.success;
     } catch (e) {
       _setImageActionError(equipmentId, _normalizeError(e));
       return false;
@@ -342,15 +309,13 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       final result = await api.createEquipment(data);
 
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
         await getOwnerEquipment();
-
-        return true;
+        state = state.copyWith(isLoading: false);
       } else {
         state = state.copyWith(isLoading: false, error: result.message);
-        return false;
       }
+
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
 
@@ -368,7 +333,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         state = state.copyWith(isLoading: false);
 
-        await getOwnerEquipment();
+        await getOwnerEquipmentById(data["id"]);
 
         return true;
       } else {
@@ -526,6 +491,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         state = state.copyWith(isLoading: false);
 
+        await getOwnerEquipmentById(data["equipmentId"] ?? "");
         await getOwnerEquipment();
 
         return true;
@@ -549,6 +515,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         state = state.copyWith(isLoading: false);
 
+        await getOwnerEquipmentById(data["equipmentId"] ?? "");
         await getOwnerEquipment();
 
         return true;
@@ -572,6 +539,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         state = state.copyWith(isLoading: false);
 
+        await getOwnerEquipmentById(data["equipmentId"] ?? "");
         await getOwnerEquipment();
 
         return true;

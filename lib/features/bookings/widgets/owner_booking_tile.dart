@@ -5,10 +5,10 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/features/bookings/widgets/owner_booking_accept_button.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_action_button.dart';
+import 'package:prokat/features/bookings/widgets/owner_booking_chat_button.dart';
 import 'package:prokat/features/bookings/widgets/owner_cancel_booking_button.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:go_router/go_router.dart';
@@ -21,113 +21,81 @@ class OwnerBookingTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
 
-    final notifier = ref.read(bookingProvider.notifier);
-
-    final rating = 4.7;
-    final bookingCount = 13;
-
+    const rating = 4.7;
+    const bookingCount = 13;
     final minutesLeft = getRemainingMinutes(booking.createdAt);
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.primaryColor, width: 2),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return InkWell(
+      onTap: () {
+        // Uniform navigation pattern matching your Equipment Card
+        context.push('${AppRoutes.ownerChat}/${booking.chatId}');
+      },
       child: Column(
         children: [
-          // Tile Header, Status, Time
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: theme.primaryColor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(13),
-                topRight: Radius.circular(13),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  getBookingStatus(booking.status),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onPrimary,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                Text(
-                  "$minutesLeft min left",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 14.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TOP ROW, client info
-                // Header with title and offer badge
+                // SECTION 1: Renter Details & Time Status
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(50),
-                        border: Border.all(
-                          color: theme.colorScheme.outline.withValues(
-                            alpha: 0.1,
-                          ),
-                        ),
-                      ),
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
                       child: Icon(
                         Icons.person_rounded,
                         color: theme.primaryColor,
-                        size: 30,
+                        size: 22,
                       ),
                     ),
-
-                    const SizedBox(width: 12),
-
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             booking.renter?.displayName ?? "",
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Row(
                             children: [
                               const Icon(
                                 Icons.star,
-                                size: 14,
+                                size: 12,
                                 color: Colors.amber,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 2),
                               Text(
-                                '$rating · $bookingCount bookings',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[600],
+                                '$rating • $bookingCount orders',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: ghostGray,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.access_time,
+                                size: 12,
+                                color: colorScheme.error,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                "$minutesLeft m left",
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.error,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -135,290 +103,196 @@ class OwnerBookingTile extends ConsumerWidget {
                         ],
                       ),
                     ),
-
-                    // Booking Status Badge
                     BookingStatusBadge(status: booking.status),
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
-                // Equipment Image and Info
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 130, // Fixed width
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: OptimizedNetworkImage(
-                            imageUrl: booking.equipment?.imageUrl ?? "",
-                            fit: BoxFit.cover,
-                            fallbackIcon: Icons.image,
-                            backgroundColor: Colors.grey[200],
+                // SECTION 2: Equipment Visual Identifier
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 80,
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: OptimizedNetworkImage(
+                              imageUrl: booking.equipment?.imageUrl ?? "",
+                              fit: BoxFit.cover,
+                              fallbackIcon: Icons.image,
+                              backgroundColor:
+                                  colorScheme.surfaceContainerHighest,
+                            ),
                           ),
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              booking.equipment?.name?.toUpperCase() ??
+                                  "UNKNOWN EQUIPMENT",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (booking.equipment?.plateNumber != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                booking.equipment!.plateNumber!.toUpperCase(),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: ghostGray,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                // SECTION 3: Logistics (Two Column Details Layout)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () =>
+                            showLocationSheet(context, booking.location),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "DELIVERY LOCATION",
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: ghostGray,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.map_outlined,
+                                  size: 14,
+                                  color: theme.primaryColor,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    booking.location.street,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-
-                    const SizedBox(width: 12),
-
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            booking.equipment?.name?.toUpperCase() ?? "",
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
+                            "DATE & TIME",
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: ghostGray,
                             ),
                           ),
+                          const SizedBox(height: 4),
                           Text(
-                            booking.equipment?.plateNumber?.toUpperCase() ?? "",
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
+                            booking.bookedOn != null
+                                ? DateFormat(
+                                    'MMM dd, yyyy • hh:mm a',
+                                  ).format(booking.bookedOn!)
+                                : "No date specified",
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          // Text(
-                          //   "${booking.equipment?.capacity.toUpperCase()} ${booking.equipment?.capacityUnit.toUpperCase()}",
-                          //   style: theme.textTheme.titleSmall?.copyWith(
-                          //     fontWeight: FontWeight.w800,
-                          //     letterSpacing: 0.5,
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 16),
-
-                // Booking Details
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Location',
-                        value: booking.location.street,
-                        onTap: () =>
-                            showLocationSheet(context, booking.location),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Date & time',
-                        value: booking.bookedOn != null
-                            ? DateFormat(
-                                'dd MMM yyyy • HH:mm',
-                              ).format(booking.bookedOn!)
-                            : "PENDING",
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Second Row of InfoTiles
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InfoTile(label: 'Volume', value: "3 M3"),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InfoTile(
-                        label: 'Offered rate',
-                        value:
-                            "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate)}",
-                        isHighlighted: true,
-                      ),
-                    ),
-                  ],
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                  child: Divider(height: 1, thickness: 0.5),
                 ),
 
-                const SizedBox(height: 12),
-
-                // Comment Tile (Full Width - No Expanded wrapper)
-                if (booking.comment != null && booking.comment!.isNotEmpty)
-                  InfoTile(label: 'Comment', value: booking.comment!),
-
-                const SizedBox(height: 16),
-
-                // Action buttons
+                // SECTION 4: Financial Value & Direct Call-to-Actions
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Cancel Button
-                    Expanded(child: OwnerCancelBookingButton(booking: booking)),
-
-                    const SizedBox(width: 12),
-
-                    // Chat Link (go to chat to send counter offers)
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          context.push(
-                            '${AppRoutes.ownerChat}/${booking.chatId}',
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: 2,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "TOTAL EARNINGS",
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: ghostGray,
                           ),
                         ),
-                        child: Icon(
-                          Icons.chat_bubble_outline_rounded,
-                          size: 20,
-                          color: theme.colorScheme.primary,
+                        Text(
+                          // Replace with your exact total price variable if different
+                          formatPrice(booking.price),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                    Row(
+                      children: [
+                        if (booking.status.toUpperCase() == 'CREATED' ||
+                            booking.status.toUpperCase() == 'PENDING' ||
+                            booking.status.toUpperCase() == 'CONFIRMED') ...[
+                          OwnerCancelBookingButton(booking: booking),
+                          const SizedBox(width: 8),
+                        ],
 
-                    const SizedBox(width: 12),
+                        OwnerBookingChatButton(booking: booking),
+                        const SizedBox(width: 12),
 
-                    // Accept order (no counter offers)
-                    if (booking.status.toUpperCase() == "CREATED")
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Accept Order?'),
-                                  content: const Text(
-                                    'Are you sure you want to accept this order?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(
-                                        context,
-                                      ), // Close dialog
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        // 2. Update backend
-                                        await notifier.updateBookingStatus(
-                                          id: booking.id,
-                                          status: BookingStatus.confirmed.name,
-                                        );
-
-                                        // 3. Close dialog
-                                        if (context.mounted) {
-                                          Navigator.pop(context);
-                                        }
-                                      },
-                                      child: const Text(
-                                        'Confirm',
-                                        style: TextStyle(
-                                          color: Color(0xFF0A47A8),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: theme.primaryColor,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            'Accept',
-                            style: TextStyle(
-                              color: theme.colorScheme.onPrimary,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      // Update Work Status
-                      Expanded(
-                        child: OwnerBookingActionButton(booking: booking),
-                      ),
+                        if (booking.status.toUpperCase() == 'CREATED' ||
+                            booking.status.toUpperCase() == 'PENDING')
+                          OwnerBookingAcceptButton(booking: booking)
+                        else
+                          OwnerBookingActionButton(booking: booking),
+                      ],
+                    ),
                   ],
                 ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class InfoTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isHighlighted;
-  final VoidCallback? onTap;
-
-  const InfoTile({
-    super.key,
-    required this.label,
-    required this.value,
-    this.isHighlighted = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: isHighlighted ? Colors.red.shade50 : Colors.grey[50],
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isHighlighted ? Colors.red.shade200 : Colors.grey[300]!,
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isHighlighted ? Colors.red[700] : Colors.black87,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

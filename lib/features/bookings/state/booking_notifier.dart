@@ -70,7 +70,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       state = state.copyWith(isLoading: true);
 
       final result = await api.getOwnerBookings();
-
+      
       state = state.copyWith(
         isLoading: false,
         ownerBookings: result.data,

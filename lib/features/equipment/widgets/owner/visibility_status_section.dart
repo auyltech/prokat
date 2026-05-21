@@ -27,6 +27,26 @@ class _VisibilityStatusSectionState
   late bool _tempVisible;
   late String _tempStatus;
 
+  Future<void> submitForReview() async {
+    final res = await ref
+        .read(equipmentProvider.notifier)
+        .updateVisibilityStatus(
+          widget.equipmentId,
+          widget.isVisible,
+          "CREATED",
+        );
+
+    if (res) {
+      AppSnackBar.show(
+        context,
+        message: "Equipment submited for review",
+        isSuccess: true,
+      );
+    } else {
+      AppSnackBar.show(context, message: "Failed to submit", isError: true);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -237,34 +257,7 @@ class _VisibilityStatusSectionState
           ),
 
         if (isDraft)
-          PrimaryButton(
-            label: "Submit for Review",
-            onPressed: () async {
-              final res = await ref
-                  .read(equipmentProvider.notifier)
-                  .updateVisibilityStatus(
-                    widget.equipmentId,
-                    widget.isVisible,
-                    "CREATED",
-                  );
-
-              if (!context.mounted) return;
-              if (res) {
-                AppSnackBar.show(
-                  context,
-                  message: "Equipment submited for review",
-                  isSuccess: true
-                );
-              } else {
-                AppSnackBar.show(
-                  context,
-                  message: "Failed to submit",
-                  isError: true
-                );
-
-              }
-            },
-          ),
+          PrimaryButton(label: "Submit for Review", onPressed: submitForReview),
       ],
     );
   }

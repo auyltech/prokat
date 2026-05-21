@@ -32,6 +32,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.initState();
     Future.microtask(() {
       ref.read(chatProvider.notifier).openChatById(widget.chatId);
+
       ref.read(offersProvider.notifier).getOwnerOffers();
     });
   }
@@ -50,7 +51,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   @override
   void dispose() {
     _controller.dispose();
+
     ref.read(chatProvider.notifier).leaveCurrentChat();
+
     super.dispose();
   }
 
@@ -172,7 +175,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 color: theme.colorScheme.surface,
                 child: ListView.builder(
                   reverse:
-                      true, // Newest messages at bottom, oldest + booking tiles at top
+                      false, // Newest messages at bottom, oldest + booking tiles at top
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 24,
@@ -185,10 +188,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                     final hasBookingHeader = booking != null || request != null;
 
                     if (hasBookingHeader) {
-                      // In a reversed list, the highest indices are rendered at the top of the viewport
-                      final totalItems = messages.length + 1;
-
-                      if (index == totalItems - 1) {
+                      if (index == 0) {
                         if (booking != null) {
                           return BookingMessageBubble(booking: booking);
                         }
@@ -198,9 +198,14 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                         return const SizedBox.shrink();
                       }
                     }
+                    // 1. Shift index by 1 if header is present
+                    final messageIndex = hasBookingHeader ? index - 1 : index;
 
-                    // Normal message processing
-                    final message = messages[index];
+                    // 2. Invert the index so oldest messages (index 0 in data) render at the top
+                    final invertedIndex = messages.length - 1 - messageIndex;
+
+                    final message = messages[invertedIndex];
+
                     final isMe =
                         message.senderId == currentUserId ||
                         message.senderId == 'me';
