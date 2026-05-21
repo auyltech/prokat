@@ -615,5 +615,9 @@
   "statusRequestSent": "Сұраным жіберілді",
   "statusOffersReceived": "Ұсыныстар алынды",
   "statusBookingCreated": "Брондау жасалды",
-  "statusExpired": "Мерзімі өтті"
+  "statusExpired": "Мерзімі өтті",
+  "unknownRenter": "Белгісіз жалға алушы",
+  "pendingDate": "Күні белгісіз",
+  "overdue": "Мерзімі өткен",
+  "details": "Толығырақ"
 }

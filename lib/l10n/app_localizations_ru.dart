@@ -1783,4 +1783,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get statusExpired => 'Истёк';
+
+  @override
+  String get unknownRenter => 'Неизвестный арендатор';
+
+  @override
+  String get pendingDate => 'Дата не указана';
+
+  @override
+  String get overdue => 'Просрочено';
+
+  @override
+  String get details => 'Подробнее';
 }

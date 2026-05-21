@@ -1781,4 +1781,16 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get statusExpired => 'Мерзімі өтті';
+
+  @override
+  String get unknownRenter => 'Белгісіз жалға алушы';
+
+  @override
+  String get pendingDate => 'Күні белгісіз';
+
+  @override
+  String get overdue => 'Мерзімі өткен';
+
+  @override
+  String get details => 'Толығырақ';
 }

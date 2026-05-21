@@ -49,7 +49,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      booking.renter?.displayName ?? "Unknown Renter",
+                      booking.renter?.displayName ?? l10n.unknownRenter,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -113,7 +113,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                               ? DateFormat(
                                   'dd MMM, HH:mm',
                                 ).format(booking.bookedOn!)
-                              : "Pending Date",
+                              : l10n.pendingDate,
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
@@ -145,7 +145,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                minutesLeft > 0 ? "$minutesLeft min left" : "Overdue",
+                minutesLeft > 0 ? l10n.minutesLeft(minutesLeft) : l10n.overdue,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: minutesLeft > 0
                       ? colorScheme.primary
@@ -163,13 +163,13 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   foregroundColor: colorScheme.primary,
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Text(
-                      "Details",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      l10n.details,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Icon(Icons.chevron_right, size: 16),
+                    const Icon(Icons.chevron_right, size: 16),
                   ],
                 ),
               ),

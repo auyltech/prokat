@@ -21,7 +21,12 @@
       "Bash(grep -v \"//.*Text\")",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\" -Force)",
       "Bash(Select-Object Name, Mode)",
-      "Bash(grep -E \"\\\\.\\(arb|yaml|json\\)$\")"
+      "Bash(grep -E \"\\\\.\\(arb|yaml|json\\)$\")",
+      "Bash(ls c:/Users/User/Documents/GitHub/prokat && echo \"---\" && ls c:/Users/User/Documents/GitHub/)",
+      "Read(//c/Users/User/Documents/GitHub/**)",
+      "Bash(ls c:/Users/User/Documents/GitHub/ && ls c:/Users/User/Documents/)",
+      "Read(//c/Users/User/Documents/**)",
+      "Bash(dir /b \"c:\\\\Users\\\\User\\\\Documents\\\\GitHub\\\\prokat\")"
     ]
   }
 }

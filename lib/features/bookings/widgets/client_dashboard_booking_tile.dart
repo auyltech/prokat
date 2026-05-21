@@ -6,6 +6,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -72,7 +73,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
 
               const SizedBox(width: 12),
 
-              _StatusBadge(status: booking.status),
+              BookingStatusBadge(status: booking.status),
             ],
           ),
 
@@ -89,7 +90,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
           _buildMetaRow(
             context,
             Icons.location_on_outlined,
-            "Satpayeva, Atyrau",
+            l10n.unknownLocation,
             theme.primaryColor,
           ),
 
@@ -181,50 +182,6 @@ class ClientDashboardBookingTile extends ConsumerWidget {
         const SizedBox(width: 12),
         Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
       ],
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  final String status;
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    Color baseColor;
-    switch (status.toUpperCase()) {
-      case 'CREATED':
-        baseColor = Colors.orange;
-        break;
-      case 'CONFIRMED':
-        baseColor = Colors.green;
-        break;
-      case 'COMPLETED':
-        baseColor = Colors.blue;
-        break;
-      case 'CANCELLED':
-        baseColor = Colors.red;
-        break;
-      default:
-        baseColor = Colors.grey;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: baseColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: baseColor.withValues(alpha: 0.4), width: 1.5),
-      ),
-      child: Text(
-        status.toUpperCase(),
-        style: TextStyle(
-          color: baseColor,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1,
-        ),
-      ),
     );
   }
 }

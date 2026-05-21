@@ -1774,4 +1774,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusExpired => 'Expired';
+
+  @override
+  String get unknownRenter => 'Unknown Renter';
+
+  @override
+  String get pendingDate => 'Pending Date';
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String get details => 'Details';
 }

@@ -616,5 +616,9 @@
   "statusRequestSent": "Request Sent",
   "statusOffersReceived": "Offers Received",
   "statusBookingCreated": "Booking Created",
-  "statusExpired": "Expired"
+  "statusExpired": "Expired",
+  "unknownRenter": "Unknown Renter",
+  "pendingDate": "Pending Date",
+  "overdue": "Overdue",
+  "details": "Details"
 }

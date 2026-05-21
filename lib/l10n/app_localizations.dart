@@ -3543,6 +3543,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expired'**
   String get statusExpired;
+
+  /// No description provided for @unknownRenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Renter'**
+  String get unknownRenter;
+
+  /// No description provided for @pendingDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Date'**
+  String get pendingDate;
+
+  /// No description provided for @overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get overdue;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
 }
 
 class _AppLocalizationsDelegate

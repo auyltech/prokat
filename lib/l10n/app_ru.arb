@@ -615,5 +615,9 @@
   "statusRequestSent": "Заявка отправлена",
   "statusOffersReceived": "Предложения получены",
   "statusBookingCreated": "Бронирование создано",
-  "statusExpired": "Истёк"
+  "statusExpired": "Истёк",
+  "unknownRenter": "Неизвестный арендатор",
+  "pendingDate": "Дата не указана",
+  "overdue": "Просрочено",
+  "details": "Подробнее"
 }
