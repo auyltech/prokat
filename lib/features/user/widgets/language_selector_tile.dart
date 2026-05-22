@@ -15,30 +15,23 @@ class LanguageSelectorTile extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () => showLanguageSheet(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.primary,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              LucideIcons.globe,
-              size: 32,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            LucideIcons.globe,
+            size: 32,
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.w200,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            langDisplay,
+            style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onPrimary,
-              fontWeight: FontWeight.w200,
             ),
-            const SizedBox(width: 6),
-            Text(
-              langDisplay,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

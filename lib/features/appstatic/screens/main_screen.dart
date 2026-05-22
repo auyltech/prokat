@@ -63,7 +63,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Timer? _debounce;
 
   Future<void> _fetchData() async {
-    await ref
+    ref
         .read(equipmentProvider.notifier)
         .getRenterEquipment(
           categoryId: widget.category,
@@ -73,7 +73,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           city: widget.city,
         );
 
-    await ref.read(categoriesProvider.notifier).getCategories();
+    if (ref.read(categoriesProvider).categories.isEmpty ||
+        ref.read(categoriesProvider).error != null) {
+      ref.read(categoriesProvider.notifier).getCategories();
+    }
   }
 
   @override
@@ -227,7 +230,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Get Started',
+                              l10n.getStarted,
                               style: TextStyle(
                                 color: theme.colorScheme.onPrimary,
                                 fontSize: 16,
@@ -248,15 +251,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     SizedBox(height: 12),
 
                     // Services Header
-                    Text("Services", style: theme.textTheme.titleLarge),
+                    Text(l10n.services, style: theme.textTheme.titleLarge),
 
                     SizedBox(height: 8),
 
                     // Categories / Services
                     if (categoriesState.isLoading)
-                      EmptyStateTile(title: "Loading...")
+                      EmptyStateTile(title: l10n.loading)
                     else if (categoriesState.error != null)
-                      EmptyStateTile(title: "Error loading services")
+                      EmptyStateTile(title: l10n.errorLoadingServices)
                     else
                       SizedBox(
                         height: 110, // control height of the row
@@ -281,14 +284,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     SizedBox(height: 12),
 
                     // Popular Rents Header
-                    Text("Popular rents", style: theme.textTheme.titleLarge),
+                    Text(l10n.popularRents, style: theme.textTheme.titleLarge),
 
                     SizedBox(height: 8),
 
                     if (equipmentState.isLoading)
-                      EmptyStateTile(title: "Loading...")
+                      EmptyStateTile(title: l10n.loading)
                     else if (equipmentState.error != null)
-                      EmptyStateTile(title: "Error loading equipment")
+                      EmptyStateTile(title: l10n.loadEquipmentErrorHint)
                     else
                       // Popular Rents
                       ListView.builder(

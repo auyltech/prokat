@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/widgets/language_selector_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/widgets/profile_image_picker.dart';
 
 class OwnerDashboardHeader extends ConsumerStatefulWidget {
@@ -96,17 +95,18 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
             ),
           ),
 
-          IconButton(
-            padding: const EdgeInsets.all(12),
-            icon: Icon(
-              LucideIcons.messageSquare,
-              size: 24,
-              color: theme.colorScheme.onPrimary,
-            ),
-            onPressed: () {
-              context.push(AppRoutes.ownerChat);
-            },
-          ),
+          // IconButton(
+          //   padding: const EdgeInsets.all(12),
+          //   icon: Icon(
+          //     LucideIcons.messageSquare,
+          //     size: 24,
+          //     color: theme.colorScheme.onPrimary,
+          //   ),
+          //   onPressed: () {
+          //     context.push(AppRoutes.ownerChat);
+          //   },
+          // ),
+          const LanguageSelectorTile(),
         ],
       ),
     );
