@@ -154,7 +154,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
                             AppSnackBar.show(
                               context,
-                              message: "Order Cancelled",
+                              message: l10n.orderCancelled,
                               isSuccess: true,
                             );
 

@@ -8,6 +8,15 @@ import 'package:prokat/features/notifications/providers/notification_provider.da
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+// Simple helper class to keep the code dry
+class _NavItem {
+  final IconData icon;
+  final String path;
+  final String Function(AppLocalizations) label;
+
+  _NavItem({required this.icon, required this.label, required this.path});
+}
+
 final ownerNavItems = [
   // _NavItem(
   //   icon: Icons.home_filled,
@@ -16,7 +25,7 @@ final ownerNavItems = [
   // ),
   _NavItem(
     icon: Icons.person_rounded,
-    label: 'Profile',
+    label: (l) => 'Profile',
     path: AppRoutes.ownerProfile,
   ),
   // _NavItem(
@@ -31,7 +40,7 @@ final ownerNavItems = [
   ),
   _NavItem(
     icon: Icons.list_alt_rounded,
-    label:(l) =>  l.navOrders,
+    label: (l) => l.navOrders,
     path: AppRoutes.ownerBookings,
   ),
   _NavItem(
@@ -45,7 +54,7 @@ final clientNavItems = [
   // _NavItem(icon: Icons.home_rounded, label: l.navHome, path: AppRoutes.dashboard),
   _NavItem(
     icon: Icons.person_rounded,
-    label: 'Profile',
+    label: (l) => 'Profile',
     path: AppRoutes.profile,
   ),
   _NavItem(
@@ -79,7 +88,8 @@ class ProkatNavigationBar extends ConsumerStatefulWidget {
   const ProkatNavigationBar({super.key});
 
   @override
-  ConsumerState<ProkatNavigationBar> createState() => _ProkatNavigationBarState();
+  ConsumerState<ProkatNavigationBar> createState() =>
+      _ProkatNavigationBarState();
 }
 
 class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
@@ -120,13 +130,19 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     }
 
     final String location = GoRouterState.of(context).uri.path;
-    int currentIndex = navItems.indexWhere((item) => location.startsWith(item.path));
+    int currentIndex = navItems.indexWhere(
+      (item) => location.startsWith(item.path),
+    );
 
     final List<String> segments = GoRouterState.of(context).uri.pathSegments;
     bool isChatDetailScreen = false;
     if (segments.length >= 2) {
-      if (segments[0] == 'chat' && segments[1] != 'list') isChatDetailScreen = true;
-      if (segments.length >= 3 && segments[0] == 'owner' && segments[1] == 'chat') {
+      if (segments[0] == 'chat' && segments[1] != 'list')
+        isChatDetailScreen = true;
+        
+      if (segments.length >= 3 &&
+          segments[0] == 'owner' &&
+          segments[1] == 'chat') {
         isChatDetailScreen = true;
       }
     }
@@ -153,7 +169,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
             .map(
               (item) => BottomNavigationBarItem(
                 icon: _buildIcon(item),
-                label: item.label ?? "",
+                label: item.label(l10n),
               ),
             )
             .toList(),

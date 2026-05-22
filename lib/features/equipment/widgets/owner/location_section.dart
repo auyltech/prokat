@@ -6,7 +6,6 @@ import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
-import 'package:prokat/features/equipment/widgets/owner/open_location_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class LocationSection extends StatefulWidget {
@@ -59,7 +58,8 @@ class _LocationSectionState extends State<LocationSection> {
       }
     } catch (_) {
       setState(() => _isSaving = false);
-      if (mounted) AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
+      if (mounted)
+        AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
     }
   }
 
@@ -87,8 +87,8 @@ class _LocationSectionState extends State<LocationSection> {
     final accent = colorScheme.primary;
     final warning = colorScheme.tertiary;
 
-    final location = widget.location;
-    final bool hasLocation = location != null && location.isNotEmpty;
+    // final location = widget.location;
+    // final bool hasLocation = location != null && location.isNotEmpty;
 
     return Container(
       padding: EdgeInsets.all(0),
@@ -228,7 +228,7 @@ class _LocationSectionState extends State<LocationSection> {
             },
           ),
 
-          SizedBox(height: 12),
+          // SizedBox(height: 12),
 
           /// Equipment Location
           // GestureDetector(
@@ -255,33 +255,29 @@ class _LocationSectionState extends State<LocationSection> {
           //         ),
           //         const SizedBox(width: 12),
 
-                  // Expanded(
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Text(
-                  //         hasLocation ? l10n.currentLocation : l10n.enterLocation,
-                  //         style: theme.textTheme.labelMedium?.copyWith(
-                  //           color: theme.primaryColor,
-                  //         ),
-                  //       ),
-                  //       const SizedBox(height: 4),
-                  //       Text(
-                  //         hasLocation ? location : l10n.equipmentBaseLocation,
-                  //         style: theme.textTheme.bodyMedium?.copyWith(
-                  //           color: hasLocation
-                  //               ? colorScheme.onSurface
-                  //               : warning,
-                  //           fontWeight: FontWeight.w600,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                ],
-              ),
-            ),
-          ),
+          // Expanded(
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       Text(
+          //         hasLocation ? l10n.currentLocation : l10n.enterLocation,
+          //         style: theme.textTheme.labelMedium?.copyWith(
+          //           color: theme.primaryColor,
+          //         ),
+          //       ),
+          //       const SizedBox(height: 4),
+          //       Text(
+          //         hasLocation ? location : l10n.equipmentBaseLocation,
+          //         style: theme.textTheme.bodyMedium?.copyWith(
+          //           color: hasLocation
+          //               ? colorScheme.onSurface
+          //               : warning,
+          //           fontWeight: FontWeight.w600,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

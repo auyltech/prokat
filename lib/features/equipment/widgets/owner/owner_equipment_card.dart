@@ -21,10 +21,11 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
-
     final locationText = equipment.city ?? "No location set";
     final priceEntry = equipment.prices.firstOrNull;
-    final priceDisplay = priceEntry != null
+
+    final hasPrice = priceEntry != null;
+    final priceDisplay = hasPrice
         ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
         : "No Price Set";
 

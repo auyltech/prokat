@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/models/auth_credentials.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';

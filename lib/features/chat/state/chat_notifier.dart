@@ -166,34 +166,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
-  Future<void> getChatById(String chatId) async {
-    try {
-      state = state.copyWith(isLoadingConversations: true, error: null);
-
-      final result = await service.getChatById(chatId);
-
-      if (result.success && result.data is ChatModel) {
-        state = state.copyWith(
-          isLoadingConversations: false,
-          conversations: _sortConversations(
-            _upsertChat(state.conversations, result.data as ChatModel),
-          ),
-          error: null,
-        );
-      } else {
-        state = state.copyWith(
-          isLoadingConversations: false,
-          error: result.message,
-        );
-      }
-    } catch (error) {
-      state = state.copyWith(
-        isLoadingConversations: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
-      );
-    }
-  }
-
   Future<void> openChatById(String chatId) async {
     try {
       if ((_sessionToken ?? '').isEmpty) {

@@ -15,10 +15,6 @@ class OwnerProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(userProfileProvider);
-    final profileImageUrl = state.userProfile?.profileImageUrl ?? "";
-
-    final topInset = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -48,8 +44,8 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 UserProfileTile(
                   icon: Icons.assignment_turned_in_outlined,
-                  title: l10n.registrationStatus,
-                  subtitle: "Fully Verified (Expires 2025)",
+                  label: l10n.registrationStatus,
+                  value: "Fully Verified (Expires 2025)",
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.push(AppRoutes.ownerRegistration);
@@ -60,8 +56,8 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 UserProfileTile(
                   icon: Icons.settings_outlined,
-                  title: l10n.appSettings,
-                  subtitle: l10n.appSettingsSubtitle,
+                  label: l10n.appSettings,
+                  value: l10n.appSettingsSubtitle,
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.push(AppRoutes.ownerSettings);
@@ -72,8 +68,8 @@ class OwnerProfileScreen extends ConsumerWidget {
 
                 UserProfileTile(
                   icon: Icons.help_outline,
-                  title: l10n.helpSupportTitle,
-                  subtitle: l10n.helpFaqsSubtitle,
+                  label: l10n.helpSupportTitle,
+                  value: l10n.helpFaqsSubtitle,
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     context.push(AppRoutes.helpSupport);

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 

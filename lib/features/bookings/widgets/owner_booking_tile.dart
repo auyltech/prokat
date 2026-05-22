@@ -22,7 +22,8 @@ class OwnerBookingTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;    final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
 
     const rating = 4.7;

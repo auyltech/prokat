@@ -6,7 +6,6 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/login_with_username_form.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';

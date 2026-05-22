@@ -122,7 +122,6 @@ class BookingActionRow extends ConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(color: theme.primaryColor),
-                    side: BorderSide(color: theme.primaryColor),
                   ),
                   elevation: 0,
                 ),

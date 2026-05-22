@@ -19,7 +19,7 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
   @override
   Widget build(BuildContext context) {
     final userProfileState = ref.watch(userProfileProvider);
-    final profileImageUrl = userProfileState.userProfile?.profileImageUrl ?? "";
+    final profileNotifier = ref.read(userProfileProvider.notifier);
     final l10n = AppLocalizations.of(context)!;
 
     final theme = Theme.of(context);

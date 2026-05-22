@@ -9,7 +9,6 @@ import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/user/widgets/balance_tile.dart';
 import 'package:prokat/features/user/widgets/owner_equipment_section.dart';
 import 'package:prokat/features/user/widgets/owner_orders_section.dart';
-import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerDashboardScreen extends ConsumerStatefulWidget {
@@ -120,10 +119,6 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
                 const SizedBox(height: 24),
 
                 OwnerOrdersSection(),
-
-                SizedBox(height: 24),
-
-                RentAnEquipmentTile(),
               ],
             ),
           ),

@@ -82,34 +82,35 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
             // 1. High-Priority Draft Card (Refined Orange)
             if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
 
-          if (authSession == null)
-            EmptyStateTile(
-              title: l10n.loginToViewBookings,
-              icon: Icons.login_outlined,
-            )
-          else if (bookingState.isLoading)
-            EmptyStateTile(title: l10n.loadingOrders)
-          else if (bookingState.error != null)
-            EmptyStateTile(title: l10n.errorLoadingOrders)
-          else if (upcoming.isEmpty)
-            EmptyStateTile(
-              title: l10n.noBookingsFound,
-              icon: Icons.inventory_2_outlined,
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: upcoming.length,
-                itemBuilder: (context, index) {
-                  final booking = upcoming[index];
-                  return ClientBookingTile(booking: booking);
-                },
+            if (authSession == null)
+              EmptyStateTile(
+                title: l10n.loginToViewBookings,
+                icon: Icons.login_outlined,
+              )
+            else if (bookingState.isLoading)
+              EmptyStateTile(title: l10n.loadingOrders)
+            else if (bookingState.error != null)
+              EmptyStateTile(title: l10n.errorLoadingOrders)
+            else if (upcoming.isEmpty)
+              EmptyStateTile(
+                title: l10n.noBookingsFound,
+                icon: Icons.inventory_2_outlined,
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: upcoming.length,
+                  itemBuilder: (context, index) {
+                    final booking = upcoming[index];
+                    return ClientBookingTile(booking: booking);
+                  },
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
