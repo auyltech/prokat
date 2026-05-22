@@ -8,6 +8,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import '../../owner/widgets/address_form.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateAddressScreen extends ConsumerStatefulWidget {
   final String service;
@@ -36,6 +37,14 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
 
   double? latitude;
   double? longitude;
+
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   void autofill(LocationSearchResult result) {
     streetController.text = result.street;
@@ -79,11 +88,11 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
           : "/equipment/${widget.equipmentId}";
 
       context.push(url);
-      AppSnackBar.show(context, message: "Address created", isSuccess: true);
+      AppSnackBar.show(context, message: _l10n.addressCreated, isSuccess: true);
     } else {
       AppSnackBar.show(
         context,
-        message: "Could not create address",
+        message: _l10n.failedCreateAddress,
         isError: true,
       );
     }
@@ -92,6 +101,7 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: ListView(
@@ -112,8 +122,8 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
                 const SizedBox(width: 8),
                 Text(
                   widget.service == "equipment"
-                      ? "Add Location"
-                      : "Add Address",
+                      ? l10n.addLocation
+                      : l10n.addAddress,
                   style: TextStyle(color: theme.colorScheme.onPrimary),
                 ),
               ],
@@ -121,30 +131,30 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
           ),
 
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: [
                 InputField(
-                  label: "House / Building / Staircase",
+                  label: l10n.houseBuilding,
                   controller: commentController,
-                  hint: "My House",
+                  hint: l10n.myHouseHint,
                 ),
                 const SizedBox(height: 8),
                 InputField(
-                  label: "Street",
+                  label: l10n.street,
                   controller: streetController,
-                  hint: "Stapayeva 123",
+                  hint: l10n.streetHint,
                 ),
                 const SizedBox(height: 8),
                 InputField(
-                  label: "City",
+                  label: l10n.city,
                   controller: cityController,
-                  hint: "Atyrau",
+                  hint: l10n.cityHint,
                 ),
 
                 const SizedBox(height: 24),
 
-                PrimaryButton(label: "Save Location", onPressed: _onPressed),
+                PrimaryButton(label: l10n.saveLocation, onPressed: _onPressed),
               ],
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import '../widgets/otp_field.dart';
 
 class OtpVerificationForm extends ConsumerStatefulWidget {
@@ -21,22 +22,27 @@ class OtpVerificationForm extends ConsumerStatefulWidget {
 
 class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
   final otpController = TextEditingController();
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   Future<void> verifyOtp() async {
     final otp = otpController.text.trim();
 
-    // 1. Frontend Validation
     if (otp.isEmpty) {
-      widget.onError("Please enter the verification code");
+      widget.onError(_l10n.pleaseEnterOtp);
       return;
     }
 
     if (otp.length != 6) {
-      widget.onError("The OTP must be 6 digits");
+      widget.onError(_l10n.otpMustBeSixDigits);
       return;
     }
 
-    // Clear previous errors
     widget.onError(null);
 
     try {
@@ -50,7 +56,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         widget.onError("Invalid or expired OTP");
       }
     } catch (e) {
-      widget.onError("Something went wrong!");
+      widget.onError(_l10n.somethingWentWrong);
     }
   }
 
@@ -67,7 +73,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         const SizedBox(height: 20),
 
         Text(
-          "Enter the 6-digit code sent to",
+          _l10n.otpSubtitle,
           style: theme.textTheme.bodySmall?.copyWith(
             color: onSurface.withValues(alpha: 0.6),
           ),
@@ -90,18 +96,17 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         const SizedBox(height: 32),
 
         ListenableBuilder(
-          listenable: otpController, // Listens to every keystroke
+          listenable: otpController,
           builder: (context, _) {
             final temp = otpController.text.trim();
 
-            // Logic is re-evaluated every time the text changes
             final canSubmit =
                 temp.length == 6 &&
                 num.tryParse(temp) != null &&
                 !authState.isLoading;
 
             return PrimaryButton(
-              label: authState.isLoading ? " Verifying..." : "Verify OTP",
+              label: authState.isLoading ? _l10n.verifying : _l10n.verifyOtp,
               isLoading: authState.isLoading,
               onPressed: canSubmit ? verifyOtp : null,
             );
@@ -118,7 +123,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
                     await ref.read(authProvider.notifier).clearOtpSession();
                   },
             child: Text(
-              "Change Phone Number",
+              _l10n.changePhoneNumber,
               style: theme.textTheme.labelLarge?.copyWith(
                 color: primary,
                 fontWeight: FontWeight.w600,

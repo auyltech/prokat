@@ -7,6 +7,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateEquipmentScreen extends ConsumerStatefulWidget {
   const CreateEquipmentScreen({super.key});
@@ -32,7 +33,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     "Aktau",
   ];
 
-  Future<void> _submit() async {
+  Future<void> _submit(AppLocalizations l10n) async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
 
@@ -40,9 +41,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       final equipmentState = ref.watch(equipmentProvider);
       final category = equipmentState.category;
 
-      if (category == null) {
-        return;
-      }
+      if (category == null) return;
 
       final res = await ref.read(equipmentProvider.notifier).createEquipment({
         "categoryId": category.id,
@@ -54,17 +53,12 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
       if (res == true && mounted) {
         context.pop();
-
-        AppSnackBar.show(context, message: "Equipment Added", isSuccess: true);
+        AppSnackBar.show(context, message: l10n.equipmentAdded, isSuccess: true);
       } else if (mounted) {
-        AppSnackBar.show(
-          context,
-          message: "Could not add equipment",
-          isError: true,
-        );
+        AppSnackBar.show(context, message: l10n.couldNotAddEquipment, isError: true);
       }
     } catch (e) {
-      if (mounted) AppSnackBar.show(context, message: "Something went wrong", isError: true);
+      if (mounted) AppSnackBar.show(context, message: l10n.somethingWentWrong, isError: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -74,6 +68,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final location = _cityController.text.trim();
     final bool hasLocation = location.isNotEmpty;
@@ -92,7 +87,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
               : context.push(AppRoutes.ownerProfile),
         ),
         title: Text(
-          "Add Equipment",
+          l10n.addEquipment,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: AppColors.teal700,
@@ -108,24 +103,16 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CategorySelectorTile(mode: "create_equipment"),
+                  const CategorySelectorTile(mode: "create_equipment"),
 
                   const SizedBox(height: 16),
 
-                  // City Selector
                   GestureDetector(
                     onTap: () {
-                      // Logic: If list has 1 value, take it. Otherwise, take the first.
-                      // final String defaultCity = cities.length == 1
-                      //     ? cities.first
-                      //     : cities[0];
-
                       showModalBottomSheet(
                         context: context,
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                         ),
                         builder: (context) {
                           return Padding(
@@ -133,25 +120,18 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  "Select City",
-                                  style: theme.textTheme.headlineSmall,
-                                ),
+                                Text(l10n.selectCity, style: theme.textTheme.headlineSmall),
                                 const SizedBox(height: 10),
                                 ..._cities.map(
                                   (city) => ListTile(
                                     title: Text(city),
                                     leading: const Icon(Icons.location_city),
                                     trailing: _cityController.text == city
-                                        ? Icon(
-                                            Icons.check_circle,
-                                            color: theme.colorScheme.primary,
-                                          )
+                                        ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
                                         : null,
                                     onTap: () {
                                       _cityController.text = city;
-
-                                      Navigator.pop(context); // Close the sheet
+                                      Navigator.pop(context);
                                       setState(() {});
                                     },
                                   ),
@@ -167,51 +147,25 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: hasLocation
-                                ? theme.colorScheme.primary.withValues(
-                                    alpha: 0.2,
-                                  )
-                                : theme.colorScheme.primary.withValues(
-                                    alpha: 0.2,
-                                  ),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
-
                           child: Icon(
-                            hasLocation
-                                ? Icons.pin_drop
-                                : Icons.pin_drop_outlined,
+                            hasLocation ? Icons.pin_drop : Icons.pin_drop_outlined,
                             color: hasLocation
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.onPrimary,
                             size: 24,
                           ),
                         ),
-
                         const SizedBox(width: 12),
-
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Text(
-                              //   "City",
-                              //   style: theme.textTheme.labelMedium
-                              //       ?.copyWith(color: theme.primaryColor),
-                              // ),
-                              // const SizedBox(height: 4),
-                              Text(
-                                hasLocation
-                                    ? location
-                                    : "Select City", // Fallback text
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: hasLocation
-                                      ? colorScheme.primary
-                                      : colorScheme.onSurface,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            hasLocation ? location : l10n.selectCity,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: hasLocation ? colorScheme.primary : colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -221,23 +175,23 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                   const SizedBox(height: 16),
 
                   InputField(
-                    label: "EQUIPMENT NAME",
+                    label: l10n.equipmentNameLabel,
                     controller: _name,
-                    hint: "e.g. Septic Truck",
-                    validator: (v) => v!.isEmpty ? "REQUIRED" : null,
+                    hint: l10n.equipmentNameHint,
+                    validator: (v) => v!.isEmpty ? l10n.required : null,
                   ),
 
                   const SizedBox(height: 8),
                   InputField(
-                    label: "MODEL",
+                    label: l10n.modelLabel,
                     controller: _model,
-                    hint: "e.g. KAMAZ-65115",
+                    hint: l10n.modelHint,
                   ),
                   const SizedBox(height: 8),
                   InputField(
-                    label: "PLATE NUMBER",
+                    label: l10n.plateNumberLabel,
                     controller: _plateNumber,
-                    hint: "e.g. 777 ABC 01",
+                    hint: l10n.plateNumberHint,
                     isLast: true,
                   ),
 
@@ -247,9 +201,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: _loading
-                          ? null
-                          : _submit, // Add your _submit logic
+                      onPressed: _loading ? null : () => _submit(l10n),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
@@ -259,9 +211,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       ),
                       child: _loading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              "Add Equipment",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                          : Text(
+                              l10n.addEquipment,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),

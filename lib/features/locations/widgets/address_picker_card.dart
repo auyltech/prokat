@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class AddressPickerCard extends StatelessWidget {
   final dynamic selectedAddress; // Replace with your Address model
@@ -13,6 +14,7 @@ class AddressPickerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: onTap,
@@ -40,7 +42,7 @@ class AddressPickerCard extends StatelessWidget {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("DELIVER TO", style: theme.textTheme.labelMedium),
+                      Text(l10n.deliverTo, style: theme.textTheme.labelMedium),
                       const SizedBox(height: 2),
                       Text(
                         "${selectedAddress.street}, ${selectedAddress.city}",
@@ -51,7 +53,7 @@ class AddressPickerCard extends StatelessWidget {
                     ],
                   )
                 : Text(
-                    "Add Delivery Address",
+                    l10n.setDeliveryAddress,
                     style: theme.textTheme.bodyMedium,
                   ),
           ),

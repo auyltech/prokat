@@ -8,6 +8,7 @@ import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 // TODO: Delete / Replaced with owner booking tile
 
@@ -19,6 +20,7 @@ class OwnerBookingCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colors = theme.colorScheme;
 
     final temp = booking.priceRate.toUpperCase();
@@ -77,7 +79,7 @@ class OwnerBookingCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "REQUESTED BY",
+                        l10n.requestedBy.toUpperCase(),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: colors.onSurface.withValues(alpha: 0.6),
                           letterSpacing: 1.2,
@@ -179,7 +181,7 @@ class OwnerBookingCard extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Price",
+                          l10n.price,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: colors.onSurface.withValues(alpha: 0.6),
                             fontWeight: FontWeight.bold,
@@ -254,7 +256,7 @@ class OwnerBookingCard extends ConsumerWidget {
                 // 🟢 Start (Primary)
                 Expanded(
                   child: _PrimaryActionButton(
-                    label: "Start",
+                    label: l10n.startWork,
                     onPressed: () => showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -423,25 +425,26 @@ Future<void> _handleCancel(
   final theme = Theme.of(context);
   final notifier = ref.read(bookingProvider.notifier);
 
+  final l10n = AppLocalizations.of(context)!;
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) {
       return AlertDialog(
         backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("Cancel Booking", style: theme.textTheme.titleMedium),
+        title: Text(l10n.cancelBooking, style: theme.textTheme.titleMedium),
         content: Text(
-          "Are you sure you want to cancel this order?",
+          l10n.cancelOrderConfirmation,
           style: theme.textTheme.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("No"),
+            child: Text(l10n.no),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Yes, Cancel"),
+            child: Text(l10n.yesCancel),
           ),
         ],
       );
@@ -470,7 +473,7 @@ Future<void> _handleCancel(
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
+      ).showSnackBar(SnackBar(content: Text(l10n.orderCancelled)));
     }
     return;
   }
@@ -523,6 +526,7 @@ class _CancelReasonSheetState extends ConsumerState<_CancelReasonSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingProvider.notifier);
 
     return Padding(
@@ -541,7 +545,7 @@ class _CancelReasonSheetState extends ConsumerState<_CancelReasonSheet> {
             ),
           ),
 
-          Text("Cancel Booking", style: theme.textTheme.titleMedium),
+          Text(l10n.cancelBooking, style: theme.textTheme.titleMedium),
 
           const SizedBox(height: 16),
 
@@ -605,17 +609,17 @@ class _CancelReasonSheetState extends ConsumerState<_CancelReasonSheet> {
                         Navigator.pop(this.context); // close sheet
 
                         ScaffoldMessenger.of(this.context).showSnackBar(
-                          const SnackBar(content: Text("Order Cancelled")),
+                          SnackBar(content: Text(l10n.orderCancelled)),
                         );
                       }
                     },
-              child: const Text("Confirm Cancellation"),
+              child: Text(l10n.confirmCancellation),
             ),
           ),
 
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Go Back"),
+            child: Text(l10n.goBack),
           ),
         ],
       ),

@@ -23,18 +23,24 @@ class CategoryCard extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              // padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: theme.cardColor),
-              child: Image.network(
-                height: 70, // 👈 image limit only
-                category.imageUrl ?? "",
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Icon(
-                  Icons.image_not_supported,
-                  size: 48,
-                  color: Colors.grey,
-                ),
-              ),
+              child: (category.imageUrl != null &&
+                      category.imageUrl!.isNotEmpty)
+                  ? Image.network(
+                      category.imageUrl!,
+                      height: 70,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const Icon(
+                        Icons.image_not_supported,
+                        size: 48,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.image_not_supported,
+                      size: 48,
+                      color: Colors.grey,
+                    ),
             ),
           ),
           // const SizedBox(height: 8),

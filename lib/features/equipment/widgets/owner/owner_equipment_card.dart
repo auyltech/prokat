@@ -8,6 +8,7 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_status_badge.dart';
 import 'package:prokat/features/equipment/widgets/owner/online_toggle.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentCard extends ConsumerWidget {
   final Equipment equipment;
@@ -17,15 +18,14 @@ class OwnerEquipmentCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
 
     final locationText = equipment.city ?? "No location set";
     final priceEntry = equipment.prices.firstOrNull;
-    final hasPrice = priceEntry != null;
-
-    final priceDisplay = hasPrice
-        ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate)}"
+    final priceDisplay = priceEntry != null
+        ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
         : "No Price Set";
 
     return InkWell(

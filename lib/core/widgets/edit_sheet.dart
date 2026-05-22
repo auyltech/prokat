@@ -37,7 +37,7 @@ class EditSheet extends StatelessWidget {
         left: 24,
         right: 24,
         top: 12,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + 32,
       ),
       child: SingleChildScrollView(
         child: Column(

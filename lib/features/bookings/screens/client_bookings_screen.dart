@@ -7,6 +7,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/user/widgets/client_booking_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientBookingsScreen extends ConsumerStatefulWidget {
   const ClientBookingsScreen({super.key});
@@ -21,6 +22,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final authSession = ref.watch(authProvider).session;
     final bookingState = ref.watch(bookingProvider);
@@ -42,7 +44,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         title: Text(
-          "My Orders",
+          l10n.myOrders,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: false,
@@ -66,7 +68,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
               color: theme.colorScheme.onPrimary,
               size: 24,
             ),
-            tooltip: "Order History",
+            tooltip: l10n.orderHistory,
           ),
         ],
         elevation: 0,
@@ -80,37 +82,34 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
             // 1. High-Priority Draft Card (Refined Orange)
             if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
 
-            // 1. Remove Expanded - Slivers don't work inside it
-            if (authSession == null)
-              EmptyStateTile(
-                title: "Login to create and view bookings",
-                icon: Icons.login_outlined,
-              )
-            else if (bookingState.isLoading)
-              EmptyStateTile(title: "Loading Orders...")
-            else if (bookingState.error.toString() != "null")
-              EmptyStateTile(title: "Error Loading Orders")
-            else if (upcoming.isEmpty)
-              EmptyStateTile(
-                title: 'No bookings found',
-                icon: Icons.inventory_2_outlined,
-              )
-            else
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: upcoming.length,
-                  itemBuilder: (context, index) {
-                    final booking = upcoming[index];
-                    return ClientBookingTile(booking: booking);
-                  },
-                ),
+          if (authSession == null)
+            EmptyStateTile(
+              title: l10n.loginToViewBookings,
+              icon: Icons.login_outlined,
+            )
+          else if (bookingState.isLoading)
+            EmptyStateTile(title: l10n.loadingOrders)
+          else if (bookingState.error != null)
+            EmptyStateTile(title: l10n.errorLoadingOrders)
+          else if (upcoming.isEmpty)
+            EmptyStateTile(
+              title: l10n.noBookingsFound,
+              icon: Icons.inventory_2_outlined,
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: upcoming.length,
+                itemBuilder: (context, index) {
+                  final booking = upcoming[index];
+                  return ClientBookingTile(booking: booking);
+                },
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -122,7 +121,8 @@ class _EnhancedDraftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const draftColor = Color(0xFFD97706); // Industrial Amber
+    const draftColor = Color(0xFFD97706);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -136,13 +136,13 @@ class _EnhancedDraftCard extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline_rounded, color: draftColor, size: 20),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'DRAFT INCOMPLETE',
-                  style: TextStyle(
+                  l10n.draftIncomplete,
+                  style: const TextStyle(
                     color: draftColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,
@@ -150,8 +150,8 @@ class _EnhancedDraftCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Finish your booking request',
-                  style: TextStyle(
+                  l10n.finishBookingRequest,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -171,9 +171,9 @@ class _EnhancedDraftCard extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text(
-              'RESUME',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            child: Text(
+              l10n.resume,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             ),
           ),
         ],

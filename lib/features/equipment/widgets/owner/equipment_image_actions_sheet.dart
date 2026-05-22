@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentImageActionsSheet extends StatelessWidget {
   final bool canAddMore;
@@ -24,6 +25,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final disabledColor = colorScheme.onSurface.withValues(alpha: 0.38);
 
@@ -46,7 +48,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.photo_library, color: canAddMore ? null : disabledColor),
               title: Text(
-                'Choose from gallery',
+                l10n.chooseFromGallery,
                 style: canAddMore ? null : TextStyle(color: disabledColor),
               ),
               enabled: canAddMore && !isBusy,
@@ -58,7 +60,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.camera_alt, color: canAddMore ? null : disabledColor),
               title: Text(
-                'Take photo',
+                l10n.takePhoto,
                 style: canAddMore ? null : TextStyle(color: disabledColor),
               ),
               enabled: canAddMore && !isBusy,
@@ -71,7 +73,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
               ListTile(
                 leading: Icon(Icons.star_outline, color: isBusy ? disabledColor : null),
                 title: Text(
-                  'Set as cover',
+                  l10n.setAsCover,
                   style: isBusy ? TextStyle(color: disabledColor) : null,
                 ),
                 enabled: !isBusy,
@@ -84,7 +86,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
               ListTile(
                 leading: Icon(Icons.delete_outline, color: isBusy ? disabledColor : colorScheme.error),
                 title: Text(
-                  'Delete photo',
+                  l10n.deletePhoto,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: isBusy ? disabledColor : colorScheme.error,
                   ),
@@ -101,4 +103,3 @@ class EquipmentImageActionsSheet extends StatelessWidget {
     );
   }
 }
-

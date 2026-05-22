@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentBrowseSheet extends StatelessWidget {
   const EquipmentBrowseSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const bgColor = Color(0xFF121417);
     const accentColor = Color(0xFF4E73DF);
 
@@ -69,7 +71,7 @@ class EquipmentBrowseSheet extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "CURRENT LOCATION",
+                              l10n.currentLocation.toUpperCase(),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.3),
                                 fontSize: 10,
@@ -93,9 +95,9 @@ class EquipmentBrowseSheet extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     /// 2. Horizontal Model Options
-                    const Text(
-                      "SELECT CAPACITY / MODEL",
-                      style: TextStyle(
+                    Text(
+                      l10n.selectCapacityModel,
+                      style: const TextStyle(
                         color: Colors.white30,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -145,9 +147,9 @@ class EquipmentBrowseSheet extends StatelessWidget {
                           ),
                         ),
                         icon: const Icon(Icons.add_circle_outline_rounded),
-                        label: const Text(
-                          "CREATE NEW REQUEST",
-                          style: TextStyle(
+                        label: Text(
+                          l10n.createRequest.toUpperCase(),
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
                           ),
@@ -183,9 +185,9 @@ class _ModelOptionCard extends StatelessWidget {
       width: 100,
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha:0.03),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha:0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -203,7 +205,7 @@ class _ModelOptionCard extends StatelessWidget {
           Text(
             model,
             style: TextStyle(
-              color: Colors.white.withValues(alpha:0.4),
+              color: Colors.white.withValues(alpha: 0.4),
               fontSize: 10,
             ),
           ),

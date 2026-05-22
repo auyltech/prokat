@@ -8,6 +8,7 @@ import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/create_request_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientRequestsSection extends ConsumerStatefulWidget {
   const ClientRequestsSection({super.key});
@@ -31,6 +32,7 @@ class _ClientRequestsSectionState extends ConsumerState<ClientRequestsSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final requestState = ref.watch(requestProvider);
 
     final activeRequests = requestState.requests
@@ -44,7 +46,7 @@ class _ClientRequestsSectionState extends ConsumerState<ClientRequestsSection> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "My Requests",
+              l10n.myRequests,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
@@ -52,18 +54,18 @@ class _ClientRequestsSectionState extends ConsumerState<ClientRequestsSection> {
             ),
 
             AppLinkButton(
-              label: "View Requests",
+              label: l10n.viewRequests,
               onTap: () => context.push(AppRoutes.clientRequests),
             ),
           ],
         ),
 
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         if (requestState.isLoading)
-          EmptyStateTile(title: "Loading...")
+          EmptyStateTile(title: l10n.loading)
         else if (requestState.error != null)
-          EmptyStateTile(title: "Error")
+          EmptyStateTile(title: l10n.error)
         else if (activeRequests.isEmpty)
           CreateRequestTile()
         else

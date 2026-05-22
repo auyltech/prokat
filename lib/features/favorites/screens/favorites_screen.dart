@@ -6,6 +6,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -20,15 +21,14 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref
-          .read(favoriteProvider.notifier)
-          .getFavorites(); // refetch ONCE when entering screen
+      ref.read(favoriteProvider.notifier).getFavorites();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final authSession = ref.watch(authProvider).session;
     final favoritesState = ref.watch(favoriteProvider);
@@ -46,8 +46,8 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           slivers: [
             SliverAppBar(
               automaticallyImplyLeading: false,
-              expandedHeight: 60, // Adjust height as needed
-              floating: true, // AppBar reappears immediately when scrolling up
+              expandedHeight: 60,
+              floating: true,
               pinned: true,
               backgroundColor: theme.colorScheme.primary,
               leading: IconButton(
@@ -59,7 +59,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                 onPressed: () => context.pop(),
               ),
               title: Text(
-                "Favorites",
+                l10n.navFavorites,
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: theme.colorScheme.onPrimary,
                 ),
@@ -69,7 +69,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
             if (authSession == null)
               _buildCenteredFallback(
                 icon: Icons.login_outlined,
-                message: "Login to add and view favorites",
+                message: l10n.loginToAddFavorites,
               )
             else if (isLoading)
               const SliverFillRemaining(
@@ -78,7 +78,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
             else if (error != null)
               _buildCenteredFallback(
                 icon: Icons.error_outline,
-                message: "Error: ${favoritesState.error}",
+                message: "${l10n.error}: ${favoritesState.error}",
               )
             else if (favorites != null && favorites.isEmpty)
               SliverToBoxAdapter(
@@ -92,7 +92,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      "NO SAVED MACHINERY",
+                      l10n.noSavedMachinery,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.2),
                         fontSize: 12,
@@ -116,22 +116,15 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                           vertical: 12,
                         ),
                       ),
-                      child: const Text(
-                        "EXPLORE FLEET",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Text(
+                        l10n.exploreFleet,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
                 ),
               ),
 
-            // else
-            //   SliverToBoxAdapter(
-            //     child: Padding(
-            //       padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-            //       child: Text("Favorites", style: theme.textTheme.labelMedium),
-            //     ),
-            //   ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 0),
               sliver: SliverList(
@@ -166,7 +159,7 @@ Widget _buildCenteredFallback({
   required String message,
 }) {
   return SliverFillRemaining(
-    hasScrollBody: false, // Prevents bounce if content is small
+    hasScrollBody: false,
     child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -192,14 +185,15 @@ class _FavoriteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final location = equipment.location != null
         ? "${equipment.location?.city}"
-        : "Unknown location";
+        : l10n.unknownLocation;
 
     final price = equipment.prices.isNotEmpty
         ? "${equipment.prices.first.price} ₸/${equipment.prices.first.priceRate}"
-        : "No price";
+        : l10n.noPrice;
 
     return InkWell(
       onTap: onTap,
@@ -223,18 +217,6 @@ class _FavoriteCard extends StatelessWidget {
                 fallbackIcon: Icons.precision_manufacturing_outlined,
               ),
             ),
-            // Container(
-            //   padding: const EdgeInsets.all(12),
-            //   decoration: BoxDecoration(
-            //     color: theme.primaryColor.withValues(alpha: 0.28),
-            //     borderRadius: BorderRadius.circular(14),
-            //   ),
-            //   child: Icon(
-            //     Icons.precision_manufacturing_rounded,
-            //     color: theme.primaryColor.withValues(alpha: 0.28),
-            //     size: 24,
-            //   ),
-            // ),
             const SizedBox(width: 16),
 
             Expanded(

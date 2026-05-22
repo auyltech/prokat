@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BrowseEquipmentTile extends StatelessWidget {
   const BrowseEquipmentTile({super.key});
@@ -8,16 +9,14 @@ class BrowseEquipmentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return InkWell(
       onTap: () => context.push(AppRoutes.searchList),
-      borderRadius: BorderRadius.circular(
-        28,
-      ), // Matches modern dashboard curves
+      borderRadius: BorderRadius.circular(28),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          // Subtle gradient to denote it's the primary action
           gradient: LinearGradient(
             colors: [
               theme.colorScheme.primary,
@@ -37,7 +36,6 @@ class BrowseEquipmentTile extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Decorative background icon (Subtle "Truck" watermark)
             Positioned(
               right: -20,
               bottom: -10,
@@ -52,7 +50,6 @@ class BrowseEquipmentTile extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Row(
                 children: [
-                  // Icon Container
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -60,7 +57,7 @@ class BrowseEquipmentTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Icon(
-                      Icons.search_rounded, // Search or ManageSearch
+                      Icons.search_rounded,
                       color: Colors.white,
                       size: 32,
                     ),
@@ -68,13 +65,12 @@ class BrowseEquipmentTile extends StatelessWidget {
 
                   const SizedBox(width: 20),
 
-                  // Text
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Find & Rent",
+                          l10n.findAndRent,
                           style: theme.textTheme.headlineSmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
@@ -83,7 +79,7 @@ class BrowseEquipmentTile extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Browse heavy equipment near you",
+                          l10n.browseHeavyEquipment,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
@@ -94,7 +90,6 @@ class BrowseEquipmentTile extends StatelessWidget {
                     ),
                   ),
 
-                  // Small White Chevron
                   const Icon(
                     Icons.arrow_forward_ios_rounded,
                     color: Colors.white,

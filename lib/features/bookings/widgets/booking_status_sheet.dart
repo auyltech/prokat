@@ -5,6 +5,7 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingStatusSheet extends ConsumerWidget {
   final BookingModel booking;
@@ -14,10 +15,11 @@ class BookingStatusSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingProvider.notifier);
     final chatNotifier = ref.read(chatProvider.notifier);
 
-    final currentStatus = booking.workStatus; //booking.workStatus;
+    final currentStatus = booking.workStatus;
     final isStarted = currentStatus.level >= WorkStatus.started.level;
 
     final availableStatuses = isStarted
@@ -39,7 +41,6 @@ class BookingStatusSheet extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle
             Container(
               width: 40,
               height: 4,
@@ -50,19 +51,18 @@ class BookingStatusSheet extends ConsumerWidget {
               ),
             ),
 
-            Text("Update Work Status", style: theme.textTheme.titleMedium),
+            Text(l10n.updateWorkStatus, style: theme.textTheme.titleMedium),
 
             const SizedBox(height: 16),
 
             ...validStatuses.map((status) {
               return _StatusTile(
-                status: status,
+                label: status.localizedLabel(l10n),
                 isCurrent: status == currentStatus,
                 isDanger:
                     status == WorkStatus.cancelled ||
                     status == WorkStatus.stopped,
                 onTap: () async {
-                  // Update backend & send notification to client
                   final res = await notifier.updateBookingWorkStatus(
                     id: booking.id,
                     workStatus: status.name,
@@ -75,19 +75,18 @@ class BookingStatusSheet extends ConsumerWidget {
 
                   if (!context.mounted) return;
 
-                  // 3. Close sheet
                   Navigator.pop(context);
 
                   if (res) {
                     AppSnackBar.show(
                       context,
-                      message: "Status updated",
+                      message: l10n.statusUpdated,
                       isSuccess: true,
                     );
                   } else {
                     AppSnackBar.show(
                       context,
-                      message: "Failed to save status",
+                      message: l10n.failedSaveStatus,
                       isError: true,
                     );
                   }
@@ -102,13 +101,13 @@ class BookingStatusSheet extends ConsumerWidget {
 }
 
 class _StatusTile extends StatelessWidget {
-  final WorkStatus status;
+  final String label;
   final VoidCallback onTap;
   final bool isDanger;
   final bool isCurrent;
 
   const _StatusTile({
-    required this.status,
+    required this.label,
     required this.onTap,
     this.isDanger = false,
     this.isCurrent = false,
@@ -139,7 +138,7 @@ class _StatusTile extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(status.label, style: theme.textTheme.bodyMedium),
+              child: Text(label, style: theme.textTheme.bodyMedium),
             ),
             Icon(
               Icons.arrow_forward_ios,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentPreviewSheet extends StatelessWidget {
   final Equipment equipment;
@@ -17,6 +18,7 @@ class EquipmentPreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Material(
@@ -45,7 +47,7 @@ class EquipmentPreviewSheet extends StatelessWidget {
                           '/booking/${equipment.id}',
                         );
                       },
-                      child: const Text('Book'),
+                      child: Text(l10n.book),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -53,7 +55,7 @@ class EquipmentPreviewSheet extends StatelessWidget {
                     onPressed: () {
                       context.push(AppRoutes.clientRequestsCreate);
                     },
-                    child: const Text('Request'),
+                    child: Text(l10n.requestLabel),
                   ),
                 ],
               ),

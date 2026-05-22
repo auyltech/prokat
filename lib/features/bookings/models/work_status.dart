@@ -1,3 +1,5 @@
+import 'package:prokat/l10n/app_localizations.dart';
+
 enum WorkStatus {
   pending, // 0
   onMyWay, // 1
@@ -47,6 +49,27 @@ extension WorkStatusX on WorkStatus {
         return "Complete work";
       case WorkStatus.cancelled:
         return "Cancel job";
+    }
+  }
+
+  String localizedLabel(AppLocalizations l10n) {
+    switch (this) {
+      case WorkStatus.pending:
+        return l10n.workStatusPending;
+      case WorkStatus.onMyWay:
+        return l10n.workStatusOnMyWay;
+      case WorkStatus.onSite:
+        return l10n.workStatusOnSite;
+      case WorkStatus.started:
+        return l10n.workStatusStartWork;
+      case WorkStatus.postponed:
+        return l10n.workStatusPostpone;
+      case WorkStatus.stopped:
+        return l10n.workStatusStopWork;
+      case WorkStatus.completed:
+        return l10n.workStatusCompleteWork;
+      case WorkStatus.cancelled:
+        return l10n.workStatusCancelJob;
     }
   }
 }

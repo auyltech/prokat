@@ -14,6 +14,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateBookingScreen extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -61,6 +62,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final authSession = ref.watch(authProvider).session;
     final isClient = authSession != null ? true : false;
@@ -99,7 +101,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          "Create Booking",
+          l10n.createBooking,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         centerTitle: false,
@@ -121,12 +123,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
           if (authSession == null)
             _buildCenteredFallback(
               icon: Icons.login_outlined,
-              message: "Login to book this equipment",
+              message: l10n.loginToBook,
             )
           else if (equipment == null)
             _buildCenteredFallback(
               icon: Icons.login_outlined,
-              message: "Equipment not found",
+              message: l10n.equipmentNotFound,
             )
           else
             Column(
@@ -201,7 +203,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 12),
                         child: Text(
-                          "Service Plan",
+                          l10n.servicePlan,
                           style: theme.textTheme.headlineLarge,
                         ),
                       ),
@@ -266,7 +268,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 12),
                         child: Text(
-                          "Address & Schedule",
+                          l10n.addressAndSchedule,
                           style: theme.textTheme.headlineLarge,
                         ),
                       ),
@@ -293,7 +295,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             child: DateTimeButton(
                               icon: Icons.calendar_today_rounded,
                               label: bookingState.selectedDate == null
-                                  ? "Date"
+                                  ? l10n.date
                                   : DateFormat(
                                       'MMM dd',
                                     ).format(bookingState.selectedDate!),
@@ -319,7 +321,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             child: DateTimeButton(
                               icon: Icons.access_time_rounded,
                               label: bookingState.selectedTime == null
-                                  ? "Time"
+                                  ? l10n.time
                                   : TimeOfDay.fromDateTime(
                                       bookingState.selectedTime!,
                                     ).format(context),
@@ -350,7 +352,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       /// 4. ADDITIONAL NOTES
                       Text(
-                        "Note to Operator",
+                        l10n.noteToOperator,
                         style: theme.textTheme.headlineLarge,
                       ),
 
@@ -361,7 +363,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         style: theme.textTheme.bodyMedium,
                         onChanged: (v) => bookingNotifier.setComment(v),
                         decoration: InputDecoration(
-                          hintText: "Site access details, conditions...",
+                          hintText: l10n.siteAccessHint,
                           hintStyle: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(
                               alpha: 0.4,
@@ -450,17 +452,17 @@ Widget _buildCenteredFallback({
   required IconData icon,
   required String message,
 }) {
-  return SliverFillRemaining(
-    hasScrollBody: false, // Prevents bounce if content is small
+  return SizedBox(
+    height: 400,
     child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.white.withValues(alpha: 0.2)),
+          Icon(icon, size: 64, color: Colors.grey.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+            style: TextStyle(color: Colors.grey.withValues(alpha: 0.7)),
           ),
         ],
       ),

@@ -6,6 +6,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 class OwnerEquipmentListScreen extends ConsumerStatefulWidget {
@@ -37,6 +38,7 @@ class _OwnerEquipmentListScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(equipmentProvider);
 
     return Scaffold(
@@ -55,13 +57,13 @@ class _OwnerEquipmentListScreenState
         actions: [
           IconButton(
             onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
-            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 32),
-            tooltip: "Add Equipment",
+            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 24),
+            tooltip: l10n.addEquipment,
           ),
         ],
         actionsPadding: EdgeInsets.only(right: 12),
         title: Text(
-          "My Equipment",
+          l10n.myEquipment,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         backgroundColor: AppColors.teal700,
@@ -74,61 +76,64 @@ class _OwnerEquipmentListScreenState
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: _buildStatusItem(
-                //         context,
-                //         label: "ONLINE",
-                //         count: state.ownerEquipment
-                //             .where(
-                //               (e) =>
-                //                   e.status.toLowerCase() == 'available' &&
-                //                   e.isVisible == true,
-                //             )
-                //             .length,
-                //         color: Colors.greenAccent[700]!,
-                //       ),
-                //     ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatusItem(
+                        context,
+                        label: l10n.online,
+                        count: state.ownerEquipment
+                            .where(
+                              (e) =>
+                                  e.status.toLowerCase() == 'available' &&
+                                  e.isVisible == true,
+                            )
+                            .length,
+                        color: Colors.greenAccent[700]!,
+                      ),
+                    ),
 
-                //     SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
-                //     Expanded(
-                //       child: _buildStatusItem(
-                //         context,
-                //         label: "OFFLINE",
-                //         count: state.ownerEquipment
-                //             .where(
-                //               (e) =>
-                //                   e.status.toLowerCase() == 'booked' ||
-                //                   e.isVisible == false,
-                //             )
-                //             .length,
-                //         color: Colors.redAccent[400]!,
-                //       ),
-                //     ),
+                    Expanded(
+                      child: _buildStatusItem(
+                        context,
+                        label: l10n.offline,
+                        count: state.ownerEquipment
+                            .where(
+                              (e) =>
+                                  e.status.toLowerCase() == 'booked' ||
+                                  e.isVisible == false,
+                            )
+                            .length,
+                        color: Colors.redAccent[400]!,
+                      ),
+                    ),
 
-                //     SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
-                //     Expanded(
-                //       child: _buildStatusItem(
-                //         context,
-                //         label: "REPAIR",
-                //         count: state.ownerEquipment
-                //             .where(
-                //               (e) => e.status.toLowerCase() == 'maintenance',
-                //             )
-                //             .length,
-                //         color: Colors.orangeAccent[700]!,
-                //       ),
-                //     ),
-                //   ],
-                // ),
+                    Expanded(
+                      child: _buildStatusItem(
+                        context,
+                        label: l10n.repair,
+                        count: state.ownerEquipment
+                            .where(
+                              (e) => e.status.toLowerCase() == 'maintenance',
+                            )
+                            .length,
+                        color: Colors.orangeAccent[700]!,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
                 if (state.isLoading)
                   _builSkeleton(context)
                 else if (state.ownerEquipment.isEmpty)
                   EmptyStateTile(
-                    title: "No equipment listed yet",
+                    title: l10n.noEquipmentListed,
                     icon: Icons.inventory_2_outlined,
                   )
                 else

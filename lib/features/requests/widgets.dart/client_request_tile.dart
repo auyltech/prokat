@@ -9,6 +9,7 @@ import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientRequestTile extends ConsumerStatefulWidget {
   final RequestModel request;
@@ -23,6 +24,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final request = widget.request;
 
@@ -34,13 +36,6 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
         color: theme.cardColor,
         border: Border.all(color: theme.colorScheme.secondary, width: 2),
         borderRadius: BorderRadius.circular(16),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withValues(alpha: 0.3),
-        //     blurRadius: 4,
-        //     offset: const Offset(0, 6),
-        //   ),
-        // ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +46,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: theme.colorScheme.secondary,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(13),
                 topRight: Radius.circular(13),
               ),
@@ -60,7 +55,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  getRequestStatus(request.status),
+                  getRequestStatus(request.status, l10n: l10n),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -85,12 +80,11 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// 1. Top Row: Capacity & Status
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
-                      width: 130, // Fixed width
+                      width: 130,
                       child: AspectRatio(
                         aspectRatio: 16 / 9,
                         child: ClipRRect(
@@ -133,7 +127,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                   children: [
                     Expanded(
                       child: InfoTile(
-                        label: 'Location',
+                        label: l10n.location,
                         value: request.location.street,
                         onTap: () =>
                             showLocationSheet(context, request.location),
@@ -142,7 +136,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: InfoTile(
-                        label: 'Date & time',
+                        label: l10n.dateAndTime,
                         value: request.requiredOn != null
                             ? DateFormat(
                                 'dd MMM yyyy • HH:mm',
@@ -157,17 +151,9 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Expanded(
-                    //   child: InfoTile(
-                    //     label: 'Capacity',
-                    //     value:
-                    //         "${request.capacity} ${request.category?.capacityUnit}",
-                    //   ),
-                    // ),
-                    // const SizedBox(width: 12),
                     Expanded(
                       child: InfoTile(
-                        label: 'Offered rate',
+                        label: l10n.offeredRate,
                         value: formatPrice(request.offeredRate),
                         isHighlighted: true,
                       ),
@@ -177,9 +163,8 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
                 const SizedBox(height: 16),
 
-                // Comment Tile (Full Width - No Expanded wrapper)
                 if (request.comment != null && request.comment!.isNotEmpty)
-                  InfoTile(label: 'Comment', value: request.comment!),
+                  InfoTile(label: l10n.comments, value: request.comment!),
 
                 const SizedBox(height: 16),
 
@@ -188,7 +173,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () =>
-                            _showCancelConfirmation(context, ref, request.id),
+                            _showCancelConfirmation(context, ref, request.id, l10n),
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(
                             color: theme.colorScheme.error,
@@ -200,7 +185,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                           ),
                         ),
                         child: Text(
-                          "Cancel Request",
+                          l10n.cancelRequestAction,
                           style: TextStyle(
                             color: theme.colorScheme.error,
                             fontWeight: FontWeight.w600,
@@ -224,26 +209,25 @@ void _showCancelConfirmation(
   BuildContext context,
   WidgetRef ref,
   String requestId,
+  AppLocalizations l10n,
 ) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text("Cancel Request?"),
-      content: const Text(
-        "Are you sure you want to cancel this request? This action cannot be undone.",
-      ),
+      title: Text(l10n.cancelRequest),
+      content: Text(l10n.cancelRequestContent),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            "NO",
+            l10n.no,
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
         TextButton(
           onPressed: () async {
-            Navigator.pop(context); // Close dialog first
+            Navigator.pop(context);
 
             final res = await ref
                 .read(requestProvider.notifier)
@@ -252,14 +236,14 @@ void _showCancelConfirmation(
             if (res == true && context.mounted) {
               AppSnackBar.show(
                 context,
-                message: "Request cancelled",
+                message: l10n.requestCancelled,
                 isSuccess: true,
               );
             }
           },
-          child: const Text(
-            "YES, CANCEL",
-            style: TextStyle(
+          child: Text(
+            l10n.yesCancel,
+            style: const TextStyle(
               color: Colors.redAccent,
               fontWeight: FontWeight.bold,
             ),

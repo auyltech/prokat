@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class DeleteEquipmentSection extends ConsumerStatefulWidget {
@@ -19,6 +20,7 @@ class _DeleteEquipmentSectionState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final danger = colorScheme.error;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.7);
@@ -40,7 +42,7 @@ class _DeleteEquipmentSectionState
               Icon(Icons.warning_amber_rounded, color: danger, size: 30),
               const SizedBox(width: 8),
               Text(
-                "DANGER ZONE",
+                l10n.dangerZone,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: danger.withValues(alpha: 0.85),
                   fontWeight: FontWeight.bold,
@@ -54,7 +56,7 @@ class _DeleteEquipmentSectionState
 
           /// DESCRIPTION
           Text(
-            "Deleting this equipment will permanently remove it from your inventory, including all pricing and history.",
+            l10n.deleteEquipmentWarning,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: ghostGray,
@@ -69,11 +71,11 @@ class _DeleteEquipmentSectionState
             width: double.infinity,
             height: 54,
             child: OutlinedButton.icon(
-              onPressed: () => _confirmDelete(context, ref, widget.equipmentId),
+              onPressed: () => _confirmDelete(context, ref, widget.equipmentId, l10n),
               icon: const Icon(Icons.delete_outline_outlined, size: 30),
-              label: const Text(
-                "Delete Equipment",
-                style: TextStyle(
+              label: Text(
+                l10n.deleteEquipment,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.1,
                 ),
@@ -94,7 +96,12 @@ class _DeleteEquipmentSectionState
   }
 }
 
-void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
+void _confirmDelete(
+  BuildContext context,
+  WidgetRef ref,
+  String equipmentId,
+  AppLocalizations l10n,
+) {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
 
@@ -130,7 +137,6 @@ void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /// ICON
               Icon(
                 Icons.delete_sweep_rounded,
                 color: colorScheme.error,
@@ -139,9 +145,8 @@ void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
 
               const SizedBox(width: 12),
 
-              /// TITLE
               Text(
-                "Delete Equipment?",
+                l10n.deleteEquipmentQuestion,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -151,9 +156,8 @@ void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
 
           const SizedBox(height: 12),
 
-          /// DESCRIPTION
           Text(
-            "This will remove the item from the marketplace and delete all its rental history.",
+            l10n.deleteEquipmentConfirmation,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               height: 1.5,
@@ -186,9 +190,9 @@ void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
                     context.pop();
                   }
                 },
-                child: const Text(
-                  "Delete",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: Text(
+                  l10n.delete,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
 
@@ -198,7 +202,7 @@ void _confirmDelete(BuildContext context, WidgetRef ref, String equipmentId) {
               TextButton(
                 onPressed: () => context.pop(),
                 child: Text(
-                  "Cancel",
+                  l10n.cancel,
                   style: TextStyle(color: colorScheme.primary),
                 ),
               ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CityPickerSheet extends ConsumerStatefulWidget {
   final String title;
@@ -13,7 +14,7 @@ class CityPickerSheet extends ConsumerStatefulWidget {
   const CityPickerSheet({
     super.key,
     this.mode,
-    this.title = 'Select City',
+    this.title = '',
     this.city,
   });
 
@@ -21,7 +22,7 @@ class CityPickerSheet extends ConsumerStatefulWidget {
     required BuildContext context,
     String? city,
     String? mode,
-    String title = 'Select City',
+    String title = '',
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -48,7 +49,6 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
 
     final currentParams = Map<String, String>.from(uri.queryParameters);
 
-    // Add/Update new parameters, remove if value is null
     newParams.forEach((key, value) {
       if (value == null) {
         currentParams.remove(key);
@@ -91,7 +91,9 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final selectedCity = ref.watch(locationProvider).city;
+    final title = widget.title.isNotEmpty ? widget.title : l10n.selectCity;
 
     return SafeArea(
       top: false,
@@ -115,7 +117,7 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
 
               const SizedBox(height: 16),
 
-              Text(widget.title, style: theme.textTheme.titleLarge),
+              Text(title, style: theme.textTheme.titleLarge),
 
               const SizedBox(height: 12),
 

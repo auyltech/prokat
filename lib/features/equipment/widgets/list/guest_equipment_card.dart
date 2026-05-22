@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
@@ -27,10 +28,9 @@ class GuestEquipmentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
-        // border: Border.all(color: theme.colorScheme.outline, width: 0.2),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // ── Thumbnail ────────────────────────────────────────────────
           ClipRRect(
@@ -96,7 +96,7 @@ class GuestEquipmentCard extends StatelessWidget {
             padding: EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _StatusBadge(isTop: isTop),
 
@@ -114,9 +114,10 @@ class GuestEquipmentCard extends StatelessWidget {
                           color: Color(0xFF1D4ED8),
                         ),
                       ),
-                      const TextSpan(
-                        text: ' / day',
-                        style: TextStyle(fontSize: 11), // color: kTextMuted
+                      TextSpan(
+                        text:
+                            ' ${AppLocalizations.of(context)!.perDay}',
+                        style: const TextStyle(fontSize: 11),
                       ),
                     ],
                   ),
@@ -147,7 +148,9 @@ class _StatusBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        isTop ? 'Top rated' : 'Available',
+        isTop
+            ? AppLocalizations.of(context)!.topRated
+            : AppLocalizations.of(context)!.available,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,

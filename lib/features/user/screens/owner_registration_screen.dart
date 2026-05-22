@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 enum OwnerVerificationStatus { incomplete, pending, approved, rejected }
 
@@ -17,12 +18,13 @@ class OwnerRegistrationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          "Owner Profile",
+          l10n.ownerProfile,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         leading: IconButton(
@@ -41,33 +43,33 @@ class OwnerRegistrationScreen extends StatelessWidget {
       body: ListView(
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildStatusCard(theme),
+                _buildStatusCard(theme, l10n),
 
                 const SizedBox(height: 16),
 
-                _sectionTitle("Legal Information", theme),
+                _sectionTitle(l10n.legalInformation, theme),
                 _card([
-                  _tile("Full Name", "", () {}),
-                  _tile("Address", "", () {}),
-                  _tile("Phone Number", "", () {}),
+                  _tile(l10n.fullName, "", () {}),
+                  _tile(l10n.address, "", () {}),
+                  _tile(l10n.phoneNumber, "", () {}),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _sectionTitle("Documents", theme),
+                _sectionTitle(l10n.documents, theme),
                 _card([
-                  _documentTile("ID / Passport", true, () {}),
-                  _documentTile("Proof of Address", false, () {}),
-                  _documentTile("Business License (optional)", false, () {}),
+                  _documentTile(l10n.idPassport, true, l10n, () {}),
+                  _documentTile(l10n.proofOfAddress, false, l10n, () {}),
+                  _documentTile(l10n.businessLicense, false, l10n, () {}),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildCTA(context),
+                _buildCTA(context, l10n),
               ],
             ),
           ),
@@ -76,8 +78,7 @@ class OwnerRegistrationScreen extends StatelessWidget {
     );
   }
 
-  /// 🔥 STATUS CARD (core UX)
-  Widget _buildStatusCard(ThemeData theme) {
+  Widget _buildStatusCard(ThemeData theme, AppLocalizations l10n) {
     String title;
     String subtitle;
     Color color;
@@ -85,36 +86,36 @@ class OwnerRegistrationScreen extends StatelessWidget {
 
     switch (status) {
       case OwnerVerificationStatus.incomplete:
-        title = "Complete your registration";
-        subtitle = "Submit required documents to start listing equipment.";
+        title = l10n.completeRegistration;
+        subtitle = l10n.submitDocumentsHint;
         color = Colors.orange;
         icon = Icons.pending_actions;
         break;
 
       case OwnerVerificationStatus.pending:
-        title = "Verification in progress";
-        subtitle = "We are reviewing your documents.";
+        title = l10n.verificationInProgress;
+        subtitle = l10n.reviewingDocuments;
         color = Colors.blue;
         icon = Icons.hourglass_top;
         break;
 
       case OwnerVerificationStatus.approved:
-        title = "You're verified 🎉";
-        subtitle = "You can now list and rent out equipment.";
+        title = l10n.youAreVerified;
+        subtitle = l10n.canListEquipment;
         color = Colors.green;
         icon = Icons.verified;
         break;
 
       case OwnerVerificationStatus.rejected:
-        title = "Verification failed";
-        subtitle = "Please update your documents and try again.";
+        title = l10n.verificationFailed;
+        subtitle = l10n.updateDocumentsHint;
         color = Colors.red;
         icon = Icons.error_outline;
         break;
 
       default:
-        title = "Complete your registration";
-        subtitle = "Submit required documents to start listing equipment.";
+        title = l10n.completeRegistration;
+        subtitle = l10n.submitDocumentsHint;
         color = Colors.orange;
         icon = Icons.pending_actions;
     }
@@ -129,11 +130,15 @@ class OwnerRegistrationScreen extends StatelessWidget {
     );
   }
 
-  /// 📄 DOCUMENT TILE
-  Widget _documentTile(String title, bool uploaded, VoidCallback onTap) {
+  Widget _documentTile(
+    String title,
+    bool uploaded,
+    AppLocalizations l10n,
+    VoidCallback onTap,
+  ) {
     return ListTile(
       title: Text(title),
-      subtitle: Text(uploaded ? "Uploaded" : "Required"),
+      subtitle: Text(uploaded ? l10n.uploaded : l10n.requiredDoc),
       trailing: Icon(
         uploaded ? Icons.check_circle : Icons.upload_file,
         color: uploaded ? Colors.green : null,
@@ -142,7 +147,6 @@ class OwnerRegistrationScreen extends StatelessWidget {
     );
   }
 
-  /// 🔧 GENERAL TILE
   Widget _tile(String title, String value, VoidCallback onTap) {
     return ListTile(
       title: Text(title),
@@ -160,25 +164,24 @@ class OwnerRegistrationScreen extends StatelessWidget {
     return Card(child: Column(children: children));
   }
 
-  /// 🚀 CTA BUTTON (dynamic)
-  Widget _buildCTA(BuildContext context) {
+  Widget _buildCTA(BuildContext context, AppLocalizations l10n) {
     String text;
 
     switch (status) {
       case OwnerVerificationStatus.incomplete:
-        text = "Submit for Verification";
+        text = l10n.submitForVerification;
         break;
       case OwnerVerificationStatus.pending:
-        text = "Under Review";
+        text = l10n.underReview;
         break;
       case OwnerVerificationStatus.approved:
-        text = "View Listings";
+        text = l10n.viewListings;
         break;
       case OwnerVerificationStatus.rejected:
-        text = "Resubmit Documents";
+        text = l10n.resubmitDocuments;
         break;
       default:
-        text = "Submit for Verification";
+        text = l10n.submitForVerification;
         break;
     }
 

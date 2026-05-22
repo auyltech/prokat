@@ -5,6 +5,7 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CancelBookingSheet extends ConsumerStatefulWidget {
   final BookingModel booking;
@@ -19,37 +20,36 @@ class CancelBookingSheet extends ConsumerStatefulWidget {
 class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
   String? selectedReason;
 
-  final ownerCancelReasons = [
-    "Client did not respond",
-    "Equipment unavailable",
-    "Pricing issue",
-    "Scheduling conflict",
-    "Other",
-  ];
-
-  final clientCancelReasons = [
-    "Did not show up",
-    "Changed my mind",
-    "Equipment not suitable",
-    "Other",
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingProvider.notifier);
     final chatNotifier = ref.read(chatProvider.notifier);
 
     final isOwner = widget.useCase == "owner";
     final isClient = widget.useCase == "client";
 
+    final ownerCancelReasons = [
+      l10n.cancelReasonClientNotRespond,
+      l10n.cancelReasonEquipUnavailable,
+      l10n.cancelReasonPricingIssue,
+      l10n.cancelReasonSchedulingConflict,
+      l10n.cancelReasonOther,
+    ];
+
+    final clientCancelReasons = [
+      l10n.cancelReasonDidNotShowUp,
+      l10n.cancelReasonChangedMind,
+      l10n.cancelReasonEquipNotSuitable,
+      l10n.cancelReasonOther,
+    ];
+
     final sheetTitle = isOwner
         ? widget.booking.status.toUpperCase() == "CREATED"
-              ? "Reject Order"
-              : "Cancel Order"
-        : isClient
-        ? "Cancel Order"
-        : "Cancel Order";
+              ? l10n.rejectOrder
+              : l10n.cancelBooking
+        : l10n.cancelBooking;
 
     final reasons = widget.useCase == "owner"
         ? ownerCancelReasons
@@ -60,7 +60,6 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
           Container(
             width: 40,
             height: 4,
@@ -118,16 +117,15 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
           const SizedBox(height: 12),
 
-          // Confirm button
           Row(
             children: [
               Expanded(
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Go Back"),
+                  child: Text(l10n.goBack),
                 ),
               ),
-              const SizedBox(width: 12), // Space between buttons
+              const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
                   onPressed: selectedReason == null
@@ -171,8 +169,8 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                         },
                   child: Text(
                     widget.booking.status.toUpperCase() == "CREATED"
-                        ? "Reject Order"
-                        : "Cancel Order",
+                        ? l10n.rejectOrder
+                        : l10n.cancelBooking,
                   ),
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerPaymentsTopupScreen extends StatefulWidget {
   const OwnerPaymentsTopupScreen({super.key});
@@ -21,16 +22,17 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Top Up Minutes')),
+      appBar: AppBar(title: Text(l10n.topUpMinutes)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           // --- 1. Package Selection ---
           Text(
-            "Select Package",
+            l10n.selectPackage,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -103,9 +105,9 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
                 ? null
                 : () => _payWithKaspi(packages[selectedIndex!]),
             icon: const Icon(Icons.account_balance_wallet),
-            label: const Text("Pay with Kaspi.kz"),
+            label: Text(l10n.payWithKaspi),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFF14635), // Kaspi Red
+              backgroundColor: const Color(0xFFF14635),
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(
@@ -122,26 +124,41 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: const Text("Submit Manual Request (Offline Pay)"),
+            child: Text(l10n.submitManualRequest),
           ),
 
           const SizedBox(height: 40),
 
-          // --- 3. Recent History / Repeat ---
+          // --- 3. Recent History ---
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Recent Payments",
+                l10n.recentPayments,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton(onPressed: () {}, child: const Text("View All")),
+              TextButton(
+                onPressed: () {},
+                child: Text(l10n.viewAll),
+              ),
             ],
           ),
-          _historyItem(context, "5 Days Package", "1,200 KZT", "24 Oct"),
-          _historyItem(context, "1 Day Package", "300 KZT", "12 Oct"),
+          _historyItem(
+            context,
+            l10n,
+            "5 Days Package",
+            "1,200 KZT",
+            "24 Oct",
+          ),
+          _historyItem(
+            context,
+            l10n,
+            "1 Day Package",
+            "300 KZT",
+            "12 Oct",
+          ),
         ],
       ),
     );
@@ -149,6 +166,7 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
 
   Widget _historyItem(
     BuildContext context,
+    AppLocalizations l10n,
     String title,
     String price,
     String date,
@@ -171,21 +189,17 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
         ),
         subtitle: Text(date, style: const TextStyle(fontSize: 12)),
         trailing: TextButton(
-          onPressed: () {
-            /* Repeat logic */
-          },
-          child: Text("Repeat", style: TextStyle(color: colorScheme.primary)),
+          onPressed: () {},
+          child: Text(
+            l10n.repeat,
+            style: TextStyle(color: colorScheme.primary),
+          ),
         ),
       ),
     );
   }
 
-  void _payWithKaspi(Map pkg) {
-    // Generate Kaspi deep link logic here
-    // Example: launchUrlString("https://kaspi.kz{pkg['price']}");
-  }
+  void _payWithKaspi(Map pkg) {}
 
-  void _submitManualRequest() {
-    // Show a dialog or navigate to a simple form
-  }
+  void _submitManualRequest() {}
 }

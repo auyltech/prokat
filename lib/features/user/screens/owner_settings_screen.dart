@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerSettingsScreen extends StatelessWidget {
   const OwnerSettingsScreen({super.key});
@@ -10,12 +11,13 @@ class OwnerSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          "Settings",
+          l10n.navSettings,
           style: TextStyle(color: theme.colorScheme.onPrimary),
         ),
         leading: IconButton(
@@ -34,62 +36,31 @@ class OwnerSettingsScreen extends StatelessWidget {
       body: ListView(
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // SectionTitle(title: "Availability"),
-
-                // _card([
-                //   _switchTile("Auto-accept bookings", true, (v) {}),
-                //   _switchTile("Allow same-day bookings", false, (v) {}),
-                //   _tile("Minimum rental duration", "1 day", () {}),
-                // ]),
-
-                // const SizedBox(height: 16),
-
-                // SectionTitle(title: "Booking Preferences"),
-
-                // _card([
-                //   _switchTile("Require approval", true, (v) {}),
-                //   _switchTile("Allow instant booking", false, (v) {}),
-                //   _tile("Advance notice", "2 hours", () {}),
-                // ]),
-
-                // const SizedBox(height: 16),
-
-                // SectionTitle(title: "Pricing Behavior"),
-                // _card([
-                //   _switchTile("Enable dynamic pricing", false, (v) {}),
-                //   _switchTile("Weekend price adjustment", true, (v) {}),
-                //   _tile("Security deposit", "\$100", () {}),
-                // ]),
-
-                // const SizedBox(height: 16),
-
-                SectionTitle(title: "Notifications"),
+                SectionTitle(title: l10n.notifications),
                 _card([
-                  _switchTile("New booking requests", true, (v) {}),
-                  _switchTile("Messages", true, (v) {}),
-                  _switchTile("Reminders", true, (v) {}),
+                  _switchTile(l10n.newBookingRequests, true, (v) {}),
+                  _switchTile(l10n.messages, true, (v) {}),
+                  _switchTile(l10n.reminders, true, (v) {}),
                 ]),
 
                 const SizedBox(height: 16),
 
-                SectionTitle(title: "Safety & Rules"),
-
+                SectionTitle(title: l10n.safetyAndRules),
                 _card([
-                  _tile("Cancellation policy", "Moderate", () {}),
-                  _tile("Damage policy", "Standard coverage", () {}),
+                  _tile(l10n.cancellationPolicy, l10n.moderate, () {}),
+                  _tile(l10n.damagePolicy, l10n.standardCoverage, () {}),
                 ]),
 
                 const SizedBox(height: 16),
 
-                SectionTitle(title: "Danger Zone"),
-
+                SectionTitle(title: l10n.dangerZone),
                 _card([
-                  _dangerTile("Deactivate account", () {}),
-                  _dangerTile("Delete account", () {}),
+                  _dangerTile(l10n.deactivateAccount, () {}),
+                  _dangerTile(l10n.deleteAccount, () {}),
                 ]),
               ],
             ),

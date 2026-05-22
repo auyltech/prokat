@@ -7,6 +7,7 @@ import "package:prokat/features/bookings/widgets/booking_status_sheet.dart";
 import "package:prokat/features/bookings/widgets/cancel_booking_sheet.dart";
 import "package:prokat/features/chat/state/chat_provider.dart";
 import "package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart";
+import "package:prokat/l10n/app_localizations.dart";
 
 class BookingActionRow extends ConsumerWidget {
   final BookingModel booking;
@@ -19,37 +20,30 @@ class BookingActionRow extends ConsumerWidget {
   });
 
   void _handleAccept(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Confirm Order"),
-        content: Text(
-          "Are you sure you want to accept the booking for ${booking.equipment?.name}?",
-        ),
+        title: Text(l10n.confirmOrder),
+        content: Text(l10n.acceptBookingFor(booking.equipment?.name ?? '')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
-              // 2. Update backend
               await notifier.updateBookingStatus(
                 id: booking.id,
                 status: BookingStatus.confirmed.name,
               );
-
               await chatNotifier.reloadChat(booking.chatId ?? "");
-
-              // 3. Close dialog
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
+              if (context.mounted) Navigator.pop(context);
             },
-            child: const Text("Confirm"),
+            child: Text(l10n.confirm),
           ),
         ],
       ),
@@ -59,42 +53,38 @@ class BookingActionRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          // Reject Button
           Expanded(
             child: OutlinedButton(
-              onPressed: () => _handleCancel(context, ref, booking),
+              onPressed: () => _handleCancel(context, ref, booking, l10n),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
                 booking.status.toUpperCase() == "CREATED"
-                    ? 'Decline'
-                    : 'Cancel',
+                    ? l10n.decline
+                    : l10n.cancel,
               ),
             ),
           ),
 
           const SizedBox(width: 8),
-          // Counter Offer Button
+
           if (booking.status.toLowerCase() == BookingStatus.created.name)
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _handleCounterOffer(context),
                 style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text("Counter"),
+                child: Text(l10n.counter),
               ),
             ),
 
@@ -102,7 +92,6 @@ class BookingActionRow extends ConsumerWidget {
             const SizedBox(width: 8),
 
           if (booking.status.toLowerCase() == BookingStatus.created.name)
-            // Accept Button
             Expanded(
               flex: 2,
               child: ElevatedButton(
@@ -110,12 +99,10 @@ class BookingActionRow extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
-                child: const Text("Accept Order"),
+                child: Text(l10n.acceptOrder),
               ),
             )
           else
@@ -126,9 +113,7 @@ class BookingActionRow extends ConsumerWidget {
                   isScrollControlled: true,
                   backgroundColor: theme.colorScheme.surface,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   builder: (_) => BookingStatusSheet(booking: booking),
                 ),
@@ -137,10 +122,11 @@ class BookingActionRow extends ConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: BorderSide(color: theme.primaryColor),
+                    side: BorderSide(color: theme.primaryColor),
                   ),
                   elevation: 0,
                 ),
-                child: Text('Start Work'),
+                child: Text(l10n.startWork),
               ),
             ),
         ],
@@ -165,37 +151,36 @@ class BookingActionRow extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     BookingModel booking,
+    AppLocalizations l10n,
   ) async {
     final theme = Theme.of(context);
     final notifier = ref.read(bookingProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
 
     final modalTitle = booking.status.toUpperCase() == "CREATED"
-        ? "Reject Order"
-        : "Cancel Order";
+        ? l10n.rejectOrder
+        : l10n.cancelBooking;
 
     final modalText = booking.status.toUpperCase() == "CREATED"
-        ? "Are you sure you want to reject this order?"
-        : "Are you sure you want to cancel this order?";
+        ? l10n.rejectOrderQuestion
+        : l10n.cancelOrderQuestion;
 
     final submitButton = booking.status.toUpperCase() == "CREATED"
-        ? "Yes, Reject"
-        : "Yes, Cancel";
+        ? l10n.yesReject
+        : l10n.yesCancel;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(modalTitle, style: theme.textTheme.titleMedium),
           content: Text(modalText, style: theme.textTheme.bodyMedium),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("No"),
+              child: Text(l10n.no),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
@@ -208,12 +193,9 @@ class BookingActionRow extends ConsumerWidget {
 
     if (confirmed != true) return;
 
-    // ⏱️ Time restriction check
     final createdAt = booking.createdAt ?? DateTime(2026);
     final now = DateTime.now();
-
     const cancelWindowMinutes = 10;
-
     final difference = now.difference(createdAt).inMinutes;
 
     if (difference < cancelWindowMinutes) {
@@ -225,19 +207,16 @@ class BookingActionRow extends ConsumerWidget {
 
       if (res == true) {
         if (!context.mounted) return;
-        Navigator.pop(context); // close sheet
-
+        Navigator.pop(context);
         await chatNotifier.reloadChat(booking.chatId ?? "");
-
         if (!context.mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.orderCancelled)),
+        );
       }
       return;
     }
 
-    // Open reason sheet
     if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
@@ -246,9 +225,7 @@ class BookingActionRow extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
-        return CancelBookingSheet(booking: booking);
-      },
+      builder: (context) => CancelBookingSheet(booking: booking),
     );
   }
 }

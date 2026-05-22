@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 void openLocationPickerSheet(
   BuildContext context,
@@ -13,6 +14,7 @@ void openLocationPickerSheet(
   final theme = Theme.of(context);
   final bgColor = theme.colorScheme.surface;
   final accentColor = theme.colorScheme.primary;
+  final l10n = AppLocalizations.of(context)!;
 
   showModalBottomSheet(
     context: context,
@@ -31,7 +33,7 @@ void openLocationPickerSheet(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start, // Move header to left
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Align(
               alignment: Alignment.center,
@@ -48,7 +50,7 @@ void openLocationPickerSheet(
             const SizedBox(height: 24),
 
             Text(
-              "Select Location",
+              l10n.selectLocation,
               style: TextStyle(
                 color: theme.colorScheme.onSurface,
                 fontSize: 18,
@@ -59,13 +61,15 @@ void openLocationPickerSheet(
 
             const SizedBox(height: 16),
 
-            //  Display Top 3 Locations
             if (topLocations.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Text(
-                  "No saved locations yet",
-                  style: TextStyle(color: Colors.black, fontSize: 13),
+                  l10n.noSavedLocations,
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 13,
+                  ),
                 ),
               )
             else
@@ -75,7 +79,6 @@ void openLocationPickerSheet(
                   title: loc.street,
                   subtitle: loc.city,
                   onTap: () async {
-                    // Update your notifier with the selection
                     final res = await ref
                         .read(equipmentProvider.notifier)
                         .updateEquipmentLocation(equipmentId, {
@@ -92,11 +95,9 @@ void openLocationPickerSheet(
 
             const SizedBox(height: 8),
 
-            // "Add New" Button
             InkWell(
               onTap: () {
                 context.pop();
-
                 context.push(AppRoutes.ownerAddressMap);
               },
               borderRadius: BorderRadius.circular(12),
@@ -118,7 +119,7 @@ void openLocationPickerSheet(
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      "Create new on map",
+                      l10n.createNewOnMap,
                       style: theme.textTheme.bodyMedium,
                     ),
                     const Spacer(),
@@ -164,13 +165,12 @@ class _LocationTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.cardColor, // Recessed panel
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.4),
             ),
           ),
-
           child: Row(
             children: [
               Container(
@@ -189,9 +189,7 @@ class _LocationTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title, style: theme.textTheme.bodyLarge),
-
                     const SizedBox(height: 2),
-
                     Text(subtitle, style: theme.textTheme.labelLarge),
                   ],
                 ),

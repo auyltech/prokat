@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/page_header.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class MapContainer extends StatefulWidget {
   final Widget mobileMap;
@@ -53,6 +54,8 @@ class _MapContainerState extends State<MapContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     /// ✅ MOBILE → show map
     if (_isMobile) {
       return widget.mobileMap;
@@ -94,7 +97,7 @@ class _MapContainerState extends State<MapContainer> {
                 const SizedBox(height: 24),
 
                 Text(
-                  'HARDWARE RESTRICTION',
+                  l10n.hardwareRestriction,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.3),
                     fontWeight: FontWeight.bold,
@@ -105,10 +108,10 @@ class _MapContainerState extends State<MapContainer> {
 
                 const SizedBox(height: 12),
 
-                const Text(
-                  'Map view is available on mobile devices only.',
+                Text(
+                  l10n.mapMobileOnly,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

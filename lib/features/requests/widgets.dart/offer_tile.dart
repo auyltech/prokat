@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OfferTile extends ConsumerWidget {
   final OfferModel offer;
@@ -13,6 +14,7 @@ class OfferTile extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String status,
+    AppLocalizations l10n,
   ) async {
     final notifier = ref.read(offersProvider.notifier);
 
@@ -20,14 +22,15 @@ class OfferTile extends ConsumerWidget {
 
     if (!context.mounted) return;
     if (success) {
-      AppSnackBar.show(context, message: "Offer Updated", isSuccess: true);
+      AppSnackBar.show(context, message: l10n.offerUpdated, isSuccess: true);
     } else {
-      AppSnackBar.show(context, message: "Something went wrong", isError: true);
+      AppSnackBar.show(context, message: l10n.somethingWentWrong, isError: true);
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final isHandled = offer.status == "ACCEPTED" || offer.status == "DECLINED";
 
     return Container(
@@ -74,20 +77,20 @@ class OfferTile extends ConsumerWidget {
 
           const SizedBox(height: 10),
 
-          /// Actions (later: accept / reject)
+          /// Actions
           Row(
             children: [
               TextButton(
                 onPressed: isHandled
                     ? null
-                    : () => _handleUpdate(context, ref, "ACCEPTED"),
-                child: const Text("ACCEPT"),
+                    : () => _handleUpdate(context, ref, "ACCEPTED", l10n),
+                child: Text(l10n.accept),
               ),
               TextButton(
                 onPressed: isHandled
                     ? null
-                    : () => _handleUpdate(context, ref, "REJECTED"),
-                child: const Text("REJECT"),
+                    : () => _handleUpdate(context, ref, "REJECTED", l10n),
+                child: Text(l10n.reject),
               ),
             ],
           ),

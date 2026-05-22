@@ -4,6 +4,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_button.dart';
 import 'package:prokat/features/auth/widgets/auth_text_field.dart';
 import 'package:prokat/features/auth/widgets/otp_verification_form.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class RegisterWithPhoneForm extends ConsumerStatefulWidget {
   final Function(String?) onError;
@@ -17,8 +18,15 @@ class RegisterWithPhoneForm extends ConsumerStatefulWidget {
 
 class _RegisterWithPhoneFormState extends ConsumerState<RegisterWithPhoneForm> {
   final phoneController = TextEditingController(text: "+7");
+  late AppLocalizations _l10n;
   bool showOtp = false;
   String phone = "";
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
 
   @override
   void dispose() {
@@ -33,18 +41,17 @@ class _RegisterWithPhoneFormState extends ConsumerState<RegisterWithPhoneForm> {
   Future<void> requestOtp() async {
     final value = phoneController.text.trim();
 
-    // 1. Frontend Validation
     if (value == "+7" || value.isEmpty) {
-      widget.onError("Please enter your phone number");
+      widget.onError(_l10n.pleaseEnterPhone);
       return;
     }
 
     if (!isValidKazakhstanPhone(value)) {
-      widget.onError("Enter a valid Kazakhstan phone (+7XXXXXXXXXX)");
+      widget.onError(_l10n.validKazakhPhone);
       return;
     }
 
-    widget.onError(null); // Clear previous errors
+    widget.onError(null);
 
     try {
       final success = await ref.read(authProvider.notifier).requestOtp(value);
@@ -55,7 +62,7 @@ class _RegisterWithPhoneFormState extends ConsumerState<RegisterWithPhoneForm> {
           showOtp = true;
         });
       } else {
-        widget.onError("Registration failed. Try again.");
+        widget.onError(_l10n.registrationFailed);
       }
     } catch (e) {
       widget.onError(e.toString().replaceAll('Exception: ', ''));
@@ -66,7 +73,6 @@ class _RegisterWithPhoneFormState extends ConsumerState<RegisterWithPhoneForm> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // If OTP is sent, switch to the Verification form
     if (showOtp) {
       return OtpVerificationForm(phone: phone, onError: widget.onError);
     }
@@ -76,7 +82,7 @@ class _RegisterWithPhoneFormState extends ConsumerState<RegisterWithPhoneForm> {
         const SizedBox(height: 20),
 
         AuthTextField(
-          label: "Phone Number",
+          label: _l10n.phoneNumber,
           icon: Icons.phone_android_outlined,
           controller: phoneController,
           keyboardType: TextInputType.phone,
@@ -86,8 +92,8 @@ class _RegisterWithPhoneFormState extends ConsumerState<RegisterWithPhoneForm> {
 
         AuthButton(
           loading: authState.isLoading,
-          text: "SEND CODE",
-          loadingText: "SENDING...",
+          text: _l10n.sendCode,
+          loadingText: _l10n.sending,
           onPressed: requestOtp,
         ),
       ],

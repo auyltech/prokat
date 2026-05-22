@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
@@ -6,6 +6,7 @@ import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EditEquipmentDetailsForm extends StatefulWidget {
   final Equipment equipment;
@@ -54,7 +55,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
     if (!_isDirty) setState(() => _isDirty = true);
   }
 
-  Future<void> _handleSave() async {
+  Future<void> _handleSave(AppLocalizations l10n) async {
     final name = _nameController.text.trim();
 
     setState(() => _isSaving = true);
@@ -80,13 +81,13 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
 
         AppSnackBar.show(
           context,
-          message: "Equipment Updated",
+          message: l10n.equipmentUpdated,
           isSuccess: true,
         );
       } else if (mounted) {
         AppSnackBar.show(
           context,
-          message: "Could not save equipment",
+          message: l10n.couldNotSaveEquipment,
           isError: true,
         );
 
@@ -101,7 +102,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
       if (mounted) {
         AppSnackBar.show(
           context,
-          message: "Something went wrong!",
+          message: l10n.somethingWentWrong,
           isError: true,
         );
       }
@@ -112,16 +113,12 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final accent = colorScheme.primary;
 
     return Container(
       padding: const EdgeInsets.all(0),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(20),
-      //   border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
-      // ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -129,12 +126,11 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Text("INFORMATION", style: theme.textTheme.titleLarge),
-              SectionTitle(title: "Information"),
+              SectionTitle(title: l10n.information),
 
               _isDirty
                   ? TextButton.icon(
-                      onPressed: _isSaving ? null : _handleSave,
+                      onPressed: _isSaving ? null : () => _handleSave(l10n),
                       icon: _isSaving
                           ? SizedBox(
                               width: 14,
@@ -145,7 +141,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
                               ),
                             )
                           : const Icon(Icons.save_rounded, size: 16),
-                      label: const Text("Save"),
+                      label: Text(l10n.save),
                       style: TextButton.styleFrom(
                         foregroundColor: colorScheme.onPrimary,
                         backgroundColor: accent,
@@ -168,9 +164,8 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
 
           SizedBox(height: 12),
 
-          // SizedBox(height: 12),
           InputField(
-            label: "Name",
+            label: l10n.name,
             controller: _nameController,
             onChanged: _onChanged,
             hint: "",
@@ -179,7 +174,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           SizedBox(height: 12),
 
           InputField(
-            label: "Model",
+            label: l10n.model,
             controller: _modelController,
             onChanged: _onChanged,
             hint: "",
@@ -188,7 +183,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           SizedBox(height: 12),
 
           InputField(
-            label: "Plate Number",
+            label: l10n.plateNumberLabel,
             controller: _plateNumberController,
             onChanged: _onChanged,
             hint: "",
@@ -197,15 +192,15 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           SizedBox(height: 12),
 
           InputField(
-            label: "Rent Condition",
+            label: l10n.rentCondition,
             controller: _rentConditionController,
             onChanged: _onChanged,
-            hint: "Full load only...",
+            hint: l10n.fullLoadOnly,
           ),
 
           SizedBox(height: 12),
           InputField(
-            label: "Comment / Notes",
+            label: l10n.commentNotes,
             controller: _commentController,
             onChanged: _onChanged,
             hint: "15M Hose",

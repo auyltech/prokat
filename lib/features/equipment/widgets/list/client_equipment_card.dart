@@ -7,6 +7,7 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientEquipmentCard extends ConsumerWidget {
   final Equipment equipment;
@@ -21,17 +22,19 @@ class ClientEquipmentCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final authSession = ref.watch(authProvider).session;
     final isClient = authSession != null;
 
+    final favoritesIds = ref.watch(favoriteProvider).favoritesIds;
+    final bool isFavorite = favoritesIds?.contains(equipment.id) ?? false;
     final notifier = ref.read(favoriteProvider.notifier);
-    final bool isFavorite = notifier.isFavorite(equipment.id);
 
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
         : null;
 
-    final priceRate = getPriceRate(priceEntry?.priceRate);
+    final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
 
     return Container(
       decoration: BoxDecoration(
@@ -71,8 +74,8 @@ class ClientEquipmentCard extends ConsumerWidget {
                   children: [
                     _badge(
                       text: equipment.status.toLowerCase() == "available"
-                          ? "• ONLINE"
-                          : "OFFLINE",
+                          ? "• ${l10n.online}"
+                          : l10n.offline,
                       color: equipment.status.toLowerCase() == "available"
                           ? Colors.green
                           : Colors.grey,
@@ -246,9 +249,9 @@ class ClientEquipmentCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
-                      "RESERVE NOW",
-                      style: TextStyle(
+                    child: Text(
+                      l10n.reserveNow.toUpperCase(),
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,

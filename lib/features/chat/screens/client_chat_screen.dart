@@ -12,6 +12,7 @@ import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -52,6 +53,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final chatState = ref.watch(chatProvider);
     final authState = ref.watch(authProvider);
@@ -138,7 +140,29 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
           else if (chatState.error != null && messages.isEmpty)
             Expanded(
               child: Center(
-                child: Text(chatState.error ?? "Error Loading Messages"),
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      Text(
+                        chatState.error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () => ref
+                            .read(chatProvider.notifier)
+                            .openChatById(widget.chatId),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(l10n.retry),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             )
           else

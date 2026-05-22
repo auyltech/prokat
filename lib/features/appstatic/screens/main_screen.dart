@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
@@ -84,7 +86,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final uri = GoRouterState.of(context).uri;
     final currentParams = Map<String, String>.from(uri.queryParameters);
 
-    // Add/Update new parameters, remove if value is null
     newParams.forEach((key, value) {
       if (value == null) {
         currentParams.remove(key);
@@ -129,6 +130,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = ref.watch(localeProvider);
+    final langDisplay = LocaleNotifier.displayCode(locale);
 
     final categoriesState = ref.watch(categoriesProvider);
     final equipmentState = ref.watch(equipmentProvider);
@@ -180,7 +184,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          "EN",
+                          langDisplay,
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: theme.colorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
@@ -194,6 +198,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
               _HeroBanner(
                 city: selectedCity,
+                l10n: l10n,
                 onCityTap: () => CityPickerSheet.show(
                   context: context,
                   city: selectedCity,
@@ -312,9 +317,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
 class _HeroBanner extends StatelessWidget {
   final String city;
+  final AppLocalizations l10n;
   final VoidCallback onCityTap;
 
-  const _HeroBanner({required this.city, required this.onCityTap});
+  const _HeroBanner({
+    required this.city,
+    required this.l10n,
+    required this.onCityTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -332,7 +342,7 @@ class _HeroBanner extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "KAZAKHSTAN'S #1 RENTAL PLATFORM",
+            l10n.heroPlatformTag,
             style: TextStyle(
               fontSize: 11,
               color: Colors.white.withValues(alpha: 0.7),
@@ -340,9 +350,9 @@ class _HeroBanner extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Find & rent equipment\nin minutes',
-            style: TextStyle(
+          Text(
+            l10n.heroTitle,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
               color: Colors.white,
@@ -372,7 +382,7 @@ class _HeroBanner extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    city.isNotEmpty ? city : "All Locations",
+                    city.isNotEmpty ? city : l10n.allLocations,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,

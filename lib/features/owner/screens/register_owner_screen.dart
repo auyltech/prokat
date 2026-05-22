@@ -7,6 +7,7 @@ import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class RegisterOwnerPage extends ConsumerStatefulWidget {
   const RegisterOwnerPage({super.key});
@@ -108,11 +109,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
           );
 
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
     if (success) {
       AppSnackBar.show(
         context,
-        message: request == null ? "Request submitted" : "Request updated",
+        message: request == null ? l10n.requestSubmitted : l10n.requestUpdated,
         isSuccess: true,
       );
     }
@@ -122,6 +124,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final state = ref.watch(ownerRegistrationProvider);
     final request = state.registrationRequest;
@@ -190,7 +193,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          "Become a service provider",
+                          l10n.becomeServiceProvider,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: colors.onPrimary,
                           ),
@@ -217,12 +220,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                     children: [
                       const SizedBox(height: 12),
                       Text(
-                        "Join our team and offer your equipment or services to clients.",
+                        l10n.joinTeamHint,
                         style: theme.textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Your request will be reviewed by the admin for further processing.",
+                        l10n.requestReviewedHint,
                         style: theme.textTheme.bodySmall,
                       ),
                       const SizedBox(height: 12),
@@ -232,13 +235,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
                       _OwnerRegistrationField(
                         controller: _firstNameController,
-                        label: "First name",
-                        hint: "Enter your first name",
+                        label: l10n.firstName,
+                        hint: l10n.firstNameHint,
                         icon: Icons.person_outline,
                         enabled: !isAccepted,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
-                            return "First name is required";
+                            return l10n.firstNameRequired;
                           }
                           return null;
                         },
@@ -246,35 +249,37 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
                       _OwnerRegistrationField(
                         controller: _lastNameController,
-                        label: "Last name",
-                        hint: "Enter your last name",
+                        label: l10n.lastName,
+                        hint: l10n.lastNameHint,
                         icon: Icons.person_outline,
                         enabled: !isAccepted,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
-                            return "Last name is required";
+                            return l10n.lastNameRequired;
                           }
                           return null;
                         },
                       ),
+
                       _OwnerRegistrationField(
                         controller: _phoneController,
-                        label: "Phone number",
-                        hint: "Enter your phone number",
+                        label: l10n.phoneNumber,
+                        hint: l10n.phoneHint,
                         icon: Icons.phone_outlined,
                         enabled: !isAccepted,
                         keyboardType: TextInputType.phone,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
-                            return "Phone number is required";
+                            return l10n.phoneNumberRequired;
                           }
                           return null;
                         },
                       ),
+
                       _OwnerRegistrationField(
                         controller: _emailController,
-                        label: "Email",
-                        hint: "Enter your email (optional)",
+                        label: l10n.email,
+                        hint: l10n.emailHint,
                         icon: Icons.email_outlined,
                         enabled: !isAccepted,
                         keyboardType: TextInputType.emailAddress,
@@ -282,7 +287,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                           final value = (v ?? '').trim();
                           if (value.isEmpty) return null;
                           if (!value.contains('@')) {
-                            return "Enter a valid email";
+                            return l10n.enterValidEmail;
                           }
                           return null;
                         },
@@ -290,13 +295,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
                       _OwnerRegistrationField(
                         controller: _cityController,
-                        label: "City",
-                        hint: "Enter your city",
+                        label: l10n.city,
+                        hint: l10n.cityInputHint,
                         icon: Icons.location_city_outlined,
                         enabled: !isAccepted,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
-                            return "City is required";
+                            return l10n.cityRequired;
                           }
                           return null;
                         },
@@ -304,16 +309,15 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
                       _OwnerRegistrationField(
                         controller: _messageController,
-                        label: "Message",
-                        hint:
-                            "Briefly describe the service or equipment you can provide.",
+                        label: l10n.message,
+                        hint: l10n.messageHint,
                         icon: Icons.message_outlined,
                         enabled: !isAccepted,
                         maxLines: 3,
                         keyboardType: TextInputType.multiline,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
-                            return "Please add a short message";
+                            return l10n.messageRequired;
                           }
                           return null;
                         },
@@ -322,14 +326,14 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                       if (request == null || !isAccepted) ...[
                         const SizedBox(height: 12),
                         Text(
-                          "Note: please describe your service/equipment briefly so we can review your request faster.",
+                          l10n.noteDescribeHint,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colors.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                         const SizedBox(height: 16),
                         PrimaryButton(
-                          label: _submitLabel(request),
+                          label: _submitLabel(request, l10n),
                           isLoading: state.isLoading,
                           icon: Icons.send_rounded,
                           onPressed: state.isLoading ? null : _submit,
@@ -348,13 +352,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     );
   }
 
-  String _submitLabel(RegistrationRequestModel? request) {
-    if (request == null) return "Submit request";
+  String _submitLabel(RegistrationRequestModel? request, AppLocalizations l10n) {
+    if (request == null) return l10n.submitRequest;
 
     final status = (request.status ?? '').toLowerCase();
-    if (status == 'rejected') return "Resubmit request";
-    if (status == 'created') return "Update request";
-    return "Update request";
+    if (status == 'rejected') return l10n.resubmitRequest;
+    return l10n.updateRequest;
   }
 }
 
@@ -367,26 +370,27 @@ class _StatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final status = (request.status ?? 'created').toLowerCase();
     final adminComment = (request.adminComment ?? '').trim();
 
     final (title, subtitle, icon, color) = switch (status) {
       'accepted' => (
-        "Accepted",
-        "You are now approved as a service provider.",
+        l10n.statusAccepted,
+        l10n.statusAcceptedSubtitle,
         Icons.verified_rounded,
         Colors.green,
       ),
       'rejected' => (
-        "Rejected",
-        "Please review the admin comment and update your request.",
+        l10n.statusRejected,
+        l10n.statusRejectedSubtitle,
         Icons.error_outline_rounded,
         colors.error,
       ),
       _ => (
-        "Under review",
-        "Your request has been submitted and is being reviewed.",
+        l10n.statusUnderReview,
+        l10n.statusUnderReviewSubtitle,
         Icons.hourglass_top_rounded,
         colors.primary,
       ),
@@ -427,7 +431,7 @@ class _StatusCard extends StatelessWidget {
           if (adminComment.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
-              "Admin comment",
+              l10n.adminComment,
               style: theme.textTheme.labelSmall?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: colors.onSurface.withValues(alpha: 0.85),
@@ -455,6 +459,7 @@ class _AcceptedInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.only(top: 12),
@@ -470,7 +475,7 @@ class _AcceptedInfo extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              "Your request has been accepted. If you need to change your details, contact support.",
+              l10n.requestAcceptedInfo,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colors.onSurface.withValues(alpha: 0.8),
               ),

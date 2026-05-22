@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -7,6 +8,21 @@ import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_service.dart';
 import 'package:prokat/features/chat/state/chat_socket_service.dart';
 import 'package:prokat/features/chat/state/chat_state.dart';
+
+String _friendlyError(Object error) {
+  if (error is DioException) {
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return 'Connection timed out. The server may be warming up — please try again.';
+    }
+    if (error.type == DioExceptionType.connectionError) {
+      return 'No connection. Check your network and try again.';
+    }
+    return 'Network error. Please try again.';
+  }
+  return _friendlyError(error);
+}
 
 bool _withinThirtySeconds(DateTime? first, DateTime? second) {
   if (first == null || second == null) {
@@ -117,7 +133,35 @@ class ChatNotifier extends StateNotifier<ChatState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingConversations: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: _friendlyError(error),
+      );
+    }
+  }
+
+  Future<void> getChatById(String chatId) async {
+    try {
+      state = state.copyWith(isLoadingConversations: true, error: null);
+
+      final result = await service.getChatById(chatId);
+
+      if (result.success && result.data is ChatModel) {
+        state = state.copyWith(
+          isLoadingConversations: false,
+          conversations: _sortConversations(
+            _upsertChat(state.conversations, result.data as ChatModel),
+          ),
+          error: null,
+        );
+      } else {
+        state = state.copyWith(
+          isLoadingConversations: false,
+          error: result.message,
+        );
+      }
+    } catch (error) {
+      state = state.copyWith(
+        isLoadingConversations: false,
+        error: _friendlyError(error),
       );
     }
   }
@@ -201,7 +245,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingMessages: false,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: _friendlyError(error),
       );
     }
   }
@@ -312,7 +356,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         ..remove(clientTempId);
       state = state.copyWith(
         sendingMessageClientTempIds: failedSendingIds,
-        error: error.toString().replaceFirst('Exception: ', ''),
+        error: _friendlyError(error),
         messages: state.messages
             .map(
               (message) => message.clientTempId == clientTempId

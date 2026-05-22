@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 
 void showLanguageSheet(BuildContext context) {
   showModalBottomSheet(
@@ -6,36 +9,63 @@ void showLanguageSheet(BuildContext context) {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) {
-      final theme = Theme.of(context);
+    builder: (sheetContext) {
+      return Consumer(
+        builder: (context, ref, _) {
+          final currentLocale = ref.watch(localeProvider);
+          final l10n = AppLocalizations.of(context)!;
+          final theme = Theme.of(context);
 
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 24, top: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // Sheet takes only needed height
-          children: [
-            // Handle for visual cue
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
+          void selectLocale(String langCode) {
+            ref.read(localeProvider.notifier).setLocale(Locale(langCode));
+            Navigator.pop(context);
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24, top: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.4,
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  l10n.selectLanguage,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _LanguageTile(
+                  title: 'Қазақша',
+                  code: 'KZ',
+                  isSelected: currentLocale.languageCode == 'kk',
+                  onTap: () => selectLocale('kk'),
+                ),
+                _LanguageTile(
+                  title: 'Русский',
+                  code: 'RU',
+                  isSelected: currentLocale.languageCode == 'ru',
+                  onTap: () => selectLocale('ru'),
+                ),
+                _LanguageTile(
+                  title: 'English',
+                  code: 'EN',
+                  isSelected: currentLocale.languageCode == 'en',
+                  onTap: () => selectLocale('en'),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              "Select Language",
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _LanguageTile(title: "Қазақша", code: "KZ", isSelected: false),
-            _LanguageTile(title: "Русский", code: "RU", isSelected: false),
-            _LanguageTile(title: "English", code: "EN", isSelected: true),
-          ],
-        ),
+          );
+        },
       );
     },
   );
@@ -45,11 +75,13 @@ class _LanguageTile extends StatelessWidget {
   final String title;
   final String code;
   final bool isSelected;
+  final VoidCallback onTap;
 
   const _LanguageTile({
     required this.title,
     required this.code,
     required this.isSelected,
+    required this.onTap,
   });
 
   @override
@@ -80,11 +112,7 @@ class _LanguageTile extends StatelessWidget {
       trailing: isSelected
           ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
           : null,
-      onTap: () {
-        // 1. Update your locale state here (e.g., ref.read(localeProvider.notifier).update(...))
-        // 2. Close the sheet
-        Navigator.pop(context);
-      },
+      onTap: onTap,
     );
   }
 }

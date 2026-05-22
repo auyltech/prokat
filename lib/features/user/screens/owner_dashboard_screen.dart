@@ -9,6 +9,8 @@ import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/user/widgets/balance_tile.dart';
 import 'package:prokat/features/user/widgets/owner_equipment_section.dart';
 import 'package:prokat/features/user/widgets/owner_orders_section.dart';
+import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerDashboardScreen extends ConsumerStatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -33,6 +35,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final activeRequests = ref
         .watch(requestProvider)
@@ -45,9 +48,6 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
     final state = ref.watch(bookingProvider);
 
-    // final newRequests = state.ownerBookings
-    //     .where((b) => b.status == "CREATED")
-    //     .toList();
     final upcomingJobs = state.ownerBookings
         .where((b) => b.status.toLowerCase() == BookingStatus.confirmed.name)
         .toList();
@@ -58,12 +58,21 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
     final activeOrdersCount = upcomingJobs.length + pendingJobs.length;
 
+    final requestValue = hasRequests
+        ? '$count ${count == 1 ? l10n.newRequestSingular : l10n.newRequestsPlural}'
+        : l10n.noNewRequests;
+
+    final ordersValue = activeOrdersCount == 0
+        ? l10n.noOrders
+        : activeOrdersCount == 1
+        ? '${activeOrdersCount.toString().padLeft(2, '0')} ${l10n.orderUnit}'
+        : '${activeOrdersCount.toString().padLeft(2, '0')} ${l10n.ordersUnit}';
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar:
-          true, // Forces body to expand under the status bar
+      extendBodyBehindAppBar: true,
       body: ListView(
-        padding: EdgeInsets.zero, // Remove default top padding from ListView
+        padding: EdgeInsets.zero,
         children: [
  
           Padding(
@@ -85,11 +94,8 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
                     children: [
                       _buildStatCard(
                         context,
-                        "Client Requests",
-                        hasRequests
-                            ? '$count new ${count == 1 ? 'request' : 'requests'}'
-                            : 'No new requests at the moment',
-                        // equipmentCount.toString().padLeft(2, '0'),
+                        l10n.clientRequests,
+                        requestValue,
                         Colors.blue,
                         AppRoutes.ownerRequests,
                       ),
@@ -98,12 +104,8 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
                       _buildStatCard(
                         context,
-                        "Active Orders",
-                        activeOrdersCount == 0
-                            ? "No Orders"
-                            : activeOrdersCount == 1
-                            ? "01 Order"
-                            : "${activeOrdersCount.toString().padLeft(2, '0')} Orders",
+                        l10n.activeOrders,
+                        ordersValue,
                         Colors.orange,
                         AppRoutes.ownerBookings,
                       ),
@@ -113,13 +115,15 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
 
                 const SizedBox(height: 24),
 
-                // 3. Manage Equipment Tile
                 OwnerEquipmentSection(),
 
                 const SizedBox(height: 24),
 
-                // 4. Active Orders Section
                 OwnerOrdersSection(),
+
+                SizedBox(height: 24),
+
+                RentAnEquipmentTile(),
               ],
             ),
           ),
@@ -154,7 +158,6 @@ Widget _buildStatCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Label
             Text(
               label,
               style: theme.textTheme.headlineSmall?.copyWith(
@@ -164,7 +167,6 @@ Widget _buildStatCard(
               ),
             ),
             const SizedBox(height: 8),
-            // Value
             Text(
               value,
               style: TextStyle(

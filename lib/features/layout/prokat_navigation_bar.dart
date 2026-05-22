@@ -6,11 +6,12 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 final ownerNavItems = [
   // _NavItem(
   //   icon: Icons.home_filled,
-  //   label: 'Home',
+  //   label: l.navHome,
   //   path: AppRoutes.ownerDashboard,
   // ),
   _NavItem(
@@ -25,40 +26,36 @@ final ownerNavItems = [
   // ),
   _NavItem(
     icon: Icons.local_shipping_rounded,
-    label: 'My Fleet',
+    label: (l) => l.navMyFleet,
     path: AppRoutes.ownerEquiment,
   ),
   _NavItem(
     icon: Icons.list_alt_rounded,
-    label: 'Orders',
+    label:(l) =>  l.navOrders,
     path: AppRoutes.ownerBookings,
   ),
   _NavItem(
     icon: Icons.chat_bubble_rounded,
-    label: 'Chats',
+    label: (l) => l.navChats,
     path: AppRoutes.ownerChat,
   ),
 ];
 
 final clientNavItems = [
+  // _NavItem(icon: Icons.home_rounded, label: l.navHome, path: AppRoutes.dashboard),
   _NavItem(
     icon: Icons.person_rounded,
     label: 'Profile',
     path: AppRoutes.profile,
   ),
-  // _NavItem(
-  //   icon: Icons.notifications_rounded,
-  //   label: 'Alerts',
-  //   path: AppRoutes.notifications,
-  // ),
   _NavItem(
     icon: Icons.search_rounded,
-    label: 'Search',
+    label: (l) => l.navSearch,
     path: AppRoutes.searchList,
   ),
   _NavItem(
     icon: Icons.add_box_rounded,
-    label: 'Create',
+    label: (l) => l.navCreate,
     path: AppRoutes.clientRequestsCreate,
   ),
   // _NavItem(
@@ -68,12 +65,12 @@ final clientNavItems = [
   // ),
   _NavItem(
     icon: Icons.list_alt_rounded,
-    label: 'Orders',
+    label: (l) => l.navOrders,
     path: AppRoutes.clientOrders,
   ),
   _NavItem(
     icon: Icons.chat_bubble_rounded,
-    label: 'Chats',
+    label: (l) => l.navChats,
     path: AppRoutes.chat,
   ),
 ];
@@ -82,8 +79,7 @@ class ProkatNavigationBar extends ConsumerStatefulWidget {
   const ProkatNavigationBar({super.key});
 
   @override
-  ConsumerState<ProkatNavigationBar> createState() =>
-      _ProkatNavigationBarState();
+  ConsumerState<ProkatNavigationBar> createState() => _ProkatNavigationBarState();
 }
 
 class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
@@ -105,6 +101,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
     final startupState = ref.watch(appStartupProvider).routeState;
 
@@ -123,37 +120,18 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     }
 
     final String location = GoRouterState.of(context).uri.path;
-
-    int currentIndex = navItems.indexWhere(
-      (item) => location.startsWith(item.path),
-    );
+    int currentIndex = navItems.indexWhere((item) => location.startsWith(item.path));
 
     final List<String> segments = GoRouterState.of(context).uri.pathSegments;
-
-    // Check conditions based on list length and keyword placement
     bool isChatDetailScreen = false;
-
     if (segments.length >= 2) {
-      // Matches: /chat/id
-      if (segments[0] == 'chat' && segments[1] != 'list') {
-        isChatDetailScreen = true;
-      }
-
-      // Matches: /owner/chat/id
-      if (segments.length >= 3 &&
-          segments[0] == 'owner' &&
-          segments[1] == 'chat') {
+      if (segments[0] == 'chat' && segments[1] != 'list') isChatDetailScreen = true;
+      if (segments.length >= 3 && segments[0] == 'owner' && segments[1] == 'chat') {
         isChatDetailScreen = true;
       }
     }
 
-    if (isChatDetailScreen) {
-      return const SizedBox.shrink();
-    }
-
-    // if (currentIndex == -1) {
-    //   return const SizedBox.shrink();
-    // }
+    if (isChatDetailScreen) return const SizedBox.shrink();
 
     return Container(
       decoration: BoxDecoration(
@@ -164,33 +142,22 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         backgroundColor: theme.scaffoldBackgroundColor,
-        showSelectedLabels:
-            true, // Labels help accessibility for different roles
+        showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedFontSize: 10,
         unselectedFontSize: 10,
         selectedItemColor: theme.primaryColor,
         unselectedItemColor: theme.hintColor,
-        onTap: (index) {
-          context.go(navItems[index].path);
-        },
+        onTap: (index) => context.go(navItems[index].path),
         items: navItems
             .map(
               (item) => BottomNavigationBarItem(
                 icon: _buildIcon(item),
-                label: item.label,
+                label: item.label ?? "",
               ),
             )
             .toList(),
       ),
     );
   }
-}
-
-// Simple helper class to keep the code dry
-class _NavItem {
-  final IconData icon;
-  final String label;
-  final String path;
-  _NavItem({required this.icon, required this.label, required this.path});
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/auth/widgets/auth_button.dart';
 import 'package:prokat/features/auth/widgets/auth_text_field.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -22,6 +23,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     const ghostGray = Color(0x4DFFFFFF);
     const accentColor = Color(0xFF4E73DF);
     const errorColor = Color(0xFFE53935);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -38,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             const Icon(Icons.lock_reset_rounded, size: 64, color: accentColor),
             const SizedBox(height: 32),
             Text(
-              _isSent ? "Check your email" : "Reset Password",
+              _isSent ? l10n.checkYourEmail : l10n.resetPassword,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -49,12 +51,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             const SizedBox(height: 12),
             Text(
               _isSent
-                  ? "We've sent a recovery link to ${_emailController.text}"
-                  : "Enter your registered email below to receive a password reset link.",
+                  ? l10n.recoverySentTo(_emailController.text)
+                  : l10n.enterRegisteredEmail,
               style: const TextStyle(color: ghostGray, fontSize: 16),
             ),
 
-            // Error Field Rendering
             if (errorMessage != null) ...[
               const SizedBox(height: 24),
               Container(
@@ -75,19 +76,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
             if (!_isSent) ...[
               AuthTextField(
-                label: "Email Address",
+                label: l10n.emailAddress,
                 icon: Icons.email_outlined,
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 32),
               AuthButton(
-                loading: false, // Integrate with your state if needed
-                text: "SEND RECOVERY LINK",
-                loadingText: "SENDING...",
+                loading: false,
+                text: l10n.sendRecoveryLink,
+                loadingText: l10n.sending,
                 onPressed: () {
                   if (_emailController.text.isEmpty) {
-                    setErrorMessage("Please enter your email address");
+                    setErrorMessage(l10n.pleaseEnterEmail);
                     return;
                   }
                   setErrorMessage(null);
@@ -97,20 +98,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ] else ...[
               AuthButton(
                 loading: false,
-                text: "BACK TO LOGIN",
-                loadingText: "LOADING...",
+                text: l10n.backToLogin,
+                loadingText: l10n.loading,
                 onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(height: 16),
               Center(
                 child: TextButton(
                   onPressed: () {
-                    // Logic for resending
                     setErrorMessage(null);
                   },
-                  child: const Text(
-                    "Resend Link",
-                    style: TextStyle(
+                  child: Text(
+                    l10n.resendLink,
+                    style: const TextStyle(
                       color: accentColor,
                       fontWeight: FontWeight.bold,
                     ),

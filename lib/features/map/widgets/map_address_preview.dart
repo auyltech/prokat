@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import '../../locations/models/location_search_result.dart';
 
 class MapAddressPreview extends StatelessWidget {
@@ -15,6 +16,8 @@ class MapAddressPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -55,7 +58,7 @@ class MapAddressPreview extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: address == null ? null : onConfirm,
-                  child: const Text("Confirm Location"),
+                  child: Text(l10n.confirmLocation),
                 ),
               ),
             ],

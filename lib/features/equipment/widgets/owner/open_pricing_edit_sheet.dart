@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
@@ -6,6 +6,7 @@ import 'package:prokat/core/widgets/industrial_input_container.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> submitPriceEntry(
   BuildContext context,
@@ -15,13 +16,13 @@ Future<void> submitPriceEntry(
   TextEditingController priceController,
   TextEditingController serviceTimeController,
   String selectedRate,
+  AppLocalizations l10n,
 ) async {
   final price = int.tryParse(priceController.text.trim());
   final serviceTime = int.tryParse(serviceTimeController.text.trim()) ?? 0;
 
   if (price == null) {
-    AppSnackBar.show(context, message: "Please enter a valid price");
-
+    AppSnackBar.show(context, message: l10n.pleaseEnterValidPrice);
     return;
   }
 
@@ -43,13 +44,13 @@ Future<void> submitPriceEntry(
       if (res) {
         AppSnackBar.show(
           context,
-          message: "Price entry added",
+          message: l10n.priceEntryAdded,
           isSuccess: true,
         );
       } else {
         AppSnackBar.show(
           context,
-          message: "Failed to add price entry",
+          message: l10n.failedAddPriceEntry,
           isError: true,
         );
       }
@@ -65,11 +66,11 @@ Future<void> submitPriceEntry(
       if (!context.mounted) return;
 
       if (res) {
-        AppSnackBar.show(context, message: "Price entry saved");
+        AppSnackBar.show(context, message: l10n.priceEntrySaved);
       } else {
         AppSnackBar.show(
           context,
-          message: "Failed to update price entry",
+          message: l10n.failedUpdatePriceEntry,
           isError: true,
         );
       }
@@ -78,7 +79,7 @@ Future<void> submitPriceEntry(
     if (context.mounted) {
       AppSnackBar.show(
         context,
-        message: "Failed to save price entry",
+        message: l10n.failedSavePriceEntry,
         isError: true,
       );
     }
@@ -93,6 +94,7 @@ void openPricingEditSheet(
 }) {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
+  final l10n = AppLocalizations.of(context)!;
 
   final isEditing = priceEntry != null;
 
@@ -111,8 +113,8 @@ void openPricingEditSheet(
   showEditSheet(
     context: context,
     sheet: EditSheet(
-      title: isEditing ? "Edit Rate" : "New Rate",
-      buttonText: isEditing ? "Save" : "Add",
+      title: isEditing ? l10n.editRate : l10n.newRate,
+      buttonText: isEditing ? l10n.save : l10n.add,
       onSubmit: () => submitPriceEntry(
         context,
         ref,
@@ -121,6 +123,7 @@ void openPricingEditSheet(
         priceController,
         serviceTimeController,
         selectedRate,
+        l10n,
       ),
       child: StatefulBuilder(
         builder: (context, setLocalState) {
@@ -129,7 +132,7 @@ void openPricingEditSheet(
             children: [
               /// 1. PRICE INPUT
               IndustrialInputContainer(
-                label: "Price (₸)",
+                label: l10n.priceKZT,
                 child: TextField(
                   controller: priceController,
                   keyboardType: TextInputType.number,
@@ -152,7 +155,7 @@ void openPricingEditSheet(
 
               /// 2. RATE TYPE SELECTOR
               IndustrialInputContainer(
-                label: "Price Rate",
+                label: l10n.priceRateLabel,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: priceRateOptions.any((e) => e.value == selectedRate)

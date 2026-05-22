@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EditNameSheet extends ConsumerStatefulWidget {
   final String initialName;
@@ -29,6 +30,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
   }
 
   Future<void> submit() async {
+    final l10n = AppLocalizations.of(context)!;
     final newName = controller.text.trim();
     if (newName.isEmpty) return;
 
@@ -44,9 +46,9 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
     if (mounted) {
       context.pop();
       if (success) {
-        AppSnackBar.show(context, message: "Name Updated");
+        AppSnackBar.show(context, message: l10n.nameUpdated);
       } else {
-        AppSnackBar.show(context, message: "Failed to save name", isError: true);
+        AppSnackBar.show(context, message: l10n.failedSaveName, isError: true);
       }
     }
   }
@@ -54,6 +56,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(userProfileProvider);
     final isLoading = state.isLoading;
 
@@ -62,7 +65,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
         left: 24,
         right: 24,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + 20,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -78,7 +81,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
             ),
           ),
 
-          Text("Edit Name", style: theme.textTheme.titleMedium),
+          Text(l10n.editName, style: theme.textTheme.titleMedium),
 
           const SizedBox(height: 16),
 
@@ -88,7 +91,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => submit(),
             decoration: InputDecoration(
-              hintText: 'Enter name',
+              hintText: l10n.enterName,
               filled: true,
               fillColor: theme.cardColor,
               border: OutlineInputBorder(
@@ -105,14 +108,14 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: isLoading ? null : submit,
-                  child: const Text('Save'),
+                  child: Text(l10n.save),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
               ),
             ],

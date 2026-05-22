@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_button.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class ErrorScreen extends ConsumerWidget {
@@ -13,6 +14,7 @@ class ErrorScreen extends ConsumerWidget {
     const bgColor = Color(0xFF121417);
     const ghostGray = Color(0x4DFFFFFF);
     const accentColor = Color(0xFF4E73DF);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -27,10 +29,10 @@ class ErrorScreen extends ConsumerWidget {
               color: accentColor,
             ),
             const SizedBox(height: 32),
-            const Text(
-              "INITIALIZATION ERROR",
+            Text(
+              l10n.initializationError,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -38,20 +40,18 @@ class ErrorScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              "We couldn't load your session or connection was lost. Please check your network and try again.",
+            Text(
+              l10n.initializationErrorMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(color: ghostGray, fontSize: 16),
+              style: const TextStyle(color: ghostGray, fontSize: 16),
             ),
             const SizedBox(height: 48),
             AuthButton(
               loading: false,
-              text: "RETRY CONNECTION",
-              loadingText: "RECONNECTING...",
+              text: l10n.retryConnection,
+              loadingText: l10n.reconnecting,
               onPressed: () {
-                // Reset the startup provider to trigger a fresh init()
                 ref.read(appStartupProvider.notifier).init();
-                // Redirect back to launch to restart the flow
                 context.go(AppRoutes.launch);
               },
             ),

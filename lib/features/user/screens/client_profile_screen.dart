@@ -11,6 +11,7 @@ import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:prokat/features/user/widgets/setting_link_tile.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/widgets/language_selector_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientProfileScreen extends ConsumerStatefulWidget {
   const ClientProfileScreen({super.key});
@@ -35,12 +36,12 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(userProfileProvider);
     final profileNotifier = ref.read(userProfileProvider.notifier);
 
     final topInset = MediaQuery.of(context).padding.top;
 
-    String selectedLanguage = 'EN';
     final username = state.userProfile?.username;
 
     return Scaffold(
@@ -97,7 +98,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                               const SizedBox(width: 8),
                               Text(
-                                "- 0 Orders",
+                                "- 0 ${l10n.navOrders}",
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   fontWeight: FontWeight.w400,
                                   color: theme.colorScheme.onPrimary.withValues(
@@ -107,46 +108,35 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                               ),
                             ],
                           ),
-                          // if (state.userProfile?.createdAt != null)
-                          //   Text(
-                          //     "Member since ${DateFormat('MMMM yyyy').format(state.userProfile!.createdAt!)}",
-                          //     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          //       color: theme.colorScheme.onPrimary.withValues(alpha: 0.6),
-                          //     ),
-                          //   ),
                         ],
                       ),
                     ],
                   ),
                 ),
 
-                LanguageSelectorTile(
-                  value: selectedLanguage,
-                  onChanged: (lang) => setState(() => selectedLanguage = lang),
-                ),
+                const LanguageSelectorTile(),
               ],
             ),
           ),
 
           Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Column(
               children: [
                 UserProfileTile(
                   icon: Icons.phone_android_rounded,
-                  label: "Phone Number",
+                  label: l10n.phoneNumber,
                   value: state.userProfile?.phoneNumber ?? "+7 234 ...",
                   onTap: () {},
                   trailing: const Icon(Icons.edit, color: Colors.white54),
                 ),
 
-                // 2. Info List
                 const SizedBox(height: 20),
 
                 UserProfileTile(
                   icon: Icons.person,
-                  label: "Display Name",
-                  value: state.userProfile?.displayName ?? "Add Display Name",
+                  label: l10n.displayName,
+                  value: state.userProfile?.displayName ?? l10n.addDisplayName,
                   onTap: () => showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
@@ -173,8 +163,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                 SettingsLinkTile(
                   icon: Icons.favorite_outline,
-                  title: 'Support Us',
-                  subtitle: 'Donate or help us grow',
+                  title: l10n.supportUsTitle,
+                  subtitle: l10n.donateOrHelp,
                   onTap: () => context.push('/support-us'),
                 ),
 
@@ -182,7 +172,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                 SettingsLinkTile(
                   icon: Icons.description_outlined,
-                  title: 'Terms & Conditions',
+                  title: l10n.termsConditions,
                   onTap: () => context.push('/terms'),
                 ),
 
@@ -190,8 +180,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                 SettingsLinkTile(
                   icon: Icons.help_outline,
-                  title: 'Help & Support',
-                  subtitle: 'Get help or contact support',
+                  title: l10n.helpSupportTitle,
+                  subtitle: l10n.helpSupportSubtitle,
                   onTap: () => context.push('/help'),
                 ),
 
