@@ -28,10 +28,16 @@ class ClientChatActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+
     final controller = ref.read(bookingChatActionControllerProvider);
     final currentUserId = ref.watch(authProvider).session?.user?.id;
-    final negotiation = ref.watch(priceNegotiationByBookingProvider(booking.id));
+
+    final negotiation = ref.watch(
+      priceNegotiationByBookingProvider(booking.id),
+    );
+
     final reviewState = ref.watch(reviewByBookingProvider(booking.id));
+    
     const resolver = BookingChatActionResolver();
 
     final resolution = resolver.resolve(
@@ -107,7 +113,8 @@ class ClientChatActionBar extends ConsumerWidget {
                     child: Text(overflow.first.label),
                   ),
                 ),
-              if ((secondary.isNotEmpty || overflow.isNotEmpty) && primary != null)
+              if ((secondary.isNotEmpty || overflow.isNotEmpty) &&
+                  primary != null)
                 const SizedBox(width: 12),
               if (primary != null)
                 Expanded(
@@ -166,10 +173,13 @@ class ClientChatActionBar extends ConsumerWidget {
           ),
         );
         if (created == true) {
-          await controller.refreshAfterNegotiation(chatId: chatId, bookingId: booking.id);
+          await controller.refreshAfterNegotiation(
+            chatId: chatId,
+            bookingId: booking.id,
+          );
         }
         return;
-        
+
       case BookingChatActionId.confirmCompletion:
         final confirmed = await showDialog<bool>(
           context: context,
@@ -190,13 +200,13 @@ class ClientChatActionBar extends ConsumerWidget {
           ),
         );
         if (confirmed != true) return;
-        await controller.runAction(
-          context: context,
-          chatId: chatId,
-          bookingId: booking.id,
-          actionId: action.id,
-          payloadId: action.payloadId,
-        );
+        // await controller.runAction(
+        //   context: context,
+        //   chatId: chatId,
+        //   bookingId: booking.id,
+        //   actionId: action.id,
+        //   payloadId: action.payloadId,
+        // );
         return;
 
       case BookingChatActionId.leaveReview:
@@ -218,20 +228,23 @@ class ClientChatActionBar extends ConsumerWidget {
         );
 
         if (submitted == true) {
-          await controller.refreshAfterReview(chatId: chatId, bookingId: booking.id);
+          await controller.refreshAfterReview(
+            chatId: chatId,
+            bookingId: booking.id,
+          );
         }
         return;
 
       case BookingChatActionId.acceptCounterOffer:
       case BookingChatActionId.rejectCounterOffer:
       case BookingChatActionId.cancelCounterOffer:
-        await controller.runAction(
-          context: context,
-          chatId: chatId,
-          bookingId: booking.id,
-          actionId: action.id,
-          payloadId: action.payloadId,
-        );
+        // await controller.runAction(
+        //   context: context,
+        //   chatId: chatId,
+        //   bookingId: booking.id,
+        //   actionId: action.id,
+        //   payloadId: action.payloadId,
+        // );
         return;
       default:
         return;

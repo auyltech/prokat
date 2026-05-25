@@ -19,9 +19,9 @@ class BookingChatActionResolver {
     String? chatClientId,
   }) {
     final status = booking.status.trim().toLowerCase();
-
     final workStatus = booking.workStatus;
 
+    // when reviewed, chat is locked, until archived
     if (status == 'reviewed') {
       return const BookingChatActionResolution(
         statusText: 'Reviews submitted',
@@ -29,6 +29,7 @@ class BookingChatActionResolver {
       );
     }
 
+    // when client and owner confirm completed, allow review
     if (status == BookingStatus.completed.name) {
       return _resolveCompleted(
         role: role,
@@ -39,6 +40,7 @@ class BookingChatActionResolver {
       );
     }
 
+    // when order is cancelled / rejected / failed
     final isFinal = _isFinalBookingStatus(status);
     if (isFinal) {
       return BookingChatActionResolution(
@@ -47,6 +49,7 @@ class BookingChatActionResolver {
       );
     }
 
+    // When order is created / pending confirmation
     if (status == BookingStatus.created.name) {
       return _resolveCreated(
         role: role,
@@ -55,6 +58,7 @@ class BookingChatActionResolver {
       );
     }
 
+    // when order is confirmed (work in process)
     if (status == BookingStatus.confirmed.name) {
       return _resolveConfirmed(role: role, workStatus: workStatus);
     }

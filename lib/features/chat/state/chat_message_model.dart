@@ -3,6 +3,7 @@ class ChatMessageModel {
   final String chatId;
   final String senderId;
   final String type;
+  final String? service;
 
   // sender not sent from backend
   final String? senderName;
@@ -24,6 +25,7 @@ class ChatMessageModel {
     this.senderName,
     this.senderAvatarUrl,
     this.type = 'TEXT',
+    this.service,
     this.clientTempId,
     this.isPending = false,
     this.isFailed = false,
@@ -38,6 +40,7 @@ class ChatMessageModel {
     String? senderAvatarUrl,
     String? message,
     String? type,
+    String? service,
     String? clientTempId,
     bool? isPending,
     bool? isFailed,
@@ -51,6 +54,7 @@ class ChatMessageModel {
       senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
       content: message ?? content,
       type: type ?? this.type,
+      service: service ?? this.service,
       clientTempId: clientTempId ?? this.clientTempId,
       isPending: isPending ?? this.isPending,
       isFailed: isFailed ?? this.isFailed,
@@ -92,6 +96,7 @@ class ChatMessageModel {
           json['text']?.toString() ??
           '',
       type: json['type']?.toString() ?? 'TEXT',
+      service: json['service']?.toString() ?? '',
       clientTempId: json['clientTempId']?.toString(),
       createdAt: _parseDate(json['createdAt'] ?? json['timestamp']),
     );

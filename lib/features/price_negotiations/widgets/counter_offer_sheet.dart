@@ -16,7 +16,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
     this.offerId,
     required this.initialPrice,
     this.initialPriceRate,
-    required this.counterType
+    required this.counterType,
   });
 
   @override
@@ -107,12 +107,30 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
                     }
 
                     try {
+                      // use booking notifier to create counter offer
                       await notifier.createCounterOffer(
                         price: price,
                         priceRate: _priceRate,
                         comment: _commentController.text.trim(),
                         type: widget.counterType,
                       );
+
+                      // use chat notifier to create counter offer
+                      // await controller.createCounterOffer(
+                      //   context: context,
+                      //   chatId: chatId,
+                      //   bookingId: booking.id,
+                      //   price: booking.price,
+                      //   priceRate: booking.priceRate as PriceRateOption,
+                      //   comment: "comment",
+                      //   type: "OWNER_COUNTER",
+                      // );
+
+                      // await controller.refreshAfterNegotiation(
+                      //   chatId: chatId,
+                      //   bookingId: booking.id,
+                      // );
+
                       if (!context.mounted) return;
                       Navigator.pop(context, true);
                     } catch (e) {

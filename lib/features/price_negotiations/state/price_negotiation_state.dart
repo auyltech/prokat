@@ -18,6 +18,7 @@ class PriceNegotiationState {
     for (final n in negotiations) {
       if (n.status == PriceNegotiationStatus.pending) return n;
     }
+
     return null;
   }
 
@@ -42,4 +43,3 @@ class PriceNegotiationState {
     );
   }
 }
-

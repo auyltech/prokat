@@ -91,7 +91,7 @@ class PriceNegotiationService {
 
     try {
       final res = await _dio.post(
-        '/price-negotiations',
+        hasOffer ? '/price-negotiations/offer' : '/price-negotiations',
         data: {
           'type': type,
           if (hasBooking) 'bookingId': bookingId,

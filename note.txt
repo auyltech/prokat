@@ -161,18 +161,6 @@ Submit request ==> account will be created as draft pending admin review
 after review allow creating equipment
 
 
-
 ---- ----
 
 Become an owner, register as an owner, publish / advertise your equipment and Services, find clients
-
-
-flutter build apk --release
-
-run app
-
-flutter run --dart-define-from-file=config.json
-
-build app
-
-flutter build apk --dart-define-from-file=config.json

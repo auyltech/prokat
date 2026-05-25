@@ -4,6 +4,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class CounterOfferSheet extends StatefulWidget {
   final BookingModel booking;
+  
   const CounterOfferSheet({super.key, required this.booking});
 
   @override

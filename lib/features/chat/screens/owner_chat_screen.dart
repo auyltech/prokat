@@ -159,105 +159,114 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          if (chatState.isLoadingMessages)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
-          else if (chatState.error != null && messages.isEmpty)
-            Expanded(
-              child: Center(
-                child: Text(chatState.error ?? "Error Loading Messages"),
-              ),
-            )
-          else
-            Expanded(
-              child: Container(
-                color: theme.colorScheme.surface,
-                child: ListView.builder(
-                  reverse:
-                      false, // Newest messages at bottom, oldest + booking tiles at top
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 24,
-                  ),
-                  // Increase item count by 2 if booking/request tiles exist
-                  itemCount:
-                      messages.length +
-                      ((booking != null || request != null) ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    final hasBookingHeader = booking != null || request != null;
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        },
+        child: Column(
+          children: [
+            if (chatState.isLoadingMessages)
+              const Expanded(child: Center(child: CircularProgressIndicator()))
+            else if (chatState.error != null && messages.isEmpty)
+              Expanded(
+                child: Center(
+                  child: Text(chatState.error ?? "Error Loading Messages"),
+                ),
+              )
+            else
+              Expanded(
+                child: Container(
+                  color: theme.colorScheme.surface,
+                  child: ListView.builder(
+                    reverse:
+                        false, // Newest messages at bottom, oldest + booking tiles at top
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 24,
+                    ),
+                    // Increase item count by 2 if booking/request tiles exist
+                    itemCount:
+                        messages.length +
+                        ((booking != null || request != null) ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      final hasBookingHeader =
+                          booking != null || request != null;
 
-                    if (hasBookingHeader) {
-                      if (index == 0) {
-                        if (booking != null) {
-                          return BookingMessageBubble(booking: booking);
+                      if (hasBookingHeader) {
+                        if (index == 0) {
+                          if (booking != null) {
+                            return BookingMessageBubble(booking: booking);
+                          }
+                          if (request != null) {
+                            return RequestHeaderBubble(request: request);
+                          }
+                          return const SizedBox.shrink();
                         }
-                        if (request != null) {
-                          return RequestHeaderBubble(request: request);
-                        }
-                        return const SizedBox.shrink();
                       }
-                    }
-                    // 1. Shift index by 1 if header is present
-                    final messageIndex = hasBookingHeader ? index - 1 : index;
+                      // 1. Shift index by 1 if header is present
+                      final messageIndex = hasBookingHeader ? index - 1 : index;
 
-                    // 2. Invert the index so oldest messages (index 0 in data) render at the top
-                    final invertedIndex = messages.length - 1 - messageIndex;
+                      // 2. Invert the index so oldest messages (index 0 in data) render at the top
+                      final invertedIndex = messages.length - 1 - messageIndex;
 
-                    final message = messages[invertedIndex];
+                      final message = messages[invertedIndex];
 
-                    final isMe =
-                        message.senderId == currentUserId ||
-                        message.senderId == 'me';
-                    return MessageBubble(message: message, isMe: isMe);
-                  },
-                ),
-              ),
-            ),
-
-          if (booking != null)
-            OwnerChatActionBar(
-              chatId: widget.chatId,
-              booking: booking,
-              chatOwnerId: chatOwnerId,
-              chatClientId: chatClientId,
-            ),
-          if (booking == null && request != null && requestOffer != null)
-            OfferChatActionBar(
-              chatId: widget.chatId,
-              offer: requestOffer,
-              type: "OWNER_COUNTER",
-            ),
-
-          if ((booking?.status ?? '').trim().toLowerCase() == 'reviewed')
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-              decoration: BoxDecoration(color: theme.cardColor),
-              child: SafeArea(
-                top: false,
-                child: Text(
-                  'Chat locked',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                      final isMe =
+                          message.senderId == currentUserId ||
+                          message.senderId == 'me';
+                      return MessageBubble(message: message, isMe: isMe);
+                    },
                   ),
                 ),
               ),
-            )
-          else
-            Container(
-              decoration: BoxDecoration(color: theme.cardColor),
-              child: SafeArea(
-                top: false,
-                left: false,
-                right: false,
-                bottom: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
-                  child: _buildInputSection(theme, chatState.isSendingMessage),
+
+            if (booking != null)
+              OwnerChatActionBar(
+                chatId: widget.chatId,
+                booking: booking,
+                chatOwnerId: chatOwnerId,
+                chatClientId: chatClientId,
+              ),
+            if (booking == null && request != null && requestOffer != null)
+              OfferChatActionBar(
+                chatId: widget.chatId,
+                offer: requestOffer,
+                type: "OWNER_COUNTER",
+              ),
+
+            if ((booking?.status ?? '').trim().toLowerCase() == 'reviewed')
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                decoration: BoxDecoration(color: theme.cardColor),
+                child: SafeArea(
+                  top: false,
+                  child: Text(
+                    'Chat locked',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Container(
+                decoration: BoxDecoration(color: theme.cardColor),
+                child: SafeArea(
+                  top: false,
+                  left: false,
+                  right: false,
+                  bottom: true,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
+                    child: _buildInputSection(
+                      theme,
+                      chatState.isSendingMessage,
+                    ),
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

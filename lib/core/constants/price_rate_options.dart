@@ -2,7 +2,10 @@ class PriceRateOption {
   final String value;
   final String label;
 
-  const PriceRateOption({required this.value, required this.label});
+  const PriceRateOption({
+    required this.value,
+    required this.label,
+  });
 }
 
 const priceRateOptions = [
@@ -12,9 +15,15 @@ const priceRateOptions = [
   PriceRateOption(value: "PER_CUBIC_METER", label: "Per Cubic Meter"),
 ];
 
-String getRateLabel(String value) {
-  String? found = priceRateOptions
-      .firstWhere((option) => option.value == value)
-      .label;
-  return found;
+PriceRateOption getRateOption(String? value) {
+  final normalized = (value ?? '').trim().toUpperCase();
+
+  return priceRateOptions.firstWhere(
+    (option) => option.value == normalized,
+    orElse: () => priceRateOptions.first,
+  );
+}
+
+String getRateLabel(String? value) {
+  return getRateOption(value).label;
 }

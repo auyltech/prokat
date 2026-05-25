@@ -39,6 +39,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
       };
 
       final sorted = List<PriceNegotiation>.from(items);
+
       sorted.sort((a, b) {
         final aDate = a.createdAt ?? DateTime(1970);
         final bDate = b.createdAt ?? DateTime(1970);
@@ -74,6 +75,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
   }) async {
     try {
       state = state.copyWith(isSubmitting: true, error: null);
+
       await service.createPriceNegotiation(
         bookingId: scope.type == PriceNegotiationScopeType.booking
             ? scope.id
@@ -86,7 +88,9 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
         comment: comment,
         type: type,
       );
+
       state = state.copyWith(isSubmitting: false);
+
       await refresh();
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());
@@ -112,11 +116,13 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     }
   }
 
-  Future<void> cancel(String negotiationId) async {
+  Future<void> cancelNegotiation(String negotiationId) async {
     try {
       state = state.copyWith(isSubmitting: true, error: null);
+
       await service.cancelPriceNegotiation(negotiationId);
       state = state.copyWith(isSubmitting: false);
+
       await refresh();
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());

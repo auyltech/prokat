@@ -8,6 +8,7 @@ import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_service.dart';
 import 'package:prokat/features/chat/state/chat_socket_service.dart';
 import 'package:prokat/features/chat/state/chat_state.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
 String _friendlyError(Object error) {
   if (error is DioException) {
@@ -224,6 +225,12 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
   Future<void> reloadChat(String chatId) async {
     try {
+      state = state.copyWith(isLoadingMessages: true, error: null);
+
+      ref.invalidate(
+        priceNegotiationByBookingProvider(state.currentChat?.booking?.id ?? ""),
+      );
+
       final chatDetails = state.conversations
           .where((item) => item.id == chatId)
           .firstOrNull;
@@ -248,6 +255,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           .toList(growable: false);
 
       final merged = List<ChatMessageModel>.from(fetchedMessages);
+
       for (final pending in pendingLocal) {
         final exists = merged.any(
           (m) =>
@@ -263,10 +271,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
         conversations: _upsertChat(state.conversations, chatDetails),
         currentChat: chatDetails,
         messages: _sortMessages(merged),
+        isLoadingMessages: false,
         error: null,
       );
     } catch (err) {
-      state = state.copyWith(error: "Error loading order");
+      state = state.copyWith(
+        isLoadingMessages: false,
+        error: "Error loading order",
+      );
     }
   }
 
@@ -353,6 +365,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   void _handleIncomingMessage(ChatMessageModel incoming) {
+    print(incoming);
+
     final isCurrentChat = state.currentChat?.id == incoming.chatId;
 
     final mergedMessages = isCurrentChat
@@ -382,6 +396,12 @@ class ChatNotifier extends StateNotifier<ChatState> {
       sendingMessageClientTempIds: nextSendingIds,
       error: null,
     );
+
+    if (incoming.service == "PRICE_NEGOTIATION") {
+      ref.invalidate(
+        priceNegotiationByBookingProvider(state.currentChat?.booking?.id ?? ""),
+      );
+    }
   }
 
   List<ChatModel> _mergeConversationPreview({

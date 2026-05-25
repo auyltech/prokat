@@ -70,7 +70,7 @@ class OfferChatActionController {
     try {
       await ref
           .read(priceNegotiationByOfferProvider(offerId).notifier)
-          .cancel(negotiationId);
+          .cancelNegotiation(negotiationId);
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
       if (!context.mounted) return;
