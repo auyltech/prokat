@@ -155,6 +155,7 @@ class BookingModel {
             : null,
       );
     } catch (e) {
+      print("booking_parse_failed");
       rethrow;
     }
   }

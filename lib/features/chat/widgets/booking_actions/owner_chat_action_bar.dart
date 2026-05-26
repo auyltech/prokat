@@ -5,12 +5,10 @@ import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
-import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
+import 'package:prokat/features/bookings/widgets/cancel_booking_reason_sheet.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_models.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_resolver.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
@@ -21,6 +19,7 @@ ChatStatus getChatStatus({
   required WorkStatus workStatus,
   bool hasNegotiation = false,
   bool pendingFromMe = false,
+  bool reviewSubmitted = false,
 }) {
   // 1. Handle Created Status with Negotiation Logic
   if (bookingStatus == "CREATED") {
@@ -42,8 +41,12 @@ ChatStatus getChatStatus({
     return ChatStatus.bookingconfirmed;
   }
 
-  if (bookingStatus == "REVIEWED") {
+  if (bookingStatus == "REVIEWED" || reviewSubmitted) {
     return ChatStatus.bookingreviewed;
+  }
+
+  if (bookingStatus == "COMPLETED") {
+    return ChatStatus.leaveReview;
   }
 
   // 3. Fallback Default Status
@@ -67,13 +70,20 @@ class OwnerChatActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final controller = ref.read(bookingChatActionControllerProvider);
+    final submitState = ref.watch(
+      bookingChatActionControllerProvider(booking.id),
+    );
+    final controller = ref.read(
+      bookingChatActionControllerProvider(booking.id).notifier,
+    );
     final currentUserId = ref.watch(authProvider).session?.user?.id;
     final negotiation = ref.watch(
       priceNegotiationByBookingProvider(booking.id),
     );
 
-    final reviewState = ref.watch(reviewByBookingProvider(booking.id));
+    final reviewSubmitted =
+        (booking.myReviewId?.isNotEmpty ?? false) ||
+        ref.watch(reviewByBookingProvider(booking.id)).hasSubmitted;
 
     final pending = negotiation.latestPending;
     final pendingId = (pending?.id ?? '').trim();
@@ -86,7 +96,7 @@ class OwnerChatActionBar extends ConsumerWidget {
         userId.isNotEmpty &&
         (pending?.senderId ?? '').trim() == userId;
 
-    final ChatStatus chat_state = getChatStatus(
+    final ChatStatus chatState = getChatStatus(
       bookingStatus: booking.status,
       hasNegotiation: pendingId.isNotEmpty,
       pendingFromMe:
@@ -94,6 +104,7 @@ class OwnerChatActionBar extends ConsumerWidget {
           userId.isNotEmpty &&
           (pending?.senderId ?? '').trim() != userId,
       workStatus: booking.workStatus,
+      reviewSubmitted: reviewSubmitted,
     );
 
     final statusText = booking.status == "CREATED"
@@ -102,25 +113,18 @@ class OwnerChatActionBar extends ConsumerWidget {
                     ? "Respond to Counter Offer"
                     : "Counter Offer Sent"
               : "New Booking"
+        : booking.status == "CONFIRMED"
+        ? booking.workStatus == WorkStatus.completed
+              ? "Waiting Client Confirmation"
+              : "Update Work Status"
+        : booking.status == "COMPLETED"
+        ? booking.myReviewId == null
+              ? "Submit Review"
+              : "Review Sent"
         : "";
 
-    const resolver = BookingChatActionResolver();
-
-    final resolution = resolver.resolve(
-      booking: booking,
-      role: BookingChatRole.owner,
-      now: DateTime.now(),
-      negotiation: negotiation,
-      reviewState: reviewState,
-      currentUserId: currentUserId,
-      chatOwnerId: chatOwnerId,
-      chatClientId: chatClientId,
-    );
-
-    if (resolution.primaryAction == null &&
-        resolution.secondaryActions.isEmpty &&
-        resolution.overflowActions.isEmpty) {
-      return _StatusOnlyBar(text: resolution.statusText);
+    if (chatState == ChatStatus.bookingreviewed) {
+      return _StatusOnlyBar(text: "Review Sent");
     }
 
     return Container(
@@ -151,12 +155,12 @@ class OwnerChatActionBar extends ConsumerWidget {
             children: [
               // Order Created
               // Counter Offers
-              if (chat_state == ChatStatus.counteroffersent) ...[
+              if (chatState == ChatStatus.counteroffersent) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Cancel Offer",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       await controller.cancelNegotiation(
                         context: context,
@@ -167,12 +171,12 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chat_state == ChatStatus.counterofferreceived) ...[
+              ] else if (chatState == ChatStatus.counterofferreceived) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Accept Offer",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       await controller.acceptCounterOffer(
                         context: context,
@@ -183,13 +187,12 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-                SizedBox(width: 2),
+                SizedBox(width: 4),
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Reject Offer",
-                    isEnabled: true,
-                    isLoading:
-                        false, // Automatically disables interaction if true
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       await controller.rejectCounterOffer(
                         context: context,
@@ -200,14 +203,15 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chat_state == ChatStatus.bookingcreated) ...[
+              ] else if (chatState == ChatStatus.bookingcreated) ...[
+                // Accept order
                 Expanded(
                   child: ActionBarButton(
                     label: "Accept Order",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
-                      final confirmed = await showDialog<bool>(
+                      await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
                           backgroundColor: theme.colorScheme.surface,
@@ -220,29 +224,33 @@ class OwnerChatActionBar extends ConsumerWidget {
                               onPressed: () => Navigator.pop(context, false),
                               child: const Text('Cancel'),
                             ),
+
                             ElevatedButton(
-                              onPressed: () => Navigator.pop(context, true),
+                              onPressed: () async {
+                                Navigator.pop(context, true);
+
+                                await controller.acceptBooking(
+                                  context: context,
+                                  chatId: chatId,
+                                  bookingId: booking.id,
+                                );
+                              },
                               child: const Text('Accept'),
                             ),
                           ],
                         ),
                       );
-
-                      // await controller.acceptBooking(
-                      //   context: context,
-                      //   chatId: chatId,
-                      //   bookingId: booking.id,
-                      // );
                     },
                   ),
                 ),
-                SizedBox(width: 2),
+
+                SizedBox(width: 4),
                 // Send Counter Offer
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Counter",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       await showCounterOfferSheet(
                         context: context,
@@ -255,43 +263,58 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-                SizedBox(width: 2),
+
+                SizedBox(width: 4),
+                // Reject Order
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Reject Order",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: theme.colorScheme.surface,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        builder: (_) => CancelBookingSheet(
-                          booking: booking,
-                          useCase: 'owner',
-                        ),
-                      );
+                      final decision =
+                          await showModalBottomSheet<CancelBookingDecision>(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: theme.colorScheme.surface,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (_) => CancelBookingReasonSheet(
+                              booking: booking,
+                              useCase: 'owner',
+                            ),
+                          );
 
-                      // await controller.rejectBooking(
-                      //   context: context,
-                      //   chatId: chatId,
-                      //   bookingId: booking.id,
-                      //   reason: "reason",
-                      // );
+                      if (!context.mounted) return;
+
+                      if (decision == null || decision.confirmed == false) {
+                        return;
+                      }
+
+                      final reason = decision.reason;
+
+                      if (reason == null || reason.trim().isEmpty) {
+                        return;
+                      }
+
+                      await controller.rejectBooking(
+                        context: context,
+                        chatId: chatId,
+                        bookingId: booking.id,
+                        reason: reason.trim(),
+                      );
                     },
                   ),
                 ),
-              ] else if (chat_state == ChatStatus.bookingconfirmed) ...[
+              ] else if (chatState == ChatStatus.bookingconfirmed) ...[
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Complete Work",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       final confirmed = await showDialog<bool>(
                         context: context,
@@ -307,7 +330,15 @@ class OwnerChatActionBar extends ConsumerWidget {
                               child: const Text('Cancel'),
                             ),
                             ElevatedButton(
-                              onPressed: () => Navigator.pop(context, true),
+                              onPressed: () async {
+                                Navigator.pop(context, true);
+
+                                await controller.markWorkCompleted(
+                                  context: context,
+                                  chatId: chatId,
+                                  bookingId: booking.id,
+                                );
+                              },
                               child: const Text('Mark completed'),
                             ),
                           ],
@@ -318,11 +349,14 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
+
+                SizedBox(width: 4),
+
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Update Status",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       showModalBottomSheet(
                         context: context,
@@ -338,12 +372,12 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chat_state == ChatStatus.bookingcompleted) ...[
+              ] else if (chatState == ChatStatus.leaveReview) ...[
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Review",
-                    isEnabled: true,
-                    isLoading: false,
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
                     onPressed: () async {
                       // final revieweeId = (action.payloadId ?? '').trim();
                       // if (revieweeId.isEmpty) return;
@@ -359,7 +393,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                         ),
                         builder: (_) => ReviewSheet(
                           bookingId: booking.id,
-                          revieweeId: "revieweeId",
+                          revieweeId: chatClientId ?? "",
                           title: 'Review client',
                         ),
                       );
@@ -373,8 +407,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else
-                SizedBox(),
+              ],
 
               // if (overflow.isNotEmpty)
               //   Expanded(

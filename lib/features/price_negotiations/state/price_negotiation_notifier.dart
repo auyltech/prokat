@@ -104,12 +104,15 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
   }) async {
     try {
       state = state.copyWith(isSubmitting: true, error: null);
+
       await service.respondToPriceNegotiation(
         negotiationId: negotiationId,
         response: response,
       );
+
       state = state.copyWith(isSubmitting: false);
-      await refresh();
+
+      // Refresh is called by the booking notifier
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());
       rethrow;

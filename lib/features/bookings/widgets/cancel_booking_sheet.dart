@@ -28,7 +28,6 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
     final chatNotifier = ref.read(chatProvider.notifier);
 
     final isOwner = widget.useCase == "owner";
-    final isClient = widget.useCase == "client";
 
     final ownerCancelReasons = [
       l10n.cancelReasonClientNotRespond,

@@ -33,7 +33,9 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final state = ref.watch(reviewByBookingProvider(widget.bookingId));
-    final notifier = ref.read(reviewByBookingProvider(widget.bookingId).notifier);
+    final notifier = ref.read(
+      reviewByBookingProvider(widget.bookingId).notifier,
+    );
 
     return Padding(
       padding: EdgeInsets.only(
@@ -50,7 +52,9 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           const SizedBox(height: 12),
           _StarRow(
             value: _stars,
-            onChanged: state.isSubmitting ? null : (v) => setState(() => _stars = v),
+            onChanged: state.isSubmitting
+                ? null
+                : (v) => setState(() => _stars = v),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -72,13 +76,14 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
                       return;
                     }
                     try {
+                      if (!context.mounted) return;
+                      Navigator.pop(context, true);
+
                       await notifier.createReview(
                         revieweeId: widget.revieweeId,
                         stars: _stars,
                         comment: _commentController.text.trim(),
                       );
-                      if (!context.mounted) return;
-                      Navigator.pop(context, true);
                     } catch (e) {
                       if (!context.mounted) return;
                       AppSnackBar.show(
@@ -126,4 +131,3 @@ class _StarRow extends StatelessWidget {
     );
   }
 }
-

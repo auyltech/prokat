@@ -31,9 +31,9 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isSendingAny = ref.watch(
-      chatProvider.select((state) => state.isSendingMessage),
-    );
+    // final isSendingAny = ref.watch(
+    //   chatProvider.select((state) => state.isSendingMessage),
+    // );
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -89,21 +89,19 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                 clipBehavior: Clip.none,
                 children: [
                   const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                  if (isSendingAny)
-                    Positioned(
-                      right: -4,
-                      top: -4,
-                      child: SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
+                  // if (isSendingAny)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),

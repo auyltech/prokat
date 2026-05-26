@@ -59,7 +59,7 @@ class ActionBarButton extends StatelessWidget {
                 : theme.disabledColor.withAlpha(50),
             width: 1.5,
           ),
-          minimumSize: const Size(0, 40),
+          minimumSize: const Size(0, 35),
           shape: const StadiumBorder(), // Gives the exact pill/capsule look
           elevation: 0,
         ),

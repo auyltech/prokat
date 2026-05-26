@@ -27,6 +27,8 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
     final authSession = ref.watch(authProvider).session;
     final bookingState = ref.watch(bookingProvider);
 
+    print("client_booking_screen");
+    print(bookingState.error);
     final upcoming = bookingState.bookings
         .where(
           (b) =>

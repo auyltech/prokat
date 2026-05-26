@@ -8,8 +8,10 @@ enum ChatStatus {
 
   bookingconfirmed,
   workcompleted,
+  confirmcompleted,
 
   bookingcompleted,
-
+  
+  leaveReview,
   bookingreviewed,
 }

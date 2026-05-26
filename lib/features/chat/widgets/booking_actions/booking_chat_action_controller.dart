@@ -8,24 +8,28 @@ import 'package:prokat/features/bookings/state/booking_notifier.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/chat/state/chat_notifier.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_state.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
-final bookingChatActionControllerProvider =
-    Provider<BookingChatActionController>((ref) {
-      return BookingChatActionController(ref);
-    });
+final bookingChatActionControllerProvider = StateNotifierProvider.family<
+  BookingChatActionController,
+  BookingChatActionState,
+  String
+>((ref, bookingId) {
+  return BookingChatActionController(ref: ref, bookingId: bookingId);
+});
 
-class BookingChatActionController {
+class BookingChatActionController extends StateNotifier<BookingChatActionState> {
   final Ref ref;
+  final String bookingId;
 
-  BookingChatActionController(this.ref);
+  BookingChatActionController({required this.ref, required this.bookingId})
+    : super(const BookingChatActionState());
 
   BookingNotifier get _bookingNotifier => ref.read(bookingProvider.notifier);
-
   ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
-
   PriceNegotiationNotifier _priceNegotiationNotifier(String bookingId) {
     return ref.read(priceNegotiationByBookingProvider(bookingId).notifier);
   }
@@ -289,6 +293,7 @@ class BookingChatActionController {
         await _priceNegotiationNotifier(
           bookingId,
         ).respond(negotiationId: id, response: response);
+        
         return true;
       },
       onSuccess: () {
@@ -304,10 +309,14 @@ class BookingChatActionController {
     String successMessage = 'Saved',
     String failureMessage = 'Action failed',
   }) async {
+    if (state.isSubmitting) return;
+
     try {
+      state = state.copyWith(isSubmitting: true, error: null);
       final ok = await action();
 
       if (ok != true) {
+        state = state.copyWith(isSubmitting: false);
         if (!context.mounted) return;
 
         AppSnackBar.show(context, message: failureMessage, isError: true);
@@ -316,15 +325,18 @@ class BookingChatActionController {
 
       await onSuccess();
 
+      state = state.copyWith(isSubmitting: false);
       if (!context.mounted) return;
 
       AppSnackBar.show(context, message: successMessage, isSuccess: true);
     } catch (e) {
+      final message = e.toString().replaceFirst('Exception: ', '');
+      state = state.copyWith(isSubmitting: false, error: message);
       if (!context.mounted) return;
 
       AppSnackBar.show(
         context,
-        message: e.toString().replaceFirst('Exception: ', ''),
+        message: message,
         isError: true,
       );
     }

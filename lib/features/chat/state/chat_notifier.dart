@@ -227,6 +227,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
     try {
       state = state.copyWith(isLoadingMessages: true, error: null);
 
+      await getChatById(chatId);
+
       ref.invalidate(
         priceNegotiationByBookingProvider(state.currentChat?.booking?.id ?? ""),
       );

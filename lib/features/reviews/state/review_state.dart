@@ -4,7 +4,7 @@ class ReviewState {
   final bool isSubmitting;
   final String? error;
   final bool hasSubmitted;
-  
+
   final ReviewModel? lastReview;
 
   const ReviewState({
@@ -28,4 +28,3 @@ class ReviewState {
     );
   }
 }
-

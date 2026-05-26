@@ -17,6 +17,7 @@ class BookingMessageBubble extends StatelessWidget {
 
     return Container(
       width: double.infinity,
+      margin: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -33,7 +34,7 @@ class BookingMessageBubble extends StatelessWidget {
         children: [
           // 1. Header Section (Status & Label)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: Colors.blue.withValues(alpha: 0.08),
               borderRadius: const BorderRadius.vertical(
@@ -52,7 +53,7 @@ class BookingMessageBubble extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      l10n.bookingRequestLabel,
+                      "Order Info", // l10n.bookingRequestLabel,
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.blue[800],
@@ -66,7 +67,7 @@ class BookingMessageBubble extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(
+                    color: getBookingColor(
                       booking.status,
                     ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -74,9 +75,9 @@ class BookingMessageBubble extends StatelessWidget {
                   child: Text(
                     getBookingStatus(booking.status, l10n: l10n).toUpperCase(),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: _getStatusColor(booking.status),
+                      color: getBookingColor(booking.status),
                     ),
                   ),
                 ),
@@ -86,7 +87,7 @@ class BookingMessageBubble extends StatelessWidget {
 
           // 2. Equipment Info Section
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 if (equipment?.imageUrl != null)
@@ -142,7 +143,10 @@ class BookingMessageBubble extends StatelessWidget {
                         color: theme.primaryColor,
                       ),
                     ),
-                    Text(getPriceRate(booking.priceRate, l10n: l10n), style: theme.textTheme.bodySmall),
+                    Text(
+                      getPriceRate(booking.priceRate, l10n: l10n),
+                      style: theme.textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ],
@@ -153,7 +157,7 @@ class BookingMessageBubble extends StatelessWidget {
 
           // 3. Date & Time Info
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
               children: [
                 _infoTile(
@@ -180,35 +184,22 @@ class BookingMessageBubble extends StatelessWidget {
   Widget _infoTile(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
+        Icon(icon, size: 20, color: Colors.grey),
         const SizedBox(width: 8),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 10, color: Colors.grey),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             Text(
               value,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ],
         ),
       ],
     );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return Colors.orange;
-      case 'confirmed':
-        return Colors.green;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return Colors.blue;
-    }
   }
 }

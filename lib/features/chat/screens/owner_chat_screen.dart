@@ -10,6 +10,7 @@ import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_b
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
+import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
@@ -57,15 +58,15 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.dispose();
   }
 
-  void _sendMessage() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) {
-      return;
-    }
+  // void _sendMessage() {
+  //   final text = _controller.text.trim();
+  //   if (text.isEmpty) {
+  //     return;
+  //   }
 
-    ref.read(chatProvider.notifier).sendMessage(text);
-    _controller.clear();
-  }
+  //   ref.read(chatProvider.notifier).sendMessage(text);
+  //   _controller.clear();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +104,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         }
       }
     }
+
+    print(booking?.myReviewId);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -181,8 +184,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                     reverse:
                         false, // Newest messages at bottom, oldest + booking tiles at top
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 24,
+                      horizontal: 6,
+                      vertical: 4,
                     ),
                     // Increase item count by 2 if booking/request tiles exist
                     itemCount:
@@ -250,18 +253,27 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               )
             else
               Container(
-                decoration: BoxDecoration(color: theme.cardColor),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  border: Border(
+                    // top: BorderSide(
+                    //   color: theme.dividerColor.withValues(alpha: 0.2),
+                    //   width: 1.0,
+                    // ),
+                  ),
+                ),
                 child: SafeArea(
                   top: false,
                   left: false,
                   right: false,
-                  bottom: true,
+                  bottom:
+                      true, // Offsets input safely away from home system bar pill
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 0.0, bottom: 12.0),
-                    child: _buildInputSection(
-                      theme,
-                      chatState.isSendingMessage,
-                    ),
+                    padding: const EdgeInsets.only(
+                      top: 0.0,
+                      bottom: 12.0,
+                    ), // Extra layout lift padding
+                    child: const SendMessageForm(),
                   ),
                 ),
               ),
@@ -271,82 +283,82 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     );
   }
 
-  Widget _buildInputSection(ThemeData theme, bool isSending) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        12,
-        16,
-        MediaQuery.of(context).padding.bottom + 12,
-      ),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              minLines: 1,
-              maxLines: 5,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                hintText: 'Review offer and reply...',
-                hintStyle: TextStyle(color: theme.disabledColor),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-                filled: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: _sendMessage,
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                  if (isSending)
-                    Positioned(
-                      right: -4,
-                      top: -4,
-                      child: SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildInputSection(ThemeData theme, bool isSending) {
+  //   return Container(
+  //     padding: EdgeInsets.fromLTRB(
+  //       16,
+  //       12,
+  //       16,
+  //       MediaQuery.of(context).padding.bottom + 12,
+  //     ),
+  //     decoration: BoxDecoration(
+  //       color: theme.cardColor,
+  //       boxShadow: const [
+  //         BoxShadow(
+  //           color: Colors.black12,
+  //           blurRadius: 10,
+  //           offset: Offset(0, -5),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.end,
+  //       children: [
+  //         Expanded(
+  //           child: TextField(
+  //             controller: _controller,
+  //             minLines: 1,
+  //             maxLines: 5,
+  //             textCapitalization: TextCapitalization.sentences,
+  //             decoration: InputDecoration(
+  //               hintText: 'Review offer and reply...',
+  //               hintStyle: TextStyle(color: theme.disabledColor),
+  //               border: OutlineInputBorder(
+  //                 borderRadius: BorderRadius.circular(24),
+  //                 borderSide: BorderSide.none,
+  //               ),
+  //               fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+  //               filled: true,
+  //               contentPadding: const EdgeInsets.symmetric(
+  //                 horizontal: 20,
+  //                 vertical: 12,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 12),
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             color: theme.colorScheme.primary,
+  //             shape: BoxShape.circle,
+  //           ),
+  //           child: IconButton(
+  //             onPressed: _sendMessage,
+  //             icon: Stack(
+  //               clipBehavior: Clip.none,
+  //               children: [
+  //                 const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+  //                 if (isSending)
+  //                   Positioned(
+  //                     right: -4,
+  //                     top: -4,
+  //                     child: SizedBox(
+  //                       width: 12,
+  //                       height: 12,
+  //                       child: CircularProgressIndicator(
+  //                         strokeWidth: 2,
+  //                         valueColor: AlwaysStoppedAnimation<Color>(
+  //                           Colors.white,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
