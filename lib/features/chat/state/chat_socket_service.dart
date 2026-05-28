@@ -31,6 +31,9 @@ class ChatSocketService {
   }
 
   Future<void> joinChat(String chatId) async {
+    print("joined_chat_id");
+    print(_joinedChatId);
+
     if (_joinedChatId == chatId) {
       return;
     }
@@ -40,13 +43,27 @@ class ChatSocketService {
     }
 
     appSocket.emit(joinChatEvent, {'chatId': chatId});
+    
     _joinedChatId = chatId;
   }
 
-  void leaveChat(String chatId) {
-    appSocket.emit(leaveChatEvent, {'chatId': chatId});
-    if (_joinedChatId == chatId) {
-      _joinedChatId = null;
+  Future<void> leaveChat(String chatId) async {
+    final trimmedChatId = chatId.trim();
+
+    if (trimmedChatId.isEmpty) return;
+
+    final response = await appSocket.emitWithAck('chat:leave', {
+      'chatId': trimmedChatId,
+    });
+
+    final success = response is Map && response['success'] == true;
+
+    if (!success) {
+      throw Exception(
+        response is Map
+            ? response['message'] ?? 'Failed to leave chat'
+            : 'Failed to leave chat',
+      );
     }
   }
 

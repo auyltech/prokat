@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -9,29 +9,9 @@ import 'package:prokat/features/chat/state/chat_service.dart';
 import 'package:prokat/features/chat/state/chat_socket_service.dart';
 import 'package:prokat/features/chat/state/chat_state.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
-
-String _friendlyError(Object error) {
-  if (error is DioException) {
-    if (error.type == DioExceptionType.connectionTimeout ||
-        error.type == DioExceptionType.receiveTimeout ||
-        error.type == DioExceptionType.sendTimeout) {
-      return 'Connection timed out. The server may be warming up — please try again.';
-    }
-    if (error.type == DioExceptionType.connectionError) {
-      return 'No connection. Check your network and try again.';
-    }
-    return 'Network error. Please try again.';
-  }
-  return _friendlyError(error);
-}
-
-bool _withinThirtySeconds(DateTime? first, DateTime? second) {
-  if (first == null || second == null) {
-    return false;
-  }
-
-  return first.difference(second).inSeconds.abs() <= 30;
-}
+import 'package:prokat/features/chat/utils/chat_error_utils.dart';
+import 'package:prokat/features/chat/utils/chat_message_utils.dart';
+import 'package:prokat/features/chat/utils/chat_thread_utils.dart';
 
 class ChatNotifier extends StateNotifier<ChatState> {
   final Ref ref;
@@ -57,36 +37,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
   void dispose() {
     socketService.disconnect();
     super.dispose();
-  }
-
-  List<ChatModel> _sortConversations(List<ChatModel> conversations) {
-    final sorted = List<ChatModel>.from(conversations);
-    sorted.sort((a, b) {
-      final aDate =
-          a.lastMessage?.createdAt ??
-          a.updatedAt ??
-          a.createdAt ??
-          DateTime(1970);
-      final bDate =
-          b.lastMessage?.createdAt ??
-          b.updatedAt ??
-          b.createdAt ??
-          DateTime(1970);
-      return bDate.compareTo(aDate);
-    });
-    return sorted;
-  }
-
-  List<ChatModel> _upsertChat(List<ChatModel> chats, ChatModel chat) {
-    final index = chats.indexWhere((item) => item.id == chat.id);
-
-    if (index == -1) {
-      return [chat, ...chats];
-    }
-
-    final updated = [...chats];
-    updated[index] = chat;
-    return updated;
   }
 
   void _syncFromAuth(AuthState authState) {
@@ -128,17 +78,18 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       state = state.copyWith(
         isLoadingConversations: false,
-        conversations: _sortConversations(result.data ?? []),
+        conversations: sortChats(result.data ?? []),
         error: null,
       );
     } catch (error) {
       state = state.copyWith(
         isLoadingConversations: false,
-        error: _friendlyError(error),
+        error: friendlyChatError(error),
       );
     }
   }
 
+  // Called when a chat is open, fetches the chat details, booking info, and messages
   Future<void> getChatById(String chatId) async {
     try {
       state = state.copyWith(isLoadingConversations: true, error: null);
@@ -146,11 +97,18 @@ class ChatNotifier extends StateNotifier<ChatState> {
       final result = await service.getChatById(chatId);
 
       if (result.success && result.data is ChatModel) {
+        final messages = sortMessages(
+          (result.data?.messages ?? []).take(50).toList(growable: false),
+        );
+
         state = state.copyWith(
           isLoadingConversations: false,
-          conversations: _sortConversations(
-            _upsertChat(state.conversations, result.data as ChatModel),
+          conversations: sortChats(
+            upsertChat(state.conversations, result.data as ChatModel),
           ),
+          currentChat: result.data,
+          messages: messages,
+          sendingMessageClientTempIds: const {},
           error: null,
         );
       } else {
@@ -162,65 +120,97 @@ class ChatNotifier extends StateNotifier<ChatState> {
     } catch (error) {
       state = state.copyWith(
         isLoadingConversations: false,
-        error: _friendlyError(error),
+        error: friendlyChatError(error),
       );
     }
   }
 
   Future<void> openChatById(String chatId) async {
+    final trimmedChatId = chatId.trim();
+
+    if (trimmedChatId.isEmpty) return;
+
     try {
+      state = state.copyWith(isLoadingMessages: true, error: null);
+
       if ((_sessionToken ?? '').isEmpty) {
         await _loadSessionFallback();
       }
 
-      await getChatById(chatId);
+      debugPrint('openChatById: loading chat $trimmedChatId');
 
-      // final knownChat = state.conversations
-      //     .where((item) => item.id == chatId)
-      //     .firstOrNull;
+      await getChatById(trimmedChatId);
 
-      // if (knownChat == null) {
-      //   state = state.copyWith(
-      //     currentChat: ChatModel(id: chatId),
-      //     isLoadingMessages: false,
-      //     messages: const <ChatMessageModel>[],
-      //     error: "Error loading chat",
-      //   );
-      // }
+      debugPrint('openChatById: connecting to chat room $trimmedChatId');
 
-      // state = state.copyWith(
-      //   currentChat: knownChat ?? ChatModel(id: chatId),
-      //   isLoadingMessages: true,
-      //   messages: const <ChatMessageModel>[],
-      //   error: null,
-      // );
+      await _connectToChat(trimmedChatId);
 
-      final chatDetails = state.conversations
-          .where((item) => item.id == chatId)
-          .firstOrNull;
+      debugPrint('openChatById: joined chat room $trimmedChatId');
 
-      if (chatDetails == null) {
-        throw Exception('Chat not found');
+      // Do this AFTER join, and do not allow it to block room join.
+      try {
+        await markCurrentChatAsRead();
+      } catch (error) {
+        debugPrint('markCurrentChatAsRead failed: $error');
       }
 
-      final messages = _sortMessages(
-        chatDetails.messages.take(50).toList(growable: false),
-      );
+      state = state.copyWith(isLoadingMessages: false, error: null);
+    } catch (error) {
+      debugPrint('openChatById error: $error');
 
       state = state.copyWith(
-        conversations: _upsertChat(state.conversations, chatDetails),
-        currentChat: chatDetails,
-        messages: messages,
         isLoadingMessages: false,
+        error: friendlyChatError(error),
       );
+    }
+  }
 
-      await _connectToChat(chatId);
+  Future<void> markChatAsRead({
+    required String chatId,
+    required String messageId,
+  }) async {
+    try {
+      final chat = state.currentChat;
+
+      if (chat == null) {
+        return;
+      }
+
+      final lastRealMessage = state.messages
+          .where((message) => message.id.isNotEmpty && !message.isPending)
+          .toList(growable: false)
+          .firstOrNull;
+
+      if (lastRealMessage == null) {
+        return;
+      }
+
+      await service.marckChatRead(chatId, messageId);
     } catch (error) {
       state = state.copyWith(
         isLoadingMessages: false,
-        error: _friendlyError(error),
+        error: "Error loading chat",
       );
     }
+  }
+
+  Future<void> markCurrentChatAsRead() async {
+    final chat = state.currentChat;
+
+    if (chat == null) {
+      return;
+    }
+
+    final lastRealMessage = state.messages
+        .where((message) => message.id.isNotEmpty && !message.isPending)
+        .toList(growable: false)
+        .firstOrNull;
+
+    if (lastRealMessage == null) {
+      return;
+    }
+
+    await markChatAsRead(chatId: chat.id, messageId: lastRealMessage.id);
   }
 
   Future<void> reloadChat(String chatId) async {
@@ -228,82 +218,58 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(isLoadingMessages: true, error: null);
 
       await getChatById(chatId);
+      await markCurrentChatAsRead();
 
-      ref.invalidate(
-        priceNegotiationByBookingProvider(state.currentChat?.booking?.id ?? ""),
-      );
+      final bookingId = state.currentChat?.booking?.id;
 
-      final chatDetails = state.conversations
-          .where((item) => item.id == chatId)
-          .firstOrNull;
-
-      if (chatDetails == null) {
-        throw Exception('Chat not found');
-      }
-
-      final fetchedMessages = _sortMessages(
-        chatDetails.messages.take(50).toList(growable: false),
-      );
-
-      final pendingLocal = state.messages
-          .where(
-            (m) =>
-                m.isPending &&
-                (m.clientTempId ?? '').trim().isNotEmpty &&
-                state.sendingMessageClientTempIds.contains(
-                  m.clientTempId!.trim(),
-                ),
-          )
-          .toList(growable: false);
-
-      final merged = List<ChatMessageModel>.from(fetchedMessages);
-
-      for (final pending in pendingLocal) {
-        final exists = merged.any(
-          (m) =>
-              (m.clientTempId ?? '').trim().isNotEmpty &&
-              m.clientTempId == pending.clientTempId,
-        );
-        if (!exists) {
-          merged.insert(0, pending);
-        }
+      if ((bookingId ?? '').isNotEmpty) {
+        ref.invalidate(priceNegotiationByBookingProvider(bookingId!));
       }
 
       state = state.copyWith(
-        conversations: _upsertChat(state.conversations, chatDetails),
-        currentChat: chatDetails,
-        messages: _sortMessages(merged),
         isLoadingMessages: false,
+        sendingMessageClientTempIds: const {},
         error: null,
+        isLoadingConversations: false,
       );
-    } catch (err) {
+    } catch (error) {
       state = state.copyWith(
         isLoadingMessages: false,
-        error: "Error loading order",
+        error: "Error loading chat",
       );
     }
   }
 
   Future<void> leaveCurrentChat() async {
-    final currentChatId = state.currentChat?.id;
-    if ((currentChatId ?? '').isNotEmpty) {
-      socketService.leaveChat(currentChatId!);
-    }
+    try {
+      final currentChatId = state.currentChat?.id;
 
-    socketService.disconnect();
+      if ((currentChatId ?? '').isNotEmpty) {
+        await socketService.leaveChat(currentChatId!);
+      }
+
+      state = state.copyWith(
+        currentChat: null,
+        messages: const [],
+        sendingMessageClientTempIds: const {},
+        isLoadingMessages: false,
+        error: null,
+      );
+    } catch (error) {
+      debugPrint("error_leaving_chat: $error");
+    }
   }
 
   Future<void> sendMessage(String text) async {
     final trimmed = text.trim();
     final chat = state.currentChat;
+
     if (chat == null || trimmed.isEmpty) {
       return;
     }
 
     final currentUserId = state.currentUserId ?? 'me';
     final clientTempId = DateTime.now().microsecondsSinceEpoch.toString();
-    final updatedSendingIds = {...state.sendingMessageClientTempIds}
-      ..add(clientTempId);
 
     final optimisticMessage = ChatMessageModel(
       id: clientTempId,
@@ -319,10 +285,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
 
     state = state.copyWith(
-      sendingMessageClientTempIds: updatedSendingIds,
+      sendingMessageClientTempIds: {
+        ...state.sendingMessageClientTempIds,
+        clientTempId,
+      },
       messages: [optimisticMessage, ...state.messages],
       currentChat: chat.copyWith(lastMessage: optimisticMessage),
-      conversations: _mergeConversationPreview(
+      conversations: mergeChatPreview(
+        chats: state.conversations,
         chatId: chat.id,
         message: optimisticMessage,
       ),
@@ -330,7 +300,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
 
     try {
-      await _connectToChat(chat.id);
       socketService.sendMessage(
         chatId: chat.id,
         message: trimmed,
@@ -338,28 +307,34 @@ class ChatNotifier extends StateNotifier<ChatState> {
         clientTempId: clientTempId,
       );
     } catch (error) {
-      final failedSendingIds = {...state.sendingMessageClientTempIds}
-        ..remove(clientTempId);
-      state = state.copyWith(
-        sendingMessageClientTempIds: failedSendingIds,
-        error: _friendlyError(error),
-        messages: state.messages
-            .map(
-              (message) => message.clientTempId == clientTempId
-                  ? message.copyWith(isPending: false, isFailed: true)
-                  : message,
-            )
-            .toList(growable: false),
-      );
+      _markMessageAsFailed(clientTempId, error);
     }
   }
 
+  void _markMessageAsFailed(String clientTempId, Object error) {
+    state = state.copyWith(
+      sendingMessageClientTempIds: {...state.sendingMessageClientTempIds}
+        ..remove(clientTempId),
+      error: friendlyChatError(error),
+      messages: state.messages
+          .map(
+            (message) => message.clientTempId == clientTempId
+                ? message.copyWith(isPending: false, isFailed: true)
+                : message,
+          )
+          .toList(growable: false),
+    );
+  }
+
   Future<void> _connectToChat(String chatId) async {
+    print(_sessionToken);
     if ((_sessionToken ?? '').isEmpty) {
       await _loadSessionFallback();
     }
 
     await socketService.connect(token: _sessionToken);
+
+    print("connect_socket");
 
     socketService.onNewMessage(_handleIncomingMessage);
 
@@ -367,134 +342,52 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   void _handleIncomingMessage(ChatMessageModel incoming) {
-    print(incoming);
-
     final isCurrentChat = state.currentChat?.id == incoming.chatId;
 
+    final cleanIncoming = incoming.copyWith(isPending: false, isFailed: false);
+
     final mergedMessages = isCurrentChat
-        ? _mergeMessages(state.messages, incoming)
+        ? mergeMessages(state.messages, cleanIncoming)
         : state.messages;
 
-    final nextSendingIds = mergedMessages
-        .where((m) => m.isPending && (m.clientTempId ?? '').trim().isNotEmpty)
-        .map((m) => m.clientTempId!.trim())
-        .toSet();
-
-    final updatedConversations = _mergeConversationPreview(
+    final updatedConversations = mergeChatPreview(
+      chats: state.conversations,
       chatId: incoming.chatId,
-      message: incoming.copyWith(isPending: false),
+      message: cleanIncoming,
     );
 
-    final currentChat = state.currentChat?.id == incoming.chatId
+    final currentChat = isCurrentChat
         ? (state.currentChat ?? ChatModel(id: incoming.chatId)).copyWith(
-            lastMessage: incoming.copyWith(isPending: false),
+            lastMessage: cleanIncoming,
           )
         : state.currentChat;
+
+    final newMessages = mergedMessages
+        .where((message) {
+          final clientTempId = message.clientTempId?.trim() ?? '';
+          return message.isPending && clientTempId.isNotEmpty;
+        })
+        .map((message) => message.clientTempId!.trim())
+        .toSet();
 
     state = state.copyWith(
       messages: mergedMessages,
       conversations: updatedConversations,
       currentChat: currentChat,
-      sendingMessageClientTempIds: nextSendingIds,
+      sendingMessageClientTempIds: newMessages,
       error: null,
     );
 
-    if (incoming.service == "PRICE_NEGOTIATION") {
-      ref.invalidate(
-        priceNegotiationByBookingProvider(state.currentChat?.booking?.id ?? ""),
-      );
-    }
-  }
-
-  List<ChatModel> _mergeConversationPreview({
-    required String chatId,
-    required ChatMessageModel message,
-  }) {
-    final current = List<ChatModel>.from(state.conversations);
-    final index = current.indexWhere((chat) => chat.id == chatId);
-
-    if (index == -1) {
-      current.insert(
-        0,
-        ChatModel(
-          id: chatId,
-          lastMessage: message.copyWith(isPending: false),
-          updatedAt: message.createdAt ?? DateTime.now(),
-        ),
-      );
-      return _sortConversations(current);
+    if (isCurrentChat && incoming.id.isNotEmpty) {
+      markChatAsRead(chatId: incoming.chatId, messageId: incoming.id);
     }
 
-    final updated = current[index].copyWith(
-      lastMessage: message.copyWith(isPending: false),
-      updatedAt: message.createdAt ?? DateTime.now(),
-    );
-    current
-      ..removeAt(index)
-      ..insert(0, updated);
+    // if (incoming.service == "PRICE_NEGOTIATION") {
+    //   final bookingId = state.currentChat?.booking?.id;
 
-    return _sortConversations(current);
-  }
-
-  List<ChatMessageModel> _mergeMessages(
-    List<ChatMessageModel> existing,
-    ChatMessageModel incoming,
-  ) {
-    final updated = List<ChatMessageModel>.from(existing);
-
-    final exactIndex = updated.indexWhere(
-      (message) => message.id.isNotEmpty && message.id == incoming.id,
-    );
-
-    if (exactIndex != -1) {
-      updated[exactIndex] = incoming.copyWith(
-        isPending: false,
-        isFailed: false,
-      );
-      return _sortMessages(updated);
-    }
-
-    final tempIndex = updated.indexWhere(
-      (message) =>
-          (message.clientTempId ?? '').isNotEmpty &&
-          message.clientTempId == incoming.clientTempId,
-    );
-
-    if (tempIndex != -1) {
-      updated[tempIndex] = incoming.copyWith(isPending: false, isFailed: false);
-      return _sortMessages(updated);
-    }
-
-    final fallbackPendingIndex = updated.indexWhere(
-      (message) =>
-          message.isPending &&
-          message.senderId == incoming.senderId &&
-          message.content.trim() == incoming.content.trim() &&
-          _withinThirtySeconds(message.createdAt, incoming.createdAt),
-    );
-
-    if (fallbackPendingIndex != -1) {
-      updated[fallbackPendingIndex] = incoming.copyWith(
-        isPending: false,
-        isFailed: false,
-      );
-      return _sortMessages(updated);
-    }
-
-    updated.insert(0, incoming.copyWith(isPending: false, isFailed: false));
-    return _sortMessages(updated);
-  }
-
-  List<ChatMessageModel> _sortMessages(List<ChatMessageModel> messages) {
-    final sorted = List<ChatMessageModel>.from(messages);
-
-    sorted.sort((a, b) {
-      final aDate = a.createdAt ?? DateTime(1970);
-      final bDate = b.createdAt ?? DateTime(1970);
-
-      return bDate.compareTo(aDate);
-    });
-
-    return sorted;
+    //   if ((bookingId ?? '').isNotEmpty) {
+    //     ref.invalidate(priceNegotiationByBookingProvider(bookingId!));
+    //   }
+    // }
   }
 }

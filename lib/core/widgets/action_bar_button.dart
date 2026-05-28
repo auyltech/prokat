@@ -20,7 +20,6 @@ class ActionBarButton extends StatelessWidget {
     this.variant = ActionBarButtonVariant.primary,
   });
 
-  // Quick factory constructor for secondary/outlined buttons
   factory ActionBarButton.secondary({
     Key? key,
     required String label,
@@ -43,68 +42,66 @@ class ActionBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
-    // Determine if button can actually be clicked
     final bool isButtonActive = isEnabled && !isLoading && onPressed != null;
     final VoidCallback? nativeOnPressed = isButtonActive ? onPressed : null;
 
-    if (variant == ActionBarButtonVariant.secondary) {
-      return OutlinedButton(
-        onPressed: nativeOnPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: theme.primaryColor,
-          side: BorderSide(
-            color: isButtonActive 
-                ? theme.dividerColor.withAlpha(180) 
-                : theme.disabledColor.withAlpha(50),
-            width: 1.5,
-          ),
-          minimumSize: const Size(0, 35),
-          shape: const StadiumBorder(), // Gives the exact pill/capsule look
-          elevation: 0,
-        ),
-        child: _buildChild(context, theme.primaryColor),
-      );
-    }
+    // Explicitly clamp minimum sizes and compress padding metrics dynamically
+    final buttonStyle = variant == ActionBarButtonVariant.secondary
+        ? OutlinedButton.styleFrom(
+            foregroundColor: theme.primaryColor,
+            side: BorderSide(
+              color: isButtonActive 
+                  ? theme.dividerColor.withValues(alpha: 0.7) 
+                  : theme.disabledColor.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
+            minimumSize: const Size(0, 44), // Standard height matching primary view
+            padding: const EdgeInsets.symmetric(horizontal: 8), // Compressed padding
+            shape: const StadiumBorder(),
+            elevation: 0,
+          )
+        : ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFE8EAF6), // Uniform matching color tint
+            foregroundColor: theme.primaryColor,
+            elevation: 0,
+            minimumSize: const Size(0, 44),
+            padding: const EdgeInsets.symmetric(horizontal: 8), // Compressed padding
+            shape: const StadiumBorder(),
+          );
 
-    // Default: Primary variant
-    return ElevatedButton(
-      onPressed: nativeOnPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 221, 221, 255), // Light background tint matching "Accept"
-        foregroundColor: theme.primaryColor, // Deep contrast text/icon color
-        elevation: 0,
-        minimumSize: const Size(0, 44),
-        shape: const StadiumBorder(),
-      ),
-      child: _buildChild(context, theme.primaryColor),
-    );
+    return variant == ActionBarButtonVariant.secondary
+        ? OutlinedButton(onPressed: nativeOnPressed, style: buttonStyle, child: _buildChild(context, theme.primaryColor))
+        : ElevatedButton(onPressed: nativeOnPressed, style: buttonStyle, child: _buildChild(context, theme.primaryColor));
   }
 
   Widget _buildChild(BuildContext context, Color color) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min, // Constrain to prevent overflow boundaries
       children: [
         if (isLoading) ...[
           SizedBox(
-            height: 16,
-            width: 16,
+            height: 14,
+            width: 14,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
         ] else if (icon != null) ...[
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: 8),
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 4),
         ],
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis, // Drop safely into ellipsis if text pushes boundaries
+            style: const TextStyle(
+              fontSize: 13, // Downsized slightly from 15 to give breathing room in triplets
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],

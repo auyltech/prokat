@@ -108,11 +108,19 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         city: city,
       );
 
-      state = state.copyWith(
-        renterEquipment: result.data,
-        isLoading: false,
-        error: result.success ? null : result.message,
-      );
+      if (result.success == true) {
+        state = state.copyWith(
+          renterEquipment: result.data,
+          isLoading: false,
+          error: null,
+        );
+      } else {
+        state = state.copyWith(
+          renterEquipment: result.data,
+          isLoading: false,
+          error: result.message,
+        );
+      }
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -138,8 +146,6 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         city: city,
         query: query,
       );
-
-      
 
       state = state.copyWith(
         renterEquipment: result.data,

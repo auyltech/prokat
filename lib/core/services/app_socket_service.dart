@@ -67,6 +67,37 @@ class AppSocketService {
     _socket?.emit(event, data);
   }
 
+  Future<dynamic> emitWithAck(
+    String event,
+    dynamic data, {
+    Duration timeout = const Duration(seconds: 3),
+  }) async {
+    final socket = _socket;
+
+    if (socket == null) {
+      throw Exception('Socket is not connected');
+    }
+
+    final completer = Completer<dynamic>();
+
+    socket.emitWithAck(
+      event,
+      data,
+      ack: (response) {
+        if (!completer.isCompleted) {
+          completer.complete(response);
+        }
+      },
+    );
+
+    return completer.future.timeout(
+      timeout,
+      onTimeout: () {
+        throw TimeoutException('$event timed out');
+      },
+    );
+  }
+
   void disconnect() {
     _socket?.disconnect();
     _socket?.dispose();

@@ -1,5 +1,7 @@
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 
+enum PriceNegotiationResponse { accept, reject }
+
 class PriceNegotiation {
   final String id;
   final String? bookingId;
@@ -59,7 +61,8 @@ class PriceNegotiation {
           json['senderId']?.toString() ??
           json['createdById']?.toString() ??
           json['fromUserId']?.toString(),
-      receiverId: json['receiverId']?.toString() ?? json['toUserId']?.toString(),
+      receiverId:
+          json['receiverId']?.toString() ?? json['toUserId']?.toString(),
       price: parsePrice(json['price']),
       priceRate: json['priceRate']?.toString(),
       comment: json['comment']?.toString(),
@@ -70,4 +73,3 @@ class PriceNegotiation {
     );
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
@@ -12,6 +13,7 @@ class ChatModel {
 
   final String? bookingId;
   final BookingModel? booking;
+  final BookingSummaryModel? bookingSummary;
 
   final String? requestId;
   final RequestModel? request;
@@ -28,6 +30,7 @@ class ChatModel {
     this.bookingId,
     this.requestId,
     this.booking,
+    this.bookingSummary,
     this.request,
     this.client,
     this.owner,
@@ -55,6 +58,7 @@ class ChatModel {
     User? owner,
     String? bookingId,
     BookingModel? booking,
+    BookingSummaryModel? bookingSummary,
     String? requestId,
     RequestModel? request,
     ChatMessageModel? lastMessage,
@@ -68,6 +72,7 @@ class ChatModel {
       owner: owner ?? this.owner,
       bookingId: bookingId ?? this.bookingId,
       booking: booking ?? this.booking,
+      bookingSummary: bookingSummary ?? this.bookingSummary,
       requestId: requestId ?? this.requestId,
       request: request ?? this.request,
       lastMessage: lastMessage ?? this.lastMessage,
@@ -88,6 +93,9 @@ class ChatModel {
         bookingId: json['bookingId']?.toString() ?? "",
         booking: json['booking'] != null
             ? BookingModel.fromJson(json['booking'])
+            : null,
+        bookingSummary: json['bookingSummary'] != null
+            ? BookingSummaryModel.fromJson(json['bookingSummary'])
             : null,
 
         requestId: json['requestId']?.toString(),

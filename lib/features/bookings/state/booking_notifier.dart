@@ -51,11 +51,15 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       final result = await api.getUserBookings();
 
-      state = state.copyWith(
-        isLoading: false,
-        bookings: result.data,
-        error: result.success ? null : result.message,
-      );
+      if (result.success == true) {
+        state = state.copyWith(
+          isLoading: false,
+          bookings: result.data,
+          error: null,
+        );
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+      }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -70,7 +74,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       state = state.copyWith(isLoading: true);
 
       final result = await api.getOwnerBookings();
-      
+
       state = state.copyWith(
         isLoading: false,
         ownerBookings: result.data,

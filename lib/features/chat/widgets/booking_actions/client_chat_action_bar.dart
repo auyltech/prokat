@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
@@ -49,31 +48,9 @@ class ClientChatActionBar extends ConsumerWidget {
 
     final userId = (currentUserId ?? '').trim();
 
-    final hasNegotiation = pendingId.isNotEmpty;
-    final pendingFromMe =
-        pendingId.isNotEmpty &&
-        userId.isNotEmpty &&
-        (pending?.senderId ?? '').trim() == userId;
-
     final reviewSubmitted =
         (booking.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking.id)).hasSubmitted;
-
-    final statusText = booking.status == "CREATED"
-        ? hasNegotiation
-              ? pendingFromMe
-                    ? "Respond to Counter Offer"
-                    : "Counter Offer Sent"
-              : "New Booking"
-        : booking.status == "CONFIRMED"
-        ? booking.workStatus == WorkStatus.completed
-              ? "Waiting Client Confirmation"
-              : "Update Work Status"
-        : booking.status == "COMPLETED"
-        ? booking.myReviewId == null
-              ? "Submit Review"
-              : "Review Sent"
-        : "";
 
     final ChatStatus chatState = getChatStatus(
       bookingStatus: booking.status,
@@ -86,9 +63,13 @@ class ClientChatActionBar extends ConsumerWidget {
       reviewSubmitted: reviewSubmitted,
     );
 
+    final statusText = getChatStatusText(chatState);
+
     // If review is sent order is closed
     if (chatState == ChatStatus.bookingreviewed) {
       return _StatusOnlyBar(text: "Review Sent");
+    } else if (chatState == ChatStatus.bookingcancelled) {
+      return _StatusOnlyBar(text: "Order Cancelled");
     }
 
     return Container(
@@ -148,6 +129,7 @@ class ClientChatActionBar extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(width: 4),
+                // Reject Counter Offer
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Reject Offer",

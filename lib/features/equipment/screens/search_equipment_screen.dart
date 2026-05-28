@@ -7,10 +7,10 @@ import 'package:prokat/features/categories/providers/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
-import 'package:prokat/features/equipment/widgets/list/equipment_skeleton.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_list_skeleton.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_trigger.dart';
-import 'package:prokat/features/user/widgets/user_category_selector.dart';
+import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -149,7 +149,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               // Equipment List
               if (equipmentState.isLoading)
-                const EquipmentSkeleton()
+                const EquipmentListSkeleton()
               else if (equipmentState.error != null)
                 EquipmentErrorTile(
                   onRetry: () => ref.invalidate(equipmentProvider),

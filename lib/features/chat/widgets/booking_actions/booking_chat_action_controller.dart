@@ -9,7 +9,7 @@ import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/chat/state/chat_notifier.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_state.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 

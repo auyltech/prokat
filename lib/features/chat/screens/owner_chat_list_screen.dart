@@ -63,14 +63,20 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
             if (chatState.isLoadingConversations)
               _buildSkeleton()
             else if (chatState.error != null && chats.isEmpty)
-              EmptyStateTile(title: l10n.error, subtitle: l10n.couldNotLoadChats)
-            else if (chats.isEmpty)
               EmptyStateTile(
-                title: l10n.noChats,
-                subtitle: l10n.youHaveNoChats,
+                title: l10n.error,
+                subtitle: l10n.couldNotLoadChats,
               )
+            else if (chats.isEmpty)
+              EmptyStateTile(title: l10n.noChats, subtitle: l10n.youHaveNoChats)
             else
-              ListView.builder(
+              ListView.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  height: 1,
+                  thickness: 1,
+                  indent: 16,
+                  endIndent: 16,
+                ),
                 shrinkWrap:
                     true, // Tells the list to only take the space it needs
                 physics:

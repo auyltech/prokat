@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/providers/category_provider.dart';
-import 'package:prokat/features/categories/widgets/empty_categories_tile.dart';
-import 'package:prokat/features/categories/widgets/error_categories_tile.dart';
+import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +19,7 @@ class UserCategorySelector extends ConsumerStatefulWidget {
 }
 
 class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
+  // Handle submit
   Future<void> onCategorySelected(
     BuildContext context,
     Category category,
@@ -55,14 +56,20 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
         ),
 
         if (categoriesState.isLoading)
-          const EmptyCategoriesCard()
+          const CategoryRowSkeleton()
         else if (categoriesState.error != null)
-          const ErrorCategoriesCard()
+          const EmptyStateTile(
+            title: "Error",
+            subtitle: "Could not load services",
+          )
         else if (categoriesState.categories.isEmpty)
-          const EmptyCategoriesCard()
+          const EmptyStateTile(
+            title: "No services found",
+            subtitle: "There are no services listed at the moment",
+          )
         else
           SizedBox(
-            height: 140,
+            height: 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: categoriesState.categories.length,

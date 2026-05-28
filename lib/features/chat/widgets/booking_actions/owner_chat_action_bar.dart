@@ -3,55 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_reason_sheet.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
-
-ChatStatus getChatStatus({
-  required String bookingStatus,
-  required WorkStatus workStatus,
-  bool hasNegotiation = false,
-  bool pendingFromMe = false,
-  bool reviewSubmitted = false,
-}) {
-  // 1. Handle Created Status with Negotiation Logic
-  if (bookingStatus == "CREATED") {
-    if (hasNegotiation) {
-      if (pendingFromMe) {
-        return ChatStatus.counterofferreceived;
-      } else {
-        return ChatStatus.counteroffersent;
-      }
-    }
-
-    return ChatStatus.bookingcreated;
-  }
-
-  // 2. Handle Finalized Booking Statuses
-  if (bookingStatus == "CONFIRMED") {
-    if (workStatus == WorkStatus.completed) return ChatStatus.workcompleted;
-
-    return ChatStatus.bookingconfirmed;
-  }
-
-  if (bookingStatus == "REVIEWED" || reviewSubmitted) {
-    return ChatStatus.bookingreviewed;
-  }
-
-  if (bookingStatus == "COMPLETED") {
-    return ChatStatus.leaveReview;
-  }
-
-  // 3. Fallback Default Status
-  return ChatStatus.bookingcompleted;
-}
 
 class OwnerChatActionBar extends ConsumerWidget {
   final String chatId;
@@ -90,12 +51,6 @@ class OwnerChatActionBar extends ConsumerWidget {
 
     final userId = (currentUserId ?? '').trim();
 
-    final hasNegotiation = pendingId.isNotEmpty;
-    final pendingFromMe =
-        pendingId.isNotEmpty &&
-        userId.isNotEmpty &&
-        (pending?.senderId ?? '').trim() == userId;
-
     final ChatStatus chatState = getChatStatus(
       bookingStatus: booking.status,
       hasNegotiation: pendingId.isNotEmpty,
@@ -107,24 +62,12 @@ class OwnerChatActionBar extends ConsumerWidget {
       reviewSubmitted: reviewSubmitted,
     );
 
-    final statusText = booking.status == "CREATED"
-        ? hasNegotiation
-              ? pendingFromMe
-                    ? "Respond to Counter Offer"
-                    : "Counter Offer Sent"
-              : "New Booking"
-        : booking.status == "CONFIRMED"
-        ? booking.workStatus == WorkStatus.completed
-              ? "Waiting Client Confirmation"
-              : "Update Work Status"
-        : booking.status == "COMPLETED"
-        ? booking.myReviewId == null
-              ? "Submit Review"
-              : "Review Sent"
-        : "";
+    final statusText = getChatStatusText(chatState);
 
     if (chatState == ChatStatus.bookingreviewed) {
       return _StatusOnlyBar(text: "Review Sent");
+    } else if (chatState == ChatStatus.bookingcancelled) {
+      return _StatusOnlyBar(text: "Order Cancelled");
     }
 
     return Container(
@@ -187,7 +130,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 6),
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Reject Offer",
@@ -244,7 +187,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                   ),
                 ),
 
-                SizedBox(width: 4),
+                const SizedBox(width: 6),
                 // Send Counter Offer
                 Expanded(
                   child: ActionBarButton.secondary(
@@ -264,7 +207,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                   ),
                 ),
 
-                SizedBox(width: 4),
+                const SizedBox(width: 6),
                 // Reject Order
                 Expanded(
                   child: ActionBarButton.secondary(
@@ -350,7 +293,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                   ),
                 ),
 
-                SizedBox(width: 4),
+                const SizedBox(width: 6),
 
                 Expanded(
                   child: ActionBarButton.secondary(

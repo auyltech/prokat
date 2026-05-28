@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 

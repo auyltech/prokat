@@ -63,7 +63,6 @@ class _MessageBubbleState extends State<MessageBubble> {
               : CrossAxisAlignment.start,
           children: [
             Container(
-              margin: const EdgeInsets.only(bottom: 2),
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.75,
               ),

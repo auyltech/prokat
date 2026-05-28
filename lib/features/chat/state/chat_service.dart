@@ -121,4 +121,36 @@ class ChatService {
       );
     }
   }
+
+  Future<ApiResponse<void>> marckChatRead(
+    String chatId,
+    String messageId,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '/chats/$chatId/read',
+        data: {'upToMessageId': messageId},
+      );
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Chat updated",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
+    }
+  }
 }

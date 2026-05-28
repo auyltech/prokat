@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/equipment/widgets/sheets/equipment_details_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends StatelessWidget {
-  final BookingModel booking; // Pass the booking model directly for rich data
+  final BookingModel booking;
 
   const BookingMessageBubble({super.key, required this.booking});
 
@@ -17,67 +18,54 @@ class BookingMessageBubble extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 8),
+      // margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
+        color: const Color(0xFFF4F9FD),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE3F2FD), width: 1),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Header Section (Status & Label)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.08),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-            ),
+          // 1. Header Row (Order Info Text & Colored Status Badge)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     const Icon(
-                      Icons.event_available,
+                      Icons.assignment_outlined,
                       color: Colors.blue,
                       size: 18,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Text(
-                      "Order Info", // l10n.bookingRequestLabel,
-                      style: theme.textTheme.labelMedium?.copyWith(
+                      "Order Info",
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[800],
+                        color: const Color(0xFF0D47A1),
                       ),
                     ),
                   ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: 10,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: getBookingColor(
-                      booking.status,
-                    ).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(0xFFE3F2FD),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     getBookingStatus(booking.status, l10n: l10n).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: getBookingColor(booking.status),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.blue,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
@@ -85,93 +73,199 @@ class BookingMessageBubble extends StatelessWidget {
             ),
           ),
 
-          // 2. Equipment Info Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                if (equipment?.imageUrl != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      equipment!.imageUrl!,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.contain,
+          const Divider(height: 1, thickness: 1, color: Color(0xFFE3F2FD)),
+
+          // 2. Equipment Body (Triggers the external Details Sheet)
+          InkWell(
+            onTap: () {
+              EquipmentDetailsSheet.show(
+                context,
+                name: equipment?.name,
+                model: equipment?.model,
+                plateNumber: equipment?.plateNumber,
+                imageUrl: equipment?.imageUrl,
+                specifications: const [
+                  "Vacuum Pump",
+                  "Capacity 5000L",
+                ], // Optional list configuration
+              );
+            },
+            borderRadius: const BorderRadius.all(Radius.zero),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (equipment?.imageUrl != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.network(
+                        equipment!.imageUrl!,
+                        width: 54,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 54,
+                          height: 40,
+                          color: const Color(0xFFE0E0E0),
+                          child: const Icon(
+                            Icons.image,
+                            size: 20,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 54,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0E0E0),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Icon(
+                        Icons.image,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
                     ),
-                  )
-                else
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          equipment?.name ?? "Unknown Equipment",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF212121),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "${equipment?.model ?? ''} • ${equipment?.plateNumber ?? ''}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        equipment?.name ?? "Unknown Equipment",
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        "\$${booking.price.toInt()}",
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: const Color(0xFF0D47A1),
                         ),
                       ),
                       Text(
-                        "${equipment?.model ?? ''} • ${equipment?.plateNumber ?? ''}",
+                        getPriceRate(booking.priceRate, l10n: l10n),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                          color: Colors.grey,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const Divider(height: 1, thickness: 1, color: Color(0xFFE3F2FD)),
+
+          // 3. Grid Row: Aligned split grid layout parameters
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 15,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Date",
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              booking.bookedOn != null
+                                  ? DateFormat(
+                                      'MMM dd, yyyy',
+                                    ).format(booking.bookedOn!)
+                                  : "TBD",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      "\$${booking.price}",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.primaryColor,
+                Container(width: 1, height: 24, color: const Color(0xFFE3F2FD)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                        color: Colors.grey,
                       ),
-                    ),
-                    Text(
-                      getPriceRate(booking.priceRate, l10n: l10n),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1, indent: 16, endIndent: 16),
-
-          // 3. Date & Time Info
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                _infoTile(
-                  Icons.calendar_today_outlined,
-                  l10n.date,
-                  booking.bookedOn != null
-                      ? DateFormat('MMM dd, yyyy').format(booking.bookedOn!)
-                      : "TBD",
-                ),
-                const Spacer(),
-                _infoTile(
-                  Icons.location_on_outlined,
-                  l10n.location,
-                  booking.location.street,
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Location",
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              booking.location.street,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -180,26 +274,27 @@ class BookingMessageBubble extends StatelessWidget {
       ),
     );
   }
-
-  Widget _infoTile(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
+
+//   Widget _infoTile(IconData icon, String label, String value) {
+//     return Row(
+//       children: [
+//         Icon(icon, size: 20, color: Colors.grey),
+//         const SizedBox(width: 8),
+//         Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               label,
+//               style: const TextStyle(fontSize: 12, color: Colors.grey),
+//             ),
+//             Text(
+//               value,
+//               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+//             ),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+// }

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_service.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_state.dart';
 
@@ -25,32 +24,36 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     refresh();
   }
 
+  bool isLatestPendingFromMe(String? currentUserId) {
+    final pending = state.latestPending;
+    final userId = (currentUserId ?? '').trim();
+    if (pending == null || userId.isEmpty) return false;
+    return (pending.senderId ?? '').trim() == userId;
+  }
+
   Future<void> refresh() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final items = await switch (scope.type) {
-        PriceNegotiationScopeType.booking => service.getBookingNegotiations(
-          scope.id,
-        ),
-        PriceNegotiationScopeType.offer => service.getOfferNegotiations(
-          scope.id,
-        ),
-      };
+      final result = await service.getPriceNegotiations(scope.id);
 
-      final sorted = List<PriceNegotiation>.from(items);
+      if (result.success) {
+        final sorted = List<PriceNegotiation>.from(result.data?.toList() ?? []);
 
-      sorted.sort((a, b) {
-        final aDate = a.createdAt ?? DateTime(1970);
-        final bDate = b.createdAt ?? DateTime(1970);
-        return bDate.compareTo(aDate);
-      });
+        sorted.sort((a, b) {
+          final aDate = a.createdAt ?? DateTime(1970);
+          final bDate = b.createdAt ?? DateTime(1970);
+          return bDate.compareTo(aDate);
+        });
 
-      state = state.copyWith(
-        isLoading: false,
-        negotiations: sorted,
-        error: null,
-      );
+        state = state.copyWith(
+          isLoading: false,
+          negotiations: sorted,
+          error: null,
+        );
+      } else {
+        state = state.copyWith(isLoading: false, error: result.message);
+      }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -58,13 +61,6 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
         error: e.toString(),
       );
     }
-  }
-
-  bool isLatestPendingFromMe(String? currentUserId) {
-    final pending = state.latestPending;
-    final userId = (currentUserId ?? '').trim();
-    if (pending == null || userId.isEmpty) return false;
-    return (pending.senderId ?? '').trim() == userId;
   }
 
   Future<void> createCounterOffer({
@@ -107,7 +103,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
 
       await service.respondToPriceNegotiation(
         negotiationId: negotiationId,
-        response: response,
+        decision: response,
       );
 
       state = state.copyWith(isSubmitting: false);

@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/widgets/draft_booking_tile.dart';
 import 'package:prokat/features/user/widgets/client_booking_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -27,8 +27,6 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
     final authSession = ref.watch(authProvider).session;
     final bookingState = ref.watch(bookingProvider);
 
-    print("client_booking_screen");
-    print(bookingState.error);
     final upcoming = bookingState.bookings
         .where(
           (b) =>
@@ -82,7 +80,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
         child: ListView(
           children: [
             // 1. High-Priority Draft Card (Refined Orange)
-            if (draft.isNotEmpty) _EnhancedDraftCard(booking: draft.first),
+            if (draft.isNotEmpty) DraftBookingTile(booking: draft.first),
 
             if (authSession == null)
               EmptyStateTile(
@@ -99,87 +97,23 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
                 icon: Icons.inventory_2_outlined,
               )
             else
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: upcoming.length,
-                  itemBuilder: (context, index) {
-                    final booking = upcoming[index];
-                    return ClientBookingTile(booking: booking);
-                  },
+              ListView.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 16,
+                  endIndent: 16,
                 ),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: upcoming.length,
+                itemBuilder: (context, index) {
+                  final booking = upcoming[index];
+                  return ClientBookingTile(booking: booking);
+                },
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _EnhancedDraftCard extends StatelessWidget {
-  final BookingModel booking;
-  const _EnhancedDraftCard({required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    const draftColor = Color(0xFFD97706);
-    final l10n = AppLocalizations.of(context)!;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: draftColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: draftColor.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline_rounded, color: draftColor, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.draftIncomplete,
-                  style: const TextStyle(
-                    color: draftColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                    letterSpacing: 1,
-                  ),
-                ),
-                Text(
-                  l10n.finishBookingRequest,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () =>
-                context.push('/equipment/${booking.equipment?.id}/book'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: draftColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            child: Text(
-              l10n.resume,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-          ),
-        ],
       ),
     );
   }

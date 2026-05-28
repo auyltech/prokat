@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
+import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_response.dart';
 
 class PriceNegotiationService {
   final ApiClient apiClient;
@@ -11,70 +12,48 @@ class PriceNegotiationService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<PriceNegotiation>> getBookingNegotiations(
+  Future<ApiResponse<List<PriceNegotiation>>> getPriceNegotiations(
     String bookingId,
   ) async {
     try {
-      final res = await _dio.get('/price-negotiations/booking/$bookingId');
+      final response = await _dio.get('/price-negotiations/booking/$bookingId');
 
-      final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
+      return handleApiResponse<List<PriceNegotiation>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected price negotiation list");
+          }
 
-      if (data is! List) return const [];
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid price negotiation item");
+            }
 
-      return data
-          .whereType<dynamic>()
-          .map(
-            (e) => PriceNegotiation.fromJson(
-              e is Map<String, dynamic>
-                  ? e
-                  : Map<String, dynamic>.from(e as Map),
-            ),
-          )
-          .toList(growable: false);
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
+            return PriceNegotiation.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load price negotiations",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<List<PriceNegotiation>> getOfferNegotiations(String offerId) async {
-    try {
-      final res = await _dio.get('/price-negotiations/offer/$offerId');
-      final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
-      if (data is! List) return const [];
-      return data
-          .whereType<dynamic>()
-          .map(
-            (e) => PriceNegotiation.fromJson(
-              e is Map<String, dynamic>
-                  ? e
-                  : Map<String, dynamic>.from(e as Map),
-            ),
-          )
-          .toList(growable: false);
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
-    }
-  }
-
-  Future<PriceNegotiation> getPriceNegotiation(String id) async {
-    try {
-      final res = await _dio.get('/price-negotiations/$id');
-      final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
-      final json = data is Map<String, dynamic>
-          ? data
-          : data is Map
-          ? Map<String, dynamic>.from(data)
-          : null;
-      if (json == null) {
-        throw Exception('Negotiation not found');
-      }
-      return PriceNegotiation.fromJson(json);
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
-    }
-  }
-
-  Future<PriceNegotiation> createPriceNegotiation({
+  Future<ApiResponse<void>> createPriceNegotiation({
     String? bookingId,
     String? offerId,
     required int price,
@@ -90,7 +69,7 @@ class PriceNegotiationService {
     }
 
     try {
-      final res = await _dio.post(
+      final response = await _dio.post(
         hasOffer ? '/price-negotiations/offer' : '/price-negotiations',
         data: {
           'type': type,
@@ -102,51 +81,87 @@ class PriceNegotiationService {
         },
       );
 
-      final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
-      final json = data is Map<String, dynamic>
-          ? data
-          : data is Map
-          ? Map<String, dynamic>.from(data)
-          : null;
-      if (json == null) {
-        throw Exception('Failed to create negotiation');
-      }
-      return PriceNegotiation.fromJson(json);
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Counter Offer Sent",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<PriceNegotiation> respondToPriceNegotiation({
+  Future<ApiResponse<void>> respondToPriceNegotiation({
     required String negotiationId,
-    required PriceNegotiationResponse response,
+    required PriceNegotiationResponse decision,
   }) async {
     try {
-      final res = await _dio.post(
+      final response = await _dio.post(
         '/price-negotiations/$negotiationId/respond',
-        data: {'action': toBackendPriceNegotiationResponse(response)},
+        data: {
+          'action': decision == PriceNegotiationResponse.accept
+              ? "ACCEPT"
+              : "REJECT",
+        },
       );
 
-      final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
-      final json = data is Map<String, dynamic>
-          ? data
-          : data is Map
-          ? Map<String, dynamic>.from(data)
-          : null;
-      if (json == null) {
-        throw Exception('Failed to respond');
-      }
-      return PriceNegotiation.fromJson(json);
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Counter Offer Responded",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<void> cancelPriceNegotiation(String negotiationId) async {
+  Future<ApiResponse<void>> cancelPriceNegotiation(String negotiationId) async {
     try {
-      await _dio.delete('/price-negotiations/$negotiationId');
-    } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
+      final response = await _dio.delete('/price-negotiations/$negotiationId');
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Counter Offer Cancelled",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 }

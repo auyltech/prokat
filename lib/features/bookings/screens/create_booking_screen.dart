@@ -399,7 +399,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       const SizedBox(height: 20),
 
                       PrimaryButton(
-                        label: "CONFIRM",
+                        label: "Place Order",
                         onPressed:
                             (bookingState.selectedLocationId == null ||
                                 bookingState.selectedDate == null)

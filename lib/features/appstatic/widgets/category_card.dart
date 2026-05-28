@@ -28,7 +28,7 @@ class CategoryCard extends StatelessWidget {
                       category.imageUrl!.isNotEmpty)
                   ? Image.network(
                       category.imageUrl!,
-                      height: 70,
+                      height: 50,
                       fit: BoxFit.contain,
                       errorBuilder: (_, _, _) => const Icon(
                         Icons.image_not_supported,

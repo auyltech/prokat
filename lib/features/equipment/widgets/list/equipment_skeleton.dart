@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+// TODO: Remove / replaced with equipment list skeleton
 class EquipmentSkeleton extends StatelessWidget {
   const EquipmentSkeleton({super.key});
 
@@ -39,7 +40,7 @@ class EquipmentSkeleton extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(width: 140, height: 16, color: Colors.black),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Container(width: 80, height: 12, color: Colors.black),
                     ],
                   ),

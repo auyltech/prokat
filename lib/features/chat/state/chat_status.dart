@@ -1,5 +1,6 @@
 enum ChatStatus {
   bookingcreated,
+  bookingcancelled,
 
   counteroffersent,
   counterofferreceived,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/state/chat_status.dart';
 
 class SendMessageForm extends ConsumerStatefulWidget {
-  const SendMessageForm({super.key});
+  final ChatStatus chatStatus;
+
+  const SendMessageForm({super.key, required this.chatStatus});
 
   @override
   ConsumerState<SendMessageForm> createState() => _SendMessageFormState();
@@ -31,9 +34,14 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // final isSendingAny = ref.watch(
-    //   chatProvider.select((state) => state.isSendingMessage),
-    // );
+    final isSendingAny = ref.watch(
+      chatProvider.select((state) => state.isSendingMessage),
+    );
+
+    final isWorkCompleted = widget.chatStatus == ChatStatus.workcompleted;
+    final isOrderCanceled = widget.chatStatus == ChatStatus.bookingcancelled;
+
+    if (isWorkCompleted || isOrderCanceled) return SizedBox();
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -78,30 +86,35 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
             ),
           ),
           const SizedBox(width: 12),
+
           Container(
             decoration: BoxDecoration(
               color: theme.colorScheme.primary,
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              onPressed: _sendMessage,
+              onPressed: isWorkCompleted || isOrderCanceled
+                  ? null
+                  : _sendMessage,
               icon: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                  // if (isSendingAny)
-                  Positioned(
-                    right: -4,
-                    top: -4,
-                    child: SizedBox(
-                      width: 12,
-                      height: 12,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  if (isSendingAny)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

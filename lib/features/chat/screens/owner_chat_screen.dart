@@ -5,7 +5,11 @@ import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
@@ -15,6 +19,9 @@ import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/reviews/state/review_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -31,10 +38,10 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(chatProvider.notifier).openChatById(widget.chatId);
+    Future.microtask(() async {
+      await ref.read(chatProvider.notifier).openChatById(widget.chatId);
 
-      ref.read(offersProvider.notifier).getOwnerOffers();
+      await ref.read(offersProvider.notifier).getOwnerOffers();
     });
   }
 
@@ -43,7 +50,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() {
-        ref.read(chatProvider.notifier).openChatById(widget.chatId);
+        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
         ref.read(offersProvider.notifier).getOwnerOffers();
       });
     }
@@ -71,6 +78,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final chatState = ref.watch(chatProvider);
     final authState = ref.watch(authProvider);
@@ -96,6 +104,31 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final chatClientId = currentChat?.client?.id;
     final offersState = ref.watch(offersProvider);
     OfferModel? requestOffer;
+
+    final negotiation = ref.watch(
+      priceNegotiationByBookingProvider(booking?.id ?? ""),
+    );
+
+    final reviewSubmitted =
+        (booking?.myReviewId?.isNotEmpty ?? false) ||
+        ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
+
+    final pending = negotiation.latestPending;
+    final pendingId = (pending?.id ?? '').trim();
+
+    final userId = (currentUserId ?? '').trim();
+
+    final ChatStatus chatStatus = getChatStatus(
+      bookingStatus: booking?.status ?? BookingStatus.created.name,
+      hasNegotiation: pendingId.isNotEmpty,
+      pendingFromMe:
+          pendingId.isNotEmpty &&
+          userId.isNotEmpty &&
+          (pending?.senderId ?? '').trim() != userId,
+      workStatus: booking?.workStatus ?? WorkStatus.pending,
+      reviewSubmitted: reviewSubmitted,
+    );
+
     if (request != null) {
       for (final offer in offersState.ownerOffers) {
         if (offer.requestId == request.id) {
@@ -104,8 +137,6 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         }
       }
     }
-
-    print(booking?.myReviewId);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -118,12 +149,18 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             size: 20,
             color: theme.colorScheme.onPrimary,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () async {
+            if (!context.mounted) return;
+            context.pop();
+
+            await ref.read(chatProvider.notifier).leaveCurrentChat();
+          },
         ),
         titleSpacing: 0,
         title: GestureDetector(
-          onTap: () =>
-              context.push('${AppRoutes.ownerChat}/${widget.chatId}/info'),
+          onTap: () {
+            context.push('${AppRoutes.ownerChat}/${widget.chatId}/info');
+          },
           child: Row(
             children: [
               UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
@@ -172,21 +209,46 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               const Expanded(child: Center(child: CircularProgressIndicator()))
             else if (chatState.error != null && messages.isEmpty)
               Expanded(
-                child: Center(
-                  child: Text(chatState.error ?? "Error Loading Messages"),
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.wifi_off_rounded,
+                        size: 48,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        chatState.error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () => ref
+                            .read(chatProvider.notifier)
+                            .openChatById(widget.chatId),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(l10n.retry),
+                      ),
+                    ],
+                  ),
                 ),
               )
             else
               Expanded(
                 child: Container(
                   color: theme.colorScheme.surface,
-                  child: ListView.builder(
+                  child: ListView.separated(
                     reverse:
                         false, // Newest messages at bottom, oldest + booking tiles at top
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 4,
+                      horizontal: 12,
+                      vertical: 12,
                     ),
+                    separatorBuilder: (context, index) => SizedBox(height: 4),
                     // Increase item count by 2 if booking/request tiles exist
                     itemCount:
                         messages.length +
@@ -230,6 +292,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 chatOwnerId: chatOwnerId,
                 chatClientId: chatClientId,
               ),
+
             if (booking == null && request != null && requestOffer != null)
               OfferChatActionBar(
                 chatId: widget.chatId,
@@ -273,7 +336,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                       top: 0.0,
                       bottom: 12.0,
                     ), // Extra layout lift padding
-                    child: const SendMessageForm(),
+                    child: SendMessageForm(chatStatus: chatStatus),
                   ),
                 ),
               ),

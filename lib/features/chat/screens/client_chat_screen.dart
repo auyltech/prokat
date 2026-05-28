@@ -2,16 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
+import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientChatScreen extends ConsumerStatefulWidget {
@@ -29,7 +37,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     super.initState();
     Future.microtask(() {
       ref.read(chatProvider.notifier).openChatById(widget.chatId);
-      ref.read(offersProvider.notifier).getUserOffers();
+      // ref.read(offersProvider.notifier).getUserOffers();
     });
   }
 
@@ -38,8 +46,8 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() {
-        ref.read(chatProvider.notifier).openChatById(widget.chatId);
-        ref.read(offersProvider.notifier).getUserOffers();
+        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        // ref.read(offersProvider.notifier).getUserOffers();
       });
     }
   }
@@ -76,6 +84,30 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
     final offersState = ref.watch(offersProvider);
 
+    final negotiation = ref.watch(
+      priceNegotiationByBookingProvider(booking?.id ?? ""),
+    );
+
+    final reviewSubmitted =
+        (booking?.myReviewId?.isNotEmpty ?? false) ||
+        ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
+
+    final pending = negotiation.latestPending;
+    final pendingId = (pending?.id ?? '').trim();
+
+    final userId = (currentUserId).trim();
+
+    final ChatStatus chatStatus = getChatStatus(
+      bookingStatus: booking?.status ?? BookingStatus.created.name,
+      hasNegotiation: pendingId.isNotEmpty,
+      pendingFromMe:
+          pendingId.isNotEmpty &&
+          userId.isNotEmpty &&
+          (pending?.senderId ?? '').trim() != userId,
+      workStatus: booking?.workStatus ?? WorkStatus.pending,
+      reviewSubmitted: reviewSubmitted,
+    );
+
     // Hold offer for this chat
     OfferModel? requestOffer;
     // Find the offer related to this chat, ie request
@@ -99,25 +131,30 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
             size: 20,
             color: theme.colorScheme.onPrimary,
           ),
-          onPressed: () => context.pop(),
+          onPressed: () async {
+            if (!context.mounted) return;
+            context.pop();
+
+            await ref.read(chatProvider.notifier).leaveCurrentChat();
+          },
         ),
         titleSpacing: 0,
         title: GestureDetector(
           onTap: () {
-            ref.read(chatProvider.notifier).leaveCurrentChat();
             context.push('${AppRoutes.chat}/${widget.chatId}/info');
           },
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundImage: (avatarUrl ?? '').isNotEmpty
-                    ? NetworkImage(avatarUrl!)
-                    : null,
-                child: (avatarUrl ?? '').isEmpty
-                    ? Text(title.isNotEmpty ? title[0].toUpperCase() : 'C')
-                    : null,
-              ),
+              UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
+              // CircleAvatar(
+              //   radius: 18,
+              //   backgroundImage: (avatarUrl ?? '').isNotEmpty
+              //       ? NetworkImage(avatarUrl!)
+              //       : null,
+              //   child: (avatarUrl ?? '').isEmpty
+              //       ? Text(title.isNotEmpty ? title[0].toUpperCase() : 'C')
+              //       : null,
+              // ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -132,6 +169,18 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                         color: theme.colorScheme.onPrimary,
                       ),
                     ),
+                    if (messages.lastOrNull != null)
+                      Text(
+                        formatDateTime(
+                          messages.last.createdAt,
+                          messages.last.createdAt,
+                        ),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onPrimary.withValues(
+                            alpha: 0.7,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -183,12 +232,13 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
               Expanded(
                 child: Container(
                   color: theme.colorScheme.surface,
-                  child: ListView.builder(
+                  child: ListView.separated(
                     reverse: false,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
+                      horizontal: 12.0,
                       vertical: 12.0,
                     ),
+                    separatorBuilder: (context, index) => SizedBox(height: 4),
                     itemCount: (booking != null || request != null)
                         ? messages.length + 1
                         : messages.length,
@@ -277,7 +327,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                       top: 0.0,
                       bottom: 12.0,
                     ), // Extra layout lift padding
-                    child: const SendMessageForm(),
+                    child: SendMessageForm(chatStatus: chatStatus),
                   ),
                 ),
               ),
