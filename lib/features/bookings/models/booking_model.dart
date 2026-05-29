@@ -1,6 +1,6 @@
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
-import 'package:prokat/features/equipment/models/booking_equipment_model.dart';
+import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 
 class BookingModel {
@@ -19,9 +19,10 @@ class BookingModel {
 
   final String? chatId;
 
-  final User? renter;
+  final User? client;
+  final User? owner;
 
-  final BookingEquiment? equipment;
+  final EquipmentSummaryModel? equipment;
   final LocationModel location;
 
   final String? myReviewId;
@@ -40,7 +41,8 @@ class BookingModel {
     this.comment,
     this.instructions,
     this.chatId,
-    this.renter,
+    this.client,
+    this.owner,
     this.equipment,
     required this.location,
 
@@ -90,11 +92,12 @@ class BookingModel {
 
         myReviewId: json['myReviewId']?.toString(),
 
-        renter: json['renter'] != null ? User.fromJson(json['renter']) : null,
+        client: json['client'] != null ? User.fromJson(json['client']) : null,
+        owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
 
         equipment: json['equipment'] != null
-            ? BookingEquiment.fromJson(json['equipment'])
-            : null, //throw Exception("Equipment is required but missing"),
+            ? EquipmentSummaryModel.fromJson(json['equipment'])
+            : null, 
 
         location: json['location'] != null
             ? LocationModel.fromJson(json['location'])
@@ -125,7 +128,8 @@ class BookingModel {
       "instructions": instructions,
       "equipment": equipment?.toJson(),
       "location": location.toJson(),
-      "renter": renter?.toJson(),
+      "client": client?.toJson(),
+      "owner": owner?.toJson(),
     };
   }
 }

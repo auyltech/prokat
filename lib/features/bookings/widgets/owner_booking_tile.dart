@@ -64,7 +64,7 @@ class OwnerBookingTile extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            booking.renter?.displayName ?? "",
+                            booking.client?.displayName ?? "",
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),

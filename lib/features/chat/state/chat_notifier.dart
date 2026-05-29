@@ -34,8 +34,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   @override
-  void dispose() {
-    socketService.disconnect();
+  void dispose() async {
+    await socketService.disposeChatSession();
     super.dispose();
   }
 
@@ -165,6 +165,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  // Mark chat as read after it is open
   Future<void> markChatAsRead({
     required String chatId,
     required String messageId,
@@ -194,6 +195,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  // helper function to get current chatId and mark as read
   Future<void> markCurrentChatAsRead() async {
     final chat = state.currentChat;
 
@@ -213,6 +215,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     await markChatAsRead(chatId: chat.id, messageId: lastRealMessage.id);
   }
 
+  // called on page refresh
   Future<void> reloadChat(String chatId) async {
     try {
       state = state.copyWith(isLoadingMessages: true, error: null);
@@ -240,13 +243,15 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
+  // called when user goes out of the chat/:id screen (with back button)
+  // leaveCurrentChat()
+  // → leave active chat room
+  // → remove chat message listener
+  // → clear current chat UI state
+  // → keep base socket alive for app-level notifications later
   Future<void> leaveCurrentChat() async {
     try {
-      final currentChatId = state.currentChat?.id;
-
-      if ((currentChatId ?? '').isNotEmpty) {
-        await socketService.leaveChat(currentChatId!);
-      }
+      await socketService.disposeChatSession();
 
       state = state.copyWith(
         currentChat: null,
@@ -257,6 +262,14 @@ class ChatNotifier extends StateNotifier<ChatState> {
       );
     } catch (error) {
       debugPrint("error_leaving_chat: $error");
+
+      state = state.copyWith(
+        currentChat: null,
+        messages: const [],
+        sendingMessageClientTempIds: const {},
+        isLoadingMessages: false,
+        error: null,
+      );
     }
   }
 
@@ -327,7 +340,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   Future<void> _connectToChat(String chatId) async {
-    print(_sessionToken);
     if ((_sessionToken ?? '').isEmpty) {
       await _loadSessionFallback();
     }

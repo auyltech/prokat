@@ -210,7 +210,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
 
               Padding(
-                padding: EdgeInsets.all(24),
+                padding: EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -294,7 +294,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       EmptyStateTile(title: l10n.loadEquipmentErrorHint)
                     else
                       // Popular Rents
-                      ListView.builder(
+                      ListView.separated(
+                        separatorBuilder: (context, index) => SizedBox(height: 8,),
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 0),

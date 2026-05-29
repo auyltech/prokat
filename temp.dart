@@ -106,7 +106,7 @@ class Temp extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            booking.renter?.displayName ?? "",
+                            booking.client?.displayName ?? "",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,

@@ -97,7 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         case AppStartupRouteState.owner:
           if (location == AppRoutes.launch) {
-            return AppRoutes.ownerProfile;
+            return AppRoutes.ownerEquiment;
           }
           break;
 

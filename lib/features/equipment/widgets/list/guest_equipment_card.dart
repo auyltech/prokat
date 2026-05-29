@@ -23,14 +23,15 @@ class GuestEquipmentCard extends StatelessWidget {
     final isTop = true;
 
     return Container(
-      height: 130,
+      // height: 130,
       padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.05),
+        color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // ── Thumbnail ────────────────────────────────────────────────
           ClipRRect(
@@ -43,12 +44,14 @@ class GuestEquipmentCard extends StatelessWidget {
               fallbackIcon: Icons.inventory_2_outlined,
             ),
           ),
-          const SizedBox(width: 12),
 
           // ── Info ─────────────────────────────────────────────────────
           Expanded(
             child: Padding(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 12,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -62,11 +65,20 @@ class GuestEquipmentCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+
                   const SizedBox(height: 3),
-                  Text(
-                    item.category?.name ?? "",
-                    style: theme.textTheme.labelMedium,
+
+                  Row(
+                    children: [
+                      Text(
+                        item.category?.name ?? "",
+                        style: theme.textTheme.labelMedium,
+                      ),
+                      Spacer(),
+                      _StatusBadge(isTop: isTop),
+                    ],
                   ),
+
                   const SizedBox(height: 6),
 
                   Row(
@@ -85,44 +97,34 @@ class GuestEquipmentCard extends StatelessWidget {
                           color: theme.textTheme.bodyLarge?.color,
                         ),
                       ),
+
+                      Spacer(),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text:
+                                  '${_formatPrice(item.prices.isEmpty ? 0 : item.prices[0].price.floorToDouble())} ₸',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1D4ED8),
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ${AppLocalizations.of(context)!.perDay}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF1D4ED8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-            ),
-          ),
-
-          Padding(
-            padding: EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _StatusBadge(isTop: isTop),
-
-                SizedBox(height: 20),
-
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text:
-                            '${_formatPrice(item.prices.isEmpty ? 0 : item.prices[0].price.floorToDouble())} ₸',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1D4ED8),
-                        ),
-                      ),
-                      TextSpan(
-                        text:
-                            ' ${AppLocalizations.of(context)!.perDay}',
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ),
           ),
         ],

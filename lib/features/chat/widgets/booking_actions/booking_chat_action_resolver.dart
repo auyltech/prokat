@@ -81,11 +81,11 @@ class BookingChatActionResolver {
         reviewState?.hasSubmitted == true || booking.myReviewId != null;
 
     final revieweeId = role == BookingChatRole.owner
-        ? ((booking.renter?.id ?? '').trim().isNotEmpty
-              ? booking.renter?.id
+        ? ((booking.client?.id ?? '').trim().isNotEmpty
+              ? booking.client?.id
               : chatClientId)
-        : ((booking.equipment?.ownerId ?? '').trim().isNotEmpty
-              ? booking.equipment?.ownerId
+        : ((booking.owner?.id ?? '').trim().isNotEmpty
+              ? booking.owner?.id
               : chatOwnerId);
 
     if (!hasSubmitted && (revieweeId ?? '').trim().isNotEmpty) {

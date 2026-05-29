@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/core/services/app_socket_service.dart';
 
@@ -17,6 +18,22 @@ class ChatSocketService {
     await appSocket.connect(token: token);
   }
 
+  // Send Message
+  void sendMessage({
+    required String chatId,
+    required String message,
+    required String type,
+    String? clientTempId,
+  }) {
+    appSocket.emit(sendMessageEvent, {
+      'chatId': chatId,
+      'type': type,
+      'content': message,
+      if ((clientTempId ?? '').isNotEmpty) 'clientTempId': clientTempId,
+    });
+  }
+
+  // Receive Message
   void onNewMessage(void Function(ChatMessageModel message) handler) {
     appSocket.on(newMessageEvent, (payload) {
       if (payload is Map<String, dynamic>) {
@@ -31,19 +48,20 @@ class ChatSocketService {
   }
 
   Future<void> joinChat(String chatId) async {
-    print("joined_chat_id");
-    print(_joinedChatId);
-
     if (_joinedChatId == chatId) {
       return;
     }
 
     if ((_joinedChatId ?? '').isNotEmpty) {
-      leaveChat(_joinedChatId!);
+      try {
+        await leaveChat(_joinedChatId!);
+      } catch (error) {
+        debugPrint("error_leaving_joined_chat: $error");
+      }
     }
 
     appSocket.emit(joinChatEvent, {'chatId': chatId});
-    
+
     _joinedChatId = chatId;
   }
 
@@ -65,27 +83,25 @@ class ChatSocketService {
             : 'Failed to leave chat',
       );
     }
+
+    if (_joinedChatId == trimmedChatId) {
+      _joinedChatId = null;
+    }
   }
 
-  void sendMessage({
-    required String chatId,
-    required String message,
-    required String type,
-    String? clientTempId,
-  }) {
-    appSocket.emit(sendMessageEvent, {
-      'chatId': chatId,
-      'type': type,
-      'content': message,
-      if ((clientTempId ?? '').isNotEmpty) 'clientTempId': clientTempId,
-    });
-  }
+  // Leave current chat room + remove chat listeners.
+  Future<void> disposeChatSession() async {
+    final chatId = _joinedChatId;
 
-  void disconnect() {
-    if ((_joinedChatId ?? '').isNotEmpty) {
-      leaveChat(_joinedChatId!);
+    if ((chatId ?? '').trim().isNotEmpty) {
+      try {
+        await leaveChat(chatId!);
+      } catch (error) {
+        debugPrint("error_leaving_joined_chat: $error");
+      }
     }
 
+    _joinedChatId = null;
     appSocket.off(newMessageEvent);
   }
 }

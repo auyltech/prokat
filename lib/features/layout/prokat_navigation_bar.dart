@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -30,7 +29,7 @@ final ownerNavItems = [
   ),
   // _NavItem(
   //   icon: Icons.notifications_rounded,
-  //   label: 'Alerts',
+  //   label: (l) => 'Alerts',
   //   path: AppRoutes.ownerNotifications,
   // ),
   _NavItem(
@@ -68,6 +67,11 @@ final clientNavItems = [
     path: AppRoutes.clientRequestsCreate,
   ),
   // _NavItem(
+  //   icon: Icons.notifications_rounded,
+  //   label: (l) => 'Alerts',
+  //   path: AppRoutes.notifications,
+  // ),
+  // _NavItem(
   //   icon: Icons.description_outlined,
   //   label: 'Requests',
   //   path: AppRoutes.clientRequests,
@@ -94,7 +98,6 @@ class ProkatNavigationBar extends ConsumerStatefulWidget {
 
 class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
   Widget _buildIcon(_NavItem item) {
-    final unread = ref.watch(notificationProvider).unreadCount;
     final icon = Icon(item.icon, size: 28);
 
     final isNotifications =
@@ -105,7 +108,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       return icon;
     }
 
-    return NotificationBadge(count: unread, child: icon);
+    return NotificationBadge();
   }
 
   @override
@@ -139,7 +142,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     if (segments.length >= 2) {
       if (segments[0] == 'chat' && segments[1] != 'list')
         isChatDetailScreen = true;
-        
+
       if (segments.length >= 3 &&
           segments[0] == 'owner' &&
           segments[1] == 'chat') {

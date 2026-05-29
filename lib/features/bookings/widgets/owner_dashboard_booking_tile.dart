@@ -49,7 +49,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      booking.renter?.displayName ?? l10n.unknownRenter,
+                      booking.client?.displayName ?? l10n.unknownRenter,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

@@ -20,12 +20,15 @@ class NotificationNavigationService {
   bool get _isOwnerRole => _normalizedRole() == 'OWNER';
 
   String notificationsHomeRoute() {
-    return _isOwnerRole ? AppRoutes.ownerNotifications : AppRoutes.notifications;
+    return _isOwnerRole
+        ? AppRoutes.ownerNotifications
+        : AppRoutes.notifications;
   }
 
   String resolveRoute(AppNotification notification) {
     // Backend-provided route is optional; app decides best-effort.
     final candidate = (notification.route ?? '').trim();
+
     if (_isSafeBackendRoute(candidate)) {
       return candidate;
     }
@@ -38,7 +41,9 @@ class NotificationNavigationService {
       case 'COUNTER_OFFER_ACCEPTED':
         final chatId = (notification.chatId ?? '').trim();
         if (chatId.isNotEmpty) {
-          return _isOwnerRole ? '${AppRoutes.ownerChat}/$chatId' : '${AppRoutes.chat}/$chatId';
+          return _isOwnerRole
+              ? '${AppRoutes.ownerChat}/$chatId'
+              : '${AppRoutes.chat}/$chatId';
         }
         return notificationsHomeRoute();
 
@@ -47,7 +52,6 @@ class NotificationNavigationService {
       case 'BOOKING_REJECTED':
       case 'WORK_STATUS_UPDATED':
       case 'WORK_COMPLETED':
-        // Booking details routes are currently inconsistent across client/owner;
         // Phase 1: route user to Orders list.
         return _isOwnerRole ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
 
@@ -73,21 +77,24 @@ class NotificationNavigationService {
     if (!_isOwnerRole && !route.startsWith('/owner/')) return true;
 
     // allow notifications home regardless
-    if (route == AppRoutes.notifications || route == AppRoutes.ownerNotifications) {
+    if (route == AppRoutes.notifications ||
+        route == AppRoutes.ownerNotifications) {
       return true;
     }
 
     return false;
   }
 
+  // TODO: fix route reslove
   Future<void> navigate(AppNotification notification) async {
     final router = ref.read(routerProvider);
-    final route = resolveRoute(notification);
+    final route = notification.route ?? "/"; //resolveRoute(notification);
 
     final startup = ref.read(appStartupProvider).routeState;
     final session = ref.read(authProvider).session;
 
-    final isReady = startup == AppStartupRouteState.client ||
+    final isReady =
+        startup == AppStartupRouteState.client ||
         startup == AppStartupRouteState.owner;
 
     if (!isReady) {

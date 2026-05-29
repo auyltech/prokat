@@ -25,6 +25,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     });
   }
 
+  // TODO: Adjust darkTheme colors and set darktheme
   @override
   Widget build(BuildContext context) {
     ref.watch(notificationBootstrapProvider);
@@ -38,7 +39,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       routerConfig: router,
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      darkTheme: AppTheme.lightTheme, // AppTheme.darkTheme
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

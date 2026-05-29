@@ -1,4 +1,5 @@
-class BookingEquiment {
+// Aligns with EquipmentListItemDTO
+class EquipmentSummaryModel {
   final String? id;
 
   final String? name;
@@ -7,28 +8,21 @@ class BookingEquiment {
 
   final String? imageUrl;
 
-  final String? ownerId;
-  final String? ownerName;
-
-  BookingEquiment({
+  EquipmentSummaryModel({
     this.id,
     this.name,
     this.model,
     this.plateNumber,
     this.imageUrl,
-    this.ownerId,
-    this.ownerName,
   });
 
-  factory BookingEquiment.fromJson(Map<String, dynamic> json) {
-    return BookingEquiment(
+  factory EquipmentSummaryModel.fromJson(Map<String, dynamic> json) {
+    return EquipmentSummaryModel(
       id: json['id'] ?? "",
       name: json['name'] ?? "",
       model: json['model'] ?? "",
       plateNumber: json['plateNumber'] ?? "",
       imageUrl: json['imageUrl'] ?? "",
-      ownerId: json['ownerId'] ?? "",
-      ownerName: json['ownerName'] ?? "",
     );
   }
 
@@ -39,8 +33,6 @@ class BookingEquiment {
       "model": model,
       "plateNumber": plateNumber,
       "imageUrl": imageUrl,
-      "ownerId": ownerId,
-      "ownerName": ownerName,
     };
   }
 }

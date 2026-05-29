@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -23,6 +22,10 @@ class AppSocketService {
         ? token!.trim()
         : (await secureStorage.readSession())?.sessionToken ?? '';
 
+    if (resolvedToken.trim().isEmpty) {
+      throw Exception('Socket auth token is missing');
+    }
+
     _socket?.dispose();
 
     _socket = io.io(
@@ -41,6 +44,7 @@ class AppSocketService {
         completer.complete();
       }
     });
+
     _socket?.onConnectError((error) {
       if (!completer.isCompleted) {
         completer.completeError(Exception(error.toString()));
@@ -48,6 +52,7 @@ class AppSocketService {
     });
 
     _socket?.connect();
+
     await completer.future.timeout(
       const Duration(seconds: 10),
       onTimeout: () => throw Exception('Socket connection timed out'),
@@ -98,7 +103,12 @@ class AppSocketService {
     );
   }
 
-  void disconnect() {
+  // Full Socket ShutDown, called when
+  // user signs out
+  // app goes to background, if you choose to fully disconnect
+  // auth session is cleared
+  // socket token is invalid
+  void disconnectSocket() {
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;

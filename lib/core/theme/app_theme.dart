@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // A professional, deep and vibrant orange accent color
   static const Color accent = Color.fromARGB(255, 0, 72, 155);
+  static const Color white = Color.fromARGB(255, 255, 255, 255);
 
   // Dark mode colors extracted from the current app
   static const Color darkBackground = Color(0xFF121417);
@@ -40,6 +41,7 @@ class AppTheme {
           ).copyWith(
             surface: lightCard, // or darkCard
             onSurface: lightTextPrimary, // or darkTextPrimary
+            onPrimary: white,
           ),
       scaffoldBackgroundColor: lightBackground,
       cardColor: lightCard,
@@ -115,6 +117,7 @@ class AppTheme {
   }
 
   /// Dark Theme Configuration
+  /// Dark Theme Configuration
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -126,28 +129,34 @@ class AppTheme {
             brightness: Brightness.dark,
             surface: darkCard,
           ).copyWith(
-            surface: lightCard, // or darkCard
-            onSurface: lightTextPrimary, // or darkTextPrimary
+            surface: darkCard,
+            onSurface: darkTextPrimary,
+            onPrimary: white,
           ),
       scaffoldBackgroundColor: darkBackground,
       cardColor: darkCard,
       appBarTheme: const AppBarTheme(
         backgroundColor: darkBackground,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: darkTextPrimary),
         titleTextStyle: TextStyle(
-          color: Colors.white,
+          color: darkTextPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
       ),
-      iconTheme: const IconThemeData(color: Colors.white70),
+      iconTheme: const IconThemeData(color: darkTextSecondary),
       textTheme: const TextTheme(
         displayLarge: TextStyle(color: darkTextPrimary),
         displayMedium: TextStyle(color: darkTextPrimary),
         displaySmall: TextStyle(color: darkTextPrimary),
 
-        headlineLarge: TextStyle(color: darkTextPrimary),
+        headlineLarge: TextStyle(
+          color: darkTextPrimary,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.5,
+        ),
         headlineMedium: TextStyle(color: darkTextPrimary),
         headlineSmall: TextStyle(color: darkTextPrimary),
 
@@ -158,20 +167,41 @@ class AppTheme {
           letterSpacing: 0.5,
         ),
         titleMedium: TextStyle(
-          color: darkTextPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          color: darkTextSecondary,
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
           letterSpacing: 0.5,
         ),
         titleSmall: TextStyle(color: darkTextSecondary),
 
-        bodyLarge: TextStyle(color: darkTextPrimary),
-        bodyMedium: TextStyle(color: darkTextSecondary),
-        bodySmall: TextStyle(color: darkTextTertiary),
+        bodyLarge: TextStyle(
+          color: darkTextPrimary,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        bodyMedium: TextStyle(
+          color: darkTextPrimary,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        bodySmall: TextStyle(color: darkTextTertiary, fontSize: 14),
 
-        labelLarge: TextStyle(color: darkTextPrimary),
-        labelMedium: TextStyle(color: darkTextSecondary),
-        labelSmall: TextStyle(color: darkTextDisabled),
+        labelLarge: TextStyle(
+          color: darkTextSecondary,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+        ),
+        labelMedium: TextStyle(
+          color: darkTextSecondary,
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
+        ),
+        labelSmall: TextStyle(
+          color: darkTextSecondary,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
       ),
     );
   }

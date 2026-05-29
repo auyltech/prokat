@@ -33,10 +33,10 @@ class ClientBookingTile extends ConsumerWidget {
         ? message
         : "";
 
-    final ownerName = booking.equipment?.ownerName;
+    final ownerName = booking.owner?.displayName;
     final displayName = (ownerName == null || ownerName.isEmpty)
         ? "Owner Name"
-        : booking.equipment?.ownerName ?? "";
+        : booking.owner?.displayName ?? "";
 
     final canReview =
         booking.status == "COMPLETED" &&

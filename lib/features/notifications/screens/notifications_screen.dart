@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/notifications/providers/notification_bootstrap_provider.dart';
+import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_tile.dart';
 

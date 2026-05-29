@@ -5,8 +5,6 @@ const String runMode = "remotee";
 
 class Env {
   static String get baseUrl {
-    return "http://10.0.2.2:4000";
-    
     if (kReleaseMode) {
       return "https://prokatbackend.onrender.com";
     }
