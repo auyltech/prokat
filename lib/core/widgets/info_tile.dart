@@ -20,7 +20,7 @@ class InfoTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         decoration: BoxDecoration(
           color: isHighlighted ? Colors.red.shade50 : Colors.grey[50],
           borderRadius: BorderRadius.circular(8),
@@ -41,7 +41,6 @@ class InfoTile extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 4),
             Text(
               value,
               style: TextStyle(

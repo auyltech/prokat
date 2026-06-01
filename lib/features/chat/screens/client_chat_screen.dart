@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -15,7 +12,6 @@ import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
-import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -71,11 +67,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     final currentChat = chatState.currentChat;
     final messages = chatState.messages;
 
-    final title = currentChat?.displayTitle(currentUserId) ?? 'Chat';
-    final avatarUrl = currentChat?.displayImageUrl(
-      currentUserId: currentUserId,
-    );
-
     final booking = currentChat?.booking;
     final request = currentChat?.request;
 
@@ -122,72 +113,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () async {
-            if (!context.mounted) return;
-            context.pop();
-
-            await ref.read(chatProvider.notifier).leaveCurrentChat();
-          },
-        ),
-        titleSpacing: 0,
-        title: GestureDetector(
-          onTap: () {
-            context.push('${AppRoutes.chat}/${widget.chatId}/info');
-          },
-          child: Row(
-            children: [
-              UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
-              // CircleAvatar(
-              //   radius: 18,
-              //   backgroundImage: (avatarUrl ?? '').isNotEmpty
-              //       ? NetworkImage(avatarUrl!)
-              //       : null,
-              //   child: (avatarUrl ?? '').isEmpty
-              //       ? Text(title.isNotEmpty ? title[0].toUpperCase() : 'C')
-              //       : null,
-              // ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                    if (messages.lastOrNull != null)
-                      Text(
-                        formatDateTime(
-                          messages.last.createdAt,
-                          messages.last.createdAt,
-                        ),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onPrimary.withValues(
-                            alpha: 0.7,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);

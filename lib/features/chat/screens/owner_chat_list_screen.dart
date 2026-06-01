@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
@@ -35,24 +34,6 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        title: Text(
-          l10n.navChats,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        backgroundColor: AppColors.teal700,
-        elevation: 0,
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.read(chatProvider.notifier).getChatThreads("owner");

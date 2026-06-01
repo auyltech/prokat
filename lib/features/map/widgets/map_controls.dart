@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/categories/providers/category_provider.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class MapControls extends ConsumerWidget {

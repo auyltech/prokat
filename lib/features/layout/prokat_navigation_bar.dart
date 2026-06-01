@@ -32,6 +32,12 @@ final ownerNavItems = [
   //   label: (l) => 'Alerts',
   //   path: AppRoutes.ownerNotifications,
   // ),
+  
+  _NavItem(
+    icon: Icons.description_outlined,
+    label: (l) => 'Requests',
+    path: AppRoutes.ownerRequests,
+  ),
   _NavItem(
     icon: Icons.local_shipping_rounded,
     label: (l) => l.navMyFleet,
@@ -67,14 +73,14 @@ final clientNavItems = [
     path: AppRoutes.clientRequestsCreate,
   ),
   // _NavItem(
+  //   icon: Icons.description_outlined,
+  //   label: (l) => 'Requests',
+  //   path: AppRoutes.clientRequests,
+  // ),
+  // _NavItem(
   //   icon: Icons.notifications_rounded,
   //   label: (l) => 'Alerts',
   //   path: AppRoutes.notifications,
-  // ),
-  // _NavItem(
-  //   icon: Icons.description_outlined,
-  //   label: 'Requests',
-  //   path: AppRoutes.clientRequests,
   // ),
   _NavItem(
     icon: Icons.list_alt_rounded,

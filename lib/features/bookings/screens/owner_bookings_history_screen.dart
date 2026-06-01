@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/app_colors.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -9,7 +7,6 @@ import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 
 class OwnerBookingHistoryScreen extends ConsumerStatefulWidget {
   const OwnerBookingHistoryScreen({super.key});
@@ -47,24 +44,6 @@ class _OwnerBookingHistoryScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        title: Text(
-          l10n.orderHistory,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        backgroundColor: AppColors.teal700,
-        elevation: 0,
-      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [

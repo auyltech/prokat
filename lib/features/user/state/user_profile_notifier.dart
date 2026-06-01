@@ -1,14 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/user_profile_service.dart';
 import 'package:prokat/features/user/state/user_profile_state.dart';
 import 'dart:io';
 
 class UserProfileNotifier extends StateNotifier<UserProfileState> {
-  final UserProfileService service;
+  UserProfileNotifier(this.ref, this.service) : super(UserProfileState());
 
-  UserProfileNotifier(this.service) : super(UserProfileState()) {
-    // getUserProfile();
-  }
+  final Ref ref;
+  final UserProfileService service;
 
   void setFirstName(String firstName) {
     state = state.copyWith(firstName: firstName);
@@ -33,6 +34,14 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       if (data == null) {
         return false;
       }
+
+      ref.read(locationProvider.notifier).selectCity(data.city ?? "");
+      ref
+          .read(categoriesProvider.notifier)
+          .selectCategoryById(data.selectedCategoryId);
+      ref
+          .read(locationProvider.notifier)
+          .selectAddressById(data.selectedAddressId);
 
       return true;
     } catch (e) {

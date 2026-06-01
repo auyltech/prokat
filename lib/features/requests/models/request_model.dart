@@ -1,3 +1,4 @@
+import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -6,14 +7,15 @@ class RequestModel {
   final String id;
   final String status;
   final String capacity;
-  final int offeredRate;
+  final int offeredPrice;
+  final String? offeredPriceRate;
   final String? comment;
 
   final DateTime? requiredOn;
   final DateTime? requiredAt;
 
   final LocationModel location;
-  final User? renter;
+  final User? client;
 
   final Category? category;
   final String? categoryId;
@@ -25,14 +27,15 @@ class RequestModel {
     required this.id,
     required this.status,
     required this.capacity,
-    required this.offeredRate,
+    required this.offeredPrice,
+    this.offeredPriceRate,
     this.comment,
 
     this.requiredOn,
     this.requiredAt,
 
     required this.location,
-    this.renter,
+    this.client,
 
     this.category,
     this.categoryId,
@@ -49,7 +52,8 @@ class RequestModel {
         capacity: json['capacity']?.toString() ?? '',
         comment: json['comment']?.toString() ?? '',
 
-        offeredRate: json['offeredRate'] as int,
+        offeredPrice: parseNullableInt(json['offeredPrice']) ?? 0,
+        offeredPriceRate: json['offeredPriceRate']?.toString(),
 
         requiredOn: DateTime.parse(json['requiredOn']),
         requiredAt: json['requiredAt'] != null
@@ -65,7 +69,7 @@ class RequestModel {
             ? LocationModel.fromJson(json['location'])
             : throw Exception("Location is required but missing"),
 
-        renter: json["renter"] != null ? User.fromJson(json["renter"]) : null,
+        client: json["client"] != null ? User.fromJson(json["client"]) : null,
 
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])
@@ -86,10 +90,10 @@ class RequestModel {
       "status": status,
       "category": category?.toJson(),
       "capacity": capacity,
-      "offeredRate": offeredRate,
+      "offeredPrice": offeredPrice,
       "comment": comment,
       "location": location.toJson(),
-      "renter": renter?.toJson(),
+      "client": client?.toJson(),
       "requiredOn": requiredOn?.toIso8601String(),
       "requiredAt": requiredAt?.toIso8601String(),
     };

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
@@ -43,32 +41,6 @@ class _OwnerEquipmentListScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
-            icon: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 24),
-            tooltip: l10n.addEquipment,
-          ),
-        ],
-        actionsPadding: EdgeInsets.only(right: 12),
-        title: Text(
-          l10n.myEquipment,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        backgroundColor: AppColors.teal700,
-        elevation: 0,
-      ),
       body: ListView(
         children: [
           Padding(
@@ -126,7 +98,6 @@ class _OwnerEquipmentListScreenState
                 //     ),
                 //   ],
                 // ),
-
                 const SizedBox(height: 20),
 
                 if (state.isLoading)

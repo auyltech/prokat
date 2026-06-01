@@ -8,7 +8,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
-import 'package:prokat/features/categories/providers/category_provider.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
@@ -295,7 +295,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     else
                       // Popular Rents
                       ListView.separated(
-                        separatorBuilder: (context, index) => SizedBox(height: 8,),
+                        separatorBuilder: (context, index) =>
+                            SizedBox(height: 8),
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 0),

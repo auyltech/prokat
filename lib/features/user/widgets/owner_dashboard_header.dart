@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
-import 'package:prokat/features/user/widgets/language_selector_tile.dart';
+import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/features/user/widgets/profile_image_picker.dart';
@@ -22,93 +22,60 @@ class _OwnerDashboardHeaderState extends ConsumerState<OwnerDashboardHeader> {
     final l10n = AppLocalizations.of(context)!;
 
     final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final topInset = MediaQuery.of(context).padding.top;
-
-    final displayName = userProfileState.userProfile?.displayName;
-    final name = (displayName ?? '').isNotEmpty ? displayName! : l10n.hello;
 
     final ratingStars = userProfileState.userProfile?.ratingStars ?? 0;
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, topInset + 20, 24, 24),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [const Color(0xFF006B54), const Color(0xFF008E7D)],
+    return Row(
+      children: [
+        // Profile Image
+        ProfileImagePicker(
+          onImageSelected: (file) async {
+            if (file != null) {
+              await profileNotifier.uploadProfileImage(file);
+            }
+          },
+          initialImageUrl: userProfileState.userProfile?.profileImageUrl ?? "",
         ),
-        border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
-      ),
-      child: Row(
-        children: [
-          // Profile Image
-          ProfileImagePicker(
-            onImageSelected: (file) async {
-              if (file != null) {
-                await profileNotifier.uploadProfileImage(file);
-              }
-            },
-            initialImageUrl:
-                userProfileState.userProfile?.profileImageUrl ?? "",
-          ),
 
-          const SizedBox(width: 16),
+        const SizedBox(width: 16),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const DisplayName(),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                const Icon(LucideIcons.star, size: 16, color: Colors.amber),
+                const SizedBox(width: 4),
                 Text(
-                  name,
+                  ratingStars.toStringAsFixed(1),
                   style: TextStyle(
-                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary,
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
-
-                Row(
-                  children: [
-                    const Icon(LucideIcons.star, size: 16, color: Colors.amber),
-                    const SizedBox(width: 4),
-                    Text(
-                      ratingStars.toStringAsFixed(1),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${ratingStars.toStringAsFixed(0)} ${l10n.reviews})',
-                      style: TextStyle(
-                        color: theme.colorScheme.onPrimary,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 4),
+                Text(
+                  (ratingStars).toStringAsFixed(1),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "- 0 ${l10n.navOrders}",
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.secondary.withValues(alpha: 0.8),
+                  ),
                 ),
               ],
             ),
-          ),
-
-          // IconButton(
-          //   padding: const EdgeInsets.all(12),
-          //   icon: Icon(
-          //     LucideIcons.messageSquare,
-          //     size: 24,
-          //     color: theme.colorScheme.onPrimary,
-          //   ),
-          //   onPressed: () {
-          //     context.push(AppRoutes.ownerChat);
-          //   },
-          // ),
-          const LanguageSelectorTile(),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

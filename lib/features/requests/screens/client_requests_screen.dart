@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
@@ -60,35 +57,6 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        elevation: 0,
-        title: Text(
-          l10n.myRequests,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.push(AppRoutes.clientRequestsCreate),
-            icon: Icon(
-              Icons.add_rounded,
-              color: theme.colorScheme.onPrimary,
-              size: 24,
-            ),
-            tooltip: l10n.createRequest,
-          ),
-        ],
-      ),
       body: ListView(
         children: [
           if (authSession == null)
@@ -110,39 +78,22 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               icon: Icons.description_outlined,
             )
           else
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: active.length,
-                    padding: const EdgeInsets.only(bottom: 12),
-                    itemBuilder: (context, index) {
-                      final r = active[index];
-                      final requestOffers = offersByRequest[r.id] ?? [];
+            ListView.separated(
+              separatorBuilder: (context, index) => const Divider(),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: active.length,
+              itemBuilder: (context, index) {
+                final r = active[index];
+                final requestOffers = offersByRequest[r.id] ?? [];
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: RequestWithOffers(
-                          request: r,
-                          offers: requestOffers,
-                          onCancel: () => ref
-                              .read(requestProvider.notifier)
-                              .cancelRequest(r.id),
-                        ),
-                      );
-                    },
-                  ),
-
-                  PrimaryButton(
-                    label: l10n.createNewRequest,
-                    onPressed: () =>
-                        context.push(AppRoutes.clientRequestsCreate),
-                  ),
-                ],
-              ),
+                return RequestWithOffers(
+                  request: r,
+                  offers: requestOffers,
+                  onCancel: () =>
+                      ref.read(requestProvider.notifier).cancelRequest(r.id),
+                );
+              },
             ),
         ],
       ),

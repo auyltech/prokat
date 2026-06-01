@@ -28,176 +28,122 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
     final request = widget.request;
 
-    final displayMessage = "";
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        border: Border.all(color: theme.colorScheme.secondary, width: 2),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tile Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondary,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(13),
-                topRight: Radius.circular(13),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: 110,
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: OptimizedNetworkImage(
+                      imageUrl: request.category?.imageUrl ?? "",
+                      fit: BoxFit.contain,
+                      fallbackIcon: Icons.image,
+                      backgroundColor: Colors.grey[200],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  getRequestStatus(request.status, l10n: l10n),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onPrimary,
-                    letterSpacing: 0.5,
-                  ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      request.category?.name.toUpperCase() ?? "",
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  displayMessage,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                ),
-              ],
-            ),
+              ),
+
+              RequestStatusBadge(status: request.status),
+            ],
           ),
 
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 130,
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: OptimizedNetworkImage(
-                            imageUrl: request.category?.imageUrl ?? "",
-                            fit: BoxFit.contain,
-                            fallbackIcon: Icons.image,
-                            backgroundColor: Colors.grey[200],
-                          ),
-                        ),
-                      ),
-                    ),
+          const SizedBox(height: 16),
 
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            request.category?.name.toUpperCase() ?? "",
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    RequestStatusBadge(status: request.status),
-                  ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: InfoTile(
+                  label: l10n.location,
+                  value: request.location.street,
+                  onTap: () => showLocationSheet(context, request.location),
                 ),
-
-                const SizedBox(height: 16),
-
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InfoTile(
-                        label: l10n.location,
-                        value: request.location.street,
-                        onTap: () =>
-                            showLocationSheet(context, request.location),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InfoTile(
-                        label: l10n.dateAndTime,
-                        value: request.requiredOn != null
-                            ? DateFormat(
-                                'dd MMM yyyy • HH:mm',
-                              ).format(request.requiredOn!)
-                            : "PENDING",
-                      ),
-                    ),
-                  ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: InfoTile(
+                  label: l10n.dateAndTime,
+                  value: request.requiredOn != null
+                      ? DateFormat(
+                          'dd MMM yyyy • HH:mm',
+                        ).format(request.requiredOn!)
+                      : "PENDING",
                 ),
-                const SizedBox(height: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InfoTile(
-                        label: l10n.offeredRate,
-                        value: formatPrice(request.offeredRate),
-                        isHighlighted: true,
-                      ),
-                    ),
-                  ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: InfoTile(
+                  label: l10n.offeredRate,
+                  value: formatPrice(request.offeredPrice),
+                  isHighlighted: true,
                 ),
+              ),
+            ],
+          ),
 
-                const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-                if (request.comment != null && request.comment!.isNotEmpty)
-                  InfoTile(label: l10n.comments, value: request.comment!),
+          if (request.comment != null && request.comment!.isNotEmpty)
+            InfoTile(label: l10n.comments, value: request.comment!),
 
-                const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () =>
-                            _showCancelConfirmation(context, ref, request.id, l10n),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: theme.colorScheme.error,
-                            width: 1,
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Text(
-                          l10n.cancelRequestAction,
-                          style: TextStyle(
-                            color: theme.colorScheme.error,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () =>
+                      _showCancelConfirmation(context, ref, request.id, l10n),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: theme.colorScheme.error, width: 1),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  ],
+                  ),
+                  child: Text(
+                    l10n.cancelRequestAction,
+                    style: TextStyle(
+                      color: theme.colorScheme.error,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

@@ -53,20 +53,16 @@ class BookingState {
   }) {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-
+      error: error, // ?? this.error
       bookings: bookings ?? this.bookings,
       ownerBookings: ownerBookings ?? this.ownerBookings,
-
       currentBooking: currentBooking ?? this.currentBooking,
-
       selectedEquipment: selectedEquipment ?? this.selectedEquipment,
       selectedLocationId: selectedLocationId ?? this.selectedLocationId,
       selectedLocation: selectedLocation ?? this.selectedLocation,
       selectedPriceEntry: selectedPriceEntry ?? this.selectedPriceEntry,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTime: selectedTime ?? this.selectedTime,
-
       comment: comment ?? this.comment,
     );
   }

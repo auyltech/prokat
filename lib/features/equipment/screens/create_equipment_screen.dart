@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/app_colors.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
@@ -53,12 +51,25 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
       if (res == true && mounted) {
         context.pop();
-        AppSnackBar.show(context, message: l10n.equipmentAdded, isSuccess: true);
+        AppSnackBar.show(
+          context,
+          message: l10n.equipmentAdded,
+          isSuccess: true,
+        );
       } else if (mounted) {
-        AppSnackBar.show(context, message: l10n.couldNotAddEquipment, isError: true);
+        AppSnackBar.show(
+          context,
+          message: l10n.couldNotAddEquipment,
+          isError: true,
+        );
       }
     } catch (e) {
-      if (mounted) AppSnackBar.show(context, message: l10n.somethingWentWrong, isError: true);
+      if (mounted)
+        AppSnackBar.show(
+          context,
+          message: l10n.somethingWentWrong,
+          isError: true,
+        );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -75,24 +86,6 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        title: Text(
-          l10n.addEquipment,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        backgroundColor: AppColors.teal700,
-        elevation: 0,
-      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -112,7 +105,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       showModalBottomSheet(
                         context: context,
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
                         ),
                         builder: (context) {
                           return Padding(
@@ -120,14 +115,20 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(l10n.selectCity, style: theme.textTheme.headlineSmall),
+                                Text(
+                                  l10n.selectCity,
+                                  style: theme.textTheme.headlineSmall,
+                                ),
                                 const SizedBox(height: 10),
                                 ..._cities.map(
                                   (city) => ListTile(
                                     title: Text(city),
                                     leading: const Icon(Icons.location_city),
                                     trailing: _cityController.text == city
-                                        ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                                        ? Icon(
+                                            Icons.check_circle,
+                                            color: theme.colorScheme.primary,
+                                          )
                                         : null,
                                     onTap: () {
                                       _cityController.text = city;
@@ -147,11 +148,15 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.2,
+                            ),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            hasLocation ? Icons.pin_drop : Icons.pin_drop_outlined,
+                            hasLocation
+                                ? Icons.pin_drop
+                                : Icons.pin_drop_outlined,
                             color: hasLocation
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.onPrimary,
@@ -163,7 +168,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                           child: Text(
                             hasLocation ? location : l10n.selectCity,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: hasLocation ? colorScheme.primary : colorScheme.onSurface,
+                              color: hasLocation
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -213,7 +220,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : Text(
                               l10n.addEquipment,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                     ),
                   ),

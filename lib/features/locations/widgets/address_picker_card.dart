@@ -20,42 +20,24 @@ class AddressPickerCard extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          /// Icon Container
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.location_on_rounded,
-              color: theme.colorScheme.primary,
-              size: 22,
-            ),
+          Icon(
+            Icons.location_on_rounded,
+            color: theme.colorScheme.primary,
+            size: 32,
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
 
           /// Address Content
           Expanded(
-            child: selectedAddress != null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l10n.deliverTo, style: theme.textTheme.labelMedium),
-                      const SizedBox(height: 2),
-                      Text(
-                        "${selectedAddress.street}, ${selectedAddress.city}",
-                        style: theme.textTheme.bodyMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  )
-                : Text(
-                    l10n.setDeliveryAddress,
-                    style: theme.textTheme.bodyMedium,
-                  ),
+            child: Text(
+              selectedAddress == null
+                  ? l10n.setDeliveryAddress
+                  : "${selectedAddress.street}, ${selectedAddress.city}",
+              style: theme.textTheme.bodyMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
 
           Icon(

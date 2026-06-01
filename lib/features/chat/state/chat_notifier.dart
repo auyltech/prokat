@@ -48,8 +48,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     _sessionToken = session.sessionToken ?? _sessionToken ?? '';
 
     final user = session.user;
-    final resolvedUserId =
-        user?.id ?? user?.username ?? user?.phoneNumber ?? user?.displayName;
+    final resolvedUserId = user?.id ?? user?.phoneNumber ?? user?.displayName;
 
     if ((resolvedUserId ?? '').isNotEmpty) {
       state = state.copyWith(currentUserId: resolvedUserId);
@@ -64,7 +63,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(
       currentUserId:
           session?.user?.id ??
-          session?.user?.username ??
           session?.user?.phoneNumber ??
           session?.user?.displayName,
     );

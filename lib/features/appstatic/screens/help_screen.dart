@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -22,23 +21,6 @@ class HelpScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: false,
-      appBar: AppBar(
-        title: Text(
-          l10n.helpSupportTitle,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        centerTitle: false,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        backgroundColor: theme.primaryColor,
-      ),
       body: SafeArea(
         child: ListView(
           children: [
@@ -153,7 +135,10 @@ class HelpScreen extends StatelessWidget {
             children: [
               Text(
                 l10n.contactSupport,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
 

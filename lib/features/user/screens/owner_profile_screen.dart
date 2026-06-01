@@ -18,81 +18,61 @@ class OwnerProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true,
       body: ListView(
-        padding: EdgeInsets.zero,
+        padding: EdgeInsets.all(24),
         children: [
           OwnerDashboardHeader(),
 
-          // 2. Body Content
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    l10n.fullyVerified,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
+          const SizedBox(height: 24),
 
-                UserProfileTile(
-                  icon: Icons.assignment_turned_in_outlined,
-                  label: l10n.registrationStatus,
-                  value: "Fully Verified (Expires 2025)",
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    context.push(AppRoutes.ownerRegistration);
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                UserProfileTile(
-                  icon: Icons.settings_outlined,
-                  label: l10n.appSettings,
-                  value: l10n.appSettingsSubtitle,
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    context.push(AppRoutes.ownerSettings);
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                UserProfileTile(
-                  icon: Icons.help_outline,
-                  label: l10n.helpSupportTitle,
-                  value: l10n.helpFaqsSubtitle,
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    context.push(AppRoutes.helpSupport);
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                const Divider(),
-
-                const SizedBox(height: 12),
-
-                RentAnEquipmentTile(),
-
-                const SizedBox(height: 12),
-
-                const Divider(),
-
-                const SizedBox(height: 12),
-                LogoutButton(),
-              ],
-            ),
+          UserProfileTile(
+            icon: Icons.assignment_turned_in_outlined,
+            label: l10n.registrationStatus,
+            value: "Fully Verified (Expires 2025)",
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              context.push(AppRoutes.ownerRegistration);
+            },
           ),
+
+          const SizedBox(height: 12),
+
+          UserProfileTile(
+            icon: Icons.settings_outlined,
+            label: l10n.appSettings,
+            value: l10n.appSettingsSubtitle,
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              context.push(AppRoutes.ownerSettings);
+            },
+          ),
+
+          const SizedBox(height: 12),
+
+          UserProfileTile(
+            icon: Icons.help_outline,
+            label: l10n.helpSupportTitle,
+            value: l10n.helpFaqsSubtitle,
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              context.push(AppRoutes.helpSupport);
+            },
+          ),
+
+          const SizedBox(height: 12),
+
+          const Divider(),
+
+          const SizedBox(height: 12),
+
+          RentAnEquipmentTile(),
+
+          const SizedBox(height: 12),
+
+          const Divider(),
+
+          const SizedBox(height: 12),
+          LogoutButton(),
         ],
       ),
     );

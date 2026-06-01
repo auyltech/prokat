@@ -37,23 +37,6 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        title: Text(
-          l10n.navChats,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.read(chatProvider.notifier).getChatThreads("client");

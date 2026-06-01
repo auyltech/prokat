@@ -35,17 +35,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       backgroundColor: theme.primaryColor,
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        leading: IconButton(
-          icon: Icon(
-            LucideIcons.chevronLeft,
-            size: 24,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.go(AppRoutes.main),
-        ),
-      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {

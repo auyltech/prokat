@@ -8,8 +8,8 @@ import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/features/categories/providers/category_provider.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -47,10 +47,19 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     );
   }
 
-  Future<void> _onPressed() async {
+  // Handle create request
+  Future<void> onSubmit() async {
+    final selectedCategory = ref.read(categoriesProvider).selectedCategory;
+
     final requestNotifier = ref.read(requestProvider.notifier);
 
+    if (selectedCategory == null) {
+      AppSnackBar.show(context, message: "Please select category", isError: true);
+      return;
+    }
+
     final res = await requestNotifier.createRequest(
+      categoryId: selectedCategory.id,
       capacity: capacityController.text.trim(),
       offeredRate: parseNullableInt(rateController.text.trim()) ?? 0,
       comment: commentController.text.trim(),
@@ -67,14 +76,21 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(categoriesProvider.notifier).getCategories();
-      ref.read(locationProvider.notifier).getRenterLocations();
+      final clientRequests = ref.read(requestProvider);
+      final active = clientRequests.requests
+          .where((r) => ["CREATED", "VIEWED"].contains(r.status))
+          .toList();
+
+      if (active.isNotEmpty && context.mounted) {
+        context.push(AppRoutes.clientRequests);
+      } else {
+        ref.read(locationProvider.notifier).getRenterLocations();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
@@ -103,24 +119,6 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        title: Text(
-          l10n.newRequest,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        elevation: 0,
-      ),
       body: ListView(
         children: [
           Padding(
@@ -128,7 +126,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CategorySelectorTile(mode: "create_request"),
+                const UserCategorySelector(mode: "create_request"),
 
                 const SizedBox(height: 24),
 
@@ -233,7 +231,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
 
                 PrimaryButton(
                   label: l10n.create,
-                  onPressed: _onPressed,
+                  onPressed: onSubmit,
                   isLoading: requestState.isLoading,
                 ),
               ],

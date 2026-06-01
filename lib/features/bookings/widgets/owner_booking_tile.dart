@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
@@ -11,8 +10,6 @@ import 'package:prokat/features/bookings/widgets/owner_booking_action_button.dar
 import 'package:prokat/features/bookings/widgets/owner_booking_chat_button.dart';
 import 'package:prokat/features/bookings/widgets/owner_cancel_booking_button.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
-import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 
 class OwnerBookingTile extends ConsumerWidget {
   final BookingModel booking;
@@ -22,7 +19,6 @@ class OwnerBookingTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
 
@@ -32,8 +28,7 @@ class OwnerBookingTile extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        // Uniform navigation pattern matching your Equipment Card
-        context.push('${AppRoutes.ownerChat}/${booking.chatId}');
+        // context.push('${AppRoutes.ownerChat}/${booking.chatId}');
       },
       child: Column(
         children: [

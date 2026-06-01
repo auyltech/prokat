@@ -125,4 +125,12 @@ class LocationNotifier extends StateNotifier<LocationState> {
   void selectAddress(LocationModel address) {
     state = state.copyWith(selectedAddress: address);
   }
+
+  void selectAddressById(String? addressId) {
+    final foundAddress = state.renterLocations
+        .where((item) => item.id == addressId)
+        .firstOrNull;
+
+    state = state.copyWith(selectedAddress: foundAddress);
+  }
 }

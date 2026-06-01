@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class TermsConditionsScreen extends StatelessWidget {
@@ -12,23 +11,6 @@ class TermsConditionsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: false,
-      appBar: AppBar(
-        title: Text(
-          l10n.termsConditions,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        centerTitle: false,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        backgroundColor: theme.primaryColor,
-      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

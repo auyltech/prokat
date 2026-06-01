@@ -9,7 +9,7 @@ class RequestStatusBadge extends StatelessWidget {
 
   Color get color {
     switch (status) {
-      case "CREATED":
+      case "CREATED": 
         return Colors.blue;
       case "VIEWED":
         return Colors.orange;

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/app_colors.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -22,24 +19,6 @@ class OwnerRegistrationScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          l10n.ownerProfile,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.ownerProfile),
-        ),
-        backgroundColor: AppColors.teal700,
-        elevation: 0,
-      ),
       body: ListView(
         children: [
           Padding(

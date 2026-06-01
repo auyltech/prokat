@@ -22,11 +22,11 @@ void openResponseSheet(BuildContext context, RequestModel request) {
           final equipmentState = ref.watch(equipmentProvider);
 
           final equipmentOptions = equipmentState.ownerEquipment
-              .where(
-                (e) =>
-                    e.category?.id.toString() ==
-                    offersState.selectedRequest?.categoryId,
-              )
+              // .where(
+              //   (e) =>
+              //       e.category?.id.toString() ==
+              //       offersState.selectedRequest?.categoryId,
+              // )
               .toList();
 
           return Container(
@@ -81,7 +81,7 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                         items: equipmentOptions.map((e) {
                           return DropdownMenuItem(
                             value: e,
-                            child: Text(e.name),
+                            child: Text("${e.name}-${e.plateNumber}"),
                           );
                         }).toList(),
                         onChanged: (value) {

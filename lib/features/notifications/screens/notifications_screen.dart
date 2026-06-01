@@ -33,17 +33,6 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Notifications'),
-        actions: [
-          IconButton(
-            onPressed: () =>
-                ref.read(notificationProvider.notifier).markAllAsRead(),
-            icon: const Icon(Icons.done_all),
-            tooltip: 'Mark all as read',
-          ),
-        ],
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _onRefresh,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 String formatRequestTime(String date) {
@@ -190,6 +191,33 @@ String getRequestStatus(dynamic status, {AppLocalizations? l10n}) {
     default:
       return "";
   }
+}
+
+String getOwnerRequestStatus(
+  OwnerRequestUIState requestState, {
+  AppLocalizations? l10n,
+}) {
+  String? stateLabel;
+
+  switch (requestState) {
+    case OwnerRequestUIState.newRequest:
+      stateLabel = l10n?.newRequestBadge;
+      break;
+    case OwnerRequestUIState.viewed:
+      stateLabel = l10n?.viewedBadge;
+      break;
+    case OwnerRequestUIState.offerSent:
+      stateLabel = l10n?.offerSentBadge;
+      break;
+    case OwnerRequestUIState.accepted:
+      stateLabel = l10n?.acceptedBadge;
+      break;
+    case OwnerRequestUIState.hidden:
+      stateLabel = l10n?.hiddenBadge;
+      break;
+  }
+
+  return stateLabel ?? "";
 }
 
 MaterialColor getBookingColor(dynamic status) {

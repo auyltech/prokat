@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SupportUsPage extends StatelessWidget {
@@ -13,23 +12,6 @@ class SupportUsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: false,
-      appBar: AppBar(
-        title: Text(
-          l10n.helpUsGrow,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        centerTitle: false,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        backgroundColor: theme.primaryColor,
-      ),
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.zero,

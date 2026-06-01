@@ -1,11 +1,12 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
-import 'package:prokat/features/categories/providers/category_provider.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+// Used for creating and editing equipment
 class CategorySelectorTile extends ConsumerStatefulWidget {
   final String mode;
   const CategorySelectorTile({super.key, required this.mode});

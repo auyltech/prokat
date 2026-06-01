@@ -45,7 +45,7 @@ class UserProfileService {
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {
-       return ApiResponse.success(null);
+        return ApiResponse.success(null);
       }
 
       return ApiResponse.failure(message: res.statusCode.toString());

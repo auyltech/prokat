@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -60,24 +58,6 @@ class ClientBookingsHistoryScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 20,
-            color: theme.colorScheme.onPrimary,
-          ),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.push(AppRoutes.searchList),
-        ),
-        title: Text(
-          l10n.orderHistory,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        backgroundColor: theme.primaryColor,
-        elevation: 0,
-      ),
       body: ListView(
         children: [
           if (authSession == null)

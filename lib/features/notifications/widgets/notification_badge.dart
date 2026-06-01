@@ -69,7 +69,7 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
 
     // 3. Wrap with InkWell/GestureDetector to catch taps globally
     return InkWell(
-      onTap: () => context.pushNamed(notificationsRoute),
+      onTap: () => context.push(notificationsRoute),
       customBorder: const CircleBorder(), // Keeps the ripple effect circular
       child: Padding(
         padding: const EdgeInsets.all(

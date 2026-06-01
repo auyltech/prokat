@@ -1,18 +1,22 @@
+import 'package:prokat/core/utils/parse.dart';
+
 class User {
   final String? id;
-  final String? username;
   final String? phoneNumber;
   final String? firstName;
   final String? lastName;
+  final int? rating;
+  final int? orderCount;
   final String? role;
   final String? imageUrl;
 
   const User({
     this.id,
-    this.username,
     this.phoneNumber,
     this.firstName,
     this.lastName,
+    this.rating,
+    this.orderCount,
     this.role,
     this.imageUrl,
   });
@@ -41,8 +45,9 @@ class User {
         id: json['id']?.toString(),
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
-        username: json['username']?.toString(),
         phoneNumber: json['phoneNumber']?.toString(),
+        rating: parseNullableInt(json['rating']),
+        orderCount: parseNullableInt(json['orderCount']),
         role: json['role']?.toString(),
         imageUrl: json['imageUrl']?.toString(),
       );
@@ -54,7 +59,6 @@ class User {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'username': username,
       'phoneNumber': phoneNumber,
       'firstName': firstName,
       'lastName': lastName,

@@ -16,7 +16,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
       selectedRequest: request,
       selectedDate: request.requiredOn,
       selectedTime: request.requiredAt,
-      price: request.offeredRate,
+      price: request.offeredPrice,
     );
   }
 

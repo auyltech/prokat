@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 
 class OwnerChatInfoScreen extends ConsumerWidget {
@@ -23,24 +22,6 @@ class OwnerChatInfoScreen extends ConsumerWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            floating: true,
-            pinned: true,
-            backgroundColor: theme.colorScheme.primary,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: theme.colorScheme.onPrimary,
-              ),
-              onPressed: () => context.pop(),
-            ),
-            title: Text(
-              'Order Details',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-          ),
           SliverPadding(
             padding: const EdgeInsets.all(24),
             sliver: SliverList(

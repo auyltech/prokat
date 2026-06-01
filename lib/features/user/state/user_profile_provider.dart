@@ -12,6 +12,5 @@ final userProfileServiceProvider = Provider<UserProfileService>((ref) {
 
 final userProfileProvider =
     StateNotifierProvider<UserProfileNotifier, UserProfileState>((ref) {
-      final service = ref.read(userProfileServiceProvider);
-      return UserProfileNotifier(service);
+      return UserProfileNotifier(ref, ref.read(userProfileServiceProvider));
     });

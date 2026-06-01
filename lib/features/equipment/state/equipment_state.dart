@@ -61,7 +61,7 @@ class EquipmentState {
       isLoading: isLoading ?? this.isLoading,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isFetchingMore: isFetchingMore ?? this.isFetchingMore,
-      error: error ?? this.error,
+      error: error, // this.error is set if the error passed is null
       currentPage: currentPage ?? this.currentPage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       imageActionInProgressEquipmentIds:

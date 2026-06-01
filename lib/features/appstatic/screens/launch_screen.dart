@@ -75,7 +75,6 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
     return Scaffold(
       extendBody: true,
-      extendBodyBehindAppBar: true,
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         alignment: Alignment.center,

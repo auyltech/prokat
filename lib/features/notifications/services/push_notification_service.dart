@@ -3,11 +3,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
-    show
-        TargetPlatform,
-        defaultTargetPlatform,
-        kDebugMode,
-        kIsWeb;
+    show TargetPlatform, defaultTargetPlatform, kDebugMode, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
@@ -111,14 +107,15 @@ class PushNotificationService {
     final normalizedToken = token.trim();
     if (normalizedToken.isEmpty) return;
 
-    final userId = session.user?.id ?? session.user?.username ?? session.user?.phoneNumber;
+    final userId = session.user?.id ?? session.user?.phoneNumber;
 
     final last = await storage.readLastRegisteredToken();
     final lastToken = last?.token.trim();
     final lastAt = last?.at;
     final lastUserId = last?.userId;
 
-    final tooSoon = lastAt != null &&
+    final tooSoon =
+        lastAt != null &&
         DateTime.now().difference(lastAt) < const Duration(hours: 12);
 
     if (lastToken == normalizedToken && lastUserId == userId && tooSoon) {
@@ -168,7 +165,8 @@ class PushNotificationService {
       if (notification == null) return;
 
       final id = notification.id.trim();
-      final suppress = id.isNotEmpty && (shouldSuppressDisplay?.call(id) ?? false);
+      final suppress =
+          id.isNotEmpty && (shouldSuppressDisplay?.call(id) ?? false);
 
       onIncoming(notification);
 
@@ -184,7 +182,9 @@ class PushNotificationService {
 
   void handleBackgroundNotificationTap() {
     _onMessageOpenedSub?.cancel();
-    _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((message) {
+    _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((
+      message,
+    ) {
       handleNotificationTap(message);
     });
   }
@@ -211,8 +211,10 @@ class PushNotificationService {
       if (id.trim().isEmpty) return null;
 
       final title =
-          (data['title'] ?? message.notification?.title ?? 'Notification').toString();
-      final body = (data['body'] ?? message.notification?.body ?? '').toString();
+          (data['title'] ?? message.notification?.title ?? 'Notification')
+              .toString();
+      final body = (data['body'] ?? message.notification?.body ?? '')
+          .toString();
 
       return AppNotification(
         id: id,
@@ -262,9 +264,10 @@ class PushNotificationService {
         importance: Importance.high,
       );
 
-      final androidPlugin =
-          localNotifications.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin = localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       await androidPlugin?.createNotificationChannel(channel);
     }
   }

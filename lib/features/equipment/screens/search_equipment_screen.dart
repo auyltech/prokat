@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/categories/providers/category_provider.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_list_skeleton.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/notifications/widgets/notification_badge.dart';
-import 'package:prokat/features/user/widgets/city_picker_trigger.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -57,7 +55,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     Future.microtask(() async {
       final city = ref.read(locationProvider).city;
 
-      ref.read(categoriesProvider.notifier).getCategories();
+      if (ref.read(categoriesProvider).categories.isEmpty) {
+        ref.read(categoriesProvider.notifier).getCategories();
+      }
 
       ref
           .read(equipmentProvider.notifier)
@@ -71,10 +71,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
   Future<void> _onRefresh() async {
     final selectedCity = ref.watch(locationProvider).city;
-
-    // final cat = ref.read(categoriesProvider).categories;
-
-    // if (cat.isEmpty) ref.read(categoriesProvider.notifier).getCategories();
 
     ref
         .read(equipmentProvider.notifier)
@@ -95,36 +91,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
 
-    final locationState = ref.watch(locationProvider);
-    final selectedCity = locationState.city;
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      extendBodyBehindAppBar: false,
-      appBar: AppBar(
-        title: Text(
-          l10n.search,
-          style: TextStyle(color: theme.colorScheme.onPrimary),
-        ),
-        centerTitle: false,
-        leading: context.canPop()
-            ? IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: theme.colorScheme.onPrimary,
-                ),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        backgroundColor: theme.primaryColor,
-        elevation: 10,
-        actions: [
-          CityPickerTrigger(selectedCity: selectedCity),
-          NotificationBadge(),
-        ],
-        actionsPadding: EdgeInsets.only(right: 14),
-      ),
       body: SafeArea(
         top: false,
         child: RefreshIndicator(
@@ -137,7 +105,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               const SizedBox(height: 24),
 
-              const UserCategorySelector(),
+              const UserCategorySelector(mode: "search",),
 
               const SizedBox(height: 12),
 

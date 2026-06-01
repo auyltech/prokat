@@ -40,7 +40,7 @@ class RequestHeaderBubble extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Offered: ${formatPrice(request.offeredRate)}',
+            'Offered: ${formatPrice(request.offeredPrice)}',
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),

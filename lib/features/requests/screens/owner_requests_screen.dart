@@ -7,7 +7,6 @@ import 'package:prokat/features/offers/providers/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerRequestsScreen extends ConsumerStatefulWidget {
@@ -53,61 +52,30 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              automaticallyImplyLeading: false,
-              expandedHeight: 60,
-              floating: true,
-              pinned: false,
-              backgroundColor: theme.colorScheme.primary,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 20,
-                  color: theme.colorScheme.onPrimary,
-                ),
-                onPressed: () => context.pop(),
-              ),
-              title: Text(
-                l10n.navRequests,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.onPrimary,
-                ),
-              ),
-              centerTitle: false,
-            ),
-
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(requestProvider.notifier).getOwnerRequests();
+        },
+        child: ListView(
+          children: [
             if (requestState.isLoading)
-              SliverToBoxAdapter(child: RequestTileSkeleton())
+              RequestTileSkeleton()
             else if (requestState.error != null)
-              SliverToBoxAdapter(child: Text(l10n.errorLoadingRequests))
+              Text(l10n.errorLoadingRequests)
             else if (activeRequests.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: EmptyStateTile(title: l10n.noRequestsAtMoment),
-                ),
-              )
+              EmptyStateTile(title: l10n.noRequestsAtMoment)
             else
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final request = activeRequests[index];
-                    final requestOffers = offersByRequest[request.id] ?? [];
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: OwnerRequestTile(
-                        request: request,
-                        offers: requestOffers,
-                      ),
-                    );
-                  }, childCount: activeRequests.length),
-                ),
+              ListView.separated(
+                separatorBuilder: (context, index) => const Divider(),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: activeRequests.length,
+                itemBuilder: (context, index) {
+                  return OwnerRequestTile(
+                    request: activeRequests[index],
+                    offers: offersByRequest[activeRequests[index].id] ?? [],
+                  );
+                },
               ),
           ],
         ),
