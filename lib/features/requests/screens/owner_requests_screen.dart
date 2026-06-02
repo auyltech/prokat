@@ -22,10 +22,10 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(offersProvider.notifier).getOwnerOffers();
-      ref.read(requestProvider.notifier).getOwnerRequests();
-      ref.read(equipmentProvider.notifier).getOwnerEquipment();
+    Future.microtask(() async {
+      await ref.read(offersProvider.notifier).getOwnerOffers();
+      await ref.read(requestProvider.notifier).getOwnerRequests();
+      await ref.read(equipmentProvider.notifier).getOwnerEquipment();
     });
   }
 
@@ -54,6 +54,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
+          await ref.read(offersProvider.notifier).getOwnerOffers();
           await ref.read(requestProvider.notifier).getOwnerRequests();
         },
         child: ListView(

@@ -76,6 +76,8 @@ class AppRoutes {
 
   // Owner Requests
   static const String ownerRequests = '/owner/requests';
+  static const String createOffer = ':id';
+  static const String ownerCreateOffer = '/owner/requests/:id';
 
   // Owner Bookings
   static const String ownerBookings = '/owner/bookings';

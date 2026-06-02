@@ -35,7 +35,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(bookingProvider.notifier).getUserBookings();
+          await ref.read(bookingProvider.notifier).getOwnerBookings();
         },
         child: ListView(
           padding: EdgeInsets.all(0),

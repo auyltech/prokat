@@ -41,8 +41,6 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     final isWorkCompleted = widget.chatStatus == ChatStatus.workcompleted;
     final isOrderCanceled = widget.chatStatus == ChatStatus.bookingcancelled;
 
-    if (isWorkCompleted || isOrderCanceled) return SizedBox();
-
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,

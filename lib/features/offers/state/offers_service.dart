@@ -23,12 +23,14 @@ class OffersService {
 
   Future<List<OfferModel>> getOwnerOffers() async {
     try {
+      print("get_owner_offers");
       final res = await _dio.get('/offers/owner');
 
       return (res.data['data'] as List)
           .map((e) => OfferModel.fromJson(e))
           .toList();
     } catch (e) {
+      print(e);
       return [];
     }
   }

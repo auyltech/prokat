@@ -2,20 +2,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/drowp_down_field.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
-import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/utils/date_time.dart';
 
 class CreateOfferScreen extends ConsumerStatefulWidget {
-  final RequestModel request;
+  final String requestId;
 
-  const CreateOfferScreen({super.key, required this.request});
+  const CreateOfferScreen({super.key, required this.requestId});
 
   @override
   ConsumerState<CreateOfferScreen> createState() => _CreateOfferScreenState();
@@ -24,19 +25,19 @@ class CreateOfferScreen extends ConsumerStatefulWidget {
 class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
   // Declare the form key and controller here
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _name;
+  final TextEditingController _price = TextEditingController();
+  final TextEditingController _comment = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Initialize the controller
-    _name = TextEditingController();
   }
 
   @override
   void dispose() {
     // Safely dispose the controller to prevent memory leaks
-    _name.dispose();
+    _price.dispose();
+    _comment.dispose();
     super.dispose();
   }
 
@@ -54,19 +55,21 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         .map((item) => EquipmentSummaryModel.fromJson(item.toJson()))
         .toList();
 
+    Future<void> onSubmit() async {
+      // Trigger form validation check
+      if (_formKey.currentState?.validate() ?? false) {
+        // Pass the text controller value into notifier if needed right before sending
+        offersNotifier.setPrice(parseNullableInt(_price.text) ?? 0);
+        offersNotifier.setComment(_comment.text);
+
+        final res = await offersNotifier.createOffer();
+        if (res == true && context.mounted) {
+          Navigator.pop(context);
+        }
+      }
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          l10n.sendOffer,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
       body: Form(
         key: _formKey, // Wrapped in a Form to handle the field validation
         child: SingleChildScrollView(
@@ -79,55 +82,8 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.navEquipment, style: theme.textTheme.labelMedium),
-              const SizedBox(height: 6),
-
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.dividerColor),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton(
-                    isExpanded: true,
-                    value: offersState.selectedEquipment,
-                    hint: Text(l10n.selectEquipment),
-                    items: equipmentOptions.map((e) {
-                      return DropdownMenuItem(
-                        value: e,
-                        child: Text("${e.name}-${e.plateNumber}"),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        offersNotifier.selectEquipment(value);
-                      }
-                    },
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
               Row(
                 children: [
-                  Expanded(
-                    child: InputField(
-                      label: l10n
-                          .priceKZT, // Note: updated from startTime to comments
-                      controller: _name,
-                      hint: "12 000",
-                      // keyboardType: TextInputType.number,
-                      validator: (v) =>
-                          v == null || v.isEmpty ? l10n.required : null,
-                    ),
-                    // onChanged: (value) {
-                    //   offersNotifier.setPrice(int.tryParse(value) ?? 0);
-                    // },
-                  ),
-                  const SizedBox(width: 12),
                   Expanded(
                     child: DropDownfield<EquipmentSummaryModel>(
                       label: l10n.navEquipment,
@@ -146,6 +102,46 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                       },
                     ),
                   ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: InputField(
+                      label: l10n
+                          .priceKZT, // Note: updated from startTime to comments
+                      controller: _price,
+                      hint: "12 000",
+                      // keyboardType: TextInputType.number,
+                      validator: (v) =>
+                          v == null || v.isEmpty ? l10n.required : null,
+                    ),
+                    // onChanged: (value) {
+                    //   offersNotifier.setPrice(int.tryParse(value) ?? 0);
+                    // },
+                  ),
+                  const SizedBox(width: 12),
+                  // Expanded(
+                  //   child: DropDownfield<EquipmentSummaryModel>(
+                  //     label: l10n.navEquipment,
+                  //     hint: l10n.selectEquipment,
+                  //     value: offersState.selectedEquipment,
+                  //     items: equipmentOptions.map((e) {
+                  //       return DropdownMenuItem(
+                  //         value: e,
+                  //         child: Text("${e.name}-${e.plateNumber}"),
+                  //       );
+                  //     }).toList(),
+                  //     onChanged: (value) {
+                  //       if (value != null) {
+                  //         offersNotifier.selectEquipment(value);
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
 
@@ -220,44 +216,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               InputField(
                 label: l10n.comments,
-                controller: _name,
+                controller: _comment,
                 hint: l10n.equipmentNameHint,
                 validator: (v) => v == null || v.isEmpty ? l10n.required : null,
               ),
 
               const SizedBox(height: 24),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: theme.colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  onPressed: () async {
-                    // Trigger form validation check
-                    if (_formKey.currentState?.validate() ?? false) {
-                      // Pass the text controller value into notifier if needed right before sending
-                      offersNotifier.setComment(_name.text);
-
-                      final res = await offersNotifier.createOffer();
-                      if (res == true && context.mounted) {
-                        Navigator.pop(context);
-                      }
-                    }
-                  },
-                  child: Text(
-                    l10n.sendOffer,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: theme.colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              PrimaryButton(
+                label: l10n.sendOffer,
+                onPressed: onSubmit,
+                isLoading: offersState.isLoading,
               ),
             ],
           ),

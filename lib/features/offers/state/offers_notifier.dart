@@ -68,6 +68,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       state = state.copyWith(isLoading: false, ownerOffers: data);
     } catch (e) {
+      print(e);
       state = state.copyWith(
         isLoading: false,
         ownerOffers: [],
@@ -88,9 +89,9 @@ class OffersNotifier extends StateNotifier<OffersState> {
         requestId: state.selectedRequest?.id ?? "",
       );
 
-      if (created != null) {
-        state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false);
 
+      if (created != null) {
         await getOwnerOffers();
 
         return true;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
 
 class RequestMessageBubble extends StatelessWidget {
-  final ChatMessageModel message;
+  final RequestModel request;
 
-  const RequestMessageBubble({super.key, required this.message});
+  const RequestMessageBubble({super.key, required this.request});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class RequestMessageBubble extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            message.content,
+            request.category?.name ?? "",
             style: theme.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w600,
             ),

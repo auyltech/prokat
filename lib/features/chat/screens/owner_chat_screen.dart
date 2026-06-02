@@ -9,7 +9,7 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
-import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
+import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
@@ -127,6 +127,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       }
     }
 
+    final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
+    final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
@@ -193,7 +196,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                             return BookingMessageBubble(booking: booking);
                           }
                           if (request != null) {
-                            return RequestHeaderBubble(request: request);
+                            return RequestMessageBubble(request: request);
                           }
                           return const SizedBox.shrink();
                         }
@@ -247,13 +250,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             else
               Container(
                 decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  border: Border(
-                    // top: BorderSide(
-                    //   color: theme.dividerColor.withValues(alpha: 0.2),
-                    //   width: 1.0,
-                    // ),
-                  ),
+                  color: (isWorkCompleted || isOrderCanceled)
+                      ? Colors.transparent
+                      : theme.cardColor,
                 ),
                 child: SafeArea(
                   top: false,
@@ -266,7 +265,15 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                       top: 0.0,
                       bottom: 12.0,
                     ), // Extra layout lift padding
-                    child: SendMessageForm(chatStatus: chatStatus),
+                    child: (isWorkCompleted || isOrderCanceled)
+                        ? const SizedBox.shrink() // 3. Safe empty space that respects screen edges
+                        : Padding(
+                            padding: const EdgeInsets.only(
+                              top: 0.0,
+                              bottom: 12.0,
+                            ),
+                            child: SendMessageForm(chatStatus: chatStatus),
+                          ),
                   ),
                 ),
               ),
@@ -275,83 +282,4 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       ),
     );
   }
-
-  // Widget _buildInputSection(ThemeData theme, bool isSending) {
-  //   return Container(
-  //     padding: EdgeInsets.fromLTRB(
-  //       16,
-  //       12,
-  //       16,
-  //       MediaQuery.of(context).padding.bottom + 12,
-  //     ),
-  //     decoration: BoxDecoration(
-  //       color: theme.cardColor,
-  //       boxShadow: const [
-  //         BoxShadow(
-  //           color: Colors.black12,
-  //           blurRadius: 10,
-  //           offset: Offset(0, -5),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Row(
-  //       crossAxisAlignment: CrossAxisAlignment.end,
-  //       children: [
-  //         Expanded(
-  //           child: TextField(
-  //             controller: _controller,
-  //             minLines: 1,
-  //             maxLines: 5,
-  //             textCapitalization: TextCapitalization.sentences,
-  //             decoration: InputDecoration(
-  //               hintText: 'Review offer and reply...',
-  //               hintStyle: TextStyle(color: theme.disabledColor),
-  //               border: OutlineInputBorder(
-  //                 borderRadius: BorderRadius.circular(24),
-  //                 borderSide: BorderSide.none,
-  //               ),
-  //               fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-  //               filled: true,
-  //               contentPadding: const EdgeInsets.symmetric(
-  //                 horizontal: 20,
-  //                 vertical: 12,
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         const SizedBox(width: 12),
-  //         Container(
-  //           decoration: BoxDecoration(
-  //             color: theme.colorScheme.primary,
-  //             shape: BoxShape.circle,
-  //           ),
-  //           child: IconButton(
-  //             onPressed: _sendMessage,
-  //             icon: Stack(
-  //               clipBehavior: Clip.none,
-  //               children: [
-  //                 const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-  //                 if (isSending)
-  //                   Positioned(
-  //                     right: -4,
-  //                     top: -4,
-  //                     child: SizedBox(
-  //                       width: 12,
-  //                       height: 12,
-  //                       child: CircularProgressIndicator(
-  //                         strokeWidth: 2,
-  //                         valueColor: AlwaysStoppedAnimation<Color>(
-  //                           Colors.white,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

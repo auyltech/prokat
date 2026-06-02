@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/widgets/offer_message_bubble.dart';
-import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 
 class MessageBubble extends StatefulWidget {
   final ChatMessageModel message;
@@ -27,30 +25,30 @@ class _MessageBubbleState extends State<MessageBubble> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final specialized = switch (widget.message.type) {
-      // 'BOOKING' => BookingMessageBubble(booking: ,),
-      'OFFER' => OfferMessageBubble(message: widget.message),
-      'REQUEST' => RequestMessageBubble(message: widget.message),
-      _ => null,
-    };
+    // final specialized = switch (widget.message.type) {
+    //   // 'BOOKING' => BookingMessageBubble(booking: ,),
+    //   'OFFER' => OfferMessageBubble(message: widget.message),
+    //   'REQUEST' => RequestMessageBubble(request: widget.message),
+    //   _ => null,
+    // };
 
-    if (specialized != null) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _toggleTimestamp,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            specialized,
-            _TimestampRow(
-              visible: _showTimestamp,
-              timestamp: widget.message.createdAt,
-              alignment: Alignment.center,
-            ),
-          ],
-        ),
-      );
-    }
+    // if (specialized != null) {
+    //   return GestureDetector(
+    //     behavior: HitTestBehavior.opaque,
+    //     onTap: _toggleTimestamp,
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.stretch,
+    //       children: [
+    //         specialized,
+    //         _TimestampRow(
+    //           visible: _showTimestamp,
+    //           timestamp: widget.message.createdAt,
+    //           alignment: Alignment.center,
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
 
     return Align(
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,

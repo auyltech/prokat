@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
@@ -13,6 +14,7 @@ import 'package:prokat/features/requests/state/request_utils.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_create_offer_sheet.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 bool hasOffer(List<OfferModel> offers) => offers.isNotEmpty;
 
@@ -40,12 +42,14 @@ class OwnerRequestTile extends ConsumerWidget {
     // TODO: move to status badge
     final uiState = getOwnerRequestState(request, offers);
 
+    print(offers.length);
     final hasOffers = offers.isNotEmpty;
 
     final hasActiveOffer = offers
         .where((item) => ["CREATED", "VIEWED"].contains(item.status))
         .isNotEmpty;
 
+    print(hasActiveOffer);
     final isAccepted =
         hasOffers && offers.first.status.toLowerCase() == "accepted";
 
@@ -244,7 +248,10 @@ class OwnerRequestTile extends ConsumerWidget {
                   ElevatedButton(
                     onPressed: () {
                       ref.read(offersProvider.notifier).selectRequest(request);
-                      openResponseSheet(context, request);
+
+                      context.push('${AppRoutes.ownerRequests}/${request.id}');
+                      print("clicked");
+                      // openResponseSheet(context, request);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isAccepted
@@ -265,7 +272,7 @@ class OwnerRequestTile extends ConsumerWidget {
                     child: Text(
                       isAccepted
                           ? l10n.viewBooking
-                          : (hasOffers ? l10n.viewOffer : l10n.sendOffer),
+                          : (hasActiveOffer ? l10n.viewOffer : l10n.sendOffer),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

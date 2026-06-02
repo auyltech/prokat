@@ -9,8 +9,8 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
-import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
+import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -111,6 +111,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       }
     }
 
+    final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
+    final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
@@ -173,11 +176,11 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
                       if (hasBookingHeader) {
                         if (index == 0) {
+                          if (request != null) {
+                            return RequestMessageBubble(request: request);
+                          }
                           if (booking != null) {
                             return BookingMessageBubble(booking: booking);
-                          }
-                          if (request != null) {
-                            return RequestHeaderBubble(request: request);
                           }
                           return const SizedBox.shrink();
                         }
@@ -233,13 +236,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
             else
               Container(
                 decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  border: Border(
-                    // top: BorderSide(
-                    //   color: theme.dividerColor.withValues(alpha: 0.2),
-                    //   width: 1.0,
-                    // ),
-                  ),
+                  color: (isWorkCompleted || isOrderCanceled)
+                      ? Colors.transparent
+                      : theme.cardColor,
                 ),
                 child: SafeArea(
                   top: false,
@@ -252,7 +251,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                       top: 0.0,
                       bottom: 12.0,
                     ), // Extra layout lift padding
-                    child: SendMessageForm(chatStatus: chatStatus),
+                    child: (isWorkCompleted || isOrderCanceled)
+                        ? const SizedBox.shrink() // 3. Safe empty space that respects screen edges
+                        : Padding(
+                            padding: const EdgeInsets.only(
+                              top: 0.0,
+                              bottom: 12.0,
+                            ),
+                            child: SendMessageForm(chatStatus: chatStatus),
+                          ),
                   ),
                 ),
               ),

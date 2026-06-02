@@ -16,6 +16,16 @@ class EquipmentSummaryModel {
     this.imageUrl,
   });
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EquipmentSummaryModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id; // Compares by unique ID
+
+  @override
+  int get hashCode => id.hashCode;
+
   factory EquipmentSummaryModel.fromJson(Map<String, dynamic> json) {
     return EquipmentSummaryModel(
       id: json['id'] ?? "",
