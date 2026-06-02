@@ -32,6 +32,11 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final String currentPath = routerState.uri.path;
     final List<String> segments = routerState.uri.pathSegments;
 
+    // Don't show on launch, main landing page
+    if (currentPath == AppRoutes.launch || currentPath == AppRoutes.main) {
+      return const SizedBox.shrink();
+    }
+
     final isOwnerScreen = segments[0] == "owner";
 
     // 2. Fallback checking for back button stack presence

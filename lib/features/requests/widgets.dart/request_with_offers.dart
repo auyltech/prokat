@@ -19,11 +19,15 @@ class RequestWithOffers extends StatefulWidget {
 }
 
 class _RequestWithOffersState extends State<RequestWithOffers> {
-  bool expanded = false;
+  bool expanded = true;
 
   @override
   Widget build(BuildContext context) {
     final hasOffers = widget.offers.isNotEmpty;
+
+    final pendingOffers = widget.offers.where(
+      (item) => ["CREATED"].contains(item.status),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +77,7 @@ class _RequestWithOffersState extends State<RequestWithOffers> {
           /// 🔹 OFFERS LIST
           if (expanded) ...[
             const SizedBox(height: 8),
-            ...widget.offers.map(
+            ...pendingOffers.map(
               (offer) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: OfferTile(offer: offer),

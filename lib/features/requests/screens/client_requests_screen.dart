@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_with_offers.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -36,7 +36,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     final offersState = ref.watch(offersProvider);
 
     final active = state.requests
-        .where((r) => ["CREATED", "VIEWED"].contains(r.status))
+        .where((r) => ["CREATED", "VIEWED", "RESPONDED"].contains(r.status))
         .toList();
 
     final offers = offersState.renterOffers.where(
@@ -57,45 +57,51 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: ListView(
-        children: [
-          if (authSession == null)
-            EmptyStateTile(
-              title: l10n.loginToViewRequests,
-              icon: Icons.login_outlined,
-            )
-          else if (state.isLoading)
-            const Center(child: CircularProgressIndicator())
-          else if (state.error != null)
-            EmptyStateTile(
-              title: l10n.somethingWentWrong,
-              subtitle: l10n.errorLoadingRequests,
-              icon: Icons.error_outline,
-            )
-          else if (active.isEmpty)
-            EmptyStateTile(
-              title: l10n.noActiveRequests,
-              icon: Icons.description_outlined,
-            )
-          else
-            ListView.separated(
-              separatorBuilder: (context, index) => const Divider(),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: active.length,
-              itemBuilder: (context, index) {
-                final r = active[index];
-                final requestOffers = offersByRequest[r.id] ?? [];
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(offersProvider.notifier).getUserOffers();
+          ref.read(requestProvider.notifier).getUserRequests();
+        },
+        child: ListView(
+          children: [
+            if (authSession == null)
+              EmptyStateTile(
+                title: l10n.loginToViewRequests,
+                icon: Icons.login_outlined,
+              )
+            else if (state.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (state.error != null)
+              EmptyStateTile(
+                title: l10n.somethingWentWrong,
+                subtitle: l10n.errorLoadingRequests,
+                icon: Icons.error_outline,
+              )
+            else if (active.isEmpty)
+              EmptyStateTile(
+                title: l10n.noActiveRequests,
+                icon: Icons.description_outlined,
+              )
+            else
+              ListView.separated(
+                separatorBuilder: (context, index) => const Divider(),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: active.length,
+                itemBuilder: (context, index) {
+                  final r = active[index];
+                  final requestOffers = offersByRequest[r.id] ?? [];
 
-                return RequestWithOffers(
-                  request: r,
-                  offers: requestOffers,
-                  onCancel: () =>
-                      ref.read(requestProvider.notifier).cancelRequest(r.id),
-                );
-              },
-            ),
-        ],
+                  return RequestWithOffers(
+                    request: r,
+                    offers: requestOffers,
+                    onCancel: () =>
+                        ref.read(requestProvider.notifier).cancelRequest(r.id),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

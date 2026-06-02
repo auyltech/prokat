@@ -49,8 +49,9 @@ class RequestService {
           "categoryId": categoryId,
           "locationId": locationId,
           "capacity": capacity,
-          "requiredOn": requiredOn.toIso8601String(),
-          "requiredAt": requiredAt?.toIso8601String(),
+          // 1. Force UTC transformation before stringifying
+          "requiredOn": requiredOn.toUtc().toIso8601String(),
+          "requiredAt": requiredAt?.toUtc().toIso8601String(),
           "comment": comment,
           "offeredRate": offeredRate,
         },

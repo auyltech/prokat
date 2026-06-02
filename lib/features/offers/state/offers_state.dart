@@ -1,4 +1,4 @@
-import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
@@ -10,7 +10,7 @@ class OffersState {
   final List<OfferModel> renterOffers;
   final List<OfferModel> ownerOffers;
 
-  final Equipment? selectedEquipment;
+  final EquipmentSummaryModel? selectedEquipment;
   final RequestModel? selectedRequest;
 
   final int? price;
@@ -44,7 +44,7 @@ class OffersState {
     List<OfferModel>? renterOffers,
     List<OfferModel>? ownerOffers,
 
-    Equipment? selectedEquipment,
+    EquipmentSummaryModel? selectedEquipment,
     RequestModel? selectedRequest,
     int? price,
     String? priceRate,

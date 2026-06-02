@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_link_button.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
 import 'package:go_router/go_router.dart';

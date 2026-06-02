@@ -79,14 +79,37 @@ class RequestNotifier extends StateNotifier<RequestState> {
     String? comment,
   }) async {
     try {
+      // 1. Guard check: ensures critical fields are present
+      if (state.selectedDate == null) return false;
+
       state = state.copyWith(isLoading: true);
 
+      // 2. Safely merge Date and Time to avoid layout parsing bugs down the line
+      final DateTime mergedDate = DateTime(
+        state.selectedDate!.year,
+        state.selectedDate!.month,
+        state.selectedDate!.day,
+      );
+
+      // If user didn't pick a time, default it to the same date day configuration
+      final DateTime? mergedTime = state.selectedTime != null
+          ? DateTime(
+              state.selectedDate!.year,
+              state.selectedDate!.month,
+              state.selectedDate!.day,
+              state.selectedTime!.hour,
+              state.selectedTime!.minute,
+            )
+          : null;
+
+      // 3. Fire the request service
       final created = await service.createRequest(
         categoryId: categoryId,
-        locationId: state.selectedLocation?.id ?? "",
+        // Fallback to a placeholder string if your backend expects a UUID pattern instead of ""
+        locationId: state.selectedLocation?.id ?? "unspecified",
         capacity: capacity,
-        requiredOn: state.selectedDate ?? DateTime(2026),
-        requiredAt: state.selectedTime,
+        requiredOn: mergedDate,
+        requiredAt: mergedTime,
         comment: comment,
         offeredRate: offeredRate,
       );

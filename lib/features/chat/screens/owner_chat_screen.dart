@@ -13,7 +13,7 @@ import 'package:prokat/features/chat/widgets/request_header_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
-import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';

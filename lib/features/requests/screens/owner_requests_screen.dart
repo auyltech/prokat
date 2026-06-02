@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
-import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
@@ -38,7 +38,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
     final offersState = ref.watch(offersProvider);
 
     final activeRequests = requestState.ownerRequests
-        .where((r) => ["CREATED", "VIEWED"].contains(r.status))
+        .where((r) => ["CREATED", "VIEWED", "RESPONDED"].contains(r.status))
         .toList();
 
     final offersByRequest = <String, List<OfferModel>>{};

@@ -124,4 +124,18 @@ class OffersService {
       return null;
     }
   }
+
+  Future<OfferModel?> rejectOffer({required String id}) async {
+    try {
+      final res = await _dio.post('/offers/$id/reject', data: {"id": id});
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return OfferModel.fromJson(res.data['data']);
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
-import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -66,32 +66,32 @@ void openResponseSheet(BuildContext context, RequestModel request) {
                   Text(l10n.navEquipment, style: theme.textTheme.labelMedium),
                   const SizedBox(height: 6),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: theme.cardColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: theme.dividerColor),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                        isExpanded: true,
-                        value: offersState.selectedEquipment,
-                        hint: Text(l10n.selectEquipment),
-                        items: equipmentOptions.map((e) {
-                          return DropdownMenuItem(
-                            value: e,
-                            child: Text("${e.name}-${e.plateNumber}"),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            offersNotifier.selectEquipment(value);
-                          }
-                        },
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 12),
+                  //   decoration: BoxDecoration(
+                  //     color: theme.cardColor,
+                  //     borderRadius: BorderRadius.circular(12),
+                  //     border: Border.all(color: theme.dividerColor),
+                  //   ),
+                  //   child: DropdownButtonHideUnderline(
+                  //     child: DropdownButton(
+                  //       isExpanded: true,
+                  //       value: offersState.selectedEquipment,
+                  //       hint: Text(l10n.selectEquipment),
+                  //       items: equipmentOptions.map((e) {
+                  //         return DropdownMenuItem(
+                  //           value: e,
+                  //           child: Text("${e.name}-${e.plateNumber}"),
+                  //         );
+                  //       }).toList(),
+                  //       onChanged: (value) {
+                  //         if (value != null) {
+                  //           offersNotifier.selectEquipment(value);
+                  //         }
+                  //       },
+                  //     ),
+                  //   ),
+                  // ),
 
                   const SizedBox(height: 20),
 

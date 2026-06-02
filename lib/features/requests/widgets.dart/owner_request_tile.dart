@@ -6,7 +6,7 @@ import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
-import 'package:prokat/features/offers/providers/offers_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_utils.dart';
@@ -41,6 +41,11 @@ class OwnerRequestTile extends ConsumerWidget {
     final uiState = getOwnerRequestState(request, offers);
 
     final hasOffers = offers.isNotEmpty;
+
+    final hasActiveOffer = offers
+        .where((item) => ["CREATED", "VIEWED"].contains(item.status))
+        .isNotEmpty;
+
     final isAccepted =
         hasOffers && offers.first.status.toLowerCase() == "accepted";
 
@@ -223,7 +228,7 @@ class OwnerRequestTile extends ConsumerWidget {
               ),
               Row(
                 children: [
-                  if (!hasOffers) ...[
+                  if (!hasActiveOffer) ...[
                     IconButton.filledTonal(
                       onPressed: () => ref
                           .read(requestProvider.notifier)

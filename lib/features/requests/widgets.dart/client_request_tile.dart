@@ -89,11 +89,25 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               Expanded(
                 child: InfoTile(
                   label: l10n.dateAndTime,
-                  value: request.requiredOn != null
-                      ? DateFormat(
-                          'dd MMM yyyy • HH:mm',
-                        ).format(request.requiredOn!)
-                      : "PENDING",
+                  value: () {
+                    if (request.requiredOn == null) return "PENDING";
+
+                    // 1. Format the date part cleanly (e.g., "02 Jun 2026")
+                    final dateStr = DateFormat(
+                      'dd MMM yyyy',
+                    ).format(request.requiredOn!.toLocal());
+
+                    // 2. If a specific time exists, format and append it (e.g., "• 14:30")
+                    if (request.requiredAt != null) {
+                      final timeStr = DateFormat(
+                        'HH:mm',
+                      ).format(request.requiredAt!.toLocal());
+                      return '$dateStr • $timeStr';
+                    }
+
+                    // 3. Return just the date if no time was specified
+                    return dateStr;
+                  }(),
                 ),
               ),
             ],

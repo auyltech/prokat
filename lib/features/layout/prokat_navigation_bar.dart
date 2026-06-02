@@ -27,12 +27,12 @@ final ownerNavItems = [
     label: (l) => 'Profile',
     path: AppRoutes.ownerProfile,
   ),
+
   // _NavItem(
   //   icon: Icons.notifications_rounded,
   //   label: (l) => 'Alerts',
   //   path: AppRoutes.ownerNotifications,
   // ),
-  
   _NavItem(
     icon: Icons.description_outlined,
     label: (l) => 'Requests',
@@ -146,8 +146,9 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     final List<String> segments = GoRouterState.of(context).uri.pathSegments;
     bool isChatDetailScreen = false;
     if (segments.length >= 2) {
-      if (segments[0] == 'chat' && segments[1] != 'list')
+      if (segments[0] == 'chat' && segments[1] != 'list') {
         isChatDetailScreen = true;
+      }
 
       if (segments.length >= 3 &&
           segments[0] == 'owner' &&

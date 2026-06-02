@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/offers/services/offers_service.dart';
+import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
+import 'package:prokat/features/offers/state/offers_service.dart';
 import 'package:prokat/features/offers/state/offers_state.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
@@ -20,7 +20,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
     );
   }
 
-  void selectEquipment(Equipment equipment) {
+  void selectEquipment(EquipmentSummaryModel equipment) {
     state = state.copyWith(selectedEquipment: equipment);
   }
 
@@ -171,6 +171,21 @@ class OffersNotifier extends StateNotifier<OffersState> {
       state = state.copyWith(isLoading: true);
 
       await service.acceptOffer(id: id);
+
+      state = state.copyWith(isLoading: false);
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> rejectOffer(String id) async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      await service.rejectOffer(id: id);
 
       state = state.copyWith(isLoading: false);
 
