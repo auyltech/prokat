@@ -6,6 +6,7 @@ Future<void> showCounterOfferSheet({
   required BuildContext context,
   required String chatId,
   required String bookingId,
+  String? offerId,
   required int initialPrice,
   required PriceRateOption initialPriceRate,
   required String counterType,
@@ -23,6 +24,7 @@ Future<void> showCounterOfferSheet({
     builder: (_) {
       return CounterOfferSheet(
         bookingId: bookingId,
+        offerId: offerId,
         initialPrice: initialPrice,
         initialPriceRate: initialPriceRate.value,
         counterType: counterType,

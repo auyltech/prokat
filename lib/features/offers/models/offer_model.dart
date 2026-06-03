@@ -1,3 +1,4 @@
+import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 
@@ -55,9 +56,7 @@ class OfferModel {
         bookingId: json['bookingId']?.toString(),
 
         /// 🔥 SAFE INT PARSING
-        price: (json['price'] is int)
-            ? json['price']
-            : (json['price'] as num).toInt(),
+        price: parseNullableInt(json['price']) ?? 0,
 
         priceRate: json['priceRate']?.toString() ?? '',
       );

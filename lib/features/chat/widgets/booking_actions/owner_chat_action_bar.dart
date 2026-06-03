@@ -38,21 +38,26 @@ class OwnerChatActionBar extends ConsumerWidget {
       bookingChatActionControllerProvider(booking.id).notifier,
     );
     final currentUserId = ref.watch(authProvider).session?.user?.id;
-    final negotiation = ref.watch(
-      priceNegotiationByBookingProvider(booking.id),
-    );
+
+    final negotiationNotifier = ref.watch(priceNegotiationProvider.notifier);
 
     final reviewSubmitted =
         (booking.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking.id)).hasSubmitted;
 
-    final pending = negotiation.latestPending;
+    final pending = negotiationNotifier.getPendingNegotiation(
+      bookingId: booking.id,
+    );
+
+    print(pending);
+
     final pendingId = (pending?.id ?? '').trim();
 
     final userId = (currentUserId ?? '').trim();
 
     final ChatStatus chatState = getChatStatus(
       bookingStatus: booking.status,
+
       hasNegotiation: pendingId.isNotEmpty,
       pendingFromMe:
           pendingId.isNotEmpty &&
@@ -109,7 +114,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                         context: context,
                         chatId: chatId,
                         bookingId: booking.id,
-                        negotiationId: negotiation.latestPending?.id ?? "",
+                        negotiationId: pending?.id ?? "",
                       );
                     },
                   ),
@@ -125,7 +130,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                         context: context,
                         chatId: chatId,
                         bookingId: booking.id,
-                        negotiationId: negotiation.latestPending?.id ?? "",
+                        negotiationId: pending?.id ?? "",
                       );
                     },
                   ),
@@ -141,7 +146,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                         context: context,
                         chatId: chatId,
                         bookingId: booking.id,
-                        negotiationId: negotiation.latestPending?.id ?? "",
+                        negotiationId: pending?.id ?? "",
                       );
                     },
                   ),

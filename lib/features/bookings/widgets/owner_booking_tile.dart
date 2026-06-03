@@ -170,8 +170,13 @@ class OwnerBookingTile extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: InkWell(
-                        onTap: () =>
-                            showLocationSheet(context, booking.location),
+                        onTap: () {
+                          final location = booking.location;
+
+                          location == null
+                              ? null
+                              : showLocationSheet(context, location);
+                        },
                         borderRadius: BorderRadius.circular(4),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +198,7 @@ class OwnerBookingTile extends ConsumerWidget {
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    booking.location.street,
+                                    booking.location?.street ?? "",
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       fontWeight: FontWeight.w500,
                                     ),

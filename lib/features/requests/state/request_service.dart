@@ -1,4 +1,7 @@
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_helper.dart';
+import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:dio/dio.dart';
 
@@ -9,31 +12,46 @@ class RequestService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<RequestModel>> getUserRequests() async {
+  Future<ApiResponse<List<RequestModel>>> getClientRequests() async {
     try {
-      final res = await _dio.get('/requests');
+      final response = await _dio.get('/requests');
 
-      return (res.data['data'] as List)
-          .map((e) => RequestModel.fromJson(e))
-          .toList();
+      return handleApiResponse<List<RequestModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected requests list");
+          }
+
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid request item");
+            }
+
+            return RequestModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load requests",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return [];
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<List<RequestModel>> getOwnerRequests() async {
-    try {
-      final res = await _dio.get('/requests/owner');
-
-      return (res.data['data'] as List)
-          .map((e) => RequestModel.fromJson(e))
-          .toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  Future<bool> createRequest({
+  Future<ApiResponse<void>> createRequest({
     required String categoryId,
     required String locationId,
     required String capacity,
@@ -43,7 +61,7 @@ class RequestService {
     required int offeredRate,
   }) async {
     try {
-      final res = await _dio.post(
+      final response = await _dio.post(
         '/requests',
         data: {
           "categoryId": categoryId,
@@ -57,18 +75,29 @@ class RequestService {
         },
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
-        // return RequestModel.fromJson(res.data['data']);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Request created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return false;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return false;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<RequestModel?> updateRequest({
+  Future<ApiResponse<void>> updateRequest({
     required String id,
     String? locationId,
     DateTime? requiredOn,
@@ -76,7 +105,7 @@ class RequestService {
     int? offeredRate,
   }) async {
     try {
-      final res = await _dio.patch(
+      final response = await _dio.patch(
         '/requests/$id',
         data: {
           "locationId": ?locationId,
@@ -86,45 +115,122 @@ class RequestService {
         },
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return RequestModel.fromJson(res.data['data']);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Request saved",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return null;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return null;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<bool> cancelRequest(String id) async {
+  Future<ApiResponse<void>> cancelRequest(String id) async {
     try {
-      final res = await _dio.patch(
+      final response = await _dio.patch(
         '/requests/$id/status',
         data: {"id": id, "status": "CANCELLED"},
       );
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
-      }
 
-      return false;
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Request cancelled",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return false;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
+    }
+  }
+ 
+  Future<ApiResponse<List<RequestModel>>> getOwnerRequests() async {
+    try {
+      final response = await _dio.get('/requests/owner');
+
+      return handleApiResponse<List<RequestModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected requests list");
+          }
+
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid request item");
+            }
+
+            return RequestModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load requests",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<bool> rejectRequest(String id) async {
+  Future<ApiResponse<void>> rejectRequest(String id) async {
     try {
-      final res = await _dio.patch(
+      final response = await _dio.patch(
         '/requests/$id/reject',
         data: {"id": id, "status": "REJECTED"},
       );
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
-      }
 
-      return false;
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Request rejected",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return false;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 }

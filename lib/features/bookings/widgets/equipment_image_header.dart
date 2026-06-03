@@ -24,7 +24,7 @@ class EquipmentImageHeader extends StatelessWidget {
             width: double.infinity,
             child: OptimizedNetworkImage(
               imageUrl: imageUrl ?? "",
-              fit: BoxFit.fitHeight,
+              fit: BoxFit.cover,
               fallbackIcon: Icons.image_not_supported,
               backgroundColor: Colors.grey[300],
             ),

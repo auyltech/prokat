@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +15,7 @@ import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/utils/date_time.dart';
 
 class CreateBookingScreen extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -148,6 +150,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                           const SizedBox(width: 8),
 
+                          // Favorite Button, equipment Name, model, owner
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -269,59 +272,75 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       const SizedBox(height: 16),
 
+                      // Date and Time
                       Row(
                         children: [
                           Expanded(
                             child: DateTimeButton(
                               icon: Icons.calendar_today_rounded,
                               label: bookingState.selectedDate == null
-                                  ? l10n.date
+                                  ? l10n.selectDate
                                   : DateFormat(
-                                      'MMM dd',
+                                      'MMM dd, yyyy',
                                     ).format(bookingState.selectedDate!),
                               onTap: () async {
-                                final date = await showDatePicker(
+                                await showModalBottomSheet(
                                   context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(
-                                    const Duration(days: 365),
+                                  builder: (context) => Container(
+                                    height: 300,
+                                    color: theme.scaffoldBackgroundColor,
+                                    child: CupertinoDatePicker(
+                                      mode: CupertinoDatePickerMode.date,
+                                      // 1. Safe calculation: use the maximum of the two dates to prevent underflow
+                                      initialDateTime:
+                                          (bookingState.selectedDate ??
+                                                  initialTargetDateTime)
+                                              .isBefore(DateTime.now())
+                                          ? DateTime.now()
+                                          : (bookingState.selectedDate ??
+                                                initialTargetDateTime),
+                                      minimumDate: DateTime.now(),
+                                      maximumDate: DateTime.now().add(
+                                        const Duration(days: 365),
+                                      ),
+                                      onDateTimeChanged: (date) {
+                                        bookingNotifier.setDate(date);
+                                      },
+                                    ),
                                   ),
                                 );
-                                if (date != null) {
-                                  bookingNotifier.setDate(date);
-                                }
                               },
                             ),
                           ),
 
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
 
                           Expanded(
                             child: DateTimeButton(
                               icon: Icons.access_time_rounded,
                               label: bookingState.selectedTime == null
-                                  ? l10n.time
-                                  : TimeOfDay.fromDateTime(
+                                  ? l10n.selectTime
+                                  : DateFormat.jm().format(
                                       bookingState.selectedTime!,
-                                    ).format(context),
-                              onTap: () async {
-                                final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now(),
-                                );
-                                if (time != null) {
-                                  final now = DateTime.now();
-                                  bookingNotifier.setTime(
-                                    DateTime(
-                                      now.year,
-                                      now.month,
-                                      now.day,
-                                      time.hour,
-                                      time.minute,
                                     ),
-                                  );
-                                }
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => Container(
+                                    height: 300,
+                                    color: theme.scaffoldBackgroundColor,
+                                    child: CupertinoDatePicker(
+                                      mode: CupertinoDatePickerMode.time,
+                                      use24hFormat: false,
+                                      initialDateTime:
+                                          bookingState.selectedTime ??
+                                          initialTargetDateTime,
+                                      onDateTimeChanged: (time) {
+                                        bookingNotifier.setTime(time);
+                                      },
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                           ),

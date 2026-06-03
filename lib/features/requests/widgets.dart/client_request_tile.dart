@@ -33,6 +33,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Category
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -75,6 +76,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
           const SizedBox(height: 16),
 
+          // Location, Date and Time
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -114,6 +116,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
           ),
           const SizedBox(height: 16),
 
+          // Offered Rate and Comment
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

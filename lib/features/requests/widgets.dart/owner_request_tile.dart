@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/offers/widgets/view_offer_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
-import 'package:prokat/features/requests/state/request_utils.dart';
-import 'package:prokat/features/requests/widgets.dart/owner_create_offer_sheet.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -40,16 +40,17 @@ class OwnerRequestTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     // TODO: move to status badge
-    final uiState = getOwnerRequestState(request, offers);
+    // final uiState = getOwnerRequestState(request, offers);
 
-    print(offers.length);
     final hasOffers = offers.isNotEmpty;
 
-    final hasActiveOffer = offers
-        .where((item) => ["CREATED", "VIEWED"].contains(item.status))
-        .isNotEmpty;
+    final offersNotifier = ref.read(offersProvider.notifier);
 
-    print(hasActiveOffer);
+    final activeOffer = offersNotifier
+        .getActiveOffers(request.id, "owner")
+        .firstOrNull;
+    final hasActiveOffer = offersNotifier.hasActiveOffer(request.id, "owner");
+
     final isAccepted =
         hasOffers && offers.first.status.toLowerCase() == "accepted";
 
@@ -230,9 +231,74 @@ class OwnerRequestTile extends ConsumerWidget {
                   ),
                 ],
               ),
+
               Row(
                 children: [
-                  if (!hasActiveOffer) ...[
+                  if (activeOffer != null) ...[
+                    // Go To Chat
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D47A1),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        context.push('${AppRoutes.chat}/${activeOffer.chatId}');
+                      },
+                      child: const Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 22,
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // View Offer
+                    ElevatedButton(
+                      onPressed: () => openViewOfferSheet(
+                        context: context,
+                        offer: activeOffer,
+                        onCancel: () async {
+                          final result = await ref
+                              .read(offersProvider.notifier)
+                              .cancelOffer(activeOffer.id);
+
+                          AppSnackBar.show(
+                            context,
+                            message: result
+                                ? "Offer Cancelled"
+                                : "Failed to cancel offer",
+                            isSuccess: result,
+                            isError: !result,
+                          );
+                        },
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        "View Offer",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ] else ...[
+                    // Reject Request (set as viewed for this owner)
                     IconButton.filledTonal(
                       onPressed: () => ref
                           .read(requestProvider.notifier)
@@ -243,39 +309,46 @@ class OwnerRequestTile extends ConsumerWidget {
                         foregroundColor: colorScheme.error,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                  ],
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.read(offersProvider.notifier).selectRequest(request);
 
-                      context.push('${AppRoutes.ownerRequests}/${request.id}');
-                      print("clicked");
-                      // openResponseSheet(context, request);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isAccepted
-                          ? Colors.green
-                          : colorScheme.primary,
-                      foregroundColor: isAccepted
-                          ? Colors.white
-                          : colorScheme.onPrimary,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                    const SizedBox(width: 8),
+
+                    // Send Offer
+                    ElevatedButton(
+                      onPressed: () {
+                        ref
+                            .read(offersProvider.notifier)
+                            .selectRequest(request);
+
+                        context.push(
+                          '${AppRoutes.ownerRequests}/${request.id}',
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isAccepted
+                            ? Colors.green
+                            : colorScheme.primary,
+                        foregroundColor: isAccepted
+                            ? Colors.white
+                            : colorScheme.onPrimary,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      child: Text(
+                        isAccepted
+                            ? l10n.viewBooking
+                            : (hasActiveOffer
+                                  ? l10n.viewOffer
+                                  : l10n.sendOffer),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    child: Text(
-                      isAccepted
-                          ? l10n.viewBooking
-                          : (hasActiveOffer ? l10n.viewOffer : l10n.sendOffer),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ],

@@ -6,6 +6,7 @@ import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/requests/state/request_provider.dart';
 
 final offerChatActionControllerProvider = Provider<OfferChatActionController>((
   ref,
@@ -22,7 +23,8 @@ class OfferChatActionController {
     required String chatId,
     required String offerId,
   }) async {
-    await ref.read(priceNegotiationByOfferProvider(offerId).notifier).refresh();
+    await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
+
     await ref.read(chatProvider.notifier).reloadChat(chatId);
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
@@ -32,7 +34,7 @@ class OfferChatActionController {
       bookingNotifier.getOwnerBookings(),
       bookingNotifier.getUserBookings(),
       offersNotifier.getOwnerOffers(),
-      offersNotifier.getUserOffers(),
+      offersNotifier.getClientOffers(),
     ]);
   }
 
@@ -45,7 +47,7 @@ class OfferChatActionController {
   }) async {
     try {
       await ref
-          .read(priceNegotiationByOfferProvider(offerId).notifier)
+          .read(priceNegotiationProvider.notifier)
           .respond(negotiationId: negotiationId, response: response);
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
@@ -69,20 +71,95 @@ class OfferChatActionController {
   }) async {
     try {
       await ref
-          .read(priceNegotiationByOfferProvider(offerId).notifier)
+          .read(priceNegotiationProvider.notifier)
           .cancelNegotiation(negotiationId);
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
       if (!context.mounted) return;
       AppSnackBar.show(context, message: 'Saved', isSuccess: true);
-    } catch (e) {
+    } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
         context,
-        message: e.toString().replaceFirst('Exception: ', ''),
+        message: error.toString().replaceFirst('Exception: ', ''),
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> acceptRequestOffer({
+    required BuildContext context,
+    required String chatId,
+    required String offerId,
+  }) async {
+    try {
+      await ref.read(offersProvider.notifier).acceptOffer(offerId);
+
+      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        message: error.toString().replaceFirst('Exception: ', ''),
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> rejectRequestOffer({
+    required BuildContext context,
+    required String chatId,
+    required String offerId,
+  }) async {
+    try {
+      await ref.read(offersProvider.notifier).rejectOffer(offerId);
+
+      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        message: error.toString().replaceFirst('Exception: ', ''),
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> cancelRequestOffer({
+    required BuildContext context,
+    required String chatId,
+    required String offerId,
+  }) async {
+    try {
+      await ref.read(offersProvider.notifier).cancelOffer(offerId);
+
+      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        message: error.toString().replaceFirst('Exception: ', ''),
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> cancelRequest({
+    required BuildContext context,
+    required String chatId,
+    required String requestId,
+  }) async {
+    try {
+      await ref.read(requestProvider.notifier).cancelRequest(requestId);
+
+      await refreshAfterNegotiation(chatId: chatId, offerId: "");
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
     }
   }
 }
-

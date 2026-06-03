@@ -217,7 +217,13 @@ class ClientBookingTile extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     InkWell(
-                      onTap: () => showLocationSheet(context, booking.location),
+                      onTap: () {
+                        final location = booking.location;
+
+                        location == null
+                            ? null
+                            : showLocationSheet(context, location);
+                      },
                       child: Row(
                         children: [
                           Icon(
@@ -228,7 +234,7 @@ class ClientBookingTile extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              booking.location.street,
+                              booking.location?.street ?? "",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodyMedium?.copyWith(

@@ -8,10 +8,10 @@ import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_service.dart';
 import 'package:prokat/features/chat/state/chat_socket_service.dart';
 import 'package:prokat/features/chat/state/chat_state.dart';
-import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/chat/utils/chat_error_utils.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
 import 'package:prokat/features/chat/utils/chat_thread_utils.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
 class ChatNotifier extends StateNotifier<ChatState> {
   final Ref ref;
@@ -219,13 +219,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
       state = state.copyWith(isLoadingMessages: true, error: null);
 
       await getChatById(chatId);
+      await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
       await markCurrentChatAsRead();
 
-      final bookingId = state.currentChat?.booking?.id;
-
-      if ((bookingId ?? '').isNotEmpty) {
-        ref.invalidate(priceNegotiationByBookingProvider(bookingId!));
-      }
 
       state = state.copyWith(
         isLoadingMessages: false,

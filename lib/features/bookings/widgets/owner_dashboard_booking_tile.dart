@@ -55,7 +55,7 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      booking.location.street,
+                      booking.location?.street ?? "",
                       style: theme.textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

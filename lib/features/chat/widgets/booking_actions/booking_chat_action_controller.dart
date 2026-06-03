@@ -13,15 +13,17 @@ import 'package:prokat/features/price_negotiations/models/price_negotiation_mode
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
-final bookingChatActionControllerProvider = StateNotifierProvider.family<
-  BookingChatActionController,
-  BookingChatActionState,
-  String
->((ref, bookingId) {
-  return BookingChatActionController(ref: ref, bookingId: bookingId);
-});
+final bookingChatActionControllerProvider =
+    StateNotifierProvider.family<
+      BookingChatActionController,
+      BookingChatActionState,
+      String
+    >((ref, bookingId) {
+      return BookingChatActionController(ref: ref, bookingId: bookingId);
+    });
 
-class BookingChatActionController extends StateNotifier<BookingChatActionState> {
+class BookingChatActionController
+    extends StateNotifier<BookingChatActionState> {
   final Ref ref;
   final String bookingId;
 
@@ -29,9 +31,11 @@ class BookingChatActionController extends StateNotifier<BookingChatActionState> 
     : super(const BookingChatActionState());
 
   BookingNotifier get _bookingNotifier => ref.read(bookingProvider.notifier);
+
   ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
+
   PriceNegotiationNotifier _priceNegotiationNotifier(String bookingId) {
-    return ref.read(priceNegotiationByBookingProvider(bookingId).notifier);
+    return ref.read(priceNegotiationProvider.notifier);
   }
 
   Future<void> refreshAfterNegotiation({
@@ -39,7 +43,7 @@ class BookingChatActionController extends StateNotifier<BookingChatActionState> 
     required String bookingId,
   }) async {
     await Future.wait([
-      _priceNegotiationNotifier(bookingId).refresh(),
+      _priceNegotiationNotifier(bookingId).getPriceNegotiations(),
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
       _bookingNotifier.getUserBookings(),
@@ -54,7 +58,7 @@ class BookingChatActionController extends StateNotifier<BookingChatActionState> 
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
       _bookingNotifier.getUserBookings(),
-      _priceNegotiationNotifier(bookingId).refresh(),
+      _priceNegotiationNotifier(bookingId).getPriceNegotiations(),
     ]);
   }
 
@@ -293,7 +297,7 @@ class BookingChatActionController extends StateNotifier<BookingChatActionState> 
         await _priceNegotiationNotifier(
           bookingId,
         ).respond(negotiationId: id, response: response);
-        
+
         return true;
       },
       onSuccess: () {
@@ -334,11 +338,7 @@ class BookingChatActionController extends StateNotifier<BookingChatActionState> 
       state = state.copyWith(isSubmitting: false, error: message);
       if (!context.mounted) return;
 
-      AppSnackBar.show(
-        context,
-        message: message,
-        isError: true,
-      );
+      AppSnackBar.show(context, message: message, isError: true);
     }
   }
 }

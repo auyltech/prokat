@@ -7,12 +7,10 @@ import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
-import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
-import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
@@ -35,7 +33,6 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.initState();
     Future.microtask(() async {
       await ref.read(chatProvider.notifier).openChatById(widget.chatId);
-
       await ref.read(offersProvider.notifier).getOwnerOffers();
     });
   }
@@ -46,6 +43,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() {
         ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
         ref.read(offersProvider.notifier).getOwnerOffers();
       });
     }
@@ -91,12 +89,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final request = currentChat?.request;
     final chatOwnerId = currentChat?.owner?.id;
     final chatClientId = currentChat?.client?.id;
-    final offersState = ref.watch(offersProvider);
-    OfferModel? requestOffer;
 
-    final negotiation = ref.watch(
-      priceNegotiationByBookingProvider(booking?.id ?? ""),
-    );
+    final negotiation = ref.watch(priceNegotiationProvider);
 
     final reviewSubmitted =
         (booking?.myReviewId?.isNotEmpty ?? false) ||
@@ -118,15 +112,6 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       reviewSubmitted: reviewSubmitted,
     );
 
-    if (request != null) {
-      for (final offer in offersState.ownerOffers) {
-        if (offer.requestId == request.id) {
-          requestOffer = offer;
-          break;
-        }
-      }
-    }
-
     final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
     final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
 
@@ -138,85 +123,84 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         },
         child: Column(
           children: [
-            if (chatState.isLoadingMessages)
-              const Expanded(child: Center(child: CircularProgressIndicator()))
-            else if (chatState.error != null && messages.isEmpty)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.wifi_off_rounded,
-                        size: 48,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        chatState.error!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        onPressed: () => ref
-                            .read(chatProvider.notifier)
-                            .openChatById(widget.chatId),
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(l10n.retry),
-                      ),
-                    ],
+            // if (chatState.isLoadingMessages)
+            //   const Expanded(child: Center(child: CircularProgressIndicator()))
+            // else if (chatState.error != null && messages.isEmpty)
+            //   Expanded(
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(32),
+            //       child: Column(
+            //         mainAxisSize: MainAxisSize.min,
+            //         children: [
+            //           const Icon(
+            //             Icons.wifi_off_rounded,
+            //             size: 48,
+            //             color: Colors.grey,
+            //           ),
+            //           const SizedBox(height: 16),
+            //           Text(
+            //             chatState.error!,
+            //             textAlign: TextAlign.center,
+            //             style: const TextStyle(color: Colors.grey),
+            //           ),
+            //           const SizedBox(height: 24),
+            //           ElevatedButton.icon(
+            //             onPressed: () => ref
+            //                 .read(chatProvider.notifier)
+            //                 .openChatById(widget.chatId),
+            //             icon: const Icon(Icons.refresh_rounded),
+            //             label: Text(l10n.retry),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   )
+            
+            Expanded(
+              child: Container(
+                color: theme.colorScheme.surface,
+                child: ListView.separated(
+                  reverse:
+                      false, // Newest messages at bottom, oldest + booking tiles at top
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
                   ),
-                ),
-              )
-            else
-              Expanded(
-                child: Container(
-                  color: theme.colorScheme.surface,
-                  child: ListView.separated(
-                    reverse:
-                        false, // Newest messages at bottom, oldest + booking tiles at top
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
-                    separatorBuilder: (context, index) => SizedBox(height: 4),
-                    // Increase item count by 2 if booking/request tiles exist
-                    itemCount:
-                        messages.length +
-                        ((booking != null || request != null) ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      final hasBookingHeader =
-                          booking != null || request != null;
+                  separatorBuilder: (context, index) => SizedBox(height: 4),
+                  // Increase item count by 2 if booking/request tiles exist
+                  itemCount:
+                      messages.length +
+                      ((booking != null || request != null) ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    final hasBookingHeader = booking != null || request != null;
 
-                      if (hasBookingHeader) {
-                        if (index == 0) {
-                          if (booking != null) {
-                            return BookingMessageBubble(booking: booking);
-                          }
-                          if (request != null) {
-                            return RequestMessageBubble(request: request);
-                          }
-                          return const SizedBox.shrink();
+                    if (hasBookingHeader) {
+                      if (index == 0) {
+                        // if (booking != null) {
+                        //   return BookingMessageBubble(booking: booking);
+                        // }
+                        if (request != null) {
+                          return RequestMessageBubble(request: request);
                         }
+                        return const SizedBox.shrink();
                       }
-                      // 1. Shift index by 1 if header is present
-                      final messageIndex = hasBookingHeader ? index - 1 : index;
+                    }
+                    // 1. Shift index by 1 if header is present
+                    final messageIndex = hasBookingHeader ? index - 1 : index;
 
-                      // 2. Invert the index so oldest messages (index 0 in data) render at the top
-                      final invertedIndex = messages.length - 1 - messageIndex;
+                    // 2. Invert the index so oldest messages (index 0 in data) render at the top
+                    final invertedIndex = messages.length - 1 - messageIndex;
 
-                      final message = messages[invertedIndex];
+                    final message = messages[invertedIndex];
 
-                      final isMe =
-                          message.senderId == currentUserId ||
-                          message.senderId == 'me';
-                      return MessageBubble(message: message, isMe: isMe);
-                    },
-                  ),
+                    final isMe =
+                        message.senderId == currentUserId ||
+                        message.senderId == 'me';
+                    return MessageBubble(message: message, isMe: isMe);
+                  },
                 ),
               ),
+            ),
 
             if (booking != null)
               OwnerChatActionBar(
@@ -226,10 +210,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 chatClientId: chatClientId,
               ),
 
-            if (booking == null && request != null && requestOffer != null)
+            // Still no booking, but has request
+            if (booking == null && request != null)
               OfferChatActionBar(
                 chatId: widget.chatId,
-                offer: requestOffer,
+                requestId: request.id,
                 type: "OWNER_COUNTER",
               ),
 

@@ -21,8 +21,8 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(offersProvider.notifier).getUserOffers();
-      ref.read(requestProvider.notifier).getUserRequests();
+      ref.read(offersProvider.notifier).getClientOffers();
+      ref.read(requestProvider.notifier).getClientRequests();
     });
   }
 
@@ -59,8 +59,8 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(offersProvider.notifier).getUserOffers();
-          ref.read(requestProvider.notifier).getUserRequests();
+          ref.read(offersProvider.notifier).getClientOffers();
+          ref.read(requestProvider.notifier).getClientRequests();
         },
         child: ListView(
           children: [

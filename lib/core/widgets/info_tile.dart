@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class InfoTile extends StatelessWidget {
   final String label;
   final String value;
+  final IconData? icon;
   final bool isHighlighted;
   final VoidCallback? onTap;
 
@@ -10,6 +11,7 @@ class InfoTile extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
+    this.icon,
     this.isHighlighted = false,
     this.onTap,
   });
@@ -33,14 +35,24 @@ class InfoTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, color: Colors.grey[500], size: 20),
+                  const SizedBox(width: 6), // Space between icon and text
+                ],
+
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
+
             Text(
               value,
               style: TextStyle(

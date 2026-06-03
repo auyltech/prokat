@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/optimized_network_image.dart';
 
 class OfferTile extends ConsumerWidget {
   final OfferModel offer;
@@ -63,10 +63,6 @@ class OfferTile extends ConsumerWidget {
 
     final ownerRating = owner?.rating?.toStringAsFixed(1) ?? "4.7";
     final totalOrders = owner?.orderCount ?? 0;
-
-    final imageUrl = equipment?.imageUrl ?? "";
-    final equipmentName = equipment?.name ?? "";
-    final equipmentModel = equipment?.model ?? "";
 
     final ownerComment = offer.comment?.trim();
 
@@ -168,74 +164,7 @@ class OfferTile extends ConsumerWidget {
           const SizedBox(height: 14),
 
           /// EQUIPMENT CARD
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 72,
-                  height: 48,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: OptimizedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      fallbackIcon: Icons.local_shipping,
-                      backgroundColor: const Color(0xFFE0E0E0),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        equipmentName.toUpperCase(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF212121),
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-
-                      const SizedBox(height: 2),
-
-                      Text(
-                        equipmentModel.toUpperCase(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                      // if (capacity.isNotEmpty) ...[
-                      //   const SizedBox(height: 2),
-                      //   Text(
-                      //     capacity,
-                      //     style: theme.textTheme.bodySmall?.copyWith(
-                      //       color: const Color(0xFF616161),
-                      //       fontWeight: FontWeight.w600,
-                      //     ),
-                      //   ),
-                      // ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          if (equipment != null) EquipmentInfoTile(equipment: equipment),
 
           const SizedBox(height: 16),
 

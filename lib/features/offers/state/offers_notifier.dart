@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
+import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/state/offers_service.dart';
 import 'package:prokat/features/offers/state/offers_state.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -7,9 +8,7 @@ import 'package:prokat/features/requests/models/request_model.dart';
 class OffersNotifier extends StateNotifier<OffersState> {
   final OffersService service;
 
-  OffersNotifier(this.service) : super(OffersState()) {
-    getUserOffers();
-  }
+  OffersNotifier(this.service) : super(OffersState());
 
   void selectRequest(RequestModel request) {
     state = state.copyWith(
@@ -22,6 +21,22 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
   void selectEquipment(EquipmentSummaryModel equipment) {
     state = state.copyWith(selectedEquipment: equipment);
+  }
+
+  List<OfferModel> getActiveOffers(String requestId, String? mode) {
+    return (mode == "owner" ? state.ownerOffers : state.renterOffers)
+        .where(
+          (item) =>
+              item.requestId == requestId &&
+              ["CREATED", "VIEWED"].contains(item.status),
+        )
+        .toList();
+  }
+
+  bool hasActiveOffer(String requestId, String? mode) {
+    final activeOffers = getActiveOffers(requestId, mode);
+
+    return activeOffers.isNotEmpty;
   }
 
   void setPrice(int price) {
@@ -44,13 +59,17 @@ class OffersNotifier extends StateNotifier<OffersState> {
     state = state.copyWith(comment: comment);
   }
 
-  Future<void> getUserOffers() async {
+  Future<void> getClientOffers() async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final data = await service.getUserOffers();
+      final result = await service.getClientOffers();
 
-      state = state.copyWith(isLoading: false, renterOffers: data);
+      state = state.copyWith(
+        isLoading: false,
+        renterOffers: result.data,
+        error: result.success ? null : result.message,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -60,15 +79,56 @@ class OffersNotifier extends StateNotifier<OffersState> {
     }
   }
 
+  Future<bool> acceptOffer(String id) async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      final result = await service.acceptOffer(id: id);
+
+      state = state.copyWith(isLoading: false);
+
+      if (result.success) {
+        await getClientOffers();
+      }
+
+      return result.success;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> rejectOffer(String id) async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      final result = await service.rejectOffer(id: id);
+
+      state = state.copyWith(isLoading: false);
+
+      if (result.success) {
+        await getClientOffers();
+      }
+
+      return result.success;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
   Future<void> getOwnerOffers() async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final data = await service.getOwnerOffers();
+      final result = await service.getOwnerOffers();
 
-      state = state.copyWith(isLoading: false, ownerOffers: data);
+      state = state.copyWith(
+        isLoading: false,
+        ownerOffers: result.data,
+        error: result.success ? null : result.message,
+      );
     } catch (e) {
-      print(e);
       state = state.copyWith(
         isLoading: false,
         ownerOffers: [],
@@ -81,7 +141,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final created = await service.createOffer(
+      final result = await service.createOffer(
         price: state.price ?? 0,
         priceRate: state.priceRate.toString(),
         comment: state.comment,
@@ -91,106 +151,30 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       state = state.copyWith(isLoading: false);
 
-      if (created != null) {
+      if (result.success) {
         await getOwnerOffers();
-
-        return true;
       }
 
-      return false;
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
   }
 
-  Future<bool> updateOffer(String id) async {
+  Future<bool> cancelOffer(String id) async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final created = await service.updateOffer(
-        id: id,
-        price: state.price ?? 0,
-        priceRate: state.priceRate.toString(),
-        comment: state.comment,
-        equipmentId: state.selectedEquipment?.id ?? "",
-      );
-
-      if (created != null) {
-        state = state.copyWith(
-          isLoading: false,
-          renterOffers: [...state.renterOffers, created],
-        );
-
-        state = state.copyWith(
-          renterOffers: state.renterOffers.map((o) {
-            if (o.id == id) {
-              return created;
-            }
-            return o;
-          }).toList(),
-        );
-
-        return true;
-      }
-
-      return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> updateOfferStatus(String id, String status) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final created = await service.updateOfferStatus(id: id, status: status);
-
-      if (created != null) {
-        state = state.copyWith(
-          renterOffers: state.renterOffers.map((o) {
-            if (o.id == id) {
-              return created;
-            }
-            return o;
-          }).toList(),
-        );
-
-        return true;
-      }
-
-      return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> acceptOffer(String id) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      await service.acceptOffer(id: id);
+      final result = await service.cancelOffer(id: id);
 
       state = state.copyWith(isLoading: false);
 
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
+      if (result.success) {
+        await getOwnerOffers();
+      }
 
-  Future<bool> rejectOffer(String id) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      await service.rejectOffer(id: id);
-
-      state = state.copyWith(isLoading: false);
-
-      return true;
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;

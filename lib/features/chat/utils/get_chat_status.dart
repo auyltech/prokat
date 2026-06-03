@@ -2,12 +2,15 @@ import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 
 ChatStatus getChatStatus({
+  String? requestStatus,
   required String bookingStatus,
   required WorkStatus workStatus,
   bool hasNegotiation = false,
   bool pendingFromMe = false,
   bool reviewSubmitted = false,
 }) {
+  final normalizedRequestStatus = requestStatus?.toUpperCase() ?? "";
+
   final normalizedStatus = bookingStatus.toUpperCase();
 
   if (normalizedStatus == "CREATED") {

@@ -1,41 +1,59 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_service.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_state.dart';
 
-enum PriceNegotiationScopeType { booking, offer }
-
-class PriceNegotiationScope {
-  final PriceNegotiationScopeType type;
-  final String id;
-
-  const PriceNegotiationScope.booking(this.id)
-    : type = PriceNegotiationScopeType.booking;
-  const PriceNegotiationScope.offer(this.id)
-    : type = PriceNegotiationScopeType.offer;
-}
-
 class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
   final PriceNegotiationService service;
-  final PriceNegotiationScope scope;
 
-  PriceNegotiationNotifier(this.service, this.scope)
-    : super(const PriceNegotiationState()) {
-    refresh();
-  }
+  PriceNegotiationNotifier(this.service) : super(const PriceNegotiationState());
 
   bool isLatestPendingFromMe(String? currentUserId) {
     final pending = state.latestPending;
     final userId = (currentUserId ?? '').trim();
+
     if (pending == null || userId.isEmpty) return false;
     return (pending.senderId ?? '').trim() == userId;
   }
 
-  Future<void> refresh() async {
+  PriceNegotiation? getPendingNegotiation({
+    String? bookingId,
+    String? offerId,
+    String? currentUserId,
+    String? mode,
+  }) {
+    if (bookingId != null) {
+      print(state.negotiations.length);
+      final found = state.negotiations
+          .where(
+            (item) =>
+                (item.bookingId == bookingId) &&
+                (item.status == PriceNegotiationStatus.pending),
+          )
+          .firstOrNull;
+
+      return found;
+    } else if (offerId != null) {
+      final found = state.negotiations
+          .where(
+            (item) =>
+                item.offerId == offerId &&
+                item.status == PriceNegotiationStatus.pending,
+          )
+          .firstOrNull;
+
+      return found;
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> getPriceNegotiations() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      final result = await service.getPriceNegotiations(scope.id);
+      final result = await service.getPriceNegotiations();
 
       if (result.success) {
         final sorted = List<PriceNegotiation>.from(result.data?.toList() ?? []);
@@ -65,6 +83,8 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
 
   Future<void> createCounterOffer({
     required int price,
+    String? bookingId,
+    String? offerId,
     String? priceRate,
     String? comment,
     required String type,
@@ -73,12 +93,8 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
       state = state.copyWith(isSubmitting: true, error: null);
 
       await service.createPriceNegotiation(
-        bookingId: scope.type == PriceNegotiationScopeType.booking
-            ? scope.id
-            : null,
-        offerId: scope.type == PriceNegotiationScopeType.offer
-            ? scope.id
-            : null,
+        bookingId: bookingId,
+        offerId: offerId,
         price: price,
         priceRate: priceRate,
         comment: comment,
@@ -87,7 +103,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
 
       state = state.copyWith(isSubmitting: false);
 
-      await refresh();
+      await getPriceNegotiations();
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());
       rethrow;
@@ -122,7 +138,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
       await service.cancelPriceNegotiation(negotiationId);
       state = state.copyWith(isSubmitting: false);
 
-      await refresh();
+      await getPriceNegotiations();
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());
       rethrow;

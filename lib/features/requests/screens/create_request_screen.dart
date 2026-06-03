@@ -24,7 +24,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     super.initState();
 
     Future.microtask(() async {
-      await ref.read(requestProvider.notifier).getUserRequests();
+      await ref.read(requestProvider.notifier).getClientRequests();
 
       if (mounted) {
         ref.read(locationProvider.notifier).getRenterLocations();

@@ -40,13 +40,17 @@ class RequestNotifier extends StateNotifier<RequestState> {
     state = state.copyWith(capacity: capacity);
   }
 
-  Future<void> getUserRequests() async {
+  Future<void> getClientRequests() async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final data = await service.getUserRequests();
+      final result = await service.getClientRequests();
 
-      state = state.copyWith(isLoading: false, requests: data);
+      state = state.copyWith(
+        isLoading: false,
+        requests: result.data,
+        error: result.success ? null : result.message,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -60,9 +64,13 @@ class RequestNotifier extends StateNotifier<RequestState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final data = await service.getOwnerRequests();
+      final result = await service.getOwnerRequests();
 
-      state = state.copyWith(isLoading: false, ownerRequests: data);
+      state = state.copyWith(
+        isLoading: false,
+        ownerRequests: result.data,
+        error: result.success ? null : result.message,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -103,7 +111,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
           : null;
 
       // 3. Fire the request service
-      final created = await service.createRequest(
+      final result = await service.createRequest(
         categoryId: categoryId,
         // Fallback to a placeholder string if your backend expects a UUID pattern instead of ""
         locationId: state.selectedLocation?.id ?? "unspecified",
@@ -114,15 +122,13 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      if (created == true) {
-        state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false);
 
-        await getUserRequests();
-
-        return true;
+      if (result.success) {
+        await getClientRequests();
       }
 
-      return false;
+      return result.success;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -143,7 +149,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await service.updateRequest(
+      final result = await service.updateRequest(
         id: id,
         locationId: locationId,
         requiredOn: requiredOn,
@@ -151,15 +157,13 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      if (updated != null) {
-        await getUserRequests();
-
-        return true;
-      }
-
       state = state.copyWith(isLoading: false);
 
-      return false;
+      if (result.success) {
+        await getClientRequests();
+      }
+
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
@@ -169,15 +173,15 @@ class RequestNotifier extends StateNotifier<RequestState> {
   Future<bool> cancelRequest(String id) async {
     try {
       state = state.copyWith(isLoading: true);
-      final res = await service.cancelRequest(id);
-
-      if (res == true) {
-        await getUserRequests();
-      }
+      final result = await service.cancelRequest(id);
 
       state = state.copyWith(isLoading: false);
 
-      return res;
+      if (result.success) {
+        await getClientRequests();
+      }
+
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
@@ -187,15 +191,15 @@ class RequestNotifier extends StateNotifier<RequestState> {
   Future<bool> rejectRequest(String id) async {
     try {
       state = state.copyWith(isLoading: true);
-      final res = await service.rejectRequest(id);
-
-      if (res == true) {
-        await getOwnerRequests();
-      }
+      final result = await service.rejectRequest(id);
 
       state = state.copyWith(isLoading: false);
 
-      return res;
+      if (result.success) {
+        await getClientRequests();
+      }
+
+      return result.success;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;

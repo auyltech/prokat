@@ -9,19 +9,11 @@ final priceNegotiationServiceProvider = Provider<PriceNegotiationService>((ref) 
   return PriceNegotiationService(apiClient);
 });
 
-final priceNegotiationByBookingProvider =
-    StateNotifierProvider.family<PriceNegotiationNotifier, PriceNegotiationState, String>(
-      (ref, bookingId) {
-        final service = ref.read(priceNegotiationServiceProvider);
-        return PriceNegotiationNotifier(service, PriceNegotiationScope.booking(bookingId));
-      },
-    );
-
-final priceNegotiationByOfferProvider =
-    StateNotifierProvider.family<PriceNegotiationNotifier, PriceNegotiationState, String>(
-      (ref, offerId) {
-        final service = ref.read(priceNegotiationServiceProvider);
-        return PriceNegotiationNotifier(service, PriceNegotiationScope.offer(offerId));
-      },
-    );
+final priceNegotiationProvider = StateNotifierProvider<PriceNegotiationNotifier, PriceNegotiationState>((
+  ref,
+) {
+  final api = ref.read(priceNegotiationServiceProvider);
+  
+  return PriceNegotiationNotifier(api);
+});
 

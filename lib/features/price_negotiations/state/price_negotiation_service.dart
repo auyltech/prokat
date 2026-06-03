@@ -12,11 +12,9 @@ class PriceNegotiationService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<PriceNegotiation>>> getPriceNegotiations(
-    String bookingId,
-  ) async {
+  Future<ApiResponse<List<PriceNegotiation>>> getPriceNegotiations() async {
     try {
-      final response = await _dio.get('/price-negotiations/booking/$bookingId');
+      final response = await _dio.get('/price-negotiations/booking');
 
       return handleApiResponse<List<PriceNegotiation>>(
         response: response,

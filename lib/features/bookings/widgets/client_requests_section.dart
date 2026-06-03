@@ -24,8 +24,8 @@ class _ClientRequestsSectionState extends ConsumerState<ClientRequestsSection> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(offersProvider.notifier).getUserOffers();
-      ref.read(requestProvider.notifier).getUserRequests();
+      ref.read(offersProvider.notifier).getClientOffers();
+      ref.read(requestProvider.notifier).getClientRequests();
     });
   }
 

@@ -9,6 +9,7 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/utils/date_time.dart';
@@ -23,7 +24,6 @@ class CreateOfferScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
-  // Declare the form key and controller here
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _price = TextEditingController();
   final TextEditingController _comment = TextEditingController();
@@ -31,11 +31,34 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final request = ref
+          .read(requestProvider)
+          .ownerRequests
+          .where((item) => item.id == widget.requestId)
+          .firstOrNull;
+
+      if (request == null) return;
+
+      // Price
+      _price.text = request.offeredPrice.toString();
+      ref.read(offersProvider.notifier).setPrice(request.offeredPrice);
+
+      // Date
+      if (request.requiredOn != null) {
+        ref.read(offersProvider.notifier).setDate(request.requiredOn!);
+      }
+
+      // Time
+      if (request.requiredAt != null) {
+        ref.read(offersProvider.notifier).setTime(request.requiredAt!);
+      }
+    });
   }
 
   @override
   void dispose() {
-    // Safely dispose the controller to prevent memory leaks
     _price.dispose();
     _comment.dispose();
     super.dispose();
@@ -46,7 +69,6 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    // Use ref directly anywhere in the build method since we are inside ConsumerState
     final offersState = ref.watch(offersProvider);
     final offersNotifier = ref.read(offersProvider.notifier);
     final equipmentState = ref.watch(equipmentProvider);
@@ -56,9 +78,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         .toList();
 
     Future<void> onSubmit() async {
-      // Trigger form validation check
       if (_formKey.currentState?.validate() ?? false) {
-        // Pass the text controller value into notifier if needed right before sending
         offersNotifier.setPrice(parseNullableInt(_price.text) ?? 0);
         offersNotifier.setComment(_comment.text);
 
@@ -69,9 +89,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
       }
     }
 
+    final minDate = DateTime.now();
+
+    final initialDate =
+        offersState.selectedDate != null &&
+            offersState.selectedDate!.isAfter(minDate)
+        ? offersState.selectedDate!
+        : minDate;
+
     return Scaffold(
       body: Form(
-        key: _formKey, // Wrapped in a Form to handle the field validation
+        key: _formKey,
         child: SingleChildScrollView(
           padding: EdgeInsets.only(
             left: 20,
@@ -111,37 +139,15 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                 children: [
                   Expanded(
                     child: InputField(
-                      label: l10n
-                          .priceKZT, // Note: updated from startTime to comments
+                      label: l10n.priceKZT,
                       controller: _price,
                       hint: "12 000",
                       // keyboardType: TextInputType.number,
                       validator: (v) =>
                           v == null || v.isEmpty ? l10n.required : null,
                     ),
-                    // onChanged: (value) {
-                    //   offersNotifier.setPrice(int.tryParse(value) ?? 0);
-                    // },
                   ),
                   const SizedBox(width: 12),
-                  // Expanded(
-                  //   child: DropDownfield<EquipmentSummaryModel>(
-                  //     label: l10n.navEquipment,
-                  //     hint: l10n.selectEquipment,
-                  //     value: offersState.selectedEquipment,
-                  //     items: equipmentOptions.map((e) {
-                  //       return DropdownMenuItem(
-                  //         value: e,
-                  //         child: Text("${e.name}-${e.plateNumber}"),
-                  //       );
-                  //     }).toList(),
-                  //     onChanged: (value) {
-                  //       if (value != null) {
-                  //         offersNotifier.selectEquipment(value);
-                  //       }
-                  //     },
-                  //   ),
-                  // ),
                 ],
               ),
 
@@ -163,16 +169,12 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                             color: theme.scaffoldBackgroundColor,
                             child: CupertinoDatePicker(
                               mode: CupertinoDatePickerMode.date,
-                              // 1. Safe calculation: use the maximum of the two dates to prevent underflow
-                              initialDateTime:
-                                  offersState.selectedDate ?? DateTime.now(),
-                              minimumDate: DateTime.now(),
-                              maximumDate: DateTime.now().add(
+                              initialDateTime: initialDate,
+                              minimumDate: minDate,
+                              maximumDate: minDate.add(
                                 const Duration(days: 365),
                               ),
-                              onDateTimeChanged: (date) {
-                                offersNotifier.setDate(date);
-                              },
+                              onDateTimeChanged: offersNotifier.setDate,
                             ),
                           ),
                         );
@@ -218,7 +220,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                 label: l10n.comments,
                 controller: _comment,
                 hint: l10n.equipmentNameHint,
-                validator: (v) => v == null || v.isEmpty ? l10n.required : null,
+                // validator: (v) => v == null || v.isEmpty ? l10n.required : null,
               ),
 
               const SizedBox(height: 24),

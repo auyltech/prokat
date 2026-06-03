@@ -23,7 +23,7 @@ class BookingModel {
   final User? owner;
 
   final EquipmentSummaryModel? equipment;
-  final LocationModel location;
+  final LocationModel? location;
 
   final String? myReviewId;
 
@@ -44,7 +44,7 @@ class BookingModel {
     this.client,
     this.owner,
     this.equipment,
-    required this.location,
+    this.location,
 
     this.myReviewId,
     this.createdAt,
@@ -97,11 +97,11 @@ class BookingModel {
 
         equipment: json['equipment'] != null
             ? EquipmentSummaryModel.fromJson(json['equipment'])
-            : null, 
+            : null,
 
         location: json['location'] != null
             ? LocationModel.fromJson(json['location'])
-            : throw Exception("Location is required but missing"),
+            : null,
 
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])
@@ -127,7 +127,7 @@ class BookingModel {
       "comment": comment,
       "instructions": instructions,
       "equipment": equipment?.toJson(),
-      "location": location.toJson(),
+      "location": location?.toJson(),
       "client": client?.toJson(),
       "owner": owner?.toJson(),
     };

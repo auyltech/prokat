@@ -15,6 +15,8 @@ class ChatMessageModel {
   final bool isPending;
   final bool isFailed;
 
+  final Map<String, dynamic>? meta;
+
   final DateTime? createdAt;
 
   const ChatMessageModel({
@@ -29,6 +31,7 @@ class ChatMessageModel {
     this.clientTempId,
     this.isPending = false,
     this.isFailed = false,
+    this.meta,
     this.createdAt,
   });
 
@@ -44,6 +47,7 @@ class ChatMessageModel {
     String? clientTempId,
     bool? isPending,
     bool? isFailed,
+    Map<String, dynamic>? meta,
     DateTime? createdAt,
   }) {
     return ChatMessageModel(
@@ -58,6 +62,7 @@ class ChatMessageModel {
       clientTempId: clientTempId ?? this.clientTempId,
       isPending: isPending ?? this.isPending,
       isFailed: isFailed ?? this.isFailed,
+      meta: meta ?? this.meta,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -98,6 +103,10 @@ class ChatMessageModel {
       type: json['type']?.toString() ?? 'TEXT',
       service: json['service']?.toString() ?? '',
       clientTempId: json['clientTempId']?.toString(),
+
+      meta: json['meta'] is Map
+          ? Map<String, dynamic>.from(json['meta'])
+          : null,
       createdAt: _parseDate(json['createdAt'] ?? json['timestamp']),
     );
   }

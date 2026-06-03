@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/features/requests/widgets.dart/offer_tile.dart';
+import 'package:prokat/features/offers/widgets/offer_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
 
 class RequestWithOffers extends StatefulWidget {

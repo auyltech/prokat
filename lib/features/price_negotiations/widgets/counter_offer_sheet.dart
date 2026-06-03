@@ -48,15 +48,8 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final bookingId = (widget.bookingId ?? '').trim();
-    final offerId = (widget.offerId ?? '').trim();
-
-    final provider = bookingId.isNotEmpty
-        ? priceNegotiationByBookingProvider(bookingId)
-        : priceNegotiationByOfferProvider(offerId);
-
-    final state = ref.watch(provider);
-    final notifier = ref.read(provider.notifier);
+    final state = ref.watch(priceNegotiationProvider);
+    final notifier = ref.read(priceNegotiationProvider.notifier);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -113,6 +106,8 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
                         priceRate: _priceRate,
                         comment: _commentController.text.trim(),
                         type: widget.counterType,
+                        bookingId: widget.bookingId,
+                        offerId: widget.offerId,
                       );
 
                       // use chat notifier to create counter offer

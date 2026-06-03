@@ -8,7 +8,6 @@ import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
-import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
@@ -75,9 +74,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
     final offersState = ref.watch(offersProvider);
 
-    final negotiation = ref.watch(
-      priceNegotiationByBookingProvider(booking?.id ?? ""),
-    );
+    final negotiation = ref.watch(priceNegotiationProvider);
 
     final reviewSubmitted =
         (booking?.myReviewId?.isNotEmpty ?? false) ||
@@ -179,9 +176,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                           if (request != null) {
                             return RequestMessageBubble(request: request);
                           }
-                          if (booking != null) {
-                            return BookingMessageBubble(booking: booking);
-                          }
+                          // if (booking != null) {
+                          //   return BookingMessageBubble(booking: booking);
+                          // }
                           return const SizedBox.shrink();
                         }
                       }
@@ -207,6 +204,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
               ClientChatActionBar(
                 chatId: widget.chatId,
                 booking: booking,
+                request: request,
                 chatOwnerId: chatOwnerId,
                 chatClientId: chatClientId,
               ),
@@ -214,7 +212,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
             if (booking == null && request != null && requestOffer != null)
               OfferChatActionBar(
                 chatId: widget.chatId,
-                offer: requestOffer,
+                requestId: request.id,
                 type: "CLIENT_COUNTER",
               ),
 

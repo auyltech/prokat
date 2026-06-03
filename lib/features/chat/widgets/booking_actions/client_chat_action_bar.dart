@@ -10,12 +10,14 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
 class ClientChatActionBar extends ConsumerWidget {
   final String chatId;
   final BookingModel booking;
+  final RequestModel? request;
   final String? chatOwnerId;
   final String? chatClientId;
 
@@ -23,6 +25,7 @@ class ClientChatActionBar extends ConsumerWidget {
     super.key,
     required this.chatId,
     required this.booking,
+    this.request,
     this.chatOwnerId,
     this.chatClientId,
   });
@@ -39,9 +42,7 @@ class ClientChatActionBar extends ConsumerWidget {
     );
     final currentUserId = ref.watch(authProvider).session?.user?.id;
 
-    final negotiation = ref.watch(
-      priceNegotiationByBookingProvider(booking.id),
-    );
+    final negotiation = ref.watch(priceNegotiationProvider);
 
     final pending = negotiation.latestPending;
     final pendingId = (pending?.id ?? '').trim();
@@ -53,6 +54,7 @@ class ClientChatActionBar extends ConsumerWidget {
         ref.watch(reviewByBookingProvider(booking.id)).hasSubmitted;
 
     final ChatStatus chatState = getChatStatus(
+      requestStatus: request?.status,
       bookingStatus: booking.status,
       hasNegotiation: pendingId.isNotEmpty,
       pendingFromMe:

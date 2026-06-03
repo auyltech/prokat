@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
-import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 
 class OfferChatActionBar extends ConsumerWidget {
   final String chatId;
-  final OfferModel offer;
+  final String requestId;
   final String type;
 
   const OfferChatActionBar({
     super.key,
     required this.chatId,
-    required this.offer,
+    required this.requestId,
     required this.type,
   });
 
@@ -25,11 +26,21 @@ class OfferChatActionBar extends ConsumerWidget {
     final controller = ref.read(offerChatActionControllerProvider);
 
     final currentUserId = ref.watch(authProvider).session?.user?.id;
-    final negotiationState = ref.watch(
-      priceNegotiationByOfferProvider(offer.id),
-    );
 
+    final activeRequestOffer = ref
+        .read(offersProvider.notifier)
+        .getActiveOffers(requestId, "client")
+        .firstOrNull;
+
+    final hasActiveOffer = ref
+        .read(offersProvider.notifier)
+        .hasActiveOffer(requestId, "client");
+
+    final negotiationState = ref.watch(priceNegotiationProvider);
     final pending = negotiationState.latestPending;
+
+    final hasPriceNegotiation = pending != null;
+
     final pendingId = (pending?.id ?? '').trim();
     final userId = (currentUserId ?? '').trim();
     final pendingFromMe =
@@ -48,8 +59,6 @@ class OfferChatActionBar extends ConsumerWidget {
         : pendingFromMe
         ? 'Cancel counter'
         : 'Accept';
-
-    final secondaryLabel = pendingId.isEmpty || pendingFromMe ? null : 'Reject';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -75,76 +84,145 @@ class OfferChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (secondaryLabel != null) ...[
+              SizedBox(width: 4),
+              if (hasActiveOffer) ...[
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: negotiationState.isSubmitting
-                        ? null
-                        : () => controller.respond(
-                            context: context,
-                            chatId: chatId,
-                            offerId: offer.id,
-                            negotiationId: pendingId,
-                            response: PriceNegotiationResponse.reject,
-                          ),
-                    child: Text(secondaryLabel),
+                  child: ActionBarButton(
+                    label: "Reject Offer",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.rejectRequestOffer(
+                        context: context,
+                        chatId: chatId,
+                        offerId: activeRequestOffer?.id ?? "",
+                      );
+                    },
+                  ),
+                ),
+
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Accept Offer",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.acceptRequestOffer(
+                        context: context,
+                        chatId: chatId,
+                        offerId: activeRequestOffer?.id ?? "",
+                      );
+                    },
+                  ),
+                ),
+              ] else if (hasPriceNegotiation && !pendingFromMe) ...[
+                // Reject Price Negotiation
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Reject Price",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.respond(
+                        context: context,
+                        chatId: chatId,
+                        offerId: activeRequestOffer?.id ?? "",
+                        negotiationId: pendingId,
+                        response: PriceNegotiationResponse.reject,
+                      );
+                    },
+                  ),
+                ),
+
+                // Accept Price Negotiation
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Accept Price",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.respond(
+                        context: context,
+                        chatId: chatId,
+                        offerId: activeRequestOffer?.id ?? "",
+                        negotiationId: pendingId,
+                        response: PriceNegotiationResponse.accept,
+                      );
+                    },
+                  ),
+                ),
+              ] else if (hasPriceNegotiation) ...[
+                // Cancel Price Negotiation
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Cancel Price",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.cancel(
+                        context: context,
+                        chatId: chatId,
+                        offerId: activeRequestOffer?.id ?? "",
+                        negotiationId: pendingId,
+                      );
+                    },
+                  ),
+                ),
+              ] else ...[
+                // Cancel request
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Cancel Request",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.cancelRequest(
+                        context: context,
+                        chatId: chatId,
+                        requestId: requestId,
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: negotiationState.isSubmitting
-                      ? null
-                      : () async {
-                          if (pendingId.isEmpty) {
-                            final created = await showModalBottomSheet<bool>(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: theme.colorScheme.surface,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20),
+                // Create Price Negotiation
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: negotiationState.isSubmitting
+                        ? null
+                        : () async {
+                            if (pendingId.isEmpty) {
+                              final created = await showModalBottomSheet<bool>(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: theme.colorScheme.surface,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
                                 ),
-                              ),
-                              builder: (_) => CounterOfferSheet(
-                                offerId: offer.id,
-                                initialPrice: offer.price,
-                                initialPriceRate: offer.priceRate,
-                                counterType: type,
-                              ),
-                            );
-
-                            if (created == true) {
-                              await controller.refreshAfterNegotiation(
-                                chatId: chatId,
-                                offerId: offer.id,
+                                builder: (_) => CounterOfferSheet(
+                                  offerId: activeRequestOffer?.id ?? "",
+                                  initialPrice: activeRequestOffer?.price ?? 0,
+                                  initialPriceRate:
+                                      activeRequestOffer?.priceRate,
+                                  counterType: type,
+                                ),
                               );
+
+                              if (created == true) {
+                                await controller.refreshAfterNegotiation(
+                                  chatId: chatId,
+                                  offerId: activeRequestOffer?.id ?? "",
+                                );
+                              }
+                              return;
                             }
-                            return;
-                          }
-
-                          if (pendingFromMe) {
-                            await controller.cancel(
-                              context: context,
-                              chatId: chatId,
-                              offerId: offer.id,
-                              negotiationId: pendingId,
-                            );
-                            return;
-                          }
-
-                          await controller.respond(
-                            context: context,
-                            chatId: chatId,
-                            offerId: offer.id,
-                            negotiationId: pendingId,
-                            response: PriceNegotiationResponse.accept,
-                          );
-                        },
-                  child: Text(primaryLabel),
+                          },
+                    child: Text(primaryLabel),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ],

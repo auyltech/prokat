@@ -25,7 +25,6 @@ class BookingApiService {
 
           return data.map((item) {
             if (item is! Map<String, dynamic>) {
-              print("Invalid booking item");
               throw FormatException("Invalid booking item");
             }
 

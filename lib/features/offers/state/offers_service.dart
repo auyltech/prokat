@@ -1,4 +1,7 @@
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_helper.dart';
+import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:dio/dio.dart';
 
@@ -9,33 +12,85 @@ class OffersService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<OfferModel>> getUserOffers() async {
+  Future<ApiResponse<List<OfferModel>>> getClientOffers() async {
     try {
-      final res = await _dio.get('/offers');
+      final response = await _dio.get('/offers');
 
-      return (res.data['data'] as List)
-          .map((e) => OfferModel.fromJson(e))
-          .toList();
+      return handleApiResponse<List<OfferModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected offers list");
+          }
+
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid offer item");
+            }
+
+            return OfferModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load offers",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return [];
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<List<OfferModel>> getOwnerOffers() async {
+  Future<ApiResponse<List<OfferModel>>> getOwnerOffers() async {
     try {
-      print("get_owner_offers");
-      final res = await _dio.get('/offers/owner');
+      final response = await _dio.get('/offers/owner');
 
-      return (res.data['data'] as List)
-          .map((e) => OfferModel.fromJson(e))
-          .toList();
+      return handleApiResponse<List<OfferModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected offers list");
+          }
+
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid offer item");
+            }
+
+            return OfferModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load offers",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      print(e);
-      return [];
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<OfferModel?> createOffer({
+  Future<ApiResponse<void>> createOffer({
     required String requestId,
     required String equipmentId,
     required int price,
@@ -43,7 +98,7 @@ class OffersService {
     String? comment,
   }) async {
     try {
-      final res = await _dio.post(
+      final response = await _dio.post(
         '/offers',
         data: {
           "requestId": requestId,
@@ -54,90 +109,103 @@ class OffersService {
         },
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return OfferModel.fromJson(res.data['data']);
-      }
-
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<OfferModel?> updateOffer({
-    required String id,
-    required String equipmentId,
-    required int price,
-    required String priceRate,
-    String? comment,
-  }) async {
-    try {
-      final res = await _dio.patch(
-        '/offers/$id',
-        data: {
-          "id": id,
-          "equipmentId": equipmentId,
-          "price": price,
-          "priceRate": priceRate,
-          "comment": comment,
-        },
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Offer created",
       );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return OfferModel.fromJson(res.data['data']);
-      }
-
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<OfferModel?> updateOfferStatus({
-    required String id,
-    required String status,
-  }) async {
-    try {
-      final res = await _dio.patch(
-        '/offers/$id/status',
-        data: {"id": id, "status": status},
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
-
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return OfferModel.fromJson(res.data['data']);
-      }
-
-      return null;
     } catch (e) {
-      return null;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<OfferModel?> acceptOffer({required String id}) async {
+  Future<ApiResponse<void>> acceptOffer({required String id}) async {
     try {
-      final res = await _dio.post('/offers/$id/accept', data: {"id": id});
+      final response = await _dio.post('/offers/$id/accept', data: {"id": id});
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return OfferModel.fromJson(res.data['data']);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Booking created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return null;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return null;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<OfferModel?> rejectOffer({required String id}) async {
+  Future<ApiResponse<void>> rejectOffer({required String id}) async {
     try {
-      final res = await _dio.post('/offers/$id/reject', data: {"id": id});
+      final response = await _dio.post('/offers/$id/reject', data: {"id": id});
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return OfferModel.fromJson(res.data['data']);
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Booking created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
 
-      return null;
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return null;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<ApiResponse<void>> cancelOffer({required String id}) async {
+    try {
+      final response = await _dio.patch('/offers/$id/cancel', data: {"id": id});
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Booking created",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 }
