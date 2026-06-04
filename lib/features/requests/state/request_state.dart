@@ -1,5 +1,6 @@
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import '../models/request_model.dart';
 
 class RequestState {
@@ -43,6 +44,18 @@ class RequestState {
     this.selectedCategory,
     this.categoryId,
   });
+
+  List<RequestModel> get activeOwnerRequests {
+    return ownerRequests
+        .where(
+          (r) => [
+            RequestStatus.created,
+            RequestStatus.viewed,
+            RequestStatus.responded,
+          ].contains(r.status),
+        )
+        .toList();
+  }
 
   RequestState copyWith({
     bool? isLoading,

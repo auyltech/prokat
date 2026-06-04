@@ -116,6 +116,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
         );
       }
     } catch (error) {
+      print(error);
       state = state.copyWith(
         isLoadingConversations: false,
         error: friendlyChatError(error),

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_accept_button.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_action_button.dart';
@@ -272,9 +273,8 @@ class OwnerBookingTile extends ConsumerWidget {
                     ),
                     Row(
                       children: [
-                        if (booking.status.toUpperCase() == 'CREATED' ||
-                            booking.status.toUpperCase() == 'PENDING' ||
-                            booking.status.toUpperCase() == 'CONFIRMED') ...[
+                        if (booking.status == BookingStatus.created ||
+                            booking.status == BookingStatus.confirmed) ...[
                           OwnerCancelBookingButton(booking: booking),
                           const SizedBox(width: 8),
                         ],
@@ -282,8 +282,7 @@ class OwnerBookingTile extends ConsumerWidget {
                         OwnerBookingChatButton(booking: booking),
                         const SizedBox(width: 12),
 
-                        if (booking.status.toUpperCase() == 'CREATED' ||
-                            booking.status.toUpperCase() == 'PENDING')
+                        if (booking.status == BookingStatus.created)
                           OwnerBookingAcceptButton(booking: booking)
                         else
                           OwnerBookingActionButton(booking: booking),

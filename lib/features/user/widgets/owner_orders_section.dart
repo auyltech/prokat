@@ -25,11 +25,11 @@ class _OwnerOrdersSectionState extends ConsumerState<OwnerOrdersSection> {
     final bookingsState = ref.watch(bookingProvider);
 
     final upcomingJobs = bookingsState.ownerBookings
-        .where((b) => b.status.toLowerCase() == BookingStatus.confirmed.name)
+        .where((b) => b.status == BookingStatus.confirmed)
         .toList();
 
     final pendingJobs = bookingsState.ownerBookings
-        .where((b) => b.status.toLowerCase() == BookingStatus.created.name)
+        .where((b) => b.status == BookingStatus.created)
         .toList();
 
     final pendingCount = pendingJobs.isEmpty ? 0 : pendingJobs.length;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
@@ -245,70 +246,29 @@ class OfferTile extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               if (offer.chatId.isNotEmpty) ...[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D47A1),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    context.push('${AppRoutes.chat}/${offer.chatId}');
-                  },
-                  child: const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 22,
-                  ),
+                ActionButton(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  onPressed: () =>
+                      context.push('${AppRoutes.chat}/${offer.chatId}'),
                 ),
 
                 const SizedBox(width: 8),
               ],
 
               if (!isHandled) ...[
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    side: const BorderSide(color: Color(0xFFE0E0E0)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                ActionButton(
+                  label: l10n.reject,
+                  variant: "danger",
                   onPressed: () => _handleReject(context, ref, l10n),
-                  child: Text(
-                    l10n.reject,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
+                  isLoading: ref.watch(offersProvider).isLoading,
                 ),
 
                 const SizedBox(width: 8),
 
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D47A1),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                ActionButton(
+                  label: l10n.accept,
                   onPressed: () => _handleAccept(context, ref, l10n),
-                  child: Text(
-                    l10n.accept,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
+                  isLoading: ref.watch(offersProvider).isLoading,
                 ),
               ] else
                 Container(

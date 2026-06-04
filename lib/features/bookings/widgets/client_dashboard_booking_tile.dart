@@ -123,8 +123,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                 flex: 1,
                 child: ActionButton(
                   icon: Icons.chat,
-                  color: Colors.green,
-                  onTap: () {
+                  onPressed: () {
                     context.push('${AppRoutes.chat}/${booking.chatId}');
                   },
                 ),

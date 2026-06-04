@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 String formatRequestTime(String date) {
@@ -13,14 +14,8 @@ String formatRequestTime(String date) {
   if (diff.inMinutes < 60) return "${diff.inMinutes} min ago";
   if (diff.inHours < 24) return "${diff.inHours} h ago";
 
-  // older → show date
   return DateFormat("d MMM, HH:mm").format(dt);
 }
-
-// String formatKZT(num amount) {
-//   final formatter = NumberFormat("#,###", "en_US");
-//   return "₸ ${formatter.format(amount).replaceAll(",", ",")}";
-// }
 
 String formatDate({
   DateTime? date,
@@ -109,115 +104,62 @@ String getPriceRate(dynamic priceRate, {AppLocalizations? l10n}) {
       : temp;
 }
 
-String getBookingStatus(dynamic status, {AppLocalizations? l10n}) {
-  final temp = status.toString().trim().toUpperCase();
-
-  if (l10n != null) {
-    switch (temp) {
-      case "DRAFT":
-        return l10n.statusDraft;
-      case "CREATED":
-        return l10n.newOrder;
-      case "CONFIRMED":
-        return l10n.statusConfirmed;
-      case "REJECTED":
-        return l10n.statusRejected;
-      case "WITHDRAW":
-        return l10n.statusCanceled;
-      case "FAILED":
-        return l10n.statusCanceled;
-      case "COMPLETED":
-        return l10n.statusCompleted;
-      default:
-        return "";
-    }
-  }
-
-  switch (temp) {
-    case "DRAFT":
-      return "Draft";
-    case "CREATED":
-      return "New Order";
-    case "CONFIRMED":
-      return "Confirmed";
-    case "REJECTED":
-      return "Rejected";
-    case "WITHDRAW":
-      return "Canceled";
-    case "FAILED":
-      return "Canceled";
-    case "COMPLETED":
-      return "Completed";
+String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {
+  switch (status) {
+    case BookingStatus.draft:
+      return l10n?.statusDraft ?? "Draft";
+    case BookingStatus.created:
+      return l10n?.newOrder ?? "Created";
+    case BookingStatus.confirmed:
+      return l10n?.statusConfirmed ?? "Confirmed";
+    case BookingStatus.rejected:
+      return l10n?.statusRejected ?? "Rejected";
+    case BookingStatus.cancelled:
+      return l10n?.statusCanceled ?? "Cancelled";
+    case BookingStatus.failed:
+      return l10n?.statusCanceled ?? "Failed";
+    case BookingStatus.completed:
+      return l10n?.statusCompleted ?? "Completed";
     default:
       return "";
   }
 }
 
-String getRequestStatus(dynamic status, {AppLocalizations? l10n}) {
-  final temp = status.toString().trim().toUpperCase();
-
-  if (l10n != null) {
-    switch (temp) {
-      case "DRAFT":
-        return l10n.statusDraft;
-      case "CREATED":
-        return l10n.statusRequestSent;
-      case "RESPONDED":
-        return l10n.statusOffersReceived;
-      case "ACCEPTED":
-        return l10n.statusBookingCreated;
-      case "CANCELLED":
-        return l10n.statusCanceled;
-      case "EXPIRED":
-        return l10n.statusExpired;
-      default:
-        return "";
-    }
-  }
-
-  switch (temp) {
-    case "DRAFT":
-      return "Draft";
-    case "CREATED":
-      return "Request Sent";
-    case "RESPONDED":
-      return "Offers Sent";
-    case "ACCEPTED":
-      return "Booking Created";
-    case "CANCELLED":
-      return "Canceled";
-    case "EXPIRED":
-      return "Expired";
+String getRequestStatus(RequestStatus status, {AppLocalizations? l10n}) {
+  switch (status) {
+    case RequestStatus.draft:
+      return l10n?.statusDraft ?? "Draft";
+    case RequestStatus.created:
+      return l10n?.statusRequestSent ?? "Request Sent";
+    case RequestStatus.responded:
+      return l10n?.statusOffersReceived ?? "Offers Sent";
+    case RequestStatus.accepted:
+      return l10n?.statusBookingCreated ?? "Booking Created";
+    case RequestStatus.cancelled:
+      return l10n?.statusCanceled ?? "Canceled";
+    case RequestStatus.expired:
+      return l10n?.statusExpired ?? "Expired";
     default:
-      return "";
+      return status.name;
   }
 }
 
 String getOwnerRequestStatus(
-  OwnerRequestUIState requestState, {
+  OwnerRequestState requestState, {
   AppLocalizations? l10n,
 }) {
-  String? stateLabel;
-
   switch (requestState) {
-    case OwnerRequestUIState.newRequest:
-      stateLabel = l10n?.newRequestBadge;
-      break;
-    case OwnerRequestUIState.viewed:
-      stateLabel = l10n?.viewedBadge;
-      break;
-    case OwnerRequestUIState.offerSent:
-      stateLabel = l10n?.offerSentBadge;
-      break;
-    case OwnerRequestUIState.accepted:
-      stateLabel = l10n?.acceptedBadge;
-      break;
-    case OwnerRequestUIState.hidden:
-      stateLabel = l10n?.hiddenBadge;
-      break;
+    case OwnerRequestState.newRequest:
+      return l10n?.newRequestBadge ?? "New Request";
+    case OwnerRequestState.viewed:
+      return l10n?.viewedBadge ?? "Request Viewed";
+    case OwnerRequestState.offerSent:
+      return l10n?.offerSentBadge ?? "Offer Sent";
+    case OwnerRequestState.accepted:
+      return l10n?.acceptedBadge ?? "Offer Accepted";
+    case OwnerRequestState.hidden:
+      return l10n?.hiddenBadge ?? "Request Hidden";
   }
-
-  return stateLabel ?? "";
 }
 
 MaterialColor getBookingColor(dynamic status) {

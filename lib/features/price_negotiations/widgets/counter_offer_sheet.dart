@@ -90,6 +90,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
                 ? null
                 : () async {
                     final price = int.tryParse(_priceController.text.trim());
+                    
                     if (price == null || price <= 0) {
                       AppSnackBar.show(
                         context,

@@ -47,29 +47,34 @@ class PriceNegotiation {
   }
 
   factory PriceNegotiation.fromJson(Map<String, dynamic> json) {
-    int parsePrice(dynamic value) {
-      if (value is int) return value;
-      if (value is num) return value.toInt();
-      return int.tryParse(value?.toString() ?? '') ?? 0;
-    }
+    try {
+      int parsePrice(dynamic value) {
+        if (value is int) return value;
+        if (value is num) return value.toInt();
+        return int.tryParse(value?.toString() ?? '') ?? 0;
+      }
 
-    return PriceNegotiation(
-      id: json['id']?.toString() ?? '',
-      bookingId: json['bookingId']?.toString(),
-      offerId: json['offerId']?.toString(),
-      senderId:
-          json['senderId']?.toString() ??
-          json['createdById']?.toString() ??
-          json['fromUserId']?.toString(),
-      receiverId:
-          json['receiverId']?.toString() ?? json['toUserId']?.toString(),
-      price: parsePrice(json['price']),
-      priceRate: json['priceRate']?.toString(),
-      comment: json['comment']?.toString(),
-      status: parsePriceNegotiationStatus(json['status']?.toString()),
-      createdAt: _tryParseDate(json['createdAt']),
-      respondedAt: _tryParseDate(json['respondedAt']),
-      cancelledAt: _tryParseDate(json['cancelledAt']),
-    );
+      return PriceNegotiation(
+        id: json['id']?.toString() ?? '',
+        bookingId: json['bookingId']?.toString(),
+        offerId: json['offerId']?.toString(),
+        senderId:
+            json['senderId']?.toString() ??
+            json['createdById']?.toString() ??
+            json['fromUserId']?.toString(),
+        receiverId:
+            json['receiverId']?.toString() ?? json['toUserId']?.toString(),
+        price: parsePrice(json['price']),
+        priceRate: json['priceRate']?.toString(),
+        comment: json['comment']?.toString(),
+        status: parsePriceNegotiationStatus(json['status']?.toString()),
+        createdAt: _tryParseDate(json['createdAt']),
+        respondedAt: _tryParseDate(json['respondedAt']),
+        cancelledAt: _tryParseDate(json['cancelledAt']),
+      );
+    } catch (e) {
+      print("parse_failed:priceNegotiation");
+      rethrow;
+    }
   }
 }

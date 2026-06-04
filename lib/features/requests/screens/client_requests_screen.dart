@@ -35,9 +35,9 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     final state = ref.watch(requestProvider);
     final offersState = ref.watch(offersProvider);
 
-    final active = state.requests
-        .where((r) => ["CREATED", "VIEWED", "RESPONDED"].contains(r.status))
-        .toList();
+    final activeRequests = ref
+        .watch(requestProvider.notifier)
+        .getActiveRequests("client");
 
     final offers = offersState.renterOffers.where(
       (r) => ["CREATED", "VIEWED"].contains(r.status),
@@ -77,7 +77,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                 subtitle: l10n.errorLoadingRequests,
                 icon: Icons.error_outline,
               )
-            else if (active.isEmpty)
+            else if (activeRequests.isEmpty)
               EmptyStateTile(
                 title: l10n.noActiveRequests,
                 icon: Icons.description_outlined,
@@ -87,9 +87,9 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                 separatorBuilder: (context, index) => const Divider(),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: active.length,
+                itemCount: activeRequests.length,
                 itemBuilder: (context, index) {
-                  final r = active[index];
+                  final r = activeRequests[index];
                   final requestOffers = offersByRequest[r.id] ?? [];
 
                   return RequestWithOffers(

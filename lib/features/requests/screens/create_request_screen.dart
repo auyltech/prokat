@@ -39,11 +39,9 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final requestState = ref.watch(requestProvider);
-
-    final activeRequests = requestState.requests.where((r) {
-      return ["CREATED", "VIEWED", "RESPONDED"].contains(r.status);
-    }).toList();
+    final activeRequests = ref
+        .watch(requestProvider.notifier)
+        .getActiveRequests("client");
 
     final canCreateRequest = activeRequests.length < maxAllowedRequests;
 

@@ -2,10 +2,11 @@ import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 
 class RequestModel {
   final String id;
-  final String status;
+  final RequestStatus status;
   final String capacity;
   final int offeredPrice;
   final String? offeredPriceRate;
@@ -48,7 +49,7 @@ class RequestModel {
     try {
       return RequestModel(
         id: json['id']?.toString() ?? '',
-        status: json['status']?.toString() ?? '',
+        status: parseRequestStatus(json['status']),
         capacity: json['capacity']?.toString() ?? '',
         comment: json['comment']?.toString() ?? '',
 
@@ -80,6 +81,8 @@ class RequestModel {
             : null,
       );
     } catch (e) {
+      print("request_prase_failed");
+      print(e);
       rethrow;
     }
   }

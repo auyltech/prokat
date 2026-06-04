@@ -400,15 +400,15 @@ Future<void> _handleCancel(
   final theme = Theme.of(context);
   final notifier = ref.read(bookingProvider.notifier);
 
-  final modalTitle = booking.status.toUpperCase() == "CREATED"
+  final modalTitle = booking.status == BookingStatus.created
       ? l10n.rejectOrder
       : l10n.cancelBooking;
 
-  final modalText = booking.status.toUpperCase() == "CREATED"
+  final modalText = booking.status == BookingStatus.created
       ? l10n.rejectOrderQuestion
       : l10n.cancelOrderQuestion;
 
-  final submitButton = booking.status.toUpperCase() == "CREATED"
+  final submitButton = booking.status == BookingStatus.created
       ? l10n.yesReject
       : l10n.yesCancel;
 

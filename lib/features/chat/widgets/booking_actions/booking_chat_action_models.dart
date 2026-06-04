@@ -1,5 +1,3 @@
-import 'package:prokat/features/bookings/models/booking_model.dart';
-
 enum BookingChatRole { owner, client }
 
 enum BookingChatActionId {
@@ -16,7 +14,7 @@ enum BookingChatActionId {
   markWorkCompleted,
 
   confirmCompletion,
-  
+
   leaveReview,
 }
 
@@ -54,8 +52,4 @@ class BookingChatActionResolution {
     this.secondaryActions = const [],
     this.overflowActions = const [],
   });
-}
-
-String normalizeBookingStatus(BookingModel booking) {
-  return booking.status.trim().toLowerCase();
 }

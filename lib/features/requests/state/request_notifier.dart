@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
 import 'package:prokat/features/requests/state/request_state.dart';
 
@@ -38,6 +40,18 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
   void setCapacity(String? capacity) {
     state = state.copyWith(capacity: capacity);
+  }
+
+  List<RequestModel> getActiveRequests(String mode) {
+    return (mode == "owner" ? state.ownerRequests : state.requests)
+        .where(
+          (r) => [
+            RequestStatus.created,
+            RequestStatus.viewed,
+            RequestStatus.responded,
+          ].contains(r.status),
+        )
+        .toList();
   }
 
   Future<void> getClientRequests() async {
@@ -170,6 +184,24 @@ class RequestNotifier extends StateNotifier<RequestState> {
     }
   }
 
+  Future<bool> viewRequest(String id) async {
+    try {
+      state = state.copyWith(isLoading: true);
+      final result = await service.viewRequest(id);
+
+      state = state.copyWith(isLoading: false);
+      
+      if (result.success) {
+        await getOwnerRequests();
+      }
+
+      return result.success;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
   Future<bool> cancelRequest(String id) async {
     try {
       state = state.copyWith(isLoading: true);
@@ -188,15 +220,17 @@ class RequestNotifier extends StateNotifier<RequestState> {
     }
   }
 
+  // TODO: REMOVE
   Future<bool> rejectRequest(String id) async {
     try {
       state = state.copyWith(isLoading: true);
+
       final result = await service.rejectRequest(id);
 
       state = state.copyWith(isLoading: false);
 
       if (result.success) {
-        await getClientRequests();
+        await getOwnerRequests();
       }
 
       return result.success;

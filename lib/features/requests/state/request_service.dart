@@ -140,7 +140,7 @@ class RequestService {
   Future<ApiResponse<void>> cancelRequest(String id) async {
     try {
       final response = await _dio.patch(
-        '/requests/$id/status',
+        '/requests/$id/cancel',
         data: {"id": id, "status": "CANCELLED"},
       );
 
@@ -165,7 +165,36 @@ class RequestService {
       );
     }
   }
- 
+
+  Future<ApiResponse<void>> viewRequest(String id) async {
+    try {
+      final response = await _dio.patch(
+        '/requests/$id/view',
+        data: {"id": id, "status": "hidden"},
+      );
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Request hidden",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
+    }
+  }
+
   Future<ApiResponse<List<RequestModel>>> getOwnerRequests() async {
     try {
       final response = await _dio.get('/requests/owner');
@@ -205,6 +234,7 @@ class RequestService {
     }
   }
 
+  // TODO: REMOVE
   Future<ApiResponse<void>> rejectRequest(String id) async {
     try {
       final response = await _dio.patch(

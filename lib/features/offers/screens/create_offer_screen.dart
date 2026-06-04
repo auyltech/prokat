@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/parse.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/drowp_down_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -82,9 +84,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         offersNotifier.setPrice(parseNullableInt(_price.text) ?? 0);
         offersNotifier.setComment(_comment.text);
 
-        final res = await offersNotifier.createOffer();
-        if (res == true && context.mounted) {
-          Navigator.pop(context);
+        final result = await offersNotifier.createOffer();
+
+        if (result && context.mounted) {
+          AppSnackBar.show(
+            context,
+            message: "Offer Sent",
+            isSuccess: result,
+            isError: !result,
+          );
+
+          context.pop();
         }
       }
     }

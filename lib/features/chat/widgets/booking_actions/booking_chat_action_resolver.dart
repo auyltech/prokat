@@ -18,11 +18,11 @@ class BookingChatActionResolver {
     String? chatOwnerId,
     String? chatClientId,
   }) {
-    final status = booking.status.trim().toLowerCase();
+    final status = booking.status;
     final workStatus = booking.workStatus;
 
     // when reviewed, chat is locked, until archived
-    if (status == 'reviewed') {
+    if (status == BookingStatus.reviewed) {
       return const BookingChatActionResolution(
         statusText: 'Reviews submitted',
         primaryAction: null,
@@ -30,7 +30,7 @@ class BookingChatActionResolver {
     }
 
     // when client and owner confirm completed, allow review
-    if (status == BookingStatus.completed.name) {
+    if (status == BookingStatus.completed) {
       return _resolveCompleted(
         role: role,
         booking: booking,
@@ -41,10 +41,17 @@ class BookingChatActionResolver {
     }
 
     // when order is cancelled / rejected / failed
-    final isFinal = _isFinalBookingStatus(status);
-    if (isFinal) {
+    if (status == BookingStatus.cancelled ||
+        status == BookingStatus.rejected ||
+        status == BookingStatus.failed) {
       return BookingChatActionResolution(
-        statusText: _finalStatusText(status),
+        statusText: status == BookingStatus.cancelled
+            ? 'Booking cancelled'
+            : status == BookingStatus.rejected
+            ? 'Booking rejected'
+            : status == BookingStatus.failed
+            ? 'Booking failed'
+            : "Booking cancelled",
         primaryAction: null,
       );
     }
@@ -258,18 +265,5 @@ class BookingChatActionResolver {
       statusText: 'Waiting for owner to start work',
       primaryAction: null,
     );
-  }
-
-  bool _isFinalBookingStatus(String status) {
-    return status == BookingStatus.cancelled.name ||
-        status == BookingStatus.rejected.name ||
-        status == BookingStatus.failed.name;
-  }
-
-  String _finalStatusText(String status) {
-    if (status == BookingStatus.cancelled.name) return 'Booking cancelled';
-    if (status == BookingStatus.rejected.name) return 'Booking rejected';
-    if (status == BookingStatus.failed.name) return 'Booking failed';
-    return 'Booking closed';
   }
 }

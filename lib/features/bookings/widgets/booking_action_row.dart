@@ -65,10 +65,12 @@ class BookingActionRow extends ConsumerWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.red,
                 side: const BorderSide(color: Colors.red),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Text(
-                booking.status.toUpperCase() == "CREATED"
+                booking.status == BookingStatus.created
                     ? l10n.decline
                     : l10n.cancel,
               ),
@@ -77,21 +79,20 @@ class BookingActionRow extends ConsumerWidget {
 
           const SizedBox(width: 8),
 
-          if (booking.status.toLowerCase() == BookingStatus.created.name)
+          if (booking.status == BookingStatus.created) ...[
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _handleCounterOffer(context),
                 style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Text(l10n.counter),
               ),
             ),
 
-          if (booking.status.toLowerCase() == BookingStatus.created.name)
             const SizedBox(width: 8),
-
-          if (booking.status.toLowerCase() == BookingStatus.created.name)
             Expanded(
               flex: 2,
               child: ElevatedButton(
@@ -99,13 +100,15 @@ class BookingActionRow extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 0,
                 ),
                 child: Text(l10n.acceptOrder),
               ),
-            )
-          else
+            ),
+          ] else
             Expanded(
               child: ElevatedButton(
                 onPressed: () => showModalBottomSheet(
@@ -113,7 +116,9 @@ class BookingActionRow extends ConsumerWidget {
                   isScrollControlled: true,
                   backgroundColor: theme.colorScheme.surface,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
                   builder: (_) => BookingStatusSheet(booking: booking),
                 ),
@@ -156,15 +161,15 @@ class BookingActionRow extends ConsumerWidget {
     final notifier = ref.read(bookingProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
 
-    final modalTitle = booking.status.toUpperCase() == "CREATED"
+    final modalTitle = booking.status == BookingStatus.created
         ? l10n.rejectOrder
         : l10n.cancelBooking;
 
-    final modalText = booking.status.toUpperCase() == "CREATED"
+    final modalText = booking.status == BookingStatus.created
         ? l10n.rejectOrderQuestion
         : l10n.cancelOrderQuestion;
 
-    final submitButton = booking.status.toUpperCase() == "CREATED"
+    final submitButton = booking.status == BookingStatus.created
         ? l10n.yesReject
         : l10n.yesCancel;
 
@@ -173,7 +178,9 @@ class BookingActionRow extends ConsumerWidget {
       builder: (context) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(modalTitle, style: theme.textTheme.titleMedium),
           content: Text(modalText, style: theme.textTheme.bodyMedium),
           actions: [
@@ -209,9 +216,9 @@ class BookingActionRow extends ConsumerWidget {
         Navigator.pop(context);
         await chatNotifier.reloadChat(booking.chatId ?? "");
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.orderCancelled)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.orderCancelled)));
       }
       return;
     }

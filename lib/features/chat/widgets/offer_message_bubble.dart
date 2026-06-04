@@ -20,7 +20,7 @@ class OfferMessageBubble extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final offer = switch (message.meta) {
-      Map<String, dynamic> meta => OfferModel.fromJson(meta),
+      Map<String, dynamic> meta => OfferModel.fromJson(meta["offer"]),
       _ => null,
     };
 
@@ -48,7 +48,7 @@ class OfferMessageBubble extends StatelessWidget {
                   const Icon(Icons.local_offer, color: Colors.green, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'OFFER',
+                    message.content,
                     style: theme.textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
@@ -56,12 +56,6 @@ class OfferMessageBubble extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-              Text(
-                message.content,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
               ),
 
               Text(

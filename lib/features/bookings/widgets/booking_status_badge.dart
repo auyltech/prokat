@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingStatusBadge extends StatelessWidget {
-  final String status;
+  final BookingStatus status;
 
   const BookingStatusBadge({super.key, required this.status});
 

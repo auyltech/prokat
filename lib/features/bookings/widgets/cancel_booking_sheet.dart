@@ -45,7 +45,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
     ];
 
     final sheetTitle = isOwner
-        ? widget.booking.status.toUpperCase() == "CREATED"
+        ? widget.booking.status == BookingStatus.created
               ? l10n.rejectOrder
               : l10n.cancelBooking
         : l10n.cancelBooking;
@@ -131,7 +131,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                       ? null
                       : () async {
                           final status = isOwner
-                              ? widget.booking.status.toUpperCase() == "CREATED"
+                              ? widget.booking.status == BookingStatus.created
                                     ? BookingStatus.rejected.name
                                     : BookingStatus.cancelled.name
                               : BookingStatus.cancelled.name;
@@ -167,7 +167,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                           }
                         },
                   child: Text(
-                    widget.booking.status.toUpperCase() == "CREATED"
+                    widget.booking.status == BookingStatus.created
                         ? l10n.rejectOrder
                         : l10n.cancelBooking,
                   ),

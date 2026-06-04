@@ -35,8 +35,9 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
         children: [
           // Category
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Category Tile
               SizedBox(
                 width: 110,
                 child: AspectRatio(
@@ -66,66 +67,43 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                         letterSpacing: 0.5,
                       ),
                     ),
+                    Text(
+                      request.capacity,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ],
                 ),
               ),
 
-              RequestStatusBadge(status: request.status),
+              RequestStatusBadge(status: request.status, mode: "client"),
             ],
           ),
 
           const SizedBox(height: 16),
 
-          // Location, Date and Time
-          Row(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: InfoTile(
-                  label: l10n.location,
-                  value: request.location.street,
-                  onTap: () => showLocationSheet(context, request.location),
-                ),
+              InfoTile(
+                icon: Icons.map_outlined,
+                value: request.location.street,
+                onTap: () => showLocationSheet(context, request.location),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: InfoTile(
-                  label: l10n.dateAndTime,
-                  value: () {
-                    if (request.requiredOn == null) return "PENDING";
 
-                    // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                    final dateStr = DateFormat(
-                      'dd MMM yyyy',
-                    ).format(request.requiredOn!.toLocal());
+              const SizedBox(
+                height: 12,
+              ), // Changed from width to height for vertical spacing
 
-                    // 2. If a specific time exists, format and append it (e.g., "• 14:30")
-                    if (request.requiredAt != null) {
-                      final timeStr = DateFormat(
-                        'HH:mm',
-                      ).format(request.requiredAt!.toLocal());
-                      return '$dateStr • $timeStr';
-                    }
-
-                    // 3. Return just the date if no time was specified
-                    return dateStr;
-                  }(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Offered Rate and Comment
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InfoTile(
-                  label: l10n.offeredRate,
-                  value: formatPrice(request.offeredPrice),
-                  isHighlighted: true,
-                ),
+              InfoTile(
+                icon: Icons.timelapse,
+                value: request.requiredOn != null
+                    ? DateFormat(
+                        'dd MMM yyyy • HH:mm',
+                      ).format(request.requiredOn!)
+                    : "PENDING",
               ),
             ],
           ),
@@ -135,28 +113,45 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
           if (request.comment != null && request.comment!.isNotEmpty)
             InfoTile(label: l10n.comments, value: request.comment!),
 
-          const SizedBox(height: 16),
-
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () =>
-                      _showCancelConfirmation(context, ref, request.id, l10n),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: theme.colorScheme.error, width: 1),
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              // Offered Rate and Comment
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.offeredRate, style: theme.textTheme.labelSmall),
+                  Text(
+                    formatPrice(request.offeredPrice),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  child: Text(
-                    l10n.cancelRequestAction,
-                    style: TextStyle(
-                      color: theme.colorScheme.error,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
+                ],
+              ),
+
+              Spacer(),
+
+              OutlinedButton(
+                onPressed: () =>
+                    _showCancelConfirmation(context, ref, request.id, l10n),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  side: BorderSide(color: theme.colorScheme.error, width: 1),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 20,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  l10n.cancelRequestAction,
+                  style: TextStyle(
+                    color: theme.colorScheme.onError,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
               ),

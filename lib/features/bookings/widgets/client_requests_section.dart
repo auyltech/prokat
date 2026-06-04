@@ -36,7 +36,7 @@ class _ClientRequestsSectionState extends ConsumerState<ClientRequestsSection> {
     final requestState = ref.watch(requestProvider);
 
     final activeRequests = requestState.requests
-        .where((r) => ["CREATED", "VIEWED"].contains(r.status))
+        .where((request) => ["CREATED", "VIEWED"].contains(request.status.name))
         .toList();
 
     return Column(

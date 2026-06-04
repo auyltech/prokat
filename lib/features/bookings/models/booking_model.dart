@@ -1,11 +1,12 @@
 import 'package:prokat/features/auth/models/user_model.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 
 class BookingModel {
   final String id;
-  final String status;
+  final BookingStatus status;
   final WorkStatus workStatus;
 
   final DateTime? bookedOn;
@@ -62,21 +63,10 @@ class BookingModel {
         }
       }
 
-      WorkStatus parseWorkStatus(dynamic value) {
-        if (value == null) return WorkStatus.pending;
-        final normalized = value.toString().trim().toLowerCase();
-        for (final status in WorkStatus.values) {
-          if (status.name.toLowerCase() == normalized) {
-            return status;
-          }
-        }
-        return WorkStatus.pending;
-      }
-
       return BookingModel(
         id: json['id']?.toString() ?? '',
 
-        status: json['status']?.toString() ?? '',
+        status: parseBookingStatus(json['status']),
         workStatus: parseWorkStatus(json['workStatus']),
 
         bookedOn: tryParseDate(json['bookedOn']),

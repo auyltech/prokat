@@ -74,7 +74,8 @@ class PriceNegotiationService {
           if (hasBooking) 'bookingId': bookingId,
           if (hasOffer) 'offerId': offerId,
           'price': price,
-          if ((priceRate ?? '').trim().isNotEmpty) 'priceRate': priceRate,
+          'priceRate': 'PER_TRIP',
+          // if ((priceRate ?? '').trim().isNotEmpty) 'priceRate': priceRate,
           if ((comment ?? '').trim().isNotEmpty) 'comment': comment,
         },
       );

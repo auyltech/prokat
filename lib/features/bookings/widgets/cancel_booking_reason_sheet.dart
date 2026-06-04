@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CancelBookingDecision {
@@ -38,7 +39,7 @@ class _CancelBookingReasonSheetState extends State<CancelBookingReasonSheet> {
     final l10n = AppLocalizations.of(context)!;
 
     final isOwner = widget.useCase == "owner";
-    final isCreated = widget.booking.status.toUpperCase() == "CREATED";
+    final isCreated = widget.booking.status == BookingStatus.created;
 
     final ownerCancelReasons = [
       l10n.cancelReasonClientNotRespond,

@@ -1,21 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
-import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
-class RequestMessageBubble extends StatelessWidget {
-  final RequestModel request;
+class RequestMessageBubble extends ConsumerStatefulWidget {
+  final ChatMessageModel message;
 
-  const RequestMessageBubble({super.key, required this.request});
+  const RequestMessageBubble({super.key, required this.message});
 
+  @override
+  ConsumerState<RequestMessageBubble> createState() =>
+      _RequestMessageBubbleState();
+}
+
+class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
+    // final messageRequest = switch (widget.message.meta) {
+    //   Map<String, dynamic> meta => RequestModel.fromJson(meta),
+    //   _ => null,
+    // };
+
+    // if (messageRequest == null) return const SizedBox.shrink();
+
+    final request = ref.read(chatProvider).currentChat?.request;
+
+    if (request == null) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

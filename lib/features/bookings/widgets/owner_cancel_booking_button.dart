@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 
@@ -15,7 +16,7 @@ class OwnerCancelBookingButton extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     // Check states using the string checks exactly from your source code
-    final isCreatedStatus = booking.status.toUpperCase() == "CREATED";
+    final isCreatedStatus = booking.status == BookingStatus.created;
 
     return IconButton(
       onPressed: () => _handleCancel(context, ref, theme, isCreatedStatus),

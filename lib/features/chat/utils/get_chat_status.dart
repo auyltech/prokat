@@ -1,19 +1,19 @@
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 
 ChatStatus getChatStatus({
-  String? requestStatus,
-  required String bookingStatus,
+  RequestStatus? requestStatus,
+  BookingStatus? bookingStatus,
   required WorkStatus workStatus,
   bool hasNegotiation = false,
   bool pendingFromMe = false,
   bool reviewSubmitted = false,
+  bool? hasActiveOffer,
+  bool? isOfferPendingFromMe,
 }) {
-  final normalizedRequestStatus = requestStatus?.toUpperCase() ?? "";
-
-  final normalizedStatus = bookingStatus.toUpperCase();
-
-  if (normalizedStatus == "CREATED") {
+  if (bookingStatus == BookingStatus.created) {
     if (hasNegotiation) {
       return pendingFromMe
           ? ChatStatus.counterofferreceived
@@ -23,7 +23,7 @@ ChatStatus getChatStatus({
     return ChatStatus.bookingcreated;
   }
 
-  if (normalizedStatus == "CONFIRMED") {
+  if (bookingStatus == BookingStatus.confirmed) {
     if (workStatus == WorkStatus.completed) {
       return ChatStatus.workcompleted;
     }
@@ -31,7 +31,7 @@ ChatStatus getChatStatus({
     return ChatStatus.bookingconfirmed;
   }
 
-  if (normalizedStatus == "COMPLETED") {
+  if (bookingStatus == BookingStatus.completed) {
     if (reviewSubmitted) {
       return ChatStatus.bookingreviewed;
     }
@@ -39,17 +39,33 @@ ChatStatus getChatStatus({
     return ChatStatus.leaveReview;
   }
 
-  if (normalizedStatus == "REVIEWED") {
+  if (bookingStatus == BookingStatus.reviewed) {
     return ChatStatus.bookingreviewed;
   }
 
-  if (normalizedStatus == "CANCELLED" ||
-      normalizedStatus == "REJECTED" ||
-      normalizedStatus == "FAILED") {
+  if (bookingStatus == BookingStatus.cancelled ||
+      bookingStatus == BookingStatus.rejected ||
+      bookingStatus == BookingStatus.failed) {
     return ChatStatus.bookingcancelled;
   }
 
-  return ChatStatus.bookingcompleted;
+  if (requestStatus == RequestStatus.responded) {
+    if (hasActiveOffer == true) {
+      if (isOfferPendingFromMe == true) {
+        return ChatStatus.offerreceived;
+      }
+
+      return ChatStatus.offercreated;
+    } else if (hasNegotiation) {
+      return pendingFromMe
+          ? ChatStatus.counterofferreceived
+          : ChatStatus.counteroffersent;
+    }
+
+    return ChatStatus.requestcreated;
+  }
+
+  return ChatStatus.unknown;
 }
 
 String getChatStatusText(ChatStatus status) {

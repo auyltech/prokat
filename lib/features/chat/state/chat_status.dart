@@ -1,4 +1,9 @@
 enum ChatStatus {
+  requestcreated,
+  offercreated,
+  offerreceived,
+  offercancelled,
+
   bookingcreated,
   bookingcancelled,
 
@@ -12,7 +17,9 @@ enum ChatStatus {
   confirmcompleted,
 
   bookingcompleted,
-  
+
   leaveReview,
   bookingreviewed,
+
+  unknown
 }

@@ -33,6 +33,26 @@ class OffersNotifier extends StateNotifier<OffersState> {
         .toList();
   }
 
+  String? getLastRequestOfferId(String requestId, String? mode) {
+    // 1. Filter the correct list based on the mode
+    final filtered = (mode == "owner" ? state.ownerOffers : state.renterOffers)
+        .where((item) => item.requestId == requestId)
+        .toList(); // Creates a modifiable list
+
+    // 2. Return null early if no matching items exist
+    if (filtered.isEmpty) return null;
+
+    // 3. Sort the list in-place (latest date first)
+    filtered.sort((a, b) {
+      final aDate = a.createdAt ?? DateTime(1970);
+      final bDate = b.createdAt ?? DateTime(1970);
+      return bDate.compareTo(aDate);
+    });
+
+    // 4. Return the ID of the first (most recent) item
+    return filtered.first.id;
+  }
+
   bool hasActiveOffer(String requestId, String? mode) {
     final activeOffers = getActiveOffers(requestId, mode);
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/equipment/widgets/sheets/equipment_details_sheet.dart';
@@ -24,17 +23,17 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final messageBooking = switch (widget.message.meta) {
-      Map<String, dynamic> meta => BookingModel.fromJson(meta),
-      _ => null,
-    };
+    // final messageBooking = switch (widget.message.meta) {
+    //   Map<String, dynamic> meta => BookingModel.fromJson(meta),
+    //   _ => null,
+    // };
 
-    if (messageBooking == null) return const SizedBox.shrink();
+    // if (messageBooking == null) return const SizedBox.shrink();
 
     final booking = ref.read(chatProvider).currentChat?.booking;
 
     if (booking == null) return const SizedBox.shrink();
-    
+
     final equipment = booking.equipment;
 
     return Container(

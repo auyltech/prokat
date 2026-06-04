@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/draft_booking_tile.dart';
 import 'package:prokat/features/user/widgets/client_booking_tile.dart';
@@ -28,13 +29,13 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
     final upcoming = bookingState.bookings
         .where(
           (b) =>
-              b.status.toUpperCase() == "CREATED" ||
-              b.status.toUpperCase() == "CONFIRMED",
+              b.status == BookingStatus.created ||
+              b.status == BookingStatus.confirmed,
         )
         .toList();
 
     final draft = bookingState.bookings
-        .where((b) => b.status.toUpperCase() == "DRAFT")
+        .where((b) => b.status == BookingStatus.draft)
         .toList();
 
     return Scaffold(

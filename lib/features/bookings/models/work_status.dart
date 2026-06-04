@@ -11,6 +11,17 @@ enum WorkStatus {
   cancelled, // 5
 }
 
+WorkStatus parseWorkStatus(dynamic value) {
+  if (value == null) return WorkStatus.pending;
+  final normalized = value.toString().trim().toLowerCase();
+  for (final status in WorkStatus.values) {
+    if (status.name.toLowerCase() == normalized) {
+      return status;
+    }
+  }
+  return WorkStatus.pending;
+}
+
 extension WorkStatusX on WorkStatus {
   int get level {
     switch (this) {

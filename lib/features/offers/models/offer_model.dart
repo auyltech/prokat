@@ -18,6 +18,7 @@ class OfferModel {
   final int price;
   final String priceRate;
 
+  final DateTime? createdAt;
   OfferModel({
     required this.id,
     required this.status,
@@ -34,6 +35,7 @@ class OfferModel {
 
     required this.price,
     required this.priceRate,
+    this.createdAt,
   });
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
@@ -55,12 +57,15 @@ class OfferModel {
 
         bookingId: json['bookingId']?.toString(),
 
-        /// 🔥 SAFE INT PARSING
+        /// SAFE INT PARSING
         price: parseNullableInt(json['price']) ?? 0,
-
         priceRate: json['priceRate']?.toString() ?? '',
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : null,
       );
     } catch (e) {
+      print("parse_failed:offer_model");
       rethrow;
     }
   }

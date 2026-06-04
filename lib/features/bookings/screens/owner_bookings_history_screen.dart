@@ -35,10 +35,10 @@ class _OwnerBookingHistoryScreenState
     final bookingHistory = bookingState.ownerBookings
         .where(
           (b) =>
-              b.status.toLowerCase() == BookingStatus.completed.name ||
-              b.status.toLowerCase() == BookingStatus.cancelled.name ||
-              b.status.toLowerCase() == BookingStatus.rejected.name ||
-              b.status.toLowerCase() == BookingStatus.failed.name,
+              b.status == BookingStatus.completed ||
+              b.status == BookingStatus.cancelled ||
+              b.status == BookingStatus.rejected ||
+              b.status == BookingStatus.failed,
         )
         .toList();
 

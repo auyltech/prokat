@@ -40,7 +40,7 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
     final activeRequests = ref
         .watch(requestProvider)
         .ownerRequests
-        .where((r) => ["CREATED", "VIEWED"].contains(r.status))
+        .where((r) => ["CREATED", "VIEWED"].contains(r.status.name))
         .toList();
 
     final hasRequests = activeRequests.isNotEmpty;
@@ -49,11 +49,11 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
     final state = ref.watch(bookingProvider);
 
     final upcomingJobs = state.ownerBookings
-        .where((b) => b.status.toLowerCase() == BookingStatus.confirmed.name)
+        .where((b) => b.status == BookingStatus.confirmed)
         .toList();
 
     final pendingJobs = state.ownerBookings
-        .where((b) => b.status.toLowerCase() == BookingStatus.created.name)
+        .where((b) => b.status == BookingStatus.created)
         .toList();
 
     final activeOrdersCount = upcomingJobs.length + pendingJobs.length;
@@ -74,7 +74,6 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
- 
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(

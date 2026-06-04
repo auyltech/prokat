@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
@@ -9,12 +10,14 @@ import 'package:prokat/features/price_negotiations/state/price_negotiation_provi
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 
 class OfferChatActionBar extends ConsumerWidget {
+  final ChatStatus chatStatus;
   final String chatId;
   final String requestId;
   final String type;
 
   const OfferChatActionBar({
     super.key,
+    required this.chatStatus,
     required this.chatId,
     required this.requestId,
     required this.type,
@@ -31,6 +34,10 @@ class OfferChatActionBar extends ConsumerWidget {
         .read(offersProvider.notifier)
         .getActiveOffers(requestId, "client")
         .firstOrNull;
+
+    final lastOfferId = ref
+        .read(offersProvider.notifier)
+        .getLastRequestOfferId(requestId, "client");
 
     final hasActiveOffer = ref
         .read(offersProvider.notifier)
@@ -85,7 +92,7 @@ class OfferChatActionBar extends ConsumerWidget {
           Row(
             children: [
               SizedBox(width: 4),
-              if (hasActiveOffer) ...[
+              if (chatStatus == ChatStatus.offerreceived) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Reject Offer",
@@ -101,6 +108,8 @@ class OfferChatActionBar extends ConsumerWidget {
                   ),
                 ),
 
+                const SizedBox(width: 12),
+
                 Expanded(
                   child: ActionBarButton(
                     label: "Accept Offer",
@@ -115,7 +124,7 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (hasPriceNegotiation && !pendingFromMe) ...[
+              ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
                 // Reject Price Negotiation
                 Expanded(
                   child: ActionBarButton(
@@ -134,6 +143,8 @@ class OfferChatActionBar extends ConsumerWidget {
                   ),
                 ),
 
+                const SizedBox(width: 12),
+
                 // Accept Price Negotiation
                 Expanded(
                   child: ActionBarButton(
@@ -151,7 +162,7 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (hasPriceNegotiation) ...[
+              ] else if (chatStatus == ChatStatus.counteroffersent) ...[
                 // Cancel Price Negotiation
                 Expanded(
                   child: ActionBarButton(
@@ -202,7 +213,7 @@ class OfferChatActionBar extends ConsumerWidget {
                                   ),
                                 ),
                                 builder: (_) => CounterOfferSheet(
-                                  offerId: activeRequestOffer?.id ?? "",
+                                  offerId: lastOfferId ?? "",
                                   initialPrice: activeRequestOffer?.price ?? 0,
                                   initialPriceRate:
                                       activeRequestOffer?.priceRate,
