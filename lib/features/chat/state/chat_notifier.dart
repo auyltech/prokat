@@ -223,7 +223,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
       await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
       await markCurrentChatAsRead();
 
-
       state = state.copyWith(
         isLoadingMessages: false,
         sendingMessageClientTempIds: const {},

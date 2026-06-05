@@ -41,6 +41,8 @@ class RequestStatusBadge extends StatelessWidget {
 
     if (mode == "owner" && currentRequestState != null) {
       statusText = getOwnerRequestStatus(currentRequestState, l10n: l10n);
+    } else {
+      statusText = getRequestStatus(status, l10n: l10n);
     }
 
     return Container(
@@ -51,9 +53,7 @@ class RequestStatusBadge extends StatelessWidget {
         // border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
-        mode == "owner" && requestState != null
-            ? statusText
-            : getRequestStatus(status, l10n: l10n),
+        statusText,
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,

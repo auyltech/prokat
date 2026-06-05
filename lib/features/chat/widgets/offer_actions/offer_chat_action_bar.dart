@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
+import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
-import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 
 class OfferChatActionBar extends ConsumerWidget {
   final ChatStatus chatStatus;
   final String chatId;
   final String requestId;
-  final String type;
+  final String mode;
 
   const OfferChatActionBar({
     super.key,
     required this.chatStatus,
     required this.chatId,
     required this.requestId,
-    required this.type,
+    required this.mode,
   });
 
   @override
@@ -28,44 +29,20 @@ class OfferChatActionBar extends ConsumerWidget {
     final theme = Theme.of(context);
     final controller = ref.read(offerChatActionControllerProvider);
 
-    final currentUserId = ref.watch(authProvider).session?.user?.id;
-
     final activeRequestOffer = ref
         .read(offersProvider.notifier)
-        .getActiveOffers(requestId, "client")
+        .getActiveOffers(requestId, mode)
         .firstOrNull;
 
-    final lastOfferId = ref
+    final lastOffer = ref
         .read(offersProvider.notifier)
-        .getLastRequestOfferId(requestId, "client");
-
-    final hasActiveOffer = ref
-        .read(offersProvider.notifier)
-        .hasActiveOffer(requestId, "client");
+        .getLastRequestOffer(requestId, mode);
 
     final negotiationState = ref.watch(priceNegotiationProvider);
     final pending = negotiationState.latestPending;
-
-    final hasPriceNegotiation = pending != null;
-
     final pendingId = (pending?.id ?? '').trim();
-    final userId = (currentUserId ?? '').trim();
-    final pendingFromMe =
-        pendingId.isNotEmpty &&
-        userId.isNotEmpty &&
-        (pending?.senderId ?? '').trim() == userId;
 
-    final statusText = pendingId.isEmpty
-        ? 'Offer price negotiation'
-        : pendingFromMe
-        ? 'Waiting for response'
-        : 'New counter offer';
-
-    final primaryLabel = pendingId.isEmpty
-        ? 'Counter offer'
-        : pendingFromMe
-        ? 'Cancel counter'
-        : 'Accept';
+    final actionBarTitle = getChatActionBarTitle(chatStatus);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -83,7 +60,7 @@ class OfferChatActionBar extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            statusText,
+            actionBarTitle,
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
@@ -91,8 +68,77 @@ class OfferChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              SizedBox(width: 4),
-              if (chatStatus == ChatStatus.offerreceived) ...[
+              if (chatStatus == ChatStatus.requestcreated) ...[
+                if (mode == "owner")
+                  // Hide request
+                  Expanded(
+                    child: ActionBarButton(
+                      label: "Hide Request",
+                      isEnabled: true,
+                      isLoading: false,
+                      onPressed: () async {},
+                    ),
+                  )
+                else
+                  // Cancel request
+                  Expanded(
+                    child: ActionBarButton(
+                      label: "Cancel Request",
+                      isEnabled: true,
+                      isLoading: false,
+                      onPressed: () async {
+                        await controller.cancelRequest(
+                          context: context,
+                          chatId: chatId,
+                          requestId: requestId,
+                        );
+                      },
+                    ),
+                  ),
+
+                const SizedBox(width: 12),
+
+                // Create Price Negotiation
+                // Create Counter Offer
+                Expanded(
+                  child: ActionBarButton.secondary(
+                    label: "Counter",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await showCounterOfferSheet(
+                        context: context,
+                        chatId: chatId,
+                        offerId: lastOffer?.id ?? "",
+                        initialPrice: lastOffer?.price ?? 0,
+                        initialPriceRate: getRateOption(lastOffer?.priceRate),
+                        mode: mode,
+                      );
+
+                      await controller.refreshAfterNegotiation(
+                        chatId: chatId,
+                        offerId: lastOffer?.id ?? "",
+                      );
+                    },
+                  ),
+                ),
+              ] else if (chatStatus == ChatStatus.requestaccepted) ...[
+                // Cancel request
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Cancel Request",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.cancelRequest(
+                        context: context,
+                        chatId: chatId,
+                        requestId: requestId,
+                      );
+                    },
+                  ),
+                ),
+              ] else if (chatStatus == ChatStatus.offerreceived) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Reject Offer",
@@ -124,6 +170,22 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
+              ] else if (chatStatus == ChatStatus.offercreated) ...[
+                // CANCEL OFFER
+                Expanded(
+                  child: ActionBarButton(
+                    label: "Cancel Offer",
+                    isEnabled: true,
+                    isLoading: false,
+                    onPressed: () async {
+                      await controller.cancelOffer(
+                        context: context,
+                        chatId: chatId,
+                        offerId: lastOffer?.id ?? "",
+                      );
+                    },
+                  ),
+                ),
               ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
                 // Reject Price Negotiation
                 Expanded(
@@ -135,7 +197,7 @@ class OfferChatActionBar extends ConsumerWidget {
                       await controller.respond(
                         context: context,
                         chatId: chatId,
-                        offerId: activeRequestOffer?.id ?? "",
+                        offerId: lastOffer?.id ?? "",
                         negotiationId: pendingId,
                         response: PriceNegotiationResponse.reject,
                       );
@@ -155,7 +217,7 @@ class OfferChatActionBar extends ConsumerWidget {
                       await controller.respond(
                         context: context,
                         chatId: chatId,
-                        offerId: activeRequestOffer?.id ?? "",
+                        offerId: lastOffer?.id ?? "",
                         negotiationId: pendingId,
                         response: PriceNegotiationResponse.accept,
                       );
@@ -173,67 +235,14 @@ class OfferChatActionBar extends ConsumerWidget {
                       await controller.cancel(
                         context: context,
                         chatId: chatId,
-                        offerId: activeRequestOffer?.id ?? "",
+                        offerId: lastOffer?.id ?? "",
                         negotiationId: pendingId,
                       );
                     },
                   ),
                 ),
-              ] else ...[
-                // Cancel request
-                Expanded(
-                  child: ActionBarButton(
-                    label: "Cancel Request",
-                    isEnabled: true,
-                    isLoading: false,
-                    onPressed: () async {
-                      await controller.cancelRequest(
-                        context: context,
-                        chatId: chatId,
-                        requestId: requestId,
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Create Price Negotiation
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: negotiationState.isSubmitting
-                        ? null
-                        : () async {
-                            if (pendingId.isEmpty) {
-                              final created = await showModalBottomSheet<bool>(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: theme.colorScheme.surface,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(20),
-                                  ),
-                                ),
-                                builder: (_) => CounterOfferSheet(
-                                  offerId: lastOfferId ?? "",
-                                  initialPrice: activeRequestOffer?.price ?? 0,
-                                  initialPriceRate:
-                                      activeRequestOffer?.priceRate,
-                                  counterType: type,
-                                ),
-                              );
-
-                              if (created == true) {
-                                await controller.refreshAfterNegotiation(
-                                  chatId: chatId,
-                                  offerId: activeRequestOffer?.id ?? "",
-                                );
-                              }
-                              return;
-                            }
-                          },
-                    child: Text(primaryLabel),
-                  ),
-                ),
-              ],
+              ] else
+                ...[],
             ],
           ),
         ],

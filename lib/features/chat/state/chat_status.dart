@@ -1,18 +1,18 @@
 enum ChatStatus {
   requestcreated,
+  requestaccepted, // TEMP REMOVE
   offercreated,
   offerreceived,
-  offercancelled,
-
-  bookingcreated,
-  bookingcancelled,
 
   counteroffersent,
   counterofferreceived,
 
+  bookingcreated,
+  bookingcancelled,
+  bookingconfirmed,
+
   waitingownerresponse,
 
-  bookingconfirmed,
   workcompleted,
   confirmcompleted,
 
@@ -21,5 +21,5 @@ enum ChatStatus {
   leaveReview,
   bookingreviewed,
 
-  unknown
+  unknown,
 }

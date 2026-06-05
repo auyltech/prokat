@@ -4,18 +4,18 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
-import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
 class ClientChatActionBar extends ConsumerWidget {
   final String chatId;
+  final ChatStatus chatStatus;
   final BookingModel booking;
   final RequestModel? request;
   final String? chatOwnerId;
@@ -24,6 +24,7 @@ class ClientChatActionBar extends ConsumerWidget {
   const ClientChatActionBar({
     super.key,
     required this.chatId,
+    required this.chatStatus,
     required this.booking,
     this.request,
     this.chatOwnerId,
@@ -40,38 +41,16 @@ class ClientChatActionBar extends ConsumerWidget {
     final controller = ref.read(
       bookingChatActionControllerProvider(booking.id).notifier,
     );
-    final currentUserId = ref.watch(authProvider).session?.user?.id;
 
     final negotiation = ref.watch(priceNegotiationProvider);
 
-    final pending = negotiation.latestPending;
-    final pendingId = (pending?.id ?? '').trim();
-
-    final userId = (currentUserId ?? '').trim();
-
-    final reviewSubmitted =
-        (booking.myReviewId?.isNotEmpty ?? false) ||
-        ref.watch(reviewByBookingProvider(booking.id)).hasSubmitted;
-
-    final ChatStatus chatState = getChatStatus(
-      requestStatus: request?.status,
-      bookingStatus: booking.status,
-      hasNegotiation: pendingId.isNotEmpty,
-      pendingFromMe:
-          pendingId.isNotEmpty &&
-          userId.isNotEmpty &&
-          (pending?.senderId ?? '').trim() != userId,
-      workStatus: booking.workStatus,
-      reviewSubmitted: reviewSubmitted,
-    );
-
-    final statusText = getChatStatusText(chatState);
+    final statusText = getChatActionBarTitle(chatStatus);
 
     // If review is sent order is closed
-    if (chatState == ChatStatus.bookingreviewed) {
-      return _StatusOnlyBar(text: "Review Sent");
-    } else if (chatState == ChatStatus.bookingcancelled) {
-      return _StatusOnlyBar(text: "Order Cancelled");
+    if (chatStatus == ChatStatus.bookingreviewed) {
+      return ChatStatusOnlyBar(text: "Review Sent");
+    } else if (chatStatus == ChatStatus.bookingcancelled) {
+      return ChatStatusOnlyBar(text: "Order Cancelled");
     }
 
     return Container(
@@ -98,7 +77,7 @@ class ClientChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (chatState == ChatStatus.counteroffersent) ...[
+              if (chatStatus == ChatStatus.counteroffersent) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Cancel Offer",
@@ -114,7 +93,7 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatState == ChatStatus.counterofferreceived) ...[
+              ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Accept Offer",
@@ -147,7 +126,7 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatState == ChatStatus.bookingcreated) ...[
+              ] else if (chatStatus == ChatStatus.bookingcreated) ...[
                 // Send Counter Offer
                 Expanded(
                   child: ActionBarButton.secondary(
@@ -161,7 +140,7 @@ class ClientChatActionBar extends ConsumerWidget {
                         bookingId: booking.id,
                         initialPrice: booking.price,
                         initialPriceRate: getRateOption(booking.priceRate),
-                        counterType: "CLIENT_COUNTER",
+                        mode: "client",
                       );
                     },
                   ),
@@ -198,7 +177,7 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatState == ChatStatus.bookingconfirmed) ...[
+              ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Cancel Order",
@@ -214,7 +193,7 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatState == ChatStatus.workcompleted) ...[
+              ] else if (chatStatus == ChatStatus.workcompleted) ...[
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Confirm",
@@ -252,7 +231,7 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatState == ChatStatus.leaveReview) ...[
+              ] else if (chatStatus == ChatStatus.leaveReview) ...[
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: "Review",
@@ -288,36 +267,6 @@ class ClientChatActionBar extends ConsumerWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _StatusOnlyBar extends StatelessWidget {
-  final String text;
-
-  const _StatusOnlyBar({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Text(
-        text,
-        style: theme.textTheme.labelMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-        ),
       ),
     );
   }

@@ -32,7 +32,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
     final booking = ref.read(chatProvider).currentChat?.booking;
 
-    if (booking == null) return const SizedBox.shrink();
+    if (booking == null) return const Text("Failed to load booking");
 
     final equipment = booking.equipment;
 

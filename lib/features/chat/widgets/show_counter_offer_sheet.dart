@@ -5,11 +5,11 @@ import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.d
 Future<void> showCounterOfferSheet({
   required BuildContext context,
   required String chatId,
-  required String bookingId,
+  String? bookingId,
   String? offerId,
   required int initialPrice,
   required PriceRateOption initialPriceRate,
-  required String counterType,
+  required String mode,
 }) async {
   final theme = Theme.of(context);
 
@@ -27,7 +27,7 @@ Future<void> showCounterOfferSheet({
         offerId: offerId,
         initialPrice: initialPrice,
         initialPriceRate: initialPriceRate.value,
-        counterType: counterType,
+        mode: mode,
       );
     },
   );

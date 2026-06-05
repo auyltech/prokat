@@ -23,6 +23,10 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     String? currentUserId,
     String? mode,
   }) {
+    print(state.negotiations.length);
+    print(bookingId);
+    print(offerId);
+
     if (bookingId != null) {
       final found = state.negotiations
           .where(

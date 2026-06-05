@@ -8,7 +8,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
   final String? offerId;
   final int initialPrice;
   final String? initialPriceRate;
-  final String counterType;
+  final String mode;
 
   const CounterOfferSheet({
     super.key,
@@ -16,7 +16,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
     this.offerId,
     required this.initialPrice,
     this.initialPriceRate,
-    required this.counterType,
+    required this.mode,
   });
 
   @override
@@ -50,7 +50,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
 
     final state = ref.watch(priceNegotiationProvider);
     final notifier = ref.read(priceNegotiationProvider.notifier);
-
+    
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -90,7 +90,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
                 ? null
                 : () async {
                     final price = int.tryParse(_priceController.text.trim());
-                    
+
                     if (price == null || price <= 0) {
                       AppSnackBar.show(
                         context,
@@ -106,7 +106,9 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
                         price: price,
                         priceRate: _priceRate,
                         comment: _commentController.text.trim(),
-                        type: widget.counterType,
+                        type: widget.mode == "owner"
+                            ? "OWNER_COUNTER"
+                            : "CLIENT_COUNTER",
                         bookingId: widget.bookingId,
                         offerId: widget.offerId,
                       );

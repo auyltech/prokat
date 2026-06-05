@@ -146,7 +146,7 @@ class BookingActionRow extends ConsumerWidget {
         bookingId: booking.id,
         initialPrice: booking.price,
         initialPriceRate: booking.priceRate,
-        counterType: "CLIENT_COUNTER",
+        mode: "client",
       ),
     );
   }

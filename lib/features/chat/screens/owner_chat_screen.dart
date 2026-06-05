@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -25,8 +24,6 @@ class OwnerChatScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
-  final TextEditingController _controller = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -40,74 +37,72 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   void didUpdateWidget(covariant OwnerChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
-      Future.microtask(() {
-        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-        ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
-        ref.read(offersProvider.notifier).getOwnerOffers();
+      Future.microtask(() async {
+        await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        await ref.read(offersProvider.notifier).getOwnerOffers();
       });
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-
     ref.read(chatProvider.notifier).leaveCurrentChat();
-
     super.dispose();
   }
-
-  // void _sendMessage() {
-  //   final text = _controller.text.trim();
-  //   if (text.isEmpty) {
-  //     return;
-  //   }
-
-  //   ref.read(chatProvider.notifier).sendMessage(text);
-  //   _controller.clear();
-  // }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final chatState = ref.watch(chatProvider);
     final authState = ref.watch(authProvider);
+    final currentUserId = authState.session?.user?.id ?? "";
 
-    final messages = chatState.messages;
+    final chatState = ref.watch(chatProvider);
     final currentChat = chatState.currentChat;
-
-    final authUserId = authState.session?.user?.id;
-
-    final currentUserId = (authUserId ?? '').isNotEmpty
-        ? authUserId
-        : chatState.currentUserId;
+    final messages = chatState.messages;
 
     final booking = currentChat?.booking;
     final request = currentChat?.request;
+
     final chatOwnerId = currentChat?.owner?.id;
     final chatClientId = currentChat?.client?.id;
 
-    final negotiation = ref.watch(priceNegotiationProvider);
+    final hasActiveOffer = ref
+        .watch(offersProvider.notifier)
+        .hasActiveOffer(request?.id ?? "", "owner");
+    // Offer will always be created by owner and responded by client
+    final isOfferPendingFromMe = false;
+
+    final lastOffer = ref
+        .read(offersProvider.notifier)
+        .getLastRequestOffer(request?.id ?? "", "owner");
+
+    final pendingNegotiation = ref
+        .watch(priceNegotiationProvider.notifier)
+        .getPendingNegotiation(
+          bookingId: booking?.id,
+          currentUserId: currentUserId,
+          mode: "owner",
+          offerId: lastOffer?.id ?? "",
+        );
+    final pendingNegotiationId = (pendingNegotiation?.id ?? '').trim();
 
     final reviewSubmitted =
         (booking?.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
-    final pending = negotiation.latestPending;
-    final pendingId = (pending?.id ?? '').trim();
-
-    final userId = (currentUserId ?? '').trim();
-
     final ChatStatus chatStatus = getChatStatus(
-      bookingStatus: booking?.status ?? BookingStatus.cancelled,
-      hasNegotiation: pendingId.isNotEmpty,
+      bookingStatus: booking?.status,
+      requestStatus: request?.status,
+      hasActiveOffer: hasActiveOffer,
+      isOfferPendingFromMe: isOfferPendingFromMe,
+      hasNegotiation: pendingNegotiation != null,
       pendingFromMe:
-          pendingId.isNotEmpty &&
-          userId.isNotEmpty &&
-          (pending?.senderId ?? '').trim() != userId,
-      workStatus: booking?.workStatus ?? WorkStatus.pending,
+          pendingNegotiationId.isNotEmpty &&
+          currentUserId.isNotEmpty &&
+          (pendingNegotiation?.senderId ?? '').trim() != currentUserId,
+      workStatus: booking?.workStatus,
       reviewSubmitted: reviewSubmitted,
     );
 
@@ -118,7 +113,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          await ref.read(offersProvider.notifier).getOwnerOffers();
         },
         child: Stack(
           children: [
@@ -223,18 +219,17 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 if (booking != null)
                   OwnerChatActionBar(
                     chatId: widget.chatId,
+                    chatStatus: chatStatus,
                     booking: booking,
                     chatOwnerId: chatOwnerId,
                     chatClientId: chatClientId,
-                  ),
-
-                // Still no booking, but has request
-                if (booking == null && request != null)
+                  )
+                else if (request != null)
                   OfferChatActionBar(
                     chatStatus: chatStatus,
                     chatId: widget.chatId,
                     requestId: request.id,
-                    type: "OWNER_COUNTER",
+                    mode: "owner",
                   ),
 
                 if (booking?.status == BookingStatus.reviewed)

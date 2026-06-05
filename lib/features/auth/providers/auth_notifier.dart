@@ -160,6 +160,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           otpRequestedAt: now,
           error: null,
         );
+      } else if (result.statusCode == 429) {
+        final now = DateTime.now();
+
+        state = state.copyWith(
+          isLoading: false,
+          otpPhone: phone,
+          otpRequestedAt: now,
+          error: null,
+        );
       } else {
         state = state.copyWith(isLoading: false, error: result.message);
       }

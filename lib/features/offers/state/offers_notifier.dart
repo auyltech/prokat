@@ -33,7 +33,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
         .toList();
   }
 
-  String? getLastRequestOfferId(String requestId, String? mode) {
+  OfferModel? getLastRequestOffer(String requestId, String? mode) {
     // 1. Filter the correct list based on the mode
     final filtered = (mode == "owner" ? state.ownerOffers : state.renterOffers)
         .where((item) => item.requestId == requestId)
@@ -49,8 +49,10 @@ class OffersNotifier extends StateNotifier<OffersState> {
       return bDate.compareTo(aDate);
     });
 
+    print(filtered.length);
+
     // 4. Return the ID of the first (most recent) item
-    return filtered.first.id;
+    return filtered.first;
   }
 
   bool hasActiveOffer(String requestId, String? mode) {

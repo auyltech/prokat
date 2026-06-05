@@ -60,7 +60,10 @@ class _MessageBubbleState extends State<MessageBubble> {
     } else if (type == "BOOKING") {
       return BookingMessageBubble(message: widget.message);
     } else if (type == "NEGOTIATION") {
-      return NegotiationMessageBubble(message: widget.message);
+      return NegotiationMessageBubble(
+        message: widget.message,
+        isMe: widget.isMe,
+      );
     }
 
     // if (specialized != null) {

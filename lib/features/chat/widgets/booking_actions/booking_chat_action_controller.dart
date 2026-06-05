@@ -34,7 +34,7 @@ class BookingChatActionController
 
   ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
 
-  PriceNegotiationNotifier _priceNegotiationNotifier(String bookingId) {
+  PriceNegotiationNotifier _priceNegotiationNotifier() {
     return ref.read(priceNegotiationProvider.notifier);
   }
 
@@ -43,7 +43,7 @@ class BookingChatActionController
     required String bookingId,
   }) async {
     await Future.wait([
-      _priceNegotiationNotifier(bookingId).getPriceNegotiations(),
+      _priceNegotiationNotifier().getPriceNegotiations(),
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
       _bookingNotifier.getUserBookings(),
@@ -58,7 +58,7 @@ class BookingChatActionController
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
       _bookingNotifier.getUserBookings(),
-      _priceNegotiationNotifier(bookingId).getPriceNegotiations(),
+      _priceNegotiationNotifier().getPriceNegotiations(),
     ]);
   }
 
@@ -198,7 +198,7 @@ class BookingChatActionController
     await _run(
       context: context,
       action: () async {
-        await _priceNegotiationNotifier(bookingId).createCounterOffer(
+        await _priceNegotiationNotifier().createCounterOffer(
           type: type,
           price: price,
           priceRate: priceRate.value,
@@ -264,7 +264,7 @@ class BookingChatActionController
     await _run(
       context: context,
       action: () async {
-        await _priceNegotiationNotifier(bookingId).cancelNegotiation(id);
+        await _priceNegotiationNotifier().cancelNegotiation(id);
         return true;
       },
       onSuccess: () {
@@ -294,9 +294,10 @@ class BookingChatActionController
     await _run(
       context: context,
       action: () async {
-        await _priceNegotiationNotifier(
-          bookingId,
-        ).respond(negotiationId: id, response: response);
+        await _priceNegotiationNotifier().respond(
+          negotiationId: id,
+          response: response,
+        );
 
         return true;
       },

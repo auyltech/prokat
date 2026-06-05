@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -10,7 +9,6 @@ import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
-import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
@@ -29,9 +27,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(chatProvider.notifier).openChatById(widget.chatId);
-      // ref.read(offersProvider.notifier).getUserOffers();
+    Future.microtask(() async {
+      await ref.read(chatProvider.notifier).openChatById(widget.chatId);
+      await ref.read(offersProvider.notifier).getClientOffers();
     });
   }
 
@@ -39,9 +37,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   void didUpdateWidget(covariant ClientChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
-      Future.microtask(() {
-        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-        // ref.read(offersProvider.notifier).getUserOffers();
+      Future.microtask(() async {
+        await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        await ref.read(offersProvider.notifier).getClientOffers();
       });
     }
   }
@@ -71,8 +69,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     final chatOwnerId = currentChat?.owner?.id;
     final chatClientId = currentChat?.client?.id;
 
-    final offersState = ref.watch(offersProvider);
-
     final activeOffers = ref
         .watch(offersProvider.notifier)
         .getActiveOffers(request?.id ?? "", "client");
@@ -84,51 +80,36 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
     final lastOfferId = ref
         .read(offersProvider.notifier)
-        .getLastRequestOfferId(request?.id ?? "", "client");
+        .getLastRequestOffer(request?.id ?? "", "client")
+        ?.id;
 
-    final negotiation = ref.watch(priceNegotiationProvider);
+    final pendingNegotiation = ref
+        .watch(priceNegotiationProvider.notifier)
+        .getPendingNegotiation(
+          bookingId: booking?.id,
+          offerId: lastOfferId,
+          currentUserId: currentUserId,
+          mode: "client",
+        );
+    final pendingNegotiationId = (pendingNegotiation?.id ?? '').trim();
 
     final reviewSubmitted =
         (booking?.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
-    final pending = ref
-        .watch(priceNegotiationProvider.notifier)
-        .getPendingNegotiation(
-          bookingId: booking?.id,
-          currentUserId: currentUserId,
-          mode: "client",
-          offerId: lastOfferId,
-        );
-    final pendingId = (pending?.id ?? '').trim();
-
-    final userId = (currentUserId).trim();
-
     final ChatStatus chatStatus = getChatStatus(
       bookingStatus: booking?.status,
       requestStatus: request?.status,
-      hasNegotiation: pendingId.isNotEmpty,
       hasActiveOffer: hasActiveOffer,
       isOfferPendingFromMe: isOfferPendingFromMe,
+      hasNegotiation: pendingNegotiationId.isNotEmpty,
       pendingFromMe:
-          pendingId.isNotEmpty &&
-          userId.isNotEmpty &&
-          (pending?.senderId ?? '').trim() != userId,
-      workStatus: booking?.workStatus ?? WorkStatus.pending,
+          pendingNegotiationId.isNotEmpty &&
+          currentUserId.isNotEmpty &&
+          (pendingNegotiation?.senderId ?? '').trim() != currentUserId,
+      workStatus: booking?.workStatus,
       reviewSubmitted: reviewSubmitted,
     );
-
-    // Hold offer for this chat
-    OfferModel? requestOffer;
-    // Find the offer related to this chat, ie request
-    if (request != null) {
-      for (final offer in offersState.renterOffers) {
-        if (offer.requestId == request.id) {
-          requestOffer = offer;
-          break;
-        }
-      }
-    }
 
     final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
     final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
@@ -137,18 +118,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          await ref.read(offersProvider.notifier).getClientOffers();
         },
         child: Stack(
           children: [
             // Main Content
             Column(
               children: [
-                // Text(booking?.status.name ?? ""),
-                // Text(request?.status.name ?? ""),
-                // Text(pendingId),
-                // Text(chatStatus.name),
-
+                Text(booking?.id ?? ""),
                 if (chatState.error != null && messages.isEmpty)
                   Expanded(
                     child: Center(
@@ -235,18 +213,18 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                 if (booking != null)
                   ClientChatActionBar(
                     chatId: widget.chatId,
+                    chatStatus: chatStatus,
                     booking: booking,
                     request: request,
                     chatOwnerId: chatOwnerId,
                     chatClientId: chatClientId,
-                  ),
-
-                if (booking == null && request != null && requestOffer != null)
+                  )
+                else if (request != null)
                   OfferChatActionBar(
                     chatStatus: chatStatus,
                     chatId: widget.chatId,
                     requestId: request.id,
-                    type: "CLIENT_COUNTER",
+                    mode: "client",
                   ),
 
                 // 2. Static input area perfectly pinned to the absolute viewport bottom

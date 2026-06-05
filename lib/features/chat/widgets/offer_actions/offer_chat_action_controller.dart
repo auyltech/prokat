@@ -24,7 +24,6 @@ class OfferChatActionController {
     required String offerId,
   }) async {
     await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
-
     await ref.read(chatProvider.notifier).reloadChat(chatId);
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
@@ -151,6 +150,25 @@ class OfferChatActionController {
   }) async {
     try {
       await ref.read(requestProvider.notifier).cancelRequest(requestId);
+
+      await refreshAfterNegotiation(chatId: chatId, offerId: "");
+    } catch (error) {
+      if (!context.mounted) return;
+      AppSnackBar.show(
+        context,
+        message: error.toString().replaceFirst('Exception: ', ''),
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> cancelOffer({
+    required BuildContext context,
+    required String chatId,
+    required String offerId,
+  }) async {
+    try {
+      await ref.read(offersProvider.notifier).cancelOffer(offerId);
 
       await refreshAfterNegotiation(chatId: chatId, offerId: "");
     } catch (error) {
