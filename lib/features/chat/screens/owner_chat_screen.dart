@@ -113,8 +113,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-          await ref.read(offersProvider.notifier).getOwnerOffers();
+          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          ref.read(offersProvider.notifier).getOwnerOffers();
         },
         child: Stack(
           children: [

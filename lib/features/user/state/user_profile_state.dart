@@ -7,7 +7,8 @@ class UserProfileState {
   final String? firstName;
   final String? lastName;
   final String? phoneNumber;
-  final int? rating;
+  final int? ratingAverage;
+  final int? ratingCount;
   final String? darkMode;
 
   final UserProfileModel? userProfile;
@@ -19,7 +20,8 @@ class UserProfileState {
     this.firstName,
     this.lastName,
     this.phoneNumber,
-    this.rating,
+    this.ratingAverage,
+    this.ratingCount,
     this.darkMode,
   });
 
@@ -29,7 +31,8 @@ class UserProfileState {
     String? firstName,
     String? lastName,
     String? phoneNumber,
-    int? rating,
+    int? ratingAverage,
+    int? ratingCount,
     String? darkMode,
     UserProfileModel? Function()? userProfile,
   }) {
@@ -39,7 +42,8 @@ class UserProfileState {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      rating: rating ?? this.rating,
+      ratingAverage: ratingAverage ?? this.ratingAverage,
+      ratingCount: ratingCount ?? this.ratingCount,
       darkMode: darkMode ?? this.darkMode,
       userProfile: userProfile != null ? userProfile() : this.userProfile,
     );

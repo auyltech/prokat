@@ -27,6 +27,8 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('ChatScreen init ${widget.chatId}');
+
     Future.microtask(() async {
       await ref.read(chatProvider.notifier).openChatById(widget.chatId);
       await ref.read(offersProvider.notifier).getClientOffers();
@@ -47,6 +49,8 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void dispose() {
     ref.read(chatProvider.notifier).leaveCurrentChat();
+    debugPrint('ChatScreen dispose ${widget.chatId}');
+
     super.dispose();
   }
 
@@ -72,10 +76,12 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     final activeOffers = ref
         .watch(offersProvider.notifier)
         .getActiveOffers(request?.id ?? "", "client");
+
     final hasActiveOffer = ref
         .watch(offersProvider.notifier)
         .hasActiveOffer(request?.id ?? "", "client");
     // Offer will always be created by owner and responded by client
+    
     final isOfferPendingFromMe = activeOffers.firstOrNull != null;
 
     final lastOfferId = ref
@@ -118,15 +124,20 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-          await ref.read(offersProvider.notifier).getClientOffers();
+          if (chatState.isLoadingMessages || chatState.isLoadingConversations) {
+            return;
+          }
+
+          // await Future.wait([
+          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          ref.read(offersProvider.notifier).getClientOffers();
+          // ]);
         },
         child: Stack(
           children: [
             // Main Content
             Column(
               children: [
-                Text(booking?.id ?? ""),
                 if (chatState.error != null && messages.isEmpty)
                   Expanded(
                     child: Center(

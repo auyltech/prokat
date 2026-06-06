@@ -25,11 +25,12 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     final bookingState = ref.watch(bookingProvider);
 
-    final newBookings = bookingState.ownerBookings
-        .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
-        .toList();
+    final activeBookings = ref
+        .watch(bookingProvider.notifier)
+        .getActiveBookings(mode: "owner");
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -47,7 +48,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                 title: "Error Loading Orders",
                 subtitle: bookingState.error.toString(),
               )
-            else if (newBookings.isEmpty)
+            else if (activeBookings.isEmpty)
               EmptyStateTile(title: "You don't have any active orders")
             else
               ListView.separated(
@@ -59,9 +60,9 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                 ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: newBookings.length,
+                itemCount: activeBookings.length,
                 itemBuilder: (context, index) =>
-                    OwnerBookingTile(booking: newBookings[index]),
+                    OwnerBookingTile(booking: activeBookings[index]),
               ),
           ],
         ),

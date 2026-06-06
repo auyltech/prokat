@@ -2,23 +2,25 @@ import 'package:prokat/core/utils/parse.dart';
 
 class UserProfileModel {
   final String? username;
-  final String? role;
 
   final String? firstName;
   final String? lastName;
+  final String? profileImageUrl;
 
   final String? phoneNumber;
   final bool? isPhoneVerified;
 
-  final int? ratingStars;
+  final int? ratingAverage;
   final int? ratingCount;
-  final String? profileImageUrl;
-  final DateTime? createdAt;
+  final int? orderCount;
 
   final String? selectedCategoryId;
   final String? selectedAddressId;
   final String? city;
   final String? region;
+
+  final String? role;
+  final DateTime? createdAt;
 
   // Settings
   final String? darkMode;
@@ -29,13 +31,15 @@ class UserProfileModel {
 
     this.firstName,
     this.lastName,
+    this.profileImageUrl,
 
     this.phoneNumber,
     this.isPhoneVerified,
 
-    this.ratingStars,
+    this.ratingAverage,
     this.ratingCount,
-    this.profileImageUrl,
+    this.orderCount,
+
     this.createdAt,
 
     this.selectedCategoryId,
@@ -62,14 +66,15 @@ class UserProfileModel {
 
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
+        profileImageUrl: json['profileImageUrl']?.toString(),
 
         phoneNumber: json['phoneNumber']?.toString(),
         isPhoneVerified: parseBoolean(json['isPhoneVerified']),
 
-        ratingStars: parseNullableInt(json['ratingStars']),
+        ratingAverage: parseNullableInt(json['ratingAverage']),
         ratingCount: parseNullableInt(json['ratingCount']),
+        orderCount: parseNullableInt(json['orderCount']),
 
-        profileImageUrl: json['profileImageUrl']?.toString(),
         createdAt: parseNullableDate(json['createdAt']),
 
         selectedCategoryId: json['selectedCategoryId']?.toString(),
@@ -96,7 +101,7 @@ class UserProfileModel {
       'phoneNumber': phoneNumber,
       'isPhoneVerified': isPhoneVerified,
 
-      'ratingStars': ratingStars,
+      'ratingAverage': ratingAverage,
       'ratingCount': ratingCount,
       'profileImageUrl': profileImageUrl,
       'createdAt': createdAt,

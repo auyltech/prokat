@@ -9,13 +9,25 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
 
   Future<void> getRegistrationRequest() async {
     try {
-      state = state.copyWith(isLoading: true, error: () => null);
+      state = state.copyWith(isLoading: true, error: null);
 
       final data = await api.getOwnerRegistrationRequest();
 
-      state = state.copyWith(isLoading: false, registrationRequest: () => data);
+      state = state.copyWith(isLoading: false, registrationRequest: data);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: () => e.toString());
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
+  Future<void> getOwnerProfile() async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+
+      final data = await api.getOwnerProfile();
+
+      state = state.copyWith(isLoading: false, ownerProfile: data);
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
     }
   }
 
@@ -28,7 +40,7 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
     String? message,
   }) async {
     try {
-      state = state.copyWith(isLoading: true, error: () => null);
+      state = state.copyWith(isLoading: true, error: null);
 
       final created = await api.createOwnerRegistrationRequest(
         firstName: firstName,
@@ -47,7 +59,7 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
 
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: () => e.toString());
+      state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
   }
@@ -61,7 +73,7 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
     String? message,
   }) async {
     try {
-      state = state.copyWith(isLoading: true, error: () => null);
+      state = state.copyWith(isLoading: true, error: null);
 
       final id = state.registrationRequest?.id;
 
@@ -83,7 +95,7 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
 
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: () => e.toString());
+      state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
   }

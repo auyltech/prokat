@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
+import 'package:prokat/features/chat/state/chat_model.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 
 class ChatTile extends StatelessWidget {
-  final dynamic chat; // Replace with your ChatModel type
+  final ChatModel chat; // Replace with your ChatModel type
   final String currentUserId;
   final VoidCallback onTap;
 
@@ -37,15 +41,27 @@ class ChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
+
     final title = chat.displayTitle(currentUserId);
+
     final preview = chat.lastMessage?.content ?? 'No messages yet';
+
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,
     );
 
     final unreadCount = chat.newMessagesCount ?? 0;
+
     final summary = chat.bookingSummary;
+
+    final chatStatus = getChatStatus(
+      bookingStatus: parseBookingStatus(chat.bookingSummary?.status),
+      workStatus: parseWorkStatus(chat.bookingSummary),
+    );
+
+    final chatStatusLabel = getChatStatusLabel(chatStatus);
 
     return InkWell(
       onTap: onTap,
@@ -108,6 +124,7 @@ class ChatTile extends StatelessWidget {
                               ),
                             ),
                           ),
+
                           // Clean, inline Unread Badge
                           if (unreadCount > 0) ...[
                             const SizedBox(width: 8),
@@ -154,18 +171,18 @@ class ChatTile extends StatelessWidget {
                           color: _getStatusColor(
                             summary.status,
                             theme,
-                          ).withOpacity(0.08),
+                          ).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
                             color: _getStatusColor(
                               summary.status,
                               theme,
-                            ).withOpacity(0.25),
+                            ).withValues(alpha: 0.25),
                             width: 1,
                           ),
                         ),
                         child: Text(
-                          summary.status.toUpperCase(),
+                          chatStatusLabel,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: _getStatusColor(summary.status, theme),
                             fontWeight: FontWeight.bold,
@@ -174,6 +191,7 @@ class ChatTile extends StatelessWidget {
                           ),
                         ),
                       ),
+
                     Text(
                       timestamp,
                       style: theme.textTheme.labelSmall?.copyWith(
@@ -192,7 +210,7 @@ class ChatTile extends StatelessWidget {
             child: Divider(
               height: 1,
               thickness: 0.5,
-              color: theme.dividerColor.withOpacity(0.4),
+              color: theme.dividerColor.withValues(alpha: 0.4),
             ),
           ),
         ],

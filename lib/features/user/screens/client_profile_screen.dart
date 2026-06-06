@@ -28,10 +28,11 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(userProfileProvider.notifier).getUserProfile();
-
-      ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
+    Future.microtask(() async {
+      await ref.read(userProfileProvider.notifier).getUserProfile();
+      await ref
+          .read(ownerRegistrationProvider.notifier)
+          .getRegistrationRequest();
     });
   }
 
@@ -39,7 +40,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(userProfileProvider);
+    final userProfileState = ref.watch(userProfileProvider);
     final profileNotifier = ref.read(userProfileProvider.notifier);
 
     final locale = ref.watch(localeProvider);
@@ -59,7 +60,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     await profileNotifier.uploadProfileImage(file);
                   }
                 },
-                initialImageUrl: state.userProfile?.profileImageUrl ?? "",
+                initialImageUrl: userProfileState.userProfile?.profileImageUrl ?? "",
               ),
 
               const SizedBox(width: 20),
@@ -79,7 +80,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        (state.userProfile?.ratingStars ?? 0).toStringAsFixed(
+                        (userProfileState.userProfile?.ratingAverage ?? 0).toStringAsFixed(
                           1,
                         ),
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -88,7 +89,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        "- 0 ${l10n.navOrders}",
+                        "- ${userProfileState.userProfile?.ratingCount ?? 0} ratings",
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: theme.colorScheme.secondary.withValues(
                             alpha: 0.8,
@@ -107,7 +108,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
           UserProfileTile(
             icon: Icons.phone_android_rounded,
             label: l10n.phoneNumber,
-            value: state.userProfile?.phoneNumber ?? "+7 234 ...",
+            value: userProfileState.userProfile?.phoneNumber ?? "+7 234 ...",
             onTap: () {},
             trailing: const Icon(Icons.edit, color: Colors.white54),
           ),

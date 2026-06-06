@@ -9,9 +9,9 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class CancelBookingSheet extends ConsumerStatefulWidget {
   final BookingModel booking;
-  final String? useCase;
+  final String? mode;
 
-  const CancelBookingSheet({super.key, required this.booking, this.useCase});
+  const CancelBookingSheet({super.key, required this.booking, this.mode});
 
   @override
   ConsumerState<CancelBookingSheet> createState() => CancelBookingSheetState();
@@ -27,7 +27,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
     final notifier = ref.read(bookingProvider.notifier);
     final chatNotifier = ref.read(chatProvider.notifier);
 
-    final isOwner = widget.useCase == "owner";
+    final isOwner = widget.mode == "owner";
 
     final ownerCancelReasons = [
       l10n.cancelReasonClientNotRespond,
@@ -50,7 +50,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
               : l10n.cancelBooking
         : l10n.cancelBooking;
 
-    final reasons = widget.useCase == "owner"
+    final reasons = isOwner
         ? ownerCancelReasons
         : clientCancelReasons;
 

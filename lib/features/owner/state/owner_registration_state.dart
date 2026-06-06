@@ -1,3 +1,4 @@
+import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 
 class OwnerRegistrationState {
@@ -5,24 +6,26 @@ class OwnerRegistrationState {
   final String? error;
 
   final RegistrationRequestModel? registrationRequest;
+  final OwnerProfileModel? ownerProfile;
 
   OwnerRegistrationState({
     this.isLoading = false,
     this.error,
     this.registrationRequest,
+    this.ownerProfile,
   });
 
   OwnerRegistrationState copyWith({
     bool? isLoading,
-    String? Function()? error,
-    RegistrationRequestModel? Function()? registrationRequest,
+    String? error,
+    OwnerProfileModel? ownerProfile,
+    RegistrationRequestModel? registrationRequest,
   }) {
     return OwnerRegistrationState(
       isLoading: isLoading ?? this.isLoading,
-      error: error != null ? error() : this.error,
-      registrationRequest: registrationRequest != null
-          ? registrationRequest()
-          : this.registrationRequest,
+      error: error,
+      ownerProfile: ownerProfile ?? this.ownerProfile,
+      registrationRequest: registrationRequest ?? this.registrationRequest,
     );
   }
 }

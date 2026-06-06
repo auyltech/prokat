@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -43,20 +44,17 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   TimeOfDay? selectedTime;
 
   Future<void> _onPressed() async {
-    final bookingNotifier = ref.read(bookingProvider.notifier);
+    final result = await ref.read(bookingProvider.notifier).createBooking();
 
-    final res = await bookingNotifier.createBooking();
-
-    if (res == true) {
-      AppSnackBar.show(context, message: "Order created", isSuccess: true);
-
-      if (mounted && context.canPop()) context.pop();
-    } else {
+    if (mounted) {
       AppSnackBar.show(
         context,
-        message: "Failed to create order",
-        isError: true,
+        message: result ? "Order created" : "Failed to create order",
+        isSuccess: result,
+        isError: !result,
       );
+
+      if (result) context.push(AppRoutes.clientOrders);
     }
   }
 
@@ -80,14 +78,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final bookingState = ref.watch(bookingProvider);
     final bookingNotifier = ref.read(bookingProvider.notifier);
 
-    final state = ref.watch(equipmentProvider);
     final locationState = ref.watch(locationProvider);
-
     final selectedAddress = locationState.selectedAddress;
-
-    if (state.renterEquipment.isEmpty) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
 
     final equipment = bookingState.selectedEquipment;
 
@@ -404,38 +396,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 bookingState.selectedDate == null)
                             ? null
                             : _onPressed,
-                        isLoading: bookingState.isLoading,
+                        isLoading: bookingState.isSubmitting,
                       ),
-
-                      /// 5. ACTION FOOTER
-                      // SizedBox(
-                      //   width: double.infinity,
-                      //   height: 58,
-                      //   child: ElevatedButton(
-                      //     onPressed:
-                      //         ,
-                      //     style: ElevatedButton.styleFrom(
-                      //       backgroundColor: theme.colorScheme.primary,
-                      //       foregroundColor: theme.colorScheme.onPrimary,
-                      //       disabledBackgroundColor: theme.colorScheme.secondary
-                      //           .withValues(alpha: 0.5),
-                      //       disabledForegroundColor:
-                      //           theme.colorScheme.onSurface,
-                      //       shape: RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.circular(20),
-                      //       ),
-                      //       elevation: 0,
-                      //     ),
-                      //     child: Text(
-                      //       ,
-                      //       style: theme.textTheme.bodyLarge?.copyWith(
-                      //         fontWeight: FontWeight.bold,
-                      //         color: theme.colorScheme.onPrimary,
-                      //         letterSpacing: 1.2,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),

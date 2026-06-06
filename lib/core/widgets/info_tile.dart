@@ -6,6 +6,7 @@ class InfoTile extends StatelessWidget {
   final IconData? icon;
   final bool isHighlighted;
   final VoidCallback? onTap;
+  final Color? color;
 
   const InfoTile({
     super.key,
@@ -14,6 +15,7 @@ class InfoTile extends StatelessWidget {
     this.icon,
     this.isHighlighted = false,
     this.onTap,
+    this.color,
   });
 
   @override
@@ -29,12 +31,16 @@ class InfoTile extends StatelessWidget {
           horizontal: 12,
         ), // Increased padding slightly for multi-line layout comfort
         decoration: BoxDecoration(
-          color: isHighlighted
-              ? Colors.red.shade50
-              : theme.primaryColor.withValues(alpha: 0.05),
+          color:
+              color ??
+              (isHighlighted
+                  ? Colors.red.shade50
+                  : theme.primaryColor.withValues(alpha: 0.05)),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isHighlighted ? Colors.red.shade200 : theme.primaryColor.withValues(alpha: 0.2),
+            color: isHighlighted
+                ? Colors.red.shade200
+                : theme.primaryColor.withValues(alpha: 0.2),
             width: 1,
           ),
         ),

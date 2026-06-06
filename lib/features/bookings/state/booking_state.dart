@@ -5,6 +5,9 @@ import 'package:prokat/features/locations/models/location_model.dart';
 
 class BookingState {
   final bool isLoading;
+  final bool isSubmitting;
+  final String? actionId;
+
   final String? error;
 
   final List<BookingModel> bookings;
@@ -24,6 +27,8 @@ class BookingState {
 
   BookingState({
     this.isLoading = false,
+    this.isSubmitting = false,
+    this.actionId,
     this.error,
     this.bookings = const [],
     this.ownerBookings = const [],
@@ -39,6 +44,8 @@ class BookingState {
 
   BookingState copyWith({
     bool? isLoading,
+    bool? isSubmitting,
+    String? actionId,
     String? error,
     List<BookingModel>? bookings,
     List<BookingModel>? ownerBookings,
@@ -53,6 +60,8 @@ class BookingState {
   }) {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      actionId: actionId,
       error: error, // ?? this.error
       bookings: bookings ?? this.bookings,
       ownerBookings: ownerBookings ?? this.ownerBookings,

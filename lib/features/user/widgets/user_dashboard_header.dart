@@ -30,7 +30,7 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
         ? formatPhoneNumber(userProfileState.userProfile!.phoneNumber!)
         : l10n.hello;
 
-    final ratingStars = userProfileState.userProfile?.ratingStars ?? 0;
+    final ratingStars = userProfileState.userProfile?.ratingAverage ?? 0;
 
     return Container(
       decoration: BoxDecoration(color: theme.colorScheme.primary),

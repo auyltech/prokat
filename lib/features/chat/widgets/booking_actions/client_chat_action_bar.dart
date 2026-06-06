@@ -77,7 +77,59 @@ class ClientChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (chatStatus == ChatStatus.counteroffersent) ...[
+              if (chatStatus == ChatStatus.bookingcreated) ...[
+                // Send Counter Offer
+                Expanded(
+                  child: ActionBarButton.secondary(
+                    label: "Counter",
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
+                    onPressed: () async {
+                      await showCounterOfferSheet(
+                        context: context,
+                        chatId: chatId,
+                        bookingId: booking.id,
+                        initialPrice: booking.price,
+                        initialPriceRate: getRateOption(booking.priceRate),
+                        mode: "client",
+                      );
+                    },
+                  ),
+                ),
+
+                SizedBox(width: 4),
+
+                // Cancel Order
+                Expanded(
+                  child: ActionBarButton.secondary(
+                    label: "Cancel Order",
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting,
+                    onPressed: () async {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: theme.colorScheme.surface,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                        ),
+                        builder: (_) => CancelBookingSheet(
+                          booking: booking,
+                          mode: 'client',
+                        ),
+                      );
+                      // await controller.cancelBooking(
+                      //   context: context,
+                      //   chatId: chatId,
+                      //   bookingId: booking.id,
+                      //   reason: "",
+                      // );
+                    },
+                  ),
+                ),
+              ] else if (chatStatus == ChatStatus.counteroffersent) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Cancel Offer",
@@ -109,7 +161,9 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
+
                 SizedBox(width: 4),
+
                 // Reject Counter Offer
                 Expanded(
                   child: ActionBarButton.secondary(
@@ -123,57 +177,6 @@ class ClientChatActionBar extends ConsumerWidget {
                         bookingId: booking.id,
                         negotiationId: negotiation.latestPending?.id ?? "",
                       );
-                    },
-                  ),
-                ),
-              ] else if (chatStatus == ChatStatus.bookingcreated) ...[
-                // Send Counter Offer
-                Expanded(
-                  child: ActionBarButton.secondary(
-                    label: "Counter",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      await showCounterOfferSheet(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        initialPrice: booking.price,
-                        initialPriceRate: getRateOption(booking.priceRate),
-                        mode: "client",
-                      );
-                    },
-                  ),
-                ),
-
-                SizedBox(width: 4),
-
-                Expanded(
-                  child: ActionBarButton.secondary(
-                    label: "Cancel Order",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: theme.colorScheme.surface,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        builder: (_) => CancelBookingSheet(
-                          booking: booking,
-                          useCase: 'client',
-                        ),
-                      );
-                      // await controller.cancelBooking(
-                      //   context: context,
-                      //   chatId: chatId,
-                      //   bookingId: booking.id,
-                      //   reason: "",
-                      // );
                     },
                   ),
                 ),

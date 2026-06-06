@@ -466,6 +466,6 @@ Future<void> _handleCancel(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (context) =>
-        CancelBookingSheet(booking: booking, useCase: "client"),
+        CancelBookingSheet(booking: booking, mode: "client"),
   );
 }

@@ -4,11 +4,16 @@ class OwnerProfileModel {
   final String? id;
 
   final String? ownerType;
-
   final String? companyName;
   final String? legalName;
+
   final String? firstName;
   final String? lastName;
+  final String? profileImageUrl;
+
+  final int? ratingAverage;
+  final int? ratingCount;
+  final int? orderCount;
 
   final String? phoneNumber;
   final String? email;
@@ -27,11 +32,19 @@ class OwnerProfileModel {
 
   OwnerProfileModel({
     this.id,
+
     this.ownerType,
     this.companyName,
     this.legalName,
+
     this.firstName,
     this.lastName,
+    this.profileImageUrl,
+
+    this.ratingAverage,
+    this.ratingCount,
+    this.orderCount,
+
     this.phoneNumber,
     this.email,
     this.city,
@@ -48,17 +61,26 @@ class OwnerProfileModel {
     try {
       return OwnerProfileModel(
         id: json['id']?.toString(),
+
         ownerType: json['ownerType']?.toString(),
         companyName: json['companyName']?.toString(),
         legalName: json['legalName']?.toString(),
 
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
+        profileImageUrl: json['profileImageUrl']?.toString(),
+
+        ratingAverage: parseNullableInt(json['ratingAverage']),
+        ratingCount: parseNullableInt(json['ratingCount']),
+        orderCount: parseNullableInt(json['orderCount']),
 
         phoneNumber: json['phoneNumber']?.toString(),
+
         email: json['email']?.toString(),
+
         city: json['city']?.toString(),
         region: json['region']?.toString(),
+
         iin: json['iin']?.toString(),
 
         serviceDescription: json['serviceDescription']?.toString(),
@@ -69,6 +91,7 @@ class OwnerProfileModel {
         verifiedAt: parseNullableDate(json['verifiedAt']),
       );
     } catch (e) {
+      print("parse_failed:owner_profile");
       rethrow;
     }
   }

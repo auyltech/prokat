@@ -217,6 +217,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   // called on page refresh
   Future<void> reloadChat(String chatId) async {
     try {
+      if (state.isLoadingConversations || state.isLoadingMessages) return;
+
       state = state.copyWith(isLoadingMessages: true, error: null);
 
       await getChatById(chatId);
