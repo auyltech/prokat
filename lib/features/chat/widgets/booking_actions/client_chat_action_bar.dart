@@ -7,11 +7,17 @@ import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
+
+class ChatAction {
+  final String type; // primary, secondary, overflow
+  final String label;
+
+  ChatAction({required this.type, required, required this.label});
+}
 
 class ClientChatActionBar extends ConsumerWidget {
   final String chatId;
@@ -31,6 +37,15 @@ class ClientChatActionBar extends ConsumerWidget {
     this.chatClientId,
   });
 
+  List<ChatAction> getActions({
+    required String mode,
+    required ChatStatus chatStatus,
+  }) {
+    if (chatStatus == ChatStatus.bookingcreated) {}
+
+    return [ChatAction(type: "primary", label: "label")];
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -46,15 +61,8 @@ class ClientChatActionBar extends ConsumerWidget {
 
     final statusText = getChatActionBarTitle(chatStatus);
 
-    // If review is sent order is closed
-    if (chatStatus == ChatStatus.bookingreviewed) {
-      return ChatStatusOnlyBar(text: "Review Sent");
-    } else if (chatStatus == ChatStatus.bookingcancelled) {
-      return ChatStatusOnlyBar(text: "Order Cancelled");
-    }
-
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       decoration: BoxDecoration(
         color: theme.cardColor,
         boxShadow: const [
@@ -70,8 +78,9 @@ class ClientChatActionBar extends ConsumerWidget {
         children: [
           Text(
             statusText,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 8),
@@ -80,7 +89,7 @@ class ClientChatActionBar extends ConsumerWidget {
               if (chatStatus == ChatStatus.bookingcreated) ...[
                 // Send Counter Offer
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton(
                     label: "Counter",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -97,11 +106,11 @@ class ClientChatActionBar extends ConsumerWidget {
                   ),
                 ),
 
-                SizedBox(width: 4),
+                SizedBox(width: 8),
 
                 // Cancel Order
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton.danger(
                     label: "Cancel Order",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -131,7 +140,7 @@ class ClientChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatus.counteroffersent) ...[
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.destructive(
                     label: "Cancel Offer",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -166,7 +175,7 @@ class ClientChatActionBar extends ConsumerWidget {
 
                 // Reject Counter Offer
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton.destructive(
                     label: "Reject Offer",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -182,7 +191,7 @@ class ClientChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton.danger(
                     label: "Cancel Order",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -198,7 +207,7 @@ class ClientChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatus.workcompleted) ...[
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton(
                     label: "Confirm",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -236,7 +245,7 @@ class ClientChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatus.leaveReview) ...[
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton(
                     label: "Review",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,

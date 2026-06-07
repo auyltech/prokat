@@ -48,16 +48,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
         16,
         MediaQuery.of(context).padding.bottom + 12,
       ),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -5),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(color: Colors.transparent),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -67,14 +58,35 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
               minLines: 1,
               maxLines: 5,
               textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(
+                color: Color.fromARGB(255, 0, 70, 128),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
               decoration: InputDecoration(
                 hintText: 'Type a message...',
-                hintStyle: TextStyle(color: theme.disabledColor),
+                hintStyle: TextStyle(
+                  color: const Color.fromARGB(255, 126, 126, 126),
+                  fontWeight: FontWeight.w400,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
                 ),
-                fillColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(255, 199, 230, 255),
+                    width: 1.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(255, 163, 214, 255),
+                    width: 1,
+                  ),
+                ),
+                fillColor: Color.fromARGB(131, 182, 223, 255),
                 filled: true,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,

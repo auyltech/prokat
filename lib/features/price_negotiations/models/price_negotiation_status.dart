@@ -1,5 +1,5 @@
 enum PriceNegotiationStatus {
-  pending,
+  created,
   accepted,
   rejected,
   cancelled,
@@ -10,8 +10,8 @@ enum PriceNegotiationStatus {
 PriceNegotiationStatus parsePriceNegotiationStatus(String? raw) {
   final value = (raw ?? '').trim().toUpperCase();
   switch (value) {
-    case 'PENDING':
-      return PriceNegotiationStatus.pending;
+    case 'CREATED':
+      return PriceNegotiationStatus.created;
     case 'ACCEPTED':
       return PriceNegotiationStatus.accepted;
     case 'REJECTED':
@@ -24,4 +24,3 @@ PriceNegotiationStatus parsePriceNegotiationStatus(String? raw) {
       return PriceNegotiationStatus.unknown;
   }
 }
-

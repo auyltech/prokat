@@ -8,9 +8,15 @@ import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 
 class MessageBubble extends StatefulWidget {
   final ChatMessageModel message;
+  final String mode;
   final bool isMe;
 
-  const MessageBubble({super.key, required this.message, required this.isMe});
+  const MessageBubble({
+    super.key,
+    required this.message,
+    required this.mode,
+    required this.isMe,
+  });
 
   @override
   State<MessageBubble> createState() => _MessageBubbleState();
@@ -54,7 +60,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         : "MESSAGE";
 
     if (type == "REQUEST") {
-      return RequestMessageBubble(message: widget.message);
+      return RequestMessageBubble(message: widget.message, mode: widget.mode);
     } else if (type == "OFFER") {
       return OfferMessageBubble(message: widget.message, isMe: widget.isMe);
     } else if (type == "BOOKING") {

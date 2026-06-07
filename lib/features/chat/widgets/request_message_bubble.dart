@@ -6,13 +6,19 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class RequestMessageBubble extends ConsumerStatefulWidget {
   final ChatMessageModel message;
+  final String mode;
 
-  const RequestMessageBubble({super.key, required this.message});
+  const RequestMessageBubble({
+    super.key,
+    required this.message,
+    required this.mode,
+  });
 
   @override
   ConsumerState<RequestMessageBubble> createState() =>
@@ -38,12 +44,14 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(8),
-      // margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(87, 255, 237, 214),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE3F2FD), width: 1),
+        color: const Color(0xFFF4F9FD),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color.fromARGB(255, 197, 229, 255),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,38 +59,26 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           // Request Label / Icon / Status
           Row(
             children: [
-              const Icon(Icons.request_page, color: Colors.orange, size: 24),
+              Icon(
+                Icons.request_page_outlined,
+                color: theme.primaryColor,
+                size: 26,
+              ),
               const SizedBox(width: 8),
               Text(
-                'REQUEST',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.orange,
+                'New Request',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryColor,
                 ),
               ),
               Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 237, 203),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  getRequestStatus(request.status).toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.orange,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
+
+              RequestStatusBadge(status: request.status, mode: widget.mode),
             ],
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           Row(
             children: [
@@ -108,10 +104,10 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   children: [
                     Text(
                       request.category?.name.toUpperCase() ?? "",
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
-                        color: Colors.black
+                        color: Colors.black,
                       ),
                     ),
                     Row(
@@ -143,63 +139,77 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
             ],
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
+          // Location
           InfoTile(
-            icon: Icons.pin_drop_rounded,
-            color: const Color.fromARGB(64, 255, 237, 214),
+            icon: Icons.location_on_outlined,
+            color: Colors.transparent,
             value: request.location.street,
             onTap: () => showLocationSheet(context, request.location),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
-          InfoTile(
-            icon: Icons.timelapse,
-            color: const Color.fromARGB(64, 255, 237, 214),
-            value: () {
-              if (request.requiredOn == null) return "PENDING";
-
-              // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-              final dateStr = DateFormat(
-                'dd MMM yyyy',
-              ).format(request.requiredOn!.toLocal());
-
-              // 2. If a specific time exists, format and append it (e.g., "• 14:30")
-              if (request.requiredAt != null) {
-                final timeStr = DateFormat(
-                  'HH:mm',
-                ).format(request.requiredAt!.toLocal());
-                return '$dateStr • $timeStr';
-              }
-
-              // 3. Return just the date if no time was specified
-              return dateStr;
-            }(),
-          ),
-
-          const SizedBox(height: 6),
-          // Offered Rate and Comment
+          // Date Time
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: InfoTile(
-                  value: formatPrice(request.offeredPrice),
-                  isHighlighted: true,
+                  icon: Icons.event_outlined,
+                  color: Colors.transparent,
+                  value: () {
+                    if (request.requiredOn == null) return "PENDING";
+
+                    // 1. Format the date part cleanly (e.g., "02 Jun 2026")
+                    final dateStr = DateFormat(
+                      'dd MMM yyyy',
+                    ).format(request.requiredOn!.toLocal());
+
+                    // 3. Return just the date if no time was specified
+                    return dateStr;
+                  }(),
                 ),
               ),
 
-              if (request.comment?.isNotEmpty ?? false)
-                Expanded(
-                  child: InfoTile(
-                    label: l10n.comments,
-                    value: request.comment!,
-                    isHighlighted: true,
-                  ),
+              const SizedBox(width: 8),
+
+              Expanded(
+                child: InfoTile(
+                  icon: Icons.access_time_outlined,
+                  color: Colors.transparent,
+                  value: () {
+                    // 2. If a specific time exists, format and append it (e.g., "14:30")
+                    if (request.requiredAt != null) {
+                      final timeStr = DateFormat(
+                        'HH:mm',
+                      ).format(request.requiredAt!.toLocal());
+                      return timeStr;
+                    }
+
+                    return "";
+                  }(),
                 ),
+              ),
             ],
           ),
+
+          const SizedBox(height: 8),
+
+          // Offered Rate and Comment
+          InfoTile(
+            value:
+                "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
+            color: Colors.transparent,
+            isHighlighted: true,
+          ),
+
+          if (request.comment?.isNotEmpty ?? false)
+            InfoTile(
+              label: l10n.comments,
+              color: Colors.transparent,
+              value: request.comment!,
+            ),
         ],
       ),
     );

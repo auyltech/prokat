@@ -16,7 +16,7 @@ class OfferModel {
   final User? owner;
 
   final int price;
-  final String priceRate;
+  final String? priceRate;
 
   final DateTime? createdAt;
   OfferModel({
@@ -34,7 +34,7 @@ class OfferModel {
     this.bookingId,
 
     required this.price,
-    required this.priceRate,
+    this.priceRate,
     this.createdAt,
   });
 
@@ -55,11 +55,13 @@ class OfferModel {
             : null,
         owner: json["owner"] != null ? User.fromJson(json["owner"]) : null,
 
-        bookingId: json['bookingId']?.toString(),
+        bookingId: json['bookingId']?.toString().toLowerCase() == "null"
+            ? null
+            : json['bookingId']?.toString(),
 
         /// SAFE INT PARSING
         price: parseNullableInt(json['price']) ?? 0,
-        priceRate: json['priceRate']?.toString() ?? '',
+        priceRate: json['priceRate']?.toString(),
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])
             : null,

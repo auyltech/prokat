@@ -61,8 +61,9 @@ class OfferChatActionBar extends ConsumerWidget {
         children: [
           Text(
             actionBarTitle,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 8),
@@ -72,7 +73,7 @@ class OfferChatActionBar extends ConsumerWidget {
                 if (mode == "owner")
                   // Hide request
                   Expanded(
-                    child: ActionBarButton(
+                    child: ActionBarButton.destructive(
                       label: "Hide Request",
                       isEnabled: true,
                       isLoading: false,
@@ -82,7 +83,7 @@ class OfferChatActionBar extends ConsumerWidget {
                 else
                   // Cancel request
                   Expanded(
-                    child: ActionBarButton(
+                    child: ActionBarButton.danger(
                       label: "Cancel Request",
                       isEnabled: true,
                       isLoading: false,
@@ -123,9 +124,10 @@ class OfferChatActionBar extends ConsumerWidget {
                   ),
                 ),
               ] else if (chatStatus == ChatStatus.requestaccepted) ...[
+                // edge case: should have a booking
                 // Cancel request
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.danger(
                     label: "Cancel Request",
                     isEnabled: true,
                     isLoading: false,
@@ -140,7 +142,7 @@ class OfferChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatus.offerreceived) ...[
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.destructive(
                     label: "Reject Offer",
                     isEnabled: true,
                     isLoading: false,
@@ -173,7 +175,7 @@ class OfferChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatus.offercreated) ...[
                 // CANCEL OFFER
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.destructive(
                     label: "Cancel Offer",
                     isEnabled: true,
                     isLoading: false,
@@ -189,7 +191,7 @@ class OfferChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
                 // Reject Price Negotiation
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.destructive(
                     label: "Reject Price",
                     isEnabled: true,
                     isLoading: false,
@@ -227,7 +229,7 @@ class OfferChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatus.counteroffersent) ...[
                 // Cancel Price Negotiation
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.destructive(
                     label: "Cancel Price",
                     isEnabled: true,
                     isLoading: false,

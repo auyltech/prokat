@@ -76,6 +76,8 @@ class InfoTile extends StatelessWidget {
                               ? Colors.red[700]
                               : Colors.black87,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

@@ -79,29 +79,24 @@ String formatPrice(dynamic price) {
   return "₸ $formatted";
 }
 
-String getPriceRate(dynamic priceRate, {AppLocalizations? l10n}) {
-  if (priceRate == null || priceRate.toString().isEmpty) {
+String getPriceRate(String? priceRate, {AppLocalizations? l10n}) {
+  if (priceRate == null ||
+      priceRate == "null" ||
+      priceRate.toString().isEmpty) {
     return "";
   }
 
   final temp = priceRate.toString().trim().replaceAll(" ", "_").toUpperCase();
 
-  if (l10n != null) {
-    if (temp == "PER_TRIP") return l10n.perTrip;
-    if (temp == "PER_CUBIC_METER") return l10n.perM3;
-    if (temp == "PER_HOUR") return l10n.perHour;
-    return temp;
-  }
+  if (temp == "PER_TRIP") return l10n?.perTrip ?? "/ Trip";
 
-  return temp == "PER_TRIP"
-      ? "/ Trip"
-      : temp == "PER_CUBIC_METER"
-      ? "/ M3"
-      : temp == "PER_HOUR"
-      ? "/ Hour"
-      : temp == "PER_DAY"
-      ? "/ Day"
-      : temp;
+  if (temp == "PER_CUBIC_METER") return l10n?.perM3 ?? "/ M3";
+
+  if (temp == "PER_HOUR") return l10n?.perHour ?? "/ Hour";
+
+  if (temp == "PER_DAY") return l10n?.perDay ?? "/ Day";
+
+  return temp;
 }
 
 String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {

@@ -69,8 +69,9 @@ class OwnerChatActionBar extends ConsumerWidget {
         children: [
           Text(
             statusText,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
           ),
 
@@ -145,7 +146,7 @@ class OwnerChatActionBar extends ConsumerWidget {
 
                 // Reject Order
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton.destructive(
                     label: "Reject Order",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -192,7 +193,7 @@ class OwnerChatActionBar extends ConsumerWidget {
               else if (chatStatus == ChatStatus.counteroffersent) ...[
                 // Cancel Counter Offer
                 Expanded(
-                  child: ActionBarButton(
+                  child: ActionBarButton.destructive(
                     label: "Cancel Offer",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -228,7 +229,7 @@ class OwnerChatActionBar extends ConsumerWidget {
 
                 // Reject Counter Offer
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton.destructive(
                     label: "Reject Offer",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -245,7 +246,7 @@ class OwnerChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
                 // Completed Work
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton(
                     label: "Complete Work",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
@@ -310,7 +311,7 @@ class OwnerChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatus.leaveReview) ...[
                 // Submit Review
                 Expanded(
-                  child: ActionBarButton.secondary(
+                  child: ActionBarButton(
                     label: "Review",
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,

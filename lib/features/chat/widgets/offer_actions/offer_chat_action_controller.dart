@@ -47,7 +47,7 @@ class OfferChatActionController {
     try {
       await ref
           .read(priceNegotiationProvider.notifier)
-          .respond(negotiationId: negotiationId, response: response);
+          .respondToPriceNegotiation(negotiationId: negotiationId, response: response);
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
       if (!context.mounted) return;
@@ -71,7 +71,7 @@ class OfferChatActionController {
     try {
       await ref
           .read(priceNegotiationProvider.notifier)
-          .cancelNegotiation(negotiationId);
+          .cancelPriceNegotiation(negotiationId);
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
       if (!context.mounted) return;

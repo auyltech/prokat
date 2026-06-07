@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/equipment/widgets/sheets/equipment_details_sheet.dart';
@@ -36,64 +39,46 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
     final equipment = booking.equipment;
 
+    final location = booking.location;
+
     return Container(
       width: double.infinity,
-      // margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF4F9FD),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE3F2FD), width: 1),
+        border: Border.all(
+          color: const Color.fromARGB(255, 197, 229, 255),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 1. Header Row (Order Info Text & Colored Status Badge)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.assignment_outlined,
-                      color: Colors.blue,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      "Order Info",
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF0D47A1),
-                      ),
-                    ),
-                  ],
+          Row(
+            children: [
+              Icon(
+                Icons.assignment_outlined,
+                color: theme.primaryColor,
+                size: 22,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                "New Order",
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryColor,
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    getBookingStatus(booking.status, l10n: l10n).toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.blue,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+
+              Spacer(),
+
+              BookingStatusBadge(status: booking.status),
+            ],
           ),
 
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE3F2FD)),
+          const SizedBox(height: 8),
 
           // 2. Equipment Body (Triggers the external Details Sheet)
           InkWell(
@@ -111,210 +96,135 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
               );
             },
             borderRadius: const BorderRadius.all(Radius.zero),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (equipment?.imageUrl != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Image.network(
-                        equipment!.imageUrl!,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (equipment?.imageUrl != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.network(
+                      equipment!.imageUrl!,
+                      width: 80,
+                      height: 50,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(
                         width: 54,
                         height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 54,
-                          height: 40,
-                          color: const Color(0xFFE0E0E0),
-                          child: const Icon(
-                            Icons.image,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      width: 54,
-                      height: 40,
-                      decoration: BoxDecoration(
                         color: const Color(0xFFE0E0E0),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
-                        Icons.image,
-                        color: Colors.grey,
-                        size: 20,
+                        child: const Icon(
+                          Icons.image,
+                          size: 20,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          equipment?.name ?? "Unknown Equipment",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF212121),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          "${equipment?.model ?? ''} • ${equipment?.plateNumber ?? ''}",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.grey,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
+                  )
+                else
+                  Container(
+                    width: 54,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0E0E0),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.image,
+                      color: Colors.grey,
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "\$${booking.price.toInt()}",
+                        equipment?.name ?? "Unknown Equipment",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF0D47A1),
+                          color: const Color(0xFF212121),
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
-                        getPriceRate(booking.priceRate, l10n: l10n),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                          fontSize: 10,
-                        ),
+                        equipment?.model ?? "",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(width: 8),
+              ],
             ),
           ),
 
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE3F2FD)),
+          const SizedBox(height: 8),
 
-          // 3. Grid Row: Aligned split grid layout parameters
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 15,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Date",
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              booking.bookedOn != null
-                                  ? DateFormat(
-                                      'MMM dd, yyyy',
-                                    ).format(booking.bookedOn!)
-                                  : "TBD",
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+          //  Location
+          if (location != null) ...[
+            InfoTile(
+              icon: Icons.location_on_outlined,
+              color: Colors.transparent,
+              value: booking.location?.street ?? "",
+              onTap: () => showLocationSheet(context, location),
+            ),
+            const SizedBox(height: 8),
+          ],
+          // Date Time
+          Row(
+            children: [
+              Expanded(
+                child: InfoTile(
+                  icon: Icons.event_outlined,
+                  color: Colors.transparent,
+                  value: () {
+                    if (booking.bookedOn == null) return "TBD";
+
+                    // 1. Format the date part cleanly (e.g., "02 Jun 2026")
+                    final dateStr = DateFormat(
+                      'dd MMM yyyy',
+                    ).format(booking.bookedOn!.toLocal());
+
+                    // 3. Return just the date if no time was specified
+                    return dateStr;
+                  }(),
                 ),
-                Container(width: 1, height: 24, color: const Color(0xFFE3F2FD)),
-                const SizedBox(width: 12),
+              ),
+
+              if (booking.bookedAt != null) ...[
+                const SizedBox(width: 8),
+
                 Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Location",
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              booking.location?.street ?? "",
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  child: InfoTile(
+                    icon: Icons.access_time_outlined,
+                    color: Colors.transparent,
+                    value: booking.bookedAt != null
+                        ? DateFormat(
+                            'HH:mm',
+                          ).format(booking.bookedAt!.toLocal())
+                        : "",
                   ),
                 ),
               ],
-            ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          InfoTile(
+            value:
+                "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+            color: Colors.transparent,
+            isHighlighted: true,
           ),
         ],
       ),
     );
   }
 }
-
-//   Widget _infoTile(IconData icon, String label, String value) {
-//     return Row(
-//       children: [
-//         Icon(icon, size: 20, color: Colors.grey),
-//         const SizedBox(width: 8),
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               label,
-//               style: const TextStyle(fontSize: 12, color: Colors.grey),
-//             ),
-//             Text(
-//               value,
-//               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-// }

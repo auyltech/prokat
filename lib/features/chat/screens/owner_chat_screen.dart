@@ -178,39 +178,21 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                         separatorBuilder: (context, index) =>
                             SizedBox(height: 4),
                         // Increase item count by 2 if booking/request tiles exist
-                        itemCount:
-                            messages.length +
-                            ((booking != null || request != null) ? 1 : 0),
+                        itemCount: messages.length,
                         itemBuilder: (context, index) {
-                          final hasBookingHeader =
-                              booking != null || request != null;
-
-                          if (hasBookingHeader) {
-                            if (index == 0) {
-                              // if (booking != null) {
-                              //   return BookingMessageBubble(booking: booking);
-                              // }
-                              // if (request != null) {
-                              //   return RequestMessageBubble(request: request);
-                              // }
-                              return const SizedBox.shrink();
-                            }
-                          }
-                          // 1. Shift index by 1 if header is present
-                          final messageIndex = hasBookingHeader
-                              ? index - 1
-                              : index;
-
-                          // 2. Invert the index so oldest messages (index 0 in data) render at the top
-                          final invertedIndex =
-                              messages.length - 1 - messageIndex;
+                          // Invert the index so oldest messages (index 0 in data) render at the top
+                          final invertedIndex = messages.length - 1 - index;
 
                           final message = messages[invertedIndex];
 
                           final isMe =
                               message.senderId == currentUserId ||
                               message.senderId == 'me';
-                          return MessageBubble(message: message, isMe: isMe);
+                          return MessageBubble(
+                            message: message,
+                            isMe: isMe,
+                            mode: "owner",
+                          );
                         },
                       ),
                     ),

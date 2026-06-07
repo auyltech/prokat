@@ -7,7 +7,7 @@ import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action
 import 'package:prokat/features/locations/models/location_model.dart';
 
 BookingModel _booking({
-  required String status,
+  required BookingStatus status,
   WorkStatus workStatus = WorkStatus.pending,
 }) {
   return BookingModel(
@@ -32,7 +32,7 @@ void main() {
 
   test('Owner CREATED: accept primary + reject secondary', () {
     final resolution = resolver.resolve(
-      booking: _booking(status: BookingStatus.created.name),
+      booking: _booking(status: BookingStatus.created),
       role: BookingChatRole.owner,
       now: DateTime(2026, 1, 1),
     );
@@ -46,7 +46,7 @@ void main() {
 
   test('Client CREATED: cancel primary', () {
     final resolution = resolver.resolve(
-      booking: _booking(status: BookingStatus.created.name),
+      booking: _booking(status: BookingStatus.created),
       role: BookingChatRole.client,
       now: DateTime(2026, 1, 1),
     );
@@ -57,7 +57,7 @@ void main() {
   test('Owner CONFIRMED + pending: update status primary', () {
     final resolution = resolver.resolve(
       booking: _booking(
-        status: BookingStatus.confirmed.name,
+        status: BookingStatus.confirmed,
         workStatus: WorkStatus.pending,
       ),
       role: BookingChatRole.owner,
@@ -70,7 +70,7 @@ void main() {
   test('Client CONFIRMED + completed: confirm completion primary', () {
     final resolution = resolver.resolve(
       booking: _booking(
-        status: BookingStatus.confirmed.name,
+        status: BookingStatus.confirmed,
         workStatus: WorkStatus.completed,
       ),
       role: BookingChatRole.client,
@@ -82,7 +82,7 @@ void main() {
 
   test('Final COMPLETED: no actions', () {
     final resolution = resolver.resolve(
-      booking: _booking(status: BookingStatus.completed.name),
+      booking: _booking(status: BookingStatus.completed),
       role: BookingChatRole.owner,
       now: DateTime(2026, 1, 1),
     );
@@ -94,7 +94,7 @@ void main() {
 
   test('Unknown status: safe fallback', () {
     final resolution = resolver.resolve(
-      booking: _booking(status: 'SOMETHING_NEW'),
+      booking: _booking(status: BookingStatus.draft),
       role: BookingChatRole.owner,
       now: DateTime(2026, 1, 1),
     );

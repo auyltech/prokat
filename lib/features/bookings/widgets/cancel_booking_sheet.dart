@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -20,12 +21,55 @@ class CancelBookingSheet extends ConsumerStatefulWidget {
 class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
   String? selectedReason;
 
+  Future<void> onSubmit(AppLocalizations? l10n) async {
+    final isOwner = widget.mode == "owner";
+
+    final notifier = ref.read(bookingProvider.notifier);
+    final chatNotifier = ref.read(chatProvider.notifier);
+
+    final status = isOwner
+        ? widget.booking.status == BookingStatus.created
+              ? BookingStatus.rejected.name
+              : BookingStatus.cancelled.name
+        : BookingStatus.cancelled.name;
+
+    final res = await notifier.updateBookingStatus(
+      id: widget.booking.id,
+      status: status,
+      workStatus: selectedReason,
+    );
+
+    if (res == true) {
+      final chatId = widget.booking.chatId;
+
+      if ((chatId ?? '').isNotEmpty) {
+        await chatNotifier.reloadChat(chatId!);
+      }
+
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      AppSnackBar.show(
+        context,
+        message: l10n?.orderCancelled ?? "Order Cancelled",
+        isSuccess: true,
+      );
+
+      return;
+    } else {
+      AppSnackBar.show(
+        context,
+        message: "Failed to cancel order",
+        isError: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final notifier = ref.read(bookingProvider.notifier);
-    final chatNotifier = ref.read(chatProvider.notifier);
 
     final isOwner = widget.mode == "owner";
 
@@ -50,14 +94,13 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
               : l10n.cancelBooking
         : l10n.cancelBooking;
 
-    final reasons = isOwner
-        ? ownerCancelReasons
-        : clientCancelReasons;
+    final reasons = isOwner ? ownerCancelReasons : clientCancelReasons;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 40,
@@ -69,7 +112,13 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
             ),
           ),
 
-          Text(sheetTitle, style: theme.textTheme.titleMedium),
+          Text(
+            sheetTitle,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
 
           const SizedBox(height: 16),
 
@@ -89,8 +138,8 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? theme.colorScheme.primary.withValues(alpha: 0.1)
-                      : theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
+                      : theme.colorScheme.surfaceBright,
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isSelected
                         ? theme.colorScheme.primary
@@ -119,58 +168,24 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
           Row(
             children: [
               Expanded(
-                child: TextButton(
+                child: ActionBarButton.secondary(
+                  label: l10n.goBack,
                   onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.goBack),
                 ),
               ),
-              const SizedBox(width: 12),
+
+              const SizedBox(width: 8),
+
               Expanded(
-                child: ElevatedButton(
+                child: ActionBarButton.destructive(
+                  label: widget.booking.status == BookingStatus.created
+                      ? l10n.rejectOrder
+                      : l10n.cancelBooking,
                   onPressed: selectedReason == null
                       ? null
-                      : () async {
-                          final status = isOwner
-                              ? widget.booking.status == BookingStatus.created
-                                    ? BookingStatus.rejected.name
-                                    : BookingStatus.cancelled.name
-                              : BookingStatus.cancelled.name;
-
-                          final res = await notifier.updateBookingStatus(
-                            id: widget.booking.id,
-                            status: status,
-                            workStatus: selectedReason,
-                          );
-
-                          if (res == true) {
-                            final chatId = widget.booking.chatId;
-
-                            if ((chatId ?? '').isNotEmpty) {
-                              await chatNotifier.reloadChat(chatId!);
-                            }
-
-                            if (context.mounted) Navigator.pop(context);
-
-                            AppSnackBar.show(
-                              context,
-                              message: l10n.orderCancelled,
-                              isSuccess: true,
-                            );
-
-                            return;
-                          } else {
-                            AppSnackBar.show(
-                              context,
-                              message: "Failed to cancel order",
-                              isError: true,
-                            );
-                          }
-                        },
-                  child: Text(
-                    widget.booking.status == BookingStatus.created
-                        ? l10n.rejectOrder
-                        : l10n.cancelBooking,
-                  ),
+                      : () => onSubmit(l10n),
+                  isLoading: ref.read(bookingProvider).isSubmitting,
+                  isEnabled: selectedReason != null && !ref.read(bookingProvider).isSubmitting,
                 ),
               ),
             ],

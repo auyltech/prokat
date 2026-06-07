@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
@@ -28,6 +29,57 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
   final TextEditingController _commentController = TextEditingController();
   String? _priceRate;
 
+  Future<void> onSubmit() async {
+    final price = int.tryParse(_priceController.text.trim());
+
+    if (price == null || price <= 0) {
+      AppSnackBar.show(context, message: 'Enter a valid price', isError: true);
+      return;
+    }
+
+    final notifier = ref.read(priceNegotiationProvider.notifier);
+
+    try {
+      // use booking notifier to create counter offer
+      await notifier.createCounterOffer(
+        price: price,
+        priceRate: _priceRate,
+        comment: _commentController.text.trim(),
+        type: widget.mode == "owner" ? "OWNER_COUNTER" : "CLIENT_COUNTER",
+        bookingId: widget.bookingId,
+        offerId: widget.offerId,
+      );
+
+      // use chat notifier to create counter offer
+      // await controller.createCounterOffer(
+      //   context: context,
+      //   chatId: chatId,
+      //   bookingId: booking.id,
+      //   price: booking.price,
+      //   priceRate: booking.priceRate as PriceRateOption,
+      //   comment: "comment",
+      //   type: "OWNER_COUNTER",
+      // );
+
+      // await controller.refreshAfterNegotiation(
+      //   chatId: chatId,
+      //   bookingId: booking.id,
+      // );
+
+      if (context.mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        AppSnackBar.show(
+          context,
+          message: e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,20 +101,25 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
     final theme = Theme.of(context);
 
     final state = ref.watch(priceNegotiationProvider);
-    final notifier = ref.read(priceNegotiationProvider.notifier);
-    
+
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
         right: 16,
         top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16 + 32,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Counter offer', style: theme.textTheme.titleMedium),
+          Text(
+            'Counter offer',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 12),
           TextField(
             controller: _priceController,
@@ -85,68 +142,12 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
             decoration: const InputDecoration(labelText: 'Comment (optional)'),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: state.isSubmitting
-                ? null
-                : () async {
-                    final price = int.tryParse(_priceController.text.trim());
 
-                    if (price == null || price <= 0) {
-                      AppSnackBar.show(
-                        context,
-                        message: 'Enter a valid price',
-                        isError: true,
-                      );
-                      return;
-                    }
-
-                    try {
-                      // use booking notifier to create counter offer
-                      await notifier.createCounterOffer(
-                        price: price,
-                        priceRate: _priceRate,
-                        comment: _commentController.text.trim(),
-                        type: widget.mode == "owner"
-                            ? "OWNER_COUNTER"
-                            : "CLIENT_COUNTER",
-                        bookingId: widget.bookingId,
-                        offerId: widget.offerId,
-                      );
-
-                      // use chat notifier to create counter offer
-                      // await controller.createCounterOffer(
-                      //   context: context,
-                      //   chatId: chatId,
-                      //   bookingId: booking.id,
-                      //   price: booking.price,
-                      //   priceRate: booking.priceRate as PriceRateOption,
-                      //   comment: "comment",
-                      //   type: "OWNER_COUNTER",
-                      // );
-
-                      // await controller.refreshAfterNegotiation(
-                      //   chatId: chatId,
-                      //   bookingId: booking.id,
-                      // );
-
-                      if (!context.mounted) return;
-                      Navigator.pop(context, true);
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      AppSnackBar.show(
-                        context,
-                        message: e.toString().replaceFirst('Exception: ', ''),
-                        isError: true,
-                      );
-                    }
-                  },
-            child: state.isSubmitting
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Send'),
+          ActionBarButton(
+            label: "Send",
+            isEnabled: !state.isSubmitting,
+            isLoading: state.isSubmitting,
+            onPressed: onSubmit,
           ),
         ],
       ),

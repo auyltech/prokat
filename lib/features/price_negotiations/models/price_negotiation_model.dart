@@ -35,7 +35,7 @@ class PriceNegotiation {
     this.cancelledAt,
   });
 
-  bool get isPending => status == PriceNegotiationStatus.pending;
+  bool get isPending => status == PriceNegotiationStatus.created;
 
   static DateTime? _tryParseDate(dynamic value) {
     if (value == null) return null;

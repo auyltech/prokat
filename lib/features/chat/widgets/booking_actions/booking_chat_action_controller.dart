@@ -264,7 +264,7 @@ class BookingChatActionController
     await _run(
       context: context,
       action: () async {
-        await _priceNegotiationNotifier().cancelNegotiation(id);
+        await _priceNegotiationNotifier().cancelPriceNegotiation(id);
         return true;
       },
       onSuccess: () {
@@ -294,7 +294,7 @@ class BookingChatActionController
     await _run(
       context: context,
       action: () async {
-        await _priceNegotiationNotifier().respond(
+        await _priceNegotiationNotifier().respondToPriceNegotiation(
           negotiationId: id,
           response: response,
         );

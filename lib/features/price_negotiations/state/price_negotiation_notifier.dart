@@ -9,6 +9,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
 
   PriceNegotiationNotifier(this.service) : super(const PriceNegotiationState());
 
+  // Helper Method
   bool isLatestPendingFromMe(String? currentUserId) {
     final pending = state.latestPending;
     final userId = (currentUserId ?? '').trim();
@@ -17,22 +18,19 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     return (pending.senderId ?? '').trim() == userId;
   }
 
+  // Helper Method
   PriceNegotiation? getPendingNegotiation({
     String? bookingId,
     String? offerId,
     String? currentUserId,
     String? mode,
   }) {
-    print(state.negotiations.length);
-    print(bookingId);
-    print(offerId);
-
     if (bookingId != null) {
       final found = state.negotiations
           .where(
             (item) =>
                 (item.bookingId == bookingId) &&
-                (item.status == PriceNegotiationStatus.pending),
+                (item.status == PriceNegotiationStatus.created),
           )
           .firstOrNull;
 
@@ -42,7 +40,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
           .where(
             (item) =>
                 item.offerId == offerId &&
-                item.status == PriceNegotiationStatus.pending,
+                item.status == PriceNegotiationStatus.created,
           )
           .firstOrNull;
 
@@ -52,6 +50,7 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     }
   }
 
+  // Fetch Price Negotiations
   Future<void> getPriceNegotiations() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
@@ -93,9 +92,13 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     required String type,
   }) async {
     try {
-      state = state.copyWith(isSubmitting: true, error: null);
+      state = state.copyWith(
+        isSubmitting: true,
+        actionId: "price:create",
+        error: null,
+      );
 
-      await service.createPriceNegotiation(
+      final result = await service.createPriceNegotiation(
         bookingId: bookingId,
         offerId: offerId,
         price: price,
@@ -104,37 +107,59 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
         type: type,
       );
 
-      state = state.copyWith(isSubmitting: false);
+      state = state.copyWith(
+        isSubmitting: false,
+        error: result.success ? null : result.message,
+        actionId: null,
+      );
 
-      await getPriceNegotiations();
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
-      rethrow;
+      if (result.success) {
+        await getPriceNegotiations();
+      }
+    } catch (error) {
+      state = state.copyWith(
+        isSubmitting: false,
+        error: error.toString(),
+        actionId: null,
+      );
     }
   }
 
-  Future<void> respond({
+  Future<void> respondToPriceNegotiation({
     required String negotiationId,
     required PriceNegotiationResponse response,
   }) async {
     try {
-      state = state.copyWith(isSubmitting: true, error: null);
+      state = state.copyWith(
+        isSubmitting: true,
+        actionId: response == PriceNegotiationResponse.accept
+            ? "price:accept"
+            : "price:reject",
+        error: null,
+      );
 
-      await service.respondToPriceNegotiation(
+      final result = await service.respondToPriceNegotiation(
         negotiationId: negotiationId,
         decision: response,
       );
 
-      state = state.copyWith(isSubmitting: false);
+      state = state.copyWith(
+        isSubmitting: false,
+        error: result.success ? null : result.message,
+        actionId: null,
+      );
 
       // Refresh is called by the booking notifier
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
-      rethrow;
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+        actionId: null,
+      );
     }
   }
 
-  Future<void> cancelNegotiation(String negotiationId) async {
+  Future<void> cancelPriceNegotiation(String negotiationId) async {
     try {
       state = state.copyWith(isSubmitting: true, error: null);
 

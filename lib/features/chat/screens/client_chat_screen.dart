@@ -5,6 +5,7 @@ import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
@@ -81,7 +82,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         .watch(offersProvider.notifier)
         .hasActiveOffer(request?.id ?? "", "client");
     // Offer will always be created by owner and responded by client
-    
+
     final isOfferPendingFromMe = activeOffers.firstOrNull != null;
 
     final lastOfferId = ref
@@ -120,6 +121,10 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
     final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
 
+    final showActionBar =
+        !(chatStatus == ChatStatus.bookingreviewed ||
+            chatStatus == ChatStatus.bookingcancelled);
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
@@ -128,16 +133,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
             return;
           }
 
-          // await Future.wait([
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
           ref.read(offersProvider.notifier).getClientOffers();
-          // ]);
         },
         child: Stack(
           children: [
             // Main Content
             Column(
               children: [
+                // Handle Error
                 if (chatState.error != null && messages.isEmpty)
                   Expanded(
                     child: Center(
@@ -171,6 +175,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                     ),
                   )
                 else
+                  // Render Content
                   Expanded(
                     child: Container(
                       color: theme.colorScheme.surface,
@@ -215,13 +220,17 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                               message.senderId == currentUserId ||
                               message.senderId == 'me';
 
-                          return MessageBubble(message: message, isMe: isMe);
+                          return MessageBubble(
+                            message: message,
+                            isMe: isMe,
+                            mode: "client",
+                          );
                         },
                       ),
                     ),
                   ),
 
-                if (booking != null)
+                if (booking != null && showActionBar)
                   ClientChatActionBar(
                     chatId: widget.chatId,
                     chatStatus: chatStatus,
@@ -229,8 +238,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                     request: request,
                     chatOwnerId: chatOwnerId,
                     chatClientId: chatClientId,
-                  )
-                else if (request != null)
+                  ),
+
+                if (booking == null && request != null && showActionBar)
                   OfferChatActionBar(
                     chatStatus: chatStatus,
                     chatId: widget.chatId,
@@ -242,7 +252,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                 if (booking?.status == BookingStatus.reviewed)
                   Container(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                    decoration: BoxDecoration(color: theme.cardColor),
+                    decoration: BoxDecoration(color: Colors.transparent),
                     child: SafeArea(
                       top: false,
                       child: Text(
@@ -287,6 +297,26 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                   ),
               ],
             ),
+
+            if (booking != null && !showActionBar)
+              Positioned(
+                bottom:
+                    16 + 16, // Added a small margin from the screen bottom edge
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  top: false,
+                  child: Align(
+                    alignment: Alignment
+                        .bottomCenter, // 1. CENTERS THE WIDGET HORIZONTALLY
+                    child: ChatStatusOnlyBar(
+                      text: chatStatus == ChatStatus.bookingreviewed
+                          ? "Review Submitted"
+                          : "Order Closed",
+                    ),
+                  ),
+                ),
+              ),
 
             // Floating Loading Indicator Overlay
             if (chatState.isLoadingMessages)

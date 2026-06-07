@@ -18,7 +18,11 @@ class MainScaffold extends StatelessWidget {
     final String currentPath = routerState.uri.path;
 
     // 2. Determine if the app bar should be hidden
-    final bool hideAppBar = currentPath == AppRoutes.launch || currentPath == AppRoutes.main;
+    final bool hideAppBar = [
+      AppRoutes.launch,
+      AppRoutes.main,
+      AppRoutes.login,
+    ].contains(currentPath);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -29,4 +33,3 @@ class MainScaffold extends StatelessWidget {
     );
   }
 }
-

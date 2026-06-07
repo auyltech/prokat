@@ -10,7 +10,7 @@ class ChatStatusOnlyBar extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      padding: const EdgeInsets.fromLTRB(40,12,40,12),
       decoration: BoxDecoration(
         color: theme.cardColor,
         boxShadow: const [
@@ -20,10 +20,11 @@ class ChatStatusOnlyBar extends StatelessWidget {
             offset: Offset(0, -5),
           ),
         ],
+        borderRadius: BorderRadius.circular(16)
       ),
       child: Text(
         text,
-        style: theme.textTheme.labelMedium?.copyWith(
+        style: theme.textTheme.labelLarge?.copyWith(
           color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
         ),
       ),

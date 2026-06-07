@@ -34,35 +34,63 @@ class OfferMessageBubble extends StatelessWidget {
           maxWidth: MediaQuery.sizeOf(context).width * 0.7,
         ),
         child: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: 0.08),
+            color: const Color(0xFFF4F9FD),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: const Color.fromARGB(255, 197, 229, 255),
+              width: 1,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.local_offer, color: Colors.green, size: 20),
+                  Icon(
+                    Icons.local_offer_outlined,
+                    color: theme.primaryColor,
+                    size: 26,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     message.content,
-                    style: theme.textTheme.labelMedium?.copyWith(
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                      color: Colors.green,
+                      color: theme.primaryColor,
                     ),
                   ),
                 ],
               ),
 
-              Text(
-                "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: const Color(0xFF0D47A1),
-                  fontWeight: FontWeight.w800,
+              const SizedBox(height: 8),
+
+              Padding(
+                padding: EdgeInsets.only(left: 32),
+                child: Row(
+                  children: [
+                    Text(
+                      "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: theme.primaryColor,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Spacer(),
+                    // IconButton(
+                    //   onPressed: () {},
+                    //   iconSize: 32,
+                    //   padding: EdgeInsets.all(0),
+                    //   icon: Icon(Icons.check, color: Colors.green),
+                    // ),
+                    // IconButton(
+                    //   onPressed: () {},
+                    //   iconSize: 32,
+                    //   padding: EdgeInsets.all(0),
+                    //   icon: Icon(Icons.clear, color: Colors.red),
+                    // ),
+                  ],
                 ),
               ),
             ],

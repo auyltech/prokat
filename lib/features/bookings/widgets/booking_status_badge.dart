@@ -8,24 +8,42 @@ class BookingStatusBadge extends StatelessWidget {
 
   const BookingStatusBadge({super.key, required this.status});
 
+  Color get color {
+    switch (status) {
+      case BookingStatus.created:
+        return Colors.orange;
+      case BookingStatus.confirmed:
+        return const Color.fromARGB(255, 0, 121, 4);
+      case BookingStatus.completed:
+      case BookingStatus.reviewed:
+        return Color.fromARGB(255, 32, 57, 141);
+      case BookingStatus.cancelled:
+      case BookingStatus.rejected:
+        return Color.fromARGB(255, 179, 0, 0);
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: getBookingColor(status).withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: getBookingColor(status).withValues(alpha: 0.4),
-        ),
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+        // border: Border.all(
+        //   color: getBookingColor(status).withValues(alpha: 0.4),
+        // ),
       ),
       child: Text(
         getBookingStatus(status, l10n: l10n),
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: getBookingColor(status),
+          color: Colors.white,
         ),
       ),
     );

@@ -4,19 +4,25 @@ import 'package:prokat/features/price_negotiations/models/price_negotiation_stat
 class PriceNegotiationState {
   final bool isLoading;
   final bool isSubmitting;
+  final String? actionId;
+
   final String? error;
+
   final List<PriceNegotiation> negotiations;
 
   const PriceNegotiationState({
     this.isLoading = false,
     this.isSubmitting = false,
+    this.actionId,
+
     this.error,
+
     this.negotiations = const [],
   });
 
   PriceNegotiation? get latestPending {
     for (final n in negotiations) {
-      if (n.status == PriceNegotiationStatus.pending) return n;
+      if (n.status == PriceNegotiationStatus.created) return n;
     }
 
     return null;
@@ -32,12 +38,14 @@ class PriceNegotiationState {
   PriceNegotiationState copyWith({
     bool? isLoading,
     bool? isSubmitting,
+    String? actionId,
     String? error,
     List<PriceNegotiation>? negotiations,
   }) {
     return PriceNegotiationState(
       isLoading: isLoading ?? this.isLoading,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      actionId: actionId,
       error: error,
       negotiations: negotiations ?? this.negotiations,
     );
