@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/locations/widgets/location_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
@@ -24,7 +25,7 @@ class SelectAddressSheet extends ConsumerWidget {
     final addresses = locationState.renterLocations.take(3).toList();
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -39,11 +40,11 @@ class SelectAddressSheet extends ConsumerWidget {
           /// Handle bar
           Center(
             child: Container(
-              margin: const EdgeInsets.only(bottom: 24),
-              width: 36,
+              width: 40,
               height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -51,10 +52,9 @@ class SelectAddressSheet extends ConsumerWidget {
 
           Text(
             l10n.selectAddress,
-            style: theme.textTheme.labelMedium?.copyWith(
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
           ),
 
@@ -73,8 +73,8 @@ class SelectAddressSheet extends ConsumerWidget {
             )
           else
             ...addresses.map(
-              (address) => _AddressHistoryTile(
-                address: address,
+              (address) => LocationTile(
+                location: address,
                 onTap: () {
                   ref.read(locationProvider.notifier).selectAddress(address);
                   Navigator.pop(context);
@@ -82,7 +82,7 @@ class SelectAddressSheet extends ConsumerWidget {
               ),
             ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
 
           /// Choose on Map Button
           SizedBox(
@@ -96,69 +96,26 @@ class SelectAddressSheet extends ConsumerWidget {
                   extra: {'equipmentId': equipmentId, "service": service},
                 );
               },
-              icon: const Icon(Icons.map_outlined, size: 20),
+              icon: const Icon(Icons.map_outlined, size: 24),
               label: Text(
                 l10n.chooseOnMap,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: theme.colorScheme.primary,
                 side: BorderSide(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                  color: theme.colorScheme.outline.withAlpha(50),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                backgroundColor: theme.colorScheme.primary.withValues(
-                  alpha: 0.05,
-                ),
+                backgroundColor: theme.colorScheme.surfaceBright,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AddressHistoryTile extends StatelessWidget {
-  final dynamic address;
-  final VoidCallback onTap;
-
-  const _AddressHistoryTile({required this.address, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(
-          Icons.history,
-          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-          size: 20,
-        ),
-        title: Text(
-          "${address.street}, ${address.city}",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: 14,
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-          size: 18,
-        ),
       ),
     );
   }

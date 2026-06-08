@@ -8,6 +8,7 @@ import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/view_offer_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -21,7 +22,7 @@ import 'package:go_router/go_router.dart';
 bool hasOffer(List<OfferModel> offers) => offers.isNotEmpty;
 
 bool isAccepted(List<OfferModel> offers) =>
-    offers.isNotEmpty && offers.first.status.toLowerCase() == "accepted";
+    offers.isNotEmpty && offers.first.status == OfferStatus.accepted;
 
 class OwnerRequestTile extends ConsumerWidget {
   final RequestModel request;
@@ -49,8 +50,7 @@ class OwnerRequestTile extends ConsumerWidget {
         .firstOrNull;
     final hasActiveOffer = offersNotifier.hasActiveOffer(request.id, "owner");
 
-    final isAccepted =
-        hasOffers && offers.first.status.toLowerCase() == "accepted";
+    final isAccepted = hasOffers && offers.first.status == OfferStatus.accepted;
 
     final minutesLeft = getRemainingMinutes(request.createdAt);
 

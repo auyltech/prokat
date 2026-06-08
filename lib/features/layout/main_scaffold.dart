@@ -21,7 +21,6 @@ class MainScaffold extends StatelessWidget {
     final bool hideAppBar = [
       AppRoutes.launch,
       AppRoutes.main,
-      AppRoutes.login,
     ].contains(currentPath);
 
     return Scaffold(

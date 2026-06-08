@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -108,10 +108,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
             message: message,
           );
 
-    if (!mounted) return;
-    final l10n = AppLocalizations.of(context)!;
+    if (success && mounted) {
+      final l10n = AppLocalizations.of(context)!;
 
-    if (success) {
       AppSnackBar.show(
         context,
         message: request == null ? l10n.requestSubmitted : l10n.requestUpdated,
@@ -170,47 +169,23 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       }
     });
 
+    final submitLabel = request == null
+        ? l10n.submitRequest
+        : (request.status ?? '').toLowerCase() == "rejected"
+        ? l10n.resubmitRequest
+        : l10n.updateRequest;
+
     return Scaffold(
       backgroundColor: colors.primary,
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 20,
-                          color: colors.onPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          l10n.becomeServiceProvider,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            color: colors.onPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
+                    top: Radius.circular(32),
                   ),
                 ),
                 child: Form(
@@ -233,12 +208,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                       if (request != null) _StatusCard(request: request),
                       if (request != null) const SizedBox(height: 16),
 
-                      _OwnerRegistrationField(
+                      InputField(
                         controller: _firstNameController,
                         label: l10n.firstName,
                         hint: l10n.firstNameHint,
                         icon: Icons.person_outline,
-                        enabled: !isAccepted,
+                        // enabled: !isAccepted,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
                             return l10n.firstNameRequired;
@@ -247,12 +222,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      _OwnerRegistrationField(
+                      SizedBox(height: 8),
+
+                      InputField(
                         controller: _lastNameController,
                         label: l10n.lastName,
                         hint: l10n.lastNameHint,
                         icon: Icons.person_outline,
-                        enabled: !isAccepted,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
                             return l10n.lastNameRequired;
@@ -261,12 +237,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      _OwnerRegistrationField(
+                      SizedBox(height: 8),
+                      InputField(
                         controller: _phoneController,
                         label: l10n.phoneNumber,
                         hint: l10n.phoneHint,
                         icon: Icons.phone_outlined,
-                        enabled: !isAccepted,
                         keyboardType: TextInputType.phone,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
@@ -276,12 +252,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      _OwnerRegistrationField(
+                      SizedBox(height: 8),
+                      InputField(
                         controller: _emailController,
                         label: l10n.email,
                         hint: l10n.emailHint,
                         icon: Icons.email_outlined,
-                        enabled: !isAccepted,
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) {
                           final value = (v ?? '').trim();
@@ -293,12 +269,12 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      _OwnerRegistrationField(
+                      SizedBox(height: 8),
+                      InputField(
                         controller: _cityController,
                         label: l10n.city,
                         hint: l10n.cityInputHint,
                         icon: Icons.location_city_outlined,
-                        enabled: !isAccepted,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
                             return l10n.cityRequired;
@@ -307,13 +283,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         },
                       ),
 
-                      _OwnerRegistrationField(
+                      SizedBox(height: 8),
+                      InputField(
                         controller: _messageController,
                         label: l10n.message,
                         hint: l10n.messageHint,
                         icon: Icons.message_outlined,
-                        enabled: !isAccepted,
-                        maxLines: 3,
+                        // maxLines: 3,
                         keyboardType: TextInputType.multiline,
                         validator: (v) {
                           if ((v ?? '').trim().isEmpty) {
@@ -322,6 +298,8 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                           return null;
                         },
                       ),
+
+                      SizedBox(height: 8),
 
                       if (request == null || !isAccepted) ...[
                         const SizedBox(height: 12),
@@ -333,7 +311,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         ),
                         const SizedBox(height: 16),
                         PrimaryButton(
-                          label: _submitLabel(request, l10n),
+                          label: submitLabel,
                           isLoading: state.isLoading,
                           icon: Icons.send_rounded,
                           onPressed: state.isLoading ? null : _submit,
@@ -341,6 +319,8 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                       ] else ...[
                         _AcceptedInfo(theme: theme),
                       ],
+
+                      SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -350,14 +330,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         ),
       ),
     );
-  }
-
-  String _submitLabel(RegistrationRequestModel? request, AppLocalizations l10n) {
-    if (request == null) return l10n.submitRequest;
-
-    final status = (request.status ?? '').toLowerCase();
-    if (status == 'rejected') return l10n.resubmitRequest;
-    return l10n.updateRequest;
   }
 }
 
@@ -482,61 +454,6 @@ class _AcceptedInfo extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _OwnerRegistrationField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData icon;
-  final bool enabled;
-  final int maxLines;
-  final TextInputType keyboardType;
-  final String? Function(String?)? validator;
-
-  const _OwnerRegistrationField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    required this.icon,
-    required this.enabled,
-    this.maxLines = 1,
-    this.keyboardType = TextInputType.text,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.outline.withValues(alpha: 0.25)),
-      ),
-      child: TextFormField(
-        controller: controller,
-        enabled: enabled,
-        validator: validator,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        style: theme.textTheme.bodyMedium,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          prefixIcon: Icon(icon, color: colors.primary),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-        ),
       ),
     );
   }

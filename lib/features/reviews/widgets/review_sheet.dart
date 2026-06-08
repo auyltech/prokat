@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 
 class ReviewSheet extends ConsumerStatefulWidget {
@@ -23,6 +25,33 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   int _stars = 0;
   final TextEditingController _commentController = TextEditingController();
 
+  Future<void> onSubmit() async {
+    if (_stars <= 0) {
+      AppSnackBar.show(context, message: 'Select stars', isError: true);
+      return;
+    }
+    try {
+      if (!context.mounted) return;
+      Navigator.pop(context, true);
+
+      await ref
+          .read(reviewByBookingProvider(widget.bookingId).notifier)
+          .createReview(
+            revieweeId: widget.revieweeId,
+            stars: _stars,
+            comment: _commentController.text.trim(),
+          );
+    } catch (e) {
+      if (mounted) {
+        AppSnackBar.show(
+          context,
+          message: e.toString().replaceFirst('Exception: ', ''),
+          isError: true,
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _commentController.dispose();
@@ -33,73 +62,54 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final state = ref.watch(reviewByBookingProvider(widget.bookingId));
-    final notifier = ref.read(
-      reviewByBookingProvider(widget.bookingId).notifier,
-    );
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+
+          Text(
+            widget.title,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
           _StarRow(
             value: _stars,
             onChanged: state.isSubmitting
                 ? null
                 : (v) => setState(() => _stars = v),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _commentController,
-            maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Comment (optional)'),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: state.isSubmitting
-                ? null
-                : () async {
-                    if (_stars <= 0) {
-                      AppSnackBar.show(
-                        context,
-                        message: 'Select stars',
-                        isError: true,
-                      );
-                      return;
-                    }
-                    try {
-                      if (!context.mounted) return;
-                      Navigator.pop(context, true);
 
-                      await notifier.createReview(
-                        revieweeId: widget.revieweeId,
-                        stars: _stars,
-                        comment: _commentController.text.trim(),
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      AppSnackBar.show(
-                        context,
-                        message: e.toString().replaceFirst('Exception: ', ''),
-                        isError: true,
-                      );
-                    }
-                  },
-            child: state.isSubmitting
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Submit'),
+          InputField(
+            label: 'Comment (optional)',
+            controller: _commentController,
+            hint: "",
+          ),
+
+          SizedBox(height: 12),
+
+          Row(
+            children: [
+              Expanded(
+                child: ActionBarButton(label: "Submit", onPressed: onSubmit),
+              ),
+            ],
           ),
         ],
       ),

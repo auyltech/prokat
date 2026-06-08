@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -68,7 +69,7 @@ final clientNavItems = [
     path: AppRoutes.searchList,
   ),
   _NavItem(
-    icon: Icons.add_box_rounded,
+    icon: Icons.add,
     label: (l) => l.navCreate,
     path: AppRoutes.clientRequestsCreate,
   ),
@@ -120,7 +121,6 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
     final startupState = ref.watch(appStartupProvider).routeState;
 
@@ -132,6 +132,12 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       AppStartupRouteState.owner => ownerNavItems,
       AppStartupRouteState.client => clientNavItems,
       _ => const <_NavItem>[],
+    };
+
+    final Color primary = switch (startupState) {
+      AppStartupRouteState.owner => AppColors.teal700,
+      AppStartupRouteState.client => theme.primaryColor,
+      _ => theme.primaryColor,
     };
 
     if (navItems.isEmpty) {
@@ -159,30 +165,61 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
 
     if (isChatDetailScreen) return const SizedBox.shrink();
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: theme.dividerColor, width: 0.5)),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: currentIndex < 0 ? 0 : currentIndex,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        backgroundColor: theme.scaffoldBackgroundColor,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedFontSize: 10,
-        unselectedFontSize: 10,
-        selectedItemColor: theme.primaryColor,
-        unselectedItemColor: theme.hintColor,
-        onTap: (index) => context.go(navItems[index].path),
-        items: navItems
-            .map(
-              (item) => BottomNavigationBarItem(
-                icon: _buildIcon(item),
-                label: item.label(l10n),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          24,
+          0,
+          24,
+          0,
+        ), // Gives the floating lift from the bottom and sides
+        child: Container(
+          height: 64,
+          decoration: BoxDecoration(
+            color: primary, // Background color of the pill
+            borderRadius: BorderRadius.circular(
+              32,
+            ), // Makes it a wide pill shape
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            )
-            .toList(),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: navItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
+
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => context.go(item.path),
+                  child: Center(
+                    child: Opacity(
+                      // Uses theme.colorScheme.onPrimary, slightly dimmed if unselected
+                      opacity: isSelected ? 1.0 : 0.5,
+                      child: IconTheme(
+                        data: IconThemeData(
+                          color: theme.colorScheme.onPrimary,
+                          size: 32,
+                        ),
+                        child: _buildIcon(
+                          item,
+                        ), // Icons only, labels completely removed
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

@@ -86,9 +86,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     if (isOrdersScreen) {
       actionWidgets.add(
         IconButton(
-          onPressed: () => context.push(
-            "${AppRoutes.clientOrders}${AppRoutes.clientOrdersHistory}",
-          ),
+          onPressed: () => context.push("${AppRoutes.clientOrders}/history"),
           icon: Icon(
             Icons.history,
             color: theme.colorScheme.onPrimary,
@@ -148,6 +146,8 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
           tooltip: 'Mark all as read',
         ),
       );
+    } else if (currentPath == AppRoutes.login) {
+      // Don't show notifications on login
     } else {
       // Always present Notification badge matching structural theme contract
       actionWidgets.add(NotificationBadge());

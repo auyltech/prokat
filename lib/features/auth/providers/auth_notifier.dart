@@ -189,7 +189,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await api.verifyOtp(phone, otp);
 
       if (result.data != null) {
-        print(result.data?.user.toString());
         await storage.saveSession(result.data!);
 
         await storage.clearOtpSession();

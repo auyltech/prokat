@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/bookings/widgets/client_dashboard_booking_tile.dart';
@@ -33,7 +34,11 @@ class _ClientBookingsSectionState extends ConsumerState<ClientBookingsSection> {
     final bookingState = ref.watch(bookingProvider);
 
     final upcoming = bookingState.bookings
-        .where((b) => b.status == "CREATED" || b.status == "CONFIRMED")
+        .where(
+          (b) =>
+              b.status == BookingStatus.created ||
+              b.status == BookingStatus.confirmed,
+        )
         .toList();
 
     return Column(

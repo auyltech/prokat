@@ -33,35 +33,32 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
               : BookingStatus.cancelled.name
         : BookingStatus.cancelled.name;
 
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
+
     final res = await notifier.updateBookingStatus(
       id: widget.booking.id,
       status: status,
       workStatus: selectedReason,
     );
 
-    if (res == true) {
+    if (res) {
       final chatId = widget.booking.chatId;
 
       if ((chatId ?? '').isNotEmpty) {
         await chatNotifier.reloadChat(chatId!);
       }
+    }
 
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-
+    if (mounted) {
       AppSnackBar.show(
         context,
-        message: l10n?.orderCancelled ?? "Order Cancelled",
-        isSuccess: true,
-      );
-
-      return;
-    } else {
-      AppSnackBar.show(
-        context,
-        message: "Failed to cancel order",
-        isError: true,
+        message: res
+            ? l10n?.orderCancelled ?? "Order Cancelled"
+            : "Failed to cancel order",
+        isSuccess: res,
+        isError: !res,
       );
     }
   }
@@ -100,15 +97,17 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(2),
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
 
@@ -178,14 +177,18 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
               Expanded(
                 child: ActionBarButton.destructive(
-                  label: widget.booking.status == BookingStatus.created
+                  label: widget.mode == "client"
+                      ? l10n.cancelBooking
+                      : widget.booking.status == BookingStatus.created
                       ? l10n.rejectOrder
                       : l10n.cancelBooking,
                   onPressed: selectedReason == null
                       ? null
                       : () => onSubmit(l10n),
                   isLoading: ref.read(bookingProvider).isSubmitting,
-                  isEnabled: selectedReason != null && !ref.read(bookingProvider).isSubmitting,
+                  isEnabled:
+                      selectedReason != null &&
+                      !ref.read(bookingProvider).isSubmitting,
                 ),
               ),
             ],

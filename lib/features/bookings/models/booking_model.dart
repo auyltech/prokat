@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -102,7 +103,7 @@ class BookingModel {
             : null,
       );
     } catch (e) {
-      print("booking_parse_failed");
+      debugPrint("booking_parse_failed");
       rethrow;
     }
   }

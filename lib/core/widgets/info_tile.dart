@@ -1,44 +1,109 @@
 import 'package:flutter/material.dart';
 
+enum InfoTileVariant { primary, secondary, ghost, destructive }
+
 class InfoTile extends StatelessWidget {
   final String? label;
   final String value;
   final IconData? icon;
-  final bool isHighlighted;
   final VoidCallback? onTap;
-  final Color? color;
+  final InfoTileVariant variant;
 
   const InfoTile({
     super.key,
     this.label,
     required this.value,
     this.icon,
-    this.isHighlighted = false,
     this.onTap,
-    this.color,
+    this.variant = InfoTileVariant.primary,
   });
+
+  factory InfoTile.ghost({
+    Key? key,
+    String? label,
+    required String value,
+    VoidCallback? onTap,
+    IconData? icon,
+  }) {
+    return InfoTile(
+      key: key,
+      label: label,
+      value: value,
+      onTap: onTap,
+      icon: icon,
+      variant: InfoTileVariant.ghost,
+    );
+  }
+
+  factory InfoTile.destructive({
+    Key? key,
+    String? label,
+    required String value,
+    VoidCallback? onTap,
+    IconData? icon,
+  }) {
+    return InfoTile(
+      key: key,
+      label: label,
+      value: value,
+      onTap: onTap,
+      icon: icon,
+      variant: InfoTileVariant.destructive,
+    );
+  }
+
+  factory InfoTile.secondary({
+    Key? key,
+    String? label,
+    required String value,
+    VoidCallback? onTap,
+    IconData? icon,
+  }) {
+    return InfoTile(
+      key: key,
+      label: label,
+      value: value,
+      onTap: onTap,
+      icon: icon,
+      variant: InfoTileVariant.secondary,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    if (variant == InfoTileVariant.ghost) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label ?? "", style: theme.textTheme.labelSmall),
+          Text(
+            // Replace with your exact total price variable if different
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ],
+      );
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity,
         padding: const EdgeInsets.symmetric(
           vertical: 6,
           horizontal: 12,
         ), // Increased padding slightly for multi-line layout comfort
         decoration: BoxDecoration(
-          color:
-              color ??
-              (isHighlighted
-                  ? Colors.red.shade50
-                  : theme.primaryColor.withValues(alpha: 0.05)),
+          color: variant == InfoTileVariant.destructive
+              ? Colors.red.shade50
+              : theme.primaryColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isHighlighted
+            color: variant == InfoTileVariant.destructive
                 ? Colors.red.shade200
                 : theme.primaryColor.withValues(alpha: 0.2),
             width: 1,
@@ -59,7 +124,7 @@ class InfoTile extends StatelessWidget {
                         Icon(icon, color: theme.primaryColor, size: 20),
 
                       Text(
-                        "${label!}:", // Added a colon for readability when wrapping lines
+                        label ?? "",
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
@@ -72,7 +137,7 @@ class InfoTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: isHighlighted
+                          color: variant == InfoTileVariant.destructive
                               ? Colors.red[700]
                               : Colors.black87,
                         ),
@@ -97,7 +162,9 @@ class InfoTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: isHighlighted ? Colors.red[700] : Colors.black,
+                      color: variant == InfoTileVariant.destructive
+                          ? Colors.red[700]
+                          : Colors.black,
                     ),
                   ),
                 ],

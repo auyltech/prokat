@@ -1,10 +1,11 @@
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 
 class OfferModel {
   final String id;
-  final String status;
+  final OfferStatus status;
   final String? comment;
 
   final String requestId;
@@ -42,7 +43,7 @@ class OfferModel {
     try {
       return OfferModel(
         id: json['id']?.toString() ?? '',
-        status: json['status']?.toString() ?? '',
+        status: parseOfferStatus(json['status']),
         comment: json['comment']?.toString() ?? '',
 
         requestId: json['requestId']?.toString() ?? '',
@@ -66,8 +67,7 @@ class OfferModel {
             ? DateTime.parse(json['createdAt'])
             : null,
       );
-    } catch (e) {
-      print("parse_failed:offer_model");
+    } catch (error) {
       rethrow;
     }
   }

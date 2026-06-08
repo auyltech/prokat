@@ -1,0 +1,1 @@
+enum BuisnessActions { bookingcreate, bookingcancel }

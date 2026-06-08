@@ -68,29 +68,65 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: Text(l10n.photoGallery),
-              onTap: () {
-                Navigator.of(context).pop();
-                _pickAndCropImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: Text(l10n.camera),
-              onTap: () {
-                Navigator.of(context).pop();
-                _pickAndCropImage(ImageSource.camera);
-              },
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.only(
+            bottom: 24,
+            top: 12,
+            left: 24,
+            right: 24,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+
+              Text(
+                "Upload Profile Image",
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text(l10n.photoGallery),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAndCropImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: Text(l10n.camera),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickAndCropImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -112,16 +148,16 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
                   color: theme.colorScheme.outline.withValues(alpha: 0.3),
                   width: 1,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                // boxShadow: [
+                //   BoxShadow(
+                //     color: Colors.black.withValues(alpha: 0.4),
+                //     blurRadius: 10,
+                //     offset: const Offset(0, 4),
+                //   ),
+                // ],
               ),
               child: CircleAvatar(
-                radius: 35,
+                radius: 50,
                 backgroundColor: theme.colorScheme.primaryContainer,
                 backgroundImage: _selectedImage != null
                     ? FileImage(_selectedImage!)

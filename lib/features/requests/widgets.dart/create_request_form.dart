@@ -12,7 +12,6 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/utils/date_time.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
@@ -62,12 +61,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       comment: commentController.text.trim(),
     );
 
-    if (!mounted) return;
-
-    if (success) {
+    if (success && mounted) {
       AppSnackBar.show(context, message: l10n.requestCreated, isSuccess: true);
-
-      context.pop();
     }
   }
 
@@ -137,7 +132,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           label: l10n.requiredCapacity,
           controller: capacityController,
           hint: l10n.capacityHint,
-          icon: Icons.high_quality_rounded,
+          icon: Icons.propane_outlined,
+          suffixText: "M3",
         ),
 
         const SizedBox(height: 12),
@@ -158,7 +154,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           icon: Icons.chat_bubble_outline_rounded,
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
 
         SectionTitle(title: l10n.dateAndTime),
 

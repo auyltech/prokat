@@ -18,33 +18,38 @@ class AddressPickerCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        children: [
-          Icon(
-            Icons.location_on_rounded,
-            color: theme.colorScheme.primary,
-            size: 32,
-          ),
-
-          const SizedBox(width: 12),
-
-          /// Address Content
-          Expanded(
-            child: Text(
-              selectedAddress == null
-                  ? l10n.setDeliveryAddress
-                  : "${selectedAddress.street}, ${selectedAddress.city}",
-              style: theme.textTheme.bodyMedium,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceBright,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.location_on_outlined,
+              color: theme.colorScheme.primary,
+              size: 32,
             ),
-          ),
 
-          Icon(
-            Icons.chevron_right_rounded,
-            color: Colors.white.withValues(alpha: 0.4),
-          ),
-        ],
+            const SizedBox(width: 8),
+
+            /// Address Content
+            Expanded(
+              child: Text(
+                selectedAddress == null
+                    ? l10n.setDeliveryAddress
+                    : "${selectedAddress.street}, ${selectedAddress.city}",
+                style: theme.textTheme.bodyMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            Icon(Icons.chevron_right_rounded),
+          ],
+        ),
       ),
     );
   }

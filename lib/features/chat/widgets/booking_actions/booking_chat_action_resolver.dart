@@ -57,7 +57,7 @@ class BookingChatActionResolver {
     }
 
     // When order is created / pending confirmation
-    if (status == BookingStatus.created.name) {
+    if (status == BookingStatus.created) {
       return _resolveCreated(
         role: role,
         negotiation: negotiation,
@@ -66,7 +66,7 @@ class BookingChatActionResolver {
     }
 
     // when order is confirmed (work in process)
-    if (status == BookingStatus.confirmed.name) {
+    if (status == BookingStatus.confirmed) {
       return _resolveConfirmed(role: role, workStatus: workStatus);
     }
 

@@ -6,6 +6,7 @@ import 'package:prokat/core/providers/locale_provider.dart';
 void showLanguageSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
+    backgroundColor: Theme.of(context).cardColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -22,27 +23,40 @@ void showLanguageSheet(BuildContext context) {
           }
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: 24, top: 12),
+            padding: const EdgeInsets.only(
+              bottom: 24,
+              top: 12,
+              left: 24,
+              right: 24,
+            ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withValues(
-                      alpha: 0.4,
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.4,
+                      ),
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 Text(
                   l10n.selectLanguage,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
+
                 const SizedBox(height: 16),
                 _LanguageTile(
                   title: 'Қазақша',
@@ -89,28 +103,28 @@ class _LanguageTile extends StatelessWidget {
     final theme = Theme.of(context);
     return ListTile(
       leading: CircleAvatar(
-        radius: 14,
+        radius: 24,
         backgroundColor: isSelected
             ? theme.colorScheme.primary
             : theme.colorScheme.surfaceBright,
         child: Text(
           code,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 16,
             color: isSelected
                 ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurfaceVariant,
+                : theme.colorScheme.onSurface,
           ),
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
         ),
       ),
       trailing: isSelected
-          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+          ? Icon(Icons.check, color: theme.colorScheme.primary, size: 32)
           : null,
       onTap: onTap,
     );

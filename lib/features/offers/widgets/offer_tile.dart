@@ -256,9 +256,8 @@ class OfferTile extends ConsumerWidget {
               ],
 
               if (!isHandled) ...[
-                ActionButton(
+                ActionButton.destructive(
                   label: l10n.reject,
-                  variant: "danger",
                   onPressed: () => _handleReject(context, ref, l10n),
                   isLoading: ref.watch(offersProvider).isLoading,
                 ),

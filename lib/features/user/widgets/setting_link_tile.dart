@@ -19,38 +19,46 @@ class SettingsLinkTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return GestureDetector(
       onTap: onTap,
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isDestructive ? colorScheme.error : colorScheme.primary,
-            ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 32,
+            color: isDestructive
+                ? theme.colorScheme.error
+                : theme.colorScheme.primary,
+          ),
 
-            const SizedBox(width: 16),
+          const SizedBox(width: 16),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.textTheme.bodyLarge),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(subtitle!, style: theme.textTheme.labelMedium),
-                  ],
-                ],
-              ),
-            ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: theme.textTheme.bodyLarge),
 
-            Icon(
-              Icons.chevron_right,
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.textTheme.bodyMedium?.color?.withValues(
+                        alpha: 0.7,
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          ],
+          ),
+
+          Icon(
+            Icons.chevron_right,
+            size: 32,
+            color: theme.colorScheme.onSurface,
+          ),
+        ],
       ),
     );
   }

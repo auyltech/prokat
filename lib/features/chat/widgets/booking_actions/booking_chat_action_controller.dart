@@ -80,6 +80,7 @@ class BookingChatActionController
   }) async {
     await _run(
       context: context,
+      submitId: "booking:accept",
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
@@ -100,6 +101,7 @@ class BookingChatActionController
   }) async {
     await _run(
       context: context,
+      submitId: "booking:reject",
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
@@ -121,6 +123,7 @@ class BookingChatActionController
   }) async {
     await _run(
       context: context,
+      submitId: "booking:cancel",
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
@@ -142,6 +145,7 @@ class BookingChatActionController
   }) async {
     await _run(
       context: context,
+      submitId: "booking:workstatus",
       action: () {
         return _bookingNotifier.updateBookingWorkStatus(
           id: bookingId,
@@ -174,6 +178,7 @@ class BookingChatActionController
   }) async {
     await _run(
       context: context,
+      submitId: "booking:status",
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
@@ -197,6 +202,7 @@ class BookingChatActionController
   }) async {
     await _run(
       context: context,
+      submitId: "price:create",
       action: () async {
         await _priceNegotiationNotifier().createCounterOffer(
           type: type,
@@ -263,6 +269,7 @@ class BookingChatActionController
 
     await _run(
       context: context,
+      submitId: "price:cancel",
       action: () async {
         await _priceNegotiationNotifier().cancelPriceNegotiation(id);
         return true;
@@ -293,6 +300,9 @@ class BookingChatActionController
 
     await _run(
       context: context,
+      submitId: response == PriceNegotiationResponse.accept
+          ? "price:accept"
+          : "price:reject",
       action: () async {
         await _priceNegotiationNotifier().respondToPriceNegotiation(
           negotiationId: id,
@@ -311,13 +321,18 @@ class BookingChatActionController
     required BuildContext context,
     required Future<bool> Function() action,
     required Future<void> Function() onSuccess,
+    String? submitId,
     String successMessage = 'Saved',
     String failureMessage = 'Action failed',
   }) async {
     if (state.isSubmitting) return;
 
     try {
-      state = state.copyWith(isSubmitting: true, error: null);
+      state = state.copyWith(
+        isSubmitting: true,
+        submitId: submitId,
+        error: null,
+      );
       final ok = await action();
 
       if (ok != true) {
@@ -330,13 +345,20 @@ class BookingChatActionController
 
       await onSuccess();
 
-      state = state.copyWith(isSubmitting: false);
+      state = state.copyWith(isSubmitting: false, submitId: null);
+
       if (!context.mounted) return;
 
       AppSnackBar.show(context, message: successMessage, isSuccess: true);
     } catch (e) {
+      // TODO: remove error message
       final message = e.toString().replaceFirst('Exception: ', '');
-      state = state.copyWith(isSubmitting: false, error: message);
+
+      state = state.copyWith(
+        isSubmitting: false,
+        error: message,
+        submitId: null,
+      );
       if (!context.mounted) return;
 
       AppSnackBar.show(context, message: message, isError: true);

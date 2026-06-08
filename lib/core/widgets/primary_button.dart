@@ -28,7 +28,7 @@ class PrimaryButton extends StatelessWidget {
           alpha: 0.8,
         ),
         minimumSize: const Size(double.infinity, 54),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
       child: Row(

@@ -4,6 +4,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/user/widgets/balance_tile.dart';
 import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/user_profile_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -22,8 +23,6 @@ class OwnerProfileScreen extends ConsumerWidget {
 
     final ownerProfileState = ref.watch(ownerRegistrationProvider);
 
-    print(ownerProfileState.ownerProfile?.ratingAverage ?? 0);
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
@@ -33,67 +32,59 @@ class OwnerProfileScreen extends ConsumerWidget {
         child: ListView(
           padding: EdgeInsets.all(24),
           children: [
+            ProfileImagePicker(
+              onImageSelected: (file) async {
+                if (file != null) {
+                  await ref
+                      .read(userProfileProvider.notifier)
+                      .uploadProfileImage(file);
+                }
+              },
+              initialImageUrl:
+                  ownerProfileState.ownerProfile?.profileImageUrl ?? "",
+            ),
+
+            const SizedBox(height: 16),
+
+            const DisplayName(),
+
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Profile Image
-                ProfileImagePicker(
-                  onImageSelected: (file) async {
-                    if (file != null) {
-                      await ref
-                          .read(userProfileProvider.notifier)
-                          .uploadProfileImage(file);
-                    }
-                  },
-                  initialImageUrl:
-                      ownerProfileState.ownerProfile?.profileImageUrl ?? "",
+                const Icon(LucideIcons.star, size: 16, color: Colors.amber),
+                const SizedBox(width: 4),
+                Text(
+                  (ownerProfileState.ownerProfile?.ratingAverage ?? 0)
+                      .toStringAsFixed(1),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
-
-                const SizedBox(width: 16),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const DisplayName(),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          LucideIcons.star,
-                          size: 16,
-                          color: Colors.amber,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          (ownerProfileState.ownerProfile?.ratingAverage ?? 0)
-                              .toStringAsFixed(1),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.secondary,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "- ${ownerProfileState.ownerProfile?.ratingCount ?? 0} ratings",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.secondary,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "- ${ownerProfileState.ownerProfile?.orderCount ?? 0} ${l10n.navOrders}",
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.secondary.withValues(
-                              alpha: 0.8,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                const SizedBox(width: 4),
+                Text(
+                  "- ${ownerProfileState.ownerProfile?.ratingCount ?? 0} ratings",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "- ${ownerProfileState.ownerProfile?.orderCount ?? 0} ${l10n.navOrders}",
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.secondary.withValues(alpha: 0.8),
+                  ),
                 ),
               ],
+            ),
+
+            const SizedBox(height: 16),
+
+            BalanceTile(
+              minutes: 100,
+              burnRate: "~2 min/hr",
+              progress: 0.15,
+              onTopUp: () {},
             ),
 
             const SizedBox(height: 24),
@@ -132,16 +123,15 @@ class OwnerProfileScreen extends ConsumerWidget {
               },
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
 
             RentAnEquipmentTile(),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
 
-            const Divider(),
-
-            const SizedBox(height: 12),
             LogoutButton(),
+
+            const SizedBox(height: 40),
           ],
         ),
       ),

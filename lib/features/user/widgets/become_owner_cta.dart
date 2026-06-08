@@ -33,6 +33,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         subtitle: l10n.ownerDashboardSubtitle,
         bgColor: theme.colorScheme.primary,
         contentColor: theme.colorScheme.onPrimary,
+        isPrimary: true,
         onTap: () async {
           await ref.read(appStartupProvider.notifier).setOwnerMode();
           if (context.mounted) context.go(AppRoutes.ownerProfile);
@@ -42,17 +43,19 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
 
     // 2. Request Pending/Rejected State
     if (registrationRequest != null) {
-      final status = registrationRequest.status?.toUpperCase() ?? 'PENDING';
-      final config = _getStatusConfig(status, theme);
+      final config = _getStatusConfig(
+        registrationRequest.status?.toUpperCase() ?? 'PENDING',
+        theme,
+      );
 
       return _buildModernCTA(
         context,
         icon: config.icon,
-        title: '${l10n.requestStatus}: ${status.toLowerCase()}',
+        title: config.label,
         subtitle:
             '${l10n.submittedOn} ${formatDate(date: registrationRequest.createdAt)}',
         bgColor: config.bg,
-        contentColor: config.text,
+        contentColor: config.color,
         onTap: () => context.push(AppRoutes.becomeOwner),
       );
     }
@@ -63,8 +66,8 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       icon: Icons.add_business_outlined,
       title: l10n.becomeOwner,
       subtitle: l10n.becomeOwnerSubtitle,
-      bgColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-      contentColor: theme.colorScheme.onSurface,
+      bgColor: theme.colorScheme.surfaceBright,
+      contentColor: theme.colorScheme.primary,
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
   }
@@ -76,6 +79,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     required String subtitle,
     required Color bgColor,
     required Color contentColor,
+    bool? isPrimary = false,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -89,14 +93,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: contentColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: contentColor, size: 28),
-            ),
+            Icon(icon, color: contentColor, size: 40),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -104,16 +101,20 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      // fontWeight: FontWeight.bold,
                       color: contentColor,
-                      letterSpacing: 0.5,
+                      // letterSpacing: 0.5,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: contentColor.withValues(alpha: 0.8),
+                      color: isPrimary == true
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.onPrimary.withValues(alpha: 0.7)
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -121,7 +122,11 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
             ),
             Icon(
               Icons.chevron_right,
-              color: contentColor.withValues(alpha: 0.5),
+              color: isPrimary == true
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.7)
+                  : Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
@@ -129,33 +134,42 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     );
   }
 
-  _StatusTheme _getStatusConfig(String status, ThemeData theme) {
+  _StatusConfig _getStatusConfig(String status, ThemeData theme) {
     switch (status) {
       case 'APPROVED':
-        return _StatusTheme(
+        return _StatusConfig(
           bg: const Color(0xFFE8F5E9),
-          text: const Color(0xFF2E7D32),
-          icon: Icons.check_circle_outline,
+          color: const Color(0xFF2E7D32),
+          icon: Icons.check,
+          label: "Request Accepted",
         );
       case 'REJECTED':
-        return _StatusTheme(
+        return _StatusConfig(
           bg: const Color(0xFFFFEBEE),
-          text: const Color(0xFFC62828),
-          icon: Icons.error_outline,
+          color: const Color(0xFFC62828),
+          icon: Icons.error,
+          label: "Request Rejected",
         );
       default: // PENDING
-        return _StatusTheme(
+        return _StatusConfig(
           bg: const Color(0xFFFFF3E0),
-          text: const Color(0xFFE65100),
+          color: const Color(0xFFE65100),
           icon: Icons.history_toggle_off_rounded,
+          label: "Request Pending",
         );
     }
   }
 }
 
-class _StatusTheme {
+class _StatusConfig {
   final Color bg;
-  final Color text;
+  final Color color;
   final IconData icon;
-  _StatusTheme({required this.bg, required this.text, required this.icon});
+  final String label;
+  _StatusConfig({
+    required this.bg,
+    required this.color,
+    required this.icon,
+    required this.label,
+  });
 }

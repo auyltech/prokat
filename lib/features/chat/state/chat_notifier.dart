@@ -116,7 +116,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
         );
       }
     } catch (error) {
-      print(error);
       state = state.copyWith(
         isLoadingConversations: false,
         error: friendlyChatError(error),
@@ -341,8 +340,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
 
     await socketService.connect(token: _sessionToken);
-
-    print("connect_socket");
 
     socketService.onNewMessage(_handleIncomingMessage);
 

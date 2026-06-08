@@ -39,7 +39,7 @@ String formatTime(BuildContext context, DateTime date) {
 }
 
 String formatDateTime(dynamic date, dynamic time) {
-  final dateStr = DateFormat('MMM dd').format(date);
+  final dateStr = DateFormat('E dd MMM').format(date);
   if (time != null) {
     final timeStr = DateFormat('HH:mm').format(time!);
     return "$dateStr • $timeStr";

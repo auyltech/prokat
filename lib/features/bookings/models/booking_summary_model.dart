@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 
 class BookingSummaryModel {
@@ -30,7 +31,7 @@ class BookingSummaryModel {
         workStatus: parseWorkStatus(json['workStatus']),
       );
     } catch (e) {
-      print("booking_summary_parse_failed");
+      debugPrint("booking_summary_parse_failed");
       rethrow;
     }
   }

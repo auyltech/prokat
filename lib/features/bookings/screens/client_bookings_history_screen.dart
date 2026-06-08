@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/user/widgets/client_booking_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -50,9 +51,9 @@ class ClientBookingsHistoryScreenState
     final history = bookingState.bookings
         .where(
           (b) =>
-              b.status == "COMPLETED" ||
-              b.status == "CANCELLED" ||
-              b.status == "REJECTED",
+              b.status == BookingStatus.completed ||
+              b.status == BookingStatus.cancelled ||
+              b.status == BookingStatus.rejected,
         )
         .toList();
 

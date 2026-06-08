@@ -52,7 +52,7 @@ class AppTheme {
         titleTextStyle: TextStyle(
           color: Colors.black87,
           fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ),
       iconTheme: const IconThemeData(color: Colors.black87),
@@ -73,7 +73,7 @@ class AppTheme {
         titleLarge: TextStyle(
           color: lightTextPrimary,
           fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
         ),
         titleMedium: TextStyle(

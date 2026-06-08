@@ -19,14 +19,12 @@ class UserProfileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
 
     return GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 32, color: colorScheme.primary),
+          Icon(icon, size: 32, color: theme.colorScheme.primary),
 
           const SizedBox(width: 12),
 
@@ -35,9 +33,17 @@ class UserProfileTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: textTheme.labelLarge),
-                const SizedBox(height: 4),
-                Text(value, style: textTheme.bodyMedium),
+                // label
+                Text(
+                  label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodyMedium?.color?.withValues(
+                      alpha: 0.7,
+                    ),
+                  ),
+                ),
+                // Main Text
+                Text(value, style: theme.textTheme.bodyLarge),
               ],
             ),
           ),

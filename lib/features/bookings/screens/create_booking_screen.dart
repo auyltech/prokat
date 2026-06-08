@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -15,6 +17,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/utils/date_time.dart';
 
@@ -112,13 +115,45 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                 EquipmentImageHeader(imageUrl: displayUrl),
 
                 Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Favorite Button, equipment Name, model, owner
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  equipment.name,
+                                  style: theme.textTheme.titleLarge,
+                                  maxLines:
+                                      2, // Caps rendering at two lines max
+                                  overflow: TextOverflow
+                                      .ellipsis, // Clips extra text with "..."
+                                ),
+
+                                Text(
+                                  equipment.model,
+                                  style: theme.textTheme.titleMedium,
+                                  maxLines:
+                                      2, // Caps rendering at two lines max
+                                  overflow: TextOverflow
+                                      .ellipsis, // Clips extra text with "..."
+                                ),
+
+                                UserInfoTile(user: equipment.owner),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+
                           // Favorite Button
                           GestureDetector(
                             onTap: isClient
@@ -139,49 +174,14 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               ),
                             ),
                           ),
-
-                          const SizedBox(width: 8),
-
-                          // Favorite Button, equipment Name, model, owner
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${equipment.name} ${equipment.model}"
-                                      .toUpperCase(),
-                                  style: theme.textTheme.titleLarge,
-                                  maxLines:
-                                      2, // Caps rendering at two lines max
-                                  overflow: TextOverflow
-                                      .ellipsis, // Clips extra text with "..."
-                                ),
-                                Text(
-                                  "${equipment.owner?.displayName}"
-                                      .toUpperCase(),
-                                  style: theme.textTheme.titleMedium,
-                                  maxLines:
-                                      2, // Caps rendering at two lines max
-                                  overflow: TextOverflow
-                                      .ellipsis, // Clips extra text with "..."
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
 
                       const SizedBox(height: 16),
 
                       /// Pricing
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 12),
-                        child: Text(
-                          l10n.servicePlan,
-                          style: theme.textTheme.headlineLarge,
-                        ),
-                      ),
+                      SectionTitle(title: l10n.servicePlan),
+                      const SizedBox(height: 6),
 
                       Wrap(
                         spacing: 10,
@@ -210,7 +210,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? theme.colorScheme.primary
-                                    : theme.cardColor,
+                                    : theme.colorScheme.surfaceBright,
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: isSelected
@@ -221,7 +221,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 ),
                               ),
                               child: Text(
-                                "${entry?.price} ₸ / ${entry?.priceRate}",
+                                "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate)}",
                                 style: theme.textTheme.labelLarge?.copyWith(
                                   color: isSelected
                                       ? theme.colorScheme.onPrimary
@@ -229,7 +229,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                           alpha: 0.7,
                                         ),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
@@ -237,16 +237,11 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         }),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
 
                       /// Address & Schedule
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 12),
-                        child: Text(
-                          l10n.addressAndSchedule,
-                          style: theme.textTheme.headlineLarge,
-                        ),
-                      ),
+                      SectionTitle(title: l10n.addressAndSchedule),
+                      const SizedBox(height: 6),
 
                       AddressPickerCard(
                         selectedAddress: selectedAddress,
@@ -342,12 +337,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       const SizedBox(height: 24),
 
                       /// 4. ADDITIONAL NOTES
-                      Text(
-                        l10n.noteToOperator,
-                        style: theme.textTheme.headlineLarge,
-                      ),
-
-                      const SizedBox(height: 10),
+                      SectionTitle(title: l10n.noteToOperator),
+                      const SizedBox(height: 6),
 
                       TextField(
                         maxLines: 3,

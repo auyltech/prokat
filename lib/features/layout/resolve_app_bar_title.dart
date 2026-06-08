@@ -7,25 +7,37 @@ String resolveAppBarTitle(
   AppLocalizations l10n,
 ) {
   // Exact Client Route Matches
+  // Search Equipment Screen
+  if (path == AppRoutes.searchList) return 'Search';
+  // Create Order
+  if (path.contains("equipment") && !path.contains("owner")) {
+    return "Create Order";
+  }
+  // Orders
+  if (path == AppRoutes.clientOrders) return l10n.myOrders;
+  if (path == AppRoutes.clientOrdersHistory) return l10n.orderHistory;
+
+  // Requests
+  if (path == AppRoutes.clientRequestsCreate) return l10n.newRequest;
+  if (path == AppRoutes.clientRequests) return l10n.myRequests;
+
+  if (path == AppRoutes.chat) return l10n.navChats;
+
   if (path == AppRoutes.favorites) return 'Favorites';
   if (path == AppRoutes.notifications) return 'Notifications';
 
   if (path == AppRoutes.profile) return "My Profile";
   if (path == AppRoutes.settings) return 'Settings';
+
   if (path == AppRoutes.becomeOwner) return 'Become an Owner';
   if (path == AppRoutes.helpSupport) return l10n.helpSupportTitle;
   if (path == '/support-us') return l10n.helpUsGrow;
   if (path == '/terms') return l10n.termsConditions;
+
   if (path == AppRoutes.categories) return 'Categories';
   if (path == AppRoutes.searchMap) return 'Map Search';
   if (path == AppRoutes.addresses) return 'My Addresses';
-  if (path == AppRoutes.searchMap) return 'Map Search';
-  if (path == AppRoutes.clientRequests) return l10n.myRequests;
-  if (path == AppRoutes.clientRequestsCreate) return l10n.newRequest;
-
-  if (path.contains("equipment") && !path.contains("owner")) {
-    return l10n.createBooking;
-  }
+  if (path == AppRoutes.clientPinAddress) return 'Select Address';
 
   if (path.contains('owner')) {
     // Exact Owner Route Matches
@@ -64,7 +76,7 @@ String resolveAppBarTitle(
     }
 
     if (path.contains('payment')) {
-      if (path.contains('top-up')) return 'Top Up Balance';
+      if (path.contains('topUp')) return 'Top Up Balance';
       return 'Payments';
     }
 
@@ -78,5 +90,5 @@ String resolveAppBarTitle(
   }
 
   // Fallback
-  return 'Prokat';
+  return '';
 }

@@ -6,7 +6,6 @@ import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
-import 'package:prokat/features/user/widgets/balance_tile.dart';
 import 'package:prokat/features/user/widgets/owner_equipment_section.dart';
 import 'package:prokat/features/user/widgets/owner_orders_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -78,13 +77,6 @@ class _OwnerDashboardScreenState extends ConsumerState<OwnerDashboardScreen> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                BalanceTile(
-                  minutes: 100,
-                  burnRate: "~2 min/hr",
-                  progress: 0.15,
-                  onTopUp: () {},
-                ),
-
                 const SizedBox(height: 24),
 
                 IntrinsicHeight(

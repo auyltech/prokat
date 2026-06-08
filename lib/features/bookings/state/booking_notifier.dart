@@ -46,13 +46,11 @@ class BookingNotifier extends StateNotifier<BookingState> {
   List<BookingModel> getActiveBookings({required String mode}) {
     return (mode == "owner" ? state.ownerBookings : state.bookings)
         .where(
-          (b) =>
-              [
-                BookingStatus.created,
-                BookingStatus.confirmed,
-                BookingStatus.completed,
-              ].contains(b.status) &&
-              (b.myReviewId?.isNotEmpty == true),
+          (b) => [
+            BookingStatus.created,
+            BookingStatus.confirmed,
+            BookingStatus.completed,
+          ].contains(b.status),
         )
         .toList();
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
-// TODO: Remove Screen
 class OwnerPaymentsScreen extends StatelessWidget {
   const OwnerPaymentsScreen({super.key});
 
@@ -51,7 +52,6 @@ class OwnerPaymentsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.paymentsBalance)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -65,7 +65,9 @@ class OwnerPaymentsScreen extends StatelessWidget {
             child: Column(
               children: [
                 Text(l10n.totalBalance, style: theme.textTheme.labelLarge),
+
                 const SizedBox(height: 8),
+
                 Text(
                   "1,234 min",
                   style: theme.textTheme.displaySmall?.copyWith(
@@ -95,7 +97,9 @@ class OwnerPaymentsScreen extends StatelessWidget {
           _usageCard(context, l10n, 4, 300),
 
           const SizedBox(height: 16),
-          _quickTopUpTile(context, l10n, () {}),
+          _quickTopUpTile(context, l10n, () {
+            context.push(AppRoutes.ownerPaymentTopUp);
+          }),
 
           const SizedBox(height: 16),
           Container(

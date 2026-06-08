@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -66,11 +67,11 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
       //   bookingId: booking.id,
       // );
 
-      if (context.mounted) {
+      if (mounted && context.canPop()) {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted && context.canPop()) {
         AppSnackBar.show(
           context,
           message: e.toString().replaceFirst('Exception: ', ''),

@@ -51,20 +51,21 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
       body: ListView(
         padding: EdgeInsets.all(24),
         children: [
+          ProfileImagePicker(
+            onImageSelected: (file) async {
+              if (file != null) {
+                await profileNotifier.uploadProfileImage(file);
+              }
+            },
+            initialImageUrl:
+                userProfileState.userProfile?.profileImageUrl ?? "",
+          ),
+
+          const SizedBox(height: 20),
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ProfileImagePicker(
-                onImageSelected: (file) async {
-                  if (file != null) {
-                    await profileNotifier.uploadProfileImage(file);
-                  }
-                },
-                initialImageUrl: userProfileState.userProfile?.profileImageUrl ?? "",
-              ),
-
-              const SizedBox(width: 20),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -80,9 +81,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        (userProfileState.userProfile?.ratingAverage ?? 0).toStringAsFixed(
-                          1,
-                        ),
+                        (userProfileState.userProfile?.ratingAverage ?? 0)
+                            .toStringAsFixed(1),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.secondary,
                         ),

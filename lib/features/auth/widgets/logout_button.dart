@@ -59,18 +59,19 @@ class LogoutButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = theme.colorScheme;
+
     final authState = ref.watch(authProvider);
 
     return GestureDetector(
       onTap: authState.isLoading ? null : () => _confirmLogout(context, ref),
       child: Container(
-        padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 12),
         decoration: BoxDecoration(
+          color: theme.colorScheme.error,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             /// Icon / Loader
             authState.isLoading
@@ -79,21 +80,19 @@ class LogoutButton extends ConsumerWidget {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: colorScheme.error,
+                      color: theme.colorScheme.onError,
                     ),
                   )
-                : Icon(Icons.logout, color: colorScheme.error),
+                : Icon(Icons.logout, color: theme.colorScheme.onError),
 
             const SizedBox(width: 16),
 
             /// Text
-            Expanded(
-              child: Text(
-                l10n.logout,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.error,
-                  fontWeight: FontWeight.w600,
-                ),
+            Text(
+              l10n.logout,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onError,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

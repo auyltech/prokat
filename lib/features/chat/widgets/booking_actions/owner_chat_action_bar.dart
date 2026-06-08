@@ -32,9 +32,11 @@ class OwnerChatActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+
     final submitState = ref.watch(
       bookingChatActionControllerProvider(booking.id),
     );
+
     final controller = ref.read(
       bookingChatActionControllerProvider(booking.id).notifier,
     );
@@ -86,7 +88,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton(
                     label: "Accept Order",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "booking:accept",
                     onPressed: () async {
                       await showDialog<bool>(
                         context: context,
@@ -128,7 +132,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton.secondary(
                     label: "Counter",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "price:create",
                     onPressed: () async {
                       await showCounterOfferSheet(
                         context: context,
@@ -149,7 +155,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton.destructive(
                     label: "Reject Order",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "booking:reject",
                     onPressed: () async {
                       final decision =
                           await showModalBottomSheet<CancelBookingDecision>(
@@ -196,7 +204,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton.destructive(
                     label: "Cancel Offer",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "price:cancel",
                     onPressed: () async {
                       await controller.cancelNegotiation(
                         context: context,
@@ -213,7 +223,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton(
                     label: "Accept Offer",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "price:accept",
                     onPressed: () async {
                       await controller.acceptCounterOffer(
                         context: context,
@@ -232,7 +244,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton.destructive(
                     label: "Reject Offer",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "price:reject",
                     onPressed: () async {
                       await controller.rejectCounterOffer(
                         context: context,
@@ -249,7 +263,8 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton(
                     label: "Complete Work",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting &&
+                        submitState.submitId == "booking:workstatus",
                     onPressed: () async {
                       final confirmed = await showDialog<bool>(
                         context: context,
@@ -292,7 +307,8 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton.secondary(
                     label: "Update Status",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting &&
+                        submitState.submitId == "booking:workstatus",
                     onPressed: () async {
                       showModalBottomSheet(
                         context: context,
@@ -314,11 +330,9 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton(
                     label: "Review",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
+                    isLoading: submitState.isSubmitting &&
+                        submitState.submitId == "review:submit",
                     onPressed: () async {
-                      // final revieweeId = (action.payloadId ?? '').trim();
-                      // if (revieweeId.isEmpty) return;
-
                       final submitted = await showModalBottomSheet<bool>(
                         context: context,
                         isScrollControlled: true,

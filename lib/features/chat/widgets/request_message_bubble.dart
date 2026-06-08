@@ -142,9 +142,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           const SizedBox(height: 8),
 
           // Location
-          InfoTile(
+          InfoTile.secondary(
             icon: Icons.location_on_outlined,
-            color: Colors.transparent,
             value: request.location.street,
             onTap: () => showLocationSheet(context, request.location),
           ),
@@ -155,9 +154,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           Row(
             children: [
               Expanded(
-                child: InfoTile(
+                child: InfoTile.secondary(
                   icon: Icons.event_outlined,
-                  color: Colors.transparent,
                   value: () {
                     if (request.requiredOn == null) return "PENDING";
 
@@ -175,9 +173,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
               const SizedBox(width: 8),
 
               Expanded(
-                child: InfoTile(
+                child: InfoTile.secondary(
                   icon: Icons.access_time_outlined,
-                  color: Colors.transparent,
                   value: () {
                     // 2. If a specific time exists, format and append it (e.g., "14:30")
                     if (request.requiredAt != null) {
@@ -197,19 +194,13 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           const SizedBox(height: 8),
 
           // Offered Rate and Comment
-          InfoTile(
+          InfoTile.destructive(
             value:
                 "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
-            color: Colors.transparent,
-            isHighlighted: true,
           ),
 
           if (request.comment?.isNotEmpty ?? false)
-            InfoTile(
-              label: l10n.comments,
-              color: Colors.transparent,
-              value: request.comment!,
-            ),
+            InfoTile.secondary(label: l10n.comments, value: request.comment!),
         ],
       ),
     );

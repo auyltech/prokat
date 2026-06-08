@@ -170,7 +170,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
           if (location != null) ...[
             InfoTile(
               icon: Icons.location_on_outlined,
-              color: Colors.transparent,
               value: booking.location?.street ?? "",
               onTap: () => showLocationSheet(context, location),
             ),
@@ -182,7 +181,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
               Expanded(
                 child: InfoTile(
                   icon: Icons.event_outlined,
-                  color: Colors.transparent,
                   value: () {
                     if (booking.bookedOn == null) return "TBD";
 
@@ -203,7 +201,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 Expanded(
                   child: InfoTile(
                     icon: Icons.access_time_outlined,
-                    color: Colors.transparent,
                     value: booking.bookedAt != null
                         ? DateFormat(
                             'HH:mm',
@@ -220,8 +217,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
           InfoTile(
             value:
                 "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
-            color: Colors.transparent,
-            isHighlighted: true,
           ),
         ],
       ),

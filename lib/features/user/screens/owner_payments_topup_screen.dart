@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-// TODO: Remove Screen
 class OwnerPaymentsTopupScreen extends StatefulWidget {
   const OwnerPaymentsTopupScreen({super.key});
 
@@ -27,7 +26,6 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.topUpMinutes)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -140,26 +138,11 @@ class _OwnerPaymentsTopupScreenState extends State<OwnerPaymentsTopupScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton(
-                onPressed: () {},
-                child: Text(l10n.viewAll),
-              ),
+              TextButton(onPressed: () {}, child: Text(l10n.viewAll)),
             ],
           ),
-          _historyItem(
-            context,
-            l10n,
-            "5 Days Package",
-            "1,200 KZT",
-            "24 Oct",
-          ),
-          _historyItem(
-            context,
-            l10n,
-            "1 Day Package",
-            "300 KZT",
-            "12 Oct",
-          ),
+          _historyItem(context, l10n, "5 Days Package", "1,200 KZT", "24 Oct"),
+          _historyItem(context, l10n, "1 Day Package", "300 KZT", "12 Oct"),
         ],
       ),
     );
