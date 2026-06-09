@@ -5,7 +5,7 @@ import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EditEquipmentDetailsForm extends StatefulWidget {

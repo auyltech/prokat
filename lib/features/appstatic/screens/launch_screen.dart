@@ -106,21 +106,11 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Icon with "Glass" effect
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: accentColor.withValues(alpha: 0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.precision_manufacturing_rounded,
-                      size: 80,
-                      color: accentColor,
-                    ),
+                  Image.asset(
+                    'assets/icons/app_logo.png',
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 40),
 

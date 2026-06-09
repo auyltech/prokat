@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -71,7 +71,8 @@ class _DeleteEquipmentSectionState
             width: double.infinity,
             height: 54,
             child: OutlinedButton.icon(
-              onPressed: () => _confirmDelete(context, ref, widget.equipmentId, l10n),
+              onPressed: () =>
+                  _confirmDelete(context, ref, widget.equipmentId, l10n),
               icon: const Icon(Icons.delete_outline_outlined, size: 30),
               label: Text(
                 l10n.deleteEquipment,

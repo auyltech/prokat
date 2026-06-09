@@ -6,6 +6,31 @@ import 'package:prokat/features/equipment/models/equipment_location.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 
+enum EquipmentStatus {
+  draft,
+  created,
+  accepted,
+  rejected,
+  available,
+  booked,
+  maintenance,
+  disabled,
+  archived,
+}
+
+EquipmentStatus parseBookingStatus(dynamic value) {
+  if (value == null) return EquipmentStatus.draft;
+
+  final normalized = value.toString().trim().toLowerCase();
+
+  for (final status in EquipmentStatus.values) {
+    if (status.name.toLowerCase() == normalized) {
+      return status;
+    }
+  }
+  return EquipmentStatus.draft;
+}
+
 class Equipment {
   final String id;
 
@@ -21,7 +46,7 @@ class Equipment {
   final String? ownerComment;
   final String? rentCondition;
 
-  final String status;
+  final EquipmentStatus status;
   final bool isVisible;
 
   final User? owner;
@@ -35,6 +60,7 @@ class Equipment {
 
   final String? categoryId;
   final Category? category;
+
   final DateTime? updatedAt;
 
   Equipment({
@@ -60,9 +86,23 @@ class Equipment {
     this.updatedAt,
   });
 
+  bool get isModerated => [
+    EquipmentStatus.available,
+    EquipmentStatus.accepted,
+    EquipmentStatus.maintenance,
+    EquipmentStatus.disabled,
+  ].contains(status);
+
+  bool get isDraft => [
+    EquipmentStatus.draft,
+    EquipmentStatus.created,
+    EquipmentStatus.rejected,
+  ].contains(status);
+
   String? get primaryImageUrl {
     for (final img in images) {
-      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty) return img.imageUrl;
+      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty)
+        return img.imageUrl;
     }
 
     final sorted = [...images]
@@ -120,44 +160,59 @@ class Equipment {
       final rawSpecs = json['specs'];
       final specs = rawSpecs is List
           ? rawSpecs
-              .whereType<Map<String, dynamic>>()
-              .map(EquipmentSpec.fromJson)
-              .toList()
+                .whereType<Map<String, dynamic>>()
+                .map(EquipmentSpec.fromJson)
+                .toList()
           : null;
 
       return Equipment(
         id: json["id"] ?? '',
+
         name: json["name"] ?? '',
         model: json["model"] ?? '',
         plateNumber: json["plateNumber"] ?? '',
+
         specs: specs,
+
         capacity: json["capacity"].toString(),
         capacityUnit: json["capacityUnit"]?.toString() ?? '',
+
         ownerComment: json["ownerComment"] ?? "",
         rentCondition: json["rentCondition"],
-        status: json["status"],
+
+        status: parseBookingStatus(json["status"]),
+        isVisible: parseBoolean(json["isVisible"]),
+
         prices: (json["prices"] as List<dynamic>? ?? [])
             .map((e) => PriceEntry.fromJson(e as Map<String, dynamic>))
             .toList(),
+
         imageUrl: json["imageUrl"] as String?,
         images: (json["images"] as List<dynamic>? ?? [])
             .whereType<Map<String, dynamic>>()
             .map(EquipmentImage.fromJson)
             .where((e) => e.imageUrl.isNotEmpty)
             .toList(),
-        isVisible: parseBoolean(json["isVisible"]),
+
         owner: json["owner"] != null ? User.fromJson(json["owner"]) : null,
+
         city: json["city"] ?? "",
+
         location: json['location'] != null
             ? EquipmentLocation.fromJson(json['location'])
             : null,
+
         categoryId: json["categoryId"]?.toString(),
-        category:
-            json["category"] != null ? Category.fromJson(json["category"]) : null,
+        category: json["category"] != null
+            ? Category.fromJson(json["category"])
+            : null,
+
         updatedAt: parseNullableDate(json['updatedAt']),
       );
     } catch (e) {
-      rethrow;
+      throw Exception(
+        "Failed to parse server data. Please ensure your app is up to date.",
+      );
     }
   }
 }

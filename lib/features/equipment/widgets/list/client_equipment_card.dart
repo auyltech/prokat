@@ -73,10 +73,10 @@ class ClientEquipmentCard extends ConsumerWidget {
                 child: Row(
                   children: [
                     _badge(
-                      text: equipment.status.toLowerCase() == "available"
+                      text: equipment.status == EquipmentStatus.available
                           ? "• ${l10n.online}"
                           : l10n.offline,
-                      color: equipment.status.toLowerCase() == "available"
+                      color: equipment.status == EquipmentStatus.available
                           ? Colors.green
                           : Colors.grey,
                     ),

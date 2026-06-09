@@ -10,7 +10,9 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
   EquipmentNotifier(this.api) : super(EquipmentState());
 
-  static const int _limit = 10;
+  void setQuery(String query) {
+    state = state.copyWith(query: query);
+  }
 
   void selectCategory(Category category) {
     state = state.copyWith(category: category);
@@ -23,13 +25,13 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   List<Equipment> _sortEquipment(List<Equipment> list) {
     final sorted = [...list];
 
-    int statusPriority(String status) {
+    int statusPriority(EquipmentStatus status) {
       switch (status) {
-        case 'available':
+        case EquipmentStatus.available:
           return 0;
-        case 'booked':
+        case EquipmentStatus.booked:
           return 1;
-        case 'maintenance':
+        case EquipmentStatus.maintenance:
           return 2;
         default:
           return 99;
@@ -38,8 +40,8 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
     sorted.sort((a, b) {
       /// 1. Online first
-      final aOnline = a.status == 'available' ? 0 : 1;
-      final bOnline = b.status == 'available' ? 0 : 1;
+      final aOnline = a.status == EquipmentStatus.available ? 0 : 1;
+      final bOnline = b.status == EquipmentStatus.available ? 0 : 1;
       if (aOnline != bOnline) return aOnline.compareTo(bOnline);
 
       /// 2. Status priority
@@ -95,7 +97,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String? query,
     String? city,
     int? page,
-    int? limit,
+    int? itemsPerPage,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -103,24 +105,16 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       final result = await api.getRenterEquipment(
         categoryId: categoryId,
         query: query,
-        page: page,
-        limit: limit,
+        page: state.currentPage,
+        itemsPerPage: state.itemsPerPage,
         city: city,
       );
 
-      if (result.success == true) {
-        state = state.copyWith(
-          renterEquipment: result.data,
-          isLoading: false,
-          error: null,
-        );
-      } else {
-        state = state.copyWith(
-          renterEquipment: result.data,
-          isLoading: false,
-          error: result.message,
-        );
-      }
+      state = state.copyWith(
+        renterEquipment: result.data,
+        isLoading: false,
+        error: result.success ? null : result.message,
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -141,7 +135,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     try {
       final result = await api.getClientEquipment(
         page: 1,
-        limit: _limit,
+        itemsPerPage: state.itemsPerPage,
         categoryId: categoryId,
         city: city,
         query: query,
@@ -150,7 +144,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       state = state.copyWith(
         renterEquipment: result.data,
         isLoading: false,
-        hasReachedMax: (result.data?.length ?? 0) < _limit,
+        hasReachedMax: (result.data?.length ?? 0) < state.itemsPerPage,
         error: result.success ? null : result.message,
       );
     } catch (e) {
@@ -173,7 +167,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
       final result = await api.getClientEquipment(
         page: nextPage,
-        limit: _limit,
+        itemsPerPage: state.itemsPerPage,
         categoryId: categoryId,
         city: city,
         query: query,
@@ -183,7 +177,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         renterEquipment: [...state.renterEquipment, ...(result.data ?? [])],
         currentPage: nextPage,
         isFetchingMore: false,
-        hasReachedMax: (result.data ?? []).length < _limit,
+        hasReachedMax: (result.data ?? []).length < state.itemsPerPage,
       );
     } catch (e) {
       state = state.copyWith(isFetchingMore: false);
@@ -414,7 +408,11 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String status,
   ) async {
     try {
-      state = state.copyWith(isSubmitting: true, error: null);
+      state = state.copyWith(
+        isSubmitting: true,
+        actionId: "equipment:status:$equipmentId",
+        error: null,
+      );
 
       final result = await api.updateVisibilityStatus(
         equipmentId: equipmentId,
@@ -422,17 +420,18 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         status: status,
       );
 
-      if (result.success) {
-        state = state.copyWith(isSubmitting: false);
+      state = state.copyWith(
+        isSubmitting: false,
+        actionId: null,
+        error: result.success ? null : result.message,
+      );
 
+      if (result.success) {
         await getOwnerEquipmentById(equipmentId);
         await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isSubmitting: false, error: result.message);
-        return false;
       }
+
+      return result.success;
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());
 
@@ -442,19 +441,19 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
   Future<bool> updateEquipmentSpecs(Map<String, dynamic> data) async {
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      state = state.copyWith(isSubmitting: true, error: null);
 
       final result = await api.updateEquipmentSpecs(data);
 
       if (result.success) {
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(isSubmitting: false);
 
         await getOwnerEquipment();
         await getOwnerEquipmentById(data["id"] ?? "");
 
         return true;
       } else {
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(isSubmitting: false);
         return false;
       }
     } catch (e) {
@@ -467,18 +466,18 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   /// DELETE
   Future<bool> deleteEquipment(String id) async {
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      state = state.copyWith(isSubmitting: true, error: null);
 
       final result = await api.deleteEquipment(id);
 
       if (result.success) {
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(isSubmitting: false);
 
         await getOwnerEquipment();
 
         return true;
       } else {
-        state = state.copyWith(isLoading: false, error: result.message);
+        state = state.copyWith(isSubmitting: false, error: result.message);
         return false;
       }
     } catch (e) {

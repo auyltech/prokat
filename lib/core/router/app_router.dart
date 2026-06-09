@@ -39,7 +39,6 @@ import 'package:prokat/features/requests/screens/owner_requests_screen.dart';
 import 'package:prokat/features/requests/screens/create_request_screen.dart';
 import 'package:prokat/features/requests/screens/client_requests_history_screen.dart';
 import 'package:prokat/features/requests/screens/client_requests_screen.dart';
-import 'package:prokat/features/user/screens/owner_dashboard_screen.dart';
 import 'package:prokat/features/user/screens/owner_payments_screen.dart';
 import 'package:prokat/features/user/screens/owner_payments_topup_screen.dart';
 import 'package:prokat/features/user/screens/owner_profile_screen.dart';
@@ -186,27 +185,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.main,
                 builder: (context, state) {
-                  final query = state.uri.queryParameters['query'] ?? '';
-                  final category = state.uri.queryParameters['category'] ?? '';
-
-                  final page =
-                      int.tryParse(state.uri.queryParameters['page'] ?? '1') ??
-                      1;
-                  final limit =
-                      int.tryParse(
-                        state.uri.queryParameters['limit'] ?? '10',
-                      ) ??
-                      10;
-
-                  final city = state.uri.queryParameters['city'] ?? '';
-
-                  return MainScreen(
-                    query: query,
-                    category: category,
-                    city: city,
-                    page: page,
-                    limit: limit,
-                  );
+                  return MainScreen();
                 },
               ),
               // Static Pages
@@ -232,27 +211,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.searchList,
                 builder: (context, state) {
-                  final query = state.uri.queryParameters['query'] ?? '';
-                  final category = state.uri.queryParameters['category'] ?? '';
-
-                  final page =
-                      int.tryParse(state.uri.queryParameters['page'] ?? '1') ??
-                      1;
-                  final limit =
-                      int.tryParse(
-                        state.uri.queryParameters['limit'] ?? '10',
-                      ) ??
-                      10;
-
-                  final city = state.uri.queryParameters['city'] ?? '';
-
-                  return SearchEquipmentScreen(
-                    query: query,
-                    category: category,
-                    city: city,
-                    page: page,
-                    limit: limit,
-                  );
+                  return SearchEquipmentScreen();
                 },
               ),
               // Map screen which displays equipment for rent
@@ -414,10 +373,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           ///
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: AppRoutes.ownerDashboard,
-                builder: (_, _) => const OwnerDashboardScreen(),
-              ),
               GoRoute(
                 path: AppRoutes.ownerNotifications,
                 builder: (_, _) => const NotificationsScreen(),

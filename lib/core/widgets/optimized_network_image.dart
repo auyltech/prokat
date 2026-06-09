@@ -45,13 +45,10 @@ class OptimizedNetworkImage extends StatelessWidget {
           height: double.infinity,
           memCacheWidth: cacheSize.width,
           memCacheHeight: cacheSize.height,
-          placeholder: (context, _) => _ImageShimmer(
-            backgroundColor: backgroundColor,
-          ),
-          errorWidget: (context, _, _) => _ErrorImage(
-            icon: fallbackIcon,
-            backgroundColor: backgroundColor,
-          ),
+          placeholder: (context, _) =>
+              _ImageShimmer(backgroundColor: backgroundColor),
+          errorWidget: (context, _, _) =>
+              _ErrorImage(icon: fallbackIcon, backgroundColor: backgroundColor),
         );
       },
     );
@@ -141,7 +138,7 @@ class _ErrorImage extends StatelessWidget {
       child: Icon(
         icon,
         color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
-        size: 28,
+        size: 40,
       ),
     );
   }

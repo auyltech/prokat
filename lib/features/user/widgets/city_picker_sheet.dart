@@ -7,23 +7,11 @@ import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CityPickerSheet extends ConsumerStatefulWidget {
-  final String title;
-  final String? mode;
-  final String? city;
+  final String? service;
 
-  const CityPickerSheet({
-    super.key,
-    this.mode,
-    this.title = '',
-    this.city,
-  });
+  const CityPickerSheet({super.key, this.service});
 
-  static Future<void> show({
-    required BuildContext context,
-    String? city,
-    String? mode,
-    String title = '',
-  }) {
+  static Future<void> show({required BuildContext context, String? service}) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -33,7 +21,7 @@ class CityPickerSheet extends ConsumerStatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
-        return CityPickerSheet(title: title, city: city, mode: mode);
+        return CityPickerSheet(service: service);
       },
     );
   }
@@ -43,57 +31,59 @@ class CityPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
-  void _updateFilters(BuildContext context, Map<String, String?> newParams) {
-    final router = GoRouter.of(context);
-    final uri = router.routeInformationProvider.value.uri;
+  // void _updateFilters(BuildContext context, Map<String, String?> newParams) {
+  //   final router = GoRouter.of(context);
+  //   final uri = router.routeInformationProvider.value.uri;
 
-    final currentParams = Map<String, String>.from(uri.queryParameters);
+  //   final currentParams = Map<String, String>.from(uri.queryParameters);
 
-    newParams.forEach((key, value) {
-      if (value == null) {
-        currentParams.remove(key);
-      } else {
-        currentParams[key] = value;
-      }
-    });
+  //   newParams.forEach((key, value) {
+  //     if (value == null) {
+  //       currentParams.remove(key);
+  //     } else {
+  //       currentParams[key] = value;
+  //     }
+  //   });
 
-    currentParams['page'] = '1';
+  //   currentParams['page'] = '1';
 
-    final newUri = uri.replace(
-      queryParameters: currentParams.isEmpty ? null : currentParams,
-    );
+  //   final newUri = uri.replace(
+  //     queryParameters: currentParams.isEmpty ? null : currentParams,
+  //   );
 
-    context.go(newUri.toString());
-  }
+  //   context.go(newUri.toString());
+  // }
 
   Future<void> _onCitySelected(String city) async {
-    if (widget.mode == "guest") {
-      _updateFilters(context, {'city': city});
-    } else {
-      ref.read(locationProvider.notifier).selectCity(city);
+    ref.read(locationProvider.notifier).selectCity(city);
 
-      final profile = ref.read(userProfileProvider).userProfile;
-
-      if (profile != null) {
-        ref
-            .read(userProfileProvider.notifier)
-            .selectCityRegion(city, "No Region");
-      }
+    if (mounted && context.canPop()) {
+      context.pop();
     }
 
-    if (mounted && Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
+    if (widget.service == "main_screen") {
+      // _updateFilters(context, {'city': city});
+      return;
+    } else if (widget.service == "equipment:create") {
+      return;
     }
 
-    if (!mounted) return;
+    final profile = ref.read(userProfileProvider).userProfile;
+
+    if (profile != null) {
+      await ref
+          .read(userProfileProvider.notifier)
+          .selectCityRegion(city, "No Region");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
+
     final selectedCity = ref.watch(locationProvider).city;
-    final title = widget.title.isNotEmpty ? widget.title : l10n.selectCity;
+    final title = l10n?.selectCity ?? "Select City";
 
     return SafeArea(
       top: false,
@@ -127,19 +117,18 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
                   itemCount: cities.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final city = cities[index];
-                    final isSelected = city == selectedCity;
+                    final isSelected = cities[index] == selectedCity;
 
                     return ListTile(
                       leading: const Icon(Icons.location_city),
-                      title: Text(city),
+                      title: Text(cities[index]),
                       trailing: isSelected
                           ? Icon(
                               Icons.check_circle,
                               color: theme.colorScheme.primary,
                             )
                           : null,
-                      onTap: () => _onCitySelected(city),
+                      onTap: () => _onCitySelected(cities[index]),
                     );
                   },
                 ),

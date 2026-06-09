@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_map_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/map/widgets/equipment_browse_sheet.dart';
 import 'package:prokat/features/map/widgets/equipment_details_drawer.dart';
 import 'package:prokat/features/map/widgets/map_view.dart';

@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class VisibilityStatusSection extends ConsumerStatefulWidget {
   final bool isVisible;
-  final String status;
+  final EquipmentStatus status;
   final String equipmentId;
 
   const VisibilityStatusSection({
@@ -52,7 +53,7 @@ class _VisibilityStatusSectionState
   void initState() {
     super.initState();
     _tempVisible = widget.isVisible;
-    _tempStatus = widget.status;
+    _tempStatus = widget.status.name;
   }
 
   bool get _isDirty =>
@@ -68,16 +69,10 @@ class _VisibilityStatusSectionState
     final accent = colorScheme.primary;
     final warning = theme.colorScheme.error;
 
-    final isModerated =
-        widget.status == "AVAILABLE" ||
-        widget.status == "BOOKED" ||
-        widget.status == "MAINTENANCE" ||
-        widget.status == "DISABLED";
+    final equipment = ref.watch(equipmentProvider).editEquipment;
 
-    final isDraft =
-        widget.status == "DRAFT" ||
-        widget.status == "CREATED" ||
-        widget.status == "REJECTED";
+    final isModerated = equipment?.isModerated ?? false;
+    final isDraft = equipment?.isDraft ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +91,7 @@ class _VisibilityStatusSectionState
                       .updateVisibilityStatus(
                         widget.equipmentId,
                         widget.isVisible,
-                        widget.status,
+                        widget.status.name,
                       );
 
                   if (res && context.mounted) {
@@ -258,7 +253,10 @@ class _VisibilityStatusSectionState
           ),
 
         if (isDraft)
-          PrimaryButton(label: l10n.submitForReview, onPressed: submitForReview),
+          PrimaryButton(
+            label: l10n.submitForReview,
+            onPressed: submitForReview,
+          ),
       ],
     );
   }

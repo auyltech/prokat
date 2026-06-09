@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_list_skeleton.dart';
@@ -14,17 +15,9 @@ import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dar
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
-  final String? query, category, city;
-  final int? page, limit;
+  final String? query;
 
-  const SearchEquipmentScreen({
-    super.key,
-    this.query,
-    this.category,
-    this.city,
-    this.page,
-    this.limit,
-  });
+  const SearchEquipmentScreen({super.key, this.query});
 
   @override
   ConsumerState<SearchEquipmentScreen> createState() =>
@@ -32,20 +25,54 @@ class SearchEquipmentScreen extends ConsumerStatefulWidget {
 }
 
 class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
-  // bool _isSearchVisible = false;
+  Timer? _debounce;
 
-  void _loadMore(WidgetRef ref) {
-    // Future.microtask ensures we don't trigger state changes during build
-    final locationState = ref.watch(locationProvider);
-    Future.microtask(
-      () => ref
-          .read(equipmentProvider.notifier)
-          .fetchNextPage(
-            categoryId: widget.category,
-            query: widget.query,
-            city: locationState.city,
-          ),
-    );
+  ProviderSubscription? _categoriesSub;
+  ProviderSubscription? _locationSub;
+  ProviderSubscription? _equipmentSub;
+
+  // Fetch on first screen load and then on filters change
+  Future<void> _fetchData() async {
+    final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
+    final city = ref.read(locationProvider).city;
+    final query = ref.read(equipmentProvider).query;
+
+    ref
+        .read(equipmentProvider.notifier)
+        .initFetch(categoryId: categoryId, city: city, query: query);
+
+    // Fetch Categories only once
+    if (ref.read(categoriesProvider).categories.isEmpty ||
+        ref.read(categoriesProvider).error != null) {
+      ref.read(categoriesProvider.notifier).getCategories();
+    }
+  }
+
+  void _loadMore() {
+    final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
+    final city = ref.read(locationProvider).city;
+
+    ref
+        .read(equipmentProvider.notifier)
+        .fetchNextPage(categoryId: categoryId, query: widget.query, city: city);
+
+    // Fetch Categories only once
+    if (ref.read(categoriesProvider).categories.isEmpty ||
+        ref.read(categoriesProvider).error != null) {
+      ref.read(categoriesProvider.notifier).getCategories();
+    }
+  }
+
+  void _onFiltersChanged() {
+    _debounce?.cancel();
+
+    _debounce = Timer(const Duration(seconds: 1), () {
+      _fetchData();
+    });
+  }
+
+  Future<void> _onRefresh() async {
+    _fetchData();
   }
 
   @override
@@ -53,38 +80,40 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
-      final city = ref.read(locationProvider).city;
+      _fetchData();
 
-      if (ref.read(categoriesProvider).categories.isEmpty) {
-        ref.read(categoriesProvider.notifier).getCategories();
-      }
+      ref.listenManual(
+        categoriesProvider.select((s) => s.selectedCategory?.id),
+        (_, _) => _onFiltersChanged(),
+      );
 
-      ref
-          .read(equipmentProvider.notifier)
-          .initFetch(
-            categoryId: widget.category,
-            query: widget.query,
-            city: city,
-          );
+      ref.listenManual(
+        locationProvider.select((s) => s.city),
+        (_, _) => _onFiltersChanged(),
+      );
+
+      // Query is debounced inside the search box
+      ref.listenManual(
+        equipmentProvider.select((s) => s.query),
+        (_, _) => _fetchData(),
+      );
     });
   }
 
-  Future<void> _onRefresh() async {
-    final selectedCity = ref.watch(locationProvider).city;
-
-    ref
-        .read(equipmentProvider.notifier)
-        .initFetch(
-          categoryId: widget.category,
-          query: widget.query,
-          city: selectedCity,
-        );
+  @override
+  void dispose() {
+    // Always close manual subscriptions to prevent memory leaks!
+    _categoriesSub?.close();
+    _locationSub?.close();
+    _equipmentSub?.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
     final equipmentState = ref.watch(equipmentProvider);
 
     final items = ref.watch(equipmentProvider).renterEquipment;
@@ -105,7 +134,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               const SizedBox(height: 24),
 
-              const UserCategorySelector(mode: "search",),
+              const UserCategorySelector(mode: "search"),
 
               const SizedBox(height: 12),
 
@@ -141,7 +170,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
                     if (index == items.length - 1) {
                       // Use microtask to delay execution until the layout build pass completes safely
-                      Future.microtask(() => _loadMore(ref));
+                      Future.microtask(() => _loadMore());
                     }
 
                     final equipment = items[index];

@@ -49,7 +49,9 @@ class InputField extends StatelessWidget {
         cursorColor: colorScheme.primary,
         style: theme.textTheme.bodyMedium,
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: theme.colorScheme.primary, size: 32),
+          prefixIcon: icon != null
+              ? Icon(icon, color: theme.colorScheme.primary, size: 32)
+              : null,
           labelText: label,
           hintText: hint,
           hintStyle: theme.textTheme.bodyMedium?.copyWith(

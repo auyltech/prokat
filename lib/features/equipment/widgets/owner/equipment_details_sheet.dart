@@ -2,7 +2,7 @@
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/modern_text_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 

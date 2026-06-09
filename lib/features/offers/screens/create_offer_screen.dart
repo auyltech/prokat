@@ -9,7 +9,7 @@ import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/drowp_down_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';

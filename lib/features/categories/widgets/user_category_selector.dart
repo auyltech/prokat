@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/models/category.dart';
@@ -8,7 +7,6 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
   final String mode;
@@ -29,15 +27,16 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     ref.read(categoriesProvider.notifier).selectCategory(category);
 
     final userProfileState = ref.read(userProfileProvider.notifier);
+
     await userProfileState.selectCategory(category.id);
 
-    if (widget.mode == "search" && context.mounted) {
-      final uri = Uri(
-        path: AppRoutes.searchList,
-        queryParameters: {'category': category.id},
-      ).toString();
-      context.push(uri);
-    }
+    // if (widget.mode == "search" && context.mounted) {
+    //   final uri = Uri(
+    //     path: AppRoutes.searchList,
+    //     queryParameters: {'category': category.id},
+    //   ).toString();
+    //   context.push(uri);
+    // }
   }
 
   @override

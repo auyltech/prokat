@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
@@ -18,13 +18,15 @@ class OwnerEquipmentListScreen extends ConsumerStatefulWidget {
 class _OwnerEquipmentListScreenState
     extends ConsumerState<OwnerEquipmentListScreen>
     with WidgetsBindingObserver {
+  Future<void> loadData() async {
+    await ref.read(equipmentProvider.notifier).getOwnerEquipment();
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    Future.microtask(
-      () => ref.read(equipmentProvider.notifier).getOwnerEquipment(),
-    );
+    Future.microtask(() => loadData());
   }
 
   @override
@@ -41,92 +43,93 @@ class _OwnerEquipmentListScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: _buildStatusItem(
-                //         context,
-                //         label: l10n.online,
-                //         count: state.ownerEquipment
-                //             .where(
-                //               (e) =>
-                //                   e.status.toLowerCase() == 'available' &&
-                //                   e.isVisible == true,
-                //             )
-                //             .length,
-                //         color: Colors.greenAccent[700]!,
-                //       ),
-                //     ),
+      body: RefreshIndicator(
+        onRefresh: () => loadData(),
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: _buildStatusItem(
+                  //         context,
+                  //         label: l10n.online,
+                  //         count: state.ownerEquipment
+                  //             .where(
+                  //               (e) =>
+                  //                   e.status.toLowerCase() == 'available' &&
+                  //                   e.isVisible == true,
+                  //             )
+                  //             .length,
+                  //         color: Colors.greenAccent[700]!,
+                  //       ),
+                  //     ),
 
-                //     const SizedBox(width: 12),
+                  //     const SizedBox(width: 12),
 
-                //     Expanded(
-                //       child: _buildStatusItem(
-                //         context,
-                //         label: l10n.offline,
-                //         count: state.ownerEquipment
-                //             .where(
-                //               (e) =>
-                //                   e.status.toLowerCase() == 'booked' ||
-                //                   e.isVisible == false,
-                //             )
-                //             .length,
-                //         color: Colors.redAccent[400]!,
-                //       ),
-                //     ),
+                  //     Expanded(
+                  //       child: _buildStatusItem(
+                  //         context,
+                  //         label: l10n.offline,
+                  //         count: state.ownerEquipment
+                  //             .where(
+                  //               (e) =>
+                  //                   e.status.toLowerCase() == 'booked' ||
+                  //                   e.isVisible == false,
+                  //             )
+                  //             .length,
+                  //         color: Colors.redAccent[400]!,
+                  //       ),
+                  //     ),
 
-                //     const SizedBox(width: 12),
+                  //     const SizedBox(width: 12),
 
-                //     Expanded(
-                //       child: _buildStatusItem(
-                //         context,
-                //         label: l10n.repair,
-                //         count: state.ownerEquipment
-                //             .where(
-                //               (e) => e.status.toLowerCase() == 'maintenance',
-                //             )
-                //             .length,
-                //         color: Colors.orangeAccent[700]!,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                const SizedBox(height: 20),
-
-                if (state.isLoading)
-                  _builSkeleton(context)
-                else if (state.ownerEquipment.isEmpty)
-                  EmptyStateTile(
-                    title: l10n.noEquipmentListed,
-                    icon: Icons.inventory_2_outlined,
-                  )
-                else
-                  ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      height: 2,
-                      thickness: 1,
-                      indent: 16,
-                      endIndent: 16,
-                      color: AppColors.teal700,
+                  //     Expanded(
+                  //       child: _buildStatusItem(
+                  //         context,
+                  //         label: l10n.repair,
+                  //         count: state.ownerEquipment
+                  //             .where(
+                  //               (e) => e.status.toLowerCase() == 'maintenance',
+                  //             )
+                  //             .length,
+                  //         color: Colors.orangeAccent[700]!,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  if (state.isLoading)
+                    _builSkeleton(context)
+                  else if (state.ownerEquipment.isEmpty)
+                    EmptyStateTile(
+                      title: l10n.noEquipmentListed,
+                      icon: Icons.inventory_2_outlined,
+                    )
+                  else
+                    ListView.separated(
+                      separatorBuilder: (context, index) => Divider(
+                        height: 1,
+                        thickness: 1,
+                        indent: 16,
+                        endIndent: 16,
+                        color: AppColors.teal700,
+                      ),
+                      itemCount: state.ownerEquipment.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) => OwnerEquipmentCard(
+                        equipment: state.ownerEquipment[index],
+                      ),
                     ),
-                    itemCount: state.ownerEquipment.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) => OwnerEquipmentCard(
-                      equipment: state.ownerEquipment[index],
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -147,48 +150,6 @@ class _OwnerEquipmentListScreenState
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatusItem(
-    BuildContext context, {
-    required String label,
-    required int count,
-    required Color color,
-  }) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // The Large Count
-          Text(
-            count.toString().padLeft(2, '0'),
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 2),
-          // The Label
-          Text(
-            label.toUpperCase(),
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
       ),
     );
   }

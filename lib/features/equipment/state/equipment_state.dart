@@ -4,12 +4,16 @@ import 'package:prokat/features/locations/models/location_model.dart';
 
 class EquipmentState {
   final bool isLoading; // For initial load (Skeleton)
-
-  final bool isSubmitting; // For initial load (Skeleton)
-
   final bool isFetchingMore; // For bottom spinner
+
+  final bool isSubmitting;
+
+  final String? actionId;
   final String? error;
+
+  final String? query;
   final int currentPage;
+  final int itemsPerPage;
   final bool hasReachedMax;
 
   final Set<String> imageActionInProgressEquipmentIds;
@@ -29,9 +33,16 @@ class EquipmentState {
   EquipmentState({
     this.isLoading = false,
     this.isFetchingMore = false,
-    this.currentPage = 1,
-    this.hasReachedMax = false,
+
+    this.isSubmitting = false,
+    this.actionId,
+
     this.error,
+
+    this.query = "",
+    this.currentPage = 1,
+    this.itemsPerPage = 5,
+    this.hasReachedMax = false,
     this.imageActionInProgressEquipmentIds = const {},
     this.imageActionErrorByEquipmentId = const {},
     this.ownerEquipment = const [],
@@ -40,16 +51,18 @@ class EquipmentState {
     this.editEquipment,
     this.category,
     this.location,
-    this.isSubmitting = false,
   });
 
   EquipmentState copyWith({
-    final bool? isLoading,
-    final bool? isSubmitting,
+    bool? isLoading,
     bool? isFetchingMore,
+    bool? isSubmitting,
+    String? actionId,
+    String? query,
     int? currentPage,
+    int? itemsPerPage,
     bool? hasReachedMax,
-    final String? error,
+    String? error,
     Set<String>? imageActionInProgressEquipmentIds,
     Map<String, String?>? imageActionErrorByEquipmentId,
     List<Equipment>? ownerEquipment,
@@ -59,10 +72,13 @@ class EquipmentState {
   }) {
     return EquipmentState(
       isLoading: isLoading ?? this.isLoading,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
       isFetchingMore: isFetchingMore ?? this.isFetchingMore,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      actionId: actionId ?? this.actionId,
       error: error, // this.error is set if the error passed is null
+      query: query ?? this.query,
       currentPage: currentPage ?? this.currentPage,
+      itemsPerPage: itemsPerPage ?? this.itemsPerPage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       imageActionInProgressEquipmentIds:
           imageActionInProgressEquipmentIds ??

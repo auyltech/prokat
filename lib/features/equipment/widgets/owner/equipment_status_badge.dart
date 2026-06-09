@@ -1,53 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 class EquipmentStatusBadge extends StatelessWidget {
-  final String status;
+  final EquipmentStatus status;
 
   const EquipmentStatusBadge({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
-    final Color statusColor = status.toLowerCase() == 'available'
+    final Color statusColor = status == EquipmentStatus.available
         ? const Color.fromARGB(255, 24, 143, 0)
-        : status.toLowerCase() == 'booked'
+        : status == EquipmentStatus.booked
         ? const Color.fromARGB(255, 255, 102, 13)
-        : status.toLowerCase() == 'maintenance'
+        : status == EquipmentStatus.maintenance
         ? const Color.fromARGB(255, 255, 0, 0)
         : const Color.fromARGB(255, 131, 131, 131);
 
-    final statusString = status.toLowerCase() == 'draft'
+    final statusString = status == EquipmentStatus.draft
         ? 'draft'
-        : status.toLowerCase() == 'created'
+        : status == EquipmentStatus.created
         ? 'Moderator Review'
-        : status.toLowerCase() == 'available' ||
-              status.toLowerCase() == 'accepted'
+        : status == EquipmentStatus.accepted ||
+              status == EquipmentStatus.available
         ? 'Available'
-        : status.toLowerCase() == 'rejected'
+        : status == EquipmentStatus.rejected
         ? 'Resubmit'
-        : status.toLowerCase() == 'maintenance'
+        : status == EquipmentStatus.maintenance
         ? 'Maintenance'
         : '';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white, // White background to show the shadow
+        color: statusColor, // White background to show the shadow
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Text(
         statusString.toUpperCase(),
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: statusColor,
+          color: Colors.white,
           letterSpacing: 0.5,
         ),
       ),

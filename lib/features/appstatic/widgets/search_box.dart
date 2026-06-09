@@ -1,54 +1,47 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
-class SearchBox extends StatefulWidget {
+class SearchBox extends ConsumerStatefulWidget {
   final String? placeholder;
 
   const SearchBox({super.key, this.placeholder});
 
   @override
-  State<SearchBox> createState() => _SearchBoxState();
+  ConsumerState<SearchBox> createState() => _SearchBoxState();
 }
 
-class _SearchBoxState extends State<SearchBox> {
-  // Use the late controller defined at the class level
-  late final TextEditingController _searchController = TextEditingController();
+class _SearchBoxState extends ConsumerState<SearchBox> {
+  late final TextEditingController _searchController;
+  Timer? _debounceTimer;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Initialize or sync controller from URL
-    final params = GoRouterState.of(context).uri.queryParameters;
-    final urlQuery = params['query'] ?? '';
-
-    if (_searchController.text != urlQuery) {
-      _searchController.text = urlQuery;
-    }
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
-  void _updateFilters(Map<String, String?> newParams) {
-    final uri = GoRouterState.of(context).uri;
-    final currentParams = Map<String, String>.from(uri.queryParameters);
+  void _onChange(String value) {
+    // Cancel the previous timer if the user types before 500ms
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
-    newParams.forEach((key, value) {
-      if (value == null || value.trim().isEmpty) {
-        currentParams.remove(key);
-      } else {
-        currentParams[key] = value;
-      }
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      ref.read(equipmentProvider.notifier).setQuery(value);
     });
+  }
 
-    currentParams['page'] = '1';
-
-    // Ensure AppRoutes.main is the correct path string
-    context.go(Uri(path: uri.path, queryParameters: currentParams).toString());
+  void _onSubmit() {
+    // Cancel any pending debounce timers to avoid duplicate requests
+    _debounceTimer?.cancel();
+    ref.read(equipmentProvider.notifier).setQuery(_searchController.text);
   }
 
   @override
@@ -60,14 +53,14 @@ class _SearchBoxState extends State<SearchBox> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.5),
         border: Border.all(
-          color: (theme.colorScheme.outline).withValues(alpha: 0.3),
+          color: theme.colorScheme.outline.withValues(alpha: 0.3),
         ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: TextField(
-        // Use the persistent controller here
         controller: _searchController,
-        onSubmitted: (value) => _updateFilters({"query": value}),
+        onChanged: _onChange,
+        onSubmitted: (_) => _onSubmit(),
         decoration: InputDecoration(
           hintText: widget.placeholder ?? 'Search equipment...',
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
@@ -80,7 +73,7 @@ class _SearchBoxState extends State<SearchBox> {
           ),
           suffixIcon: IconButton(
             icon: const Icon(Icons.arrow_forward),
-            onPressed: () => _updateFilters({"query": _searchController.text}),
+            onPressed: _onSubmit,
           ),
           border: InputBorder.none,
           isDense: true,

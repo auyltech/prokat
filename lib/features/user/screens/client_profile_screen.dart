@@ -40,7 +40,9 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
     final userProfileState = ref.watch(userProfileProvider);
+
     final profileNotifier = ref.read(userProfileProvider.notifier);
 
     final locale = ref.watch(localeProvider);

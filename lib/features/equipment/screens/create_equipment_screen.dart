@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -23,15 +24,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   final _cityController = TextEditingController();
 
   bool _loading = false;
-  final List<String> _cities = [
-    "Almaty",
-    "Astana",
-    "Atyrau",
-    "Shymkent",
-    "Aktau",
-  ];
 
-  Future<void> _submit(AppLocalizations l10n) async {
+  Future<void> onSubmit(AppLocalizations l10n) async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
 
@@ -41,15 +35,17 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
       if (category == null) return;
 
-      final res = await ref.read(equipmentProvider.notifier).createEquipment({
-        "categoryId": category.id,
-        "city": _cityController.text.trim(),
-        "name": _name.text.trim(),
-        "model": _model.text.trim(),
-        "plateNumber": _plateNumber.text.trim(),
-      });
+      final result = await ref
+          .read(equipmentProvider.notifier)
+          .createEquipment({
+            "categoryId": category.id,
+            "city": _cityController.text.trim(),
+            "name": _name.text.trim(),
+            "model": _model.text.trim(),
+            "plateNumber": _plateNumber.text.trim(),
+          });
 
-      if (res == true && mounted) {
+      if (result == true && mounted) {
         context.pop();
         AppSnackBar.show(
           context,
@@ -63,13 +59,14 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
           isError: true,
         );
       }
-    } catch (e) {
-      if (mounted)
+    } catch (error) {
+      if (mounted) {
         AppSnackBar.show(
           context,
           message: l10n.somethingWentWrong,
           isError: true,
         );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -120,7 +117,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                                   style: theme.textTheme.headlineSmall,
                                 ),
                                 const SizedBox(height: 10),
-                                ..._cities.map(
+                                ...cities.map(
                                   (city) => ListTile(
                                     title: Text(city),
                                     leading: const Icon(Icons.location_city),
@@ -154,9 +151,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            hasLocation
-                                ? Icons.pin_drop
-                                : Icons.pin_drop_outlined,
+                            Icons.location_pin,
                             color: hasLocation
                                 ? theme.colorScheme.primary
                                 : theme.colorScheme.onPrimary,
@@ -182,6 +177,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                   const SizedBox(height: 16),
 
                   InputField(
+                    icon: Icons.badge_outlined,
                     label: l10n.equipmentNameLabel,
                     controller: _name,
                     hint: l10n.equipmentNameHint,
@@ -190,12 +186,14 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                   const SizedBox(height: 8),
                   InputField(
+                    icon: Icons.view_column_outlined,
                     label: l10n.modelLabel,
                     controller: _model,
                     hint: l10n.modelHint,
                   ),
                   const SizedBox(height: 8),
                   InputField(
+                    icon: Icons.mp_outlined,
                     label: l10n.plateNumberLabel,
                     controller: _plateNumber,
                     hint: l10n.plateNumberHint,
@@ -208,7 +206,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: _loading ? null : () => _submit(l10n),
+                      onPressed: _loading ? null : () => onSubmit(l10n),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,

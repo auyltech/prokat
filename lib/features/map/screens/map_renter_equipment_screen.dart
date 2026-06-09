@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/map/containers/map_container.dart';
 import 'package:prokat/features/map/containers/map_renter_equipment_container.dart';
 import 'package:prokat/l10n/app_localizations.dart';

@@ -19,7 +19,7 @@ class EquipmentService {
     String? query,
     String? city,
     int page = 1,
-    int limit = 10,
+    int itemsPerPage = 10,
   }) async {
     try {
       final response = await _dio.get(
@@ -29,7 +29,7 @@ class EquipmentService {
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
           'page': page,
-          'limit': limit,
+          'itemsPerPage': itemsPerPage,
         },
       );
 
@@ -73,7 +73,7 @@ class EquipmentService {
     String? query,
     String? city,
     int? page,
-    int? limit,
+    int? itemsPerPage,
   }) async {
     try {
       final response = await _dio.get(
@@ -84,7 +84,7 @@ class EquipmentService {
           if (categoryId != null && categoryId.isNotEmpty)
             'categoryId': categoryId,
           'page': page,
-          'limit': limit,
+          'itemsPerPage': itemsPerPage,
         },
       );
 
@@ -115,10 +115,10 @@ class EquipmentService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }

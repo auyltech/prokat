@@ -5,7 +5,7 @@ import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/industrial_input_container.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> submitPriceEntry(

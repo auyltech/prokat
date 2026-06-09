@@ -110,7 +110,7 @@ ApiResponse<T> handleApiResponse<T>({
     );
   } catch (e) {
     return ApiResponse.failure(
-      message: "Failed to read server response",
+      message: e.toString(), //"Failed to read server response",
       error: e,
       statusCode: statusCode,
     );

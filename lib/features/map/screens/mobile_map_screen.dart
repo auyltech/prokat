@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/map/widgets/map_controls.dart';
 
 enum MapMode { browseEquipment, pickLocation, ownerPlaceEquipment }
@@ -173,7 +173,9 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
           ),
           iconImage: 'equipment-icon',
           iconSize: iconSizeForZoom(_zoom),
-          iconOpacity: equipment.status == "available" ? 1.0 : 0.5,
+          iconOpacity: equipment.status == EquipmentStatus.available
+              ? 1.0
+              : 0.5,
           customData: {'id': equipment.id},
         ),
       );

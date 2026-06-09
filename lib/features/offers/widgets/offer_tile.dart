@@ -4,6 +4,7 @@ import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -68,9 +69,9 @@ class OfferTile extends ConsumerWidget {
     final ownerComment = offer.comment?.trim();
 
     final isHandled =
-        offer.status == "ACCEPTED" ||
-        offer.status == "DECLINED" ||
-        offer.status == "REJECTED";
+        offer.status == OfferStatus.accepted ||
+        offer.status == OfferStatus.rejected ||
+        offer.status == OfferStatus.expired;
 
     return Container(
       width: double.infinity,
@@ -276,17 +277,19 @@ class OfferTile extends ConsumerWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: offer.status == "ACCEPTED"
+                    color: offer.status == OfferStatus.accepted
                         ? const Color(0xFFE8F5E9)
                         : const Color(0xFFFFEBEE),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    offer.status == "ACCEPTED" ? "ACCEPTED" : "REJECTED",
+                    offer.status == OfferStatus.accepted
+                        ? "ACCEPTED"
+                        : "REJECTED",
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: offer.status == "ACCEPTED"
+                      color: offer.status == OfferStatus.accepted
                           ? const Color(0xFF2E7D32)
                           : const Color(0xFFC62828),
                     ),

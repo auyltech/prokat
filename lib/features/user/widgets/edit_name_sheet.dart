@@ -29,7 +29,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
     super.dispose();
   }
 
-  Future<void> submit() async {
+  Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
     final newName = controller.text.trim();
     if (newName.isEmpty) return;
@@ -45,11 +45,13 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
 
     if (mounted) {
       context.pop();
-      if (success) {
-        AppSnackBar.show(context, message: l10n.nameUpdated);
-      } else {
-        AppSnackBar.show(context, message: l10n.failedSaveName, isError: true);
-      }
+
+      AppSnackBar.show(
+        context,
+        message: success ? l10n.nameUpdated : l10n.failedSaveName,
+        isSuccess: success,
+        isError: !success,
+      );
     }
   }
 
@@ -89,7 +91,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
             controller: controller,
             autofocus: true,
             textInputAction: TextInputAction.done,
-            onSubmitted: (_) => submit(),
+            onSubmitted: (_) => onSubmit(),
             decoration: InputDecoration(
               hintText: l10n.enterName,
               filled: true,
@@ -107,7 +109,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : submit,
+                  onPressed: isLoading ? null : onSubmit,
                   child: Text(l10n.save),
                 ),
               ),

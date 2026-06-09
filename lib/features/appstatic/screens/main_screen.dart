@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -9,51 +10,12 @@ import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 
-const Color kBlue = Color(0xFF2563EB);
-const Color kBlueDark = Color(0xFF1E3A8A);
-const Color kBgGray = Color(0xFFF8F9FB);
-const Color kBorder = Color(0xFFE5E7EB);
-const Color kTextPrimary = Color(0xFF111827);
-const Color kTextSecondary = Color(0xFF6B7280);
-const Color kTextMuted = Color(0xFF9CA3AF);
-
-const List<String> kLanguages = ['RU', 'KZ', 'EN'];
-
-const kazakhstanCities = [
-  'Almaty',
-  'Astana',
-  'Shymkent',
-  'Atyrau',
-  'Aktobe',
-  'Karaganda',
-  'Taraz',
-  'Pavlodar',
-  'Ust-Kamenogorsk',
-  'Semey',
-  'Kostanay',
-  'Kyzylorda',
-  'Uralsk',
-  'Petropavl',
-  'Turkistan',
-];
-
 class MainScreen extends ConsumerStatefulWidget {
-  final String? query, category, city;
-  final int? page, limit;
-
-  const MainScreen({
-    super.key,
-    this.query,
-    this.category,
-    this.city,
-
-    this.page,
-    this.limit,
-  });
+  const MainScreen({super.key});
 
   @override
   ConsumerState<MainScreen> createState() => _MainScreenState();
@@ -63,16 +25,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Timer? _debounce;
 
   Future<void> _fetchData() async {
+    final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
+    final city = ref.read(locationProvider).city;
+
     ref
         .read(equipmentProvider.notifier)
-        .getRenterEquipment(
-          categoryId: widget.category,
-          query: widget.query,
-          page: widget.page,
-          limit: widget.limit,
-          city: widget.city,
-        );
+        .getRenterEquipment(categoryId: categoryId, city: city);
 
+    // Fetch Categories only once
     if (ref.read(categoriesProvider).categories.isEmpty ||
         ref.read(categoriesProvider).error != null) {
       ref.read(categoriesProvider.notifier).getCategories();
@@ -82,52 +42,34 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => _fetchData());
-  }
 
-  void _updateFilters(BuildContext context, Map<String, String?> newParams) {
-    final uri = GoRouterState.of(context).uri;
-    final currentParams = Map<String, String>.from(uri.queryParameters);
+    Future.microtask(() {
+      // _fetchData();
 
-    newParams.forEach((key, value) {
-      if (value == null) {
-        currentParams.remove(key);
-      } else {
-        currentParams[key] = value;
-      }
+      ref.listenManual(
+        categoriesProvider.select((s) => s.selectedCategory?.id),
+        (_, _) => _onFiltersChanged(),
+      );
+
+      ref.listenManual(
+        locationProvider.select((s) => s.city),
+        (_, _) => _onFiltersChanged(),
+      );
     });
-
-    currentParams['page'] = '1';
-
-    context.go(
-      Uri(path: AppRoutes.main, queryParameters: currentParams).toString(),
-    );
   }
 
   @override
-  void didUpdateWidget(covariant MainScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
 
-    final paramsChanged =
-        oldWidget.query != widget.query ||
-        oldWidget.city != widget.city ||
-        oldWidget.category != widget.category ||
-        oldWidget.page != widget.page;
+  void _onFiltersChanged() {
+    _debounce?.cancel();
 
-    if (paramsChanged) {
-      if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-      _debounce = Timer(const Duration(seconds: 2), () {
-        ref
-            .read(equipmentProvider.notifier)
-            .getRenterEquipment(
-              city: widget.city ?? "",
-              categoryId: widget.category ?? "",
-              query: widget.query ?? "",
-              page: widget.page ?? 1,
-            );
-      });
-    }
+    _debounce = Timer(const Duration(seconds: 1), () {
+      _fetchData();
+    });
   }
 
   @override
@@ -139,9 +81,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     final categoriesState = ref.watch(categoriesProvider);
     final equipmentState = ref.watch(equipmentProvider);
+    final locationState = ref.watch(locationProvider);
 
-    final selectedCity = widget.city ?? "";
-    final selectedCategory = widget.category ?? "";
+    final selectedCity = locationState.city ?? "";
+    final selectedCategory = categoriesState.selectedCategory;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -199,18 +142,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ),
               ),
 
-              _HeroBanner(
-                city: selectedCity,
-                l10n: l10n,
-                onCityTap: () => CityPickerSheet.show(
-                  context: context,
-                  city: selectedCity,
-                  mode: "guest",
-                ),
-              ),
+              _HeroBanner(city: selectedCity, l10n: l10n),
 
               Padding(
-                padding: EdgeInsets.all(12),
+                padding: EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -223,7 +158,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
                           color: theme.primaryColor,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         alignment: Alignment.center,
                         child: Row(
@@ -271,17 +206,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             final category = categoriesState.categories[i];
 
                             return CategoryCard(
-                              isSelected: selectedCategory == category.id,
+                              isSelected: selectedCategory?.id == category.id,
                               category: category,
-                              onTap: () => _updateFilters(context, {
-                                'category': category.id,
-                              }),
+                              onTap: () => ref
+                                  .watch(categoriesProvider.notifier)
+                                  .selectCategory(category),
                             );
                           },
                         ),
                       ),
 
-                    SizedBox(height: 12),
+                    SizedBox(height: 16),
 
                     // Popular Rents Header
                     Text(l10n.popularRents, style: theme.textTheme.titleLarge),
@@ -292,6 +227,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       EmptyStateTile(title: l10n.loading)
                     else if (equipmentState.error != null)
                       EmptyStateTile(title: l10n.loadEquipmentErrorHint)
+                    else if (equipmentState.renterEquipment.isEmpty)
+                      EmptyStateTile(
+                        icon: Icons.deselect_outlined,
+                        title:
+                            "There are no ${selectedCategory?.name ?? "equipment"} listed at this moment ${selectedCity.isNotEmpty ? "in $selectedCity" : ""}",
+                      )
                     else
                       // Popular Rents
                       ListView.separated(
@@ -323,13 +264,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 class _HeroBanner extends StatelessWidget {
   final String city;
   final AppLocalizations l10n;
-  final VoidCallback onCityTap;
 
-  const _HeroBanner({
-    required this.city,
-    required this.l10n,
-    required this.onCityTap,
-  });
+  const _HeroBanner({required this.city, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +302,8 @@ class _HeroBanner extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: onCityTap,
+            onTap: () =>
+                CityPickerSheet.show(context: context, service: "main_screen"),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
@@ -409,6 +346,3 @@ class _HeroBanner extends StatelessWidget {
     );
   }
 }
-
-// ─── Filter Pills ─────────────────────────────────────────────────────────────
-const List<String> kFilters = ['All', 'Daily', 'Weekly', 'Monthly', 'Near me'];

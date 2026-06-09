@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BecomeOwnerCTA extends ConsumerStatefulWidget {
@@ -20,9 +20,12 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final registrationRequestState = ref.watch(ownerRegistrationProvider);
-    final registrationRequest = registrationRequestState.registrationRequest;
-    final isOwner = ref.watch(userProfileProvider).userProfile?.role == 'OWNER';
+
+    final registrationRequest = ref
+        .watch(ownerRegistrationProvider)
+        .registrationRequest;
+
+    final isOwner = ref.watch(authProvider).isOwner;
 
     // 1. Owner State
     if (isOwner) {
@@ -43,6 +46,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
 
     // 2. Request Pending/Rejected State
     if (registrationRequest != null) {
+      print("has_request");
       final config = _getStatusConfig(
         registrationRequest.status?.toUpperCase() ?? 'PENDING',
         theme,
