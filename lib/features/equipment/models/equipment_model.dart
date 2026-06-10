@@ -18,7 +18,7 @@ enum EquipmentStatus {
   archived,
 }
 
-EquipmentStatus parseBookingStatus(dynamic value) {
+EquipmentStatus parseEquipmentStatus(dynamic value) {
   if (value == null) return EquipmentStatus.draft;
 
   final normalized = value.toString().trim().toLowerCase();
@@ -101,8 +101,9 @@ class Equipment {
 
   String? get primaryImageUrl {
     for (final img in images) {
-      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty)
+      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty) {
         return img.imageUrl;
+      }
     }
 
     final sorted = [...images]
@@ -180,7 +181,7 @@ class Equipment {
         ownerComment: json["ownerComment"] ?? "",
         rentCondition: json["rentCondition"],
 
-        status: parseBookingStatus(json["status"]),
+        status: parseEquipmentStatus(json["status"]),
         isVisible: parseBoolean(json["isVisible"]),
 
         prices: (json["prices"] as List<dynamic>? ?? [])

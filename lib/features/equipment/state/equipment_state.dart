@@ -30,6 +30,10 @@ class EquipmentState {
   final Category? category;
   final LocationModel? location;
 
+  int get onlineEquipmentCount {
+    return ownerEquipment.where((item) => item.isVisible).length;
+  }
+
   EquipmentState({
     this.isLoading = false,
     this.isFetchingMore = false,

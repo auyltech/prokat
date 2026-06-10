@@ -47,6 +47,14 @@ String formatDateTime(dynamic date, dynamic time) {
   return dateStr;
 }
 
+String formatMinutes(int minutes) {
+  final days = minutes ~/ 1440;
+  final hours = (minutes % 1440) ~/ 60;
+
+  if (days > 0) return "$days days $hours hours";
+  return "$hours hours";
+}
+
 String formatPhoneNumber(String phoneNumber) {
   // 1. Remove all non-digit characters
   String cleaned = phoneNumber.replaceAll(RegExp(r'\D'), '');

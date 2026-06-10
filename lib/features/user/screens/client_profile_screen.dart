@@ -43,121 +43,137 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
     final userProfileState = ref.watch(userProfileProvider);
 
-    final profileNotifier = ref.read(userProfileProvider.notifier);
-
     final locale = ref.watch(localeProvider);
     final langDisplay = LocaleNotifier.displayCode(locale);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: ListView(
-        padding: EdgeInsets.all(24),
-        children: [
-          ProfileImagePicker(
-            onImageSelected: (file) async {
-              if (file != null) {
-                await profileNotifier.uploadProfileImage(file);
-              }
-            },
-            initialImageUrl:
-                userProfileState.userProfile?.profileImageUrl ?? "",
-          ),
+      backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // SliverAppBar(
+            //   expandedHeight: 190,
+            //   flexibleSpace: FlexibleSpaceBar(
+            //   background:
+            // ),
+            // ),
+            SliverToBoxAdapter(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.primaryColor,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(28),
+                    bottomRight: Radius.circular(28),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    ProfileImagePicker(
+                      initialImageUrl:
+                          userProfileState.userProfile?.profileImageUrl ?? "",
+                    ),
 
-          const SizedBox(height: 20),
+                    const DisplayName(),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const DisplayName(),
-
-                  // Rating and Orders
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rate_rounded,
-                        size: 30,
-                        color: Colors.amber,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        (userProfileState.userProfile?.ratingAverage ?? 0)
-                            .toStringAsFixed(1),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.secondary,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.star_rate_rounded,
+                          size: 30,
+                          color: Colors.amber,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "- ${userProfileState.userProfile?.ratingCount ?? 0} ratings",
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: theme.colorScheme.secondary.withValues(
-                            alpha: 0.8,
+                        const SizedBox(width: 6),
+                        Text(
+                          (userProfileState.userProfile?.ratingAverage ?? 0)
+                              .toStringAsFixed(1),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.secondary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 8),
+                        Text(
+                          "- ${userProfileState.userProfile?.ratingCount ?? 0} ratings",
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.secondary.withValues(
+                              alpha: 0.8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
 
-          const LanguageSelectorTile(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const LanguageSelectorTile(),
 
-          UserProfileTile(
-            icon: Icons.phone_android_rounded,
-            label: l10n.phoneNumber,
-            value: userProfileState.userProfile?.phoneNumber ?? "+7 234 ...",
-            onTap: () {},
-            trailing: const Icon(Icons.edit, color: Colors.white54),
-          ),
+                    UserProfileTile(
+                      icon: Icons.phone_android_rounded,
+                      label: l10n.phoneNumber,
+                      value:
+                          userProfileState.userProfile?.phoneNumber ??
+                          "+7 234 ...",
+                      onTap: () {},
+                      trailing: const Icon(Icons.edit, color: Colors.white54),
+                    ),
 
-          const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-          UserProfileTile(
-            icon: LucideIcons.globe,
-            label: "App Language",
-            value: langDisplay,
-            onTap: () => showLanguageSheet(context),
-          ),
+                    UserProfileTile(
+                      icon: LucideIcons.globe,
+                      label: "App Language",
+                      value: langDisplay,
+                      onTap: () => showLanguageSheet(context),
+                    ),
 
-          const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-          const BecomeOwnerCTA(),
+                    const BecomeOwnerCTA(),
 
-          const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-          SettingsLinkTile(
-            icon: Icons.favorite_outline,
-            title: l10n.supportUsTitle,
-            subtitle: l10n.donateOrHelp,
-            onTap: () => context.push('/support-us'),
-          ),
+                    SettingsLinkTile(
+                      icon: Icons.favorite_outline,
+                      title: l10n.supportUsTitle,
+                      subtitle: l10n.donateOrHelp,
+                      onTap: () => context.push('/support-us'),
+                    ),
 
-          const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-          SettingsLinkTile(
-            icon: Icons.description_outlined,
-            title: l10n.termsConditions,
-            onTap: () => context.push('/terms'),
-          ),
+                    SettingsLinkTile(
+                      icon: Icons.description_outlined,
+                      title: l10n.termsConditions,
+                      onTap: () => context.push('/terms'),
+                    ),
 
-          const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-          SettingsLinkTile(
-            icon: Icons.help_outline,
-            title: l10n.helpSupportTitle,
-            subtitle: l10n.helpSupportSubtitle,
-            onTap: () => context.push('/help'),
-          ),
+                    SettingsLinkTile(
+                      icon: Icons.help_outline,
+                      title: l10n.helpSupportTitle,
+                      subtitle: l10n.helpSupportSubtitle,
+                      onTap: () => context.push('/help'),
+                    ),
 
-          const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-          const LogoutButton(),
-        ],
+                    const LogoutButton(),
+                  ],
+                ),
+              ),
+            ),
+
+            // SliverFillRemaining(fillOverscroll: true),
+          ],
+        ),
       ),
     );
   }

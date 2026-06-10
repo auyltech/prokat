@@ -37,7 +37,7 @@ class DisplayName extends ConsumerWidget {
             name,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: theme.colorScheme.primary,
+              color: theme.colorScheme.onPrimary,
             ),
           ),
         ),

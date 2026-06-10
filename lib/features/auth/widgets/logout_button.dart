@@ -11,8 +11,6 @@ class LogoutButton extends ConsumerWidget {
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -21,12 +19,14 @@ class LogoutButton extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           l10n.logout,
-          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
         content: Text(
           l10n.logoutConfirmation,
-          style: textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurface.withValues(alpha: 0.7),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         actions: [
@@ -36,10 +36,12 @@ class LogoutButton extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => context.pop(true),
-            style: TextButton.styleFrom(foregroundColor: colorScheme.error),
+            style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
             child: Text(
               l10n.logout,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
         ],
@@ -47,55 +49,54 @@ class LogoutButton extends ConsumerWidget {
     );
 
     if (confirm != true) return;
-
-    /// Call app startup provider
-    /// handles logout local, backend, reset app state
     await ref.read(appStartupProvider.notifier).forceSignedOut();
-
-    // if (context.mounted) context.go('/login');
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-
     final authState = ref.watch(authProvider);
 
     return GestureDetector(
       onTap: authState.isLoading ? null : () => _confirmLogout(context, ref),
-      child: Container(
-        padding: EdgeInsets.fromLTRB(20, 12, 20, 12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.error,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            /// Icon / Loader
-            authState.isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: theme.colorScheme.onError,
-                    ),
-                  )
-                : Icon(Icons.logout, color: theme.colorScheme.onError),
-
-            const SizedBox(width: 16),
-
-            /// Text
-            Text(
-              l10n.logout,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onError,
-                fontWeight: FontWeight.w500,
+      child: AnimatedOpacity(
+        opacity: authState.isLoading ? 0.6 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.error,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: authState.isLoading
+                    ? CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.onError,
+                      )
+                    : Icon(
+                        Icons.logout_rounded,
+                        color: theme.colorScheme.onError,
+                        size: 20,
+                      ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Text(
+                l10n.logout,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onError,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

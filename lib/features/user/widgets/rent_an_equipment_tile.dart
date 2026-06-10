@@ -13,40 +13,31 @@ class RentAnEquipmentTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.storefront, size: 32),
-          label: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.rentAnEquipment,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.storefront_outlined, size: 22),
+        label: Text(
+          l10n.rentAnEquipment,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF1B3E8C),
           ),
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            backgroundColor: theme.colorScheme.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          onPressed: () async {
-            await ref.read(appStartupProvider.notifier).setClientMode();
-            if (!context.mounted) return;
-            context.go(AppRoutes.searchList);
-          },
         ),
+        style: ElevatedButton.styleFrom(
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          backgroundColor: Colors.white, // deep blue from mockup
+          foregroundColor: const Color(0xFF1B3E8C),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        onPressed: () async {
+          await ref.read(appStartupProvider.notifier).setClientMode();
+          if (!context.mounted) return;
+          context.go(AppRoutes.searchList);
+        },
       ),
     );
   }

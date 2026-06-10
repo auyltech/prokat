@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/billing/widgets/balance_summary_tile.dart';
+import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
+import 'package:prokat/features/user/widgets/price_tier_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
+
+class OwnerPaymentsTopupScreen extends ConsumerStatefulWidget {
+  const OwnerPaymentsTopupScreen({super.key});
+
+  @override
+  ConsumerState<OwnerPaymentsTopupScreen> createState() =>
+      _OwnerPaymentsTopupScreenState();
+}
+
+class _OwnerPaymentsTopupScreenState
+    extends ConsumerState<OwnerPaymentsTopupScreen> {
+  String? selectedTierId;
+
+  void _payWithKaspi(String id) {}
+
+  Future<void> _submitManualRequest(String? id) async {
+    if (id == null) return;
+
+    final result = await ref
+        .read(billingProvider.notifier)
+        .topUpBalance(id: id);
+
+    if (result && mounted) {
+      AppSnackBar.show(context, message: "Top up added");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() async {
+      await ref.read(billingProvider.notifier).getPricingTiers();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final billingState = ref.watch(billingProvider);
+    final priceTiers = ref.watch(billingProvider).pricingTiers;
+
+    final payments = ref.watch(billingProvider).transactions;
+
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(billingProvider.notifier).getPricingTiers();
+          await ref.read(billingProvider.notifier).getOwnerTransactions();
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            BalanceSummaryTile(
+              isloading: billingState.isBalanceLoading,
+              isError: false,
+              secondsRemaining:
+                  billingState.accountBalance?.secondsRemaining ?? 0,
+              hasActiveBurn: false,
+              onTap: () {},
+            ),
+            // --- 1. Package Selection ---
+            Text(l10n.selectPackage, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.3,
+              ),
+              itemCount: priceTiers.length,
+              itemBuilder: (context, index) {
+                return PriceTierTile(
+                  isSelected: selectedTierId == priceTiers[index].id,
+                  pricingTier: priceTiers[index],
+                  onSelect: () {
+                    setState(() {
+                      selectedTierId = priceTiers[index].id;
+                    });
+                  },
+                );
+              },
+            ),
+
+            const SizedBox(height: 32),
+
+            // --- 2. Action Buttons ---
+            ElevatedButton.icon(
+              onPressed: selectedTierId == null
+                  ? null
+                  : () => _payWithKaspi(selectedTierId!),
+              icon: const Icon(Icons.account_balance_wallet),
+              label: Text(l10n.payWithKaspi),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF14635),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: selectedTierId == null
+                  ? null
+                  : () => _submitManualRequest(selectedTierId!),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Text(l10n.submitManualRequest),
+            ),
+
+            const SizedBox(height: 40),
+
+            // --- 3. Recent History ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.recentPayments,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(onPressed: () {}, child: Text(l10n.viewAll)),
+              ],
+            ),
+
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: payments.length,
+              itemBuilder: (context, index) =>
+                  OwnerPaymentTile(transaction: payments[index]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

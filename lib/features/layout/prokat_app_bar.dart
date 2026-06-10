@@ -32,8 +32,12 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final String currentPath = routerState.uri.path;
     final List<String> segments = routerState.uri.pathSegments;
 
+    final hideAppBar =
+        currentPath == AppRoutes.launch ||
+        currentPath == AppRoutes.main ||
+        currentPath == AppRoutes.ownerProfile;
     // Don't show on launch, main landing page
-    if (currentPath == AppRoutes.launch || currentPath == AppRoutes.main) {
+    if (hideAppBar) {
       return const SizedBox.shrink();
     }
 
@@ -83,6 +87,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     }
 
     final bool isOrdersScreen = currentPath == AppRoutes.clientOrders;
+
     if (isOrdersScreen) {
       actionWidgets.add(
         IconButton(

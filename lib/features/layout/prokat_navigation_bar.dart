@@ -5,7 +5,6 @@ import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 // Simple helper class to keep the code dry
@@ -104,20 +103,6 @@ class ProkatNavigationBar extends ConsumerStatefulWidget {
 }
 
 class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
-  Widget _buildIcon(_NavItem item) {
-    final icon = Icon(item.icon, size: 28);
-
-    final isNotifications =
-        item.path == AppRoutes.notifications ||
-        item.path == AppRoutes.ownerNotifications;
-
-    if (!isNotifications) {
-      return icon;
-    }
-
-    return NotificationBadge();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -135,7 +120,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     };
 
     final Color primary = switch (startupState) {
-      AppStartupRouteState.owner => AppColors.teal700,
+      AppStartupRouteState.owner => AppColors.teal800,
       AppStartupRouteState.client => theme.primaryColor,
       _ => theme.primaryColor,
     };
@@ -167,58 +152,36 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
 
     return SafeArea(
       top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          24,
-          0,
-          24,
-          0,
-        ), // Gives the floating lift from the bottom and sides
-        child: Container(
-          height: 64,
-          decoration: BoxDecoration(
-            color: primary, // Background color of the pill
-            borderRadius: BorderRadius.circular(
-              32,
-            ), // Makes it a wide pill shape
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: navItems.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(color: theme.cardColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: navItems.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
 
-              return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => context.go(item.path),
-                  child: Center(
-                    child: Opacity(
-                      // Uses theme.colorScheme.onPrimary, slightly dimmed if unselected
-                      opacity: isSelected ? 1.0 : 0.5,
-                      child: IconTheme(
-                        data: IconThemeData(
-                          color: theme.colorScheme.onPrimary,
-                          size: 32,
-                        ),
-                        child: _buildIcon(
-                          item,
-                        ), // Icons only, labels completely removed
-                      ),
+            return Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => context.go(item.path),
+                child: Center(
+                  child: IconTheme(
+                    data: IconThemeData(
+                      color: theme.colorScheme.onSurface,
+                      size: 32,
                     ),
+                    child: Icon(
+                      item.icon,
+                      size: 32,
+                      color: isSelected ? primary : Colors.black38,
+                    ), // Icons only, labels completely removed
                   ),
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            );
+          }).toList(),
         ),
       ),
     );

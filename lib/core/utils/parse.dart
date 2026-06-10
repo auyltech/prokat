@@ -1,3 +1,27 @@
+String parseString(dynamic value, {required String fieldName}) {
+  if (value == null) {
+    throw FormatException(
+      "Expected non-null String for field '$fieldName', received null",
+    );
+  }
+  final stringValue = value.toString().trim();
+  if (stringValue.isEmpty) {
+    throw FormatException("Field '$fieldName' is an empty string");
+  }
+  return stringValue;
+}
+
+int parseInt(dynamic value, {required String fieldName}) {
+  if (value is int) return value;
+  if (value is String) {
+    final parsed = int.tryParse(value);
+    if (parsed != null) return parsed;
+  }
+  throw FormatException(
+    "Expected non-null Int for field '$fieldName', received: $value",
+  );
+}
+
 int? parseNullableInt(dynamic value) {
   if (value == null) return null;
 
@@ -8,6 +32,19 @@ int? parseNullableInt(dynamic value) {
   }
 
   return null;
+}
+
+DateTime parseDateTime(dynamic value, {required String fieldName}) {
+  if (value is String) {
+    final parsed = DateTime.tryParse(value);
+    if (parsed != null) {
+      return parsed.toLocal(); // Maintain timezone consistency
+    }
+  }
+
+  throw FormatException(
+    "Expected valid ISO8601 Date string for '$fieldName', received: $value",
+  );
 }
 
 DateTime? parseNullableDate(dynamic value) {

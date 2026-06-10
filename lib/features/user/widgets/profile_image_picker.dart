@@ -1,24 +1,21 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class ProfileImagePicker extends StatefulWidget {
-  final Function(File?) onImageSelected;
+class ProfileImagePicker extends ConsumerStatefulWidget {
   final String? initialImageUrl;
 
-  const ProfileImagePicker({
-    super.key,
-    required this.onImageSelected,
-    this.initialImageUrl,
-  });
+  const ProfileImagePicker({super.key, this.initialImageUrl});
 
   @override
-  State<ProfileImagePicker> createState() => _ProfileImagePickerState();
+  ConsumerState<ProfileImagePicker> createState() => _ProfileImagePickerState();
 }
 
-class _ProfileImagePickerState extends State<ProfileImagePicker> {
+class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
@@ -56,7 +53,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
 
       if (croppedFile != null) {
         setState(() => _selectedImage = File(croppedFile.path));
-        widget.onImageSelected(_selectedImage);
+        onImageSelected(_selectedImage);
       }
     } catch (e) {
       debugPrint("User cancelled the cropper");
@@ -97,7 +94,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
 
               Text(
@@ -132,6 +129,12 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
     );
   }
 
+  Future<void> onImageSelected(File? file) async {
+    if (file != null) {
+      await ref.read(userProfileProvider.notifier).uploadProfileImage(file);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -158,7 +161,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
               ),
               child: CircleAvatar(
                 radius: 50,
-                backgroundColor: theme.colorScheme.primaryContainer,
+                backgroundColor: Colors.white,
                 backgroundImage: _selectedImage != null
                     ? FileImage(_selectedImage!)
                     : (widget.initialImageUrl != null &&
@@ -171,7 +174,7 @@ class _ProfileImagePickerState extends State<ProfileImagePicker> {
                     (_selectedImage == null &&
                         (widget.initialImageUrl == null ||
                             widget.initialImageUrl!.isEmpty))
-                    ? const Icon(Icons.person, size: 40)
+                    ? const Icon(Icons.person, size: 70)
                     : null,
               ),
             ),
