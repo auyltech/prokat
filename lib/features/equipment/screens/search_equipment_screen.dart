@@ -132,7 +132,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
             children: [
               SearchBox(placeholder: l10n.searchEquipment),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               const UserCategorySelector(mode: "search"),
 

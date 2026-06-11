@@ -8,7 +8,6 @@ import 'package:prokat/features/appstatic/screens/help_screen.dart';
 import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
 import 'package:prokat/features/appstatic/screens/terms_conditions_screen.dart';
 import 'package:prokat/features/auth/screens/register_screen.dart';
-import 'package:prokat/features/bookings/screens/client_booking_details_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/create_booking_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
@@ -47,7 +46,7 @@ import 'package:prokat/features/user/screens/owner_settings_screen.dart';
 import 'package:prokat/features/owner/screens/register_owner_screen.dart';
 import 'package:prokat/features/user/screens/user_dashboard_screen.dart';
 import 'package:prokat/features/user/screens/client_profile_screen.dart';
-import 'package:prokat/features/user/screens/user_settings_screen.dart';
+import 'package:prokat/features/user/screens/client_settings_screen.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/categories/screens/categories_screen.dart';
@@ -294,18 +293,9 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const ClientBookingsScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.clientOrdersHistory,
+                    path: AppRoutes.bookingHistory,
                     builder: (_, _) {
                       return const ClientBookingsHistoryScreen();
-                    },
-                  ),
-                  GoRoute(
-                    path: "/:id",
-                    builder: (context, state) {
-                      final bookingId =
-                          state.uri.queryParameters['bookingId'] ?? '';
-
-                      return ClientBookingDetailsScreen(bookingId: bookingId);
                     },
                   ),
                 ],
@@ -359,7 +349,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: AppRoutes.settings,
-                builder: (_, _) => const UserSettingsScreen(),
+                builder: (_, _) => const ClientSettingsScreen(),
               ),
               GoRoute(
                 path: AppRoutes.becomeOwner,
@@ -466,7 +456,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const OwnerBookingsScreen(),
                 routes: [
                   GoRoute(
-                    path: 'history',
+                    path: AppRoutes.bookingHistory,
                     builder: (context, state) {
                       return OwnerBookingHistoryScreen();
                     },

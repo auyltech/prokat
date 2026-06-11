@@ -65,155 +65,158 @@ class ChatTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Avatar Section
-                CircleAvatar(
-                  radius: 24, // Optimized sizing
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  backgroundImage: (avatarUrl ?? '').isNotEmpty
-                      ? NetworkImage(avatarUrl!)
-                      : null,
-                  child: (avatarUrl ?? '').isEmpty
-                      ? Text(
-                          title.isNotEmpty ? title[0].toUpperCase() : 'C',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : null,
-                ),
-                const SizedBox(width: 14),
-
-                // 2. Main Content & Message Preview Section
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      // Row that keeps message text and badge cleanly aligned
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              preview,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: unreadCount > 0
-                                    ? theme.textTheme.bodyLarge?.color
-                                    : theme.hintColor,
-                                fontWeight: unreadCount > 0
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
+      child: Container(
+        decoration: BoxDecoration(color: theme.cardColor),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Avatar Section
+                  CircleAvatar(
+                    radius: 24, // Optimized sizing
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    backgroundImage: (avatarUrl ?? '').isNotEmpty
+                        ? NetworkImage(avatarUrl!)
+                        : null,
+                    child: (avatarUrl ?? '').isEmpty
+                        ? Text(
+                            title.isNotEmpty ? title[0].toUpperCase() : 'C',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 14),
 
-                          // Clean, inline Unread Badge
-                          if (unreadCount > 0) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 7,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.primary,
-                                borderRadius: BorderRadius.circular(
-                                  12,
-                                ), // Dynamic pill shape
-                              ),
+                  // 2. Main Content & Message Preview Section
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        // Row that keeps message text and badge cleanly aligned
+                        Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                '$unreadCount',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11,
+                                preview,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: unreadCount > 0
+                                      ? theme.textTheme.bodyLarge?.color
+                                      : theme.hintColor,
+                                  fontWeight: unreadCount > 0
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                 ),
                               ),
                             ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
 
-                // 3. Right Status & Time Section
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (summary != null && summary.status.isNotEmpty)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                            // Clean, inline Unread Badge
+                            if (unreadCount > 0) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(
+                                    12,
+                                  ), // Dynamic pill shape
+                                ),
+                                child: Text(
+                                  '$unreadCount',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: theme.colorScheme.onPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor(
-                            summary.status,
-                            theme,
-                          ).withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  // 3. Right Status & Time Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (summary != null && summary.status.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
                             color: _getStatusColor(
                               summary.status,
                               theme,
-                            ).withValues(alpha: 0.25),
-                            width: 1,
+                            ).withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: _getStatusColor(
+                                summary.status,
+                                theme,
+                              ).withValues(alpha: 0.25),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            chatStatusLabel,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: _getStatusColor(summary.status, theme),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                              fontSize: 10,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          chatStatusLabel,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: _getStatusColor(summary.status, theme),
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
 
-                    Text(
-                      timestamp,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.hintColor,
-                        fontSize: 12,
+                      Text(
+                        timestamp,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.hintColor,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Clean separator line matching standard chat lists
-          Padding(
-            padding: const EdgeInsets.only(left: 78, right: 16),
-            child: Divider(
-              height: 1,
-              thickness: 0.5,
-              color: theme.dividerColor.withValues(alpha: 0.4),
+            // Clean separator line matching standard chat lists
+            Padding(
+              padding: const EdgeInsets.only(left: 78, right: 16),
+              child: Divider(
+                height: 1,
+                thickness: 0.5,
+                color: theme.dividerColor.withValues(alpha: 0.4),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

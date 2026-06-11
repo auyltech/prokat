@@ -11,7 +11,7 @@ class CategoryRowSkeleton extends StatelessWidget {
       height: 90, // Wraps the visual bounds of the service items
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         itemCount: 5, // Fills out the width of the screen row
         separatorBuilder: (_, _) => const SizedBox(width: 16),
         itemBuilder: (context, index) => Shimmer.fromColors(

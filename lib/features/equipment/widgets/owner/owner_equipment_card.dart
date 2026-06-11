@@ -29,7 +29,8 @@ class OwnerEquipmentCard extends ConsumerWidget {
         ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
         : "No Price Set";
 
-    return Padding(
+    return Container(
+      decoration: BoxDecoration(color: theme.cardColor),
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
       child: Column(
         children: [

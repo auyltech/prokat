@@ -27,15 +27,15 @@ class ClientBookingTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     // Data parsing helpers inherited from your previous layout structure
-    final minutesLeft = getRemainingMinutes(booking.bookedAt);
-    final bookingData = getBookingMessage(booking.bookedOn, booking.bookedAt);
-    final String message = bookingData?['message'] ?? 'Status unavailable';
+    // final minutesLeft = getRemainingMinutes(booking.bookedAt);
+    // final bookingData = getBookingMessage(booking.bookedOn, booking.bookedAt);
+    // final String message = bookingData?['message'] ?? 'Status unavailable';
 
-    final displayMessage = booking.status == BookingStatus.created
-        ? l10n.minutesLeft(minutesLeft)
-        : (booking.status == BookingStatus.confirmed)
-        ? message
-        : "";
+    // final displayMessage = booking.status == BookingStatus.created
+    //     ? l10n.minutesLeft(minutesLeft)
+    //     : (booking.status == BookingStatus.confirmed)
+    //     ? message
+    //     : "";
 
     final canReview =
         booking.status == BookingStatus.completed &&
@@ -45,12 +45,7 @@ class ClientBookingTile extends ConsumerWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1.0),
-        ),
-      ),
+      decoration: BoxDecoration(color: theme.cardColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

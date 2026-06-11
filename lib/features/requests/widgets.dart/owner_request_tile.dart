@@ -54,7 +54,8 @@ class OwnerRequestTile extends ConsumerWidget {
 
     final minutesLeft = getRemainingMinutes(request.createdAt);
 
-    return Padding(
+    return Container(
+      decoration: BoxDecoration(color: theme.cardColor),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +83,7 @@ class OwnerRequestTile extends ConsumerWidget {
             ],
           ),
 
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
 
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

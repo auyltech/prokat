@@ -150,38 +150,59 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
 
     if (isChatDetailScreen) return const SizedBox.shrink();
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        height: 64,
-        decoration: BoxDecoration(color: theme.cardColor),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: navItems.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
+    // 1. Place the color-bearing Container on the absolute outside layer
+    return Container(
+      color: theme
+          .cardColor, // This forces the background color to bleed to the phone's bottom edge
+      child: SafeArea(
+        top:
+            false, // Keeps layout restrictions focused exclusively on the bottom notch
+        child: Container(
+          height: 64,
+          decoration: BoxDecoration(color: theme.cardColor),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: navItems.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
 
-            return Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => context.go(item.path),
-                child: Center(
-                  child: IconTheme(
-                    data: IconThemeData(
-                      color: theme.colorScheme.onSurface,
-                      size: 32,
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => context.go(item.path),
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        // Only show the soft blue/teal pill behind the active tab
+                        color: isSelected
+                            ? primary.withValues(alpha: 0.12)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: IconTheme(
+                        data: IconThemeData(
+                          color: theme.colorScheme.onSurface,
+                          size: 32,
+                        ),
+                        child: Icon(
+                          item.icon,
+                          size: 32,
+                          color: isSelected ? primary : const Color(0xFF707E94),
+                        ),
+                      ),
                     ),
-                    child: Icon(
-                      item.icon,
-                      size: 32,
-                      color: isSelected ? primary : Colors.black38,
-                    ), // Icons only, labels completely removed
                   ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

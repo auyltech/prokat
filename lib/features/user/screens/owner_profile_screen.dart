@@ -5,6 +5,8 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_state.dart';
 import 'package:prokat/features/user/widgets/balance_tile.dart';
@@ -34,10 +36,16 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final ownerProfileState = ref.watch(ownerRegistrationProvider);
+    final ownerEquipmentCount = ref
+        .watch(equipmentProvider)
+        .ownerEquipment
+        .length;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: const Color.fromARGB(255, 240, 240, 240),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -46,42 +54,69 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         },
         child: CustomScrollView(
           slivers: [
-            // ── 1. Collapsible Header ──
             SliverAppBar(
-              expandedHeight: 190,
               pinned: true,
               elevation: 0,
-              backgroundColor: AppColors.teal800,
+              floating: true,
+              backgroundColor:
+                  AppColors.teal800, // Keeps teal background fixed at the top
               iconTheme: const IconThemeData(color: Colors.white),
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
-                collapseMode: CollapseMode.parallax,
-                title: const DisplayName(),
-                titlePadding: const EdgeInsets.only(bottom: 16),
-                background: ProfileImagePicker(
-                  initialImageUrl:
-                      ownerProfileState.ownerProfile?.profileImageUrl ?? "",
+              centerTitle: false,
+              title: Text(
+                'Owner Profile',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              // bottom: PreferredSize(
-              //   preferredSize: const Size.fromHeight(20.0),
-              //   child: Padding(
-              //     padding: const EdgeInsets.symmetric(
-              //       vertical: 12,
-              //       horizontal: 16,
-              //     ),
-              //     child: ,
-              //   ),
-              // ),
+              actions: [
+                IconButton(icon: const NotificationBadge(), onPressed: () {}),
+                const SizedBox(width: 8),
+              ],
+            ),
+            SliverAppBar(
+              expandedHeight: 200,
+              pinned: false,
+              elevation: 0,
+              // Match the overall scaffold background so the corners look seamlessly cut out
+              backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+              automaticallyImplyLeading: false,
+              flexibleSpace: FlexibleSpaceBar(
+                background: _ProfileHeader(
+                  ownerProfileState: ownerProfileState,
+                ),
+              ),
             ),
 
-            SliverFillRemaining(
-              hasScrollBody: false,
+            SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                 child: Column(
                   children: [
-                    _StatsRow(ownerProfileState: ownerProfileState),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _StatCard(
+                            value: ownerEquipmentCount
+                                .toString(), // wire up from billingProvider
+                            label: "Equipment",
+                            valueColor: theme.colorScheme.primary,
+                            icon: LucideIcons.truck,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _StatCard(
+                            value:
+                                "${ownerProfileState.ownerProfile?.orderCount ?? 0}",
+                            label: "Orders",
+                            valueColor: const Color(0xFF185FA5),
+                            icon: LucideIcons.package,
+                          ),
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 10),
 
                     const BalanceTile(),
@@ -91,13 +126,22 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                     const SizedBox(height: 14),
 
                     const RentAnEquipmentTile(),
-                    const SizedBox(height: 10),
-
-                    const LogoutButton(),
-
-                    SizedBox(height: 130),
                   ],
                 ),
+              ),
+            ),
+
+            SliverFillRemaining(
+              hasScrollBody: false, // Prevents nested inner scrollbars
+              fillOverscroll: true,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 40,
+                  bottom: 60,
+                  left: 16,
+                  right: 16,
+                ),
+                child: const LogoutButton(),
               ),
             ),
 
@@ -118,7 +162,7 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.teal800,
@@ -128,86 +172,51 @@ class _ProfileHeader extends StatelessWidget {
         ),
       ),
       // Keep status bar area tinted correctly
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // ── Avatar ──
-            ProfileImagePicker(
-              initialImageUrl:
-                  ownerProfileState.ownerProfile?.profileImageUrl ?? "",
-            ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // ── Avatar ──
+          ProfileImagePicker(
+            initialImageUrl:
+                ownerProfileState.ownerProfile?.profileImageUrl ?? "",
+          ),
 
-            // const SizedBox(height: 10),
+          const SizedBox(height: 10),
 
-            // ── Name ──
-            // const DisplayName(),
-            // const SizedBox(height: 6),
+          // ── Name ──
+          const DisplayName(),
 
-            // ── Rating + orders row ──
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     const Icon(
-            //       LucideIcons.star,
-            //       size: 14,
-            //       color: Color(0xFFF5C842),
-            //     ),
-            //     const SizedBox(width: 4),
-            //     Text(
-            //       (ownerProfileState.ownerProfile?.ratingAverage ?? 0)
-            //           .toStringAsFixed(1),
-            //       style: const TextStyle(
-            //         color: Colors.white,
-            //         fontWeight: FontWeight.w500,
-            //         fontSize: 14,
-            //       ),
-            //     ),
-            //     const SizedBox(width: 12),
-            //     Text(
-            //       "${ownerProfileState.ownerProfile?.ratingCount ?? 0} ratings",
-            //       style: TextStyle(
-            //         color: Colors.white.withValues(alpha: 0.75),
-            //         fontSize: 14,
-            //       ),
-            //     ),
-            //   ],
-            // ),
-          ],
-        ),
+          // ── Rating + orders row ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.star_rate_rounded,
+                size: 25,
+                color: Color(0xFFF5C842),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                (ownerProfileState.ownerProfile?.ratingAverage ?? 0)
+                    .toStringAsFixed(1),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+              // const SizedBox(width: 12),
+              // Text(
+              //   "${ownerProfileState.ownerProfile?.ratingCount ?? 0} ratings",
+              //   style: TextStyle(
+              //     color: Colors.white.withValues(alpha: 0.75),
+              //     fontSize: 14,
+              //   ),
+              // ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class _StatsRow extends StatelessWidget {
-  final OwnerRegistrationState ownerProfileState;
-  const _StatsRow({required this.ownerProfileState});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            value: "66,240", // wire up from billingProvider
-            label: "Minutes balance",
-            valueColor: theme.colorScheme.primary,
-            icon: LucideIcons.clock,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _StatCard(
-            value: "${ownerProfileState.ownerProfile?.orderCount ?? 0}",
-            label: "Total orders",
-            valueColor: const Color(0xFF185FA5),
-            icon: LucideIcons.package,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -235,31 +244,35 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
+          Icon(
+            icon,
+            size: 32,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
+
+          const SizedBox(width: 8),
+
+          Spacer(),
+
           Text(
             value,
             style: theme.textTheme.titleLarge?.copyWith(
               color: valueColor,
+              fontSize: 30,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 3),
-          Row(
+          const SizedBox(width: 8),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                size: 12,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  label,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ],

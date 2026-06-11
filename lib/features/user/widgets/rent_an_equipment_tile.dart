@@ -13,31 +13,91 @@ class RentAnEquipmentTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.storefront_outlined, size: 22),
-        label: Text(
-          l10n.rentAnEquipment,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF1B3E8C),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14), // Matches the top cards
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () async {
+            await ref.read(appStartupProvider.notifier).setClientMode();
+            if (!context.mounted) return;
+            context.go(AppRoutes.searchList);
+          },
+          child: Padding(
+            // Expanded vertical padding provides a taller footprint
+            padding: const EdgeInsets.symmetric(
+              vertical: 32.0,
+              horizontal: 18.0,
+            ),
+            child: Row(
+              children: [
+                // Expanded Icon Container Box
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1B3E8C).withValues(alpha: 0.07),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.storefront_outlined,
+                    size: 26, // Scaled up icon
+                    color: Color(0xFF1B3E8C),
+                  ),
+                ),
+                const SizedBox(width: 18),
+
+                // Expanded Text Layout
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.rentAnEquipment,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17, // Made slightly prominent
+                          color: const Color(0xFF1B3E8C),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 6,
+                      ), // Expanded vertical text separation
+                      Text(
+                        'Switch back to client section dashboard',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade500,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Trailing Navigation Icon
+                Icon(
+                  Icons
+                      .arrow_forward_ios_rounded, // Switched to a cleaner chevron
+                  color: Colors.grey.shade400,
+                  size: 18,
+                ),
+              ],
+            ),
           ),
         ),
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          backgroundColor: Colors.white, // deep blue from mockup
-          foregroundColor: const Color(0xFF1B3E8C),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ),
-        onPressed: () async {
-          await ref.read(appStartupProvider.notifier).setClientMode();
-          if (!context.mounted) return;
-          context.go(AppRoutes.searchList);
-        },
       ),
     );
   }

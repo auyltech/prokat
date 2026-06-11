@@ -16,7 +16,7 @@ class UserInfoTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         CircleAvatar(
-          radius: 18,
+          radius: 24,
           backgroundColor: theme.colorScheme.surfaceContainer,
           child: Icon(
             Icons.person_rounded,
@@ -32,8 +32,8 @@ class UserInfoTile extends StatelessWidget {
           children: [
             Text(
               user?.displayName ?? "",
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w500,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

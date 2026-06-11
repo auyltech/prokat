@@ -29,14 +29,6 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     final userProfileState = ref.read(userProfileProvider.notifier);
 
     await userProfileState.selectCategory(category.id);
-
-    // if (widget.mode == "search" && context.mounted) {
-    //   final uri = Uri(
-    //     path: AppRoutes.searchList,
-    //     queryParameters: {'category': category.id},
-    //   ).toString();
-    //   context.push(uri);
-    // }
   }
 
   @override
@@ -56,6 +48,8 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
           ),
         ),
 
+        SizedBox(height: 8),
+
         if (categoriesState.isLoading)
           const CategoryRowSkeleton()
         else if (categoriesState.error != null)
@@ -70,7 +64,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
           )
         else
           SizedBox(
-            height: 100,
+            height: 110,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: categoriesState.categories.length,

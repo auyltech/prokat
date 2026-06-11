@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 
 class SettingsLinkTile extends StatelessWidget {
   final IconData icon;
+  final Color? iconBgColor;
+  final Color? iconColor;
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
-  final bool isDestructive;
 
   const SettingsLinkTile({
     super.key,
     required this.icon,
+    this.iconBgColor,
+    this.iconColor,
     required this.title,
     this.subtitle,
     required this.onTap,
-    this.isDestructive = false,
   });
 
   @override
@@ -22,43 +24,62 @@ class SettingsLinkTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 32,
-            color: isDestructive
-                ? theme.colorScheme.error
-                : theme.colorScheme.primary,
-          ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: iconBgColor ?? theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: iconColor ?? theme.colorScheme.primary,
+              ),
+            ),
 
-          const SizedBox(width: 16),
+            const SizedBox(width: 16),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: theme.textTheme.bodyLarge),
-
-                if (subtitle != null)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    subtitle!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.textTheme.bodyMedium?.color?.withValues(
-                        alpha: 0.7,
-                      ),
+                    title,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-              ],
-            ),
-          ),
 
-          Icon(
-            Icons.chevron_right,
-            size: 32,
-            color: theme.colorScheme.onSurface,
-          ),
-        ],
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.textTheme.bodyMedium?.color?.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            Icon(
+              Icons.chevron_right,
+              size: 32,
+              color: theme.colorScheme.onSurface,
+            ),
+          ],
+        ),
       ),
     );
   }

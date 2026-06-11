@@ -32,6 +32,7 @@ class AppRoutes {
 
   static const String clientOrders = '/orders';
   static const String clientOrdersHistory = '/orders/history';
+
   static const String favorites = '/favorites';
 
   static const String chat = '/chat';

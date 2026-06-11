@@ -28,7 +28,8 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
     final request = widget.request;
 
-    return Padding(
+    return Container(
+      decoration: BoxDecoration(color: theme.cardColor),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

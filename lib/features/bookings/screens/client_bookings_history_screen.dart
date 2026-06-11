@@ -75,19 +75,18 @@ class ClientBookingsHistoryScreenState
             )
           else
             ListView.separated(
-              separatorBuilder: (context, index) => const Divider(
+              separatorBuilder: (context, index) => Divider(
                 height: 1,
-                thickness: 0.5,
+                thickness: 1,
                 indent: 16,
                 endIndent: 16,
+                color: theme.dividerColor,
               ),
               itemCount: history.length,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: ClientBookingTile(booking: history[index]),
-              ),
+              itemBuilder: (context, index) =>
+                  ClientBookingTile(booking: history[index]),
             ),
         ],
       ),

@@ -91,7 +91,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     if (isOrdersScreen) {
       actionWidgets.add(
         IconButton(
-          onPressed: () => context.push("${AppRoutes.clientOrders}/history"),
+          onPressed: () => context.push(AppRoutes.clientOrdersHistory),
           icon: Icon(
             Icons.history,
             color: theme.colorScheme.onPrimary,

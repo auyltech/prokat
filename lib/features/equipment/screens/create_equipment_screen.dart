@@ -185,13 +185,16 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                   ),
 
                   const SizedBox(height: 8),
+
                   InputField(
                     icon: Icons.view_column_outlined,
                     label: l10n.modelLabel,
                     controller: _model,
                     hint: l10n.modelHint,
                   ),
+
                   const SizedBox(height: 8),
+
                   InputField(
                     icon: Icons.mp_outlined,
                     label: l10n.plateNumberLabel,

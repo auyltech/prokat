@@ -15,23 +15,47 @@ class LanguageSelectorTile extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () => showLanguageSheet(context),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            LucideIcons.globe,
-            size: 32,
-            color: theme.colorScheme.onPrimary,
-            fontWeight: FontWeight.w200,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            langDisplay,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onPrimary,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                LucideIcons.globe,
+                size: 32,
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w100,
+                weight: 1,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("App Language"),
+                Text(
+                  langDisplay,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

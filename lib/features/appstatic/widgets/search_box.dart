@@ -51,10 +51,8 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.5),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.3),
-        ),
+        color: theme.cardColor,
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.7)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: TextField(

@@ -65,11 +65,12 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
               )
             else
               ListView.separated(
-                separatorBuilder: (context, index) => const Divider(
+                separatorBuilder: (context, index) => Divider(
                   height: 1,
                   thickness: 0.5,
                   indent: 16,
                   endIndent: 16,
+                  color: theme.dividerColor.withValues(alpha: 0.7),
                 ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
