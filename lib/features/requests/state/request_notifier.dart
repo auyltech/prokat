@@ -60,15 +60,25 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       final result = await service.getClientRequests();
 
+      final successValue = Value(
+        (result.success && result.data?.isNotEmpty == true) ? true : false,
+      );
+
       state = state.copyWith(
         isLoading: false,
         requests: result.data,
+        isSuccess: successValue,
+        lastSuccess: (result.success && result.data?.isNotEmpty == true)
+            ? DateTime.now()
+            : null,
         error: result.success ? null : result.message,
       );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         requests: [],
+        isSuccess: Value(false),
+        lastSuccess: null,
         error: e.toString(),
       );
     }
@@ -80,15 +90,25 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       final result = await service.getOwnerRequests();
 
+      final successValue = Value(
+        (result.success && result.data?.isNotEmpty == true) ? true : false,
+      );
+
       state = state.copyWith(
         isLoading: false,
         ownerRequests: result.data,
         error: result.success ? null : result.message,
+        isSuccess: successValue,
+        lastSuccess: (result.success && result.data?.isNotEmpty == true)
+            ? DateTime.now()
+            : null,
       );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         requests: [],
+        isSuccess: Value(false),
+        lastSuccess: null,
         error: e.toString(),
       );
     }
@@ -102,9 +122,13 @@ class RequestNotifier extends StateNotifier<RequestState> {
   }) async {
     try {
       // 1. Guard check: ensures critical fields are present
-      if (state.selectedDate == null) return false;
+      if (state.selectedDate == null) {
+        state = state.copyWith(error: "Provide required fields");
 
-      state = state.copyWith(isLoading: true);
+        return false;
+      }
+
+      state = state.copyWith(isSubmitting: true);
 
       // 2. Safely merge Date and Time to avoid layout parsing bugs down the line
       final DateTime mergedDate = DateTime(
@@ -136,7 +160,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false);
 
       if (result.success) {
         await getClientRequests();
@@ -145,7 +169,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
       return result.success;
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        isSubmitting: false,
         requests: state.requests,
         error: e.toString(),
       );
@@ -161,7 +185,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
     int? offeredRate,
   }) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true);
 
       final result = await service.updateRequest(
         id: id,
@@ -171,7 +195,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false);
 
       if (result.success) {
         await getClientRequests();
@@ -179,35 +203,35 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e.toString());
       return false;
     }
   }
 
   Future<bool> viewRequest(String id) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true);
       final result = await service.viewRequest(id);
 
-      state = state.copyWith(isLoading: false);
-      
+      state = state.copyWith(isSubmitting: false);
+
       if (result.success) {
         await getOwnerRequests();
       }
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e.toString());
       return false;
     }
   }
 
   Future<bool> cancelRequest(String id) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true);
       final result = await service.cancelRequest(id);
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false);
 
       if (result.success) {
         await getClientRequests();
@@ -215,7 +239,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e.toString());
       return false;
     }
   }
@@ -223,11 +247,11 @@ class RequestNotifier extends StateNotifier<RequestState> {
   // TODO: REMOVE
   Future<bool> rejectRequest(String id) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true);
 
       final result = await service.rejectRequest(id);
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false);
 
       if (result.success) {
         await getOwnerRequests();
@@ -235,7 +259,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isSubmitting: false, error: e.toString());
       return false;
     }
   }

@@ -100,12 +100,12 @@ class InfoTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: variant == InfoTileVariant.destructive
               ? Colors.red.shade50
-              : theme.primaryColor.withValues(alpha: 0.05),
+              : theme.dividerColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: variant == InfoTileVariant.destructive
                 ? Colors.red.shade200
-                : theme.primaryColor.withValues(alpha: 0.2),
+                : theme.dividerColor.withValues(alpha: 0.08),
             width: 1,
           ),
         ),

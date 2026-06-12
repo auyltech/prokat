@@ -92,7 +92,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     }
   }
 
-  Future<void> getRenterEquipment({
+  Future<void> getClientEquipment({
     String? categoryId,
     String? query,
     String? city,
@@ -102,7 +102,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final result = await api.getRenterEquipment(
+      final result = await api.getClientEquipment(
         categoryId: categoryId,
         query: query,
         page: state.currentPage,
@@ -464,6 +464,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   }
 
   /// DELETE
+  /// Allowed until equipment has a booking or offer (handled by backed)
   Future<bool> deleteEquipment(String id) async {
     try {
       state = state.copyWith(isSubmitting: true, error: null);

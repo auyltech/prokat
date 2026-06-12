@@ -1,13 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/date_time_button.dart';
+import 'package:prokat/core/widgets/date_picker_component.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
@@ -61,8 +60,13 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       comment: commentController.text.trim(),
     );
 
-    if (success && mounted) {
-      AppSnackBar.show(context, message: l10n.requestCreated, isSuccess: true);
+    if (mounted) {
+      AppSnackBar.show(
+        context,
+        message: success ? l10n.requestCreated : "Failed to create request",
+        isSuccess: success,
+        isError: !success,
+      );
     }
   }
 
@@ -77,7 +81,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
@@ -105,6 +108,21 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ref.read(requestProvider.notifier).selectCategory(foundCategory);
       }
     });
+
+    const int daysRange = 7;
+
+    final DateTime now = DateTime.now();
+    // Strip time to avoid mid-day edge-case bugs with minimum/maximum dates
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime maxRangeDate = today.add(const Duration(days: daysRange));
+
+    // Safely resolve the initial date
+    DateTime initialDate = requestState.selectedDate ?? initialTargetDateTime;
+    if (initialDate.isBefore(today)) {
+      initialDate = today;
+    } else if (initialDate.isAfter(maxRangeDate)) {
+      initialDate = maxRangeDate;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,85 +174,38 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 12),
 
-        SectionTitle(title: l10n.dateAndTime),
+        DatePickerComponent(
+          daysRange: 7, // Pass your dynamic 'x' range here
+          isRequired: true, // Shows indicator text
+          selectedDate: requestState.selectedDate ?? initialTargetDateTime,
+          onDateSelected: (date) {
+            requestNotifier.setDate(date);
+          },
+        ),
 
-        const SizedBox(height: 6),
-
-        Row(
-          children: [
-            Expanded(
-              child: DateTimeButton(
-                icon: Icons.calendar_today_rounded,
-                label: requestState.selectedDate == null
-                    ? l10n.selectDate
-                    : DateFormat(
-                        'MMM dd, yyyy',
-                      ).format(requestState.selectedDate!),
-                onTap: () async {
-                  await showModalBottomSheet(
-                    context: context,
-                    builder: (context) => Container(
-                      height: 300,
-                      color: theme.scaffoldBackgroundColor,
-                      child: CupertinoDatePicker(
-                        mode: CupertinoDatePickerMode.date,
-                        // 1. Safe calculation: use the maximum of the two dates to prevent underflow
-                        initialDateTime:
-                            (requestState.selectedDate ?? initialTargetDateTime)
-                                .isBefore(DateTime.now())
-                            ? DateTime.now()
-                            : (requestState.selectedDate ??
-                                  initialTargetDateTime),
-                        minimumDate: DateTime.now(),
-                        maximumDate: DateTime.now().add(
-                          const Duration(days: 365),
-                        ),
-                        onDateTimeChanged: (date) {
-                          requestNotifier.setDate(date);
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: DateTimeButton(
-                icon: Icons.access_time_rounded,
-                label: requestState.selectedTime == null
-                    ? l10n.selectTime
-                    : DateFormat.jm().format(requestState.selectedTime!),
-                onTap: () async {
-                  await showModalBottomSheet(
-                    context: context,
-                    builder: (context) => Container(
-                      height: 300,
-                      color: theme.scaffoldBackgroundColor,
-                      child: CupertinoDatePicker(
-                        mode: CupertinoDatePickerMode.time,
-                        use24hFormat: false,
-                        initialDateTime:
-                            requestState.selectedTime ?? initialTargetDateTime,
-                        onDateTimeChanged: (time) {
-                          requestNotifier.setTime(time);
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+        TimePickerComponent(
+          slotLengthMinutes: 30, // 30 minute blocks
+          startHour: 9, // Start at 09:00
+          endHour: 17, // End at 17:00
+          isRequired: true,
+          selectedDateTime: requestState.selectedTime ?? initialTargetDateTime,
+          onTimeSelected: (updatedDateTime) {
+            requestNotifier.setTime(
+              updatedDateTime,
+            ); // This emits a full DateTime object
+          },
         ),
 
         const SizedBox(height: 40),
 
+        if (requestState.error != null) ...[
+          Text(requestState.error!),
+          SizedBox(height: 8),
+        ],
+
         PrimaryButton(
           label: l10n.create,
-          isLoading: requestState.isLoading,
+          isLoading: requestState.isSubmitting,
           onPressed: onSubmit,
         ),
       ],

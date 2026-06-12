@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/api/api_helper.dart';
+import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 class FavoriteService {
@@ -9,42 +12,71 @@ class FavoriteService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<({Set<String> ids, List<Equipment> equipment})> getFavorites() async {
+  Future<ApiResponse<List<Equipment>>> getFavorites() async {
     try {
-      final res = await _dio.get('/favorites');
+      final response = await _dio.get('/favorites');
 
-      // Extract both lists from your backend response
-      final List favoriteIdsRaw = res.data['favoriteIds'] ?? [];
-      final List equipmentRaw = res.data['equipmentList'] ?? [];
+      return handleApiResponse<List<Equipment>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected equipment list");
+          }
 
-      final parsed = equipmentRaw
-          .whereType<Map<String, dynamic>>()
-          .map((json) => Equipment.fromJson(json))
-          .toList();
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid equipment item");
+            }
 
-      return (
-        ids: favoriteIdsRaw.map((id) => id.toString()).toSet(),
-        equipment: parsed, // Map this to your Equipment models later
+            return Equipment.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load favorites",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
       );
     } catch (e) {
-      rethrow;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 
-  Future<bool> toggleFavorite(String equipmentId) async {
+  Future<ApiResponse<void>> toggleFavorite(String equipmentId) async {
     try {
-      final res = await _dio.post(
+      final response = await _dio.post(
         '/favorites/toggle',
         data: {'equipmentId': equipmentId},
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
-      } else {
-        return false;
-      }
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Favorite item saved",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
     } catch (e) {
-      return false;
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 }

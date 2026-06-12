@@ -129,18 +129,21 @@ class ChatNotifier extends StateNotifier<ChatState> {
     if (trimmedChatId.isEmpty) return;
 
     try {
+      final foundChat = state.conversations
+          .where((item) => item.id == trimmedChatId)
+          .firstOrNull;
+
+      if (foundChat != null) {
+        state = state.copyWith(currentChat: foundChat);
+      }
+
       state = state.copyWith(isLoadingMessages: true, error: null);
 
       if ((_sessionToken ?? '').isEmpty) {
         await _loadSessionFallback();
       }
 
-      debugPrint('openChatById: loading chat $trimmedChatId');
-
       await getChatById(trimmedChatId);
-
-      debugPrint('openChatById: connecting to chat room $trimmedChatId');
-
       await _connectToChat(trimmedChatId);
 
       debugPrint('openChatById: joined chat room $trimmedChatId');
@@ -148,9 +151,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       // Do this AFTER join, and do not allow it to block room join.
       try {
         await markCurrentChatAsRead();
-      } catch (error) {
-        debugPrint('markCurrentChatAsRead failed: $error');
-      }
+      } finally {}
 
       state = state.copyWith(isLoadingMessages: false, error: null);
     } catch (error) {

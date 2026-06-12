@@ -26,7 +26,12 @@ class _OwnerEquipmentListScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    Future.microtask(() => loadData());
+
+    Future.microtask(() {
+      if (ref.read(equipmentProvider).ownerEquipment.isEmpty) {
+        loadData();
+      }
+    });
   }
 
   @override
@@ -52,57 +57,7 @@ class _OwnerEquipmentListScreenState
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: _buildStatusItem(
-                  //         context,
-                  //         label: l10n.online,
-                  //         count: state.ownerEquipment
-                  //             .where(
-                  //               (e) =>
-                  //                   e.status.toLowerCase() == 'available' &&
-                  //                   e.isVisible == true,
-                  //             )
-                  //             .length,
-                  //         color: Colors.greenAccent[700]!,
-                  //       ),
-                  //     ),
-
-                  //     const SizedBox(width: 12),
-
-                  //     Expanded(
-                  //       child: _buildStatusItem(
-                  //         context,
-                  //         label: l10n.offline,
-                  //         count: state.ownerEquipment
-                  //             .where(
-                  //               (e) =>
-                  //                   e.status.toLowerCase() == 'booked' ||
-                  //                   e.isVisible == false,
-                  //             )
-                  //             .length,
-                  //         color: Colors.redAccent[400]!,
-                  //       ),
-                  //     ),
-
-                  //     const SizedBox(width: 12),
-
-                  //     Expanded(
-                  //       child: _buildStatusItem(
-                  //         context,
-                  //         label: l10n.repair,
-                  //         count: state.ownerEquipment
-                  //             .where(
-                  //               (e) => e.status.toLowerCase() == 'maintenance',
-                  //             )
-                  //             .length,
-                  //         color: Colors.orangeAccent[700]!,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  if (state.isLoading)
+                  if (state.isLoading && state.ownerEquipment.isEmpty)
                     _builSkeleton(context)
                   else if (state.ownerEquipment.isEmpty)
                     EmptyStateTile(

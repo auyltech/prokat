@@ -17,9 +17,11 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => ref.read(bookingProvider.notifier).getOwnerBookings(),
-    );
+    Future.microtask(() async {
+      if (ref.read(bookingProvider).ownerBookings.isEmpty) {
+        await ref.read(bookingProvider.notifier).getOwnerBookings();
+      }
+    });
   }
 
   @override
@@ -41,7 +43,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
         child: ListView(
           padding: EdgeInsets.all(0),
           children: [
-            if (bookingState.isLoading)
+            if (bookingState.isLoading && bookingState.ownerBookings.isEmpty)
               RequestTileSkeleton()
             else if (bookingState.error != null)
               EmptyStateTile(

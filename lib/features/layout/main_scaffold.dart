@@ -17,6 +17,16 @@ class MainScaffold extends StatelessWidget {
     final routerState = GoRouterState.of(context);
     final String currentPath = routerState.uri.path;
 
+    final List<String> segments = GoRouterState.of(context).uri.pathSegments;
+    bool isChatDetailScreen =
+        (segments[0] == 'chat' &&
+            segments.length == 2 &&
+            segments[1] != 'list') ||
+        (segments[0] == 'owner' &&
+            segments[1] == 'chat' &&
+            segments.length == 3 &&
+            segments[2] != 'list');
+
     // 2. Determine if the app bar should be hidden
     final bool hideAppBar = [
       AppRoutes.launch,
@@ -28,7 +38,9 @@ class MainScaffold extends StatelessWidget {
       key: _scaffoldKey,
       // 3. Pass null instead of a empty widget to properly reset the SafeArea
       appBar: hideAppBar ? null : const ProkatAppBar(),
-      bottomNavigationBar: const ProkatNavigationBar(),
+      bottomNavigationBar: isChatDetailScreen
+          ? null
+          : const ProkatNavigationBar(),
       body: navigationShell,
     );
   }

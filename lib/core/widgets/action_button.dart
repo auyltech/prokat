@@ -127,13 +127,15 @@ class ActionButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        icon: Icon(
-          icon, // Replace with your desired icon
-          size: 18,
-          color: variant == ButtonVariant.secondary
-              ? theme.primaryColor
-              : theme.colorScheme.error,
-        ),
+        icon: icon == null
+            ? null
+            : Icon(
+                icon, // Replace with your desired icon
+                size: 18,
+                color: variant == ButtonVariant.secondary
+                    ? theme.primaryColor
+                    : theme.colorScheme.error,
+              ),
         label: Text(
           label ?? "",
           style: TextStyle(

@@ -46,10 +46,10 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
       width: double.infinity,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F9FD),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color.fromARGB(255, 197, 229, 255),
+          color: theme.dividerColor.withValues(alpha: 0.4),
           width: 1,
         ),
       ),

@@ -16,7 +16,7 @@ class FavoriteItemTile extends ConsumerWidget {
     // Watch the favorite status to ensure UI updates immediately
     final isFavorite =
         ref.watch(
-          favoriteProvider.select(
+          favoritesProvider.select(
             (s) => s.favoritesIds?.contains(equipment.id),
           ),
         ) ??
@@ -68,7 +68,7 @@ class FavoriteItemTile extends ConsumerWidget {
                   right: 8,
                   child: GestureDetector(
                     onTap: () => ref
-                        .read(favoriteProvider.notifier)
+                        .read(favoritesProvider.notifier)
                         .toggleFavorite(equipment.id),
                     child: Container(
                       padding: const EdgeInsets.all(6),

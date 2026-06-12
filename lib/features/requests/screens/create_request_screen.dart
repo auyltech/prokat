@@ -18,17 +18,30 @@ class CreateRequestScreen extends ConsumerStatefulWidget {
 
 class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   static const int maxAllowedRequests = 1;
+  Future<void> fetchData() async {
+    await ref.read(requestProvider.notifier).getClientRequests();
+
+    final activeRequests = ref
+        .watch(requestProvider.notifier)
+        .getActiveRequests("client");
+
+    final canCreateRequest = activeRequests.length < maxAllowedRequests;
+
+    if (!canCreateRequest && mounted) {
+      context.push(AppRoutes.clientRequests);
+    }
+
+    if (mounted) {
+      ref.read(locationProvider.notifier).getClientLocations();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() async {
-      await ref.read(requestProvider.notifier).getClientRequests();
-
-      if (mounted) {
-        ref.read(locationProvider.notifier).getRenterLocations();
-      }
+      fetchData();
     });
   }
 
@@ -46,21 +59,26 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     final canCreateRequest = activeRequests.length < maxAllowedRequests;
 
     return Scaffold(
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (canCreateRequest)
-                  const CreateRequestForm()
-                else
-                  _ActiveRequestLimitView(activeCount: activeRequests.length),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          fetchData();
+        },
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (canCreateRequest)
+                    const CreateRequestForm()
+                  else
+                    _ActiveRequestLimitView(activeCount: activeRequests.length),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

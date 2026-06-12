@@ -13,7 +13,7 @@ class LocationService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<LocationModel>> getRenterLocations({String? mode}) async {
+  Future<List<LocationModel>> getClientLocations({String? mode}) async {
     try {
       final response = await _dio.get(ApiRoutes.locations);
 

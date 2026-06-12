@@ -45,6 +45,12 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
         isLoading: false,
         categories: result.data,
         error: result.success ? null : result.message,
+        isSuccess: (result.success && result.data?.isNotEmpty == true)
+            ? true
+            : false,
+        lastSuccess: (result.success && result.data?.isNotEmpty == true)
+            ? DateTime.now()
+            : null,
       );
 
       if (result.success) {
@@ -56,7 +62,12 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
         selectCategoryById(selectedCategoryId);
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+        isSuccess: false,
+        lastSuccess: null,
+      );
     }
   }
 }

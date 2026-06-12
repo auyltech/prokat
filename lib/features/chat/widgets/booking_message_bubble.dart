@@ -25,30 +25,21 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-
-    // final messageBooking = switch (widget.message.meta) {
-    //   Map<String, dynamic> meta => BookingModel.fromJson(meta),
-    //   _ => null,
-    // };
-
-    // if (messageBooking == null) return const SizedBox.shrink();
-
     final booking = ref.read(chatProvider).currentChat?.booking;
 
     if (booking == null) return const Text("Failed to load booking");
 
     final equipment = booking.equipment;
-
     final location = booking.location;
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F9FD),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color.fromARGB(255, 197, 229, 255),
+          color: theme.dividerColor.withValues(alpha: 0.4),
           width: 1,
         ),
       ),
@@ -153,7 +144,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                         equipment?.model ?? "",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall
+                        style: theme.textTheme.bodySmall,
                       ),
                     ],
                   ),
@@ -168,10 +159,16 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
           //  Location
           if (location != null) ...[
-            InfoTile(
-              icon: Icons.location_on_outlined,
-              value: booking.location?.street ?? "",
-              onTap: () => showLocationSheet(context, location),
+            Row(
+              children: [
+                Expanded(
+                  child: InfoTile(
+                    icon: Icons.location_on_outlined,
+                    value: booking.location?.street ?? "",
+                    onTap: () => showLocationSheet(context, location),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
           ],

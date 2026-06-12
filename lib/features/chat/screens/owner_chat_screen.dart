@@ -106,13 +106,14 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       reviewSubmitted: reviewSubmitted,
     );
 
-    final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
-    final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
+          if (chatState.isLoadingMessages || chatState.isLoadingConversations) {
+            return;
+          }
+
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
           ref.read(offersProvider.notifier).getOwnerOffers();
         },
@@ -213,53 +214,6 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                     requestId: request.id,
                     mode: "owner",
                   ),
-
-                if (booking?.status == BookingStatus.reviewed)
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                    decoration: BoxDecoration(color: theme.cardColor),
-                    child: SafeArea(
-                      top: false,
-                      child: Text(
-                        'Chat locked',
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.7,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  Container(
-                    decoration: BoxDecoration(
-                      color: (isWorkCompleted || isOrderCanceled)
-                          ? Colors.transparent
-                          : theme.cardColor,
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      left: false,
-                      right: false,
-                      bottom:
-                          true, // Offsets input safely away from home system bar pill
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 0.0,
-                          bottom: 12.0,
-                        ), // Extra layout lift padding
-                        child: (isWorkCompleted || isOrderCanceled)
-                            ? const SizedBox.shrink() // 3. Safe empty space that respects screen edges
-                            : Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 0.0,
-                                  bottom: 12.0,
-                                ),
-                                child: SendMessageForm(chatStatus: chatStatus),
-                              ),
-                      ),
-                    ),
-                  ),
               ],
             ),
 
@@ -290,6 +244,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: SendMessageForm(chatStatus: chatStatus),
     );
   }
 }

@@ -24,10 +24,11 @@ class GuestEquipmentCard extends StatelessWidget {
 
     return Container(
       // height: 130,
-      padding: const EdgeInsets.all(0),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +59,7 @@ class GuestEquipmentCard extends StatelessWidget {
                   Text(
                     item.name,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: theme.primaryColor,
                     ),
@@ -72,7 +73,7 @@ class GuestEquipmentCard extends StatelessWidget {
                     children: [
                       Text(
                         item.category?.name ?? "",
-                        style: theme.textTheme.labelMedium,
+                        style: theme.textTheme.bodyMedium,
                       ),
                       Spacer(),
                       _StatusBadge(isTop: isTop),
@@ -90,7 +91,7 @@ class GuestEquipmentCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 3),
                       Text(
-                        "4.8", //item.rating.toStringAsFixed(1)
+                        (item.owner?.rating ?? 0).toStringAsFixed(1),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

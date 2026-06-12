@@ -9,11 +9,11 @@ import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class ClientEquipmentCard extends ConsumerWidget {
+class ClientEquipmentTile extends ConsumerWidget {
   final Equipment equipment;
   final VoidCallback onTap;
 
-  const ClientEquipmentCard({
+  const ClientEquipmentTile({
     super.key,
     required this.equipment,
     required this.onTap,
@@ -26,9 +26,9 @@ class ClientEquipmentCard extends ConsumerWidget {
     final authSession = ref.watch(authProvider).session;
     final isClient = authSession != null;
 
-    final favoritesIds = ref.watch(favoriteProvider).favoritesIds;
+    final favoritesIds = ref.watch(favoritesProvider).favoritesIds;
     final bool isFavorite = favoritesIds?.contains(equipment.id) ?? false;
-    final notifier = ref.read(favoriteProvider.notifier);
+    final notifier = ref.read(favoritesProvider.notifier);
 
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
@@ -90,6 +90,7 @@ class ClientEquipmentCard extends ConsumerWidget {
                   ],
                 ),
               ),
+
               // Floating Favorite (Moved to top-right for cleaner look)
               Positioned(
                 top: 8,
@@ -106,27 +107,7 @@ class ClientEquipmentCard extends ConsumerWidget {
                 ),
               ),
 
-              // Positioned(
-              //   bottom: 8,
-              //   left: 8,
-              //   child: Container(
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 10,
-              //       vertical: 6,
-              //     ),
-              //     decoration: BoxDecoration(
-              //       color: theme.colorScheme.surfaceBright.withValues(
-              //         alpha: 0.9,
-              //       ),
-              //       borderRadius: BorderRadius.circular(20),
-              //     ),
-              //     child: Row(
-              //       children: [
-
-              //       ],
-              //     ),
-              //   ),
-              // ),
+              // Price
               Positioned(
                 bottom: 8,
                 right: 8,

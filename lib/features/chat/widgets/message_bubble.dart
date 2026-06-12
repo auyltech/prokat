@@ -104,26 +104,26 @@ class _MessageBubbleState extends State<MessageBubble> {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.75,
               ),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, widget.isMe ? 20 : 12),
+              padding: EdgeInsets.fromLTRB(16, 12, 16, widget.isMe ? 12 : 12),
               decoration: BoxDecoration(
                 gradient: widget.isMe
                     ? LinearGradient(
                         colors: [
-                          theme.colorScheme.primary.withValues(alpha: 0.9),
-                          theme.colorScheme.primary.withValues(alpha: 0.8),
+                          const Color.fromARGB(255, 222, 246, 255),
+                          const Color.fromARGB(255, 222, 246, 255),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
                     : null,
                 color: widget.isMe
-                    ? null
-                    : theme.colorScheme.surfaceContainerHighest,
+                    ? theme.cardColor
+                    : theme.dividerColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(widget.isMe ? 20 : 4),
-                  bottomRight: Radius.circular(widget.isMe ? 4 : 20),
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: Radius.circular(widget.isMe ? 16 : 4),
+                  bottomRight: Radius.circular(widget.isMe ? 4 : 16),
                 ),
               ),
               child: Stack(
@@ -134,7 +134,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                       widget.message.content,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: widget.isMe
-                            ? Colors.white
+                            ? theme.colorScheme.onSurfaceVariant
                             : theme.colorScheme.onSurfaceVariant,
                         height: 1.3,
                       ),
@@ -147,7 +147,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                       child: _SendStatusIndicator(
                         isPending: widget.message.isPending,
                         isFailed: widget.message.isFailed,
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: Colors.black,
                       ),
                     ),
                 ],

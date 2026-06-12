@@ -28,9 +28,17 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
-      ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
-      ref.read(billingProvider.notifier).getOwnerBalance();
+      if (ref.read(ownerRegistrationProvider).ownerProfile == null) {
+        ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
+      }
+
+      if (ref.read(ownerRegistrationProvider).registrationRequest == null) {
+        ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
+      }
+
+      if (ref.read(billingProvider).accountBalance == null) {
+        ref.read(billingProvider.notifier).getOwnerBalance();
+      }
     });
   }
 

@@ -43,9 +43,6 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     final isOwnerScreen = segments[0] == "owner";
 
-    // 2. Fallback checking for back button stack presence
-    final bool canPop = GoRouter.of(context).canPop();
-
     // Check specific layout scenarios
     final bool isChatDetailScreen =
         (segments.length >= 2 && segments[0] == "chat") ||
@@ -60,6 +57,11 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     // Custom Chat tile overrides the uniform title string block
     Widget? titleWidget;
     String? titleString;
+
+    final showBackButton =
+        [AppRoutes.bookingHistory].contains(currentPath) || isChatDetailScreen;
+    // 2. Fallback checking for back button stack presence
+    final bool canPop = GoRouter.of(context).canPop() && showBackButton;
 
     if (isChatDetailScreen) {
       // Safely extract chat ID from segments based on route depth

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -118,9 +117,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       reviewSubmitted: reviewSubmitted,
     );
 
-    final isWorkCompleted = chatStatus == ChatStatus.workcompleted;
-    final isOrderCanceled = chatStatus == ChatStatus.bookingcancelled;
-
     final showActionBar =
         !(chatStatus == ChatStatus.bookingreviewed ||
             chatStatus == ChatStatus.bookingcancelled);
@@ -136,49 +132,48 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
           ref.read(offersProvider.notifier).getClientOffers();
         },
-        child: Stack(
-          children: [
-            // Main Content
-            Column(
-              children: [
-                // Handle Error
-                if (chatState.error != null && messages.isEmpty)
-                  Expanded(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.wifi_off_rounded,
-                              size: 48,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              chatState.error!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                            const SizedBox(height: 24),
-                            ElevatedButton.icon(
-                              onPressed: () => ref
-                                  .read(chatProvider.notifier)
-                                  .openChatById(widget.chatId),
-                              icon: const Icon(Icons.refresh_rounded),
-                              label: Text(l10n.retry),
-                            ),
-                          ],
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Main Content
+              Column(
+                children: [
+                  // Handle Error
+                  if (chatState.error != null && messages.isEmpty)
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.wifi_off_rounded,
+                                size: 48,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                chatState.error!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                onPressed: () => ref
+                                    .read(chatProvider.notifier)
+                                    .openChatById(widget.chatId),
+                                icon: const Icon(Icons.refresh_rounded),
+                                label: Text(l10n.retry),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                else
-                  // Render Content
-                  Expanded(
-                    child: Container(
-                      color: theme.colorScheme.surface,
+                    )
+                  else
+                    // Render Content
+                    Expanded(
                       child: ListView.separated(
                         reverse: false,
                         padding: const EdgeInsets.symmetric(
@@ -228,123 +223,77 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                         },
                       ),
                     ),
-                  ),
 
-                if (booking != null && showActionBar)
-                  ClientChatActionBar(
-                    chatId: widget.chatId,
-                    chatStatus: chatStatus,
-                    booking: booking,
-                    request: request,
-                    chatOwnerId: chatOwnerId,
-                    chatClientId: chatClientId,
-                  ),
+                  if (booking != null && showActionBar)
+                    ClientChatActionBar(
+                      chatId: widget.chatId,
+                      chatStatus: chatStatus,
+                      booking: booking,
+                      request: request,
+                      chatOwnerId: chatOwnerId,
+                      chatClientId: chatClientId,
+                    ),
 
-                if (booking == null && request != null && showActionBar)
-                  OfferChatActionBar(
-                    chatStatus: chatStatus,
-                    chatId: widget.chatId,
-                    requestId: request.id,
-                    mode: "client",
-                  ),
+                  if (booking == null && request != null && showActionBar)
+                    OfferChatActionBar(
+                      chatStatus: chatStatus,
+                      chatId: widget.chatId,
+                      requestId: request.id,
+                      mode: "client",
+                    ),
+                ],
+              ),
 
-                // 2. Static input area perfectly pinned to the absolute viewport bottom
-                if (booking?.status == BookingStatus.reviewed)
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                    decoration: BoxDecoration(color: Colors.transparent),
-                    child: SafeArea(
-                      top: false,
-                      child: Text(
-                        'Chat locked',
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.7,
-                          ),
+              if (booking != null && !showActionBar)
+                Positioned(
+                  bottom:
+                      16 +
+                      16, // Added a small margin from the screen bottom edge
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    top: false,
+                    child: Align(
+                      alignment: Alignment
+                          .bottomCenter, // 1. CENTERS THE WIDGET HORIZONTALLY
+                      child: ChatStatusOnlyBar(
+                        text: chatStatus == ChatStatus.bookingreviewed
+                            ? "Review Submitted"
+                            : "Order Closed",
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Floating Loading Indicator Overlay
+              if (chatState.isLoadingMessages)
+                Positioned(
+                  top: 16, // Adjust position (e.g., below the app bar)
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      color: theme.colorScheme.surface,
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
                         ),
                       ),
                     ),
-                  )
-                else
-                  Container(
-                    decoration: BoxDecoration(
-                      color: (isWorkCompleted || isOrderCanceled)
-                          ? Colors.transparent
-                          : theme.cardColor,
-                    ),
-                    child: SafeArea(
-                      top: false,
-                      left: false,
-                      right: false,
-                      bottom:
-                          true, // Offsets input safely away from home system bar pill
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 0.0,
-                          bottom: 12.0,
-                        ), // Extra layout lift padding
-                        child: (isWorkCompleted || isOrderCanceled)
-                            ? const SizedBox.shrink() // 3. Safe empty space that respects screen edges
-                            : Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 0.0,
-                                  bottom: 12.0,
-                                ),
-                                child: SendMessageForm(chatStatus: chatStatus),
-                              ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            if (booking != null && !showActionBar)
-              Positioned(
-                bottom:
-                    16 + 16, // Added a small margin from the screen bottom edge
-                left: 0,
-                right: 0,
-                child: SafeArea(
-                  top: false,
-                  child: Align(
-                    alignment: Alignment
-                        .bottomCenter, // 1. CENTERS THE WIDGET HORIZONTALLY
-                    child: ChatStatusOnlyBar(
-                      text: chatStatus == ChatStatus.bookingreviewed
-                          ? "Review Submitted"
-                          : "Order Closed",
-                    ),
                   ),
                 ),
-              ),
-
-            // Floating Loading Indicator Overlay
-            if (chatState.isLoadingMessages)
-              Positioned(
-                top: 16, // Adjust position (e.g., below the app bar)
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    color: theme.colorScheme.surface,
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2.5),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
+      bottomNavigationBar: SendMessageForm(chatStatus: chatStatus),
     );
   }
 }

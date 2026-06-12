@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/appstatic/widgets/background_glow.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class LaunchScreen extends ConsumerStatefulWidget {
@@ -75,13 +76,13 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
     return Scaffold(
       extendBody: true,
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: theme.cardColor,
       body: Stack(
         alignment: Alignment.center,
         children: [
           /// 1. Subtle Industrial Grid Pattern (Fills the "Empty" space)
           Opacity(
-            opacity: 0.03,
+            opacity: 0.06,
             child: CustomPaint(
               size: Size.infinite,
               painter: _GridPainter(accentColor),
@@ -92,8 +93,8 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
           Positioned(
             top: -150,
             right: -150,
-            child: _BackgroundGlow(
-              color: accentColor.withValues(alpha: 0.15),
+            child: BackgroundGlow(
+              color: accentColor.withValues(alpha: 0.2),
               size: 600,
             ),
           ),
@@ -135,7 +136,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
                   // Subtle divider line to break the "emptiness"
                   Container(
-                    margin: const EdgeInsets.symmetric(vertical: 16),
+                    margin: const EdgeInsets.only(bottom: 16),
                     width: 40,
                     height: 3,
                     decoration: BoxDecoration(
@@ -251,25 +252,3 @@ class _GridPainter extends CustomPainter {
 //     return 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t);
 //   }
 // }
-
-class _BackgroundGlow extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const _BackgroundGlow({required this.color, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, Colors.transparent],
-          stops: const [0.2, 1.0],
-        ),
-      ),
-    );
-  }
-}

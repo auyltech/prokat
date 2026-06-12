@@ -61,6 +61,8 @@ class CategoryCard extends StatelessWidget {
                     ? theme.primaryColor
                     : theme.textTheme.bodyMedium?.color,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

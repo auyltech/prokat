@@ -143,7 +143,7 @@ class ClientBookingTile extends ConsumerWidget {
                     BookingStatus.created,
                     BookingStatus.confirmed,
                   ].contains(booking.status)) ...[
-                    ActionButton.danger(
+                    ActionButton.destructive(
                       label: "Cancel",
                       onPressed: () {
                         _handleCancel(context, ref, booking, l10n);

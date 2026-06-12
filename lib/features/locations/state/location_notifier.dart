@@ -18,11 +18,11 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 
   // Fetch user Addresses
-  Future<void> getRenterLocations() async {
+  Future<void> getClientLocations() async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final renterLocations = await api.getRenterLocations(mode: "ADDRESS");
+      final renterLocations = await api.getClientLocations(mode: "ADDRESS");
 
       state = state.copyWith(
         renterLocations: renterLocations,
@@ -60,7 +60,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
           await ref.read(equipmentProvider.notifier).getOwnerEquipment();
         }
 
-        await getRenterLocations();
+        await getClientLocations();
 
         if (location.service == "ADDRESS" && state.renterLocations.isNotEmpty) {
           selectAddress(state.renterLocations[0]);
@@ -83,7 +83,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
       await api.updateLocation(id, location);
 
       if (location.service == "ADDRESS") {
-        await getRenterLocations();
+        await getClientLocations();
       } else {
         await getOwnerLocations();
       }
@@ -97,7 +97,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
     try {
       await api.deleteLocation(id);
 
-      await getRenterLocations();
+      await getClientLocations();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

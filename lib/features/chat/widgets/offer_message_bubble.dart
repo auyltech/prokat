@@ -36,10 +36,10 @@ class OfferMessageBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F9FD),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color.fromARGB(255, 197, 229, 255),
+              color: theme.dividerColor.withValues(alpha: 0.4),
               width: 1,
             ),
           ),
@@ -50,21 +50,13 @@ class OfferMessageBubble extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.local_offer_outlined,
-                    color: theme.primaryColor,
+                    color: Colors.brown,
                     size: 26,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    message.content,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.primaryColor,
-                    ),
-                  ),
+                  Text(message.content, style: theme.textTheme.bodyMedium),
                 ],
               ),
-
-              const SizedBox(height: 8),
 
               Padding(
                 padding: EdgeInsets.only(left: 32),

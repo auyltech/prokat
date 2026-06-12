@@ -19,7 +19,7 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
     const cardColor = Color(0xFF1E2125);
     const accentColor = Color(0xFF4E73DF);
 
-    final notifier = ref.read(favoriteProvider.notifier);
+    final notifier = ref.read(favoritesProvider.notifier);
     final bookingNotifier = ref.read(bookingProvider.notifier);
     final isFav = notifier.isFavorite(equipment.id);
 

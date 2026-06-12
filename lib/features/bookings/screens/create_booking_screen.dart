@@ -37,8 +37,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(equipmentProvider.notifier).getRenterEquipment();
-      ref.read(locationProvider.notifier).getRenterLocations();
+      ref.read(equipmentProvider.notifier).getClientEquipment();
+      ref.read(locationProvider.notifier).getClientLocations();
     });
   }
 
@@ -86,7 +86,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final equipment = bookingState.selectedEquipment;
 
-    final notifier = ref.read(favoriteProvider.notifier);
+    final notifier = ref.read(favoritesProvider.notifier);
     final bool isFavorite = notifier.isFavorite(equipment?.id ?? '');
 
     final priceEntries = equipment?.prices;
@@ -159,7 +159,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             onTap: isClient
                                 ? () async {
                                     ref
-                                        .read(favoriteProvider.notifier)
+                                        .read(favoritesProvider.notifier)
                                         .toggleFavorite(equipment.id);
                                   }
                                 : null,

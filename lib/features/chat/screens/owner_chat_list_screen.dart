@@ -20,8 +20,10 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(chatProvider.notifier).getChatThreads("owner");
+    Future.microtask(() async {
+      if (ref.read(chatProvider).conversations.isNotEmpty) {
+        await ref.read(chatProvider.notifier).getChatThreads("owner");
+      }
     });
   }
 
@@ -36,12 +38,13 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(chatProvider.notifier).getChatThreads("owner");
+          await ref.read(chatProvider.notifier).getChatThreads("owner");
         },
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            if (chatState.isLoadingConversations)
+            if (chatState.isLoadingConversations &&
+                chatState.conversations.isEmpty)
               _buildSkeleton()
             else if (chatState.error != null && chats.isEmpty)
               EmptyStateTile(

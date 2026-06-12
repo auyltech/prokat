@@ -14,7 +14,7 @@ class FavoritesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final favorites = ref.watch(favoriteProvider).favorites;
+    final favorites = ref.watch(favoritesProvider).favorites;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

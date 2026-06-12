@@ -16,7 +16,7 @@ class RentAnEquipmentTile extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surfaceBright,
         borderRadius: BorderRadius.circular(14), // Matches the top cards
         border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
         boxShadow: [

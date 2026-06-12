@@ -15,13 +15,9 @@ class FavoriteTile extends ConsumerWidget {
     final theme = Theme.of(context);
 
     // Check favorite status to handle the "Un-favorite" action
-    final isFavorite =
-        ref.watch(
-          favoriteProvider.select(
-            (s) => s.favoritesIds?.contains(equipment.id),
-          ),
-        ) ??
-        false;
+    final isFavorite = ref
+        .read(favoritesProvider.notifier)
+        .isFavorite(equipment.id);
 
     final location = equipment.location?.city ?? "Unknown location";
 
@@ -113,7 +109,7 @@ class FavoriteTile extends ConsumerWidget {
                 children: [
                   IconButton(
                     onPressed: () => ref
-                        .read(favoriteProvider.notifier)
+                        .read(favoritesProvider.notifier)
                         .toggleFavorite(equipment.id),
                     icon: Icon(
                       isFavorite ? Icons.favorite : Icons.favorite_border,

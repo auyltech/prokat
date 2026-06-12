@@ -21,7 +21,7 @@ class _MapRenterEquipmentScreenState
     super.initState();
 
     Future.microtask(() {
-      ref.read(equipmentProvider.notifier).getRenterEquipment();
+      ref.read(equipmentProvider.notifier).getClientEquipment();
     });
   }
 

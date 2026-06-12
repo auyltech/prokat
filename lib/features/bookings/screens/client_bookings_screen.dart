@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/draft_booking_tile.dart';
@@ -23,7 +22,6 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final authSession = ref.watch(authProvider).session;
     final bookingState = ref.watch(bookingProvider);
 
     final upcoming = bookingState.bookings
@@ -49,15 +47,14 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
             // 1. High-Priority Draft Card (Refined Orange)
             if (draft.isNotEmpty) DraftBookingTile(booking: draft.first),
 
-            if (authSession == null)
-              EmptyStateTile(
-                title: l10n.loginToViewBookings,
-                icon: Icons.login_outlined,
-              )
-            else if (bookingState.isLoading)
+            if (bookingState.isLoading && upcoming.isNotEmpty)
               EmptyStateTile(title: l10n.loadingOrders)
             else if (bookingState.error != null)
-              EmptyStateTile(title: l10n.errorLoadingOrders)
+              EmptyStateTile(
+                icon: Icons.cancel,
+                title: l10n.errorLoadingOrders,
+                subtitle: bookingState.error,
+              )
             else if (upcoming.isEmpty)
               EmptyStateTile(
                 title: l10n.noBookingsFound,

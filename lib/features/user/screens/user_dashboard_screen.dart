@@ -5,8 +5,6 @@ import 'package:prokat/features/bookings/widgets/client_requests_section.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/user/widgets/user_dashboard_header.dart';
-import 'package:prokat/features/favorites/widgets/favorites_section.dart';
-import 'package:prokat/features/favorites/state/favorites_provider.dart';
 
 // TODO: Remove screen
 class UserDashboardPage extends ConsumerStatefulWidget {
@@ -18,10 +16,8 @@ class UserDashboardPage extends ConsumerStatefulWidget {
 
 class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
   Future<void> _onRefresh() async {
-    ref.read(equipmentProvider.notifier).getRenterEquipment();
+    ref.read(equipmentProvider.notifier).getClientEquipment();
     ref.read(categoriesProvider.notifier).getCategories();
-
-    ref.read(favoriteProvider.notifier).getFavorites();
   }
 
   @override
@@ -56,8 +52,6 @@ class _UserDashboardPageState extends ConsumerState<UserDashboardPage> {
                     ClientRequestsSection(),
 
                     const SizedBox(height: 12),
-
-                    FavoritesSection(),
                   ],
                 ),
               ),

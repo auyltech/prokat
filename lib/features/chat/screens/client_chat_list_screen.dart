@@ -24,7 +24,9 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await ref.read(chatProvider.notifier).getChatThreads("client");
+      if (ref.read(chatProvider).conversations.isNotEmpty) {
+        await ref.read(chatProvider.notifier).getChatThreads("client");
+      }
     });
   }
 
@@ -39,11 +41,12 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(chatProvider.notifier).getChatThreads("client");
+          await ref.read(chatProvider.notifier).getChatThreads("client");
         },
         child: ListView(
           children: [
-            if (chatState.isLoadingConversations)
+            if (chatState.isLoadingConversations &&
+                chatState.conversations.isEmpty)
               _buildSkeleton()
             else if (chatState.error != null && chats.isEmpty)
               EmptyStateTile(

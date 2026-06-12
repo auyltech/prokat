@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
+import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
-import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -30,11 +30,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     ref
         .read(equipmentProvider.notifier)
-        .getRenterEquipment(categoryId: categoryId, city: city);
+        .getClientEquipment(categoryId: categoryId, city: city);
 
     // Fetch Categories only once
-    if (ref.read(categoriesProvider).categories.isEmpty ||
-        ref.read(categoriesProvider).error != null) {
+    if (ref.read(categoriesProvider).isSuccess != true) {
       ref.read(categoriesProvider.notifier).getCategories();
     }
   }
@@ -79,269 +78,261 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final locale = ref.watch(localeProvider);
     final langDisplay = LocaleNotifier.displayCode(locale);
 
-    final categoriesState = ref.watch(categoriesProvider);
     final equipmentState = ref.watch(equipmentProvider);
     final locationState = ref.watch(locationProvider);
+    final categoriesState = ref.watch(categoriesProvider);
 
-    final selectedCity = locationState.city ?? "";
     final selectedCategory = categoriesState.selectedCategory;
+    final selectedCity = locationState.city ?? "All Locations";
+
+    const Color darkBlueBg = Color(0xFF071D49);
+    const Color brightBlueButton = Color(0xFF2563EB);
+
+    // const int columns = 3;
+    // final int rowCount = (categoriesState.categories.length / columns).ceil();
+
+    // Explicit double calculations to fix typing warnings
+    // final double gridHeight = (rowCount * 120.0) + ((rowCount - 1) * 10.0);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _fetchData,
-          child: ListView(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: RichText(
-                        softWrap: false,
-                        text: TextSpan(
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          children: [
-                            const TextSpan(text: 'PRO'),
-                            TextSpan(
-                              text: 'KAT',
-                              style: TextStyle(
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => showLanguageSheet(context),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          langDisplay,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: theme.colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              _HeroBanner(city: selectedCity, l10n: l10n),
-
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Login
-                    GestureDetector(
-                      onTap: () {
-                        context.push(AppRoutes.login);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: theme.primaryColor,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              l10n.getStarted,
-                              style: TextStyle(
-                                color: theme.colorScheme.onPrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Icon(
-                              Icons.login,
-                              size: 24,
-                              color: theme.colorScheme.onPrimary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 12),
-
-                    // Services Header
-                    Text(l10n.services, style: theme.textTheme.titleLarge),
-
-                    SizedBox(height: 8),
-
-                    // Categories / Services
-                    if (categoriesState.isLoading)
-                      EmptyStateTile(title: l10n.loading)
-                    else if (categoriesState.error != null)
-                      EmptyStateTile(title: l10n.errorLoadingServices)
-                    else
-                      SizedBox(
-                        height: 110, // control height of the row
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: categoriesState.categories.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 10),
-                          itemBuilder: (context, i) {
-                            final category = categoriesState.categories[i];
-
-                            return CategoryCard(
-                              isSelected: selectedCategory?.id == category.id,
-                              category: category,
-                              onTap: () => ref
-                                  .watch(categoriesProvider.notifier)
-                                  .selectCategory(category),
-                            );
-                          },
-                        ),
-                      ),
-
-                    SizedBox(height: 16),
-
-                    // Popular Rents Header
-                    Text(l10n.popularRents, style: theme.textTheme.titleLarge),
-
-                    SizedBox(height: 8),
-
-                    if (equipmentState.isLoading)
-                      EmptyStateTile(title: l10n.loading)
-                    else if (equipmentState.error != null)
-                      EmptyStateTile(title: l10n.loadEquipmentErrorHint)
-                    else if (equipmentState.renterEquipment.isEmpty)
-                      EmptyStateTile(
-                        icon: Icons.deselect_outlined,
-                        title:
-                            "There are no ${selectedCategory?.name ?? "equipment"} listed at this moment ${selectedCity.isNotEmpty ? "in $selectedCity" : ""}",
-                      )
-                    else
-                      // Popular Rents
-                      ListView.separated(
-                        separatorBuilder: (context, index) =>
-                            SizedBox(height: 8),
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                        itemCount: equipmentState.renterEquipment.length,
-                        itemBuilder: (context, index) {
-                          final item = equipmentState.renterEquipment[index];
-
-                          return GuestEquipmentCard(item: item);
-                        },
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Hero Banner ─────────────────────────────────────────────────────────────
-
-class _HeroBanner extends StatelessWidget {
-  final String city;
-  final AppLocalizations l10n;
-
-  const _HeroBanner({required this.city, required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.heroPlatformTag,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.white.withValues(alpha: 0.7),
-              letterSpacing: 0.08 * 11,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.heroTitle,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: 14),
-          GestureDetector(
-            onTap: () =>
-                CityPickerSheet.show(context: context, service: "main_screen"),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.25),
-                  width: 0.5,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+      body: RefreshIndicator(
+        onRefresh: _fetchData,
+        child: CustomScrollView(
+          slivers: [
+            // TOP BAR: Logo, language, search
+            // Top Action Header (Stays pinned at the top when collapsed)
+            SliverAppBar(
+              primary: true,
+              pinned: true,
+              backgroundColor: darkBlueBg,
+              elevation: 0,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 14,
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    city.isNotEmpty ? city : l10n.allLocations,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      children: [
+                        TextSpan(text: 'PRO'),
+                        TextSpan(
+                          text: 'KAT',
+                          style: TextStyle(color: brightBlueButton),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 14,
-                    color: Colors.white.withValues(alpha: 0.7),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => showLanguageSheet(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withAlpha(40),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white30),
+                          ),
+                          child: Text(
+                            langDisplay,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // const SizedBox(width: 12),
+
+                      // const Icon(Icons.search, color: Colors.white),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // Middle Bar: Hero Banner
+            // Parallax content container
+            SliverAppBar(
+              primary: false,
+              expandedHeight: 420.0,
+              backgroundColor: darkBlueBg,
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.parallax,
+                background: HeroBanner(selectedCity: selectedCity),
+              ),
+            ),
+
+            SliverToBoxAdapter(child: GuestCategorySection()),
+
+            // Popular Rents Header
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: Text(
+                  l10n.popularRents,
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+            ),
+
+            if (equipmentState.isLoading &&
+                equipmentState.renterEquipment.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: EmptyStateTile(title: l10n.loading),
+                ),
+              )
+            else if (equipmentState.error != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: EmptyStateTile(title: l10n.loadEquipmentErrorHint),
+                ),
+              )
+            else if (equipmentState.renterEquipment.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: EmptyStateTile(
+                    icon: Icons.deselect_outlined,
+                    title:
+                        "There are no ${selectedCategory?.name ?? "equipment"} listed at this moment ${selectedCity.isNotEmpty ? "in $selectedCity" : ""}",
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverList.separated(
+                  itemCount: equipmentState.renterEquipment.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final item = equipmentState.renterEquipment[index];
+                    return GuestEquipmentCard(item: item);
+                  },
+                ),
+              ),
+
+            SliverFillRemaining(
+              hasScrollBody:
+                  false, // Allows content inside to layout cleanly without nesting scrolls
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+                child: Column(
+                  children: [
+                    // Automatically pushes your CTA card right down to the absolute screen floor
+                    const Spacer(),
+
+                    // ─── GUEST LOGIN CALL-TO-ACTION CARD ────────────────────────────────
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        // Smooth light color blend or subtle dark tint based on your color modes
+                        color: theme.colorScheme.primaryContainer.withAlpha(50),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withAlpha(30),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Visual Anchor: Bold iconography telling the user there is more to explore
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary.withAlpha(25),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.lock_person_outlined,
+                              size: 32,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Action Heading
+                          Text(
+                            "Get Started with Prokat",
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Context Copy text
+                          Text(
+                            "Sign in to browse equipment, contact owners directly, place orders in a few taps.",
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.textTheme.bodyMedium?.color
+                                  ?.withAlpha(180),
+                              fontWeight: FontWeight.w400,
+                              height: 1.4,
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // High-Emphasis Execution Button
+                          ElevatedButton(
+                            onPressed: () {
+                              context.push(AppRoutes.login);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.primary,
+                              foregroundColor: theme.colorScheme.onPrimary,
+                              minimumSize: const Size(double.infinity, 52),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Get Started",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.login,
+                                  size: 24,
+                                  color: theme.colorScheme.onPrimary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

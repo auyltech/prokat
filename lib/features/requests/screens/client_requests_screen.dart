@@ -6,6 +6,8 @@ import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_with_offers.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 
 class ClientRequestsScreen extends ConsumerStatefulWidget {
   const ClientRequestsScreen({super.key});
@@ -16,13 +18,27 @@ class ClientRequestsScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
+  Future<void> fetchData() async {
+    await ref.read(requestProvider.notifier).getClientRequests();
+    await ref.read(offersProvider.notifier).getClientOffers();
+
+    final activeRequests = ref
+        .watch(requestProvider.notifier)
+        .getActiveRequests("client");
+
+    final hasActiveRequests = activeRequests.isNotEmpty;
+
+    if (!hasActiveRequests && mounted) {
+      context.push(AppRoutes.clientRequestsCreate);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(offersProvider.notifier).getClientOffers();
-      ref.read(requestProvider.notifier).getClientRequests();
+    Future.microtask(() async {
+      await fetchData();
     });
   }
 
@@ -59,8 +75,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(offersProvider.notifier).getClientOffers();
-          ref.read(requestProvider.notifier).getClientRequests();
+          fetchData();
         },
         child: ListView(
           children: [

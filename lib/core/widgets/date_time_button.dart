@@ -24,7 +24,7 @@ class DateTimeButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: colors.outline.withValues(alpha: 0.3)),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),

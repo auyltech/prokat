@@ -3,8 +3,18 @@ import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import '../models/request_model.dart';
 
+class Value<T> {
+  final T value;
+  const Value(this.value);
+}
+
 class RequestState {
   final bool isLoading;
+  final bool isSubmitting;
+
+  final bool? isSuccess;
+  final DateTime? lastSuccess;
+
   final String? error;
 
   /// All requests (list screen)
@@ -30,6 +40,11 @@ class RequestState {
 
   RequestState({
     this.isLoading = false,
+    this.isSubmitting = false,
+
+    this.isSuccess = false,
+    this.lastSuccess,
+
     this.error,
     this.requests = const [],
     this.ownerRequests = const [],
@@ -59,6 +74,9 @@ class RequestState {
 
   RequestState copyWith({
     bool? isLoading,
+    bool? isSubmitting,
+    Value<bool?>? isSuccess,
+    DateTime? lastSuccess,
     String? error,
     List<RequestModel>? requests,
     List<RequestModel>? ownerRequests,
@@ -75,6 +93,9 @@ class RequestState {
   }) {
     return RequestState(
       isLoading: isLoading ?? this.isLoading,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      isSuccess: isSuccess != null ? isSuccess.value : this.isSuccess,
+      lastSuccess: lastSuccess ?? this.lastSuccess,
       error: error,
       requests: requests ?? this.requests,
       ownerRequests: ownerRequests ?? this.ownerRequests,

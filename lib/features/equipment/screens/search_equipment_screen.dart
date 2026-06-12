@@ -9,9 +9,11 @@ import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_list_skeleton.dart';
+import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
-import 'package:prokat/features/equipment/widgets/list/client_equipment_card.dart';
+import 'package:prokat/features/equipment/widgets/list/client_equipment_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
@@ -41,9 +43,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
         .read(equipmentProvider.notifier)
         .initFetch(categoryId: categoryId, city: city, query: query);
 
+    ref.read(favoritesProvider.notifier).getFavorites();
+
     // Fetch Categories only once
-    if (ref.read(categoriesProvider).categories.isEmpty ||
-        ref.read(categoriesProvider).error != null) {
+    if (ref.read(categoriesProvider).isSuccess != true) {
       ref.read(categoriesProvider.notifier).getCategories();
     }
   }
@@ -80,7 +83,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
-      _fetchData();
+      if (ref.read(equipmentProvider).renterEquipment.isEmpty ||
+          ref.read(categoriesProvider).isSuccess != true) {
+        _fetchData();
+      }
 
       ref.listenManual(
         categoriesProvider.select((s) => s.selectedCategory?.id),
@@ -149,7 +155,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
               const SizedBox(height: 12),
 
               // Equipment List
-              if (equipmentState.isLoading)
+              if (equipmentState.isLoading &&
+                  equipmentState.renterEquipment.isEmpty)
                 const EquipmentListSkeleton()
               else if (equipmentState.error != null)
                 EquipmentErrorTile(
@@ -175,7 +182,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
                     final equipment = items[index];
 
-                    return ClientEquipmentCard(
+                    return ClientEquipmentTile(
                       equipment: equipment,
                       onTap: () {
                         bookingNotifier.selectEquipment(equipment);
@@ -184,6 +191,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                     );
                   },
                 ),
+
+              FavoritesSection(),
             ],
           ),
         ),

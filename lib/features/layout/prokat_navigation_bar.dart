@@ -10,10 +10,16 @@ import 'package:prokat/l10n/app_localizations.dart';
 // Simple helper class to keep the code dry
 class _NavItem {
   final IconData icon;
+  final String base;
   final String path;
   final String Function(AppLocalizations) label;
 
-  _NavItem({required this.icon, required this.label, required this.path});
+  _NavItem({
+    required this.icon,
+    required this.label,
+    required this.path,
+    required this.base,
+  });
 }
 
 final ownerNavItems = [
@@ -26,6 +32,7 @@ final ownerNavItems = [
     icon: Icons.person_rounded,
     label: (l) => 'Profile',
     path: AppRoutes.ownerProfile,
+    base: "/owner/profile",
   ),
 
   // _NavItem(
@@ -37,21 +44,25 @@ final ownerNavItems = [
     icon: Icons.description_outlined,
     label: (l) => 'Requests',
     path: AppRoutes.ownerRequests,
+    base: "/owner/requests",
   ),
   _NavItem(
     icon: Icons.local_shipping_rounded,
     label: (l) => l.navMyFleet,
     path: AppRoutes.ownerEquiment,
+    base: "/owner/equipment",
   ),
   _NavItem(
     icon: Icons.list_alt_rounded,
     label: (l) => l.navOrders,
     path: AppRoutes.ownerBookings,
+    base: "/owner/bookings",
   ),
   _NavItem(
     icon: Icons.chat_bubble_rounded,
     label: (l) => l.navChats,
     path: AppRoutes.ownerChat,
+    base: "/owner/chat",
   ),
 ];
 
@@ -61,16 +72,19 @@ final clientNavItems = [
     icon: Icons.person_rounded,
     label: (l) => 'Profile',
     path: AppRoutes.profile,
+    base: "/profile",
   ),
   _NavItem(
     icon: Icons.search_rounded,
     label: (l) => l.navSearch,
     path: AppRoutes.searchList,
+    base: "/search",
   ),
   _NavItem(
     icon: Icons.add,
     label: (l) => l.navCreate,
     path: AppRoutes.clientRequestsCreate,
+    base: "/requests",
   ),
   // _NavItem(
   //   icon: Icons.description_outlined,
@@ -86,11 +100,13 @@ final clientNavItems = [
     icon: Icons.list_alt_rounded,
     label: (l) => l.navOrders,
     path: AppRoutes.clientOrders,
+    base: "/orders",
   ),
   _NavItem(
-    icon: Icons.chat_bubble_rounded,
+    icon: Icons.chat_bubble_outline,
     label: (l) => l.navChats,
     path: AppRoutes.chat,
+    base: "/chat",
   ),
 ];
 
@@ -130,12 +146,15 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     }
 
     final String location = GoRouterState.of(context).uri.path;
+
     int currentIndex = navItems.indexWhere(
-      (item) => location.startsWith(item.path),
+      (item) => location.startsWith(item.base),
     );
 
     final List<String> segments = GoRouterState.of(context).uri.pathSegments;
+
     bool isChatDetailScreen = false;
+
     if (segments.length >= 2) {
       if (segments[0] == 'chat' && segments[1] != 'list') {
         isChatDetailScreen = true;

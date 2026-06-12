@@ -51,11 +51,10 @@ class _NegotiationMessageBubbleState
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            // 1. Light theme surface that mirrors the app's structural layout
-            color: const Color(0xFFF4F9FD),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color.fromARGB(255, 197, 229, 255),
+              color: theme.dividerColor.withValues(alpha: 0.4),
               width: 1,
             ),
           ),
