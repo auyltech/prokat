@@ -60,7 +60,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
         },
         child: ListView(
           children: [
-            if (requestState.isLoading)
+            if (requestState.isLoading && requestState.ownerRequests.isEmpty)
               RequestTileSkeleton()
             else if (requestState.error != null)
               Text(l10n.errorLoadingRequests)

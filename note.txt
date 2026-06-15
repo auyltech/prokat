@@ -1,60 +1,8 @@
-card navigation:
-context.push(
-  Uri(
-    path: '/home/search',
-    queryParameters: {'category': 'Excavators', 'city': 'San Francisco'},
-  ).toString(),
-);
-
-search bar navigation:
-context.push(
-  Uri(
-    path: '/home/search',
-    queryParameters: {'q': _searchController.text},
-  ).toString(),
-);
-
-API communication
-Auth session management
-Local persistence
-State management
-Offline/refresh logic
-
-flutter pub run build_runner build --delete-conflicting-outputs
-flutter pub run build_runner watch --delete-conflicting-outputs
-
-dart run build_runner watch --delete-conflicting-outputs
-
-
 DTO + Domain Model pattern with typed API envelopes
 
 Riverpod + Repository + Controller pattern
 
-equipment list screen:
-filters
-pagination
-pull-to-refresh
-favorites
-owner badges
 
-Map Screen Drawer:
- I want a drawer which views the current address, 
- when clicked provides options to select another address or create a new one on the map, 
- then select the capacity, then provide more information on the request (date and comment)
-
- When you’re ready, this FAB can evolve into:
-Long-press → quick request types
-Disabled if no location selected
-Animated into sheet when expanded
-Owner vs user role visibility
-
-1️⃣ Implement EquipmentBrowseSheet drag behavior
-2️⃣ Build EquipmentPreviewSheet (Book / Request buttons)
-3️⃣ Wire capacity filters → map markers
-
-Auth:
-3️⃣ Add deep-link support
-4️⃣ Add token expiration auto-logout
 
 If you want, I can also show a very slick OTP UX used by Uber / WhatsApp style apps, including:
 auto-focus OTP boxes
@@ -62,25 +10,6 @@ auto SMS reading
 resend countdown
 paste OTP support
 
-Owner:
-EquipmentCard
-RequestCard
-BookingCard
-PriceDisplay
-EquipmentStatusBadge
-
-Equipment Details
-sliver scrolling header
-sticky sections
-hero image
-optimistic editing
-image upload pipeline
-
-2026 "Bento" aesthetic
-
-add snackbars for submit results, and is loading to block/disable submit button
-
-showSuccessSnackBar(context, "Equipment updated");
 
 Pin Map Screen
 🧭 map tilt + 3D buildings
@@ -92,18 +21,6 @@ Pin Map Screen
 
 implementing the onCameraChangeListener to make the pin update the address while you drag the map?
 
-// Future<void> debugStorage() async {
-//   final all = await const FlutterSecureStorage().readAll();
-//   print("SECURE STORAGE CONTENT:");
-//   print(all.toString());
-// }
-
-// debugStorage();
-
-
-flutter run | Select-String "I/flutter"
-
-Later you can also add:
 
 City Restriction
 
@@ -112,7 +29,6 @@ Example:
 bbox=76.5,43.1,77.3,43.5
 
 This limits searches to Almaty only, useful for equipment marketplaces.
-
 
 Map initial location
 1️⃣ User saved address (delivery location)
@@ -123,31 +39,8 @@ Map initial location
 Booking
 1. Persist draft across app restart (Hive / shared prefs)
 
-
-Industrial Dark theme, we’ll use the #121417 background
-
-
 POA: Price on Application (or sometimes Price on Asking)
 
-
----- Register Owner ----
-
-Individual or Company
-
-How many equipment
-1-5
-5-20
-20+
-
-How many employees
-1-5
-5-20
-20+
-
-- Services Provided
-    select multiple categories
-- Locations
-    cities
 
 Full name, IIN, payment details?
 
@@ -164,3 +57,8 @@ after review allow creating equipment
 ---- ----
 
 Become an owner, register as an owner, publish / advertise your equipment and Services, find clients
+
+
+3. Adjust the App's Splash Screen Theme (For Custom Splash)If you are using a custom native splash screen, 
+the black screen can happen when the app transitions from the native Android splash to the Flutter rendering layer.
+Ensure your android/app/src/main/res/drawable/launch_background.xml and styles.xml are configured properly for the Android v2 embedding.

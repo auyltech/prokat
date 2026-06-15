@@ -44,37 +44,42 @@ class _OwnerBookingHistoryScreenState
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: SearchBox(placeholder: l10n.search),
-          ),
-
-          if (bookingState.isLoading)
-            const RequestTileSkeleton()
-          else if (bookingState.error != null)
-            EmptyStateTile(title: l10n.errorLoadingOrders)
-          else if (bookingHistory.isEmpty)
-            EmptyStateTile(title: l10n.noOrderHistory)
-          else
-            ListView.separated(
-              separatorBuilder: (context, index) => const Divider(
-                height: 1,
-                thickness: 0.5,
-                indent: 16,
-                endIndent: 16,
-              ),
-              itemCount: bookingHistory.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: OwnerBookingTile(booking: bookingHistory[index]),
-              ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(bookingProvider.notifier).getOwnerBookings();
+        },
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: SearchBox(placeholder: l10n.search),
             ),
-        ],
+
+            if (bookingState.isLoading)
+              const RequestTileSkeleton()
+            else if (bookingState.error != null)
+              EmptyStateTile(title: l10n.errorLoadingOrders)
+            else if (bookingHistory.isEmpty)
+              EmptyStateTile(title: l10n.noOrderHistory)
+            else
+              ListView.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 16,
+                  endIndent: 16,
+                ),
+                itemCount: bookingHistory.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: OwnerBookingTile(booking: bookingHistory[index]),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
