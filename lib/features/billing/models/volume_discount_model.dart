@@ -2,20 +2,17 @@ import 'package:prokat/core/utils/parse.dart';
 
 class VolumeDiscountModel {
   final int onlineCount;
-  final int costPerEquipmentPerHour;
+  final int costPerMinute;
 
-  VolumeDiscountModel({
-    required this.onlineCount,
-    required this.costPerEquipmentPerHour,
-  });
+  VolumeDiscountModel({required this.onlineCount, required this.costPerMinute});
 
   factory VolumeDiscountModel.fromJson(Map<String, dynamic> json) {
     try {
       return VolumeDiscountModel(
         onlineCount: parseInt(json['onlineCount'], fieldName: 'onlineCount'),
-        costPerEquipmentPerHour: parseInt(
-          json['costPerEquipmentPerHour'],
-          fieldName: 'costPerEquipmentPerHour',
+        costPerMinute: parseInt(
+          json['costPerMinute'],
+          fieldName: 'costPerMinute',
         ),
       );
     } catch (e, stackTrace) {

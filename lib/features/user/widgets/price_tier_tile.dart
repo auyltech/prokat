@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/billing/models/pricing_tier_model.dart';
 
 class PriceTierTile extends StatelessWidget {
@@ -33,25 +34,27 @@ class PriceTierTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              pricingTier.minutes.toStringAsFixed(0),
+              pricingTier.name,
               style: TextStyle(
                 color: isSelected ? Colors.white : null,
                 fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              "${pricingTier.price} KZT",
-              style: TextStyle(
-                color: isSelected ? Colors.white : theme.colorScheme.primary,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+                fontSize: 28,
               ),
             ),
             Text(
               pricingTier.label,
               style: TextStyle(
                 color: isSelected ? Colors.white70 : Colors.grey,
-                fontSize: 11,
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(height: 12),
+            Text(
+              "${formatPrice(pricingTier.price)} KZT",
+              style: TextStyle(
+                color: isSelected ? Colors.white : theme.colorScheme.primary,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
               ),
             ),
           ],

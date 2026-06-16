@@ -52,7 +52,7 @@ class VolumeDiscountTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$equipmentText / hour',
+                  equipmentText,
                   style: TextStyle(
                     fontSize: 14,
                     color: colorScheme.onSurfaceVariant,
@@ -92,7 +92,7 @@ class VolumeDiscountTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              volumeCase.costPerEquipmentPerHour.toString(),
+              "${volumeCase.costPerMinute.toString()} min / hour",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,

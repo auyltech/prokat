@@ -137,24 +137,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
               // Active Live Toggle
               if (equipment.status == EquipmentStatus.available ||
                   equipment.status == EquipmentStatus.accepted)
-                Row(
-                  children: [
-                    Text(
-                      "Online",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: ghostGray,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    SizedBox(
-                      height: 24,
-                      child: OnlineToggle(
-                        id: equipment.id,
-                        isVisible: equipment.isVisible,
-                      ),
-                    ),
-                  ],
-                ),
+                OnlineToggle(id: equipment.id, isVisible: equipment.isVisible),
             ],
           ),
         ],

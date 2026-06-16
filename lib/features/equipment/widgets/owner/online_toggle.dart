@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
 class OnlineToggle extends ConsumerWidget {
@@ -10,11 +11,17 @@ class OnlineToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isSubmitting =
+        ref.watch(equipmentProvider).isSubmitting &&
+        ref.watch(equipmentProvider).actionId == "equipment:status:$id";
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        if (isSubmitting) CircularProgressIndicator(),
+
         Text(
-          "ONLINE",
+          isVisible ? "ONLINE" : "OFFLINE",
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -32,7 +39,7 @@ class OnlineToggle extends ConsumerWidget {
             onChanged: (val) async {
               await ref
                   .read(equipmentProvider.notifier)
-                  .updateVisibilityStatus(id, val, "AVAILABLE");
+                  .updateVisibilityStatus(id, val, EquipmentStatus.available);
             },
           ),
         ),

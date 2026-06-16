@@ -17,14 +17,12 @@ class BillingNotifier extends StateNotifier<BillingState> {
   }
 
   Future<void> getOwnerBalance() async {
-    print("get_owner_balance");
     state = state.copyWith(isBalanceLoading: true);
 
     try {
       final result = await api
           .getOwnerBalance(); // Single response model wrapper
 
-      print(result.data);
       if (result.success) {
         // Clear errors for this key on success
         final updatedErrors = Map<String, String>.from(state.errors)
@@ -39,7 +37,6 @@ class BillingNotifier extends StateNotifier<BillingState> {
 
       state = state.copyWith(isBalanceLoading: false);
     } catch (e) {
-      print("error_loading");
       final updatedErrors = Map<String, String>.from(state.errors)
         ..['balance'] = e.toString();
       state = state.copyWith(isBalanceLoading: false, errors: updatedErrors);

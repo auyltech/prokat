@@ -405,9 +405,21 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   Future<bool> updateVisibilityStatus(
     String equipmentId,
     bool isVisible,
-    String status,
+    EquipmentStatus status,
   ) async {
+    final originalList = List<Equipment>.from(state.ownerEquipment);
+
     try {
+      final updatedList = state.ownerEquipment.map((item) {
+        if (item.id == equipmentId) {
+          // Create a brand new instance instead of mutating the old one
+          return item.copyWith(status: status, isVisible: isVisible);
+        }
+        return item;
+      }).toList();
+
+      state = state.copyWith(ownerEquipment: updatedList);
+
       state = state.copyWith(
         isSubmitting: true,
         actionId: "equipment:status:$equipmentId",
@@ -429,11 +441,17 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         await getOwnerEquipmentById(equipmentId);
         await getOwnerEquipment();
+      } else {
+        state = state.copyWith(ownerEquipment: originalList);
       }
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+        ownerEquipment: originalList,
+      );
 
       return false;
     }

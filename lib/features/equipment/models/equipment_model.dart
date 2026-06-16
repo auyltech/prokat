@@ -216,4 +216,50 @@ class Equipment {
       );
     }
   }
+
+  Equipment copyWith({
+    String? id,
+    String? name,
+    String? model,
+    String? plateNumber,
+    List<EquipmentSpec>? specs,
+    String? capacity,
+    String? capacityUnit,
+    String? ownerComment,
+    String? rentCondition,
+    EquipmentStatus? status,
+    bool? isVisible,
+    User? owner,
+    String? imageUrl,
+    List<EquipmentImage>? images,
+    List<PriceEntry>? prices,
+    String? city,
+    EquipmentLocation? location,
+    String? categoryId,
+    Category? category,
+    DateTime? updatedAt,
+  }) {
+    return Equipment(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      model: model ?? this.model,
+      plateNumber: plateNumber ?? this.plateNumber,
+      specs: specs ?? this.specs,
+      capacity: capacity ?? this.capacity,
+      capacityUnit: capacityUnit ?? this.capacityUnit,
+      ownerComment: ownerComment ?? this.ownerComment,
+      rentCondition: rentCondition ?? this.rentCondition,
+      status: status ?? this.status,
+      isVisible: isVisible ?? this.isVisible,
+      owner: owner ?? this.owner,
+      imageUrl: imageUrl ?? this.imageUrl,
+      images: images ?? this.images,
+      prices: prices ?? this.prices,
+      city: city ?? this.city,
+      location: location ?? this.location,
+      categoryId: categoryId ?? this.categoryId,
+      category: category ?? this.category,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

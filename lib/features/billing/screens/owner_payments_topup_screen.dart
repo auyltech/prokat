@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/billing/widgets/balance_summary_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
@@ -69,9 +70,10 @@ class _OwnerPaymentsTopupScreenState
               hasActiveBurn: false,
               onTap: () {},
             ),
+            const SizedBox(height: 16),
             // --- 1. Package Selection ---
             Text(l10n.selectPackage, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -114,17 +116,12 @@ class _OwnerPaymentsTopupScreenState
               ),
             ),
             const SizedBox(height: 12),
-            OutlinedButton(
+            PrimaryButton(
+              label: "Submit Top Up Request",
               onPressed: selectedTierId == null
                   ? null
                   : () => _submitManualRequest(selectedTierId!),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Text(l10n.submitManualRequest),
+              isLoading: billingState.isSubmitting,
             ),
 
             const SizedBox(height: 40),

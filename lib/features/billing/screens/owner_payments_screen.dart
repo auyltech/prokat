@@ -142,7 +142,8 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                           volumeCase: volumeDiscountItems[index],
                           isHighlighted:
                               index ==
-                              0, // Highlight the best option (e.g., first item)
+                              volumeDiscountItems.length -
+                                  1, // Highlight the best option (e.g., first item)
                         );
                       },
                     ),

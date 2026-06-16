@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/owner/online_toggle.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class VisibilityStatusSection extends ConsumerStatefulWidget {
@@ -27,7 +28,7 @@ class VisibilityStatusSection extends ConsumerStatefulWidget {
 class _VisibilityStatusSectionState
     extends ConsumerState<VisibilityStatusSection> {
   late bool _tempVisible;
-  late String _tempStatus;
+  late EquipmentStatus _tempStatus;
 
   Future<void> submitForReview() async {
     final res = await ref
@@ -35,17 +36,16 @@ class _VisibilityStatusSectionState
         .updateVisibilityStatus(
           widget.equipmentId,
           widget.isVisible,
-          "CREATED",
+          EquipmentStatus.created,
         );
 
-    if (res) {
+    if (mounted) {
       AppSnackBar.show(
         context,
-        message: "Equipment submited for review",
-        isSuccess: true,
+        message: res ? "Equipment submited for review" : "Failed to submit",
+        isSuccess: res,
+        isError: !res,
       );
-    } else {
-      AppSnackBar.show(context, message: "Failed to submit", isError: true);
     }
   }
 
@@ -53,7 +53,7 @@ class _VisibilityStatusSectionState
   void initState() {
     super.initState();
     _tempVisible = widget.isVisible;
-    _tempStatus = widget.status.name;
+    _tempStatus = widget.status;
   }
 
   bool get _isDirty =>
@@ -91,7 +91,7 @@ class _VisibilityStatusSectionState
                       .updateVisibilityStatus(
                         widget.equipmentId,
                         widget.isVisible,
-                        widget.status.name,
+                        widget.status,
                       );
 
                   if (res && context.mounted) {
@@ -129,76 +129,82 @@ class _VisibilityStatusSectionState
 
               SizedBox(height: 8),
 
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => setState(() => _tempVisible = true),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _tempVisible
-                            ? theme.colorScheme.primary
-                            : colorScheme.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: _tempVisible
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.outline,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Text(
-                        l10n.online,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                          color: _tempVisible
-                              ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _tempVisible = false),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _tempVisible
-                            ? theme.colorScheme.surfaceBright
-                            : theme.colorScheme.errorContainer,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: _tempVisible
-                              ? theme.colorScheme.outline
-                              : theme.colorScheme.error,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Text(
-                        l10n.offline,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                          color: _tempVisible
-                              ? theme.colorScheme.onSurface
-                              : theme.colorScheme.error,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     GestureDetector(
+              //       onTap: () => setState(() => _tempVisible = true),
+              //       child: AnimatedContainer(
+              //         duration: const Duration(milliseconds: 200),
+              //         margin: const EdgeInsets.only(right: 8),
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 16,
+              //           vertical: 10,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color: _tempVisible
+              //               ? theme.colorScheme.primary
+              //               : colorScheme.surfaceContainerHigh,
+              //           borderRadius: BorderRadius.circular(12),
+              //           border: Border.all(
+              //             color: _tempVisible
+              //                 ? theme.colorScheme.primary
+              //                 : theme.colorScheme.outline,
+              //             width: 1.5,
+              //           ),
+              //         ),
+              //         child: Text(
+              //           l10n.online,
+              //           style: theme.textTheme.labelMedium?.copyWith(
+              //             fontWeight: FontWeight.bold,
+              //             letterSpacing: 1,
+              //             color: _tempVisible
+              //                 ? theme.colorScheme.onPrimary
+              //                 : theme.colorScheme.onSurface,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //     GestureDetector(
+              //       onTap: () => setState(() => _tempVisible = false),
+              //       child: AnimatedContainer(
+              //         duration: const Duration(milliseconds: 200),
+              //         margin: const EdgeInsets.only(right: 8),
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 16,
+              //           vertical: 10,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color: _tempVisible
+              //               ? theme.colorScheme.surfaceBright
+              //               : theme.colorScheme.errorContainer,
+              //           borderRadius: BorderRadius.circular(12),
+              //           border: Border.all(
+              //             color: _tempVisible
+              //                 ? theme.colorScheme.outline
+              //                 : theme.colorScheme.error,
+              //             width: 1.5,
+              //           ),
+              //         ),
+              //         child: Text(
+              //           l10n.offline,
+              //           style: theme.textTheme.labelMedium?.copyWith(
+              //             fontWeight: FontWeight.bold,
+              //             letterSpacing: 1,
+              //             color: _tempVisible
+              //                 ? theme.colorScheme.onSurface
+              //                 : theme.colorScheme.error,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              if (equipment?.status == EquipmentStatus.available ||
+                  equipment?.status == EquipmentStatus.accepted)
+                OnlineToggle(
+                  id: equipment?.id ?? "",
+                  isVisible: equipment?.isVisible ?? false,
+                ),
 
               SizedBox(height: 12),
 
@@ -209,44 +215,51 @@ class _VisibilityStatusSectionState
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: ["AVAILABLE", "BOOKED", "MAINTENANCE"].map((s) {
-                    final isSelected = _tempStatus == s;
-                    final isWarning = s == "MAINTENANCE";
+                  children:
+                      [
+                        EquipmentStatus.available,
+                        EquipmentStatus.booked,
+                        EquipmentStatus.maintenance,
+                      ].map((s) {
+                        final isSelected = _tempStatus == s;
+                        final isWarning = s == EquipmentStatus.maintenance;
 
-                    final Color activeColor = isWarning ? warning : accent;
+                        final Color activeColor = isWarning ? warning : accent;
 
-                    return GestureDetector(
-                      onTap: () => setState(() => _tempStatus = s),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? activeColor.withValues(alpha: 0.12)
-                              : colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected
-                                ? activeColor
-                                : colorScheme.onSurface.withValues(alpha: 0.05),
-                            width: 1.5,
+                        return GestureDetector(
+                          onTap: () => setState(() => _tempStatus = s),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? activeColor.withValues(alpha: 0.12)
+                                  : colorScheme.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? activeColor
+                                    : colorScheme.onSurface.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              s.name,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                                color: isSelected ? activeColor : ghostGray,
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          s,
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                            color: isSelected ? activeColor : ghostGray,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 ),
               ),
             ],

@@ -44,7 +44,7 @@ TimeBreakdown getTimeBreakDown(int? totalSeconds) {
 }
 
 String getTimeString(int? totalSeconds) {
-  if (totalSeconds == null || totalSeconds <= 0) {
+  if (totalSeconds == null || totalSeconds < 0) {
     return "Invalid Seconds Value";
   }
 

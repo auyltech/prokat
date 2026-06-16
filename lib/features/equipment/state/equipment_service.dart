@@ -329,12 +329,16 @@ class EquipmentService {
   Future<ApiResponse<void>> updateVisibilityStatus({
     required String equipmentId,
     required bool isVisible,
-    required String status,
+    required EquipmentStatus status,
   }) async {
     try {
       final response = await _dio.patch(
         '/equipment/$equipmentId/status',
-        data: {"id": equipmentId, "isVisible": isVisible, "status": status},
+        data: {
+          "id": equipmentId,
+          "isVisible": isVisible,
+          "status": status.name.toUpperCase(),
+        },
       );
 
       return handleEmptyApiResponse(

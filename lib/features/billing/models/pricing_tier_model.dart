@@ -2,6 +2,7 @@ import 'package:prokat/core/utils/parse.dart';
 
 class PricingTierModel {
   final String id;
+  final String name;
   final String label;
   final int minutes;
   final int price;
@@ -9,6 +10,7 @@ class PricingTierModel {
 
   PricingTierModel({
     required this.id,
+    required this.name,
     required this.label,
     required this.price,
     required this.minutes,
@@ -19,6 +21,7 @@ class PricingTierModel {
     try {
       return PricingTierModel(
         id: parseString(json['id'], fieldName: 'id'),
+        name: parseString(json['name'], fieldName: 'name'),
         label: parseString(json['label'], fieldName: 'label'),
         price: parseInt(json['price'], fieldName: 'price'),
         minutes: parseInt(json['minutes'], fieldName: 'minutes'),

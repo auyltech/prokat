@@ -26,7 +26,6 @@ class BillingService {
             throw FormatException("Invalid account balance");
           }
 
-          print(response.data["data"]);
           return AccountBalanceModel.fromJson(data);
         },
         fallbackMessage: "Failed to load account balance",
