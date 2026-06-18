@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -186,7 +187,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                       equipment: equipment,
                       onTap: () {
                         bookingNotifier.selectEquipment(equipment);
-                        context.push('/equipment/${equipment.id}/book');
+                        context.push(
+                          '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                        );
                       },
                     );
                   },

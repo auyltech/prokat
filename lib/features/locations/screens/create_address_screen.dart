@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -84,8 +85,8 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
 
     if (res) {
       final url = widget.service == "equipment"
-          ? "/owner/equipment/${widget.equipmentId}"
-          : "/equipment/${widget.equipmentId}";
+          ? "${AppRoutes.ownerEquiment}/${widget.equipmentId}"
+          : "${AppRoutes.equipment}/${widget.equipmentId}";
 
       context.push(url);
       AppSnackBar.show(context, message: _l10n.addressCreated, isSuccess: true);

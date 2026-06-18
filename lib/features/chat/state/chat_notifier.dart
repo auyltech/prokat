@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -146,8 +145,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
       await getChatById(trimmedChatId);
       await _connectToChat(trimmedChatId);
 
-      debugPrint('openChatById: joined chat room $trimmedChatId');
-
       // Do this AFTER join, and do not allow it to block room join.
       try {
         await markCurrentChatAsRead();
@@ -155,8 +152,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       state = state.copyWith(isLoadingMessages: false, error: null);
     } catch (error) {
-      debugPrint('openChatById error: $error');
-
       state = state.copyWith(
         isLoadingMessages: false,
         error: friendlyChatError(error),
@@ -257,8 +252,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
         error: null,
       );
     } catch (error) {
-      debugPrint("error_leaving_chat: $error");
-
       state = state.copyWith(
         currentChat: null,
         messages: const [],

@@ -158,7 +158,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       iconBgColor: Colors.pink.withValues(alpha: 0.08),
                       title: l10n.supportUsTitle,
                       subtitle: l10n.donateOrHelp,
-                      onTap: () => context.push('/support-us'),
+                      onTap: () => context.push(AppRoutes.supportUs),
                     ),
 
                     const SizedBox(height: 12),
@@ -168,7 +168,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       iconColor: Colors.teal,
                       iconBgColor: Colors.teal.withValues(alpha: 0.08),
                       title: l10n.termsConditions,
-                      onTap: () => context.push('/terms'),
+                      onTap: () => context.push(AppRoutes.termsConditions),
                     ),
 
                     const SizedBox(height: 12),
@@ -179,7 +179,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       iconBgColor: Colors.red.withValues(alpha: 0.08),
                       title: l10n.helpSupportTitle,
                       subtitle: l10n.helpSupportSubtitle,
-                      onTap: () => context.push('/help'),
+                      onTap: () => context.push(AppRoutes.helpSupport),
                     ),
 
                     const SizedBox(height: 12),
@@ -190,7 +190,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       iconBgColor: Colors.brown.withValues(alpha: 0.08),
                       title: l10n.appSettings,
                       subtitle: l10n.appSettingsSubtitle,
-                      onTap: () => context.push(AppRoutes.settings),
+                      onTap: () => context.push(AppRoutes.clientSettings),
                     ),
 
                     const SizedBox(height: 40),

@@ -15,14 +15,15 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
 
   ReviewNotifier(this.service, this.bookingId) : super(const ReviewState());
 
-  Future<void> createReview({
+  Future<bool> createReview({
     required String revieweeId,
     required int stars,
     String? comment,
   }) async {
     try {
       state = state.copyWith(isSubmitting: true, error: null);
-      final created = await service.createReview(
+
+      final result = await service.createReview(
         bookingId: bookingId,
         revieweeId: revieweeId,
         stars: stars,
@@ -32,9 +33,11 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
       state = state.copyWith(
         isSubmitting: false,
         hasSubmitted: true,
-        lastReview: created,
+        lastReview: result,
         error: null,
       );
+
+      return true;
     } catch (e) {
       final message = e.toString().replaceFirst('Exception: ', '');
       if (_looksLikeDuplicateReview(message)) {
@@ -43,10 +46,11 @@ class ReviewNotifier extends StateNotifier<ReviewState> {
           hasSubmitted: true,
           error: null,
         );
-        return;
+      } else {
+        state = state.copyWith(isSubmitting: false, error: message);
       }
-      state = state.copyWith(isSubmitting: false, error: message);
-      rethrow;
+
+      return false;
     }
   }
 }

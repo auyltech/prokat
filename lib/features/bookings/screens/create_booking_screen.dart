@@ -1,13 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/date_time_button.dart';
+import 'package:prokat/core/widgets/date_picker_component.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -46,7 +45,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
 
-  Future<void> _onPressed() async {
+  Future<void> onSubmit() async {
     final result = await ref.read(bookingProvider.notifier).createBooking();
 
     if (mounted) {
@@ -92,6 +91,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final priceEntries = equipment?.prices;
 
     final displayUrl = equipment?.imageUrl ?? "";
+
+    final canSubmit =
+        bookingState.selectedEquipment != null &&
+        bookingState.selectedPriceEntry != null &&
+        bookingState.selectedLocation != null &&
+        bookingState.selectedDate != null &&
+        bookingState.selectedTime != null;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -259,79 +265,28 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Date and Time
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DateTimeButton(
-                              icon: Icons.calendar_today_rounded,
-                              label: bookingState.selectedDate == null
-                                  ? l10n.selectDate
-                                  : DateFormat(
-                                      'MMM dd, yyyy',
-                                    ).format(bookingState.selectedDate!),
-                              onTap: () async {
-                                await showModalBottomSheet(
-                                  context: context,
-                                  builder: (context) => Container(
-                                    height: 300,
-                                    color: theme.scaffoldBackgroundColor,
-                                    child: CupertinoDatePicker(
-                                      mode: CupertinoDatePickerMode.date,
-                                      // 1. Safe calculation: use the maximum of the two dates to prevent underflow
-                                      initialDateTime:
-                                          (bookingState.selectedDate ??
-                                                  initialTargetDateTime)
-                                              .isBefore(DateTime.now())
-                                          ? DateTime.now()
-                                          : (bookingState.selectedDate ??
-                                                initialTargetDateTime),
-                                      minimumDate: DateTime.now(),
-                                      maximumDate: DateTime.now().add(
-                                        const Duration(days: 365),
-                                      ),
-                                      onDateTimeChanged: (date) {
-                                        bookingNotifier.setDate(date);
-                                      },
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                      DatePickerComponent(
+                        daysRange: 7, // Pass your dynamic 'x' range here
+                        isRequired: true, // Shows indicator text
+                        selectedDate:
+                            bookingState.selectedDate ?? initialTargetDateTime,
+                        onDateSelected: (date) {
+                          bookingNotifier.setDate(date);
+                        },
+                      ),
 
-                          const SizedBox(width: 12),
-
-                          Expanded(
-                            child: DateTimeButton(
-                              icon: Icons.access_time_rounded,
-                              label: bookingState.selectedTime == null
-                                  ? l10n.selectTime
-                                  : DateFormat.jm().format(
-                                      bookingState.selectedTime!,
-                                    ),
-                              onTap: () async {
-                                await showModalBottomSheet(
-                                  context: context,
-                                  builder: (context) => Container(
-                                    height: 300,
-                                    color: theme.scaffoldBackgroundColor,
-                                    child: CupertinoDatePicker(
-                                      mode: CupertinoDatePickerMode.time,
-                                      use24hFormat: false,
-                                      initialDateTime:
-                                          bookingState.selectedTime ??
-                                          initialTargetDateTime,
-                                      onDateTimeChanged: (time) {
-                                        bookingNotifier.setTime(time);
-                                      },
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                      TimePickerComponent(
+                        slotLengthMinutes: 30, // 30 minute blocks
+                        startHour: 9, // Start at 09:00
+                        endHour: 17, // End at 17:00
+                        isRequired: true,
+                        selectedDateTime:
+                            bookingState.selectedTime ?? initialTargetDateTime,
+                        onTimeSelected: (updatedDateTime) {
+                          bookingNotifier.setTime(
+                            updatedDateTime,
+                          ); // This emits a full DateTime object
+                        },
                       ),
 
                       const SizedBox(height: 24),
@@ -382,11 +337,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       PrimaryButton(
                         label: "Place Order",
-                        onPressed:
-                            (bookingState.selectedLocationId == null ||
-                                bookingState.selectedDate == null)
+                        onPressed: (!canSubmit || bookingState.isSubmitting)
                             ? null
-                            : _onPressed,
+                            : onSubmit,
                         isLoading: bookingState.isSubmitting,
                       ),
                     ],

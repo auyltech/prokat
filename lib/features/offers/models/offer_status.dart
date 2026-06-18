@@ -1,4 +1,12 @@
-enum OfferStatus { created, cancelled, accepted, rejected, expired, closed }
+enum OfferStatus {
+  created,
+  viewed,
+  cancelled,
+  accepted,
+  rejected,
+  expired,
+  closed,
+}
 
 OfferStatus parseOfferStatus(dynamic value) {
   if (value == null) return OfferStatus.closed;

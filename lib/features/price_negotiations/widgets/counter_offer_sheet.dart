@@ -131,17 +131,21 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
             ),
           ),
           const SizedBox(height: 12),
+
           if (((_priceRate ?? '').trim()).isNotEmpty)
             InputDecorator(
               decoration: const InputDecoration(labelText: 'Rate'),
               child: Text(_priceRate ?? ''),
             ),
+
           const SizedBox(height: 12),
+
           TextField(
             controller: _commentController,
             maxLines: 3,
             decoration: const InputDecoration(labelText: 'Comment (optional)'),
           ),
+
           const SizedBox(height: 16),
 
           ActionBarButton(

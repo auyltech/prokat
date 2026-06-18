@@ -55,10 +55,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
         setState(() => _selectedImage = File(croppedFile.path));
         onImageSelected(_selectedImage);
       }
-    } catch (e) {
-      debugPrint("User cancelled the cropper");
-      debugPrint("Error picking image: $e");
-    }
+    } finally {}
   }
 
   void _showPickerOptions() {

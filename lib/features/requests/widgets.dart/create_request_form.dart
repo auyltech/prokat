@@ -109,20 +109,21 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       }
     });
 
-    const int daysRange = 7;
+    // const int daysRange = 7;
 
-    final DateTime now = DateTime.now();
+    // final DateTime now = DateTime.now();
     // Strip time to avoid mid-day edge-case bugs with minimum/maximum dates
-    final DateTime today = DateTime(now.year, now.month, now.day);
-    final DateTime maxRangeDate = today.add(const Duration(days: daysRange));
+    // final DateTime today = DateTime(now.year, now.month, now.day);
+    // final DateTime maxRangeDate = today.add(const Duration(days: daysRange));
 
     // Safely resolve the initial date
-    DateTime initialDate = requestState.selectedDate ?? initialTargetDateTime;
-    if (initialDate.isBefore(today)) {
-      initialDate = today;
-    } else if (initialDate.isAfter(maxRangeDate)) {
-      initialDate = maxRangeDate;
-    }
+    // DateTime initialDate = requestState.selectedDate ?? initialTargetDateTime;
+
+    // if (initialDate.isBefore(today)) {
+    //   initialDate = today;
+    // } else if (initialDate.isAfter(maxRangeDate)) {
+    //   initialDate = maxRangeDate;
+    // }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

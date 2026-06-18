@@ -88,10 +88,7 @@ class PushNotificationService {
       provisional: true,
     );
 
-    if (kDebugMode) {
-      // ignore: avoid_print
-      print('Notification permission: ${settings.authorizationStatus}');
-    }
+    if (kDebugMode) {}
   }
 
   Future<String?> getFcmToken() async {

@@ -21,7 +21,7 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
 
     final notificationsRoute = startupState == AppStartupRouteState.owner
         ? AppRoutes.ownerNotifications
-        : AppRoutes.notifications;
+        : AppRoutes.clientNotifications;
 
     // Define the core badge UI structure
     Widget badgeContent;

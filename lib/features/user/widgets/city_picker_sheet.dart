@@ -31,29 +31,6 @@ class CityPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
-  // void _updateFilters(BuildContext context, Map<String, String?> newParams) {
-  //   final router = GoRouter.of(context);
-  //   final uri = router.routeInformationProvider.value.uri;
-
-  //   final currentParams = Map<String, String>.from(uri.queryParameters);
-
-  //   newParams.forEach((key, value) {
-  //     if (value == null) {
-  //       currentParams.remove(key);
-  //     } else {
-  //       currentParams[key] = value;
-  //     }
-  //   });
-
-  //   currentParams['page'] = '1';
-
-  //   final newUri = uri.replace(
-  //     queryParameters: currentParams.isEmpty ? null : currentParams,
-  //   );
-
-  //   context.go(newUri.toString());
-  // }
-
   Future<void> _onCitySelected(String city) async {
     ref.read(locationProvider.notifier).selectCity(city);
 

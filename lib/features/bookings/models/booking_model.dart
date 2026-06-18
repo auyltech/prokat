@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -54,58 +53,60 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    try {
-      DateTime? tryParseDate(dynamic value) {
-        if (value == null) return null;
-        try {
-          return DateTime.parse(value);
-        } catch (_) {
-          return null;
-        }
+    DateTime? tryParseDate(dynamic value) {
+      if (value == null) return null;
+      try {
+        return DateTime.parse(value);
+      } catch (_) {
+        return null;
       }
-
-      return BookingModel(
-        id: json['id']?.toString() ?? '',
-
-        status: parseBookingStatus(json['status']),
-        workStatus: parseWorkStatus(json['workStatus']),
-
-        bookedOn: tryParseDate(json['bookedOn']),
-        bookedAt: tryParseDate(json['bookedAt']),
-
-        price: (json['price'] as num?)?.toInt() ?? 0,
-        priceRate: json['priceRate']?.toString() ?? '',
-
-        comment: json['comment']?.toString(),
-        instructions: json['instructions']?.toString(),
-
-        chatId: json['chatId']?.toString(),
-
-        myReviewId: json['myReviewId']?.toString(),
-
-        client: json['client'] != null ? User.fromJson(json['client']) : null,
-        owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
-
-        equipment: json['equipment'] != null
-            ? EquipmentSummaryModel.fromJson(json['equipment'])
-            : null,
-
-        location: json['location'] != null
-            ? LocationModel.fromJson(json['location'])
-            : null,
-
-        createdAt: json['createdAt'] != null
-            ? DateTime.parse(json['createdAt'])
-            : null,
-
-        updatedAt: json['updatedAt'] != null
-            ? DateTime.parse(json['updatedAt'])
-            : null,
-      );
-    } catch (e) {
-      debugPrint("booking_parse_failed");
-      rethrow;
     }
+
+    return BookingModel(
+      id: json['id']?.toString() ?? '',
+
+      status: parseBookingStatus(json['status']),
+      workStatus: parseWorkStatus(json['workStatus']),
+
+      bookedOn: tryParseDate(json['bookedOn']),
+      bookedAt: tryParseDate(json['bookedAt']),
+
+      price: (json['price'] as num?)?.toInt() ?? 0,
+      priceRate: json['priceRate']?.toString() ?? '',
+
+      comment: json['comment']?.toString(),
+      instructions: json['instructions']?.toString(),
+
+      chatId: json['chatId']?.toString(),
+
+      myReviewId: json['myReviewId']?.toString(),
+
+      client: json['client'] != null ? User.fromJson(json['client']) : null,
+      owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
+
+      equipment: json['equipment'] != null
+          ? EquipmentSummaryModel.fromJson(json['equipment'])
+          : null,
+
+      location: json['location'] != null
+          ? () {
+              try {
+                return LocationModel.fromJson(json['location']);
+              } catch (e) {
+                // Log the error here if you use a logging framework
+                return null;
+              }
+            }()
+          : null,
+
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
+    );
   }
 
   Map<String, dynamic> toJson() {

@@ -218,7 +218,9 @@ class OwnerRequestTile extends ConsumerWidget {
                         ),
                       ),
                       onPressed: () {
-                        context.push('${AppRoutes.chat}/${activeOffer.chatId}');
+                        context.push(
+                          '${AppRoutes.clientChatList}/${activeOffer.chatId}',
+                        );
                       },
                       child: const Icon(
                         Icons.chat_bubble_outline_rounded,

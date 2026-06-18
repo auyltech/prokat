@@ -14,11 +14,11 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final authSession = ref.watch(authProvider).session;
-    final state = ref.watch(requestProvider);
+    final requestsState = ref.watch(requestProvider);
 
-    final past = state.requests
-        .where((r) => ["ACCEPTED", "CANCELLED", "EXPIRED"].contains(r.status))
-        .toList();
+    final requestsHistory = ref
+        .watch(requestProvider.notifier)
+        .getRequestHistory("client");
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -58,22 +58,22 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
             actionsPadding: const EdgeInsets.only(right: 12),
           ),
 
-          if (state.isLoading)
+          if (requestsState.isLoading && requestsState.requests.isEmpty)
             const SliverFillRemaining(
               child: Center(
                 child: CircularProgressIndicator(color: Color(0xFF4E73DF)),
               ),
             )
-          else if (state.error != null)
+          else if (requestsState.error != null)
             SliverFillRemaining(
               child: Center(
                 child: Text(
-                  "Error: ${state.error}",
+                  "Error: ${requestsState.error}",
                   style: const TextStyle(color: Colors.redAccent),
                 ),
               ),
             )
-          else if (past.isEmpty)
+          else if (requestsHistory.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
@@ -112,9 +112,9 @@ class ClientRequestsHistoryScreen extends ConsumerWidget {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: ClientRequestTile(request: past[index]),
+                    child: ClientRequestTile(request: requestsHistory[index]),
                   );
-                }, childCount: past.length),
+                }, childCount: requestsHistory.length),
               ),
             ),
           ],

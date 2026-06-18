@@ -73,7 +73,8 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                   return ChatTile(
                     chat: chat,
                     currentUserId: chatState.currentUserId ?? "",
-                    onTap: () => context.push('${AppRoutes.chat}/${chat.id}'),
+                    onTap: () =>
+                        context.push('${AppRoutes.clientChatList}/${chat.id}'),
                   );
                 },
               ),

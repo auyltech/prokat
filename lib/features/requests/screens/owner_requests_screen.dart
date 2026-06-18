@@ -38,9 +38,9 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
     final requestState = ref.watch(requestProvider);
     final offersState = ref.watch(offersProvider);
 
-    final activeRequests = ref.watch(
-      requestProvider.select((notifier) => notifier.activeOwnerRequests),
-    );
+    final activeRequests = ref
+        .watch(requestProvider.notifier)
+        .getActiveRequests("owner");
 
     final offersByRequest = <String, List<OfferModel>>{};
 

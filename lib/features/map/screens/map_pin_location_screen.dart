@@ -34,10 +34,6 @@ class _MapPinLocationScreenState extends ConsumerState<MapPinLocationScreen> {
   @override
   void initState() {
     super.initState();
-
-    final equipmentId = widget.equipmentId;
-
-    debugPrint("Equipment ID: $equipmentId");
   }
 
   Future<void> reverseGeocode() async {
@@ -59,8 +55,6 @@ class _MapPinLocationScreenState extends ConsumerState<MapPinLocationScreen> {
           selectedAddress = result;
         });
       }
-    } catch (e) {
-      debugPrint("Geocoding failed: $e");
     } finally {
       setState(() {
         loadingAddress = false;
@@ -164,9 +158,9 @@ class _MapPinLocationScreenState extends ConsumerState<MapPinLocationScreen> {
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.failedCreateLocation)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
     }
   }
 

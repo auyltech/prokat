@@ -24,7 +24,21 @@ void main() async {
   // This will call the real function on Mobile and the empty stub on Web
   setupMapbox();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } else {
+      Firebase.app(); // Safely re-use the natively initialized application
+    }
+  } catch (e) {
+    if (e.toString().contains('duplicate-app')) {
+      Firebase.app(); // Fail silently and attach to the active instance if a race condition occurred
+    } else {
+      rethrow; // Pass along actual initialization failures
+    }
+  }
 
   runApp(const ProviderScope(child: MyApp()));
 }

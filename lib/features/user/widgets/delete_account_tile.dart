@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 
 class DeleteAccountTile extends StatefulWidget {
   const DeleteAccountTile({super.key});
@@ -69,25 +70,9 @@ class _DeleteAccountTileState extends State<DeleteAccountTile>
   }
 
   void _executeAccountDeletionSequence(BuildContext context) {
-    // Production note: Trigger your State Management architecture here
-    // Example: context.read<AuthBloc>().add(InitiateAccountDeletionEvent());
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            Icon(Icons.hourglass_top, color: Colors.white),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Account scheduled for deletion. You will be logged out shortly.',
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.grey[900],
-        duration: const Duration(seconds: 4),
-      ),
+    AppSnackBar.show(
+      context,
+      message: "Please contact support to process deleting your account",
     );
   }
 

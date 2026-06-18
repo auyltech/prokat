@@ -6,6 +6,7 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:go_router/go_router.dart';
 
+// TODO: REMOVE, NOT USED
 class CategoryTile extends ConsumerStatefulWidget {
   final Category cat;
   final bool isSelected;

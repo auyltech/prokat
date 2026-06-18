@@ -97,22 +97,27 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
   Future<bool> createBooking() async {
     try {
-      if (state.selectedEquipment == null || state.selectedLocation == null) {
+      if (state.selectedEquipment == null ||
+          state.selectedLocation == null ||
+          state.selectedPriceEntry == null ||
+          state.selectedLocation == null ||
+          state.selectedDate == null ||
+          state.selectedTime == null) {
         return false;
       }
 
       state = state.copyWith(isSubmitting: true, actionId: "booking:create");
 
       final result = await api.createBooking({
-        "bookedOn": state.selectedDate!.toIso8601String(),
-        "bookedAt": state.selectedTime!.toIso8601String(),
+        "equipmentId": state.selectedEquipment?.id,
         "price": (int.tryParse(
-          state.selectedPriceEntry?.price.toString() ?? '0',
+          (state.selectedPriceEntry?.price ?? 0).toString(),
         )).toString(),
         "priceRate": state.selectedPriceEntry?.priceRate ?? "",
-        "comment": state.comment,
-        "equipmentId": state.selectedEquipment?.id,
         "locationId": state.selectedLocation?.id,
+        "bookedOn": state.selectedDate!.toIso8601String(),
+        "bookedAt": state.selectedTime!.toIso8601String(),
+        "comment": state.comment,
       });
 
       state = state.copyWith(

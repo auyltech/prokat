@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 class OwnerBookingChatButton extends StatelessWidget {
   final BookingModel booking;
-  
+
   const OwnerBookingChatButton({super.key, required this.booking});
 
   @override
@@ -15,7 +15,7 @@ class OwnerBookingChatButton extends StatelessWidget {
 
     return IconButton(
       onPressed: () {
-        context.push('${AppRoutes.ownerChat}/${booking.chatId}');
+        context.push('${AppRoutes.ownerChatList}/${booking.chatId}');
       },
       tooltip: 'Message Renter',
       icon: Icon(Icons.chat_bubble_outline_rounded, color: colorScheme.primary),
@@ -30,4 +30,3 @@ class OwnerBookingChatButton extends StatelessWidget {
     );
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
@@ -143,7 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 20),
                             child: GestureDetector(
-                              onTap: () => context.go('/login'),
+                              onTap: () => context.go(AppRoutes.login),
                               child: RichText(
                                 text: TextSpan(
                                   text: "${l10n.alreadyRegistered} ",

@@ -51,10 +51,7 @@ class TransactionModel {
 
       try {
         validTransactions.add(TransactionModel.fromJson(item));
-      } catch (error) {
-        // Logs the exact failure details to your console/Sentry without crashing the whole list
-        // print('Skipping corrupted transaction item. Error: $error');
-      }
+      } catch (error) {}
     }
 
     return validTransactions;

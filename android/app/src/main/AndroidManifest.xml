@@ -35,9 +35,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-    <meta-data
-    android:name="com.mapbox.token"
-    android:value="pk.eyJ1IjoibXJhYmJhbmkwMDciLCJhIjoiY21tOHE5N21lMTBlZDJ1cXVpZTBra2JyZyJ9.gHYXieEcDJiq81xN4oodvw" />
+        <meta-data
+        android:name="com.mapbox.token"
+        android:value="${MAPBOX_TOKEN}" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

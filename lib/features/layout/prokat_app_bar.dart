@@ -59,7 +59,8 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     String? titleString;
 
     final showBackButton =
-        [AppRoutes.bookingHistory].contains(currentPath) || isChatDetailScreen;
+        currentPath.contains(AppRoutes.history) || isChatDetailScreen;
+
     // 2. Fallback checking for back button stack presence
     final bool canPop = GoRouter.of(context).canPop() && showBackButton;
 
@@ -143,7 +144,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       );
     }
 
-    if (currentPath == AppRoutes.notifications ||
+    if (currentPath == AppRoutes.clientNotifications ||
         currentPath == AppRoutes.ownerNotifications) {
       actionWidgets.add(
         IconButton(

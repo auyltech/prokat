@@ -155,7 +155,9 @@ class ClientBookingTile extends ConsumerWidget {
                     ActionButton.ghost(
                       icon: Icons.chat_bubble_outline_rounded,
                       onPressed: () {
-                        context.push('${AppRoutes.chat}/${booking.chatId}');
+                        context.push(
+                          '${AppRoutes.clientChatList}/${booking.chatId}',
+                        );
                       },
                     ),
                   ] else if (canReview) ...[

@@ -6,23 +6,23 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 
+// TODO: fix route reslove
+// Backend should send event, type, targetId,
+// Flutter app should build route
+// Save notification event and targetId, not route, remove current save route
 class NotificationNavigationService {
   final Ref ref;
   final NotificationLocalStorage storage;
 
   NotificationNavigationService(this.ref, this.storage);
 
-  String _normalizedRole() {
-    final role = ref.read(authProvider).session?.user?.role;
-    return (role ?? '').trim().toUpperCase();
-  }
-
-  bool get _isOwnerRole => _normalizedRole() == 'OWNER';
+  bool get _isOwnerRole =>
+      ref.read(authProvider).session?.user?.isOwner ?? false;
 
   String notificationsHomeRoute() {
     return _isOwnerRole
         ? AppRoutes.ownerNotifications
-        : AppRoutes.notifications;
+        : AppRoutes.clientNotifications;
   }
 
   String resolveRoute(AppNotification notification) {
@@ -42,8 +42,8 @@ class NotificationNavigationService {
         final chatId = (notification.chatId ?? '').trim();
         if (chatId.isNotEmpty) {
           return _isOwnerRole
-              ? '${AppRoutes.ownerChat}/$chatId'
-              : '${AppRoutes.chat}/$chatId';
+              ? '${AppRoutes.ownerChatList}/$chatId'
+              : '${AppRoutes.clientChatList}/$chatId';
         }
         return notificationsHomeRoute();
 
@@ -70,25 +70,21 @@ class NotificationNavigationService {
 
   bool _isSafeBackendRoute(String route) {
     if (route.isEmpty) return false;
-    if (!route.startsWith('/')) return false;
 
-    // Avoid routing owners to client-only routes and vice versa.
-    if (_isOwnerRole && route.startsWith('/owner/')) return true;
-    if (!_isOwnerRole && !route.startsWith('/owner/')) return true;
-
-    // allow notifications home regardless
-    if (route == AppRoutes.notifications ||
-        route == AppRoutes.ownerNotifications) {
-      return true;
+    if (_isOwnerRole) {
+      return route.startsWith(AppRoutes.ownerMain);
     }
 
-    return false;
+    return route.startsWith(AppRoutes.clientMain);
   }
 
-  // TODO: fix route reslove
   Future<void> navigate(AppNotification notification) async {
     final router = ref.read(routerProvider);
-    final route = notification.route ?? "/"; //resolveRoute(notification);
+    final route = resolveRoute(notification);
+
+    if (!_isSafeBackendRoute(route)) {
+      return;
+    }
 
     final startup = ref.read(appStartupProvider).routeState;
     final session = ref.read(authProvider).session;
@@ -117,9 +113,15 @@ class NotificationNavigationService {
 
   Future<void> flushPendingRouteIfAny() async {
     final route = await storage.readPendingRoute();
+
     if ((route ?? '').isEmpty) return;
 
     await storage.clearPendingRoute();
-    ref.read(routerProvider).go(route!);
+
+    if (_isSafeBackendRoute(route!)) {
+      ref.read(routerProvider).go(route);
+    } else {
+      ref.read(routerProvider).go(notificationsHomeRoute());
+    }
   }
 }

@@ -32,15 +32,24 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
     }
     try {
       if (!context.mounted) return;
+
       Navigator.pop(context, true);
 
-      await ref
+      final result = await ref
           .read(reviewByBookingProvider(widget.bookingId).notifier)
           .createReview(
             revieweeId: widget.revieweeId,
             stars: _stars,
             comment: _commentController.text.trim(),
           );
+
+      if (mounted) {
+        AppSnackBar.show(
+          context,
+          message: result ? "Review Submitted" : "Failed to submit review",
+          isError: true,
+        );
+      }
     } catch (e) {
       if (mounted) {
         AppSnackBar.show(

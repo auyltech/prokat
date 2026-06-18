@@ -46,7 +46,6 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
 
     // 2. Request Pending/Rejected State
     if (registrationRequest != null) {
-      print("has_request");
       final config = _getStatusConfig(
         registrationRequest.status?.toUpperCase() ?? 'PENDING',
         theme,

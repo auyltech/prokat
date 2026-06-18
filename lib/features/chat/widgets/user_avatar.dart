@@ -42,11 +42,11 @@ class UserAvatar extends StatelessWidget {
     return 'U'; // System default fallback (User)
   }
 
-  /// Generates a deterministic color based on the initials so the user 
+  /// Generates a deterministic color based on the initials so the user
   /// always gets the same background color assignment.
   Color _getBackgroundColor(String initials) {
     if (initials == 'U') return Colors.grey.shade400;
-    
+
     final int hash = initials.hashCode;
     final List<Color> avatarColors = [
       Colors.blue.shade600,
@@ -57,7 +57,7 @@ class UserAvatar extends StatelessWidget {
       Colors.purple.shade600,
       Colors.indigo.shade600,
     ];
-    
+
     return avatarColors[hash.abs() % avatarColors.length];
   }
 
@@ -65,7 +65,7 @@ class UserAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasImage = avatarUrl != null && avatarUrl!.trim().isNotEmpty;
     final initials = _getInitials();
-    
+
     // Automatically size text proportionally to the radius container
     final defaultTextStyle = TextStyle(
       fontSize: radius * 0.8,
@@ -75,21 +75,18 @@ class UserAvatar extends StatelessWidget {
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: hasImage ? Colors.transparent : _getBackgroundColor(initials),
+      backgroundColor: hasImage
+          ? Colors.transparent
+          : _getBackgroundColor(initials),
       backgroundImage: hasImage ? NetworkImage(avatarUrl!) : null,
-      onBackgroundImageError: hasImage 
+      onBackgroundImageError: hasImage
           ? (exception, stackTrace) {
               // Gracefully handles broken network URLs in production environments
-              debugPrint('Avatar network error: $exception');
             }
           : null,
       child: hasImage
           ? null
-          : Text(
-              initials,
-              style: textStyle ?? defaultTextStyle,
-              maxLines: 1,
-            ),
+          : Text(initials, style: textStyle ?? defaultTextStyle, maxLines: 1),
     );
   }
 }

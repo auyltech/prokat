@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_service.dart';
 import 'package:prokat/features/offers/state/offers_state.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -28,7 +29,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
         .where(
           (item) =>
               item.requestId == requestId &&
-              ["CREATED", "VIEWED"].contains(item.status),
+              [OfferStatus.created, OfferStatus.viewed].contains(item.status),
         )
         .toList();
   }
@@ -48,8 +49,6 @@ class OffersNotifier extends StateNotifier<OffersState> {
       final bDate = b.createdAt ?? DateTime(1970);
       return bDate.compareTo(aDate);
     });
-
-    print(filtered.length);
 
     // 4. Return the ID of the first (most recent) item
     return filtered.first;
@@ -103,11 +102,11 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
   Future<bool> acceptOffer(String id) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true, actionId: "offer:accept:$id");
 
       final result = await service.acceptOffer(id: id);
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false, actionId: null);
 
       if (result.success) {
         await getClientOffers();
@@ -115,18 +114,22 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+        actionId: null,
+      );
       return false;
     }
   }
 
   Future<bool> rejectOffer(String id) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true, actionId: "offer:reject:$id");
 
       final result = await service.rejectOffer(id: id);
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false, actionId: null);
 
       if (result.success) {
         await getClientOffers();
@@ -134,7 +137,11 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+        actionId: null,
+      );
       return false;
     }
   }
@@ -161,7 +168,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
   Future<bool> createOffer() async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true, actionId: "offer:create");
 
       final result = await service.createOffer(
         price: state.price ?? 0,
@@ -171,7 +178,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
         requestId: state.selectedRequest?.id ?? "",
       );
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false, actionId: null);
 
       if (result.success) {
         await getOwnerOffers();
@@ -179,18 +186,22 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+        actionId: null,
+      );
       return false;
     }
   }
 
   Future<bool> cancelOffer(String id) async {
     try {
-      state = state.copyWith(isLoading: true);
+      state = state.copyWith(isSubmitting: true, actionId: "offer:cancel:$id");
 
       final result = await service.cancelOffer(id: id);
 
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isSubmitting: false, actionId: null);
 
       if (result.success) {
         await getOwnerOffers();
@@ -198,7 +209,11 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isSubmitting: false,
+        error: e.toString(),
+        actionId: null,
+      );
       return false;
     }
   }

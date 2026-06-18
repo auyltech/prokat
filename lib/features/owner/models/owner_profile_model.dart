@@ -58,41 +58,36 @@ class OwnerProfileModel {
   });
 
   factory OwnerProfileModel.fromJson(Map<String, dynamic> json) {
-    try {
-      return OwnerProfileModel(
-        id: json['id']?.toString(),
+    return OwnerProfileModel(
+      id: json['id']?.toString(),
 
-        ownerType: json['ownerType']?.toString(),
-        companyName: json['companyName']?.toString(),
-        legalName: json['legalName']?.toString(),
+      ownerType: json['ownerType']?.toString(),
+      companyName: json['companyName']?.toString(),
+      legalName: json['legalName']?.toString(),
 
-        firstName: json['firstName']?.toString(),
-        lastName: json['lastName']?.toString(),
-        profileImageUrl: json['profileImageUrl']?.toString(),
+      firstName: json['firstName']?.toString(),
+      lastName: json['lastName']?.toString(),
+      profileImageUrl: json['profileImageUrl']?.toString(),
 
-        ratingAverage: parseNullableInt(json['ratingAverage']),
-        ratingCount: parseNullableInt(json['ratingCount']),
-        orderCount: parseNullableInt(json['orderCount']),
+      ratingAverage: parseNullableInt(json['ratingAverage']),
+      ratingCount: parseNullableInt(json['ratingCount']),
+      orderCount: parseNullableInt(json['orderCount']),
 
-        phoneNumber: json['phoneNumber']?.toString(),
+      phoneNumber: json['phoneNumber']?.toString(),
 
-        email: json['email']?.toString(),
+      email: json['email']?.toString(),
 
-        city: json['city']?.toString(),
-        region: json['region']?.toString(),
+      city: json['city']?.toString(),
+      region: json['region']?.toString(),
 
-        iin: json['iin']?.toString(),
+      iin: json['iin']?.toString(),
 
-        serviceDescription: json['serviceDescription']?.toString(),
-        serviceCities: json['serviceCities']?.toString(),
-        status: json['status']?.toString(),
+      serviceDescription: json['serviceDescription']?.toString(),
+      serviceCities: json['serviceCities']?.toString(),
+      status: json['status']?.toString(),
 
-        isVerified: parseBoolean(json['isVerified']),
-        verifiedAt: parseNullableDate(json['verifiedAt']),
-      );
-    } catch (e) {
-      print("parse_failed:owner_profile");
-      rethrow;
-    }
+      isVerified: parseBoolean(json['isVerified']),
+      verifiedAt: parseNullableDate(json['verifiedAt']),
+    );
   }
 }

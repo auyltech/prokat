@@ -1,6 +1,7 @@
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+// TODO: Review resolution in line with new App Routes
 String resolveAppBarTitle(
   String path,
   List<String> segments,
@@ -21,22 +22,21 @@ String resolveAppBarTitle(
   if (path == AppRoutes.clientRequestsCreate) return l10n.newRequest;
   if (path == AppRoutes.clientRequests) return l10n.myRequests;
 
-  if (path == AppRoutes.chat) return l10n.navChats;
+  if (path == AppRoutes.clientChatList) return l10n.navChats;
 
   if (path == AppRoutes.favorites) return 'Favorites';
-  if (path == AppRoutes.notifications) return 'Notifications';
+  if (path == AppRoutes.clientNotifications) return 'Notifications';
 
-  if (path == AppRoutes.profile) return "My Profile";
-  if (path == AppRoutes.settings) return 'Settings';
+  if (path == AppRoutes.clientProfile) return "My Profile";
+  if (path == AppRoutes.clientSettings) return 'Settings';
 
   if (path == AppRoutes.becomeOwner) return 'Become an Owner';
   if (path == AppRoutes.helpSupport) return l10n.helpSupportTitle;
   if (path == '/support-us') return l10n.helpUsGrow;
   if (path == '/terms') return l10n.termsConditions;
 
-  if (path == AppRoutes.categories) return 'Categories';
   if (path == AppRoutes.searchMap) return 'Map Search';
-  if (path == AppRoutes.addresses) return 'My Addresses';
+  if (path == AppRoutes.clientAddresses) return 'My Addresses';
   if (path == AppRoutes.clientPinAddress) return 'Select Address';
 
   if (path.contains('owner')) {

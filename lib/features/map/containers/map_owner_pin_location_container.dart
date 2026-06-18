@@ -45,8 +45,6 @@ class _MapOwnerPinLocationContainerState
           selectedAddress = result;
         });
       }
-    } catch (e) {
-      debugPrint("Geocoding failed: $e");
     } finally {
       setState(() {
         loadingAddress = false;
@@ -95,9 +93,9 @@ class _MapOwnerPinLocationContainerState
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.failedCreateLocation)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
     }
   }
 

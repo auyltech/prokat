@@ -39,7 +39,7 @@ class _UserHeaderState extends ConsumerState<UserDashboardHeader> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
-            onTap: () => context.push(AppRoutes.profile),
+            onTap: () => context.push(AppRoutes.clientProfile),
             child: CircleAvatar(
               radius: 35,
               backgroundColor: theme.colorScheme.primaryContainer,

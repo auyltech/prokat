@@ -35,31 +35,37 @@ class LocationModel {
   });
 
   factory LocationModel.fromJson(Map<String, dynamic> json) {
-    try {
-      return LocationModel(
-        id: json['id'],
-        service: json['service'] ?? '',
-        street: json['street'] ?? '',
-        city: json['city'] ?? '',
-        country: json['country'] ?? '',
-        comment: json['comment'] ?? '',
-        instructions: json['instructions'] ?? '',
-        longitude: double.parse(json['longitude'].toString()),
-        latitude: double.parse(json['latitude'].toString()),
+    // Safe parsing with range validation
+    final lat = double.tryParse(json['latitude']?.toString() ?? '');
+    final lng = double.tryParse(json['longitude']?.toString() ?? '');
 
-        createdAt: json['createdAt'] != null
-            ? DateTime.parse(json['createdAt'])
-            : null,
-        updatedAt: json['updatedAt'] != null
-            ? DateTime.parse(json['updatedAt'])
-            : null,
-
-        userId: json['userId'] ?? '',
-        equipmentId: json['equipmentId'] ?? '',
-      );
-    } catch (e) {
-      rethrow;
+    // Ensure coordinates are valid and within global geographic bounds
+    if (lat == null || lat < -90 || lat > 90) {
+      throw const FormatException("Invalid latitude");
     }
+    if (lng == null || lng < -180 || lng > 180) {
+      throw const FormatException("Invalid longitude");
+    }
+
+    return LocationModel(
+      id: json['id'],
+      service: json['service'] ?? '',
+      street: json['street'] ?? '',
+      city: json['city'] ?? '',
+      country: json['country'] ?? '',
+      comment: json['comment'] ?? '',
+      instructions: json['instructions'] ?? '',
+      latitude: lat,
+      longitude: lng,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
+      userId: json['userId'] ?? '',
+      equipmentId: json['equipmentId'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {

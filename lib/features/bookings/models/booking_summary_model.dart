@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 
 class BookingSummaryModel {
@@ -13,27 +12,22 @@ class BookingSummaryModel {
   });
 
   factory BookingSummaryModel.fromJson(Map<String, dynamic> json) {
-    try {
-      WorkStatus parseWorkStatus(dynamic value) {
-        if (value == null) return WorkStatus.pending;
-        final normalized = value.toString().trim().toLowerCase();
-        for (final status in WorkStatus.values) {
-          if (status.name.toLowerCase() == normalized) {
-            return status;
-          }
+    WorkStatus parseWorkStatus(dynamic value) {
+      if (value == null) return WorkStatus.pending;
+      final normalized = value.toString().trim().toLowerCase();
+      for (final status in WorkStatus.values) {
+        if (status.name.toLowerCase() == normalized) {
+          return status;
         }
-        return WorkStatus.pending;
       }
-
-      return BookingSummaryModel(
-        id: json['id']?.toString() ?? '',
-        status: json['status']?.toString() ?? '',
-        workStatus: parseWorkStatus(json['workStatus']),
-      );
-    } catch (e) {
-      debugPrint("booking_summary_parse_failed");
-      rethrow;
+      return WorkStatus.pending;
     }
+
+    return BookingSummaryModel(
+      id: json['id']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      workStatus: parseWorkStatus(json['workStatus']),
+    );
   }
 
   Map<String, dynamic> toJson() {

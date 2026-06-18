@@ -32,7 +32,7 @@ final ownerNavItems = [
     icon: Icons.person_rounded,
     label: (l) => 'Profile',
     path: AppRoutes.ownerProfile,
-    base: "/owner/profile",
+    base: AppRoutes.ownerProfile,
   ),
 
   // _NavItem(
@@ -44,25 +44,25 @@ final ownerNavItems = [
     icon: Icons.description_outlined,
     label: (l) => 'Requests',
     path: AppRoutes.ownerRequests,
-    base: "/owner/requests",
+    base: AppRoutes.ownerRequests,
   ),
   _NavItem(
     icon: Icons.local_shipping_rounded,
     label: (l) => l.navMyFleet,
     path: AppRoutes.ownerEquiment,
-    base: "/owner/equipment",
+    base: AppRoutes.ownerEquiment,
   ),
   _NavItem(
     icon: Icons.list_alt_rounded,
     label: (l) => l.navOrders,
     path: AppRoutes.ownerBookings,
-    base: "/owner/bookings",
+    base: AppRoutes.ownerBookings,
   ),
   _NavItem(
     icon: Icons.chat_bubble_rounded,
     label: (l) => l.navChats,
-    path: AppRoutes.ownerChat,
-    base: "/owner/chat",
+    path: AppRoutes.ownerChatList,
+    base: AppRoutes.ownerChatList,
   ),
 ];
 
@@ -71,20 +71,20 @@ final clientNavItems = [
   _NavItem(
     icon: Icons.person_rounded,
     label: (l) => 'Profile',
-    path: AppRoutes.profile,
-    base: "/profile",
+    path: AppRoutes.clientProfile,
+    base: AppRoutes.clientProfile,
   ),
   _NavItem(
     icon: Icons.search_rounded,
     label: (l) => l.navSearch,
     path: AppRoutes.searchList,
-    base: "/search",
+    base: AppRoutes.search,
   ),
   _NavItem(
     icon: Icons.add,
     label: (l) => l.navCreate,
     path: AppRoutes.clientRequestsCreate,
-    base: "/requests",
+    base: AppRoutes.clientRequests,
   ),
   // _NavItem(
   //   icon: Icons.description_outlined,
@@ -100,13 +100,13 @@ final clientNavItems = [
     icon: Icons.list_alt_rounded,
     label: (l) => l.navOrders,
     path: AppRoutes.clientOrders,
-    base: "/orders",
+    base: AppRoutes.clientOrders,
   ),
   _NavItem(
     icon: Icons.chat_bubble_outline,
     label: (l) => l.navChats,
-    path: AppRoutes.chat,
-    base: "/chat",
+    path: AppRoutes.clientChatList,
+    base: AppRoutes.clientChatList,
   ),
 ];
 

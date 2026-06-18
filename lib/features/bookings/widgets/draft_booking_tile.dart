@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -50,8 +51,9 @@ class DraftBookingTile extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () =>
-                context.push('/equipment/${booking.equipment?.id}/book'),
+            onPressed: () => context.push(
+              '${AppRoutes.equipment}/${booking.equipment?.id}/${AppRoutes.book}',
+            ),
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
               backgroundColor: draftColor,

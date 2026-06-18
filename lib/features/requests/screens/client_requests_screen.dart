@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_with_offers.dart';
@@ -56,7 +57,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
         .getActiveRequests("client");
 
     final offers = offersState.renterOffers.where(
-      (r) => ["CREATED", "VIEWED"].contains(r.status),
+      (r) => [OfferStatus.created, OfferStatus.viewed].contains(r.status),
     );
 
     final offersByRequest = <String, List<dynamic>>{};

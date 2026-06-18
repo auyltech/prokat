@@ -193,7 +193,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         await storage.clearOtpSession();
 
-        state = state.copyWith(session: result.data, isLoading: false);
+        state = state.copyWith(
+          session: result.data,
+          isLoading: false,
+          error: result.success ? null : result.message,
+        );
 
         // DO NOT AWAIT RELOADING TO ALLOW REDIRECT FROM LOGIN
         ref.read(appStartupProvider.notifier).reloadApp();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/categories/models/category.dart';
 
+// TODO: REMOVE, NOT USED
 class SelectedCategoryTile extends StatelessWidget {
   final Category category;
   final VoidCallback clearSelected;

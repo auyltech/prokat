@@ -21,6 +21,11 @@ class OfferTile extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
+    if (ref.read(offersProvider).isSubmitting ||
+        ref.read(offersProvider).isLoading) {
+      return;
+    }
+
     final notifier = ref.read(offersProvider.notifier);
 
     final success = await notifier.acceptOffer(offer.id);
@@ -40,6 +45,11 @@ class OfferTile extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
+    if (ref.read(offersProvider).isSubmitting ||
+        ref.read(offersProvider).isLoading) {
+      return;
+    }
+
     final notifier = ref.read(offersProvider.notifier);
     final success = await notifier.rejectOffer(offer.id);
 
@@ -249,8 +259,9 @@ class OfferTile extends ConsumerWidget {
               if (offer.chatId.isNotEmpty) ...[
                 ActionButton(
                   icon: Icons.chat_bubble_outline_rounded,
-                  onPressed: () =>
-                      context.push('${AppRoutes.chat}/${offer.chatId}'),
+                  onPressed: () => context.push(
+                    '${AppRoutes.clientChatList}/${offer.chatId}',
+                  ),
                 ),
 
                 const SizedBox(width: 8),
@@ -259,16 +270,22 @@ class OfferTile extends ConsumerWidget {
               if (!isHandled) ...[
                 ActionButton.destructive(
                   label: l10n.reject,
-                  onPressed: () => _handleReject(context, ref, l10n),
-                  isLoading: ref.watch(offersProvider).isLoading,
+                  isEnabled: !ref.watch(offersProvider).isSubmitting,
+                  onPressed: () => ref.watch(offersProvider).isSubmitting
+                      ? null
+                      : _handleReject(context, ref, l10n),
+                  isLoading: ref.watch(offersProvider).isSubmitting,
                 ),
 
                 const SizedBox(width: 8),
 
                 ActionButton(
                   label: l10n.accept,
-                  onPressed: () => _handleAccept(context, ref, l10n),
-                  isLoading: ref.watch(offersProvider).isLoading,
+                  isEnabled: !ref.watch(offersProvider).isSubmitting,
+                  onPressed: () => ref.watch(offersProvider).isSubmitting
+                      ? null
+                      : _handleAccept(context, ref, l10n),
+                  isLoading: ref.watch(offersProvider).isSubmitting,
                 ),
               ] else
                 Container(

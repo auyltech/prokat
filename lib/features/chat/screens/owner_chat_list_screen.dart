@@ -72,7 +72,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                     chat: chat,
                     currentUserId: chatState.currentUserId ?? "",
                     onTap: () =>
-                        context.push('${AppRoutes.ownerChat}/${chat.id}'),
+                        context.push('${AppRoutes.ownerChatList}/${chat.id}'),
                   );
                 },
               ),

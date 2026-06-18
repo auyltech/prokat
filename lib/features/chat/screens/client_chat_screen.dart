@@ -27,7 +27,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('ChatScreen init ${widget.chatId}');
 
     Future.microtask(() async {
       await ref.read(chatProvider.notifier).openChatById(widget.chatId);
@@ -49,7 +48,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void dispose() {
     ref.read(chatProvider.notifier).leaveCurrentChat();
-    debugPrint('ChatScreen dispose ${widget.chatId}');
 
     super.dispose();
   }

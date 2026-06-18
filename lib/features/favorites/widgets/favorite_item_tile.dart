@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
@@ -27,7 +28,9 @@ class FavoriteItemTile extends ConsumerWidget {
         : null;
 
     return GestureDetector(
-      onTap: () => context.push('/equipment/${equipment.id}/book'),
+      onTap: () => context.push(
+        '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+      ),
       child: Container(
         width: 160,
         decoration: BoxDecoration(

@@ -44,12 +44,10 @@ import 'package:prokat/features/user/screens/owner_profile_screen.dart';
 import 'package:prokat/features/user/screens/owner_registration_screen.dart';
 import 'package:prokat/features/user/screens/owner_settings_screen.dart';
 import 'package:prokat/features/owner/screens/register_owner_screen.dart';
-import 'package:prokat/features/user/screens/user_dashboard_screen.dart';
 import 'package:prokat/features/user/screens/client_profile_screen.dart';
 import 'package:prokat/features/user/screens/client_settings_screen.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
-import 'package:prokat/features/categories/screens/categories_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 import 'package:prokat/features/notifications/screens/notifications_screen.dart';
 
@@ -64,10 +62,10 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.launch,
 
-    /// 🔁 REFRESH WHEN STARTUP STATE CHANGES
+    /// REFRESH WHEN STARTUP STATE CHANGES
     refreshListenable: refreshNotifier,
 
-    /// 🔐 AUTH GUARD
+    /// AUTH GUARD
     redirect: (context, state) {
       final startupStatus = ref.read(appStartupProvider);
       final startupState = startupStatus.routeState;
@@ -77,9 +75,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 🚀 Handle startup routing FIRST
       switch (startupState) {
         case AppStartupRouteState.loading:
-          return AppRoutes.launch;
+          if (location != AppRoutes.launch) {
+            return AppRoutes.launch;
+          }
+          break;
 
         case AppStartupRouteState.error:
+          if (location != AppRoutes.error) {
+            return AppRoutes.error;
+          }
           return AppRoutes.error;
 
         case AppStartupRouteState.otp:
@@ -113,31 +117,25 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isOwner = startupState == AppStartupRouteState.owner;
 
-      /// 🔒 ROUTES THAT REQUIRE LOGIN
-      final requiresAuth = <String>[
-        AppRoutes.profile,
-        AppRoutes.settings,
-        AppRoutes.dashboard,
-        AppRoutes.favorites,
-        AppRoutes.notifications,
-        AppRoutes.ownerNotifications,
-      ].any((path) => location == path || location.startsWith('$path/'));
+      // Client Routes
+      final isClientRoute = location.startsWith(AppRoutes.clientMain);
 
-      /// 🔒 BOOKING (nested route)
-      final isBookingRoute = location.contains('/book');
+      /// OWNER ROUTES
+      final isOwnerRoute = location.startsWith(AppRoutes.ownerMain);
 
-      /// 🔒 OWNER ROUTES
-      final isOwnerRoute = location.startsWith('/owner');
-
-      /// 🔐 USER AUTH GUARD
-      if (!isLoggedIn && (requiresAuth || isBookingRoute || isOwnerRoute)) {
+      /// USER AUTH GUARD
+      if (!isLoggedIn && (isClientRoute || isOwnerRoute)) {
         final from = Uri.encodeComponent(fullLocation);
         return '${AppRoutes.login}?from=$from';
       }
 
       /// 🏗 OWNER ROLE GUARD
       if (isOwnerRoute && !isOwner) {
-        return AppRoutes.login;
+        if (isLoggedIn) {
+          return AppRoutes.searchList;
+        } else {
+          return AppRoutes.login;
+        }
       }
 
       /// 🚫 BLOCK AUTH SCREENS WHEN LOGGED IN
@@ -145,11 +143,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           (location == AppRoutes.login || location == AppRoutes.register)) {
         final from = state.uri.queryParameters['from'];
 
-        if (from != null && from.isNotEmpty) {
-          return Uri.decodeComponent(from);
+        if (from != null) {
+          final decoded = Uri.decodeComponent(from);
+
+          if (decoded.startsWith(AppRoutes.clientMain) ||
+              decoded.startsWith(AppRoutes.ownerMain)) {
+            return decoded;
+          }
         }
 
-        return isOwner ? AppRoutes.ownerBookings : AppRoutes.searchList;
+        return isOwner ? AppRoutes.ownerProfile : AppRoutes.clientProfile;
       }
 
       return null;
@@ -166,7 +169,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           return MainScaffold(navigationShell: navigationShell);
         },
         branches: [
-          /// 👤 USER
+          /// Guest
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -195,18 +198,20 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               // Support us
               GoRoute(
-                path: "/support-us",
+                path: AppRoutes.supportUs,
                 builder: (_, _) => const SupportUsPage(),
               ),
               // Terms and conditions
               GoRoute(
-                path: "/terms",
+                path: AppRoutes.termsConditions,
                 builder: (_, _) => const TermsConditionsScreen(),
               ),
-              GoRoute(
-                path: AppRoutes.categories,
-                builder: (_, _) => const CategoriesScreen(),
-              ),
+            ],
+          ),
+
+          /// Client
+          StatefulShellBranch(
+            routes: [
               GoRoute(
                 path: AppRoutes.searchList,
                 builder: (context, state) {
@@ -220,53 +225,34 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               // display equipment details in full screen
               GoRoute(
-                path: '/equipment/:id',
+                path: AppRoutes.createBooking,
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
                   return CreateBookingScreen(equipmentId: id);
                 },
-                routes: [
-                  // Screen for creating a booking on an equipment
-                  GoRoute(
-                    path: 'book',
-                    builder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      return CreateBookingScreen(equipmentId: id); //
-                    },
-                  ),
-                ],
               ),
               GoRoute(
-                path: AppRoutes.addresses,
+                path: AppRoutes.clientAddresses,
                 builder: (context, state) {
                   return RenterAddressesScreen();
                 },
                 routes: [
-                  // Screen for creating a booking on an equipment
                   GoRoute(
-                    path: AppRoutes.pinToMap,
+                    path: AppRoutes.map,
                     builder: (context, state) {
                       return MapRenterPinAddressScreen(); //
                     },
                   ),
                   GoRoute(
-                    path: AppRoutes.createAddress,
+                    path: AppRoutes.create,
                     builder: (context, state) {
                       final service =
-                          state.uri.queryParameters['service'] ?? "";
-
-                      return CreateAddressScreen(
-                        service: service,
-                      ); // Pass service=address
+                          state.uri.queryParameters['service'] ??
+                          ""; // Pass service=address
+                      return CreateAddressScreen(service: service);
                     },
                   ),
                 ],
-              ),
-              GoRoute(
-                path: '/dashboard',
-                builder: (context, state) {
-                  return UserDashboardPage(); //
-                },
               ),
               GoRoute(
                 path: AppRoutes.clientRequests,
@@ -275,13 +261,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    path: 'create',
+                    path: AppRoutes.create,
                     builder: (context, state) {
                       return const CreateRequestScreen();
                     },
                   ),
                   GoRoute(
-                    path: 'history',
+                    path: AppRoutes.history,
                     builder: (context, state) {
                       return const ClientRequestsHistoryScreen();
                     },
@@ -293,7 +279,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const ClientBookingsScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.bookingHistory,
+                    path: AppRoutes.history,
                     builder: (_, _) {
                       return const ClientBookingsHistoryScreen();
                     },
@@ -304,13 +290,13 @@ final routerProvider = Provider<GoRouter>((ref) {
               // CLIENT CHAT
               //
               GoRoute(
-                path: AppRoutes.chat,
+                path: AppRoutes.clientChatList,
                 builder: (context, state) {
+                  // TODO: REMOVE bookingId/ requestId
                   final bookingId =
                       state.uri.queryParameters['bookingId'] ?? '';
                   final requestId =
                       state.uri.queryParameters['requestId'] ?? '';
-
                   return ClientChatListScreen(
                     bookingId: bookingId,
                     requestId: requestId,
@@ -318,15 +304,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    path: ':id',
+                    path: AppRoutes.id,
                     builder: (context, state) {
                       final chatId = state.pathParameters['id'] ?? '';
-
                       return ClientChatScreen(chatId: chatId);
                     },
                     routes: [
                       GoRoute(
-                        path: 'info',
+                        path: AppRoutes.info,
                         builder: (context, state) => ClientChatInfoScreen(
                           chatId: state.pathParameters['id'],
                         ),
@@ -340,15 +325,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const FavoritesScreen(),
               ),
               GoRoute(
-                path: AppRoutes.notifications,
+                path: AppRoutes.clientNotifications,
                 builder: (_, _) => const NotificationsScreen(),
               ),
               GoRoute(
-                path: AppRoutes.profile,
+                path: AppRoutes.clientProfile,
                 builder: (_, _) => const ClientProfileScreen(),
               ),
               GoRoute(
-                path: AppRoutes.settings,
+                path: AppRoutes.clientSettings,
                 builder: (_, _) => const ClientSettingsScreen(),
               ),
               GoRoute(
@@ -363,9 +348,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           ///
           StatefulShellBranch(
             routes: [
+              //
+              // Owner Profile & Settings
+              //
               GoRoute(
-                path: AppRoutes.ownerNotifications,
-                builder: (_, _) => const NotificationsScreen(),
+                path: AppRoutes.ownerProfile,
+                builder: (_, _) => const OwnerProfileScreen(),
+              ),
+              //
+              // Owner Registration and Payment
+              //
+              GoRoute(
+                path: AppRoutes.ownerRegistration,
+                builder: (_, _) => const OwnerRegistrationScreen(),
               ),
               //
               // Owner Equipment
@@ -375,15 +370,25 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const OwnerEquipmentListScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.createEquipment,
+                    path: AppRoutes.create,
                     builder: (_, _) => const CreateEquipmentScreen(),
                   ),
                   GoRoute(
-                    path: AppRoutes.editEquipment,
+                    path: AppRoutes.id,
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
                       return OwnerEquipmentDetailScreen(equipmentId: id);
                     },
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: AppRoutes.ownerPayment,
+                builder: (_, _) => const OwnerPaymentsScreen(),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.topUp,
+                    builder: (_, _) => const OwnerPaymentsTopupScreen(),
                   ),
                 ],
               ),
@@ -397,7 +402,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    path: AppRoutes.pinToMap,
+                    path: AppRoutes.map,
                     builder: (context, state) {
                       // Owner creates location for equipment, pass id to map screen
                       final equipmentId =
@@ -409,7 +414,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ),
                   // Enter / create address manually / form
                   GoRoute(
-                    path: AppRoutes.createAddress,
+                    path: AppRoutes.create,
                     builder: (context, state) {
                       final service =
                           state.uri.queryParameters['service'] ?? "";
@@ -424,7 +429,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                     },
                   ),
                   GoRoute(
-                    path: AppRoutes.editAddress,
+                    path: AppRoutes.id,
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
                       return OwnerAddressEditScreen(id: id);
@@ -440,7 +445,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const OwnerRequestsScreen(),
                 routes: [
                   GoRoute(
-                    path: ":id",
+                    path: AppRoutes.id,
                     builder: (context, state) {
                       final id = state.pathParameters['id']!;
                       return CreateOfferScreen(requestId: id); //
@@ -456,7 +461,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const OwnerBookingsScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.bookingHistory,
+                    path: AppRoutes.history,
                     builder: (context, state) {
                       return OwnerBookingHistoryScreen();
                     },
@@ -464,49 +469,24 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ],
               ),
               //
-              // Owner Profile & Settings
-              //
-              GoRoute(
-                path: AppRoutes.ownerProfile,
-                builder: (_, _) => const OwnerProfileScreen(),
-              ),
-              GoRoute(
-                path: AppRoutes.ownerSettings,
-                builder: (_, _) => const OwnerSettingsScreen(),
-              ),
-              //
-              // Owner Registration and Payment
-              //
-              GoRoute(
-                path: AppRoutes.ownerRegistration,
-                builder: (_, _) => const OwnerRegistrationScreen(),
-              ),
-              GoRoute(
-                path: AppRoutes.ownerPayment,
-                builder: (_, _) => const OwnerPaymentsScreen(),
-                routes: [
-                  GoRoute(
-                    path: AppRoutes.topUp,
-                    builder: (_, _) => const OwnerPaymentsTopupScreen(),
-                  ),
-                ],
-              ),
-              //
               // Owner Chat
               //
               GoRoute(
-                path: AppRoutes.ownerChat,
+                path: AppRoutes.ownerChatList,
                 builder: (context, state) => const OwnerChatListScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.chatDetail,
+                    path: AppRoutes.id,
                     builder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      return OwnerChatScreen(chatId: id); //
+                      return OwnerChatScreen(
+                        chatId:
+                            state.pathParameters['id'] ??
+                            "", // TODO: handle null id
+                      ); //
                     },
                     routes: [
                       GoRoute(
-                        path: AppRoutes.chatInfo,
+                        path: AppRoutes.info,
                         builder: (context, state) => OwnerChatInfoScreen(
                           chatId: state.pathParameters['id'],
                         ),
@@ -514,6 +494,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                     ],
                   ),
                 ],
+              ),
+              GoRoute(
+                path: AppRoutes.ownerNotifications,
+                builder: (_, _) => const NotificationsScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.ownerSettings,
+                builder: (_, _) => const OwnerSettingsScreen(),
               ),
             ],
           ),

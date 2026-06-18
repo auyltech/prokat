@@ -22,7 +22,7 @@ class _OwnerPaymentsTopupScreenState
 
   void _payWithKaspi(String id) {}
 
-  Future<void> _submitManualRequest(String? id) async {
+  Future<void> submitTopUpRequest(String? id) async {
     if (id == null) return;
 
     final result = await ref
@@ -118,9 +118,9 @@ class _OwnerPaymentsTopupScreenState
             const SizedBox(height: 12),
             PrimaryButton(
               label: "Submit Top Up Request",
-              onPressed: selectedTierId == null
+              onPressed: selectedTierId == null || billingState.isSubmitting
                   ? null
-                  : () => _submitManualRequest(selectedTierId!),
+                  : () => submitTopUpRequest(selectedTierId!),
               isLoading: billingState.isSubmitting,
             ),
 

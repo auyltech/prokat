@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/core/services/app_socket_service.dart';
 
@@ -55,9 +54,7 @@ class ChatSocketService {
     if ((_joinedChatId ?? '').isNotEmpty) {
       try {
         await leaveChat(_joinedChatId!);
-      } catch (error) {
-        debugPrint("error_leaving_joined_chat: $error");
-      }
+      } finally {}
     }
 
     appSocket.emit(joinChatEvent, {'chatId': chatId});
@@ -96,9 +93,7 @@ class ChatSocketService {
     if ((chatId ?? '').trim().isNotEmpty) {
       try {
         await leaveChat(chatId!);
-      } catch (error) {
-        debugPrint("error_leaving_joined_chat: $error");
-      }
+      } finally {}
     }
 
     _joinedChatId = null;

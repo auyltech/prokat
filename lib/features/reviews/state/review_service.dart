@@ -28,6 +28,7 @@ class ReviewService {
       );
 
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
+
       final json = data is Map<String, dynamic>
           ? data
           : data is Map
@@ -44,4 +45,3 @@ class ReviewService {
     }
   }
 }
-

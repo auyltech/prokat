@@ -39,7 +39,7 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
     return GestureDetector(
       onTap: () {
         context.push(
-          '${widget.isOwner ? AppRoutes.ownerChat : AppRoutes.chat}/${currentChat?.id}/info',
+          '${widget.isOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList}/${currentChat?.id}/info',
         );
       },
       child: Row(

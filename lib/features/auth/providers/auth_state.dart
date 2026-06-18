@@ -1,4 +1,5 @@
 import 'package:prokat/features/auth/models/auth_session.dart';
+import 'package:prokat/features/auth/models/user_model.dart';
 
 class AuthState {
   final AuthSession? session;
@@ -25,7 +26,7 @@ class AuthState {
   });
 
   bool get isAuthenticated => session != null;
-  bool get isOwner => session?.user?.role == "OWNER";
+  bool get isOwner => session?.user?.role == UserRole.owner;
 
   AuthState copyWith({
     AuthSession? session,

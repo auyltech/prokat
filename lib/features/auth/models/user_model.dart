@@ -1,5 +1,21 @@
 import 'package:prokat/core/utils/parse.dart';
 
+enum UserRole { client, owner }
+
+UserRole? parseUserRole(dynamic value) {
+  if (value == null) return null;
+
+  final normalized = value.toString().trim().toLowerCase();
+
+  for (final role in UserRole.values) {
+    if (role.name.toLowerCase() == normalized) {
+      return role;
+    }
+  }
+
+  return null;
+}
+
 class User {
   final String? id;
   final String? phoneNumber;
@@ -7,7 +23,7 @@ class User {
   final String? lastName;
   final int? rating;
   final int? orderCount;
-  final String? role;
+  final UserRole? role;
   final String? imageUrl;
 
   const User({
@@ -39,6 +55,10 @@ class User {
         : "User";
   }
 
+  bool get isOwner {
+    return role == UserRole.owner;
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     try {
       return User(
@@ -48,7 +68,7 @@ class User {
         phoneNumber: json['phoneNumber']?.toString(),
         rating: parseNullableInt(json['rating']),
         orderCount: parseNullableInt(json['orderCount']),
-        role: json['role']?.toString(),
+        role: parseUserRole(json['role']) ?? UserRole.client,
         imageUrl: json['imageUrl']?.toString(),
       );
     } catch (e) {
@@ -62,8 +82,10 @@ class User {
       'phoneNumber': phoneNumber,
       'firstName': firstName,
       'lastName': lastName,
-      'role': role,
+      'role': role?.name.toUpperCase(),
       'imageUrl': imageUrl,
+      'ratingAverage': rating,
+      'orderCount': orderCount,
     };
   }
 }

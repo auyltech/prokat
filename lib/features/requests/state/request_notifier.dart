@@ -54,6 +54,18 @@ class RequestNotifier extends StateNotifier<RequestState> {
         .toList();
   }
 
+  List<RequestModel> getRequestHistory(String mode) {
+    return (mode == "owner" ? state.ownerRequests : state.requests)
+        .where(
+          (r) => [
+            RequestStatus.accepted,
+            RequestStatus.cancelled,
+            RequestStatus.expired,
+          ].contains(r.status),
+        )
+        .toList();
+  }
+
   Future<void> getClientRequests() async {
     try {
       state = state.copyWith(isLoading: true);
@@ -106,7 +118,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        requests: [],
+        ownerRequests: [],
         isSuccess: Value(false),
         lastSuccess: null,
         error: e.toString(),

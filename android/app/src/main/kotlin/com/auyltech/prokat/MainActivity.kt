@@ -1,4 +1,4 @@
-package com.example.prokat
+package com.auyltech.prokat
 
 import io.flutter.embedding.android.FlutterActivity
 

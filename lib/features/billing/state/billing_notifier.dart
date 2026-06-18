@@ -20,13 +20,20 @@ class BillingNotifier extends StateNotifier<BillingState> {
     state = state.copyWith(isBalanceLoading: true);
 
     try {
-      final result = await api
-          .getOwnerBalance(); // Single response model wrapper
+      final result = await api.getOwnerBalance();
 
       if (result.success) {
-        // Clear errors for this key on success
         final updatedErrors = Map<String, String>.from(state.errors)
           ..remove('balance');
+
+        state = state.copyWith(
+          isBalanceLoading: false,
+          accountBalance: () => result.data,
+          errors: updatedErrors,
+        );
+      } else {
+        final updatedErrors = Map<String, String>.from(state.errors)
+          ..addEntries({"balance": result.message}.entries);
 
         state = state.copyWith(
           isBalanceLoading: false,

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -8,21 +7,16 @@ void setupMapbox() {
   // Fallback to build-time token:
   // flutter run --dart-define=MAPBOX_TOKEN=...
   // (or --dart-define-from-file=.env)
-  const buildTimeToken = String.fromEnvironment('MAPBOX_TOKEN', defaultValue: '');
+  const buildTimeToken = String.fromEnvironment(
+    'MAPBOX_TOKEN',
+    defaultValue: '',
+  );
 
-  final token =
-      (runtimeToken != null && runtimeToken.isNotEmpty)
-          ? runtimeToken
-          : buildTimeToken;
+  final token = (runtimeToken != null && runtimeToken.isNotEmpty)
+      ? runtimeToken
+      : buildTimeToken;
 
   if (token.isNotEmpty) {
     MapboxOptions.setAccessToken(token);
-  } else {
-    if (!kReleaseMode) {
-      debugPrint(
-        'Mapbox token missing. Set MAPBOX_TOKEN in `.env` or pass '
-        '`--dart-define=MAPBOX_TOKEN=...` (or `--dart-define-from-file=.env`).',
-      );
-    }
   }
 }

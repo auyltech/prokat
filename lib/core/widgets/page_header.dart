@@ -44,7 +44,7 @@ class PageHeader extends StatelessWidget {
                   if (context.canPop()) {
                     context.pop();
                   } else {
-                    context.push(AppRoutes.profile);
+                    context.push(AppRoutes.clientProfile);
                   }
                 },
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),

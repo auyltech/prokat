@@ -46,45 +46,39 @@ class RequestModel {
   });
 
   factory RequestModel.fromJson(Map<String, dynamic> json) {
-    try {
-      return RequestModel(
-        id: json['id']?.toString() ?? '',
-        status: parseRequestStatus(json['status']),
-        capacity: json['capacity']?.toString() ?? '',
-        comment: json['comment']?.toString() ?? '',
+    return RequestModel(
+      id: json['id']?.toString() ?? '',
+      status: parseRequestStatus(json['status']),
+      capacity: json['capacity']?.toString() ?? '',
+      comment: json['comment']?.toString() ?? '',
 
-        offeredPrice: parseNullableInt(json['offeredPrice']) ?? 0,
-        offeredPriceRate: json['offeredPriceRate']?.toString(),
+      offeredPrice: parseNullableInt(json['offeredPrice']) ?? 0,
+      offeredPriceRate: json['offeredPriceRate']?.toString(),
 
-        requiredOn: DateTime.parse(json['requiredOn']),
-        requiredAt: json['requiredAt'] != null
-            ? DateTime.parse(json['requiredAt'])
-            : null,
+      requiredOn: DateTime.parse(json['requiredOn']),
+      requiredAt: json['requiredAt'] != null
+          ? DateTime.parse(json['requiredAt'])
+          : null,
 
-        categoryId: json['categoryId']?.toString() ?? '',
-        category: json['category'] != null
-            ? Category.fromJson(json['category'])
-            : null,
+      categoryId: json['categoryId']?.toString() ?? '',
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : null,
 
-        location: json['location'] != null
-            ? LocationModel.fromJson(json['location'])
-            : throw Exception("Location is required but missing"),
+      location: json['location'] != null
+          ? LocationModel.fromJson(json['location'])
+          : throw Exception("Location is required but missing"),
 
-        client: json["client"] != null ? User.fromJson(json["client"]) : null,
+      client: json["client"] != null ? User.fromJson(json["client"]) : null,
 
-        createdAt: json['createdAt'] != null
-            ? DateTime.parse(json['createdAt'])
-            : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
 
-        updatedAt: json['updatedAt'] != null
-            ? DateTime.parse(json['updatedAt'])
-            : null,
-      );
-    } catch (e) {
-      print("request_prase_failed");
-      print(e);
-      rethrow;
-    }
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
+    );
   }
 
   Map<String, dynamic> toJson() {

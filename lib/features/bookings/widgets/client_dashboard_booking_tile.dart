@@ -124,7 +124,9 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                 child: ActionButton(
                   icon: Icons.chat,
                   onPressed: () {
-                    context.push('${AppRoutes.chat}/${booking.chatId}');
+                    context.push(
+                      '${AppRoutes.clientChatList}/${booking.chatId}',
+                    );
                   },
                 ),
               ),

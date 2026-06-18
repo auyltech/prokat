@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,7 +35,7 @@ class MapControls extends ConsumerWidget {
               icon: Icons.view_agenda_rounded, // Much better "Catalog" feel
               onPressed: () {
                 final id = selectedCategory?.id ?? '';
-                context.go('/search/list?category=$id');
+                context.go('${AppRoutes.searchMap}?category=$id');
               },
               color: bgColor,
               iconColor: Colors.white,

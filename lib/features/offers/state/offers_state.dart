@@ -4,6 +4,9 @@ import 'package:prokat/features/requests/models/request_model.dart';
 
 class OffersState {
   final bool isLoading;
+  final bool isSubmitting;
+  final String? actionId;
+
   final String? error;
 
   // Offers received for renter
@@ -22,6 +25,8 @@ class OffersState {
 
   OffersState({
     this.isLoading = false,
+    this.isSubmitting = false,
+    this.actionId,
     this.error,
 
     this.selectedRequest,
@@ -39,6 +44,9 @@ class OffersState {
 
   OffersState copyWith({
     bool? isLoading,
+    bool? isSubmitting,
+    String? actionId,
+
     String? error,
 
     List<OfferModel>? renterOffers,
@@ -55,6 +63,8 @@ class OffersState {
   }) {
     return OffersState(
       isLoading: isLoading ?? this.isLoading,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      actionId: actionId,
       error: error,
 
       selectedRequest: selectedRequest ?? this.selectedRequest,
