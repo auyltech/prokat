@@ -132,11 +132,10 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
           ),
           const SizedBox(height: 12),
 
-          if (((_priceRate ?? '').trim()).isNotEmpty)
-            InputDecorator(
-              decoration: const InputDecoration(labelText: 'Rate'),
-              child: Text(_priceRate ?? ''),
-            ),
+          InputDecorator(
+            decoration: const InputDecoration(labelText: 'Rate'),
+            child: Text(_priceRate ?? ''),
+          ),
 
           const SizedBox(height: 12),
 

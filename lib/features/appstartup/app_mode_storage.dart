@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:prokat/core/storage/secure_storage_client.dart';
 
 enum AppMode { clientMode, ownerMode }
 
@@ -8,7 +9,7 @@ class AppModeStorage {
   final FlutterSecureStorage _storage;
 
   AppModeStorage({FlutterSecureStorage? storage})
-    : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? SecureStorageClient.instance;
 
   Future<void> saveMode(AppMode mode) async {
     await _storage.write(key: _modeKey, value: mode.name);

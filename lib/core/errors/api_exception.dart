@@ -7,57 +7,58 @@ class ApiException implements Exception {
   /// Raw backend/debug data.
   final dynamic data;
 
-  ApiException({
-    required this.message,
-    this.statusCode,
-    this.data,
-  });
+  ApiException({required this.message, this.statusCode, this.data});
 
   bool get isAuthError => statusCode == 401;
 
   static String extractMessage(dynamic data, String fallback) {
     if (data == null) return fallback;
 
-    if (data is String && data.trim().isNotEmpty) {
-      return data;
-    }
+    String? extracted;
 
-    if (data is Map) {
+    if (data is String && data.trim().isNotEmpty) {
+      extracted = data;
+    } else if (data is Map) {
       final message = data["message"];
       final error = data["error"];
       final detail = data["detail"];
       final errors = data["errors"];
 
       if (message is String && message.trim().isNotEmpty) {
-        return message;
-      }
-
-      if (error is String && error.trim().isNotEmpty) {
-        return error;
-      }
-
-      if (detail is String && detail.trim().isNotEmpty) {
-        return detail;
-      }
-
-      if (message is List && message.isNotEmpty) {
-        return message.join(", ");
-      }
-
-      if (error is List && error.isNotEmpty) {
-        return error.join(", ");
-      }
-
-      if (errors is Map && errors.isNotEmpty) {
+        extracted = message;
+      } else if (error is String && error.trim().isNotEmpty) {
+        extracted = error;
+      } else if (detail is String && detail.trim().isNotEmpty) {
+        extracted = detail;
+      } else if (message is List && message.isNotEmpty) {
+        extracted = message.join(", ");
+      } else if (error is List && error.isNotEmpty) {
+        extracted = error.join(", ");
+      } else if (errors is Map && errors.isNotEmpty) {
         final firstError = errors.values.first;
-
         if (firstError is List && firstError.isNotEmpty) {
-          return firstError.first.toString();
+          extracted = firstError.first.toString();
+        } else if (firstError != null) {
+          extracted = firstError.toString();
         }
+      }
+    }
 
-        if (firstError != null) {
-          return firstError.toString();
-        }
+    // Sanitize infrastructure leaks (e.g. database errors, exceptions, stack traces)
+    if (extracted != null) {
+      final lower = extracted.toLowerCase();
+      final possessesTechnicalDetails =
+          lower.contains("exception") ||
+          lower.contains("sql") ||
+          lower.contains("postgres") ||
+          lower.contains("mongodb") ||
+          lower.contains("syntax error") ||
+          lower.contains("stack trace") ||
+          lower.contains("uid:") ||
+          lower.contains("nullpointer");
+
+      if (!possessesTechnicalDetails) {
+        return extracted;
       }
     }
 
@@ -77,25 +78,16 @@ class ApiException implements Exception {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return ApiException(
-          message: "Connection timeout",
-          data: error,
-        );
+        return ApiException(message: "Connection timeout", data: error);
 
       case DioExceptionType.connectionError:
         return ApiException.network(error);
 
       case DioExceptionType.badCertificate:
-        return ApiException(
-          message: "Security certificate error",
-          data: error,
-        );
+        return ApiException(message: "Security certificate error", data: error);
 
       case DioExceptionType.cancel:
-        return ApiException(
-          message: "Request cancelled",
-          data: error,
-        );
+        return ApiException(message: "Request cancelled", data: error);
 
       case DioExceptionType.badResponse:
         break;

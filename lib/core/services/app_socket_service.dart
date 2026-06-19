@@ -1,29 +1,29 @@
 import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_client.dart';
-import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class AppSocketService {
   final ApiClient apiClient;
-  final AuthSecureStorage secureStorage;
+  final Ref ref;
 
   io.Socket? _socket;
 
-  AppSocketService(this.apiClient, this.secureStorage);
+  AppSocketService(this.apiClient, this.ref);
 
   bool get isConnected => _socket?.connected ?? false;
 
-  Future<void> connect({String? token}) async {
+  Future<void> connect() async {
     if (isConnected) {
       return;
     }
 
-    final resolvedToken = (token ?? '').trim().isNotEmpty
-        ? token!.trim()
-        : (await secureStorage.readSession())?.sessionToken ?? '';
+    final session = ref.read(authProvider).session;
+    final sessionToken = session?.sessionToken;
 
-    if (resolvedToken.trim().isEmpty) {
-      throw Exception('Socket auth token is missing');
+    if (sessionToken == null || sessionToken.isEmpty) {
+      return;
     }
 
     _socket?.dispose();
@@ -33,7 +33,7 @@ class AppSocketService {
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
-          .setAuth({'token': resolvedToken})
+          .setAuth({'token': sessionToken})
           .build(),
     );
 

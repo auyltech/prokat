@@ -18,9 +18,11 @@ class ApiInterceptor extends Interceptor {
     try {
       final session = await secureStorage.readSession();
 
-      if (session != null) {
-        final token = session.sessionToken;
-
+      if (session != null &&
+          session.sessionToken != null &&
+          session.sessionToken!.trim().isNotEmpty &&
+          !session.isExpired) {
+        final token = session.sessionToken!.trim();
         options.headers["Authorization"] = "Bearer $token";
       }
 

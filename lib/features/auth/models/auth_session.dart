@@ -7,18 +7,17 @@ class AuthSession {
 
   const AuthSession({this.sessionToken, this.user, this.expires});
 
+  bool get isExpired {
+    if (expires == null) return false;
+    return DateTime.now().isAfter(expires!);
+  }
+
   factory AuthSession.fromJson(Map<String, dynamic> json) {
-    try {
-      return AuthSession(
-        sessionToken: json['sessionToken'],
-        expires: json['expires'] != null
-            ? DateTime.parse(json['expires'])
-            : null,
-        user: json['user'] != null ? User.fromJson(json['user']) : null,
-      );
-    } catch (e) {
-      rethrow;
-    }
+    return AuthSession(
+      sessionToken: json['sessionToken'],
+      expires: json['expires'] != null ? DateTime.parse(json['expires']) : null,
+      user: json['user'] != null ? User.fromJson(json['user']) : null,
+    );
   }
 
   Map<String, dynamic> toJson() {

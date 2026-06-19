@@ -120,8 +120,26 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       state = _statusForStep(AppStartupStep.restoreSession);
 
       var session = ref.read(authProvider).session;
-
       session ??= await auth.restoreSession();
+
+      // 1. If an unexpired session is missing but token details exist, restoreSession handles it internally.
+      // 2. Double-check token expiration here in the state machine to trigger explicit refresh step if needed.
+      if (session != null &&
+          session.sessionToken != null &&
+          session.sessionToken!.isNotEmpty) {
+        if (!session.isExpired) {
+          state = _statusForStep(AppStartupStep.refreshSession);
+
+          final refreshSuccess = await auth.refreshSession();
+          if (refreshSuccess) {
+            session = ref
+                .read(authProvider)
+                .session; // Get updated session reference
+          } else {
+            session = null; // Mark invalid to drop down to OTP/Guest flows
+          }
+        }
+      }
 
       if (session == null) {
         state = _statusForStep(AppStartupStep.restoreOtpSession);
@@ -161,7 +179,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       state = _statusForStep(
         AppStartupStep.done,
         routeState: AppStartupRouteState.error,
-        errorMessage: e.toString(),
+        errorMessage: "Something went wrong!", //e.toString(),
       );
     } finally {
       _isInitializing = false;
@@ -188,7 +206,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     // Add more providers here if they are carrying over cache!
     ///
     ///
-    
+
     state = _statusForStep(
       AppStartupStep.done,
       routeState: unauthorized
@@ -375,7 +393,8 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       state = _statusForStep(
         AppStartupStep.done,
         routeState: AppStartupRouteState.error,
-        errorMessage: e.toString(),
+        errorMessage:
+            "An unexpected error occurred during application startup. Please try again.",
       );
     } finally {
       _isInitializing = false;

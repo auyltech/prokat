@@ -8,11 +8,15 @@ final secureStorageProvider = Provider<AuthSecureStorage>((ref) {
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {
-  final storage = ref.watch(secureStorageProvider);
+  final secureStorage = ref.watch(secureStorageProvider);
   return ApiClient(
-    storage,
+    secureStorage,
     onUnauthorized: () {
       ref.read(unauthorizedSignalProvider.notifier).state++;
     },
   );
+});
+
+final dioProvider = Provider((ref) {
+  return ref.watch(apiClientProvider).dio;
 });

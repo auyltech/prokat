@@ -428,7 +428,6 @@ class EquipmentService {
       final equipmentId = data["equipmentId"];
       final price = data["price"];
       final priceRate = data["priceRate"];
-      final serviceTime = data["serviceTime"];
 
       final response = await _dio.post(
         "/equipment/$equipmentId/priceEntry",
@@ -436,7 +435,6 @@ class EquipmentService {
           "equipmentId": equipmentId,
           "price": price,
           "priceRate": priceRate,
-          "serviceTime": serviceTime,
         },
       );
 

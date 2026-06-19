@@ -83,7 +83,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
     } catch (_) {
-      await logout();
       return false;
     }
   }

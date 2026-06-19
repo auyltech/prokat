@@ -18,6 +18,10 @@ class ActiveEquipmentTile extends StatelessWidget {
 
     final colorScheme = theme.colorScheme;
 
+    final costPerEquipment = (equipmentCount == 0)
+        ? 0
+        : (dailyCost / equipmentCount);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -56,7 +60,7 @@ class ActiveEquipmentTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "${l10n.dailyCost}: $dailyCost ₸",
+                  "${l10n.dailyCost}: $dailyCost min",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -72,7 +76,7 @@ class ActiveEquipmentTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              "${(dailyCost / equipmentCount).toStringAsFixed(0)} ₸/ea",
+              "${costPerEquipment.toStringAsFixed(0)} min/ea",
               style: const TextStyle(
                 color: Colors.green,
                 fontWeight: FontWeight.bold,

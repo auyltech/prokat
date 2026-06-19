@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -31,6 +32,9 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
+    final currentUserId = ref.watch(authProvider).currentUserId ?? "";
+
     final chatState = ref.watch(chatProvider);
     final chats = chatState.conversations;
 
@@ -70,7 +74,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                   final chat = chats[index];
                   return ChatTile(
                     chat: chat,
-                    currentUserId: chatState.currentUserId ?? "",
+                    currentUserId: currentUserId,
                     onTap: () =>
                         context.push('${AppRoutes.ownerChatList}/${chat.id}'),
                   );

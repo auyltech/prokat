@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/billing/widgets/active_equipment_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
+import 'package:prokat/features/billing/widgets/consumption_chart.dart';
 import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
 import 'package:prokat/features/billing/widgets/volume_discount_tile.dart';
 import 'package:prokat/features/billing/widgets/top_up_cta_tile.dart';
@@ -26,6 +27,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
       await ref.read(billingProvider.notifier).getPricingTiers();
       await ref.read(billingProvider.notifier).getVolumeDiscounts();
       await ref.read(billingProvider.notifier).getOwnerTransactions();
+      await ref.read(equipmentProvider.notifier).getOwnerEquipment();
     });
   }
 
@@ -37,16 +39,15 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final billingState = ref.watch(billingProvider);
 
     final secondsRemaining = billingState.accountBalance?.secondsRemaining ?? 0;
-    final humanReadableTime = getTimeBreakDown(secondsRemaining);
+    final humanReadableTime = getTimeString(secondsRemaining);
 
     final onlineEquipment = ref.watch(equipmentProvider).onlineEquipmentCount;
-
     final volumeDiscountItems = billingState.volumeDiscounts;
 
-    final pricePerEquipment = 50;
-    final dailyCost = onlineEquipment * pricePerEquipment;
-
-    final List<int> weeklyConsumption = [120, 150, 80, 200, 180, 450, 310];
+    final dailyCost = billingState.getDailyCost(onlineEquipment);
+    final timeForOnlineEquipment = getTimeString(
+      billingState.getReminaingSeconds(onlineEquipment),
+    );
 
     final payments = ref.watch(billingProvider).transactions;
 
@@ -58,6 +59,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Text(billingState.getReminaingSeconds(onlineEquipment).toString()),
             // Main Balance Section
             Container(
               padding: const EdgeInsets.all(24),
@@ -72,7 +74,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    "${(secondsRemaining / 60).toStringAsFixed(0)} Min",
+                    humanReadableTime,
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -82,7 +84,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                   const Divider(height: 32),
 
                   Text(
-                    "≈ $humanReadableTime for $onlineEquipment equipment",
+                    "≈ $timeForOnlineEquipment for $onlineEquipment equipment",
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -154,7 +156,8 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
 
             const SizedBox(height: 16),
 
-            _consumptionChart(context, l10n, weeklyConsumption),
+            // TODO: Fix Consumption Chart
+            ConsumptionChart(),
 
             const SizedBox(height: 16),
 
@@ -178,90 +181,4 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
       ),
     );
   }
-}
-
-Widget _consumptionChart(
-  BuildContext context,
-  AppLocalizations l10n,
-  List<int> weeklyData,
-) {
-  final theme = Theme.of(context);
-  final colorScheme = theme.colorScheme;
-  final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-  final maxUsage = weeklyData
-      .reduce((a, b) => a > b ? a : b)
-      .clamp(1, double.infinity);
-
-  return Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: theme.cardColor,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(
-        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-      ),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.usageTrend,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              l10n.last7Days,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          height: 120,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: List.generate(weeklyData.length, (index) {
-              final val = weeklyData[index];
-              final percentage = val / maxUsage;
-
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    width: 12,
-                    height: 80 * percentage,
-                    decoration: BoxDecoration(
-                      color: index == weeklyData.length - 1
-                          ? colorScheme.primary
-                          : colorScheme.primary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    days[index],
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: index == weeklyData.length - 1
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              );
-            }),
-          ),
-        ),
-      ],
-    ),
-  );
 }

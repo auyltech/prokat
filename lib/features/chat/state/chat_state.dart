@@ -7,17 +7,13 @@ class ChatState {
   final bool isLoadingConversations;
   final bool isLoadingMessages;
 
-  final Set<String> sendingMessageClientTempIds;
-
   final String? error;
 
   final List<ChatModel> conversations;
-
   final ChatModel? currentChat;
-
   final List<ChatMessageModel> messages;
 
-  final String? currentUserId;
+  final Set<String> sendingMessageClientTempIds;
 
   const ChatState({
     this.isLoadingConversations = false,
@@ -27,7 +23,6 @@ class ChatState {
     this.conversations = const [],
     this.currentChat,
     this.messages = const [],
-    this.currentUserId,
   });
 
   bool get isSendingMessage => sendingMessageClientTempIds.isNotEmpty;
@@ -40,7 +35,6 @@ class ChatState {
     List<ChatModel>? conversations,
     Object? currentChat = _unset,
     Object? messages = _unset,
-    Object? currentUserId = _unset,
   }) {
     return ChatState(
       isLoadingConversations:
@@ -56,9 +50,6 @@ class ChatState {
       messages: identical(messages, _unset)
           ? this.messages
           : messages as List<ChatMessageModel>,
-      currentUserId: identical(currentUserId, _unset)
-          ? this.currentUserId
-          : currentUserId as String?,
     );
   }
 }

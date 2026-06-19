@@ -28,6 +28,10 @@ class AuthState {
   bool get isAuthenticated => session != null;
   bool get isOwner => session?.user?.role == UserRole.owner;
 
+  String? get currentUserId {
+    return session?.user?.id;
+  }
+
   AuthState copyWith({
     AuthSession? session,
     bool? isLoading,

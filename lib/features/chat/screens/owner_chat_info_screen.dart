@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 
 class OwnerChatInfoScreen extends ConsumerWidget {
@@ -10,13 +11,16 @@ class OwnerChatInfoScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currentUserId = ref.watch(authProvider).currentUserId ?? "";
+
     final chatState = ref.watch(chatProvider);
     final chat = chatState.currentChat?.id == chatId
         ? chatState.currentChat
         : chatState.conversations
               .where((item) => item.id == chatId)
               .firstOrNull;
-    final title = chat?.displayTitle(chatState.currentUserId ?? "") ?? 'Chat';
+
+    final title = chat?.displayTitle(currentUserId) ?? 'Chat';
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

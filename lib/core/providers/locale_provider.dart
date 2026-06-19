@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:prokat/core/storage/secure_storage_client.dart';
 
 const _localeStorageKey = 'app_locale';
 const _supportedCodes = {'en', 'ru', 'kk'};
@@ -11,8 +12,7 @@ Locale _resolveLocale(String languageCode) {
 }
 
 Locale _systemLocale() {
-  final lang =
-      WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+  final lang = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
   return _resolveLocale(lang);
 }
 
@@ -32,10 +32,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
 
   Future<void> setLocale(Locale locale) async {
     state = locale;
-    await _storage.write(
-      key: _localeStorageKey,
-      value: locale.languageCode,
-    );
+    await _storage.write(key: _localeStorageKey, value: locale.languageCode);
   }
 
   /// Maps language code to the short display label shown in the UI badge.
@@ -52,5 +49,5 @@ class LocaleNotifier extends StateNotifier<Locale> {
 }
 
 final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
-  return LocaleNotifier(const FlutterSecureStorage());
+  return LocaleNotifier(SecureStorageClient.instance);
 });

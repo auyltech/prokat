@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/providers/api_provider.dart';
+import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/features/reviews/state/review_notifier.dart';
 import 'package:prokat/features/reviews/state/review_service.dart';
 import 'package:prokat/features/reviews/state/review_state.dart';
@@ -16,7 +16,6 @@ final reviewByBookingProvider =
       bookingId,
     ) {
       final service = ref.read(reviewServiceProvider);
-      
+
       return ReviewNotifier(service, bookingId);
     });
-

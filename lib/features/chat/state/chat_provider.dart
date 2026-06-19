@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/providers/api_provider.dart';
+import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_notifier.dart';
@@ -20,11 +20,10 @@ final chatSocketServiceProvider = Provider<ChatSocketService>((ref) {
 final chatProvider = StateNotifierProvider<ChatNotifier, ChatState>((ref) {
   final service = ref.read(chatServiceProvider);
   final socketService = ref.read(chatSocketServiceProvider);
-  final secureStorage = ref.read(secureStorageProvider);
 
   // Ensure auth state is initialized early so we always have `currentUserId`
   // available for message alignment + optimistic message sender id.
   ref.watch(authProvider);
 
-  return ChatNotifier(ref, service, socketService, secureStorage);
+  return ChatNotifier(ref, service, socketService);
 });

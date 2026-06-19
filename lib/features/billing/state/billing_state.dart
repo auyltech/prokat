@@ -35,7 +35,7 @@ class BillingState {
   });
 
   // ==========================================
-  // 🎯 Business Logic Derived Getters
+  // Business Logic Derived Getters
   // ==========================================
 
   /// Returns true if the account has positive remaining balance time.
@@ -52,6 +52,32 @@ class BillingState {
   /// Converts the backend burn rate (seconds/hr) to an intuitive UI display (minutes/hr)
   int get burnRateMinutesPerHour =>
       ((accountBalance?.burnRateSecondsPerHour ?? 0) / 60).round();
+
+  int getDailyCost(num onlineCount) {
+    final foundDiscount = volumeDiscounts
+        .where((item) => item.onlineCount == onlineCount)
+        .firstOrNull;
+
+    if (foundDiscount != null) {
+      return foundDiscount.costPerMinute * 24;
+    }
+
+    return 0;
+  }
+
+  int getReminaingSeconds(num onlineCount) {
+    final foundDiscount = volumeDiscounts
+        .where((item) => item.onlineCount == onlineCount)
+        .firstOrNull;
+
+    if (foundDiscount == null) {
+      return 0;
+    }
+
+    return (((accountBalance?.secondsRemaining ?? 0) /
+            (foundDiscount.costPerMinute / 60))
+        .round());
+  }
 
   /// Checks if any machine is currently consuming credit
   bool get hasActiveBurn => burnRateMinutesPerHour > 0;

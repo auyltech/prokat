@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/providers/api_provider.dart';
+import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/features/offers/state/offers_service.dart';
 import 'package:prokat/features/offers/state/offers_notifier.dart';
 import 'package:prokat/features/offers/state/offers_state.dart';

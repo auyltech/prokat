@@ -2,11 +2,13 @@ class TimeBreakdown {
   final int days;
   final int hours;
   final int minutes;
+  final int seconds;
 
   const TimeBreakdown({
     required this.days,
     required this.hours,
     required this.minutes,
+    required this.seconds,
   });
 
   @override
@@ -25,13 +27,18 @@ class TimeBreakdown {
       parts.add('$minutes min');
     }
 
+    if (days == 0 && hours == 0 && minutes == 0 && seconds > 0 ||
+        parts.isEmpty) {
+      parts.add('$seconds sec');
+    }
+
     return parts.join(', ');
   }
 }
 
 TimeBreakdown getTimeBreakDown(int? totalSeconds) {
   if (totalSeconds == null || totalSeconds <= 0) {
-    return const TimeBreakdown(days: 0, hours: 0, minutes: 0);
+    return const TimeBreakdown(days: 0, hours: 0, minutes: 0, seconds: 0);
   }
 
   final duration = Duration(seconds: totalSeconds);
@@ -40,6 +47,7 @@ TimeBreakdown getTimeBreakDown(int? totalSeconds) {
     days: duration.inDays,
     hours: duration.inHours.remainder(24),
     minutes: duration.inMinutes.remainder(60),
+    seconds: duration.inSeconds.remainder(60),
   );
 }
 

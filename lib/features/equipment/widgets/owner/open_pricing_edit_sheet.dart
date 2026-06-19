@@ -7,6 +7,7 @@ import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
 
 Future<void> submitPriceEntry(
   BuildContext context,
@@ -21,11 +22,38 @@ Future<void> submitPriceEntry(
   final price = int.tryParse(priceController.text.trim());
   final serviceTime = int.tryParse(serviceTimeController.text.trim()) ?? 0;
 
+  // 1. Basic price parsing check
   if (price == null) {
     AppSnackBar.show(context, message: l10n.pleaseEnterValidPrice);
     return;
   }
 
+  // 2. Enforce positive price and maximum limit (e.g., 100,000)
+  if (price <= 0) {
+    AppSnackBar.show(
+      context,
+      message: "Price must be greater than zero",
+    ); // Use l10n if available
+    return;
+  }
+  if (price > 100000) {
+    AppSnackBar.show(
+      context,
+      message: "Price cannot exceed 100,000",
+    ); // Use l10n if available
+    return;
+  }
+
+  // 3. Enforce non-negative service time
+  if (serviceTime < 0) {
+    AppSnackBar.show(
+      context,
+      message: "Service time cannot be negative",
+    ); // Use l10n if available
+    return;
+  }
+
+  // Validation passed, close sheet and proceed
   Navigator.pop(context);
 
   try {
@@ -36,7 +64,6 @@ Future<void> submitPriceEntry(
         "equipmentId": equipmentId,
         "price": price,
         "priceRate": selectedRate,
-        "serviceTime": serviceTime,
       });
 
       if (!context.mounted) return;
@@ -136,6 +163,13 @@ void openPricingEditSheet(
                 child: TextField(
                   controller: priceController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter
+                        .digitsOnly, // Prevents negative signs (-) and decimals (.)
+                    LengthLimitingTextInputFormatter(
+                      6,
+                    ), // Prevents typing numbers longer than 6 digits (e.g. 999999)
+                  ],
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurface,
                     fontFamily: 'monospace',

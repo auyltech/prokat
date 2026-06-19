@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:prokat/core/storage/secure_storage_client.dart';
 import '../models/auth_session.dart';
 
 class OtpSessionData {
@@ -13,7 +14,10 @@ class AuthSecureStorage {
   static const _authKey = 'auth_session';
   static const _otpKey = 'otp_session';
 
-  final _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
+
+  AuthSecureStorage({FlutterSecureStorage? storage})
+    : _storage = storage ?? SecureStorageClient.instance;
 
   Future<void> saveSession(AuthSession session) async {
     await _storage.write(key: _authKey, value: jsonEncode(session.toJson()));

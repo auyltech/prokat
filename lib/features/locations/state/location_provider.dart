@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/api_client_provider.dart';
+import 'package:prokat/core/api/api_provider.dart';
 import 'location_service.dart';
 import 'location_notifier.dart';
 import 'location_state.dart';

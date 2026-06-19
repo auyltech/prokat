@@ -110,8 +110,8 @@ ApiResponse<T> handleApiResponse<T>({
     );
   } catch (e) {
     return ApiResponse.failure(
-      message: e.toString(), //"Failed to read server response",
-      error: e,
+      message: "Format error occurred. Please update the application.",
+      error: e, // Retained under-the-hood for dev logging metrics
       statusCode: statusCode,
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/state/equipment_notifier.dart';
 import 'package:prokat/features/equipment/state/equipment_state.dart';
-import '../../../core/providers/api_provider.dart';
+import '../../../core/api/api_provider.dart';
 import 'equipment_service.dart';
 
 final equipmentServiceProvider = Provider<EquipmentService>((ref) {

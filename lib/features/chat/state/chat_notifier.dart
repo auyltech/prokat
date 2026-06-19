@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/auth/providers/auth_state.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_service.dart';
@@ -16,55 +14,15 @@ class ChatNotifier extends StateNotifier<ChatState> {
   final Ref ref;
   final ChatService service;
   final ChatSocketService socketService;
-  final AuthSecureStorage secureStorage;
-  String? _sessionToken;
 
   // Constructor
-  ChatNotifier(this.ref, this.service, this.socketService, this.secureStorage)
-    : super(const ChatState()) {
-    _syncFromAuth(ref.read(authProvider));
-
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      _syncFromAuth(next);
-    });
-
-    _loadSessionFallback();
-    // getChatThreads("client");
-  }
+  ChatNotifier(this.ref, this.service, this.socketService)
+    : super(const ChatState());
 
   @override
   void dispose() async {
     await socketService.disposeChatSession();
     super.dispose();
-  }
-
-  void _syncFromAuth(AuthState authState) {
-    final session = authState.session;
-    if (session == null) {
-      return;
-    }
-
-    _sessionToken = session.sessionToken ?? _sessionToken ?? '';
-
-    final user = session.user;
-    final resolvedUserId = user?.id ?? user?.phoneNumber ?? user?.displayName;
-
-    if ((resolvedUserId ?? '').isNotEmpty) {
-      state = state.copyWith(currentUserId: resolvedUserId);
-    }
-  }
-
-  Future<void> _loadSessionFallback() async {
-    final session = await secureStorage.readSession();
-
-    _sessionToken = _sessionToken ?? session?.sessionToken ?? '';
-
-    state = state.copyWith(
-      currentUserId:
-          session?.user?.id ??
-          session?.user?.phoneNumber ??
-          session?.user?.displayName,
-    );
   }
 
   Future<void> getChatThreads(String? mode) async {
@@ -128,22 +86,39 @@ class ChatNotifier extends StateNotifier<ChatState> {
     if (trimmedChatId.isEmpty) return;
 
     try {
+      // 1. Find if this conversation exists in the user's fetched list
       final foundChat = state.conversations
           .where((item) => item.id == trimmedChatId)
           .firstOrNull;
 
-      if (foundChat != null) {
-        state = state.copyWith(currentChat: foundChat);
+      // 2. IDOR Prevention: Block access if the conversation is not found in their list
+      if (foundChat == null) {
+        state = state.copyWith(
+          isLoadingMessages: false,
+          error: "You do not have permission to view this chat.",
+        );
+        return; // Halt execution before calling backend or socket
       }
 
-      state = state.copyWith(isLoadingMessages: true, error: null);
+      final currentUserId = ref.read(authProvider).currentUserId;
 
-      if ((_sessionToken ?? '').isEmpty) {
-        await _loadSessionFallback();
+      if ((foundChat.client?.id != currentUserId) &&
+          (foundChat.owner?.id != currentUserId)) {
+        state = state.copyWith(
+          isLoadingMessages: false,
+          error: "You do not have permission to view this chat.",
+        );
+        return; // Halt execution before calling backend or socket
       }
+
+      state = state.copyWith(
+        currentChat: foundChat,
+        isLoadingMessages: true,
+        error: null,
+      );
 
       await getChatById(trimmedChatId);
-      await _connectToChat(trimmedChatId);
+      await connectToChat(trimmedChatId);
 
       // Do this AFTER join, and do not allow it to block room join.
       try {
@@ -270,13 +245,19 @@ class ChatNotifier extends StateNotifier<ChatState> {
       return;
     }
 
-    final currentUserId = state.currentUserId ?? 'me';
+    final session = ref.read(authProvider).session;
+    final senderId = session?.user?.id;
+
+    if (senderId == null || senderId.isEmpty) {
+      return;
+    }
+
     final clientTempId = DateTime.now().microsecondsSinceEpoch.toString();
 
     final optimisticMessage = ChatMessageModel(
       id: clientTempId,
       chatId: chat.id,
-      senderId: currentUserId,
+      senderId: senderId,
       senderName: 'You',
       content: trimmed,
       type: 'TEXT',
@@ -328,12 +309,15 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
   }
 
-  Future<void> _connectToChat(String chatId) async {
-    if ((_sessionToken ?? '').isEmpty) {
-      await _loadSessionFallback();
+  Future<void> connectToChat(String chatId) async {
+    final session = ref.read(authProvider).session;
+    final sessionToken = session?.sessionToken;
+
+    if (sessionToken == null || sessionToken.isEmpty) {
+      return;
     }
 
-    await socketService.connect(token: _sessionToken);
+    await socketService.connect();
 
     socketService.onNewMessage(_handleIncomingMessage);
 
@@ -380,13 +364,5 @@ class ChatNotifier extends StateNotifier<ChatState> {
     if (isCurrentChat && incoming.id.isNotEmpty) {
       markChatAsRead(chatId: incoming.chatId, messageId: incoming.id);
     }
-
-    // if (incoming.service == "PRICE_NEGOTIATION") {
-    //   final bookingId = state.currentChat?.booking?.id;
-
-    //   if ((bookingId ?? '').isNotEmpty) {
-    //     ref.invalidate(priceNegotiationByBookingProvider(bookingId!));
-    //   }
-    // }
   }
 }

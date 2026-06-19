@@ -5,7 +5,7 @@ import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 
 class ChatTile extends StatelessWidget {
-  final ChatModel chat; // Replace with your ChatModel type
+  final ChatModel chat;
   final String currentUserId;
   final VoidCallback onTap;
 
@@ -20,13 +20,13 @@ class ChatTile extends StatelessWidget {
     switch (status.trim().toUpperCase()) {
       case 'ACCEPTED':
       case 'CONFIRMED':
-      case 'COMPLETED': // Added completed status from your screenshot
+      case 'COMPLETED':
         return Colors.green.shade600;
       case 'REJECTED':
       case 'CANCELLED':
         return Colors.red.shade600;
       case 'PENDING':
-      case 'CREATED': // Added created status from your screenshot
+      case 'CREATED':
         return Colors.orange.shade700;
       default:
         return theme.colorScheme.secondary;
@@ -221,20 +221,3 @@ class ChatTile extends StatelessWidget {
     );
   }
 }
-
-// String _formatTimestamp(DateTime? dateTime) {
-//   if (dateTime == null) {
-//     return '';
-//   }
-
-//   final now = DateTime.now();
-//   if (now.difference(dateTime).inDays == 0) {
-//     return DateFormat.Hm().format(dateTime);
-//   }
-
-//   if (now.difference(dateTime).inDays < 7) {
-//     return DateFormat.E().format(dateTime);
-//   }
-
-//   return DateFormat('dd MMM').format(dateTime);
-// }

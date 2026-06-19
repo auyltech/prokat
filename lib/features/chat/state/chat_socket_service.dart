@@ -13,8 +13,8 @@ class ChatSocketService {
 
   ChatSocketService(this.appSocket);
 
-  Future<void> connect({String? token}) async {
-    await appSocket.connect(token: token);
+  Future<void> connect() async {
+    await appSocket.connect();
   }
 
   // Send Message

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:prokat/core/storage/secure_storage_client.dart';
 
 class NotificationLocalStorage {
   static const _lastTokenKey = 'notifications_last_fcm_token';
@@ -11,7 +12,7 @@ class NotificationLocalStorage {
   final FlutterSecureStorage _storage;
 
   NotificationLocalStorage({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? SecureStorageClient.instance;
 
   Future<void> saveLastRegisteredToken({
     required String token,
@@ -23,8 +24,8 @@ class NotificationLocalStorage {
     await _storage.write(key: _lastTokenUserIdKey, value: userId ?? '');
   }
 
-  Future<({String token, DateTime? at, String? userId})?> readLastRegisteredToken()
-      async {
+  Future<({String token, DateTime? at, String? userId})?>
+  readLastRegisteredToken() async {
     final token = await _storage.read(key: _lastTokenKey);
     if (token == null || token.trim().isEmpty) return null;
 
@@ -32,7 +33,11 @@ class NotificationLocalStorage {
     final at = atRaw == null ? null : DateTime.tryParse(atRaw);
 
     final userId = await _storage.read(key: _lastTokenUserIdKey);
-    return (token: token, at: at, userId: (userId ?? '').trim().isEmpty ? null : userId);
+    return (
+      token: token,
+      at: at,
+      userId: (userId ?? '').trim().isEmpty ? null : userId,
+    );
   }
 
   Future<void> clearLastRegisteredToken() async {
@@ -44,7 +49,10 @@ class NotificationLocalStorage {
   Future<void> savePendingRoute(String route) async {
     final normalized = route.trim();
     if (normalized.isEmpty) return;
-    await _storage.write(key: _pendingRouteKey, value: jsonEncode({'route': normalized}));
+    await _storage.write(
+      key: _pendingRouteKey,
+      value: jsonEncode({'route': normalized}),
+    );
   }
 
   Future<String?> readPendingRoute() async {
@@ -67,4 +75,3 @@ class NotificationLocalStorage {
     await _storage.delete(key: _pendingRouteKey);
   }
 }
-

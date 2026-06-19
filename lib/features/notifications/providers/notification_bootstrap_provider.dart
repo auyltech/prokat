@@ -60,7 +60,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     // Socket live in-app notifications.
     unawaited(() async {
       try {
-        await appSocket.connect(token: session.sessionToken);
+        await appSocket.connect();
         attachSocketNotificationListener();
       } catch (_) {
         // Best-effort: socket should not crash startup.

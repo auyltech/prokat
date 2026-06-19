@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/models/transaction_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -13,7 +14,8 @@ class OwnerPaymentTile extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final isTopUp = transaction.type != TransactionType.consumption;
+    final isTopUp = transaction.type == TransactionType.topup;
+    final isConsumption = transaction.type == TransactionType.consumption;
 
     return Card(
       elevation: 0,
@@ -30,51 +32,53 @@ class OwnerPaymentTile extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isTopUp
-                ? const Color(0xFFF14635).withValues(alpha: 0.1)
-                : theme.colorScheme.primary.withValues(alpha: 0.1),
+                ? Colors.green[50]
+                : isConsumption
+                ? Colors.red[50]
+                : Colors.grey[100],
             shape: BoxShape.circle,
           ),
           child: Icon(
             isTopUp
                 ? Icons.account_balance_wallet_outlined
-                : Icons.handshake_outlined,
-            size: 20,
+                : isConsumption
+                ? Icons.receipt_long_outlined
+                : Icons.payment_outlined,
+            size: 24,
             color: isTopUp
-                ? const Color(0xFFF14635)
-                : theme.colorScheme.primary,
+                ? Colors.green[800]
+                : isConsumption
+                ? Colors.red[600]
+                : Colors.grey[800],
           ),
         ),
         title: Text(
-          transaction.seconds.toString(),
+          getTimeString(transaction.seconds),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Text(
-          formatDate(date: transaction.createdAt),
+          formatDateTime(transaction.createdAt, transaction.createdAt),
           style: const TextStyle(fontSize: 12),
         ),
-        trailing: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              "amount",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: Text(
-                l10n.repeat,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
+        trailing: transaction.type == TransactionType.topup
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: Text(
+                      l10n.repeat,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : null,
       ),
     );
   }

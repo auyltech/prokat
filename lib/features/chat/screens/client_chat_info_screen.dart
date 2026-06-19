@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 
 class ClientChatInfoScreen extends ConsumerWidget {
@@ -10,14 +11,15 @@ class ClientChatInfoScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final chatState = ref.watch(chatProvider);
-    final chat = chatState.currentChat?.id == chatId
-        ? chatState.currentChat
-        : chatState.conversations
-              .where((item) => item.id == chatId)
-              .firstOrNull;
+    final currentUserId = ref.watch(authProvider).currentUserId;
 
-    final title = chat?.displayTitle(chatState.currentUserId ?? "") ?? "";
+    final chatState = ref.watch(chatProvider);
+
+    final chat = chatState.currentChat;
+
+    final String title = (currentUserId != null && chat != null)
+        ? chat.displayTitle(currentUserId)
+        : "";
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -118,8 +120,4 @@ class ClientChatInfoScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-extension<T> on Iterable<T> {
-  T? get firstOrNull => isEmpty ? null : first;
 }
