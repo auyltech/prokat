@@ -81,12 +81,12 @@ class PushNotificationService {
   Future<void> requestPermission() async {
     if (kIsWeb) return;
 
-    final settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: true,
-    );
+    // final settings = await messaging.requestPermission(
+    //   alert: true,
+    //   badge: true,
+    //   sound: true,
+    //   provisional: true,
+    // );
 
     if (kDebugMode) {}
   }

@@ -46,6 +46,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
     final ownerProfileState = ref.watch(ownerRegistrationProvider);
     final ownerEquipmentCount = ref
         .watch(equipmentProvider)
@@ -82,6 +83,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 const SizedBox(width: 8),
               ],
             ),
+
             SliverAppBar(
               expandedHeight: 200,
               pinned: false,

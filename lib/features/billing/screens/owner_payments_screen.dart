@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/billing/widgets/active_equipment_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
-import 'package:prokat/features/billing/widgets/consumption_chart.dart';
 import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
 import 'package:prokat/features/billing/widgets/volume_discount_tile.dart';
 import 'package:prokat/features/billing/widgets/top_up_cta_tile.dart';
@@ -59,17 +60,19 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text(billingState.getReminaingSeconds(onlineEquipment).toString()),
             // Main Balance Section
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(24),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.dividerColor.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 children: [
-                  Text(l10n.totalBalance, style: theme.textTheme.labelLarge),
+                  Text(l10n.totalBalance, style: theme.textTheme.titleLarge),
 
                   const SizedBox(height: 8),
 
@@ -77,7 +80,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                     humanReadableTime,
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
+                      color: AppColors.teal800,
                     ),
                   ),
 
@@ -101,16 +104,20 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
             ),
 
             const SizedBox(height: 16),
+
             TopUpCtaTile(),
 
             const SizedBox(height: 16),
+
             Container(
               height: 300, // Set your fixed height here
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: theme.colorScheme.outlineVariant),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.dividerColor.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,11 +132,19 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                         ),
                       ),
                       Badge(
-                        label: Text(l10n.save15Percent),
+                        label: Text(
+                          l10n.save15Percent,
+                          style: TextStyle(fontWeight: FontWeight.w400),
+                        ),
                         backgroundColor: Colors.green,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 16),
 
                   // Expanded makes the list fill the remaining fixed height of the container
@@ -157,22 +172,16 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
             const SizedBox(height: 16),
 
             // TODO: Fix Consumption Chart
-            ConsumptionChart(),
+            // ConsumptionChart(),
+            SectionTitle(title: l10n.paymentHistory),
 
             const SizedBox(height: 16),
-
-            Text(
-              l10n.paymentHistory,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
 
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: payments.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 2),
               itemBuilder: (context, index) =>
                   OwnerPaymentTile(transaction: payments[index]),
             ),

@@ -19,13 +19,10 @@ class OwnerPaymentTile extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
-      color: Theme.of(context).cardColor,
+      color: theme.cardColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
       ),
       child: ListTile(
         leading: Container(

@@ -51,7 +51,7 @@ class TransactionModel {
 
       try {
         validTransactions.add(TransactionModel.fromJson(item));
-      } catch (error) {}
+      } finally {}
     }
 
     return validTransactions;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/features/billing/models/volume_discount_model.dart';
 
 class VolumeDiscountTile extends StatelessWidget {
@@ -32,8 +33,8 @@ class VolumeDiscountTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: BoxBorder.all(
           color: isHighlighted
-              ? colorScheme.primary
-              : colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ? AppColors.teal700
+              : theme.dividerColor.withValues(alpha: 0.2),
           width: isHighlighted ? 1.5 : 1,
         ),
       ),
@@ -65,10 +66,10 @@ class VolumeDiscountTile extends StatelessWidget {
           // Optional Badge: Shows up if the row is highlighted as a special deal
           if (isHighlighted) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: colorScheme.primary,
+                color: AppColors.teal700,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -76,7 +77,7 @@ class VolumeDiscountTile extends StatelessWidget {
                 style: TextStyle(
                   color: colorScheme.onPrimary,
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -87,8 +88,8 @@ class VolumeDiscountTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: isHighlighted
-                  ? colorScheme.primary
-                  : colorScheme.surfaceContainerHighest,
+                  ? AppColors.teal700
+                  : colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

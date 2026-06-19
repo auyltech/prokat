@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
 class BalanceTile extends ConsumerStatefulWidget {
   const BalanceTile({super.key});
@@ -16,6 +17,11 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final billingState = ref.watch(billingProvider);
+
+    final onlineEquipment = ref.watch(equipmentProvider).onlineEquipmentCount;
+    final burnRate = onlineEquipment == 0
+        ? 0
+        : billingState.getDailyCost(onlineEquipment) / 24;
 
     // ── Loading state ──
     if (billingState.isBalanceLoading) {
@@ -91,13 +97,13 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Burn rate",
+                "Account Balance",
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
                   letterSpacing: 0.3,
                 ),
               ),
-              if (billingState.hasActiveBurn)
+              if (onlineEquipment > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -107,8 +113,8 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                     color: const Color(0xFFE1F5EE),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text(
-                    "Equipment online",
+                  child: Text(
+                    "$onlineEquipment Equipment online",
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -126,7 +132,8 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "${billingState.minutesRemaining}",
+                ((billingState.accountBalance?.secondsRemaining ?? 0) / 60)
+                    .toStringAsFixed(0),
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w500,
@@ -170,7 +177,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             children: [
               _FooterMetric(
                 label: "Burn rate",
-                value: "~${billingState.burnRateMinutesPerHour} min/hr",
+                value: "~${burnRate.toStringAsFixed(0)} min/hr",
                 align: CrossAxisAlignment.start,
                 valueColor: theme.colorScheme.onSurface,
               ),

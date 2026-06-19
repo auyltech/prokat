@@ -25,10 +25,10 @@ class CategoryCard extends StatelessWidget {
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            width: isSelected ? 2 : 1,
+            width: isSelected ? 1.5 : 1,
             color: isSelected
                 ? theme.primaryColor.withValues(alpha: 0.6)
-                : theme.dividerColor.withValues(alpha: 0.4),
+                : theme.dividerColor.withValues(alpha: 0.2),
           ),
         ),
         child: Column(

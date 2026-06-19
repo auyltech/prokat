@@ -36,6 +36,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
         currentPath == AppRoutes.launch ||
         currentPath == AppRoutes.main ||
         currentPath == AppRoutes.ownerProfile;
+
     // Don't show on launch, main landing page
     if (hideAppBar) {
       return const SizedBox.shrink();
@@ -59,7 +60,10 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     String? titleString;
 
     final showBackButton =
-        currentPath.contains(AppRoutes.history) || isChatDetailScreen;
+        currentPath.contains(AppRoutes.history) ||
+        isChatDetailScreen ||
+        currentPath == AppRoutes.login ||
+        currentPath.contains(AppRoutes.ownerPayment);
 
     // 2. Fallback checking for back button stack presence
     final bool canPop = GoRouter.of(context).canPop() && showBackButton;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -17,10 +18,7 @@ class TopUpCtaTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            colorScheme.primary,
-            colorScheme.primary.withValues(alpha: 0.8),
-          ],
+          colors: [AppColors.teal600, AppColors.teal800],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -48,11 +46,11 @@ class TopUpCtaTile extends StatelessWidget {
                   l10n.runningLow,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  l10n.topUpViaKaspi,
+                  "Top up minutes",
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
@@ -73,7 +71,7 @@ class TopUpCtaTile extends StatelessWidget {
             ),
             child: Text(
               l10n.add,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
         ],

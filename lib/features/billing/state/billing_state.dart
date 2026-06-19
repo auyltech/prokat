@@ -79,6 +79,10 @@ class BillingState {
         .round());
   }
 
+  int getBurnRate(num onlineCount) {
+    return 0;
+  }
+
   /// Checks if any machine is currently consuming credit
   bool get hasActiveBurn => burnRateMinutesPerHour > 0;
 
@@ -92,6 +96,7 @@ class BillingState {
   /// Formats the estimated time when the machines will run out of power completely
   String get formattedExhaustionTime {
     final expiry = accountBalance?.estimatedExhaustionAt;
+
     if (expiry == null || !hasActiveBurn) return "No active depletion";
 
     // Example format: 14:35 (or use intl package standard: DateFormat.Hm().format(expiry))

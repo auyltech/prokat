@@ -6,7 +6,8 @@ class EquipmentDetailsSheet extends StatelessWidget {
   final String? model;
   final String? plateNumber;
   final String? imageUrl;
-  final List<String>? specifications; // Handles an array of specs for flexible display
+  final List<String>?
+  specifications; // Handles an array of specs for flexible display
 
   const EquipmentDetailsSheet({
     super.key,
@@ -98,10 +99,14 @@ class EquipmentDetailsSheet extends StatelessWidget {
                 width: double.infinity,
                 height: 180,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   height: 180,
                   color: Colors.grey[100],
-                  child: const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
@@ -114,13 +119,10 @@ class EquipmentDetailsSheet extends StatelessWidget {
           _buildSpecRow("Model Type", model ?? "—"),
           const Divider(height: 16, thickness: 0.5),
           _buildSpecRow("Plate Number", plateNumber ?? "—"),
-          
+
           if (specifications != null && specifications!.isNotEmpty) ...[
             const Divider(height: 16, thickness: 0.5),
-            _buildSpecRow(
-              "Technical Specs", 
-              specifications!.join(" • "),
-            ),
+            _buildSpecRow("Technical Specs", specifications!.join(" • ")),
           ],
           const SizedBox(height: 12),
         ],
