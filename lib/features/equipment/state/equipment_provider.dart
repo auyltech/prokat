@@ -13,5 +13,6 @@ final equipmentServiceProvider = Provider<EquipmentService>((ref) {
 final equipmentProvider =
     StateNotifierProvider<EquipmentNotifier, EquipmentState>((ref) {
       final service = ref.read(equipmentServiceProvider);
-      return EquipmentNotifier(service);
+
+      return EquipmentNotifier(service, ref);
     });

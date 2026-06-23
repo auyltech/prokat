@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
@@ -7,8 +8,9 @@ import 'dart:io';
 
 class EquipmentNotifier extends StateNotifier<EquipmentState> {
   final EquipmentService api;
+  final Ref ref;
 
-  EquipmentNotifier(this.api) : super(EquipmentState());
+  EquipmentNotifier(this.api, this.ref) : super(EquipmentState());
 
   void setQuery(String query) {
     state = state.copyWith(query: query);
@@ -439,14 +441,16 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       );
 
       if (result.success) {
-        await getOwnerEquipmentById(equipmentId);
-        await getOwnerEquipment();
+        getOwnerEquipmentById(equipmentId);
+        getOwnerEquipment();
+        ref.read(billingProvider.notifier).getOwnerBalance();
       } else {
         state = state.copyWith(ownerEquipment: originalList);
       }
 
       return result.success;
     } catch (e) {
+      print(e.toString());
       state = state.copyWith(
         isSubmitting: false,
         error: e.toString(),

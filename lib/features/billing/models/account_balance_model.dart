@@ -21,8 +21,8 @@ class AccountBalanceModel {
           fieldName: 'secondsRemaining',
         ),
         burnRateSecondsPerHour: parseInt(
-          json['burnRateSecondsPerHour'] ?? 0,
-          fieldName: 'burnRateSecondsPerHour',
+          json['burnRateMinutesPerHour'] ?? 0,
+          fieldName: 'burnRateMinutesPerHour',
         ),
         estimatedExhaustionAt: parseNullableDate(json['estimatedExhaustionAt']),
         lastCalculatedAt: parseNullableDate(json['lastCalculatedAt']),

@@ -46,8 +46,10 @@ class OnlineToggle extends ConsumerWidget {
                 AppSnackBar.show(
                   context,
                   message: result
-                      ? "Equipment is now ${isVisible ? "online" : "offline"}"
-                      : "Failed to toggle ${isVisible ? "online" : "offline"}",
+                      ? "Equipment is now ${!isVisible ? "online" : "offline"}"
+                      : "Failed to toggle ${!isVisible ? "online" : "offline"}",
+                  isSuccess: result,
+                  isError: !result,
                 );
               }
             },

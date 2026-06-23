@@ -39,6 +39,8 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
       if (ref.read(billingProvider).accountBalance == null) {
         ref.read(billingProvider.notifier).getOwnerBalance();
       }
+
+      ref.read(billingProvider.notifier).getVolumeDiscounts();
     });
   }
 
@@ -60,6 +62,8 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         onRefresh: () async {
           ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
           ref.read(billingProvider.notifier).getOwnerBalance();
+          ref.read(billingProvider.notifier).getVolumeDiscounts();
+          ref.read(equipmentProvider.notifier).getOwnerEquipment();
         },
         child: CustomScrollView(
           slivers: [
@@ -114,13 +118,14 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                             icon: LucideIcons.truck,
                           ),
                         ),
+
                         const SizedBox(width: 10),
                         Expanded(
                           child: _StatCard(
                             value:
                                 "${ownerProfileState.ownerProfile?.orderCount ?? 0}",
                             label: "Orders",
-                            valueColor: const Color(0xFF185FA5),
+                            valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.package,
                           ),
                         ),
@@ -130,9 +135,11 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                     const SizedBox(height: 10),
 
                     const BalanceTile(),
+
                     const SizedBox(height: 14),
 
                     _MenuSection(l10n: l10n),
+
                     const SizedBox(height: 14),
 
                     const RentAnEquipmentTile(),
@@ -250,17 +257,13 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 32,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-          ),
+          Icon(icon, size: 32, color: theme.colorScheme.onSurface),
 
           const SizedBox(width: 8),
 
@@ -276,16 +279,12 @@ class _StatCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w500,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ],
       ),
@@ -360,9 +359,9 @@ class _MenuItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -375,7 +374,9 @@ class _MenuItem extends StatelessWidget {
               ),
               child: Icon(iconData, color: iconColor, size: 20),
             ),
+
             const SizedBox(width: 14),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

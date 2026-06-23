@@ -55,7 +55,8 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(billingProvider.notifier).getVolumeDiscounts();
+          await ref.read(billingProvider.notifier).getOwnerTransactions();
+          await ref.read(equipmentProvider.notifier).getOwnerEquipment();
         },
         child: ListView(
           padding: const EdgeInsets.all(16),

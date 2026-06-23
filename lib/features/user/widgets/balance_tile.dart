@@ -19,6 +19,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
     final billingState = ref.watch(billingProvider);
 
     final onlineEquipment = ref.watch(equipmentProvider).onlineEquipmentCount;
+
     final burnRate = onlineEquipment == 0
         ? 0
         : billingState.getDailyCost(onlineEquipment) / 24;
@@ -44,7 +45,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: Colors.red.shade900,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -181,6 +182,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                 align: CrossAxisAlignment.start,
                 valueColor: theme.colorScheme.onSurface,
               ),
+
               _FooterMetric(
                 label: "Est. exhaustion",
                 value: billingState.formattedExhaustionTime,
@@ -214,9 +216,9 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
       ),
       child: child,
     );
