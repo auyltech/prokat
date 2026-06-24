@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CancelBookingSheet extends ConsumerStatefulWidget {
@@ -23,9 +23,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
   Future<void> onSubmit(AppLocalizations? l10n) async {
     final isOwner = widget.mode == "owner";
-
     final notifier = ref.read(bookingProvider.notifier);
-    final chatNotifier = ref.read(chatProvider.notifier);
 
     final status = isOwner
         ? widget.booking.status == BookingStatus.created
@@ -37,28 +35,19 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       Navigator.pop(context);
     }
 
-    final res = await notifier.updateBookingStatus(
+    final result = await notifier.updateBookingStatus(
       id: widget.booking.id,
       status: status,
       workStatus: selectedReason,
     );
 
-    if (res) {
-      final chatId = widget.booking.chatId;
-
-      if ((chatId ?? '').isNotEmpty) {
-        await chatNotifier.reloadChat(chatId!);
-      }
-    }
-
-    if (mounted) {
+    if (context.mounted) {
       AppSnackBar.show(
-        context,
-        message: res
+        message: result
             ? l10n?.orderCancelled ?? "Order Cancelled"
             : "Failed to cancel order",
-        isSuccess: res,
-        isError: !res,
+        isSuccess: result,
+        isError: !result,
       );
     }
   }
@@ -67,6 +56,8 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
+    final bookingState = ref.watch(bookingProvider);
 
     final isOwner = widget.mode == "owner";
 
@@ -92,6 +83,16 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
         : l10n.cancelBooking;
 
     final reasons = isOwner ? ownerCancelReasons : clientCancelReasons;
+
+    final actionId = "booking:cancel:${widget.booking.id}";
+
+    final action = bookingState.activeActions
+        .where((item) => item.id == actionId)
+        .firstOrNull;
+
+    final isSubmitting = action == null
+        ? false
+        : action.status == MutationStatus.submitting;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -185,10 +186,8 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                   onPressed: selectedReason == null
                       ? null
                       : () => onSubmit(l10n),
-                  isLoading: ref.read(bookingProvider).isSubmitting,
-                  isEnabled:
-                      selectedReason != null &&
-                      !ref.read(bookingProvider).isSubmitting,
+                  isLoading: isSubmitting,
+                  isEnabled: selectedReason != null && !isSubmitting,
                 ),
               ),
             ],

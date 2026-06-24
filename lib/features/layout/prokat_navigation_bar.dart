@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
@@ -29,7 +30,7 @@ final ownerNavItems = [
   //   path: AppRoutes.ownerDashboard,
   // ),
   _NavItem(
-    icon: Icons.person_rounded,
+    icon: LucideIcons.user2,
     label: (l) => 'Profile',
     path: AppRoutes.ownerProfile,
     base: AppRoutes.ownerProfile,
@@ -41,25 +42,25 @@ final ownerNavItems = [
   //   path: AppRoutes.ownerNotifications,
   // ),
   _NavItem(
-    icon: Icons.description_outlined,
+    icon: LucideIcons.send,
     label: (l) => 'Requests',
     path: AppRoutes.ownerRequests,
     base: AppRoutes.ownerRequests,
   ),
   _NavItem(
-    icon: Icons.local_shipping_rounded,
+    icon: LucideIcons.truck,
     label: (l) => l.navMyFleet,
     path: AppRoutes.ownerEquiment,
     base: AppRoutes.ownerEquiment,
   ),
   _NavItem(
-    icon: Icons.list_alt_rounded,
+    icon: LucideIcons.scrollText,
     label: (l) => l.navOrders,
     path: AppRoutes.ownerBookings,
     base: AppRoutes.ownerBookings,
   ),
   _NavItem(
-    icon: Icons.chat_bubble_rounded,
+    icon: LucideIcons.messageCircle,
     label: (l) => l.navChats,
     path: AppRoutes.ownerChatList,
     base: AppRoutes.ownerChatList,
@@ -69,19 +70,19 @@ final ownerNavItems = [
 final clientNavItems = [
   // _NavItem(icon: Icons.home_rounded, label: l.navHome, path: AppRoutes.dashboard),
   _NavItem(
-    icon: Icons.person_rounded,
+    icon: LucideIcons.user2,
     label: (l) => 'Profile',
     path: AppRoutes.clientProfile,
     base: AppRoutes.clientProfile,
   ),
   _NavItem(
-    icon: Icons.search_rounded,
+    icon: LucideIcons.search,
     label: (l) => l.navSearch,
     path: AppRoutes.searchList,
     base: AppRoutes.search,
   ),
   _NavItem(
-    icon: Icons.add,
+    icon: LucideIcons.send,
     label: (l) => l.navCreate,
     path: AppRoutes.clientRequestsCreate,
     base: AppRoutes.clientRequests,
@@ -97,13 +98,13 @@ final clientNavItems = [
   //   path: AppRoutes.notifications,
   // ),
   _NavItem(
-    icon: Icons.list_alt_rounded,
+    icon: LucideIcons.scrollText,
     label: (l) => l.navOrders,
     path: AppRoutes.clientOrders,
     base: AppRoutes.clientOrders,
   ),
   _NavItem(
-    icon: Icons.chat_bubble_outline,
+    icon: LucideIcons.messageCircle,
     label: (l) => l.navChats,
     path: AppRoutes.clientChatList,
     base: AppRoutes.clientChatList,
@@ -212,7 +213,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
                         ),
                         child: Icon(
                           item.icon,
-                          size: 32,
+                          size: 28,
                           color: isSelected ? primary : const Color(0xFF707E94),
                         ),
                       ),

@@ -1,3 +1,5 @@
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
@@ -9,46 +11,42 @@ class Value<T> {
 }
 
 class RequestState {
-  final bool isLoading;
-  final bool isSubmitting;
+  final FetchStatus fetchStatus;
+  final PaginationStatus paginationStatus;
 
-  final bool? isSuccess;
-  final DateTime? lastSuccess;
+  final DateTime? lastFetchedAt;
+  final AppError? fetchError;
 
-  final String? error;
+  final Set<Mutation> activeActions;
 
   /// All requests (list screen)
-  final List<RequestModel> requests;
+  final List<RequestModel> clientRequests;
   final List<RequestModel> ownerRequests;
 
   /// Current opened request (details/edit)
-  final RequestModel? currentRequest;
+  final RequestModel? draftRequest;
 
   /// 🔥 Draft (before creating request)
   final String? capacity;
   final int? offeredRate;
   final String? comment;
-
   final DateTime? selectedDate;
   final DateTime? selectedTime;
-
   final LocationModel? selectedLocation;
   final String? selectedLocationId;
-
   final Category? selectedCategory;
   final String? categoryId;
 
   RequestState({
-    this.isLoading = false,
-    this.isSubmitting = false,
+    this.fetchStatus = FetchStatus.initial,
+    this.paginationStatus = PaginationStatus.idle,
+    this.lastFetchedAt,
+    this.fetchError,
+    this.activeActions = const {},
 
-    this.isSuccess = false,
-    this.lastSuccess,
-
-    this.error,
-    this.requests = const [],
+    this.clientRequests = const [],
     this.ownerRequests = const [],
-    this.currentRequest,
+    this.draftRequest,
     this.capacity,
     this.offeredRate,
     this.comment,
@@ -73,14 +71,15 @@ class RequestState {
   }
 
   RequestState copyWith({
-    bool? isLoading,
-    bool? isSubmitting,
-    Value<bool?>? isSuccess,
-    DateTime? lastSuccess,
-    String? error,
-    List<RequestModel>? requests,
+    FetchStatus? fetchStatus,
+    PaginationStatus? paginationStatus,
+    DateTime? lastFetchedAt,
+    AppError? fetchError,
+    Set<Mutation>? activeActions,
+
+    List<RequestModel>? clientRequests,
     List<RequestModel>? ownerRequests,
-    RequestModel? currentRequest,
+    RequestModel? draftRequest,
     String? capacity,
     int? offeredRate,
     String? comment,
@@ -92,14 +91,15 @@ class RequestState {
     String? categoryId,
   }) {
     return RequestState(
-      isLoading: isLoading ?? this.isLoading,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      isSuccess: isSuccess != null ? isSuccess.value : this.isSuccess,
-      lastSuccess: lastSuccess ?? this.lastSuccess,
-      error: error,
-      requests: requests ?? this.requests,
+      fetchStatus: fetchStatus ?? this.fetchStatus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
+      lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
+      fetchError: fetchError,
+      activeActions: activeActions ?? this.activeActions,
+
+      clientRequests: clientRequests ?? this.clientRequests,
       ownerRequests: ownerRequests ?? this.ownerRequests,
-      currentRequest: currentRequest ?? this.currentRequest,
+      draftRequest: draftRequest ?? this.draftRequest,
       capacity: capacity ?? this.capacity,
       offeredRate: offeredRate ?? this.offeredRate,
       comment: comment ?? this.comment,

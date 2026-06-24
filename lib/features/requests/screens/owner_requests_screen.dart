@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -40,7 +42,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
 
     final activeRequests = ref
         .watch(requestProvider.notifier)
-        .getActiveRequests("owner");
+        .getActiveRequests(AppMode.ownerMode);
 
     final offersByRequest = <String, List<OfferModel>>{};
 
@@ -60,15 +62,33 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
         },
         child: ListView(
           children: [
-            if (requestState.isLoading && requestState.ownerRequests.isEmpty)
+            if (requestState.fetchStatus == FetchStatus.loading ||
+                (requestState.fetchStatus == FetchStatus.refreshing &&
+                    activeRequests.isEmpty))
               RequestTileSkeleton()
-            else if (requestState.error != null)
-              Text(l10n.errorLoadingRequests)
-            else if (activeRequests.isEmpty)
-              EmptyStateTile(title: l10n.noRequestsAtMoment)
+            else if (requestState.fetchStatus == FetchStatus.error)
+              EmptyStateTile(
+                icon: Icons.error_outline,
+                title: l10n.errorLoadingRequests,
+                subtitle: requestState.fetchError?.message,
+              )
+            else if (requestState.fetchStatus == FetchStatus.empty ||
+                (requestState.fetchStatus == FetchStatus.success &&
+                    activeRequests.isEmpty))
+              EmptyStateTile(
+                icon: Icons.inventory_2_outlined,
+                title: l10n.noRequestsAtMoment,
+                subtitle: "You don't have any active orders at the moment",
+              )
             else
               ListView.separated(
-                separatorBuilder: (context, index) => const Divider(),
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 16,
+                  endIndent: 16,
+                  color: theme.dividerColor.withValues(alpha: 0.7),
+                ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: activeRequests.length,

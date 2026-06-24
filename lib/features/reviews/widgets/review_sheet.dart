@@ -27,7 +27,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
 
   Future<void> onSubmit() async {
     if (_stars <= 0) {
-      AppSnackBar.show(context, message: 'Select stars', isError: true);
+      AppSnackBar.show(message: 'Select stars', isError: true);
       return;
     }
     try {
@@ -45,7 +45,6 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
 
       if (mounted) {
         AppSnackBar.show(
-          context,
           message: result ? "Review Submitted" : "Failed to submit review",
           isError: true,
         );
@@ -53,7 +52,6 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
     } catch (e) {
       if (mounted) {
         AppSnackBar.show(
-          context,
           message: e.toString().replaceFirst('Exception: ', ''),
           isError: true,
         );

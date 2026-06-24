@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -18,12 +19,13 @@ class CreateRequestScreen extends ConsumerStatefulWidget {
 
 class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   static const int maxAllowedRequests = 1;
+
   Future<void> fetchData() async {
     await ref.read(requestProvider.notifier).getClientRequests();
 
     final activeRequests = ref
         .watch(requestProvider.notifier)
-        .getActiveRequests("client");
+        .getActiveRequests(AppMode.clientMode);
 
     final canCreateRequest = activeRequests.length < maxAllowedRequests;
 
@@ -54,7 +56,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   Widget build(BuildContext context) {
     final activeRequests = ref
         .watch(requestProvider.notifier)
-        .getActiveRequests("client");
+        .getActiveRequests(AppMode.clientMode);
 
     final canCreateRequest = activeRequests.length < maxAllowedRequests;
 

@@ -41,7 +41,6 @@ class _VisibilityStatusSectionState
 
     if (mounted) {
       AppSnackBar.show(
-        context,
         message: res ? "Equipment submited for review" : "Failed to submit",
         isSuccess: res,
         isError: !res,
@@ -96,7 +95,6 @@ class _VisibilityStatusSectionState
 
                   if (res && context.mounted) {
                     AppSnackBar.show(
-                      context,
                       message: l10n.submittedForReview,
                       isSuccess: true,
                     );

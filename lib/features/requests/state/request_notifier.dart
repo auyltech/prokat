@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -42,8 +45,45 @@ class RequestNotifier extends StateNotifier<RequestState> {
     state = state.copyWith(capacity: capacity);
   }
 
-  List<RequestModel> getActiveRequests(String mode) {
-    return (mode == "owner" ? state.ownerRequests : state.requests)
+  void _startAction(String actionId) {
+    state = state.copyWith(
+      activeActions: {
+        ...state.activeActions,
+        Mutation(id: actionId, status: MutationStatus.submitting),
+      },
+    );
+  }
+
+  void _finishAction(String actionId, {AppError? error}) {
+    final actions = {...state.activeActions};
+
+    if (error == null) {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+    } else {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+
+      final action = Mutation(
+        id: actionId,
+        status: MutationStatus.error,
+        error: error,
+      );
+
+      actions.add(action);
+    }
+
+    state = state.copyWith(activeActions: actions);
+  }
+
+  bool isActionActive(String actionId) {
+    return state.activeActions.contains(
+      Mutation(id: actionId, status: MutationStatus.submitting),
+    );
+  }
+
+  List<RequestModel> getActiveRequests(AppMode mode) {
+    return (mode == AppMode.ownerMode
+            ? state.ownerRequests
+            : state.clientRequests)
         .where(
           (r) => [
             RequestStatus.created,
@@ -54,8 +94,10 @@ class RequestNotifier extends StateNotifier<RequestState> {
         .toList();
   }
 
-  List<RequestModel> getRequestHistory(String mode) {
-    return (mode == "owner" ? state.ownerRequests : state.requests)
+  List<RequestModel> getRequestHistory(AppMode mode) {
+    return (mode == AppMode.ownerMode
+            ? state.ownerRequests
+            : state.clientRequests)
         .where(
           (r) => [
             RequestStatus.accepted,
@@ -68,60 +110,82 @@ class RequestNotifier extends StateNotifier<RequestState> {
 
   Future<void> getClientRequests() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.clientRequests.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getClientRequests();
 
-      final successValue = Value(
-        (result.success && result.data?.isNotEmpty == true) ? true : false,
-      );
-
       state = state.copyWith(
-        isLoading: false,
-        requests: result.data,
-        isSuccess: successValue,
-        lastSuccess: (result.success && result.data?.isNotEmpty == true)
-            ? DateTime.now()
-            : null,
-        error: result.success ? null : result.message,
+        clientRequests: result.data,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "REQUEST_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
-        isLoading: false,
-        requests: [],
-        isSuccess: Value(false),
-        lastSuccess: null,
-        error: e.toString(),
+        fetchStatus: state.clientRequests.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "BOOKING_FETCH_FAILED",
+        ),
       );
     }
   }
 
   Future<void> getOwnerRequests() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.ownerRequests.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getOwnerRequests();
 
-      final successValue = Value(
-        (result.success && result.data?.isNotEmpty == true) ? true : false,
-      );
-
       state = state.copyWith(
-        isLoading: false,
         ownerRequests: result.data,
-        error: result.success ? null : result.message,
-        isSuccess: successValue,
-        lastSuccess: (result.success && result.data?.isNotEmpty == true)
-            ? DateTime.now()
-            : null,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "REQUEST_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
-        isLoading: false,
-        ownerRequests: [],
-        isSuccess: Value(false),
-        lastSuccess: null,
-        error: e.toString(),
+        fetchStatus: state.ownerRequests.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "BOOKING_FETCH_FAILED",
+        ),
       );
     }
   }
@@ -132,15 +196,18 @@ class RequestNotifier extends StateNotifier<RequestState> {
     required String categoryId,
     String? comment,
   }) async {
+    const actionId = "request:create";
+
     try {
       // 1. Guard check: ensures critical fields are present
-      if (state.selectedDate == null) {
-        state = state.copyWith(error: "Provide required fields");
-
+      if (state.selectedDate == null ||
+          state.selectedLocation == null ||
+          state.selectedLocation?.id == null ||
+          state.selectedTime == null) {
         return false;
       }
 
-      state = state.copyWith(isSubmitting: true);
+      _startAction(actionId);
 
       // 2. Safely merge Date and Time to avoid layout parsing bugs down the line
       final DateTime mergedDate = DateTime(
@@ -163,8 +230,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
       // 3. Fire the request service
       final result = await service.createRequest(
         categoryId: categoryId,
-        // Fallback to a placeholder string if your backend expects a UUID pattern instead of ""
-        locationId: state.selectedLocation?.id ?? "unspecified",
+        locationId: state.selectedLocation?.id ?? "",
         capacity: capacity,
         requiredOn: mergedDate,
         requiredAt: mergedTime,
@@ -172,19 +238,25 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      state = state.copyWith(isSubmitting: false);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getClientRequests();
+        getClientRequests();
       }
 
       return result.success;
     } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        requests: state.requests,
-        error: e.toString(),
-      );
+      _finishAction(actionId);
+
       return false;
     }
   }
@@ -196,8 +268,10 @@ class RequestNotifier extends StateNotifier<RequestState> {
     DateTime? requiredAt,
     int? offeredRate,
   }) async {
+    final actionId = "request:$id:update";
+
     try {
-      state = state.copyWith(isSubmitting: true);
+      _startAction(actionId);
 
       final result = await service.updateRequest(
         id: id,
@@ -207,71 +281,84 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      state = state.copyWith(isSubmitting: false);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getClientRequests();
+        getClientRequests();
       }
 
       return result.success;
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+    } catch (error) {
+      _finishAction(actionId);
       return false;
     }
   }
 
   Future<bool> viewRequest(String id) async {
+    final actionId = "request:$id:view";
+
     try {
-      state = state.copyWith(isSubmitting: true);
+      _startAction(actionId);
+
       final result = await service.viewRequest(id);
 
-      state = state.copyWith(isSubmitting: false);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getOwnerRequests();
+        getOwnerRequests();
       }
 
       return result.success;
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+    } catch (error) {
+      _finishAction(actionId);
       return false;
     }
   }
 
   Future<bool> cancelRequest(String id) async {
+    final actionId = "request:$id:cancel";
+
     try {
-      state = state.copyWith(isSubmitting: true);
+      _startAction(actionId);
+
       final result = await service.cancelRequest(id);
 
-      state = state.copyWith(isSubmitting: false);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getClientRequests();
+        getClientRequests();
       }
 
       return result.success;
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
-      return false;
-    }
-  }
-
-  // TODO: REMOVE
-  Future<bool> rejectRequest(String id) async {
-    try {
-      state = state.copyWith(isSubmitting: true);
-
-      final result = await service.rejectRequest(id);
-
-      state = state.copyWith(isSubmitting: false);
-
-      if (result.success) {
-        await getOwnerRequests();
-      }
-
-      return result.success;
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+    } catch (error) {
+      _finishAction(actionId);
       return false;
     }
   }

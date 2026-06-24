@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
@@ -26,8 +27,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
     // ── Loading state ──
     if (billingState.isBalanceLoading) {
-      return _cardShell(
-        theme,
+      return BaseTile(
         child: const SizedBox(
           height: 120,
           child: Center(child: CircularProgressIndicator()),
@@ -37,8 +37,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
     // ── Error state ──
     if (billingState.errors.containsKey('balance')) {
-      return _cardShell(
-        theme,
+      return BaseTile(
         child: Row(
           children: [
             Container(
@@ -88,8 +87,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
     }
 
     // ── Normal state ──
-    return _cardShell(
-      theme,
+    return BaseTile(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -209,18 +207,6 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
           ],
         ],
       ),
-    );
-  }
-
-  Widget _cardShell(ThemeData theme, {required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
-      ),
-      child: child,
     );
   }
 }

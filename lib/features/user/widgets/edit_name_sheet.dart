@@ -47,7 +47,6 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
       context.pop();
 
       AppSnackBar.show(
-        context,
         message: success ? l10n.nameUpdated : l10n.failedSaveName,
         isSuccess: success,
         isError: !success,

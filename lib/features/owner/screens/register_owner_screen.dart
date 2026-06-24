@@ -112,7 +112,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       final l10n = AppLocalizations.of(context)!;
 
       AppSnackBar.show(
-        context,
         message: request == null ? l10n.requestSubmitted : l10n.requestUpdated,
         isSuccess: true,
       );
@@ -136,7 +135,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       final nextError = next.error;
 
       if (nextError != null && nextError.isNotEmpty && nextError != prevError) {
-        AppSnackBar.show(context, message: nextError, isError: true);
+        AppSnackBar.show(message: nextError, isError: true);
       }
 
       final request = next.registrationRequest;

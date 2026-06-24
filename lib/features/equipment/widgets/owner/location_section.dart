@@ -45,11 +45,7 @@ class _LocationSectionState extends State<LocationSection> {
           _isSaving = false;
         });
 
-        AppSnackBar.show(
-          context,
-          message: l10n.equipmentUpdated,
-          isSuccess: true,
-        );
+        AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
       } else {
         setState(() {
           _isDirty = true;
@@ -59,7 +55,7 @@ class _LocationSectionState extends State<LocationSection> {
     } catch (_) {
       setState(() => _isSaving = false);
       if (mounted) {
-        AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
+        AppSnackBar.show(message: l10n.updateFailed, isError: true);
       }
     }
   }

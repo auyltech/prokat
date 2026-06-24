@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 
 class BaseTile extends StatelessWidget {
   final Widget child;
-  final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
+  final double? width;
   final Color? color;
+  final Color? borderColor;
   final double borderRadius;
+  final VoidCallback? onTap;
 
   const BaseTile({
     super.key,
     required this.child,
-    this.onTap,
-    this.padding = const EdgeInsets.all(20),
-    this.borderRadius = 20,
+    this.padding = const EdgeInsets.all(8),
+    this.width,
     this.color,
+    this.borderColor,
+    this.borderRadius = 12,
+    this.onTap,
   });
 
   @override
@@ -21,20 +25,21 @@ class BaseTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     final content = Container(
+      width: width,
       padding: padding,
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: (color ?? theme.colorScheme.outline).withValues(alpha: 0.2),
+          color: borderColor ?? (theme.dividerColor).withValues(alpha: 0.2),
         ),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withValues(alpha: 0.15),
-        //     blurRadius: 4,
-        //     offset: const Offset(0, 3),
-        //   ),
-        // ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 2,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: child,
     );

@@ -1,124 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class ClientRequestsHistoryScreen extends ConsumerWidget {
+class ClientRequestsHistoryScreen extends ConsumerStatefulWidget {
   const ClientRequestsHistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ClientRequestsHistoryScreen> createState() =>
+      _ClientRequestsHistoryScreenState();
+}
+
+class _ClientRequestsHistoryScreenState
+    extends ConsumerState<ClientRequestsHistoryScreen> {
+  Future<void> fetchData() async {
+    await ref.read(requestProvider.notifier).getClientRequests();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final authSession = ref.watch(authProvider).session;
+
     final requestsState = ref.watch(requestProvider);
 
     final requestsHistory = ref
         .watch(requestProvider.notifier)
-        .getRequestHistory("client");
+        .getRequestHistory(AppMode.clientMode);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            expandedHeight: 60,
-            floating: true,
-            pinned: true,
-            backgroundColor: theme.colorScheme.primary,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 20,
-                color: theme.colorScheme.onPrimary,
-              ),
-              onPressed: () => context.pop(),
-            ),
-            title: Text(
-              l10n.requestsHistory,
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onPrimary,
-              ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => authSession == null ? null : context.pop(),
-                icon: Icon(
-                  Icons.list,
-                  color: theme.colorScheme.onPrimary,
-                  size: 24,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          fetchData();
+        },
+        child: ListView(
+          children: [
+            if (requestsState.fetchStatus == FetchStatus.loading ||
+                (requestsState.fetchStatus == FetchStatus.refreshing &&
+                    requestsHistory.isEmpty))
+              RequestTileSkeleton()
+            else if (requestsState.fetchStatus == FetchStatus.error)
+              EmptyStateTile(
+                icon: Icons.error_outline,
+                title: l10n.errorLoadingRequests,
+                subtitle: requestsState.fetchError?.message,
+              )
+            else if (requestsState.fetchStatus == FetchStatus.empty ||
+                (requestsState.fetchStatus == FetchStatus.success &&
+                    requestsHistory.isEmpty))
+              EmptyStateTile(
+                icon: Icons.inventory_2_outlined,
+                title: l10n.noRequestsAtMoment,
+                subtitle: "You don't have any requests in your history",
+              )
+            else
+              ListView.separated(
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 16,
+                  endIndent: 16,
+                  color: theme.dividerColor.withValues(alpha: 0.7),
                 ),
-                tooltip: l10n.activeRequestsTooltip,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: requestsHistory.length,
+                itemBuilder: (context, index) {
+                  return ClientRequestTile(request: requestsHistory[index]);
+                },
               ),
-            ],
-            actionsPadding: const EdgeInsets.only(right: 12),
-          ),
-
-          if (requestsState.isLoading && requestsState.requests.isEmpty)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: Color(0xFF4E73DF)),
-              ),
-            )
-          else if (requestsState.error != null)
-            SliverFillRemaining(
-              child: Center(
-                child: Text(
-                  "Error: ${requestsState.error}",
-                  style: const TextStyle(color: Colors.redAccent),
-                ),
-              ),
-            )
-          else if (requestsHistory.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history_rounded,
-                      size: 64,
-                      color: Colors.grey.withValues(alpha: 0.7),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.noHistoryFound,
-                      style: TextStyle(
-                        color: Colors.grey.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else ...[
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-                child: Text(
-                  l10n.pastRequests,
-                  style: theme.textTheme.labelMedium,
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: ClientRequestTile(request: requestsHistory[index]),
-                  );
-                }, childCount: requestsHistory.length),
-              ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }

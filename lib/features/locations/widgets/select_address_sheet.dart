@@ -22,7 +22,7 @@ class SelectAddressSheet extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
-    final addresses = locationState.renterLocations.take(3).toList();
+    final addresses = locationState.clientLocations.take(3).toList();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),

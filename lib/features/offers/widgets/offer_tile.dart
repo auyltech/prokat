@@ -33,7 +33,6 @@ class OfferTile extends ConsumerWidget {
     if (!context.mounted) return;
 
     AppSnackBar.show(
-      context,
       message: success ? l10n.offerUpdated : l10n.somethingWentWrong,
       isSuccess: success,
       isError: !success,
@@ -56,7 +55,6 @@ class OfferTile extends ConsumerWidget {
     if (!context.mounted) return;
 
     AppSnackBar.show(
-      context,
       message: success ? l10n.offerUpdated : l10n.somethingWentWrong,
       isSuccess: success,
       isError: !success,

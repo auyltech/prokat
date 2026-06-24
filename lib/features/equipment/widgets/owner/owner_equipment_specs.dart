@@ -168,7 +168,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final valid = _validate();
     if (!valid) {
       setState(() {});
-      AppSnackBar.show(context, message: l10n.pleaseFillMissingInfo);
+      AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
       return;
     }
 
@@ -218,19 +218,15 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           _errorsByKey.clear();
         });
 
-        AppSnackBar.show(
-          context,
-          message: l10n.equipmentUpdated,
-          isSuccess: true,
-        );
+        AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
       } else {
         setState(() => _isSaving = false);
-        AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
+        AppSnackBar.show(message: l10n.updateFailed, isError: true);
       }
     } catch (_) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      AppSnackBar.show(context, message: l10n.updateFailed, isError: true);
+      AppSnackBar.show(message: l10n.updateFailed, isError: true);
     }
   }
 

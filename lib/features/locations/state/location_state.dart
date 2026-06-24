@@ -1,54 +1,67 @@
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
+
 import '../models/location_model.dart';
 import '../models/location_search_result.dart';
 
 class LocationState {
+  final FetchStatus fetchStatus;
+  final PaginationStatus paginationStatus;
+
+  final DateTime? lastFetchedAt;
+  final AppError? fetchError;
+
+  final Set<Mutation> activeActions;
+
   final String? city;
 
-  final List<LocationModel> renterLocations;
+  final List<LocationModel> clientLocations;
   final List<LocationModel> ownerLocations;
 
   final LocationModel? selectedAddress;
-
   final List<LocationSearchResult> suggestions;
 
-  final bool isLoading;
-  final String? error;
-
   const LocationState({
+    this.fetchStatus = FetchStatus.initial,
+    this.paginationStatus = PaginationStatus.idle,
+    this.lastFetchedAt,
+    this.fetchError,
+    this.activeActions = const {},
+
     this.city,
 
-    this.renterLocations = const [],
+    this.clientLocations = const [],
     this.ownerLocations = const [],
-
     this.selectedAddress,
-
     this.suggestions = const [],
-
-    this.isLoading = false,
-    this.error,
   });
 
   LocationState copyWith({
+    FetchStatus? fetchStatus,
+    PaginationStatus? paginationStatus,
+    DateTime? lastFetchedAt,
+    AppError? fetchError,
+    Set<Mutation>? activeActions,
+
     String? city,
-
-    List<LocationModel>? renterLocations,
+    List<LocationModel>? clientLocations,
     List<LocationModel>? ownerLocations,
-
     List<LocationSearchResult>? suggestions,
-
     LocationModel? selectedAddress,
-    bool? isLoading,
-    String? error,
   }) {
     return LocationState(
+      fetchStatus: fetchStatus ?? this.fetchStatus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
+      lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
+      fetchError: fetchError,
+      activeActions: activeActions ?? this.activeActions,
+
       city: city ?? this.city,
-      renterLocations: renterLocations ?? this.renterLocations,
+      clientLocations: clientLocations ?? this.clientLocations,
       ownerLocations: ownerLocations ?? this.ownerLocations,
 
       suggestions: suggestions ?? this.suggestions,
       selectedAddress: selectedAddress ?? this.selectedAddress,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
     );
   }
 }

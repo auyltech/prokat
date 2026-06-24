@@ -15,40 +15,27 @@ Future<void> submitPriceEntry(
   String equipmentId,
   PriceEntry? priceEntry,
   TextEditingController priceController,
-  TextEditingController serviceTimeController,
   String selectedRate,
   AppLocalizations l10n,
 ) async {
   final price = int.tryParse(priceController.text.trim());
-  final serviceTime = int.tryParse(serviceTimeController.text.trim()) ?? 0;
 
   // 1. Basic price parsing check
   if (price == null) {
-    AppSnackBar.show(context, message: l10n.pleaseEnterValidPrice);
+    AppSnackBar.show(message: l10n.pleaseEnterValidPrice);
     return;
   }
 
   // 2. Enforce positive price and maximum limit (e.g., 100,000)
   if (price <= 0) {
     AppSnackBar.show(
-      context,
       message: "Price must be greater than zero",
     ); // Use l10n if available
     return;
   }
   if (price > 100000) {
     AppSnackBar.show(
-      context,
       message: "Price cannot exceed 100,000",
-    ); // Use l10n if available
-    return;
-  }
-
-  // 3. Enforce non-negative service time
-  if (serviceTime < 0) {
-    AppSnackBar.show(
-      context,
-      message: "Service time cannot be negative",
     ); // Use l10n if available
     return;
   }
@@ -69,17 +56,9 @@ Future<void> submitPriceEntry(
       if (!context.mounted) return;
 
       if (res) {
-        AppSnackBar.show(
-          context,
-          message: l10n.priceEntryAdded,
-          isSuccess: true,
-        );
+        AppSnackBar.show(message: l10n.priceEntryAdded, isSuccess: true);
       } else {
-        AppSnackBar.show(
-          context,
-          message: l10n.failedAddPriceEntry,
-          isError: true,
-        );
+        AppSnackBar.show(message: l10n.failedAddPriceEntry, isError: true);
       }
     } else {
       final res = await notifier.updatePriceEntry({
@@ -87,28 +66,19 @@ Future<void> submitPriceEntry(
         "equipmentId": equipmentId,
         "price": price,
         "priceRate": selectedRate,
-        "serviceTime": serviceTime,
       });
 
       if (!context.mounted) return;
 
       if (res) {
-        AppSnackBar.show(context, message: l10n.priceEntrySaved);
+        AppSnackBar.show(message: l10n.priceEntrySaved);
       } else {
-        AppSnackBar.show(
-          context,
-          message: l10n.failedUpdatePriceEntry,
-          isError: true,
-        );
+        AppSnackBar.show(message: l10n.failedUpdatePriceEntry, isError: true);
       }
     }
   } catch (e) {
     if (context.mounted) {
-      AppSnackBar.show(
-        context,
-        message: l10n.failedSavePriceEntry,
-        isError: true,
-      );
+      AppSnackBar.show(message: l10n.failedSavePriceEntry, isError: true);
     }
   }
 }
@@ -129,10 +99,6 @@ void openPricingEditSheet(
     text: isEditing ? priceEntry.price.toString() : "",
   );
 
-  final serviceTimeController = TextEditingController(
-    text: isEditing ? priceEntry.serviceTime.toString() : "",
-  );
-
   String selectedRate = isEditing
       ? priceEntry.priceRate
       : priceRateOptions.first.value;
@@ -148,7 +114,6 @@ void openPricingEditSheet(
         equipmentId,
         priceEntry,
         priceController,
-        serviceTimeController,
         selectedRate,
         l10n,
       ),

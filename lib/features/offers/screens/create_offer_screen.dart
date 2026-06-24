@@ -88,7 +88,6 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
         if (result && context.mounted) {
           AppSnackBar.show(
-            context,
             message: "Offer Sent",
             isSuccess: result,
             isError: !result,

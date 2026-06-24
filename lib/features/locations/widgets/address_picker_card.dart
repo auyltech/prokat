@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -19,13 +20,14 @@ class AddressPickerCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: BaseTile(
+        width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
-        ),
+        // decoration: BoxDecoration(
+        //   color: theme.cardColor,
+        //   borderRadius: BorderRadius.circular(16),
+        //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        // ),
         child: Row(
           children: [
             Icon(
@@ -36,29 +38,31 @@ class AddressPickerCard extends StatelessWidget {
 
             const SizedBox(width: 8),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  selectedAddress == null ? l10n.setDeliveryAddress : "Address",
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selectedAddress == null
+                        ? l10n.setDeliveryAddress
+                        : "Address",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Text(
-                  selectedAddress != null
-                      ? "${selectedAddress?.street}, ${selectedAddress?.city}"
-                      : "select",
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    selectedAddress != null
+                        ? "${selectedAddress?.street}, ${selectedAddress?.city}"
+                        : "select",
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
-
-            Spacer(),
 
             Column(
               children: [

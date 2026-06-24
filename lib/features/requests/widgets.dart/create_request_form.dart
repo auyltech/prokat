@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_picker_component.dart';
@@ -11,7 +14,6 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/utils/date_time.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -40,36 +42,47 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
 
-    final selectedCategory = ref.read(categoriesProvider).selectedCategory;
+    final requestState = ref.read(requestProvider);
 
-    if (selectedCategory == null) {
-      AppSnackBar.show(
-        context,
-        message: "Please select category",
-        isError: true,
-      );
+    final selectedCategoryId = requestState.selectedCategory?.id;
+    String message = "";
+
+    if (selectedCategoryId == null) {
+      message = "Please select category";
+    } else if (requestState.selectedLocation == null) {
+      message = "Please select location";
+    } else if (requestState.selectedDate == null) {
+      message = "Please select date";
+    } else if (requestState.selectedTime == null) {
+      message = "Please select time";
+    }
+
+    if (message.isNotEmpty) {
+      AppSnackBar.show(message: message, isSuccess: false, isError: true);
       return;
     }
 
-    final requestNotifier = ref.read(requestProvider.notifier);
+    final success = await ref
+        .read(requestProvider.notifier)
+        .createRequest(
+          categoryId: selectedCategoryId ?? "",
+          capacity: capacityController.text.trim(),
+          offeredRate: parseNullableInt(rateController.text.trim()) ?? 0,
+          comment: commentController.text.trim(),
+        );
 
-    final success = await requestNotifier.createRequest(
-      categoryId: selectedCategory.id,
-      capacity: capacityController.text.trim(),
-      offeredRate: parseNullableInt(rateController.text.trim()) ?? 0,
-      comment: commentController.text.trim(),
+    AppSnackBar.show(
+      message: success ? l10n.requestCreated : "Failed to create request",
+      isSuccess: success,
+      isError: !success,
     );
 
-    if (mounted) {
-      AppSnackBar.show(
-        context,
-        message: success ? l10n.requestCreated : "Failed to create request",
-        isSuccess: success,
-        isError: !success,
-      );
+    if (success && mounted) {
+      context.push(AppRoutes.clientRequests);
     }
   }
 
+  // TODO: REMOVE ADDRESS SHEET
   void _openAddressSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -109,21 +122,18 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       }
     });
 
-    // const int daysRange = 7;
+    final canSubmit =
+        requestState.selectedLocation != null &&
+        requestState.selectedDate != null &&
+        requestState.selectedTime != null;
 
-    // final DateTime now = DateTime.now();
-    // Strip time to avoid mid-day edge-case bugs with minimum/maximum dates
-    // final DateTime today = DateTime(now.year, now.month, now.day);
-    // final DateTime maxRangeDate = today.add(const Duration(days: daysRange));
+    final action = requestState.activeActions
+        .where((item) => item.id == "request:create")
+        .firstOrNull;
 
-    // Safely resolve the initial date
-    // DateTime initialDate = requestState.selectedDate ?? initialTargetDateTime;
-
-    // if (initialDate.isBefore(today)) {
-    //   initialDate = today;
-    // } else if (initialDate.isAfter(maxRangeDate)) {
-    //   initialDate = maxRangeDate;
-    // }
+    final isSubmitting = action == null
+        ? false
+        : action.status == MutationStatus.submitting;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +188,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         DatePickerComponent(
           daysRange: 7, // Pass your dynamic 'x' range here
           isRequired: true, // Shows indicator text
-          selectedDate: requestState.selectedDate ?? initialTargetDateTime,
+          selectedDate: requestState.selectedDate,
           onDateSelected: (date) {
             requestNotifier.setDate(date);
           },
@@ -189,7 +199,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           startHour: 9, // Start at 09:00
           endHour: 17, // End at 17:00
           isRequired: true,
-          selectedDateTime: requestState.selectedTime ?? initialTargetDateTime,
+          selectedDateTime: requestState.selectedTime,
           onTimeSelected: (updatedDateTime) {
             requestNotifier.setTime(
               updatedDateTime,
@@ -199,15 +209,15 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 40),
 
-        if (requestState.error != null) ...[
-          Text(requestState.error!),
+        if (action?.error != null) ...[
+          Text(action?.error?.message ?? ""),
           SizedBox(height: 8),
         ],
 
         PrimaryButton(
           label: l10n.create,
-          isLoading: requestState.isSubmitting,
-          onPressed: onSubmit,
+          onPressed: (!canSubmit || isSubmitting) ? null : onSubmit,
+          isLoading: isSubmitting,
         ),
       ],
     );

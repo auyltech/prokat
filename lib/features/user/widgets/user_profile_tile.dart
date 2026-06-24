@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 
 class UserProfileTile extends StatelessWidget {
   final IconData icon;
@@ -26,14 +27,14 @@ class UserProfileTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: BaseTile(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
-        ),
+        // decoration: BoxDecoration(
+        //   color: theme.colorScheme.surface,
+        //   borderRadius: BorderRadius.circular(14),
+        //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        // ),
         child: Row(
           children: [
             Container(

@@ -129,7 +129,7 @@ ApiResponse<void> handleEmptyApiResponse({
   if (!isSuccess) {
     return ApiResponse.failure(
       message: extractBackendMessage(responseData, fallback: fallbackMessage),
-      error: responseData,
+      error: responseData["error"],
       statusCode: statusCode,
     );
   }

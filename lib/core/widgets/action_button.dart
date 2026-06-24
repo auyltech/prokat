@@ -98,13 +98,18 @@ class ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Determine context active color palette
+    final bool isSecondary = variant == ButtonVariant.secondary;
+    final Color variantColor = isSecondary
+        ? theme.primaryColor
+        : theme.colorScheme.error;
+
     if (variant == ButtonVariant.ghost) {
       return IconButton(
-        padding: EdgeInsets.zero, // Removes default internal padding
-        constraints:
-            const BoxConstraints(), // Strips default material sizing constraints
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
         icon: Icon(
-          Icons.chat_bubble_outline, // Your chat icon
+          Icons.chat_bubble_outline,
           color: theme.primaryColor,
           size: 30,
         ),
@@ -112,53 +117,52 @@ class ActionButton extends StatelessWidget {
       );
     }
 
-    // Outlined Button
+    // Outlined Buttons (Secondary & Destructive)
     if (variant == ButtonVariant.secondary ||
         variant == ButtonVariant.destructive) {
       return OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-          side: BorderSide(
-            color: variant == ButtonVariant.secondary
-                ? theme.primaryColor
-                : theme.colorScheme.error,
-          ),
+          side: BorderSide(color: variantColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        icon: icon == null
-            ? null
-            : Icon(
-                icon, // Replace with your desired icon
-                size: 18,
-                color: variant == ButtonVariant.secondary
-                    ? theme.primaryColor
-                    : theme.colorScheme.error,
-              ),
+        // Renders Spinner if loading, or custom specified Icon
+        icon: isLoading
+            ? SizedBox(
+                height: 16,
+                width: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(variantColor),
+                ),
+              )
+            : (icon == null ? null : Icon(icon, size: 18, color: variantColor)),
         label: Text(
           label ?? "",
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: variant == ButtonVariant.secondary
-                ? theme.primaryColor
-                : theme.colorScheme.error,
+            color: variantColor,
           ),
         ),
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
       );
     }
 
-    // Filled Button
+    // Filled Buttons (Primary & Danger)
+    final Color baseFillColor = variant == ButtonVariant.danger
+        ? theme.colorScheme.error
+        : theme.primaryColor;
+
     return ElevatedButton(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: (isLoading || !isEnabled) ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: variant == ButtonVariant.danger
-            ? theme.colorScheme.error
-            : theme.primaryColor,
+        backgroundColor: baseFillColor,
         foregroundColor: theme.colorScheme.onPrimary,
-        disabledBackgroundColor: theme.primaryColor.withValues(alpha: 0.8),
+        // DYNAMIC FIX: Adapts disabled background color matching the variant rule
+        disabledBackgroundColor: baseFillColor.withValues(alpha: 0.6),
         disabledForegroundColor: theme.colorScheme.onPrimary.withValues(
           alpha: 0.8,
         ),
@@ -172,12 +176,11 @@ class ActionButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (isLoading) ...[
             const SizedBox(
-              height: 20,
-              width: 20,
+              height: 18,
+              width: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -190,7 +193,7 @@ class ActionButton extends StatelessWidget {
           ],
           if (label != null)
             Text(
-              label ?? "",
+              label!,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,

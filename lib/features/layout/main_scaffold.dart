@@ -13,7 +13,8 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Extract GoRouter location data
+    final theme = Theme.of(context);
+
     final routerState = GoRouterState.of(context);
     final String currentPath = routerState.uri.path;
 
@@ -27,7 +28,6 @@ class MainScaffold extends StatelessWidget {
             segments.length == 3 &&
             segments[2] != 'list');
 
-    // 2. Determine if the app bar should be hidden
     final bool hideAppBar = [
       AppRoutes.launch,
       AppRoutes.main,
@@ -36,7 +36,7 @@ class MainScaffold extends StatelessWidget {
 
     return Scaffold(
       key: _scaffoldKey,
-      // 3. Pass null instead of a empty widget to properly reset the SafeArea
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: hideAppBar ? null : const ProkatAppBar(),
       bottomNavigationBar: isChatDetailScreen
           ? null

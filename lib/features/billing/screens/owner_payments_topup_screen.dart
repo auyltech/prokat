@@ -29,14 +29,11 @@ class _OwnerPaymentsTopupScreenState
         .read(billingProvider.notifier)
         .topUpBalance(id: id);
 
-    if (mounted) {
-      AppSnackBar.show(
-        context,
-        message: result ? "Top up added" : "Failed to complete to-up",
-        isSuccess: result,
-        isError: !result,
-      );
-    }
+    AppSnackBar.show(
+      message: result ? "Top up added" : "Failed to complete to-up",
+      isSuccess: result,
+      isError: !result,
+    );
   }
 
   @override

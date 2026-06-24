@@ -46,7 +46,7 @@ class BookingChatActionController
       _priceNegotiationNotifier().getPriceNegotiations(),
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
-      _bookingNotifier.getUserBookings(),
+      _bookingNotifier.getClientBookings(),
     ]);
   }
 
@@ -57,7 +57,7 @@ class BookingChatActionController
     await Future.wait([
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
-      _bookingNotifier.getUserBookings(),
+      _bookingNotifier.getClientBookings(),
       _priceNegotiationNotifier().getPriceNegotiations(),
     ]);
   }
@@ -69,7 +69,7 @@ class BookingChatActionController
     await Future.wait([
       _chatNotifier.reloadChat(chatId),
       _bookingNotifier.getOwnerBookings(),
-      _bookingNotifier.getUserBookings(),
+      _bookingNotifier.getClientBookings(),
     ]);
   }
 
@@ -259,11 +259,7 @@ class BookingChatActionController
     final id = negotiationId.trim();
 
     if (id.isEmpty) {
-      AppSnackBar.show(
-        context,
-        message: 'Negotiation id is missing',
-        isError: true,
-      );
+      AppSnackBar.show(message: 'Negotiation id is missing', isError: true);
       return;
     }
 
@@ -290,11 +286,7 @@ class BookingChatActionController
     final id = negotiationId.trim();
 
     if (id.isEmpty) {
-      AppSnackBar.show(
-        context,
-        message: 'Negotiation id is missing',
-        isError: true,
-      );
+      AppSnackBar.show(message: 'Negotiation id is missing', isError: true);
       return;
     }
 
@@ -339,7 +331,7 @@ class BookingChatActionController
         state = state.copyWith(isSubmitting: false);
         if (!context.mounted) return;
 
-        AppSnackBar.show(context, message: failureMessage, isError: true);
+        AppSnackBar.show(message: failureMessage, isError: true);
         return;
       }
 
@@ -349,7 +341,7 @@ class BookingChatActionController
 
       if (!context.mounted) return;
 
-      AppSnackBar.show(context, message: successMessage, isSuccess: true);
+      AppSnackBar.show(message: successMessage, isSuccess: true);
     } catch (e) {
       // TODO: remove error message
       final message = e.toString().replaceFirst('Exception: ', '');
@@ -361,7 +353,7 @@ class BookingChatActionController
       );
       if (!context.mounted) return;
 
-      AppSnackBar.show(context, message: message, isError: true);
+      AppSnackBar.show(message: message, isError: true);
     }
   }
 }

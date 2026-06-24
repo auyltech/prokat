@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
@@ -41,6 +42,18 @@ class ClientBookingTile extends ConsumerWidget {
         booking.status == BookingStatus.completed &&
         booking.myReviewId != null &&
         booking.myReviewId!.isNotEmpty;
+
+    final bookingState = ref.watch(bookingProvider);
+
+    final actionId = "booking:update:${booking.id}";
+
+    final action = bookingState.activeActions
+        .where((item) => item.id == actionId)
+        .firstOrNull;
+
+    final isSubmittingCancel = action == null
+        ? false
+        : action.status == MutationStatus.submitting;
 
     return Container(
       width: double.infinity,
@@ -145,9 +158,13 @@ class ClientBookingTile extends ConsumerWidget {
                   ].contains(booking.status)) ...[
                     ActionButton.destructive(
                       label: "Cancel",
-                      onPressed: () {
-                        _handleCancel(context, ref, booking, l10n);
-                      },
+                      isLoading: isSubmittingCancel,
+                      isEnabled: !isSubmittingCancel,
+                      onPressed: !isSubmittingCancel
+                          ? () {
+                              _handleCancel(context, ref, booking, l10n);
+                            }
+                          : null,
                     ),
 
                     const SizedBox(width: 8),
@@ -238,7 +255,6 @@ Future<void> _handleCancel(
   );
 
   if (confirmed != true) return;
-  if (!context.mounted) return;
 
   final createdAt = booking.createdAt ?? DateTime(2026);
   final now = DateTime.now();
@@ -246,16 +262,22 @@ Future<void> _handleCancel(
   final difference = now.difference(createdAt).inMinutes;
 
   if (difference < cancelWindowMinutes) {
-    final res = await notifier.updateBookingStatus(
+    final result = await notifier.updateBookingStatus(
       id: booking.id,
       status: "CANCELLED",
       workStatus: "cancelled in $difference minutes",
     );
 
-    if (res == true && context.mounted) {
+    if (result == true && context.mounted) {
       Navigator.pop(context);
-      AppSnackBar.show(context, message: l10n.orderCancelled);
     }
+
+    AppSnackBar.show(
+      message: result ? l10n.orderCancelled : "Failed to cancel order",
+      isSuccess: result,
+      isError: !result,
+    );
+
     return;
   }
 

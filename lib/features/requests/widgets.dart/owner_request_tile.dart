@@ -242,7 +242,6 @@ class OwnerRequestTile extends ConsumerWidget {
 
                           if (context.mounted) {
                             AppSnackBar.show(
-                              context,
                               message: result
                                   ? "Offer Cancelled"
                                   : "Failed to cancel offer",
@@ -279,7 +278,6 @@ class OwnerRequestTile extends ConsumerWidget {
 
                         if (context.mounted) {
                           AppSnackBar.show(
-                            context,
                             message: result
                                 ? "Request Viewed"
                                 : "Failed to save",

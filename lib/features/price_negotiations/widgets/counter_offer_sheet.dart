@@ -34,7 +34,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
     final price = int.tryParse(_priceController.text.trim());
 
     if (price == null || price <= 0) {
-      AppSnackBar.show(context, message: 'Enter a valid price', isError: true);
+      AppSnackBar.show(message: 'Enter a valid price', isError: true);
       return;
     }
 
@@ -73,7 +73,6 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
     } catch (e) {
       if (mounted && context.canPop()) {
         AppSnackBar.show(
-          context,
           message: e.toString().replaceFirst('Exception: ', ''),
           isError: true,
         );

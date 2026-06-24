@@ -1,16 +1,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_api_service.dart';
+import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_state.dart';
+import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 
 class BookingNotifier extends StateNotifier<BookingState> {
-  final BookingApiService api;
+  final BookingService api;
+  final Ref ref;
 
-  BookingNotifier(this.api) : super(BookingState());
+  BookingNotifier({required this.api, required this.ref})
+    : super(BookingState());
 
   /// -------------------------
   /// LOCAL DRAFT MANAGEMENT
@@ -43,76 +49,165 @@ class BookingNotifier extends StateNotifier<BookingState> {
     state = state.copyWith(comment: comment);
   }
 
-  List<BookingModel> getActiveBookings({required String mode}) {
-    return (mode == "owner" ? state.ownerBookings : state.bookings)
+  void _startAction(String actionId) {
+    state = state.copyWith(
+      activeActions: {
+        ...state.activeActions,
+        Mutation(id: actionId, status: MutationStatus.submitting),
+      },
+    );
+  }
+
+  void _finishAction(String actionId, {AppError? error}) {
+    final actions = {...state.activeActions};
+
+    if (error == null) {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+    } else {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+
+      final action = Mutation(
+        id: actionId,
+        status: MutationStatus.error,
+        error: error,
+      );
+
+      actions.add(action);
+    }
+
+    state = state.copyWith(activeActions: actions);
+  }
+
+  bool isActionActive(String actionId) {
+    return state.activeActions.contains(
+      Mutation(id: actionId, status: MutationStatus.submitting),
+    );
+  }
+
+  List<BookingModel> getActiveBookings({required AppMode mode}) {
+    return (mode == AppMode.ownerMode ? state.ownerBookings : state.bookings)
         .where(
           (b) => [
             BookingStatus.created,
             BookingStatus.confirmed,
+          ].contains(b.status),
+        )
+        .toList();
+  }
+
+  List<BookingModel> getHistoryBookings({required AppMode mode}) {
+    return (mode == AppMode.ownerMode ? state.ownerBookings : state.bookings)
+        .where(
+          (b) => [
+            BookingStatus.cancelled,
+            BookingStatus.rejected,
             BookingStatus.completed,
           ].contains(b.status),
         )
         .toList();
   }
 
-  /// -------------------------
-  /// LOAD BOOKINGS
-  /// -------------------------
-
-  Future<void> getUserBookings() async {
+  Future<void> getClientBookings() async {
     try {
-      state = state.copyWith(isLoading: true);
-
-      final result = await api.getUserBookings();
+      final hasData = state.bookings.isNotEmpty;
 
       state = state.copyWith(
-        isLoading: false,
-        bookings: result.data,
-        error: result.success ? null : result.message,
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+
+      final result = await api.getClientBookings();
+
+      state = state.copyWith(
+        bookings: result.data,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "BOOKING_FETCH_FAILED",
+              ),
+      );
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.bookings.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "BOOKING_FETCH_FAILED",
+        ),
+      );
     }
   }
 
   Future<void> getOwnerBookings() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.bookings.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await api.getOwnerBookings();
 
       state = state.copyWith(
-        isLoading: false,
         ownerBookings: result.data,
-        error: result.success ? null : result.message,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "BOOKING_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.bookings.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "BOOKING_FETCH_FAILED",
+        ),
+      );
     }
   }
 
-  /// -------------------------
-  /// CREATE BOOKING
-  /// -------------------------
-
   Future<bool> createBooking() async {
+    const actionId = "booking:create";
+
     try {
       if (state.selectedEquipment == null ||
           state.selectedLocation == null ||
           state.selectedPriceEntry == null ||
-          state.selectedLocation == null ||
           state.selectedDate == null ||
           state.selectedTime == null) {
         return false;
       }
 
-      state = state.copyWith(isSubmitting: true, actionId: "booking:create");
+      _startAction(actionId);
 
       final result = await api.createBooking({
         "equipmentId": state.selectedEquipment?.id,
-        "price": (int.tryParse(
+        "price": int.tryParse(
           (state.selectedPriceEntry?.price ?? 0).toString(),
-        )).toString(),
+        ).toString(),
         "priceRate": state.selectedPriceEntry?.priceRate ?? "",
         "locationId": state.selectedLocation?.id,
         "bookedOn": state.selectedDate!.toIso8601String(),
@@ -120,37 +215,39 @@ class BookingNotifier extends StateNotifier<BookingState> {
         "comment": state.comment,
       });
 
-      state = state.copyWith(
-        isSubmitting: false,
-        error: result.success ? null : result.message,
-        actionId: null,
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
       );
 
       if (result.success) {
-        await getUserBookings();
+        // Don't await, return true to show snackbar
+        getClientBookings();
       }
 
       return result.success;
     } catch (error) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: error.toString(),
-        actionId: null,
-      );
+      _finishAction(actionId);
+
       return false;
     }
   }
 
-  /// -------------------------
-  /// UPDATE BOOKING
-  /// -------------------------
   Future<bool> updateBookingStatus({
     required String id,
     String? status,
     String? workStatus,
   }) async {
+    final actionId = "booking:update:$id";
+
     try {
-      state = state.copyWith(isSubmitting: true, actionId: "booking:status");
+      _startAction(actionId);
 
       final result = await api.updateBookingStatus(
         id: id,
@@ -158,23 +255,39 @@ class BookingNotifier extends StateNotifier<BookingState> {
         workStatus: workStatus,
       );
 
-      state = state.copyWith(
-        isSubmitting: false,
-        error: result.success ? null : result.message,
-        actionId: null,
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
       );
 
       if (result.success) {
-        await getUserBookings();
+        getClientBookings();
+
+        final chatNotifier = ref.read(chatProvider.notifier);
+
+        final booking = [
+          ...state.bookings,
+          ...state.ownerBookings,
+        ].where((item) => item.id == id).firstOrNull;
+
+        final chatId = booking != null && booking.chatId != null
+            ? booking.chatId ?? ""
+            : "";
+
+        if (chatId.isNotEmpty) {
+          chatNotifier.reloadChat(chatId);
+        }
       }
 
       return result.success;
     } catch (error) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: error.toString(),
-        actionId: null,
-      );
+      _finishAction(actionId);
       return false;
     }
   }
@@ -184,11 +297,9 @@ class BookingNotifier extends StateNotifier<BookingState> {
     String? status,
     String? workStatus,
   }) async {
+    final actionId = "booking:workstatus:$id";
     try {
-      state = state.copyWith(
-        isSubmitting: true,
-        actionId: "booking:workstatus",
-      );
+      _startAction(actionId);
 
       final result = await api.updateBookingWorkStatus(
         id: id,
@@ -196,23 +307,25 @@ class BookingNotifier extends StateNotifier<BookingState> {
         workStatus: workStatus,
       );
 
-      state = state.copyWith(
-        isSubmitting: false,
-        error: result.success ? null : result.message,
-        actionId: null,
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
       );
 
       if (result.success) {
-        await getUserBookings();
+        getClientBookings();
+        getOwnerBookings();
       }
 
       return result.success;
     } catch (error) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: error.toString(),
-        actionId: null,
-      );
+      _finishAction(actionId);
       return false;
     }
   }

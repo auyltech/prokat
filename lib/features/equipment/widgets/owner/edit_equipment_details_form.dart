@@ -79,17 +79,9 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
           _isSaving = false;
         });
 
-        AppSnackBar.show(
-          context,
-          message: l10n.equipmentUpdated,
-          isSuccess: true,
-        );
+        AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
       } else if (mounted) {
-        AppSnackBar.show(
-          context,
-          message: l10n.couldNotSaveEquipment,
-          isError: true,
-        );
+        AppSnackBar.show(message: l10n.couldNotSaveEquipment, isError: true);
 
         setState(() {
           _isDirty = true;
@@ -100,11 +92,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
       setState(() => _isSaving = false);
 
       if (mounted) {
-        AppSnackBar.show(
-          context,
-          message: l10n.somethingWentWrong,
-          isError: true,
-        );
+        AppSnackBar.show(message: l10n.somethingWentWrong, isError: true);
       }
     }
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -7,14 +9,14 @@ class GuestEquipmentCard extends StatelessWidget {
   final Equipment item;
   const GuestEquipmentCard({super.key, required this.item});
 
-  String _formatPrice(double price) {
-    return price
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]} ',
-        );
-  }
+  // String _formatPrice(double price) {
+  //   return price
+  //       .toStringAsFixed(0)
+  //       .replaceAllMapped(
+  //         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+  //         (m) => '${m[1]} ',
+  //       );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +24,9 @@ class GuestEquipmentCard extends StatelessWidget {
     // final isTop = item.rating >= 4.9;
     final isTop = true;
 
-    return Container(
+    return BaseTile(
       // height: 130,
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.2)),
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -104,8 +101,11 @@ class GuestEquipmentCard extends StatelessWidget {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text:
-                                  '${_formatPrice(item.prices.isEmpty ? 0 : item.prices[0].price.floorToDouble())} ₸',
+                              text: formatPrice(
+                                item.prices.isEmpty
+                                    ? 0
+                                    : item.prices[0].price.floorToDouble(),
+                              ),
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,

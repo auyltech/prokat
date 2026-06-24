@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -118,7 +119,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final equipmentState = ref.watch(equipmentProvider);
@@ -128,7 +128,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final bookingNotifier = ref.read(bookingProvider.notifier);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         top: false,
         child: RefreshIndicator(
@@ -145,13 +144,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               const SizedBox(height: 12),
 
-              Text(
-                l10n.search,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ),
+              SectionTitle(title: l10n.search),
 
               const SizedBox(height: 12),
 

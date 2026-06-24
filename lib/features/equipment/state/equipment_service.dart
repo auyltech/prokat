@@ -466,7 +466,6 @@ class EquipmentService {
       final priceEntryId = data["id"];
       final price = data["price"];
       final priceRate = data["priceRate"];
-      final serviceTime = data["serviceTime"];
 
       final response = await _dio.patch(
         '/equipment/$equipmentId/priceEntry/$priceEntryId',
@@ -475,7 +474,6 @@ class EquipmentService {
           "priceEntryId": priceEntryId,
           "price": price,
           "priceRate": priceRate,
-          "serviceTime": serviceTime,
         },
       );
 

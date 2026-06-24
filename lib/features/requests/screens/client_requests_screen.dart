@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/request_with_offers.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 
 class ClientRequestsScreen extends ConsumerStatefulWidget {
   const ClientRequestsScreen({super.key});
@@ -22,16 +22,6 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
   Future<void> fetchData() async {
     await ref.read(requestProvider.notifier).getClientRequests();
     await ref.read(offersProvider.notifier).getClientOffers();
-
-    final activeRequests = ref
-        .watch(requestProvider.notifier)
-        .getActiveRequests("client");
-
-    final hasActiveRequests = activeRequests.isNotEmpty;
-
-    if (!hasActiveRequests && mounted) {
-      context.push(AppRoutes.clientRequestsCreate);
-    }
   }
 
   @override
@@ -48,13 +38,12 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final authSession = ref.watch(authProvider).session;
-    final state = ref.watch(requestProvider);
+    final requestsState = ref.watch(requestProvider);
     final offersState = ref.watch(offersProvider);
 
     final activeRequests = ref
         .watch(requestProvider.notifier)
-        .getActiveRequests("client");
+        .getActiveRequests(AppMode.clientMode);
 
     final offers = offersState.renterOffers.where(
       (r) => [OfferStatus.created, OfferStatus.viewed].contains(r.status),
@@ -80,34 +69,39 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
         },
         child: ListView(
           children: [
-            if (authSession == null)
+            if (requestsState.fetchStatus == FetchStatus.loading ||
+                (requestsState.fetchStatus == FetchStatus.refreshing &&
+                    activeRequests.isEmpty))
+              RequestTileSkeleton()
+            else if (requestsState.fetchStatus == FetchStatus.error)
               EmptyStateTile(
-                title: l10n.loginToViewRequests,
-                icon: Icons.login_outlined,
-              )
-            else if (state.isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state.error != null)
-              EmptyStateTile(
-                title: l10n.somethingWentWrong,
-                subtitle: l10n.errorLoadingRequests,
                 icon: Icons.error_outline,
+                title: l10n.errorLoadingRequests,
+                subtitle: requestsState.fetchError?.message,
               )
-            else if (activeRequests.isEmpty)
+            else if (requestsState.fetchStatus == FetchStatus.empty ||
+                (requestsState.fetchStatus == FetchStatus.success &&
+                    activeRequests.isEmpty))
               EmptyStateTile(
-                title: l10n.noActiveRequests,
-                icon: Icons.description_outlined,
+                icon: Icons.inventory_2_outlined,
+                title: l10n.noRequestsAtMoment,
+                subtitle: "You don't have any active requests at the moment",
               )
             else
               ListView.separated(
-                separatorBuilder: (context, index) => const Divider(),
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 16,
+                  endIndent: 16,
+                  color: theme.dividerColor.withValues(alpha: 0.7),
+                ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: activeRequests.length,
                 itemBuilder: (context, index) {
                   final r = activeRequests[index];
                   final requestOffers = offersByRequest[r.id] ?? [];
-
                   return RequestWithOffers(
                     request: r,
                     offers: requestOffers,

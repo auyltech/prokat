@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -36,18 +37,19 @@ class ClientEquipmentTile extends ConsumerWidget {
 
     final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(24), // Softer corners
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4), // Much softer shadow
-            blurRadius: 2,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return BaseTile(
+      padding: EdgeInsets.all(0),
+      // decoration: BoxDecoration(
+      //   color: theme.cardColor,
+      //   borderRadius: BorderRadius.circular(24), // Softer corners
+      //   boxShadow: [
+      //     BoxShadow(
+      //       color: Colors.black.withValues(alpha: 0.4), // Much softer shadow
+      //       blurRadius: 2,
+      //       offset: const Offset(0, 2),
+      //     ),
+      //   ],
+      // ),
       child: Column(
         children: [
           /// 1. IMAGE SECTION (Clean & Floating Elements)
@@ -125,10 +127,12 @@ class ClientEquipmentTile extends ConsumerWidget {
                   child: Row(
                     children: [
                       Text(
-                        priceEntry != null ? "${priceEntry.price} ₸" : "POA",
+                        priceEntry == null
+                            ? "POA"
+                            : formatPrice(priceEntry.price),
                         style: TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w500,
                           color: theme.primaryColor,
                         ),
                       ),
@@ -149,7 +153,7 @@ class ClientEquipmentTile extends ConsumerWidget {
 
           /// 2. CONTENT SECTION
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

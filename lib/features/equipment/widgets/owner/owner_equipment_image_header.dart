@@ -117,7 +117,7 @@ class _OwnerEquipmentImageHeaderState
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           _l10n.failedToUploadPhoto;
 
-      AppSnackBar.show(context, message: message, isError: true);
+      AppSnackBar.show(message: message, isError: true);
     } else {
       final count = _displayImages.length;
       if (count > 0) {
@@ -171,7 +171,7 @@ class _OwnerEquipmentImageHeaderState
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           _l10n.failedToDeletePhoto;
 
-      AppSnackBar.show(context, message: message, isError: true);
+      AppSnackBar.show(message: message, isError: true);
     }
   }
 
@@ -191,7 +191,7 @@ class _OwnerEquipmentImageHeaderState
           state.imageActionErrorByEquipmentId[widget.equipmentId] ??
           _l10n.failedToSetCoverPhoto;
 
-      AppSnackBar.show(context, message: message, isError: true);
+      AppSnackBar.show(message: message, isError: true);
     }
   }
 

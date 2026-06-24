@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -95,7 +97,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     // final double gridHeight = (rowCount * 120.0) + ((rowCount - 1) * 10.0);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: _fetchData,
         child: CustomScrollView(
@@ -178,11 +179,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             // Popular Rents Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                child: Text(
-                  l10n.popularRents,
-                  style: theme.textTheme.titleLarge,
-                ),
+                padding: EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                child: SectionTitle(title: l10n.popularRents),
               ),
             ),
 
@@ -218,7 +216,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 sliver: SliverList.separated(
                   itemCount: equipmentState.renterEquipment.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = equipmentState.renterEquipment[index];
                     return GuestEquipmentCard(item: item);
@@ -237,18 +235,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     const Spacer(),
 
                     // ─── GUEST LOGIN CALL-TO-ACTION CARD ────────────────────────────────
-                    Container(
-                      width: double.infinity,
+                    BaseTile(
+                      // width: double.infinity,
                       padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        // Smooth light color blend or subtle dark tint based on your color modes
-                        color: theme.colorScheme.primaryContainer.withAlpha(50),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withAlpha(30),
-                          width: 1,
-                        ),
-                      ),
+                      // decoration: BoxDecoration(
+                      //   // Smooth light color blend or subtle dark tint based on your color modes
+                      //   color: theme.colorScheme.primaryContainer.withAlpha(50),
+                      //   borderRadius: BorderRadius.circular(24),
+                      //   border: Border.all(
+                      //     color: theme.colorScheme.primary.withAlpha(30),
+                      //     width: 1,
+                      //   ),
+                      // ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

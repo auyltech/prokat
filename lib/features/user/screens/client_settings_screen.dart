@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/user/widgets/delete_account_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -86,12 +87,13 @@ class _SettingsSwitchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
-      ),
+    return BaseTile(
+      // decoration: BoxDecoration(
+      //   color: theme.colorScheme.surface,
+      //   borderRadius: BorderRadius.circular(14),
+      //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+      // ),
+      padding: EdgeInsets.all(0),
       child: ListTile(
         leading: Container(
           width: 50,

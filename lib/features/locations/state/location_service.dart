@@ -3,6 +3,7 @@ import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
+import 'package:prokat/core/errors/api_exception.dart';
 import '../models/location_model.dart';
 import '../models/location_search_result.dart';
 
@@ -13,27 +14,85 @@ class LocationService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<List<LocationModel>> getClientLocations({String? mode}) async {
+  Future<ApiResponse<List<LocationModel>>> getClientLocations({
+    String? mode,
+  }) async {
     try {
       final response = await _dio.get(ApiRoutes.locations);
 
-      return (response.data["data"] as List)
-          .map((e) => LocationModel.fromJson(e))
-          .toList();
-    } catch (e) {
-      return [];
+      return handleApiResponse<List<LocationModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected locations list");
+          }
+
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid location item");
+            }
+
+            return LocationModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load locations",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: error.toString(),
+      );
     }
   }
 
-  Future<List<LocationModel>> getOwnerLocations({String? mode}) async {
+  Future<ApiResponse<List<LocationModel>>> getOwnerLocations({
+    String? mode,
+  }) async {
     try {
       final response = await _dio.get(ApiRoutes.ownerLocations);
 
-      return (response.data["data"] as List)
-          .map((e) => LocationModel.fromJson(e))
-          .toList();
-    } catch (e) {
-      return [];
+      return handleApiResponse<List<LocationModel>>(
+        response: response,
+        parser: (data) {
+          if (data is! List) {
+            throw FormatException("Expected locations list");
+          }
+
+          return data.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid location item");
+            }
+
+            return LocationModel.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load locations",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: error.toString(),
+      );
     }
   }
 
@@ -73,16 +132,44 @@ class LocationService {
     }
   }
 
-  Future<LocationModel> updateLocation(
+  Future<ApiResponse<LocationModel?>> updateLocation(
     String id,
     LocationModel location,
   ) async {
-    final response = await _dio.patch(
-      '/locations/$id',
-      data: location.toJson(),
-    );
+    try {
+      final response = await _dio.patch(
+        '/locations/$id',
+        data: location.toJson(),
+      );
 
-    return LocationModel.fromJson(response.data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse.success(null, message: "Address created");
+      }
+
+      final message = extractBackendMessage(response.data);
+
+      throw Exception(message);
+    } on DioException catch (e) {
+      String message = "Something went wrong";
+
+      if (e.response?.statusCode == 400) {
+        message = "Missing or invalid information";
+      } else if (e.response?.statusCode == 500) {
+        message = "Server Error";
+      } else if (e.response?.data != null) {
+        message = extractBackendMessage(e.response?.data);
+      }
+
+      return ApiResponse.failure(
+        message: message,
+        error: e.response?.data?["error"]?.toString(),
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "CreateLocation_Unexpected_Error",
+        error: e.toString(),
+      );
+    }
   }
 
   Future<void> deleteLocation(String id) async {

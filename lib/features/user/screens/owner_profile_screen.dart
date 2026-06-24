@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
@@ -56,8 +57,6 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         .length;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: const Color.fromARGB(255, 240, 240, 240),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
@@ -67,6 +66,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         },
         child: CustomScrollView(
           slivers: [
+            // Page Header
             SliverAppBar(
               pinned: true,
               elevation: 0,
@@ -88,6 +88,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
               ],
             ),
 
+            // Owner Profile
             SliverAppBar(
               expandedHeight: 200,
               pinned: false,
@@ -132,15 +133,40 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
                     const BalanceTile(),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
-                    _MenuSection(l10n: l10n),
+                    _MenuItem(
+                      iconData: Icons.assignment_turned_in_outlined,
+                      iconBgColor: const Color(0xFFE1F5EE),
+                      iconColor: const Color(0xFF0D5F5C),
+                      label: l10n.registrationStatus,
+                      subtitle: "Fully verified · Expires 2025",
+                      onTap: () => context.push(AppRoutes.ownerRegistration),
+                    ),
+                    const SizedBox(height: 10),
+                    _MenuItem(
+                      iconData: Icons.settings_outlined,
+                      iconBgColor: const Color(0xFFE6F1FB),
+                      iconColor: const Color(0xFF185FA5),
+                      label: l10n.appSettings,
+                      subtitle: l10n.appSettingsSubtitle,
+                      onTap: () => context.push(AppRoutes.ownerSettings),
+                    ),
+                    const SizedBox(height: 10),
+                    _MenuItem(
+                      iconData: Icons.help_outline,
+                      iconBgColor: const Color(0xFFF1EFE8),
+                      iconColor: const Color(0xFF5F5E5A),
+                      label: l10n.helpSupportTitle,
+                      subtitle: l10n.helpFaqsSubtitle,
+                      onTap: () => context.push(AppRoutes.helpSupport),
+                    ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     const RentAnEquipmentTile(),
                   ],
@@ -254,13 +280,13 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    return BaseTile(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
-      ),
+      // decoration: BoxDecoration(
+      //   color: theme.cardColor,
+      //   borderRadius: BorderRadius.circular(14),
+      //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
+      // ),
       child: Row(
         children: [
           Icon(icon, size: 32, color: theme.colorScheme.onSurface),
@@ -292,47 +318,6 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// ── Menu items ──
-
-class _MenuSection extends StatelessWidget {
-  final AppLocalizations l10n;
-  const _MenuSection({required this.l10n});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _MenuItem(
-          iconData: Icons.assignment_turned_in_outlined,
-          iconBgColor: const Color(0xFFE1F5EE),
-          iconColor: const Color(0xFF0D5F5C),
-          label: l10n.registrationStatus,
-          subtitle: "Fully verified · Expires 2025",
-          onTap: () => context.push(AppRoutes.ownerRegistration),
-        ),
-        const SizedBox(height: 10),
-        _MenuItem(
-          iconData: Icons.settings_outlined,
-          iconBgColor: const Color(0xFFE6F1FB),
-          iconColor: const Color(0xFF185FA5),
-          label: l10n.appSettings,
-          subtitle: l10n.appSettingsSubtitle,
-          onTap: () => context.push(AppRoutes.ownerSettings),
-        ),
-        const SizedBox(height: 10),
-        _MenuItem(
-          iconData: Icons.help_outline,
-          iconBgColor: const Color(0xFFF1EFE8),
-          iconColor: const Color(0xFF5F5E5A),
-          label: l10n.helpSupportTitle,
-          subtitle: l10n.helpFaqsSubtitle,
-          onTap: () => context.push(AppRoutes.helpSupport),
-        ),
-      ],
-    );
-  }
-}
-
 class _MenuItem extends StatelessWidget {
   final IconData iconData;
   final Color iconBgColor;
@@ -356,13 +341,8 @@ class _MenuItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
-      child: Container(
+      child: BaseTile(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
-        ),
         child: Row(
           children: [
             Container(

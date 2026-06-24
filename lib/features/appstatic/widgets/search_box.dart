@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
 class SearchBox extends ConsumerStatefulWidget {
@@ -48,13 +49,13 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.7)),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return BaseTile(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      // decoration: BoxDecoration(
+      //   color: theme.cardColor,
+      //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.7)),
+      //   borderRadius: BorderRadius.circular(16),
+      // ),
       child: TextField(
         controller: _searchController,
         onChanged: _onChange,
@@ -66,7 +67,7 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
           ),
           icon: Icon(
             Icons.tune_rounded,
-            size: 20,
+            size: 24,
             color: theme.colorScheme.primary,
           ),
           suffixIcon: IconButton(

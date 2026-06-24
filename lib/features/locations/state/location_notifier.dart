@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import '../models/location_model.dart';
@@ -17,90 +19,204 @@ class LocationNotifier extends StateNotifier<LocationState> {
     state = state.copyWith(city: city);
   }
 
+  void _startAction(String actionId) {
+    state = state.copyWith(
+      activeActions: {
+        ...state.activeActions,
+        Mutation(id: actionId, status: MutationStatus.submitting),
+      },
+    );
+  }
+
+  void _finishAction(String actionId, {AppError? error}) {
+    final actions = {...state.activeActions};
+
+    if (error == null) {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+    } else {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+
+      final action = Mutation(
+        id: actionId,
+        status: MutationStatus.error,
+        error: error,
+      );
+
+      actions.add(action);
+    }
+
+    state = state.copyWith(activeActions: actions);
+  }
+
+  bool isActionActive(String actionId) {
+    return state.activeActions.contains(
+      Mutation(id: actionId, status: MutationStatus.submitting),
+    );
+  }
+
   // Fetch user Addresses
   Future<void> getClientLocations() async {
     try {
-      state = state.copyWith(isLoading: true);
-
-      final renterLocations = await api.getClientLocations(mode: "ADDRESS");
+      final hasData = state.clientLocations.isNotEmpty;
 
       state = state.copyWith(
-        renterLocations: renterLocations,
-        isLoading: false,
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+
+      final result = await api.getClientLocations(mode: "ADDRESS");
+
+      state = state.copyWith(
+        clientLocations: result.data,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "LOCATIONS_FETCH_FAILED",
+              ),
+      );
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.clientLocations.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "LOCATIONS_FETCH_FAILED",
+        ),
+      );
     }
   }
 
   // Fetch owner equipment locations
   Future<void> getOwnerLocations() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.ownerLocations.isNotEmpty;
 
-      final ownerLocations = await api.getOwnerLocations();
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
-      state = state.copyWith(ownerLocations: ownerLocations, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      final result = await api.getOwnerLocations();
+
+      state = state.copyWith(
+        ownerLocations: result.data,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "BOOKING_FETCH_FAILED",
+              ),
+      );
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.ownerLocations.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "BOOKING_FETCH_FAILED",
+        ),
+      );
     }
   }
 
   // Create new location
   Future<bool> createLocation(LocationModel location) async {
+    const actionId = "location:create";
     try {
-      state = state.copyWith(isLoading: true);
+      _startAction(actionId);
 
       final result = await api.createLocation(location);
 
-      if (result.success) {
-        state = state.copyWith(isLoading: false);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
+      if (result.success) {
         if (location.service == "EQUIPMENT") {
-          await ref.read(equipmentProvider.notifier).getOwnerEquipment();
+          ref.read(equipmentProvider.notifier).getOwnerEquipment();
+        } else {
+          getClientLocations();
         }
 
-        await getClientLocations();
-
-        if (location.service == "ADDRESS" && state.renterLocations.isNotEmpty) {
-          selectAddress(state.renterLocations[0]);
+        if (location.service == "ADDRESS" && state.clientLocations.isNotEmpty) {
+          selectAddress(state.clientLocations[0]);
         }
 
         return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
       }
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+
+      return false;
+    } catch (error) {
+      _finishAction(actionId);
+
       return false;
     }
   }
 
   // Update location
-  Future<void> updateLocation(String id, LocationModel location) async {
+  Future<bool> updateLocation(String id, LocationModel location) async {
+    final actionId = "location:$id:create";
     try {
-      await api.updateLocation(id, location);
+      _startAction(actionId);
+
+      final result = await api.updateLocation(id, location);
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (location.service == "ADDRESS") {
-        await getClientLocations();
+        getClientLocations();
       } else {
-        await getOwnerLocations();
+        getOwnerLocations();
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(actionId);
+
+      return false;
     }
   }
 
   // Delete location
   Future<void> deleteLocation(String id) async {
-    try {
-      await api.deleteLocation(id);
+    await api.deleteLocation(id);
 
-      await getClientLocations();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await getClientLocations();
   }
 
   Future<void> searchLocations(String query) async {
@@ -113,9 +229,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
       final results = await api.searchLocation(query);
 
       state = state.copyWith(suggestions: results);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    } catch (e) {}
   }
 
   void clearSuggestions() {
@@ -127,7 +241,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 
   void selectAddressById(String? addressId) {
-    final foundAddress = state.renterLocations
+    final foundAddress = state.clientLocations
         .where((item) => item.id == addressId)
         .firstOrNull;
 

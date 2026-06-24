@@ -31,7 +31,7 @@ class OfferChatActionController {
 
     await Future.wait([
       bookingNotifier.getOwnerBookings(),
-      bookingNotifier.getUserBookings(),
+      bookingNotifier.getClientBookings(),
       offersNotifier.getOwnerOffers(),
       offersNotifier.getClientOffers(),
     ]);
@@ -47,15 +47,17 @@ class OfferChatActionController {
     try {
       await ref
           .read(priceNegotiationProvider.notifier)
-          .respondToPriceNegotiation(negotiationId: negotiationId, response: response);
+          .respondToPriceNegotiation(
+            negotiationId: negotiationId,
+            response: response,
+          );
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
       if (!context.mounted) return;
-      AppSnackBar.show(context, message: 'Saved', isSuccess: true);
+      AppSnackBar.show(message: 'Saved', isSuccess: true);
     } catch (e) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: e.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
@@ -75,11 +77,10 @@ class OfferChatActionController {
       await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
 
       if (!context.mounted) return;
-      AppSnackBar.show(context, message: 'Saved', isSuccess: true);
+      AppSnackBar.show(message: 'Saved', isSuccess: true);
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
@@ -98,7 +99,6 @@ class OfferChatActionController {
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
@@ -117,7 +117,6 @@ class OfferChatActionController {
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
@@ -136,7 +135,6 @@ class OfferChatActionController {
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
@@ -155,7 +153,6 @@ class OfferChatActionController {
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );
@@ -174,7 +171,6 @@ class OfferChatActionController {
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
-        context,
         message: error.toString().replaceFirst('Exception: ', ''),
         isError: true,
       );

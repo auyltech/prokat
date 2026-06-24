@@ -47,25 +47,13 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
       if (result == true && mounted) {
         context.pop();
-        AppSnackBar.show(
-          context,
-          message: l10n.equipmentAdded,
-          isSuccess: true,
-        );
+        AppSnackBar.show(message: l10n.equipmentAdded, isSuccess: true);
       } else if (mounted) {
-        AppSnackBar.show(
-          context,
-          message: l10n.couldNotAddEquipment,
-          isError: true,
-        );
+        AppSnackBar.show(message: l10n.couldNotAddEquipment, isError: true);
       }
     } catch (error) {
       if (mounted) {
-        AppSnackBar.show(
-          context,
-          message: l10n.somethingWentWrong,
-          isError: true,
-        );
+        AppSnackBar.show(message: l10n.somethingWentWrong, isError: true);
       }
     } finally {
       if (mounted) setState(() => _loading = false);

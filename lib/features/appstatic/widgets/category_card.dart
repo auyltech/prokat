@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/categories/models/category.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -19,18 +20,9 @@ class CategoryCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            width: isSelected ? 1.5 : 1,
-            color: isSelected
-                ? theme.primaryColor.withValues(alpha: 0.6)
-                : theme.dividerColor.withValues(alpha: 0.2),
-          ),
-        ),
+      child: BaseTile(
+        width: 140,
+        borderColor: isSelected ? theme.primaryColor : null,
         child: Column(
           children: [
             Expanded(

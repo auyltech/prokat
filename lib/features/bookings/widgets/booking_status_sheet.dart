@@ -63,7 +63,7 @@ class BookingStatusSheet extends ConsumerWidget {
                     status == WorkStatus.cancelled ||
                     status == WorkStatus.stopped,
                 onTap: () async {
-                  final res = await notifier.updateBookingWorkStatus(
+                  final result = await notifier.updateBookingWorkStatus(
                     id: booking.id,
                     workStatus: status.name,
                   );
@@ -77,19 +77,13 @@ class BookingStatusSheet extends ConsumerWidget {
 
                   Navigator.pop(context);
 
-                  if (res) {
-                    AppSnackBar.show(
-                      context,
-                      message: l10n.statusUpdated,
-                      isSuccess: true,
-                    );
-                  } else {
-                    AppSnackBar.show(
-                      context,
-                      message: l10n.failedSaveStatus,
-                      isError: true,
-                    );
-                  }
+                  AppSnackBar.show(
+                    message: result
+                        ? l10n.statusUpdated
+                        : l10n.failedSaveStatus,
+                    isSuccess: result,
+                    isError: !result,
+                  );
                 },
               );
             }),
@@ -137,9 +131,7 @@ class _StatusTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Expanded(
-              child: Text(label, style: theme.textTheme.bodyMedium),
-            ),
+            Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
             Icon(
               Icons.arrow_forward_ios,
               size: 14,

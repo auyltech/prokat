@@ -188,17 +188,17 @@ void _showCancelConfirmation(
           onPressed: () async {
             Navigator.pop(context);
 
-            final res = await ref
+            final result = await ref
                 .read(requestProvider.notifier)
                 .cancelRequest(requestId);
 
-            if (res == true && context.mounted) {
-              AppSnackBar.show(
-                context,
-                message: l10n.requestCancelled,
-                isSuccess: true,
-              );
-            }
+            AppSnackBar.show(
+              message: result
+                  ? l10n.requestCancelled
+                  : "Failed to cancel request",
+              isSuccess: result,
+              isError: !result,
+            );
           },
           child: Text(
             l10n.yesCancel,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -18,7 +19,6 @@ import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/utils/date_time.dart';
 
 class CreateBookingScreen extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -46,16 +46,42 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   TimeOfDay? selectedTime;
 
   Future<void> onSubmit() async {
+    final bookingState = ref.read(bookingProvider);
+    String message = "";
+
+    if (bookingState.selectedEquipment == null) {
+      message = "Please select equipment";
+    } else if (bookingState.selectedPriceEntry == null) {
+      message = "Please select price";
+    } else if (bookingState.selectedLocation == null) {
+      message = "Please select location";
+    } else if (bookingState.selectedDate == null) {
+      message = "Please select date";
+    } else if (bookingState.selectedTime == null) {
+      message = "Please select time";
+    }
+
+    if (message.isNotEmpty) {
+      AppSnackBar.show(message: message, isSuccess: false, isError: true);
+
+      return;
+    }
+
     final result = await ref.read(bookingProvider.notifier).createBooking();
 
-    if (mounted) {
-      AppSnackBar.show(
-        context,
-        message: result ? "Order created" : "Failed to create order",
-        isSuccess: result,
-        isError: !result,
-      );
+    final action = bookingState.activeActions
+        .where((item) => item.id == "booking:create")
+        .firstOrNull;
 
+    if (action?.status == MutationStatus.error) {
+      message = action?.error?.message ?? "Failed to create order";
+    } else if (action?.status == MutationStatus.success || action == null) {
+      message = "Order created";
+    }
+
+    AppSnackBar.show(message: message, isSuccess: result, isError: !result);
+
+    if (mounted) {
       if (result) context.push(AppRoutes.clientOrders);
     }
   }
@@ -99,16 +125,19 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         bookingState.selectedDate != null &&
         bookingState.selectedTime != null;
 
+    final action = bookingState.activeActions
+        .where((item) => item.id == "booking:create")
+        .firstOrNull;
+
+    final isSubmitting = action == null
+        ? false
+        : action.status == MutationStatus.submitting;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: ListView(
         children: [
-          if (authSession == null)
-            _buildCenteredFallback(
-              icon: Icons.login_outlined,
-              message: l10n.loginToBook,
-            )
-          else if (equipment == null)
+          if (equipment == null)
             _buildCenteredFallback(
               icon: Icons.login_outlined,
               message: l10n.equipmentNotFound,
@@ -125,11 +154,11 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Favorite Button, equipment Name, model, owner
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Favorite Button, equipment Name, model, owner
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -152,8 +181,6 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                   overflow: TextOverflow
                                       .ellipsis, // Clips extra text with "..."
                                 ),
-
-                                UserInfoTile(user: equipment.owner),
                               ],
                             ),
                           ),
@@ -183,11 +210,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         ],
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
+
+                      UserInfoTile(user: equipment.owner),
+
+                      const SizedBox(height: 12),
 
                       /// Pricing
                       SectionTitle(title: l10n.servicePlan),
-                      const SizedBox(height: 6),
+
+                      const SizedBox(height: 12),
 
                       Wrap(
                         spacing: 10,
@@ -243,11 +275,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         }),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       /// Address & Schedule
-                      SectionTitle(title: l10n.addressAndSchedule),
-                      const SizedBox(height: 6),
+                      SectionTitle(title: l10n.address),
+
+                      const SizedBox(height: 12),
 
                       AddressPickerCard(
                         selectedAddress: selectedAddress,
@@ -263,13 +296,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       DatePickerComponent(
                         daysRange: 7, // Pass your dynamic 'x' range here
                         isRequired: true, // Shows indicator text
-                        selectedDate:
-                            bookingState.selectedDate ?? initialTargetDateTime,
+                        selectedDate: bookingState.selectedDate,
                         onDateSelected: (date) {
                           bookingNotifier.setDate(date);
                         },
@@ -280,8 +312,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         startHour: 9, // Start at 09:00
                         endHour: 17, // End at 17:00
                         isRequired: true,
-                        selectedDateTime:
-                            bookingState.selectedTime ?? initialTargetDateTime,
+                        selectedDateTime: bookingState.selectedTime,
                         onTimeSelected: (updatedDateTime) {
                           bookingNotifier.setTime(
                             updatedDateTime,
@@ -289,11 +320,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         },
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
 
                       /// 4. ADDITIONAL NOTES
                       SectionTitle(title: l10n.noteToOperator),
-                      const SizedBox(height: 6),
+
+                      const SizedBox(height: 12),
 
                       TextField(
                         maxLines: 3,
@@ -333,15 +365,17 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 40),
 
                       PrimaryButton(
                         label: "Place Order",
-                        onPressed: (!canSubmit || bookingState.isSubmitting)
+                        onPressed: (!canSubmit || isSubmitting)
                             ? null
                             : onSubmit,
-                        isLoading: bookingState.isSubmitting,
+                        isLoading: isSubmitting,
                       ),
+
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),

@@ -82,6 +82,7 @@ String formatPrice(dynamic price) {
 
   // Custom pattern using space as a separator
   final formatter = NumberFormat("#,###", "en_US");
+
   String formatted = formatter.format(number).replaceAll(',', ',');
 
   return "₸ $formatted";

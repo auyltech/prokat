@@ -47,10 +47,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
     final langDisplay = LocaleNotifier.displayCode(locale);
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 240, 240, 240),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
+            // User Profile
             SliverAppBar(
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
               expandedHeight: 250,
@@ -79,8 +79,11 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                               userProfileState.userProfile?.profileImageUrl ??
                               "",
                         ),
+
                         SizedBox(height: 8),
+
                         const DisplayName(),
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -97,7 +100,9 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                                 color: theme.colorScheme.onPrimary,
                               ),
                             ),
+
                             const SizedBox(width: 8),
+
                             Text(
                               "- ${userProfileState.userProfile?.orderCount ?? 0} orders",
                               style: theme.textTheme.labelMedium?.copyWith(
@@ -123,10 +128,11 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                   children: [
                     // const LanguageSelectorTile(),
                     const SizedBox(height: 20),
+
                     UserProfileTile(
                       icon: Icons.phone_android_rounded,
                       iconColor: Colors.black,
-                      iconBgColor: Colors.black.withValues(alpha: 0.08),
+                      iconBgColor: Colors.black.withValues(alpha: 0.06),
                       label: l10n.phoneNumber,
                       value:
                           userProfileState.userProfile?.phoneNumber ??
@@ -140,7 +146,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     UserProfileTile(
                       icon: LucideIcons.globe,
                       iconColor: Colors.deepOrange,
-                      iconBgColor: Colors.deepOrange.withValues(alpha: 0.08),
+                      iconBgColor: Colors.deepOrange.withValues(alpha: 0.06),
                       label: "App Language",
                       value: langDisplay,
                       onTap: () => showLanguageSheet(context),

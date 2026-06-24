@@ -89,13 +89,9 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
           : "${AppRoutes.equipment}/${widget.equipmentId}";
 
       context.push(url);
-      AppSnackBar.show(context, message: _l10n.addressCreated, isSuccess: true);
+      AppSnackBar.show(message: _l10n.addressCreated, isSuccess: true);
     } else {
-      AppSnackBar.show(
-        context,
-        message: _l10n.failedCreateAddress,
-        isError: true,
-      );
+      AppSnackBar.show(message: _l10n.failedCreateAddress, isError: true);
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -16,7 +17,6 @@ class GuestCategorySection extends ConsumerStatefulWidget {
 class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final categoriesState = ref.watch(categoriesProvider);
@@ -31,20 +31,13 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
         : 0.0;
 
     return Container(
-      color: theme
-          .scaffoldBackgroundColor, // Ensures scrolling items underneath don't blend
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           // Services Header Title
-          Text(
-            l10n.services,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          SectionTitle(title: l10n.services),
 
           const SizedBox(height: 12),
 

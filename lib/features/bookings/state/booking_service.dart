@@ -5,14 +5,14 @@ import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 
-class BookingApiService {
+class BookingService {
   final ApiClient apiClient;
 
-  BookingApiService(this.apiClient);
+  BookingService(this.apiClient);
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<BookingModel>>> getUserBookings() async {
+  Future<ApiResponse<List<BookingModel>>> getClientBookings() async {
     try {
       final response = await _dio.get("/bookings");
 
@@ -43,10 +43,10 @@ class BookingApiService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }
@@ -108,10 +108,10 @@ class BookingApiService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }

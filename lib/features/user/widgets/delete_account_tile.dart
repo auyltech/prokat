@@ -71,7 +71,6 @@ class _DeleteAccountTileState extends State<DeleteAccountTile>
 
   void _executeAccountDeletionSequence(BuildContext context) {
     AppSnackBar.show(
-      context,
       message: "Please contact support to process deleting your account",
     );
   }

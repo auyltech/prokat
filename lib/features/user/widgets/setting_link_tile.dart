@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 
 class SettingsLinkTile extends StatelessWidget {
   final IconData icon;
@@ -24,13 +26,13 @@ class SettingsLinkTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: BaseTile(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
-        ),
+        // decoration: BoxDecoration(
+        //   color: theme.colorScheme.surface,
+        //   borderRadius: BorderRadius.circular(14),
+        //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
+        // ),
         child: Row(
           children: [
             Container(
@@ -47,7 +49,7 @@ class SettingsLinkTile extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
 
             Expanded(
               child: Column(
@@ -56,7 +58,7 @@ class SettingsLinkTile extends StatelessWidget {
                   Text(
                     title,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
 
@@ -65,8 +67,9 @@ class SettingsLinkTile extends StatelessWidget {
                       subtitle!,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.textTheme.bodyMedium?.color?.withValues(
-                          alpha: 0.7,
+                          alpha: 0.6,
                         ),
+                        fontSize: 14,
                       ),
                     ),
                 ],
@@ -74,8 +77,8 @@ class SettingsLinkTile extends StatelessWidget {
             ),
 
             Icon(
-              Icons.chevron_right,
-              size: 32,
+              LucideIcons.chevronRight,
+              size: 20,
               color: theme.colorScheme.onSurface,
             ),
           ],
