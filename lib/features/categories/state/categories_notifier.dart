@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_service.dart';
 import 'package:prokat/features/categories/state/categories_state.dart';
@@ -37,20 +39,30 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
 
   Future<void> getCategories() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.categories.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getCategories();
 
       state = state.copyWith(
-        isLoading: false,
         categories: result.data,
-        error: result.success ? null : result.message,
-        isSuccess: (result.success && result.data?.isNotEmpty == true)
-            ? true
-            : false,
-        lastSuccess: (result.success && result.data?.isNotEmpty == true)
-            ? DateTime.now()
-            : null,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "CATEGORY_FETCH_FAILED",
+              ),
       );
 
       if (result.success) {
@@ -61,12 +73,16 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
 
         selectCategoryById(selectedCategoryId);
       }
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-        isSuccess: false,
-        lastSuccess: null,
+        fetchStatus: state.categories.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "CATEGORY_FETCH_FAILED",
+        ),
       );
     }
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
@@ -112,9 +113,10 @@ class _OwnerEquipmentImageHeaderState
     if (!mounted) return;
 
     if (!ok) {
-      final state = ref.read(equipmentProvider);
       final message =
-          state.imageActionErrorByEquipmentId[widget.equipmentId] ??
+          ref
+              .read(equipmentProvider.notifier)
+              .getActionError("equipment:image:create") ??
           _l10n.failedToUploadPhoto;
 
       AppSnackBar.show(message: message, isError: true);
@@ -166,9 +168,12 @@ class _OwnerEquipmentImageHeaderState
     if (!mounted) return;
 
     if (!ok) {
-      final state = ref.read(equipmentProvider);
+      final id = image.id;
+
       final message =
-          state.imageActionErrorByEquipmentId[widget.equipmentId] ??
+          ref
+              .read(equipmentProvider.notifier)
+              .getActionError("equipment:image:delete:$id") ??
           _l10n.failedToDeletePhoto;
 
       AppSnackBar.show(message: message, isError: true);
@@ -186,9 +191,12 @@ class _OwnerEquipmentImageHeaderState
     if (!mounted) return;
 
     if (!ok) {
-      final state = ref.read(equipmentProvider);
+      final id = image.id;
+
       final message =
-          state.imageActionErrorByEquipmentId[widget.equipmentId] ??
+          ref
+              .read(equipmentProvider.notifier)
+              .getActionError("equipment:image:delete:$id") ??
           _l10n.failedToSetCoverPhoto;
 
       AppSnackBar.show(message: message, isError: true);
@@ -225,9 +233,18 @@ class _OwnerEquipmentImageHeaderState
     final colorScheme = theme.colorScheme;
 
     final state = ref.watch(equipmentProvider);
-    final isBusy = state.imageActionInProgressEquipmentIds.contains(
-      widget.equipmentId,
-    );
+
+    final actionId = "equipment:image";
+
+    final isBusy =
+        state.activeActions
+            .where(
+              (item) =>
+                  item.id.contains(actionId) &&
+                  item.status != MutationStatus.submitting,
+            )
+            .firstOrNull !=
+        null;
 
     final images = _displayImages;
     final canAddMore = images.length < 5;

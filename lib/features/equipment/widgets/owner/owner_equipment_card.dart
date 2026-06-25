@@ -7,7 +7,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_status_badge.dart';
-import 'package:prokat/features/equipment/widgets/owner/online_toggle.dart';
+import 'package:prokat/features/equipment/widgets/online_toggle.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentCard extends ConsumerWidget {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
@@ -44,11 +46,13 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
 
         SizedBox(height: 8),
 
-        if (categoriesState.isLoading)
+        if (categoriesState.fetchStatus == FetchStatus.initial ||
+            categoriesState.fetchStatus == FetchStatus.loading)
           const CategoryRowSkeleton()
-        else if (categoriesState.error != null)
+        else if (categoriesState.fetchError != null)
           const EmptyStateTile(
-            title: "Error",
+            icon: LucideIcons.router,
+            title: "Error Loading Services",
             subtitle: "Could not load services",
           )
         else if (categoriesState.categories.isEmpty)

@@ -49,6 +49,7 @@ class LogoutButton extends ConsumerWidget {
     );
 
     if (confirm != true) return;
+
     await ref.read(appStartupProvider.notifier).forceSignedOut();
   }
 

@@ -67,6 +67,7 @@ class HeroBanner extends StatelessWidget {
                     selectedCity.isNotEmpty ? selectedCity : l10n.allLocations,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
+
                   const SizedBox(width: 4),
                   const Icon(
                     Icons.keyboard_arrow_down,

@@ -7,7 +7,7 @@ import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
-import 'package:prokat/features/equipment/widgets/sheets/equipment_details_sheet.dart';
+import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends ConsumerStatefulWidget {

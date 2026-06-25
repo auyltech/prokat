@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -85,26 +84,30 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
           const SizedBox(height: 16),
 
-          Column(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InfoTile(
-                icon: Icons.map_outlined,
-                value: request.location.street,
-                onTap: () => showLocationSheet(context, request.location),
+              Expanded(
+                child: InfoTile(
+                  label: l10n.location,
+                  value: request.location.street,
+                  onTap: () {
+                    final location = request.location;
+
+                    showLocationSheet(context, location);
+                  },
+                  icon: Icons.map_outlined,
+                ),
               ),
 
-              const SizedBox(
-                height: 12,
-              ), // Changed from width to height for vertical spacing
+              const SizedBox(width: 16),
 
-              InfoTile(
-                icon: Icons.timelapse,
-                value: request.requiredOn != null
-                    ? DateFormat(
-                        'dd MMM yyyy • HH:mm',
-                      ).format(request.requiredOn!)
-                    : "PENDING",
+              Expanded(
+                child: InfoTile(
+                  icon: Icons.timelapse,
+                  label: "Date & Time",
+                  value: formatDateTime(request.requiredOn, request.requiredAt),
+                ),
               ),
             ],
           ),

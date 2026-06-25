@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart'; // 1. Import GoRouter
-import 'package:prokat/core/router/app_routes.dart'; // 2. Update with your actual AppRoutes path
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class NotificationBadge extends ConsumerStatefulWidget {
   const NotificationBadge({super.key});
@@ -28,7 +29,7 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
 
     if (count <= 0) {
       badgeContent = const Icon(
-        Icons.notifications_rounded,
+        LucideIcons.bellRing,
         size: 28,
         color: Colors.white,
       );

@@ -18,10 +18,6 @@ class BookingNotifier extends StateNotifier<BookingState> {
   BookingNotifier({required this.api, required this.ref})
     : super(BookingState());
 
-  /// -------------------------
-  /// LOCAL DRAFT MANAGEMENT
-  /// -------------------------
-
   void selectEquipment(Equipment equipment) {
     state = state.copyWith(selectedEquipment: equipment);
   }
@@ -233,7 +229,14 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       return result.success;
     } catch (error) {
-      _finishAction(actionId);
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create booking",
+          code: "",
+        ),
+      );
 
       return false;
     }
@@ -287,7 +290,14 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       return result.success;
     } catch (error) {
-      _finishAction(actionId);
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create booking",
+          code: "",
+        ),
+      );
       return false;
     }
   }
@@ -325,7 +335,14 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       return result.success;
     } catch (error) {
-      _finishAction(actionId);
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create booking",
+          code: "",
+        ),
+      );
       return false;
     }
   }

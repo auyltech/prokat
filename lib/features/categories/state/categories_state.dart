@@ -1,12 +1,15 @@
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/categories/models/category.dart';
 
 class CategoryState {
-  final bool isLoading;
+  final FetchStatus fetchStatus;
+  final PaginationStatus paginationStatus;
 
-  final bool? isSuccess;
-  final DateTime? lastSuccess;
+  final DateTime? lastFetchedAt;
+  final AppError? fetchError;
 
-  final String? error;
+  final Set<Mutation> activeActions;
 
   final List<Category> categories;
   final Category? selectedCategory;
@@ -14,29 +17,34 @@ class CategoryState {
   final bool? showSelect;
 
   CategoryState({
-    this.isLoading = false,
-    this.isSuccess = false,
-    this.lastSuccess,
-    this.error,
+    this.fetchStatus = FetchStatus.initial,
+    this.paginationStatus = PaginationStatus.idle,
+    this.lastFetchedAt,
+    this.fetchError,
+    this.activeActions = const {},
+
     this.selectedCategory,
     this.showSelect,
     this.categories = const [],
   });
 
   CategoryState copyWith({
-    bool? isLoading,
-    bool? isSuccess,
-    DateTime? lastSuccess,
-    String? error,
+    FetchStatus? fetchStatus,
+    PaginationStatus? paginationStatus,
+    DateTime? lastFetchedAt,
+    AppError? fetchError,
+    Set<Mutation>? activeActions,
     List<Category>? categories,
     Category? selectedCategory,
     bool? showSelect,
   }) {
     return CategoryState(
-      isLoading: isLoading ?? this.isLoading,
-      isSuccess: isSuccess ?? this.isSuccess,
-      lastSuccess: lastSuccess ?? this.lastSuccess,
-      error: error,
+      fetchStatus: fetchStatus ?? this.fetchStatus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
+      lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
+      fetchError: fetchError,
+      activeActions: activeActions ?? this.activeActions,
+
       categories: categories ?? this.categories,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       showSelect: showSelect ?? this.showSelect,

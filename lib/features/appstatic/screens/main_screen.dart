@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
+import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -27,7 +29,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Timer? _debounce;
 
   Future<void> _fetchData() async {
-    final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
+    final state = ref.read(categoriesProvider);
+    final notifier = ref.read(categoriesProvider.notifier);
+
+    final categoryId = state.selectedCategory?.id;
     final city = ref.read(locationProvider).city;
 
     ref
@@ -35,8 +40,19 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         .getClientEquipment(categoryId: categoryId, city: city);
 
     // Fetch Categories only once
-    if (ref.read(categoriesProvider).isSuccess != true) {
-      ref.read(categoriesProvider.notifier).getCategories();
+    if (state.fetchStatus == FetchStatus.initial ||
+        state.fetchStatus == FetchStatus.error) {
+      notifier.getCategories();
+      return;
+    }
+
+    // Optional stale refresh
+    if (state.lastFetchedAt != null) {
+      final age = DateTime.now().difference(state.lastFetchedAt!);
+
+      if (age.inMinutes >= 5) {
+        notifier.getCategories();
+      }
     }
   }
 
@@ -45,7 +61,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     super.initState();
 
     Future.microtask(() {
-      // _fetchData();
+      _fetchData();
 
       ref.listenManual(
         categoriesProvider.select((s) => s.selectedCategory?.id),
@@ -85,16 +101,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final categoriesState = ref.watch(categoriesProvider);
 
     final selectedCategory = categoriesState.selectedCategory;
-    final selectedCity = locationState.city ?? "All Locations";
+    final selectedCity = locationState.city ?? "";
 
     const Color darkBlueBg = Color(0xFF071D49);
     const Color brightBlueButton = Color(0xFF2563EB);
-
-    // const int columns = 3;
-    // final int rowCount = (categoriesState.categories.length / columns).ceil();
-
-    // Explicit double calculations to fix typing warnings
-    // final double gridHeight = (rowCount * 120.0) + ((rowCount - 1) * 10.0);
 
     return Scaffold(
       body: RefreshIndicator(
@@ -184,25 +194,24 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
-            if (equipmentState.isLoading &&
-                equipmentState.renterEquipment.isEmpty)
+            if (equipmentState.isLoading && !equipmentState.hasData)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: EmptyStateTile(title: l10n.loading),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: EquipmentListSkeleton(),
                 ),
               )
-            else if (equipmentState.error != null)
+            else if (equipmentState.fetchError != null)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   child: EmptyStateTile(title: l10n.loadEquipmentErrorHint),
                 ),
               )
-            else if (equipmentState.renterEquipment.isEmpty)
+            else if (equipmentState.clientEquipment.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
                   child: EmptyStateTile(
                     icon: Icons.deselect_outlined,
                     title:
@@ -214,11 +223,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverList.separated(
-                  itemCount: equipmentState.renterEquipment.length,
+                  itemCount: equipmentState.clientEquipment.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final item = equipmentState.renterEquipment[index];
+                    final item = equipmentState.clientEquipment[index];
                     return GuestEquipmentCard(item: item);
                   },
                 ),

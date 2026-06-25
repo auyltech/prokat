@@ -57,7 +57,7 @@ class ClientEquipmentTile extends ConsumerWidget {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
+                  top: Radius.circular(16),
                 ),
                 child: OptimizedNetworkImage(
                   imageUrl: equipment.imageUrl ?? "",

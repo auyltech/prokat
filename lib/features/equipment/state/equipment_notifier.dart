@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -22,6 +24,53 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
   void selectEditEquipment(Equipment equipment) {
     state = state.copyWith(editEquipment: equipment);
+  }
+
+  void _startAction(String actionId) {
+    state = state.copyWith(
+      activeActions: {
+        ...state.activeActions,
+        Mutation(id: actionId, status: MutationStatus.submitting),
+      },
+    );
+  }
+
+  void _finishAction(String actionId, {AppError? error}) {
+    final actions = {...state.activeActions};
+
+    if (error == null) {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+    } else {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+
+      final action = Mutation(
+        id: actionId,
+        status: MutationStatus.error,
+        error: error,
+      );
+
+      actions.add(action);
+    }
+
+    state = state.copyWith(activeActions: actions);
+  }
+
+  bool isActionActive(String actionId) {
+    final foundAction = state.activeActions
+        .where((item) => item.id == actionId)
+        .firstOrNull;
+
+    return foundAction == null
+        ? false
+        : foundAction.status == MutationStatus.submitting;
+  }
+
+  String? getActionError(String actionId) {
+    final foundAction = state.activeActions
+        .where((item) => item.id == actionId)
+        .firstOrNull;
+
+    return foundAction?.error?.message;
   }
 
   List<Equipment> _sortEquipment(List<Equipment> list) {
@@ -60,40 +109,87 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   }
 
   Future<void> getOwnerEquipment() async {
-    state = state.copyWith(isLoading: true, error: null);
-
     try {
+      final hasData = state.ownerEquipment.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
+
       final result = await api.getOwnerEquipment();
 
       state = state.copyWith(
-        ownerEquipment: _sortEquipment(result.data ?? []),
-        isLoading: false,
+        ownerEquipment: result.success
+            ? _sortEquipment(result.data ?? [])
+            : state.ownerEquipment,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "EQUIPMENT_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.ownerEquipment.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "EQUIPMENT_FETCH_FAILED",
+        ),
+      );
     }
   }
 
   Future<void> getOwnerEquipmentById(String id) async {
-    state = state.copyWith(isLoading: true, error: null);
-
     try {
+      final hasData = state.ownerEquipment.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
+
       final result = await api.getOwnerEquipmentById(id);
 
-      if (result.success) {
-        state = state.copyWith(editEquipment: result.data, isLoading: false);
-      } else {
-        state = state.copyWith(
-          error: result.message,
-          editEquipment: result.data,
-          isLoading: false,
-        );
-      }
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        editEquipment: result.success ? result.data : state.editEquipment,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.message.toString(),
+                code: "EQUIPMENT_FETCH_FAILED",
+              ),
+      );
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.ownerEquipment.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "EQUIPMENT_FETCH_FAILED",
+        ),
+      );
     }
   }
 
+  // Used on main screen only => client fetches with pagination
   Future<void> getClientEquipment({
     String? categoryId,
     String? query,
@@ -101,9 +197,14 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     int? page,
     int? itemsPerPage,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
-
     try {
+      final hasData = state.clientEquipment.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
+
       final result = await api.getClientEquipment(
         categoryId: categoryId,
         query: query,
@@ -113,12 +214,73 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       );
 
       state = state.copyWith(
-        renterEquipment: result.data,
-        isLoading: false,
-        error: result.success ? null : result.message,
+        clientEquipment: result.success ? result.data : state.clientEquipment,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "EQUIPMENT_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.clientEquipment.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "EQUIPMENT_FETCH_FAILED",
+        ),
+      );
+    }
+  }
+
+  // Handles fetching equipment by Id to create a booking
+  Future<void> getClientEquipmentById(String id) async {
+    try {
+      final hasData = state.clientEquipment.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
+
+      final result = await api.getClientEquipmentById(id);
+
+      state = state.copyWith(
+        clientBookingEquipment: result.success
+            ? result.data
+            : state.clientBookingEquipment,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.message.toString(),
+                code: "EQUIPMENT_FETCH_FAILED",
+              ),
+      );
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.clientEquipment.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "EQUIPMENT_FETCH_FAILED",
+        ),
+      );
     }
   }
 
@@ -127,14 +289,14 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String? city,
     String? query,
   }) async {
-    state = state.copyWith(
-      isLoading: true,
-      error: null,
-      renterEquipment: [],
-      currentPage: 1,
-    );
-
     try {
+      final hasData = state.clientEquipment.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
+
       final result = await api.getClientEquipment(
         page: 1,
         itemsPerPage: state.itemsPerPage,
@@ -143,14 +305,48 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         query: query,
       );
 
+      if (!result.success || result.data == null) {
+        state = state.copyWith(
+          fetchStatus: hasData ? FetchStatus.success : FetchStatus.error,
+          fetchError: AppError(
+            type: ErrorType.unknown,
+            message: result.error.toString(),
+            code: "EQUIPMENT_FETCH_FAILED",
+          ),
+        );
+        return;
+      }
+
       state = state.copyWith(
-        renterEquipment: result.data,
-        isLoading: false,
+        clientEquipment: result.success ? result.data : state.clientEquipment,
         hasReachedMax: (result.data?.length ?? 0) < state.itemsPerPage,
-        error: result.success ? null : result.message,
+        currentPage: 1,
+        paginationStatus: PaginationStatus.idle,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "EQUIPMENT_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(
+        fetchStatus: state.clientEquipment.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "EQUIPMENT_FETCH_FAILED",
+        ),
+      );
     }
   }
 
@@ -159,12 +355,16 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String? query,
     String? city,
   }) async {
-    // Prevent multiple simultaneous fetches or fetching if we hit the end
-    if (state.isFetchingMore || state.hasReachedMax) return;
-
-    state = state.copyWith(isFetchingMore: true);
-
     try {
+      // Prevent multiple simultaneous fetches or fetching if we hit the end
+      if (state.hasReachedMax) return;
+
+      if (state.paginationStatus == PaginationStatus.loadingMore) {
+        return;
+      }
+
+      state = state.copyWith(paginationStatus: PaginationStatus.loadingMore);
+
       final nextPage = state.currentPage + 1;
 
       final result = await api.getClientEquipment(
@@ -175,151 +375,58 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         query: query,
       );
 
+      if (!result.success || result.data == null) {
+        state = state.copyWith(paginationStatus: PaginationStatus.error);
+        return;
+      }
+
+      final items = result.data!;
+
       state = state.copyWith(
-        renterEquipment: [...state.renterEquipment, ...(result.data ?? [])],
+        clientEquipment: [...state.clientEquipment, ...items],
         currentPage: nextPage,
-        isFetchingMore: false,
-        hasReachedMax: (result.data ?? []).length < state.itemsPerPage,
+        hasReachedMax: items.length < state.itemsPerPage,
+        paginationStatus: PaginationStatus.idle,
       );
-    } catch (e) {
-      state = state.copyWith(isFetchingMore: false);
-      // Optional: Show a snackbar error for fetch-more failures
-    }
-  }
-
-  Equipment? getById(String id) {
-    try {
-      return state.ownerEquipment.firstWhere((e) => e.id == id);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  void _setImageActionInProgress(String equipmentId, bool inProgress) {
-    final set = {...state.imageActionInProgressEquipmentIds};
-
-    if (inProgress) {
-      set.add(equipmentId);
-    } else {
-      set.remove(equipmentId);
-    }
-
-    state = state.copyWith(imageActionInProgressEquipmentIds: set);
-  }
-
-  void _setImageActionError(String equipmentId, String? message) {
-    final map = {...state.imageActionErrorByEquipmentId};
-    map[equipmentId] = message;
-    state = state.copyWith(imageActionErrorByEquipmentId: map);
-  }
-
-  String _normalizeError(Object error) {
-    final text = error.toString();
-    const prefix = 'Exception: ';
-    if (text.startsWith(prefix)) return text.substring(prefix.length);
-    return text;
-  }
-
-  Future<bool> uploadEquipmentImage({
-    required String equipmentId,
-    required File imageFile,
-  }) async {
-    _setImageActionError(equipmentId, null);
-    _setImageActionInProgress(equipmentId, true);
-
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final result = await api.uploadEquipmentImage(equipmentId, imageFile);
-
-      if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipmentById(equipmentId);
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
-      }
-
-      // _setImageActionError(
-      //   equipmentId,
-      //   'Upload succeeded but no data returned',
-      // );
-      // return false;
-    } catch (e) {
-      _setImageActionError(equipmentId, _normalizeError(e));
-      return false;
-    } finally {
-      _setImageActionInProgress(equipmentId, false);
-    }
-  }
-
-  Future<bool> deleteEquipmentImage({
-    required String equipmentId,
-    required String imageId,
-  }) async {
-    _setImageActionError(equipmentId, null);
-    _setImageActionInProgress(equipmentId, true);
-
-    try {
-      final result = await api.deleteEquipmentImage(equipmentId, imageId);
-
-      if (result.success) {
-        await getOwnerEquipmentById(equipmentId);
-      }
-
-      return result.success;
-    } catch (e) {
-      _setImageActionError(equipmentId, _normalizeError(e));
-      return false;
-    } finally {
-      _setImageActionInProgress(equipmentId, false);
-    }
-  }
-
-  Future<bool> setPrimaryEquipmentImage({
-    required String equipmentId,
-    required String imageId,
-  }) async {
-    _setImageActionError(equipmentId, null);
-    _setImageActionInProgress(equipmentId, true);
-
-    try {
-      final result = await api.setPrimaryEquipmentImage(equipmentId, imageId);
-
-      if (result.success) {
-        await getOwnerEquipmentById(equipmentId);
-      }
-
-      state = state.copyWith(isLoading: false);
-      return result.success;
-    } catch (e) {
-      _setImageActionError(equipmentId, _normalizeError(e));
-      return false;
-    } finally {
-      _setImageActionInProgress(equipmentId, false);
+    } catch (error) {
+      state = state.copyWith(paginationStatus: PaginationStatus.error);
     }
   }
 
   /// CREATE
   Future<bool> createEquipment(Map<String, dynamic> data) async {
+    const actionId = "equipment:create";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.createEquipment(data);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        await getOwnerEquipment();
-        state = state.copyWith(isLoading: false);
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
+        getOwnerEquipment();
       }
 
       return result.success;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create equipment",
+          code: "",
+        ),
+      );
 
       return false;
     }
@@ -327,23 +434,44 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
 
   /// UPDATE
   Future<bool> updateEquipment(Map<String, dynamic> data) async {
+    final id = data["id"];
+
+    if (id == null || id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:update:$id:info";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.updateEquipment(data);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipmentById(data["id"]);
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update equipment",
+          code: "",
+        ),
+      );
 
       return false;
     }
@@ -353,23 +481,33 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     String id,
     Map<String, dynamic> data,
   ) async {
+    final id = data["id"];
+
+    if (id == null || id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:update:$id:location";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.updateEquipmentLocation(id, data);
 
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update equipment",
+          code: "",
+        ),
+      );
 
       return false;
     }
@@ -379,36 +517,68 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     required String equipmentId,
     required String categoryId,
   }) async {
+    final id = equipmentId;
+
+    if (id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:update:$id:category";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.updateEquipmentCategory(
         equipmentId: equipmentId,
         categoryId: categoryId,
       );
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update equipment",
+          code: "",
+        ),
+      );
 
       return false;
     }
   }
 
+  // This function uses optimistic update with a revert to original
   Future<bool> updateVisibilityStatus(
     String equipmentId,
     bool isVisible,
     EquipmentStatus status,
   ) async {
+    final id = equipmentId;
+
+    if (id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:update:$id:status";
+
+    _startAction(actionId);
+
     final originalList = List<Equipment>.from(state.ownerEquipment);
 
     try {
@@ -420,163 +590,414 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         return item;
       }).toList();
 
-      state = state.copyWith(ownerEquipment: updatedList);
-
-      state = state.copyWith(
-        isSubmitting: true,
-        actionId: "equipment:status:$equipmentId",
-        error: null,
-      );
-
       final result = await api.updateVisibilityStatus(
         equipmentId: equipmentId,
         isVisible: isVisible,
         status: status,
       );
 
-      state = state.copyWith(
-        isSubmitting: false,
-        actionId: null,
-        error: result.success ? null : result.message,
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
       );
 
       if (result.success) {
-        getOwnerEquipmentById(equipmentId);
-        getOwnerEquipment();
+        state = state.copyWith(ownerEquipment: updatedList);
+
+        Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
+
         ref.read(billingProvider.notifier).getOwnerBalance();
       } else {
         state = state.copyWith(ownerEquipment: originalList);
       }
 
       return result.success;
-    } catch (e) {
-      print(e.toString());
-      state = state.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-        ownerEquipment: originalList,
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update equipment",
+          code: "",
+        ),
       );
+
+      state = state.copyWith(ownerEquipment: originalList);
 
       return false;
     }
   }
 
   Future<bool> updateEquipmentSpecs(Map<String, dynamic> data) async {
+    final id = data["id"];
+
+    if (id == null || id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:update:$id:specs";
+
     try {
-      state = state.copyWith(isSubmitting: true, error: null);
+      _startAction(actionId);
 
       final result = await api.updateEquipmentSpecs(data);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isSubmitting: false);
-
-        await getOwnerEquipment();
-        await getOwnerEquipmentById(data["id"] ?? "");
-
-        return true;
-      } else {
-        state = state.copyWith(isSubmitting: false);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update equipment",
+          code: "",
+        ),
+      );
 
       return false;
     }
   }
 
-  /// DELETE
+  /// DELETE Equipment
   /// Allowed until equipment has a booking or offer (handled by backed)
   Future<bool> deleteEquipment(String id) async {
+    if (id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:delete:$id";
+
     try {
-      state = state.copyWith(isSubmitting: true, error: null);
+      _startAction(actionId);
 
       final result = await api.deleteEquipment(id);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isSubmitting: false);
-
         await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isSubmitting: false, error: result.message);
-        return false;
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to delete equipment",
+          code: "",
+        ),
+      );
 
       return false;
     }
   }
 
   Future<bool> createPriceEntry(Map<String, dynamic> data) async {
+    final id = data["id"];
+
+    if (id == null || id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:price:create";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.createPriceEntry(data);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipmentById(data["equipmentId"] ?? "");
-        await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create price entry",
+          code: "",
+        ),
+      );
 
       return false;
     }
   }
 
   Future<bool> updatePriceEntry(Map<String, dynamic> data) async {
+    final equipmentId = data["equipmentId"];
+    final id = data["id"];
+
+    if (equipmentId == null ||
+        equipmentId.toString().trim().isEmpty ||
+        id == null ||
+        id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:price:update:$id";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.updatePriceEntry(data);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipmentById(data["equipmentId"] ?? "");
-        await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update price entry",
+          code: "",
+        ),
+      );
 
       return false;
     }
   }
 
   Future<bool> deletePriceEntry(Map<String, dynamic> data) async {
+    final equipmentId = data["equipmentId"];
+    final id = data["id"];
+
+    if (equipmentId == null ||
+        equipmentId.toString().trim().isEmpty ||
+        id == null ||
+        id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:price:delete:$id";
+
     try {
-      state = state.copyWith(isLoading: true, error: null);
+      _startAction(actionId);
 
       final result = await api.deletePriceEntry(data);
 
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        state = state.copyWith(isLoading: false);
-
-        await getOwnerEquipmentById(data["equipmentId"] ?? "");
-        await getOwnerEquipment();
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-        return false;
+        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to delete price entry",
+          code: "",
+        ),
+      );
+
+      return false;
+    }
+  }
+
+  Future<bool> uploadEquipmentImage({
+    required String equipmentId,
+    required File imageFile,
+  }) async {
+    final id = equipmentId;
+
+    if (id.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:image:create:$id";
+
+    try {
+      _startAction(actionId);
+
+      final result = await api.uploadEquipmentImage(equipmentId, imageFile);
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
+      if (result.success) {
+        Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
+      }
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to upload image",
+          code: "",
+        ),
+      );
+
+      return false;
+    }
+  }
+
+  Future<bool> deleteEquipmentImage({
+    required String equipmentId,
+    required String imageId,
+  }) async {
+    final id = imageId;
+
+    if (id.toString().trim().isEmpty || equipmentId.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:image:delete:$id";
+
+    try {
+      _startAction(actionId);
+
+      final result = await api.deleteEquipmentImage(equipmentId, imageId);
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
+      if (result.success) {
+        Future.wait([getOwnerEquipmentById(equipmentId), getOwnerEquipment()]);
+      }
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to delete image",
+          code: "",
+        ),
+      );
+
+      return false;
+    }
+  }
+
+  Future<bool> setPrimaryEquipmentImage({
+    required String equipmentId,
+    required String imageId,
+  }) async {
+    final id = imageId;
+
+    if (id.toString().trim().isEmpty || equipmentId.toString().trim().isEmpty) {
+      return false;
+    }
+
+    final actionId = "equipment:image:update:$id";
+
+    try {
+      _startAction(actionId);
+
+      final result = await api.setPrimaryEquipmentImage(equipmentId, imageId);
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
+      if (result.success) {
+        Future.wait([getOwnerEquipmentById(equipmentId), getOwnerEquipment()]);
+      }
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update image",
+          code: "",
+        ),
+      );
 
       return false;
     }

@@ -1,30 +1,31 @@
-﻿import 'package:prokat/features/categories/models/category.dart';
+﻿import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 
 class EquipmentState {
-  final bool isLoading; // For initial load (Skeleton)
-  final bool isFetchingMore; // For bottom spinner
+  final FetchStatus? fetchStatus; // For initial load (Skeleton)
+  final PaginationStatus paginationStatus; // For bottom spinner
 
-  final bool isSubmitting;
+  final DateTime? lastFetchedAt;
+  final AppError? fetchError;
 
-  final String? actionId;
-  final String? error;
+  final Set<Mutation> activeActions;
 
   final String? query;
+  final String? searchCity;
+  final String? searchCategoryId;
+
   final int currentPage;
   final int itemsPerPage;
   final bool hasReachedMax;
 
-  final Set<String> imageActionInProgressEquipmentIds;
-  final Map<String, String?> imageActionErrorByEquipmentId;
-
   final List<Equipment> ownerEquipment;
-  final List<Equipment> renterEquipment;
+  final List<Equipment> clientEquipment;
 
   // Renter selected equipment for booking
-  final Equipment? equipment;
-
+  final Equipment? clientBookingEquipment;
   final Equipment? editEquipment;
 
   final Category? category;
@@ -34,65 +35,81 @@ class EquipmentState {
     return ownerEquipment.where((item) => item.isVisible).length;
   }
 
+  bool get isLoading =>
+      fetchStatus == null ? false : fetchStatus == FetchStatus.loading;
+
+  bool get isRefreshing => fetchStatus == FetchStatus.refreshing;
+
+  bool get hasData => ownerEquipment.isNotEmpty || clientEquipment.isNotEmpty;
+
   EquipmentState({
-    this.isLoading = false,
-    this.isFetchingMore = false,
-
-    this.isSubmitting = false,
-    this.actionId,
-
-    this.error,
+    this.fetchStatus = FetchStatus.initial,
+    this.paginationStatus = PaginationStatus.idle,
+    this.lastFetchedAt,
+    this.fetchError,
+    this.activeActions = const {},
 
     this.query = "",
+    this.searchCity,
+    this.searchCategoryId,
+
     this.currentPage = 1,
     this.itemsPerPage = 5,
     this.hasReachedMax = false,
-    this.imageActionInProgressEquipmentIds = const {},
-    this.imageActionErrorByEquipmentId = const {},
+
     this.ownerEquipment = const [],
-    this.renterEquipment = const [],
-    this.equipment,
+    this.clientEquipment = const [],
+    this.clientBookingEquipment,
     this.editEquipment,
     this.category,
     this.location,
   });
 
   EquipmentState copyWith({
-    bool? isLoading,
-    bool? isFetchingMore,
-    bool? isSubmitting,
-    String? actionId,
+    FetchStatus? fetchStatus,
+    PaginationStatus? paginationStatus,
+    DateTime? lastFetchedAt,
+    AppError? fetchError,
+    Set<Mutation>? activeActions,
+
     String? query,
+    String? searchCity,
+    String? searchCategoryId,
+
     int? currentPage,
     int? itemsPerPage,
     bool? hasReachedMax,
-    String? error,
-    Set<String>? imageActionInProgressEquipmentIds,
-    Map<String, String?>? imageActionErrorByEquipmentId,
+
     List<Equipment>? ownerEquipment,
-    List<Equipment>? renterEquipment,
+    List<Equipment>? clientEquipment,
+
     Category? category,
     Equipment? editEquipment,
+    Equipment? clientBookingEquipment,
   }) {
     return EquipmentState(
-      isLoading: isLoading ?? this.isLoading,
-      isFetchingMore: isFetchingMore ?? this.isFetchingMore,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      actionId: actionId ?? this.actionId,
-      error: error, // this.error is set if the error passed is null
+      fetchStatus: fetchStatus ?? this.fetchStatus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
+      lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
+      fetchError: fetchError,
+      activeActions: activeActions ?? this.activeActions,
+
       query: query ?? this.query,
+      searchCity: searchCity ?? this.searchCity,
+      searchCategoryId: searchCategoryId ?? this.searchCategoryId,
+
       currentPage: currentPage ?? this.currentPage,
       itemsPerPage: itemsPerPage ?? this.itemsPerPage,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      imageActionInProgressEquipmentIds:
-          imageActionInProgressEquipmentIds ??
-          this.imageActionInProgressEquipmentIds,
-      imageActionErrorByEquipmentId:
-          imageActionErrorByEquipmentId ?? this.imageActionErrorByEquipmentId,
+
       ownerEquipment: ownerEquipment ?? this.ownerEquipment,
-      renterEquipment: renterEquipment ?? this.renterEquipment,
+      clientEquipment: clientEquipment ?? this.clientEquipment,
+
       category: category ?? this.category,
+
       editEquipment: editEquipment ?? this.editEquipment,
+      clientBookingEquipment:
+          clientBookingEquipment ?? this.clientBookingEquipment,
     );
   }
 }

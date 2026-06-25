@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class GuestCategorySection extends ConsumerStatefulWidget {
   const GuestCategorySection({super.key});
@@ -42,10 +45,20 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
           const SizedBox(height: 12),
 
           // Categories / Services Grid Area
-          if (categoriesState.isLoading && categoriesState.categories.isEmpty)
-            EmptyStateTile(title: l10n.loading)
-          else if (categoriesState.error != null)
-            EmptyStateTile(title: l10n.errorLoadingServices)
+          if (categoriesState.fetchStatus == FetchStatus.loading)
+            const CategoryRowSkeleton()
+          else if (categoriesState.fetchStatus == FetchStatus.error)
+            const EmptyStateTile(
+              icon: LucideIcons.router,
+              title: "Error Loading Services",
+              subtitle: "Could not load services",
+            )
+          else if (categoriesState.fetchStatus == FetchStatus.empty)
+            const EmptyStateTile(
+              icon: LucideIcons.box,
+              title: "No Services Found",
+              subtitle: "There are no services listed at the moment",
+            )
           else
             SizedBox(
               height: gridHeight,

@@ -33,9 +33,9 @@ class MapController {
 
     /// Listen to equipment changes
     ref.listen(equipmentProvider, (prev, next) async {
-      if (_map == null || next.renterEquipment.isEmpty) return;
+      if (_map == null || next.clientEquipment.isEmpty) return;
 
-      await _addEquipmentMarkers(next.renterEquipment);
+      await _addEquipmentMarkers(next.clientEquipment);
     });
   }
 
@@ -118,10 +118,10 @@ class MapController {
     // 🔑 Read equipment data ONCE
     final equipmentState = ref.read(equipmentProvider);
 
-    if (equipmentState.renterEquipment.isEmpty) return;
+    if (equipmentState.clientEquipment.isEmpty) return;
 
-    _equipments = equipmentState.renterEquipment;
-    await _addEquipmentMarkers(equipmentState.renterEquipment);
+    _equipments = equipmentState.clientEquipment;
+    await _addEquipmentMarkers(equipmentState.clientEquipment);
   }
 
   Future<void> _loadMarkerIcon() async {

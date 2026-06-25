@@ -100,12 +100,12 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
     // 🔑 Read equipment data ONCE
     final equipmentState = ref.read(equipmentProvider);
 
-    if (_markersAdded || equipmentState.renterEquipment.isEmpty) return;
+    if (_markersAdded || equipmentState.clientEquipment.isEmpty) return;
 
     if (equipmentState.isLoading == false &&
-        equipmentState.renterEquipment.isNotEmpty) {
-      _equipments = equipmentState.renterEquipment;
-      await _addEquipmentMarkers(equipmentState.renterEquipment);
+        equipmentState.clientEquipment.isNotEmpty) {
+      _equipments = equipmentState.clientEquipment;
+      await _addEquipmentMarkers(equipmentState.clientEquipment);
       _markersAdded = true;
     }
 

@@ -39,7 +39,6 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     }
 
     if (widget.service == "main_screen") {
-      // _updateFilters(context, {'city': city});
       return;
     } else if (widget.service == "equipment:create") {
       return;
@@ -61,6 +60,10 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
 
     final selectedCity = ref.watch(locationProvider).city;
     final title = l10n?.selectCity ?? "Select City";
+
+    final cityOptions = widget.service == "main_screen"
+        ? ["", ...cities]
+        : cities;
 
     return SafeArea(
       top: false,
@@ -91,21 +94,25 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemCount: cities.length,
+                  itemCount: cityOptions.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final isSelected = cities[index] == selectedCity;
+                    final isSelected = cityOptions[index] == selectedCity;
 
                     return ListTile(
                       leading: const Icon(Icons.location_city),
-                      title: Text(cities[index]),
+                      title: Text(
+                        cityOptions[index].isEmpty
+                            ? "All Locations"
+                            : cityOptions[index],
+                      ),
                       trailing: isSelected
                           ? Icon(
                               Icons.check_circle,
                               color: theme.colorScheme.primary,
                             )
                           : null,
-                      onTap: () => _onCitySelected(cities[index]),
+                      onTap: () => _onCitySelected(cityOptions[index]),
                     );
                   },
                 ),

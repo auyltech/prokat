@@ -21,11 +21,11 @@ class MapRenterEquipmentContainer extends ConsumerWidget {
         children: [
           equipmentState.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : equipmentState.error != null
+              : equipmentState.fetchError != null
               ? Center(child: Text(l10n.somethingWentWrong))
               : MyMapView(
                   mode: MyMapMode.browseEquipment,
-                  equipmentList: equipmentState.renterEquipment,
+                  equipmentList: equipmentState.clientEquipment,
                 ),
 
           if (mapState.selectedEquipment != null)

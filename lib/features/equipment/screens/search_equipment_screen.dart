@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
@@ -10,12 +11,12 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
-import 'package:prokat/features/equipment/widgets/list/equipment_list_skeleton.dart';
+import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
-import 'package:prokat/features/equipment/widgets/list/client_equipment_tile.dart';
+import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
@@ -47,9 +48,22 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     ref.read(favoritesProvider.notifier).getFavorites();
 
+    final categoryState = ref.read(categoriesProvider);
+    final categoryNotifier = ref.read(categoriesProvider.notifier);
+
     // Fetch Categories only once
-    if (ref.read(categoriesProvider).isSuccess != true) {
-      ref.read(categoriesProvider.notifier).getCategories();
+    if (categoryState.fetchStatus == FetchStatus.initial) {
+      categoryNotifier.getCategories();
+      return;
+    }
+
+    // Optional stale refresh
+    if (categoryState.lastFetchedAt != null) {
+      final age = DateTime.now().difference(categoryState.lastFetchedAt!);
+
+      if (age.inMinutes >= 5) {
+        categoryNotifier.getCategories();
+      }
     }
   }
 
@@ -60,12 +74,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     ref
         .read(equipmentProvider.notifier)
         .fetchNextPage(categoryId: categoryId, query: widget.query, city: city);
-
-    // Fetch Categories only once
-    if (ref.read(categoriesProvider).categories.isEmpty ||
-        ref.read(categoriesProvider).error != null) {
-      ref.read(categoriesProvider.notifier).getCategories();
-    }
   }
 
   void _onFiltersChanged() {
@@ -85,10 +93,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
-      if (ref.read(equipmentProvider).renterEquipment.isEmpty ||
-          ref.read(categoriesProvider).isSuccess != true) {
-        _fetchData();
-      }
+      _fetchData();
 
       ref.listenManual(
         categoriesProvider.select((s) => s.selectedCategory?.id),
@@ -123,7 +128,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     final equipmentState = ref.watch(equipmentProvider);
 
-    final items = ref.watch(equipmentProvider).renterEquipment;
+    final items = ref.watch(equipmentProvider).clientEquipment;
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
 
@@ -150,9 +155,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               // Equipment List
               if (equipmentState.isLoading &&
-                  equipmentState.renterEquipment.isEmpty)
+                  equipmentState.clientEquipment.isEmpty)
                 const EquipmentListSkeleton()
-              else if (equipmentState.error != null)
+              else if (equipmentState.fetchError != null)
                 EquipmentErrorTile(
                   onRetry: () => ref.invalidate(equipmentProvider),
                 )

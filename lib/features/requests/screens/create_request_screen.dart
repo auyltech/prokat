@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -21,7 +23,15 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   static const int maxAllowedRequests = 1;
 
   Future<void> fetchData() async {
-    await ref.read(requestProvider.notifier).getClientRequests();
+    final state = ref.read(requestProvider);
+
+    if (state.lastFetchedAt != null) {
+      final age = DateTime.now().difference(state.lastFetchedAt!);
+
+      if (age.inMinutes >= 1) {
+        await ref.read(requestProvider.notifier).getClientRequests();
+      }
+    }
 
     final activeRequests = ref
         .watch(requestProvider.notifier)
@@ -33,7 +43,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       context.push(AppRoutes.clientRequests);
     }
 
-    if (mounted) {
+    if (ref.read(locationProvider).fetchStatus == FetchStatus.initial) {
       ref.read(locationProvider.notifier).getClientLocations();
     }
   }
@@ -58,7 +68,19 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
         .watch(requestProvider.notifier)
         .getActiveRequests(AppMode.clientMode);
 
-    final canCreateRequest = activeRequests.length < maxAllowedRequests;
+    final fetchStatus = ref.watch(requestProvider).fetchStatus;
+
+    final isLoading =
+        fetchStatus == FetchStatus.loading ||
+        fetchStatus == FetchStatus.refreshing;
+
+    final isError = fetchStatus == FetchStatus.error;
+
+    final isSuccess =
+        fetchStatus == FetchStatus.success || fetchStatus == FetchStatus.empty;
+
+    final canCreateRequest =
+        isSuccess && (activeRequests.length < maxAllowedRequests);
 
     return Scaffold(
       body: RefreshIndicator(
@@ -66,19 +88,19 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
           fetchData();
         },
         child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (canCreateRequest)
-                    const CreateRequestForm()
-                  else
-                    _ActiveRequestLimitView(activeCount: activeRequests.length),
-                ],
-              ),
-            ),
+            if (isLoading)
+              EmptyStateTile(
+                icon: Icons.watch_outlined,
+                title: "Loading Requests",
+              )
+            else if (isError)
+              EmptyStateTile(title: "Error Loading Requests")
+            else if (canCreateRequest)
+              const CreateRequestForm()
+            else
+              _ActiveRequestLimitView(activeCount: activeRequests.length),
           ],
         ),
       ),

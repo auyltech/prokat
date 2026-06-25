@@ -12,9 +12,11 @@ class OnlineToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSubmitting =
-        ref.watch(equipmentProvider).isSubmitting &&
-        ref.watch(equipmentProvider).actionId == "equipment:status:$id";
+    final actionId = "equipment:update:$id:status";
+
+    final isSubmitting = ref
+        .watch(equipmentProvider.notifier)
+        .isActionActive(actionId);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
