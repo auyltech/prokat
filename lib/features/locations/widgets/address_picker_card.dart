@@ -64,14 +64,7 @@ class AddressPickerCard extends StatelessWidget {
               ),
             ),
 
-            Column(
-              children: [
-                if (selectedAddress == null)
-                  Text("*", style: TextStyle(color: theme.colorScheme.error)),
-
-                Icon(Icons.chevron_right_rounded),
-              ],
-            ),
+            Icon(Icons.chevron_right_rounded),
           ],
         ),
       ),

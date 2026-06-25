@@ -183,7 +183,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privateOwner => 'PRIVATE OWNER';
 
   @override
-  String get loginSubtitle => 'Pickup where you left off';
+  String get loginSubtitle => 'Pick up where you left off';
 
   @override
   String get signingIn => 'Signing in...';

@@ -65,9 +65,6 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
         currentPath == AppRoutes.login ||
         currentPath.contains(AppRoutes.ownerPayment);
 
-    // 2. Fallback checking for back button stack presence
-    final bool canPop = GoRouter.of(context).canPop() && showBackButton;
-
     if (isChatDetailScreen) {
       // Safely extract chat ID from segments based on route depth
       // final chatId = segments.contains('owner') ? segments[3] : segments[1];
@@ -168,13 +165,17 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 0,
       backgroundColor: isOwnerScreen ? AppColors.teal700 : theme.primaryColor,
-      automaticallyImplyLeading: canPop,
+      automaticallyImplyLeading: showBackButton,
       iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
-      leading: canPop
+      leading: showBackButton
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
               onPressed: () async {
-                context.pop();
+                if (GoRouter.of(context).canPop()) {
+                  context.pop();
+                } else if (currentPath == AppRoutes.login) {
+                  context.go(AppRoutes.main);
+                }
 
                 if (isChatDetailScreen) {
                   await ref.read(chatProvider.notifier).leaveCurrentChat();

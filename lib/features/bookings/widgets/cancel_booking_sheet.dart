@@ -31,9 +31,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
               : BookingStatus.cancelled.name
         : BookingStatus.cancelled.name;
 
-    if (context.mounted) {
-      Navigator.pop(context);
-    }
+    Navigator.pop(context);
 
     final result = await notifier.updateBookingStatus(
       id: widget.booking.id,
@@ -41,15 +39,13 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       workStatus: selectedReason,
     );
 
-    if (context.mounted) {
-      AppSnackBar.show(
-        message: result
-            ? l10n?.orderCancelled ?? "Order Cancelled"
-            : "Failed to cancel order",
-        isSuccess: result,
-        isError: !result,
-      );
-    }
+    AppSnackBar.show(
+      message: result
+          ? l10n?.orderCancelled ?? "Order Cancelled"
+          : "Failed to cancel order",
+      isSuccess: result,
+      isError: !result,
+    );
   }
 
   @override

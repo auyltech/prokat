@@ -37,13 +37,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     Future.microtask(() {
       ref.read(equipmentProvider.notifier).getClientEquipment();
+
       ref.read(locationProvider.notifier).getClientLocations();
     });
   }
-
-  int selectedPriceIndex = 0;
-  DateTime? selectedDate;
-  TimeOfDay? selectedTime;
 
   Future<void> onSubmit() async {
     final bookingState = ref.read(bookingProvider);
@@ -118,9 +115,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final displayUrl = equipment?.imageUrl ?? "";
 
+    final isPriceEntrySelected =
+        bookingState.selectedPriceEntry != null &&
+        equipment?.prices
+                .where((item) => item.id == bookingState.selectedPriceEntry?.id)
+                .firstOrNull !=
+            null;
+
     final canSubmit =
         bookingState.selectedEquipment != null &&
-        bookingState.selectedPriceEntry != null &&
+        isPriceEntrySelected &&
         bookingState.selectedLocation != null &&
         bookingState.selectedDate != null &&
         bookingState.selectedTime != null;
@@ -217,7 +221,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       const SizedBox(height: 12),
 
                       /// Pricing
-                      SectionTitle(title: l10n.servicePlan),
+                      SectionTitle(
+                        title: l10n.servicePlan,
+                        trailing: isPriceEntrySelected ? null : "* Required",
+                      ),
 
                       const SizedBox(height: 12),
 
@@ -237,7 +244,6 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 ref
                                     .read(bookingProvider.notifier)
                                     .selectPriceEntry(entry);
-                                setState(() => selectedPriceIndex = index);
                               }
                             },
                             child: Container(
@@ -278,7 +284,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       const SizedBox(height: 12),
 
                       /// Address & Schedule
-                      SectionTitle(title: l10n.address),
+                      SectionTitle(
+                        title: l10n.address,
+                        trailing: bookingState.selectedLocation == null
+                            ? "* Required"
+                            : null,
+                      ),
 
                       const SizedBox(height: 12),
 
@@ -298,6 +309,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       const SizedBox(height: 12),
 
+                      SectionTitle(
+                        title: "Select Date",
+                        trailing: bookingState.selectedDate == null
+                            ? "* Required"
+                            : null,
+                      ),
+
                       DatePickerComponent(
                         daysRange: 7, // Pass your dynamic 'x' range here
                         isRequired: true, // Shows indicator text
@@ -306,6 +324,15 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           bookingNotifier.setDate(date);
                         },
                       ),
+
+                      SectionTitle(
+                        title: "Select Time",
+                        trailing: bookingState.selectedTime == null
+                            ? "* Required"
+                            : null,
+                      ),
+
+                      const SizedBox(height: 12),
 
                       TimePickerComponent(
                         slotLengthMinutes: 30, // 30 minute blocks

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
@@ -144,7 +145,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                       iconBgColor: const Color(0xFFE1F5EE),
                       iconColor: const Color(0xFF0D5F5C),
                       label: l10n.registrationStatus,
-                      subtitle: "Fully verified · Expires 2025",
+                      subtitle:
+                          ownerProfileState.ownerProfile?.isVerified == true
+                          ? formatDate(
+                              date: ownerProfileState.ownerProfile?.verifiedAt,
+                              format: "dd MMM yyyy",
+                            )
+                          : "Not Verified",
                       onTap: () => context.push(AppRoutes.ownerRegistration),
                     ),
                     const SizedBox(height: 10),

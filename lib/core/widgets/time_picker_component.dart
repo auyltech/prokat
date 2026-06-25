@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/section_title.dart';
 
 class TimePickerComponent extends StatelessWidget {
   final DateTime? selectedDateTime;
@@ -31,27 +30,6 @@ class TimePickerComponent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            SectionTitle(title: "Select Time"),
-
-            Spacer(),
-            if (selectedDateTime == null)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
-                child: Text(
-                  "* Required",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-          ],
-        ),
-
-        SizedBox(height: 8),
-
         // Grid-like Wrapped Flow Layout
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0.0),

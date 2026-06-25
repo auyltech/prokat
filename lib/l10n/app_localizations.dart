@@ -451,7 +451,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pickup where you left off'**
+  /// **'Pick up where you left off'**
   String get loginSubtitle;
 
   /// No description provided for @signingIn.

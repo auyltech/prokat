@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -9,23 +11,43 @@ class GuestEquipmentCard extends StatelessWidget {
   final Equipment item;
   const GuestEquipmentCard({super.key, required this.item});
 
-  // String _formatPrice(double price) {
-  //   return price
-  //       .toStringAsFixed(0)
-  //       .replaceAllMapped(
-  //         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-  //         (m) => '${m[1]} ',
-  //       );
-  // }
+  void _showSignInDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Login is required'),
+          content: const Text(
+            'You need to login to view details and reserve equipment.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            ElevatedButton(
+              child: const Text('Login'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+
+                context.push(AppRoutes.login); // Go to auth screen
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // final isTop = item.rating >= 4.9;
-    final isTop = true;
+    final isTop = (item.owner?.rating ?? 0) >= 4.5;
 
     return BaseTile(
-      // height: 130,
+      onTap: () {
+        _showSignInDialog(context);
+      },
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -140,6 +162,8 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -151,9 +175,7 @@ class _StatusBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        isTop
-            ? AppLocalizations.of(context)!.topRated
-            : AppLocalizations.of(context)!.available,
+        isTop ? l10n.topRated : l10n.available,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,

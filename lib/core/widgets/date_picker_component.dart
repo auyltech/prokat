@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:prokat/core/widgets/section_title.dart'; // Run `flutter pub add intl` for easy date formatting
 
 class DatePickerComponent extends StatelessWidget {
   final DateTime? selectedDate;
@@ -41,22 +40,6 @@ class DatePickerComponent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            SectionTitle(title: "Select Date"),
-            Spacer(),
-
-            if (selectedDate == null)
-              Text(
-                "* Required",
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.red,
-                ),
-              ),
-          ],
-        ),
-
         // Horizontal Scroll Timeline
         SizedBox(
           height: 80,
