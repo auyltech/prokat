@@ -258,12 +258,61 @@ class OwnerChatActionBar extends ConsumerWidget {
                   ),
                 ),
               ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
+                Expanded(
+                  child: ActionBarButton.destructive(
+                    label: "Reject Order",
+                    isEnabled: !submitState.isSubmitting,
+                    isLoading:
+                        submitState.isSubmitting &&
+                        submitState.submitId == "booking:reject",
+                    onPressed: () async {
+                      final decision =
+                          await showModalBottomSheet<CancelBookingDecision>(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: theme.colorScheme.surface,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (_) => CancelBookingReasonSheet(
+                              booking: booking,
+                              useCase: 'owner',
+                            ),
+                          );
+
+                      if (!context.mounted) return;
+
+                      if (decision == null || decision.confirmed == false) {
+                        return;
+                      }
+
+                      final reason = decision.reason;
+
+                      if (reason == null || reason.trim().isEmpty) {
+                        return;
+                      }
+
+                      await controller.rejectBooking(
+                        context: context,
+                        chatId: chatId,
+                        bookingId: booking.id,
+                        reason: reason.trim(),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 6),
+
                 // Completed Work
                 Expanded(
                   child: ActionBarButton(
                     label: "Complete Work",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting &&
+                    isLoading:
+                        submitState.isSubmitting &&
                         submitState.submitId == "booking:workstatus",
                     onPressed: () async {
                       final confirmed = await showDialog<bool>(
@@ -307,7 +356,8 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton.secondary(
                     label: "Update Status",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting &&
+                    isLoading:
+                        submitState.isSubmitting &&
                         submitState.submitId == "booking:workstatus",
                     onPressed: () async {
                       showModalBottomSheet(
@@ -330,7 +380,8 @@ class OwnerChatActionBar extends ConsumerWidget {
                   child: ActionBarButton(
                     label: "Review",
                     isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting &&
+                    isLoading:
+                        submitState.isSubmitting &&
                         submitState.submitId == "review:submit",
                     onPressed: () async {
                       final submitted = await showModalBottomSheet<bool>(

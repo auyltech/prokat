@@ -122,8 +122,12 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       }
     });
 
+    final hasOfferedRate = rateController.text.isNotEmpty;
+
     final canSubmit =
+        requestState.selectedCategory?.id != null &&
         requestState.selectedLocation != null &&
+        hasOfferedRate &&
         requestState.selectedDate != null &&
         requestState.selectedTime != null;
 
@@ -142,7 +146,10 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 24),
 
-        SectionTitle(title: l10n.deliveryLocation),
+        SectionTitle(
+          title: l10n.deliveryLocation,
+          trailing: requestState.selectedLocation == null ? "* Required" : null,
+        ),
 
         const SizedBox(height: 6),
 
@@ -151,11 +158,20 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           onTap: () => _openAddressSheet(context),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
 
-        SectionTitle(title: l10n.equipmentSpecs),
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: capacityController,
+          builder: (context, value, child) {
+            final hasOfferedRate = value.text.isNotEmpty;
+            return SectionTitle(
+              title: l10n.equipmentSpecs,
+              trailing: hasOfferedRate ? null : "* Required",
+            );
+          },
+        ),
 
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
 
         InputField(
           label: l10n.requiredCapacity,
@@ -167,6 +183,19 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 12),
 
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: rateController,
+          builder: (context, value, child) {
+            final hasOfferedRate = value.text.isNotEmpty;
+            return SectionTitle(
+              title: l10n.offeredRate,
+              trailing: hasOfferedRate ? null : "* Required",
+            );
+          },
+        ),
+
+        const SizedBox(height: 8),
+
         InputField(
           label: l10n.offeredRate,
           controller: rateController,
@@ -175,6 +204,10 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ),
 
         const SizedBox(height: 12),
+
+        SectionTitle(title: l10n.comments),
+
+        const SizedBox(height: 8),
 
         InputField(
           label: l10n.comments,
@@ -185,6 +218,10 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 12),
 
+        SectionTitle(
+          title: "Select Date",
+          trailing: requestState.selectedDate == null ? "* Required" : null,
+        ),
         DatePickerComponent(
           daysRange: 7, // Pass your dynamic 'x' range here
           isRequired: true, // Shows indicator text
@@ -192,6 +229,13 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           onDateSelected: (date) {
             requestNotifier.setDate(date);
           },
+        ),
+
+        const SizedBox(height: 12),
+
+        SectionTitle(
+          title: "Select Time",
+          trailing: requestState.selectedTime == null ? "* Required" : null,
         ),
 
         TimePickerComponent(

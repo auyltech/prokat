@@ -48,10 +48,10 @@ class ChatService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }

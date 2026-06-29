@@ -20,8 +20,6 @@ class _OwnerPaymentsTopupScreenState
     extends ConsumerState<OwnerPaymentsTopupScreen> {
   String? selectedTierId;
 
-  void _payWithKaspi(String id) {}
-
   Future<void> submitTopUpRequest(String? id) async {
     if (id == null) return;
 
@@ -102,22 +100,6 @@ class _OwnerPaymentsTopupScreenState
             const SizedBox(height: 32),
 
             // --- 2. Action Buttons ---
-            ElevatedButton.icon(
-              onPressed: selectedTierId == null
-                  ? null
-                  : () => _payWithKaspi(selectedTierId!),
-              icon: const Icon(Icons.account_balance_wallet),
-              label: Text(l10n.payWithKaspi),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF14635),
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
             PrimaryButton(
               label: "Submit Top Up Request",
               onPressed: selectedTierId == null || billingState.isSubmitting

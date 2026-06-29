@@ -58,6 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const LogoTile(),
+
                           const SizedBox(height: 32),
                           Text(
                             l10n.getStarted,

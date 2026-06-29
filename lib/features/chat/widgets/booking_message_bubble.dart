@@ -158,26 +158,25 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
           const SizedBox(height: 8),
 
           //  Location
-          if (location != null) ...[
-            Row(
-              children: [
+          Row(
+            children: [
+              if (location != null) ...[
                 Expanded(
                   child: InfoTile(
                     icon: Icons.location_on_outlined,
+                    label: "Location",
                     value: booking.location?.street ?? "",
                     onTap: () => showLocationSheet(context, location),
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-          ],
-          // Date Time
-          Row(
-            children: [
+              const SizedBox(height: 8),
+
+              // Date Time
               Expanded(
                 child: InfoTile(
                   icon: Icons.event_outlined,
+                  label: "Date & time",
                   value: () {
                     if (booking.bookedOn == null) return "TBD";
 

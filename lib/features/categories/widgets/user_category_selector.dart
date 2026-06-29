@@ -39,10 +39,19 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     final categoriesState = ref.watch(categoriesProvider);
     final l10n = AppLocalizations.of(context)!;
 
+    final isRequired =
+        (widget.mode == "create_request" &&
+            categoriesState.selectedCategory == null)
+        ? true
+        : false;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(title: l10n.services),
+        SectionTitle(
+          title: l10n.services,
+          trailing: isRequired ? "* Required" : null,
+        ),
 
         SizedBox(height: 8),
 

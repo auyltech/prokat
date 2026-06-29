@@ -1,18 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/user/state/user_profile_provider.dart';
 
-class DeleteAccountTile extends StatefulWidget {
+class DeleteAccountTile extends ConsumerStatefulWidget {
   const DeleteAccountTile({super.key});
 
   @override
-  State<DeleteAccountTile> createState() => _DeleteAccountTileState();
+  ConsumerState<DeleteAccountTile> createState() => _DeleteAccountTileState();
 }
 
-class _DeleteAccountTileState extends State<DeleteAccountTile>
+class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
     with AutomaticKeepAliveClientMixin {
   // Ensures the sliver view does not rebuild or reset state while scrolling
   @override
   bool get wantKeepAlive => true;
+
+  Future<void> onSubmit() async {
+    final profileState = ref.read(userProfileProvider.notifier);
+
+    final result = await profileState.deleteAccount();
+
+    if (result && mounted) {
+      // 1. Show the success notification dialog to the user
+      _showSuccessAndLogoutDialog(context);
+    } else if (mounted) {
+      AppSnackBar.show(
+        message: 'Failed to request account deletion. Please try again.',
+        isError: true,
+      );
+    }
+  }
+
+  void _showSuccessAndLogoutDialog(BuildContext context) {
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Force them to explicitly tap "OK" to acknowledge the state
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.check_circle_outline_rounded,
+                color: theme
+                    .colorScheme
+                    .primary, // Neutral or branding color for confirmation
+                size: 28,
+              ),
+              const SizedBox(width: 10),
+              const Text('Request Received'),
+            ],
+          ),
+          content: const Text(
+            'Your account is now safely scheduled for deletion.\n\n'
+            'You will be signed out immediately. Remember that logging back into '
+            'the app with this phone number within the next 14 days will automatically '
+            'restore your data and cancel this request.',
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () async {
+                // Close the dialog box view
+                Navigator.of(dialogContext).pop();
+
+                // 2. Perform the global logout sequence
+                // Replace this with your project's auth notifier reference (e.g., authProvider)
+                await ref.read(appStartupProvider.notifier).forceSignedOut();
+
+                // 3. Clear the navigation stack back to the authentication screen
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showDeletionConfirmationDialog(BuildContext context) {
     final theme = Theme.of(context);
@@ -59,19 +142,14 @@ class _DeleteAccountTileState extends State<DeleteAccountTile>
               ),
               onPressed: () {
                 Navigator.of(dialogContext).pop(); // Close dialog
-                _executeAccountDeletionSequence(context);
+
+                onSubmit();
               },
               child: const Text('Delete Account'),
             ),
           ],
         );
       },
-    );
-  }
-
-  void _executeAccountDeletionSequence(BuildContext context) {
-    AppSnackBar.show(
-      message: "Please contact support to process deleting your account",
     );
   }
 

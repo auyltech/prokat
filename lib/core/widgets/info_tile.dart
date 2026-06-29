@@ -115,13 +115,12 @@ class InfoTile extends StatelessWidget {
                     .start, // Switched to start for better multi-line text flow
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Wrap(
-                    spacing: 6, // Horizontal space between elements
-                    runSpacing: 4, // Vertical space between lines if it wraps
-                    crossAxisAlignment: WrapCrossAlignment.center,
+                  Row(
                     children: [
-                      if (icon != null)
+                      if (icon != null) ...[
                         Icon(icon, color: theme.primaryColor, size: 20),
+                        SizedBox(width: 6),
+                      ],
 
                       Text(
                         label ?? "",
@@ -131,20 +130,22 @@ class InfoTile extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-
-                      Text(
-                        value,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: variant == InfoTileVariant.destructive
-                              ? Colors.red[700]
-                              : Colors.black87,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ],
+                  ),
+
+                  SizedBox(height: 4),
+
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: variant == InfoTileVariant.destructive
+                          ? Colors.red[700]
+                          : Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               )

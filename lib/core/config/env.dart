@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 enum RunMode { remote, local }
 
-const RunMode runMode = RunMode.remote;
+const RunMode runMode = RunMode.local;
 
 class Env {
   static String get baseUrl {

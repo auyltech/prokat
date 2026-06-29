@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/widgets/offer_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
 
@@ -26,7 +27,7 @@ class _RequestWithOffersState extends State<RequestWithOffers> {
     final hasOffers = widget.offers.isNotEmpty;
 
     final pendingOffers = widget.offers.where(
-      (item) => ["CREATED"].contains(item.status),
+      (item) => [OfferStatus.created, OfferStatus.viewed].contains(item.status),
     );
 
     return Column(

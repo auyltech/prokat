@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/user/widgets/delete_account_tile.dart';
@@ -56,7 +57,29 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             const SizedBox(height: 140),
 
-            const Center(child: Text("Version 1.0.4")),
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: Text("Loading..."));
+                }
+
+                if (snapshot.hasData) {
+                  final packageInfo = snapshot.data!;
+                  final version = packageInfo.version; // e.g., "1.0.0"
+                  final buildNumber = packageInfo.buildNumber; // e.g., "1"
+
+                  return Center(
+                    child: Text(
+                      "Version: $version ($buildNumber)",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  );
+                }
+
+                return const Text("Failed to load version");
+              },
+            ),
           ],
         ),
       ),

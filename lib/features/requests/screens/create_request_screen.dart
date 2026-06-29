@@ -9,6 +9,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/create_request_form.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateRequestScreen extends ConsumerStatefulWidget {
@@ -53,7 +54,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     super.initState();
 
     Future.microtask(() async {
-      fetchData();
+      await fetchData();
     });
   }
 
@@ -77,7 +78,9 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     final isError = fetchStatus == FetchStatus.error;
 
     final isSuccess =
-        fetchStatus == FetchStatus.success || fetchStatus == FetchStatus.empty;
+        fetchStatus == FetchStatus.success ||
+        fetchStatus == FetchStatus.empty ||
+        fetchStatus == FetchStatus.initial;
 
     final canCreateRequest =
         isSuccess && (activeRequests.length < maxAllowedRequests);
@@ -85,18 +88,18 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          fetchData();
+          await fetchData();
         },
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             if (isLoading)
-              EmptyStateTile(
-                icon: Icons.watch_outlined,
-                title: "Loading Requests",
-              )
+              RequestTileSkeleton()
             else if (isError)
-              EmptyStateTile(title: "Error Loading Requests")
+              EmptyStateTile(
+                icon: Icons.error_outline,
+                title: "Error Loading Requests",
+              )
             else if (canCreateRequest)
               const CreateRequestForm()
             else

@@ -20,7 +20,16 @@ class ClientRequestsScreen extends ConsumerStatefulWidget {
 
 class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
   Future<void> fetchData() async {
-    await ref.read(requestProvider.notifier).getClientRequests();
+    final state = ref.read(requestProvider);
+
+    if (state.lastFetchedAt != null) {
+      final age = DateTime.now().difference(state.lastFetchedAt!);
+
+      if (age.inMinutes >= 1) {
+        await ref.read(requestProvider.notifier).getClientRequests();
+      }
+    }
+
     await ref.read(offersProvider.notifier).getClientOffers();
   }
 

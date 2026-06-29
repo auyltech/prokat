@@ -52,7 +52,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final categoryNotifier = ref.read(categoriesProvider.notifier);
 
     // Fetch Categories only once
-    if (categoryState.fetchStatus == FetchStatus.initial) {
+    if (categoryState.fetchStatus == FetchStatus.initial ||
+        categoryState.fetchStatus == FetchStatus.error) {
       categoryNotifier.getCategories();
       return;
     }

@@ -159,14 +159,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
           otpRequestedAt: now,
           error: null,
         );
-      } else if (result.statusCode == 429) {
+      } else if (result.statusCode == 409) {
         final now = DateTime.now();
 
         state = state.copyWith(
           isLoading: false,
           otpPhone: phone,
           otpRequestedAt: now,
-          error: null,
+          error: result.message,
         );
       } else {
         state = state.copyWith(isLoading: false, error: result.message);
@@ -187,7 +187,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final result = await api.verifyOtp(phone, otp);
 
-      if (result.data != null) {
+      if (result.success && result.data != null) {
         await storage.saveSession(result.data!);
 
         await storage.clearOtpSession();
@@ -204,7 +204,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return true;
       }
 
-      state = state.copyWith(isLoading: false, error: result.message);
+      state = state.copyWith(
+        isLoading: false,
+        error: result.success ? null : result.message,
+      );
 
       return false;
     } catch (e) {

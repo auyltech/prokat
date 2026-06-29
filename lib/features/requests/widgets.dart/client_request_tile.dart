@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
@@ -26,6 +27,11 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
     final l10n = AppLocalizations.of(context)!;
 
     final request = widget.request;
+    final id = request.id;
+
+    final isSubmitting = ref
+        .watch(requestProvider.notifier)
+        .isActionActive("request:$id:cancel");
 
     return Container(
       decoration: BoxDecoration(color: theme.cardColor),
@@ -136,28 +142,12 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
               Spacer(),
 
-              OutlinedButton(
+              ActionButton.danger(
+                label: l10n.cancelRequestAction,
+                isEnabled: !isSubmitting,
+                isLoading: isSubmitting,
                 onPressed: () =>
                     _showCancelConfirmation(context, ref, request.id, l10n),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.error,
-                  side: BorderSide(color: theme.colorScheme.error, width: 1),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 20,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  l10n.cancelRequestAction,
-                  style: TextStyle(
-                    color: theme.colorScheme.onError,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
               ),
             ],
           ),

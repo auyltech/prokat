@@ -184,4 +184,19 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       return false;
     }
   }
+
+  Future<bool> deleteAccount() async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      final result = await service.deleteAccount();
+
+      state = state.copyWith(isLoading: false);
+
+      return result;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
 }

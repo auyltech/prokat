@@ -225,6 +225,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       if (result.success) {
         // Don't await, return true to show snackbar
         getClientBookings();
+        ref.read(chatProvider.notifier).getChatThreads("client");
       }
 
       return result.success;

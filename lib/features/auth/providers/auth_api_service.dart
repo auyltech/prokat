@@ -191,6 +191,8 @@ class AuthApiService {
         data: {"phoneNumber": phone},
       );
 
+      print(response);
+
       return handleEmptyApiResponse(response: response);
     } on DioException catch (error) {
       final exception = ApiException.fromDio(error);

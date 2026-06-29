@@ -151,4 +151,18 @@ class UserProfileService {
       return false;
     }
   }
+
+  Future<bool> deleteAccount() async {
+    try {
+      final res = await _dio.post(ApiRoutes.deleteAccount);
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
 }

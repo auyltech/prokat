@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
@@ -278,6 +279,7 @@ class OfferTile extends ConsumerWidget {
                 const SizedBox(width: 8),
 
                 ActionButton(
+                  icon: LucideIcons.check,
                   label: l10n.accept,
                   isEnabled: !ref.watch(offersProvider).isSubmitting,
                   onPressed: () => ref.watch(offersProvider).isSubmitting

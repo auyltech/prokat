@@ -194,6 +194,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     try {
       await ref.read(authProvider.notifier).logout();
       await ref.read(authProvider.notifier).clearLocalSession();
+      // TODO: clear Providers (profile, billing, categories, equipment)
     } catch (_) {
       // Ignore errors to ensure we still force reroute.
     }

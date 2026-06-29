@@ -21,4 +21,6 @@ class ApiRoutes {
   static const login = "/auth/login";
   static const register = "/auth/register";
   static const logout = "/auth/logout";
+  //
+  static const deleteAccount = "/user/profile/delete-account";
 }

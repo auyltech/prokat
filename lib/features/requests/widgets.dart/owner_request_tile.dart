@@ -243,15 +243,13 @@ class OwnerRequestTile extends ConsumerWidget {
                               .read(offersProvider.notifier)
                               .cancelOffer(activeOffer.id);
 
-                          if (context.mounted) {
-                            AppSnackBar.show(
-                              message: result
-                                  ? "Offer Cancelled"
-                                  : "Failed to cancel offer",
-                              isSuccess: result,
-                              isError: !result,
-                            );
-                          }
+                          AppSnackBar.show(
+                            message: result
+                                ? "Offer Cancelled"
+                                : "Failed to cancel offer",
+                            isSuccess: result,
+                            isError: !result,
+                          );
                         },
                       ),
                       style: ElevatedButton.styleFrom(
