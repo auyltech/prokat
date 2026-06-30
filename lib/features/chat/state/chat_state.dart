@@ -1,7 +1,17 @@
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_model.dart';
 
 class ChatState {
+  final FetchStatus fetchStatus;
+  final PaginationStatus paginationStatus;
+
+  final DateTime? lastFetchedAt;
+  final AppError? fetchError;
+
+  final Set<Mutation> activeActions;
+
   static const _unset = Object();
 
   final bool isLoadingConversations;
@@ -16,6 +26,12 @@ class ChatState {
   final Set<String> sendingMessageClientTempIds;
 
   const ChatState({
+    this.fetchStatus = FetchStatus.initial,
+    this.paginationStatus = PaginationStatus.idle,
+    this.lastFetchedAt,
+    this.fetchError,
+    this.activeActions = const {},
+
     this.isLoadingConversations = false,
     this.isLoadingMessages = false,
     this.sendingMessageClientTempIds = const <String>{},
@@ -28,6 +44,12 @@ class ChatState {
   bool get isSendingMessage => sendingMessageClientTempIds.isNotEmpty;
 
   ChatState copyWith({
+    FetchStatus? fetchStatus,
+    PaginationStatus? paginationStatus,
+    DateTime? lastFetchedAt,
+    AppError? fetchError,
+    Set<Mutation>? activeActions,
+
     bool? isLoadingConversations,
     bool? isLoadingMessages,
     Set<String>? sendingMessageClientTempIds,
@@ -37,6 +59,12 @@ class ChatState {
     Object? messages = _unset,
   }) {
     return ChatState(
+      fetchStatus: fetchStatus ?? this.fetchStatus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
+      lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
+      fetchError: fetchError,
+      activeActions: activeActions ?? this.activeActions,
+
       isLoadingConversations:
           isLoadingConversations ?? this.isLoadingConversations,
       isLoadingMessages: isLoadingMessages ?? this.isLoadingMessages,

@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
+import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/notifications/services/notification_api_service.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 import 'package:prokat/features/notifications/services/notification_navigation_service.dart';
@@ -215,7 +216,7 @@ class PushNotificationService {
 
       return AppNotification(
         id: id,
-        type: (data['type'] ?? '').toString(),
+        type: NotificationTypeParser.parse(data['type']),
         category: (data['category'] ?? '').toString(),
         title: title,
         body: body,

@@ -43,8 +43,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final l10n = AppLocalizations.of(context)!;
 
     final requestState = ref.read(requestProvider);
-
     final selectedCategoryId = requestState.selectedCategory?.id;
+
     String message = "";
 
     if (selectedCategoryId == null) {
@@ -62,7 +62,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       return;
     }
 
-    final success = await ref
+    final result = await ref
         .read(requestProvider.notifier)
         .createRequest(
           categoryId: selectedCategoryId ?? "",
@@ -72,12 +72,12 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         );
 
     AppSnackBar.show(
-      message: success ? l10n.requestCreated : "Failed to create request",
-      isSuccess: success,
-      isError: !success,
+      message: result.success ? l10n.requestCreated : result.message,
+      isSuccess: result.success,
+      isError: !result.success,
     );
 
-    if (success && mounted) {
+    if (result.success && mounted) {
       context.push(AppRoutes.clientRequests);
     }
   }
@@ -124,8 +124,10 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
     final hasOfferedRate = rateController.text.isNotEmpty;
 
+    final hasCategory = requestState.selectedCategory?.id != null;
+
     final canSubmit =
-        requestState.selectedCategory?.id != null &&
+        hasCategory &&
         requestState.selectedLocation != null &&
         hasOfferedRate &&
         requestState.selectedDate != null &&
@@ -142,6 +144,13 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SectionTitle(
+          title: l10n.services,
+          trailing: hasCategory ? null : "* Required",
+        ),
+
+        SizedBox(height: 8),
+
         const UserCategorySelector(mode: "create_request"),
 
         const SizedBox(height: 24),
@@ -222,6 +231,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           title: "Select Date",
           trailing: requestState.selectedDate == null ? "* Required" : null,
         ),
+
         DatePickerComponent(
           daysRange: 7, // Pass your dynamic 'x' range here
           isRequired: true, // Shows indicator text
@@ -252,11 +262,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ),
 
         const SizedBox(height: 40),
-
-        if (action?.error != null) ...[
-          Text(action?.error?.message ?? ""),
-          SizedBox(height: 8),
-        ],
 
         PrimaryButton(
           label: l10n.create,

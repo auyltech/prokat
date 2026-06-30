@@ -149,7 +149,7 @@ class BookingChatActionController
       action: () {
         return _bookingNotifier.updateBookingWorkStatus(
           id: bookingId,
-          workStatus: workStatus.name,
+          workStatus: workStatus,
         );
       },
       onSuccess: () {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -32,6 +33,9 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       if (age.inMinutes >= 1) {
         await ref.read(requestProvider.notifier).getClientRequests();
       }
+    } else if (state.fetchStatus == FetchStatus.initial ||
+        state.fetchStatus == FetchStatus.error) {
+      await ref.read(requestProvider.notifier).getClientRequests();
     }
 
     final activeRequests = ref
@@ -40,9 +44,9 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
 
     final canCreateRequest = activeRequests.length < maxAllowedRequests;
 
-    if (!canCreateRequest && mounted) {
-      context.push(AppRoutes.clientRequests);
-    }
+    // if (!canCreateRequest && mounted) {
+    //   context.push(AppRoutes.clientRequests);
+    // }
 
     if (ref.read(locationProvider).fetchStatus == FetchStatus.initial) {
       ref.read(locationProvider.notifier).getClientLocations();
@@ -78,9 +82,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     final isError = fetchStatus == FetchStatus.error;
 
     final isSuccess =
-        fetchStatus == FetchStatus.success ||
-        fetchStatus == FetchStatus.empty ||
-        fetchStatus == FetchStatus.initial;
+        fetchStatus == FetchStatus.success || fetchStatus == FetchStatus.empty;
 
     final canCreateRequest =
         isSuccess && (activeRequests.length < maxAllowedRequests);
@@ -121,7 +123,7 @@ class _ActiveRequestLimitView extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return Card(
+    return BaseTile(
       color: theme.cardColor,
       child: Padding(
         padding: const EdgeInsets.all(20),

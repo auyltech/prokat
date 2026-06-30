@@ -75,6 +75,8 @@ class RequestService {
         },
       );
 
+      print(response);
+
       return handleEmptyApiResponse(
         response: response,
         fallbackMessage: "Request created",

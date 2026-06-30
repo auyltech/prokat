@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/industrial_input_container.dart';
+import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
@@ -15,7 +16,7 @@ Future<void> submitPriceEntry(
   String equipmentId,
   PriceEntry? priceEntry,
   TextEditingController priceController,
-  String selectedRate,
+  PriceRateOption selectedRate,
   AppLocalizations l10n,
 ) async {
   final price = int.tryParse(priceController.text.trim());
@@ -99,9 +100,9 @@ void openPricingEditSheet(
     text: isEditing ? priceEntry.price.toString() : "",
   );
 
-  String selectedRate = isEditing
+  PriceRateOption selectedRate = isEditing
       ? priceEntry.priceRate
-      : priceRateOptions.first.value;
+      : priceRateOptions.first;
 
   showEditSheet(
     context: context,
@@ -153,39 +154,9 @@ void openPricingEditSheet(
               const SizedBox(height: 16),
 
               /// 2. RATE TYPE SELECTOR
-              IndustrialInputContainer(
-                label: l10n.priceRateLabel,
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: priceRateOptions.any((e) => e.value == selectedRate)
-                        ? selectedRate
-                        : priceRateOptions.first.value,
-                    dropdownColor: colorScheme.surface,
-                    isExpanded: true,
-                    icon: Icon(
-                      Icons.expand_more_rounded,
-                      color: colorScheme.primary,
-                    ),
-                    items: priceRateOptions
-                        .map(
-                          (option) => DropdownMenuItem<String>(
-                            value: option.value,
-                            child: Text(
-                              option.label,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setLocalState(() => selectedRate = value);
-                      }
-                    },
-                  ),
-                ),
+              PriceRateSelector(
+                initialValue: selectedRate,
+                onChanged: (val) => setLocalState(() => selectedRate = val),
               ),
             ],
           );

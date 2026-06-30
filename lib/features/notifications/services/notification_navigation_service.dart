@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/app_router.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
+import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 
 // TODO: fix route reslove
@@ -26,68 +29,155 @@ class NotificationNavigationService {
   }
 
   String resolveRoute(AppNotification notification) {
-    // Backend-provided route is optional; app decides best-effort.
-    final candidate = (notification.route ?? '').trim();
+    switch (notification.type) {
+      // ===========================
+      // Requests
+      // ===========================
 
-    if (_isSafeBackendRoute(candidate)) {
-      return candidate;
-    }
+      case NotificationType.requestCreated:
+      case NotificationType.requestCancelled:
+      case NotificationType.requestExpired:
+        return _isOwnerRole
+            ? AppRoutes.ownerRequests
+            : AppRoutes.clientRequests;
 
-    final type = notification.type.trim().toUpperCase();
+      // ===========================
+      // Offers / Negotiation
+      // ===========================
 
-    switch (type) {
-      case 'CHAT_MESSAGE':
-      case 'COUNTER_OFFER_CREATED':
-      case 'COUNTER_OFFER_ACCEPTED':
-        final chatId = (notification.chatId ?? '').trim();
-        if (chatId.isNotEmpty) {
+      case NotificationType.offerCreated:
+      case NotificationType.offerCancelled:
+      case NotificationType.offerAccepted:
+      case NotificationType.offerRejected:
+      case NotificationType.offerExpired:
+      case NotificationType.counterOfferCreated:
+      case NotificationType.counterOfferAccepted:
+      case NotificationType.counterOfferRejected:
+      case NotificationType.negotiationExpired:
+      case NotificationType.negotiationClosed:
+        return _isOwnerRole
+            ? AppRoutes.ownerRequests
+            : AppRoutes.clientRequests;
+
+      // ===========================
+      // Bookings
+      // ===========================
+
+      case NotificationType.bookingCreated:
+      case NotificationType.bookingAccepted:
+      case NotificationType.bookingRejected:
+      case NotificationType.bookingConfirmed:
+      case NotificationType.bookingCancelled:
+      case NotificationType.bookingCompleted:
+      case NotificationType.clientConfirmedCompletion:
+      case NotificationType.clientConfirmationRequired:
+      case NotificationType.workOnTheWay:
+      case NotificationType.workOnSite:
+      case NotificationType.workStarted:
+      case NotificationType.workPaused:
+      case NotificationType.workFailed:
+      case NotificationType.workCompleted:
+        return _isOwnerRole ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
+
+      // ===========================
+      // Chats
+      // ===========================
+
+      case NotificationType.chatMessageCreated:
+      case NotificationType.bookingEventMessageCreated:
+      case NotificationType.priceNegotiationMessageCreated:
+      case NotificationType.adminMessageCreated:
+        final chatId = notification.data["chatId"] as String?;
+
+        if (chatId != null && chatId.isNotEmpty) {
           return _isOwnerRole
               ? '${AppRoutes.ownerChatList}/$chatId'
               : '${AppRoutes.clientChatList}/$chatId';
         }
+
         return notificationsHomeRoute();
 
-      case 'BOOKING_CREATED':
-      case 'BOOKING_ACCEPTED':
-      case 'BOOKING_REJECTED':
-      case 'WORK_STATUS_UPDATED':
-      case 'WORK_COMPLETED':
-        // Phase 1: route user to Orders list.
+      // ===========================
+      // Reviews
+      // ===========================
+
+      case NotificationType.reviewAvailable:
+      case NotificationType.reviewSubmitted:
+      case NotificationType.reviewReminder:
         return _isOwnerRole ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
 
-      case 'EQUIPMENT_APPROVED':
-      case 'EQUIPMENT_REJECTED':
-        final equipmentId = (notification.equipmentId ?? '').trim();
-        if (_isOwnerRole && equipmentId.isNotEmpty) {
+      // ===========================
+      // Equipment
+      // ===========================
+
+      case NotificationType.equipmentApproved:
+      case NotificationType.equipmentRejected:
+      case NotificationType.equipmentSuspended:
+        final equipmentId = notification.data["equipmentId"] as String?;
+
+        if (_isOwnerRole && equipmentId != null && equipmentId.isNotEmpty) {
           return '${AppRoutes.ownerEquiment}/$equipmentId';
         }
+
         return _isOwnerRole ? AppRoutes.ownerEquiment : AppRoutes.searchList;
 
-      default:
+      // ===========================
+      // Owner Registration
+      // ===========================
+
+      case NotificationType.ownerProfileSubmitted:
+      case NotificationType.ownerApproved:
+      case NotificationType.ownerRejected:
+      case NotificationType.documentRequired:
+      case NotificationType.adminWarning:
+        return _isOwnerRole
+            ? AppRoutes.ownerRegistration
+            : AppRoutes.becomeOwner;
+
+      // ===========================
+      // Billing
+      // ===========================
+
+      case NotificationType.balanceToppedUp:
+      case NotificationType.lowBalanceWarning:
+      case NotificationType.equipmentOfflineInsufficientBalance:
+      case NotificationType.paymentFailed:
+      case NotificationType.minutesPackageUsed:
+        return AppRoutes.ownerPayment;
+
+      // ===========================
+      // Generic
+      // ===========================
+
+      case NotificationType.systemNotice:
         return notificationsHomeRoute();
     }
-  }
-
-  bool _isSafeBackendRoute(String route) {
-    if (route.isEmpty) return false;
-
-    if (_isOwnerRole) {
-      return route.startsWith(AppRoutes.ownerMain);
-    }
-
-    return route.startsWith(AppRoutes.clientMain);
   }
 
   Future<void> navigate(AppNotification notification) async {
     final router = ref.read(routerProvider);
     final route = resolveRoute(notification);
 
-    if (!_isSafeBackendRoute(route)) {
-      return;
-    }
-
     final startup = ref.read(appStartupProvider).routeState;
     final session = ref.read(authProvider).session;
+
+    if (notification.category == "BOOKING") {
+      ref
+          .read(bookingProvider.notifier)
+          .invalidate(
+            mode: startup == AppStartupRouteState.owner
+                ? AppMode.ownerMode
+                : AppMode.clientMode,
+          );
+    } else if (notification.category == "REQUEST") {
+      ref
+          .read(bookingProvider.notifier)
+          .invalidate(
+            mode: startup == AppStartupRouteState.owner
+                ? AppMode.ownerMode
+                : AppMode.clientMode,
+          );
+    }
 
     final isReady =
         startup == AppStartupRouteState.client ||
@@ -118,10 +208,10 @@ class NotificationNavigationService {
 
     await storage.clearPendingRoute();
 
-    if (_isSafeBackendRoute(route!)) {
-      ref.read(routerProvider).go(route);
-    } else {
-      ref.read(routerProvider).go(notificationsHomeRoute());
-    }
+    // if (_isSafeBackendRoute(route!)) {
+    //   ref.read(routerProvider).go(route);
+    // } else {
+    //   ref.read(routerProvider).go(notificationsHomeRoute());
+    // }
   }
 }

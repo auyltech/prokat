@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -28,11 +27,6 @@ class OfferChatActionBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final controller = ref.read(offerChatActionControllerProvider);
-
-    final activeRequestOffer = ref
-        .read(offersProvider.notifier)
-        .getActiveOffers(requestId, mode)
-        .firstOrNull;
 
     final lastOffer = ref
         .read(offersProvider.notifier)
@@ -110,9 +104,9 @@ class OfferChatActionBar extends ConsumerWidget {
                       await showCounterOfferSheet(
                         context: context,
                         chatId: chatId,
-                        offerId: lastOffer?.id ?? "",
+                        offerId: lastOffer?.id,
                         initialPrice: lastOffer?.price ?? 0,
-                        initialPriceRate: getRateOption(lastOffer?.priceRate),
+                        initialPriceRate: (lastOffer?.priceRate)!,
                         mode: mode,
                       );
 
@@ -140,54 +134,10 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatStatus == ChatStatus.offerreceived) ...[
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Reject Offer",
-                    isEnabled: true,
-                    isLoading: false,
-                    onPressed: () async {
-                      await controller.rejectRequestOffer(
-                        context: context,
-                        chatId: chatId,
-                        offerId: activeRequestOffer?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: ActionBarButton(
-                    label: "Accept Offer",
-                    isEnabled: true,
-                    isLoading: false,
-                    onPressed: () async {
-                      await controller.acceptRequestOffer(
-                        context: context,
-                        chatId: chatId,
-                        offerId: activeRequestOffer?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
+              ] else if (chatStatus == ChatStatus.offerreceived)
+                ...[
               ] else if (chatStatus == ChatStatus.offercreated) ...[
                 // CANCEL OFFER
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Cancel Offer",
-                    isEnabled: true,
-                    isLoading: false,
-                    onPressed: () async {
-                      await controller.cancelOffer(
-                        context: context,
-                        chatId: chatId,
-                        offerId: lastOffer?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
               ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
                 // Reject Price Negotiation
                 Expanded(

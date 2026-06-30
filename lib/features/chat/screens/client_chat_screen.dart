@@ -41,6 +41,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       Future.microtask(() async {
         await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
         await ref.read(offersProvider.notifier).getClientOffers();
+        await ref
+            .read(priceNegotiationProvider.notifier)
+            .getPriceNegotiations();
       });
     }
   }
@@ -129,6 +132,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
           ref.read(offersProvider.notifier).getClientOffers();
+          ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
         },
         child: SafeArea(
           child: Stack(

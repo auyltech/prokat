@@ -100,7 +100,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
     }
   }
 
-  Future<bool> acceptOffer(String id) async {
+  Future<bool> acceptOffer(String id, {String? chatId}) async {
     try {
       state = state.copyWith(isSubmitting: true, actionId: "offer:accept:$id");
 
@@ -123,7 +123,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
     }
   }
 
-  Future<bool> rejectOffer(String id) async {
+  Future<bool> rejectOffer(String id, {String? chatId}) async {
     try {
       state = state.copyWith(isSubmitting: true, actionId: "offer:reject:$id");
 
@@ -195,7 +195,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
     }
   }
 
-  Future<bool> cancelOffer(String id) async {
+  Future<bool> cancelOffer(String id, {String? chatId}) async {
     try {
       state = state.copyWith(isSubmitting: true, actionId: "offer:cancel:$id");
 

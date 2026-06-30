@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_chat_button.dart';
@@ -33,13 +35,17 @@ class OwnerBookingTile extends ConsumerWidget {
           content: const Text('Are you sure you want to accept this order?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (context.mounted && context.canPop()) {
+                  context.pop();
+                }
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
-                if (context.mounted) {
-                  Navigator.pop(context);
+                if (context.mounted && context.canPop()) {
+                  context.pop();
                 }
                 await ref
                     .read(bookingProvider.notifier)
@@ -189,18 +195,25 @@ class OwnerBookingTile extends ConsumerWidget {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context, false),
+                                onPressed: () {
+                                  if (context.mounted && context.canPop()) {
+                                    context.pop();
+                                  }
+                                },
                                 child: const Text('Cancel'),
                               ),
                               ElevatedButton(
                                 onPressed: () async {
-                                  Navigator.pop(context, true);
+                                  if (context.canPop()) {
+                                    context.pop();
+                                  }
 
-                                  // await controller.markWorkCompleted(
-                                  //   context: context,
-                                  //   chatId: chatId,
-                                  //   bookingId: booking.id,
-                                  // );
+                                  await ref
+                                      .read(bookingProvider.notifier)
+                                      .updateBookingWorkStatus(
+                                        id: booking.id,
+                                        workStatus: WorkStatus.completed,
+                                      );
                                 },
                                 child: const Text('Mark completed'),
                               ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
@@ -99,7 +98,7 @@ class ClientChatActionBar extends ConsumerWidget {
                         chatId: chatId,
                         bookingId: booking.id,
                         initialPrice: booking.price,
-                        initialPriceRate: getRateOption(booking.priceRate),
+                        initialPriceRate: booking.priceRate,
                         mode: "client",
                       );
                     },

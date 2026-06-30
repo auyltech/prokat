@@ -1,6 +1,6 @@
 import 'package:prokat/core/errors/app_error.dart';
 
-enum FetchStatus { initial, loading, success, empty, refreshing, error }
+enum FetchStatus { initial, loading, success, empty, stale, refreshing, error }
 
 enum PaginationStatus { idle, loadingMore, error }
 
@@ -20,8 +20,9 @@ class Mutation {
   final String id; // "booking:create"
   final MutationStatus? status;
   final AppError? error;
+  final String? message;
 
-  Mutation({required this.id, this.status, this.error});
+  Mutation({required this.id, this.status, this.error, this.message});
 
   bool get isSubmitting => status == MutationStatus.submitting;
 
@@ -39,10 +40,26 @@ class Mutation {
 
   @override
   String toString() {
-    return 'Mutation(id: $id, status: $status)';
+    return 'Mutation(id: $id, status: $status, message: $message)';
   }
 
-  Mutation copyWith({MutationStatus? status, AppError? error}) {
-    return Mutation(id: id, status: status ?? this.status, error: error);
+  Mutation copyWith({
+    MutationStatus? status,
+    AppError? error,
+    String? message,
+  }) {
+    return Mutation(
+      id: id,
+      status: status ?? this.status,
+      error: error,
+      message: message,
+    );
   }
+}
+
+class MutationResponse {
+  final bool success;
+  final String message;
+
+  MutationResponse({required this.success, required this.message});
 }

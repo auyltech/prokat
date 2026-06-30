@@ -8,7 +8,7 @@ Future<void> showCounterOfferSheet({
   String? bookingId,
   String? offerId,
   required int initialPrice,
-  required PriceRateOption initialPriceRate,
+  required PriceRateOption? initialPriceRate,
   required String mode,
 }) async {
   final theme = Theme.of(context);
@@ -26,7 +26,7 @@ Future<void> showCounterOfferSheet({
         bookingId: bookingId,
         offerId: offerId,
         initialPrice: initialPrice,
-        initialPriceRate: initialPriceRate.value,
+        initialPriceRate: initialPriceRate,
         mode: mode,
       );
     },

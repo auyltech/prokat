@@ -190,7 +190,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
     }
   }
 
-  Future<bool> createRequest({
+  Future<MutationResponse> createRequest({
     required String capacity,
     required int offeredRate,
     required String categoryId,
@@ -204,7 +204,10 @@ class RequestNotifier extends StateNotifier<RequestState> {
           state.selectedLocation == null ||
           state.selectedLocation?.id == null ||
           state.selectedTime == null) {
-        return false;
+        return MutationResponse(
+          success: false,
+          message: "Please provide required information",
+        );
       }
 
       _startAction(actionId);
@@ -244,7 +247,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
             ? null
             : AppError(
                 type: ErrorType.unknown,
-                code: "",
+                code: result.error ?? "",
                 message: result.message,
               ),
       );
@@ -253,11 +256,24 @@ class RequestNotifier extends StateNotifier<RequestState> {
         getClientRequests();
       }
 
-      return result.success;
-    } catch (e) {
-      _finishAction(actionId);
+      return MutationResponse(
+        success: result.success,
+        message: result.success ? "Request created" : result.message,
+      );
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create request",
+          code: "",
+        ),
+      );
 
-      return false;
+      return MutationResponse(
+        success: false,
+        message: "Failed to create request",
+      );
     }
   }
 

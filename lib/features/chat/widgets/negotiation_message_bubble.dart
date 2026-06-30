@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class NegotiationMessageBubble extends ConsumerStatefulWidget {
@@ -41,6 +43,18 @@ class _NegotiationMessageBubbleState
       return Text("Failed to load negotiation");
     }
 
+    final priceNegotiationState = ref
+        .read(priceNegotiationProvider)
+        .negotiations;
+
+    final priceNegotiation = priceNegotiationState
+        .where((item) => item.id == parsed.id)
+        .firstOrNull;
+
+    if (priceNegotiation == null) {
+      return Text("Failed to load negotiation");
+    }
+
     return Align(
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
@@ -64,44 +78,36 @@ class _NegotiationMessageBubbleState
             children: [
               // Top Status Info Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.balance_outlined,
-                        color: theme.primaryColor,
-                        size: 26,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Counter Offer",
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.primaryColor,
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    Icons.balance_outlined,
+                    color: theme.primaryColor,
+                    size: 26,
                   ),
+                  const SizedBox(width: 6),
                   Text(
-                    formatDateTime(parsed.createdAt, parsed.createdAt),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w400,
-                      color: theme.colorScheme.outline,
+                    "Price Offer",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryColor,
                     ),
                   ),
+
+                  Spacer(),
+
+                  Text(priceNegotiation.status.name),
                 ],
               ),
               const SizedBox(height: 8),
 
               // Main Body: Price details and action buttons
               Padding(
-                padding: EdgeInsets.only(left: 32),
+                padding: EdgeInsets.only(left: 0),
                 child: Row(
                   children: [
                     Text(
-                      "${formatPrice(parsed.price)} ${getPriceRate(parsed.priceRate, l10n: l10n)}",
+                      "${formatPrice(parsed.price)} ${getPriceRate(priceNegotiation.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.primaryColor,
                         fontWeight: FontWeight.w800,
@@ -109,40 +115,69 @@ class _NegotiationMessageBubbleState
                     ),
                     Spacer(),
 
-                    //     IconButton(
-                    //       onPressed: () {
-                    //         // TODO: Implement reject logic
-                    //       },
-                    //       constraints: const BoxConstraints(),
-                    //       padding: const EdgeInsets.all(10),
-                    //       style: IconButton.styleFrom(
-                    //         backgroundColor: theme.colorScheme.error.withValues(
-                    //           alpha: 0.1,
-                    //         ),
-                    //         foregroundColor: theme.colorScheme.error,
-                    //         shape: const CircleBorder(),
-                    //       ),
-                    //       icon: const Icon(Icons.close_rounded, size: 20),
-                    //     ),
+                    if (priceNegotiation.status ==
+                            PriceNegotiationStatus.created &&
+                        widget.isMe) ...[
+                      IconButton(
+                        // isEnabled: !submitState.isSubmitting,
+                        // isLoading:
+                        //     submitState.isSubmitting &&
+                        //     submitState.submitId == "price:cancel",
+                        onPressed: () async {
+                          await ref
+                              .read(priceNegotiationProvider.notifier)
+                              .cancelPriceNegotiation(priceNegotiation.id);
+                        },
+                        iconSize: 32,
+                        padding: EdgeInsets.all(0),
+                        icon: Icon(Icons.clear, color: Colors.red),
+                      ),
+                    ] else if (priceNegotiation.status ==
+                        PriceNegotiationStatus.created) ...[
+                      IconButton(
+                        // isEnabled: !submitState.isSubmitting,
+                        // isLoading:
+                        //     submitState.isSubmitting &&
+                        //     submitState.submitId == "price:reject",
+                        onPressed: () async {
+                          await ref
+                              .read(priceNegotiationProvider.notifier)
+                              .respondToPriceNegotiation(
+                                negotiationId: priceNegotiation.id,
+                                response: PriceNegotiationResponse.reject,
+                              );
 
-                    //     IconButton(
-                    //       onPressed: () {
-                    //         // TODO: Implement accept logic
-                    //       },
-                    //       constraints: const BoxConstraints(),
-                    //       padding: const EdgeInsets.all(10),
-                    //       style: IconButton.styleFrom(
-                    //         backgroundColor: theme.primaryColor,
-                    //         foregroundColor: Colors.white,
-                    //         shape: const CircleBorder(),
-                    //         shadowColor: theme.primaryColor.withValues(
-                    //           alpha: 0.3,
-                    //         ),
-                    //         elevation: 2,
-                    //       ),
-                    //       icon: const Icon(Icons.check_rounded, size: 20),
-                    //     ),
+                          // chatId: widget.message.chatId,
+                        },
+                        iconSize: 32,
+                        padding: EdgeInsets.all(0),
+                        icon: Icon(Icons.clear, color: Colors.red),
+                      ),
+
+                      IconButton(
+                        onPressed: () async {
+                          await ref
+                              .read(priceNegotiationProvider.notifier)
+                              .respondToPriceNegotiation(
+                                negotiationId: priceNegotiation.id,
+                                response: PriceNegotiationResponse.accept,
+                              );
+                        },
+                        iconSize: 32,
+                        padding: EdgeInsets.all(0),
+                        icon: Icon(Icons.check, color: Colors.green),
+                      ),
+                    ],
                   ],
+                ),
+              ),
+
+              Text(
+                formatDateTime(parsed.createdAt, parsed.createdAt),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: theme.colorScheme.outline,
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -88,14 +89,14 @@ String formatPrice(dynamic price) {
   return "₸ $formatted";
 }
 
-String getPriceRate(String? priceRate, {AppLocalizations? l10n}) {
+String getPriceRate(PriceRateOption? priceRate, {AppLocalizations? l10n}) {
   if (priceRate == null ||
-      priceRate == "null" ||
+      priceRate.value == "null" ||
       priceRate.toString().isEmpty) {
     return "";
   }
 
-  final temp = priceRate.toString().trim().replaceAll(" ", "_").toUpperCase();
+  final temp = priceRate.value;
 
   if (temp == "PER_TRIP") return l10n?.perTrip ?? "/ Trip";
 

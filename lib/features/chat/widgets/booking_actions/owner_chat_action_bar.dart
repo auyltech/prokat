@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
@@ -10,7 +9,6 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
-import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
 class OwnerChatActionBar extends ConsumerWidget {
@@ -39,11 +37,6 @@ class OwnerChatActionBar extends ConsumerWidget {
 
     final controller = ref.read(
       bookingChatActionControllerProvider(booking.id).notifier,
-    );
-
-    final negotiationNotifier = ref.watch(priceNegotiationProvider.notifier);
-    final pending = negotiationNotifier.getPendingNegotiation(
-      bookingId: booking.id,
     );
 
     final statusText = getChatActionBarTitle(chatStatus);
@@ -141,7 +134,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                         chatId: chatId,
                         bookingId: booking.id,
                         initialPrice: booking.price,
-                        initialPriceRate: getRateOption(booking.priceRate),
+                        initialPriceRate: booking.priceRate,
                         mode: "owner",
                       );
                     },
@@ -200,63 +193,10 @@ class OwnerChatActionBar extends ConsumerWidget {
               // Counter Offers
               else if (chatStatus == ChatStatus.counteroffersent) ...[
                 // Cancel Counter Offer
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Cancel Offer",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading:
-                        submitState.isSubmitting &&
-                        submitState.submitId == "price:cancel",
-                    onPressed: () async {
-                      await controller.cancelNegotiation(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        negotiationId: pending?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
               ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
                 // Accept Counter Offer
-                Expanded(
-                  child: ActionBarButton(
-                    label: "Accept Offer",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading:
-                        submitState.isSubmitting &&
-                        submitState.submitId == "price:accept",
-                    onPressed: () async {
-                      await controller.acceptCounterOffer(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        negotiationId: pending?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(width: 6),
 
                 // Reject Counter Offer
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Reject Offer",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading:
-                        submitState.isSubmitting &&
-                        submitState.submitId == "price:reject",
-                    onPressed: () async {
-                      await controller.rejectCounterOffer(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        negotiationId: pending?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
               ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
                 Expanded(
                   child: ActionBarButton.destructive(

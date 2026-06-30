@@ -1,3 +1,4 @@
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
@@ -17,7 +18,7 @@ class OfferModel {
   final User? owner;
 
   final int price;
-  final String? priceRate;
+  final PriceRateOption? priceRate;
 
   final DateTime? createdAt;
   OfferModel({
@@ -62,7 +63,8 @@ class OfferModel {
 
         /// SAFE INT PARSING
         price: parseNullableInt(json['price']) ?? 0,
-        priceRate: json['priceRate']?.toString(),
+        priceRate: parseRateOption(json['priceRate']),
+
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])
             : null,

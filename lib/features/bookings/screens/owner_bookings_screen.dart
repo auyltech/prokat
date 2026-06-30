@@ -17,26 +17,31 @@ class OwnerBookingsScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
+  Future<void> fetchData() async {
+    final notifier = ref.read(bookingProvider.notifier);
+    final state = ref.read(bookingProvider);
+
+    if ([
+      FetchStatus.initial,
+      FetchStatus.stale,
+    ].contains(ref.read(bookingProvider).fetchStatus)) {
+      ref.read(bookingProvider.notifier).getOwnerBookings();
+    }
+
+    // Optional stale refresh
+    if (state.lastFetchedAt != null) {
+      final age = DateTime.now().difference(state.lastFetchedAt!);
+
+      if (age.inMinutes >= 5) {
+        notifier.getOwnerBookings();
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      final notifier = ref.read(bookingProvider.notifier);
-      final state = ref.read(bookingProvider);
-
-      if (ref.read(bookingProvider).fetchStatus == FetchStatus.initial) {
-        ref.read(bookingProvider.notifier).getOwnerBookings();
-      }
-
-      // Optional stale refresh
-      if (state.lastFetchedAt != null) {
-        final age = DateTime.now().difference(state.lastFetchedAt!);
-
-        if (age.inMinutes >= 5) {
-          notifier.getClientBookings();
-        }
-      }
-    });
+    Future.microtask(fetchData);
   }
 
   @override
@@ -76,6 +81,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
                 subtitle: "You don't have any active orders at the moment",
               )
             else if (bookingState.fetchStatus == FetchStatus.success ||
+                bookingState.fetchStatus == FetchStatus.stale ||
                 bookingState.fetchStatus == FetchStatus.refreshing)
               ListView.separated(
                 separatorBuilder: (context, index) => Divider(

@@ -29,7 +29,7 @@ class PriceEntryTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  price.priceRate, // e.g. "Per Hour"
+                  price.priceRate.label, // e.g. "Per Hour"
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.primaryColor,
                   ),

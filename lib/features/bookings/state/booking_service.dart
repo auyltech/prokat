@@ -4,6 +4,7 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 
 class BookingService {
   final ApiClient apiClient;
@@ -152,7 +153,7 @@ class BookingService {
   Future<ApiResponse<void>> updateBookingWorkStatus({
     required String id,
     String? status,
-    String? workStatus,
+    WorkStatus? workStatus,
   }) async {
     try {
       final response = await _dio.patch(

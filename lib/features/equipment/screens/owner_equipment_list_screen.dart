@@ -58,7 +58,23 @@ class _OwnerEquipmentListScreenState
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   if (state.isLoading && state.ownerEquipment.isEmpty)
-                    _builSkeleton(context)
+                    ListView.builder(
+                      itemCount: 4,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) => Shimmer.fromColors(
+                        baseColor: Colors.grey.shade200,
+                        highlightColor: Colors.grey.shade50,
+                        child: Container(
+                          height: 140,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    )
                   else if (state.ownerEquipment.isEmpty)
                     EmptyStateTile(
                       title: l10n.noEquipmentListed,
@@ -84,26 +100,6 @@ class _OwnerEquipmentListScreenState
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _builSkeleton(BuildContext context) {
-    return ListView.builder(
-      itemCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) => Shimmer.fromColors(
-        baseColor: Colors.grey.shade200,
-        highlightColor: Colors.grey.shade50,
-        child: Container(
-          height: 140,
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
         ),
       ),
     );

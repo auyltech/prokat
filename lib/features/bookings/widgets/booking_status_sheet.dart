@@ -65,7 +65,7 @@ class BookingStatusSheet extends ConsumerWidget {
                 onTap: () async {
                   final result = await notifier.updateBookingWorkStatus(
                     id: booking.id,
-                    workStatus: status.name,
+                    workStatus: status,
                   );
 
                   final chatId = booking.chatId;

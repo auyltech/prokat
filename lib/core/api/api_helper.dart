@@ -108,10 +108,11 @@ ApiResponse<T> handleApiResponse<T>({
       message: extractBackendMessage(responseData, fallback: "Success"),
       statusCode: statusCode,
     );
-  } catch (e) {
+  } catch (error) {
     return ApiResponse.failure(
       message: "Format error occurred. Please update the application.",
-      error: e, // Retained under-the-hood for dev logging metrics
+      error: error
+          .toString(), // Retained under-the-hood for dev logging metrics
       statusCode: statusCode,
     );
   }
@@ -127,6 +128,7 @@ ApiResponse<void> handleEmptyApiResponse({
   final isSuccess = statusCode >= 200 && statusCode < 300;
 
   if (!isSuccess) {
+    print(responseData["error"]);
     return ApiResponse.failure(
       message: extractBackendMessage(responseData, fallback: fallbackMessage),
       error: responseData["error"],
@@ -158,5 +160,5 @@ ApiResponse<T> handleUnknownException<T>(
   Object error, {
   String fallbackMessage = "Unexpected error",
 }) {
-  return ApiResponse.failure(message: fallbackMessage, error: error);
+  return ApiResponse.failure(message: fallbackMessage, error: error.toString());
 }

@@ -2,12 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/date_picker_component.dart';
 import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/drowp_down_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/core/widgets/time_picker_component.dart';
+import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -29,6 +34,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _price = TextEditingController();
   final TextEditingController _comment = TextEditingController();
+  PriceRateOption? _priceRate;
 
   @override
   void initState() {
@@ -162,63 +168,53 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               const SizedBox(height: 20),
 
-              Row(
+              PriceRateSelector(
+                initialValue: _priceRate,
+                onChanged: (val) => setState(() {
+                  _priceRate = val;
+                }),
+              ),
+
+              Column(
                 children: [
-                  Expanded(
-                    child: DateTimeButton(
-                      icon: Icons.calendar_today_rounded,
-                      label: offersState.selectedDate == null
-                          ? l10n.selectDate
-                          : formatDate(date: offersState.selectedDate!),
-                      onTap: () async {
-                        await showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Container(
-                            height: 300,
-                            color: theme.scaffoldBackgroundColor,
-                            child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.date,
-                              initialDateTime: initialDate,
-                              minimumDate: minDate,
-                              maximumDate: minDate.add(
-                                const Duration(days: 365),
-                              ),
-                              onDateTimeChanged: offersNotifier.setDate,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  SectionTitle(
+                    title: "Select Date",
+                    trailing: offersState.selectedDate == null
+                        ? "* Required"
+                        : null,
+                  ),
+
+                  DatePickerComponent(
+                    daysRange: 7, // Pass your dynamic 'x' range here
+                    isRequired: true, // Shows indicator text
+                    selectedDate: offersState.selectedDate,
+                    onDateSelected: (date) {
+                      offersNotifier.setDate(date);
+                    },
                   ),
 
                   const SizedBox(width: 12),
 
-                  Expanded(
-                    child: DateTimeButton(
-                      icon: Icons.access_time_rounded,
-                      label: offersState.selectedTime == null
-                          ? l10n.selectTime
-                          : formatTime(context, offersState.selectedTime!),
-                      onTap: () async {
-                        await showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Container(
-                            height: 300,
-                            color: theme.scaffoldBackgroundColor,
-                            child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.time,
-                              use24hFormat: false,
-                              initialDateTime:
-                                  offersState.selectedTime ??
-                                  initialTargetDateTime,
-                              onDateTimeChanged: (time) {
-                                offersNotifier.setTime(time);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  SectionTitle(
+                    title: "Select Time",
+                    trailing: offersState.selectedTime == null
+                        ? "* Required"
+                        : null,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  TimePickerComponent(
+                    slotLengthMinutes: 30, // 30 minute blocks
+                    startHour: 9, // Start at 09:00
+                    endHour: 17, // End at 17:00
+                    isRequired: true,
+                    selectedDateTime: offersState.selectedTime,
+                    onTimeSelected: (updatedDateTime) {
+                      offersNotifier.setTime(
+                        updatedDateTime,
+                      ); // This emits a full DateTime object
+                    },
                   ),
                 ],
               ),

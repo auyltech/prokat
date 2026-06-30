@@ -213,6 +213,8 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         city: city,
       );
 
+      print(result.success);
+
       state = state.copyWith(
         clientEquipment: result.success ? result.data : state.clientEquipment,
         fetchStatus: result.data == null

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -87,13 +89,17 @@ class OwnerCancelBookingButton extends ConsumerWidget {
         workStatus: "cancelled in $difference minutes",
       );
 
-      if (res == true && context.mounted) {
-        // Closes the active dialog context framework safely
-        Navigator.pop(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Order Cancelled")));
+      // Closes the active dialog context framework safely
+      if (context.mounted && context.canPop()) {
+        context.pop();
       }
+
+      AppSnackBar.show(
+        message: res ? "Order Cancelled" : "Failed to cancel order",
+        isSuccess: res,
+        isError: !res,
+      );
+
       return;
     }
 

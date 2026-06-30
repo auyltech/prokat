@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
 class CounterOfferSheet extends ConsumerStatefulWidget {
   final String? bookingId;
   final String? offerId;
   final int initialPrice;
-  final String? initialPriceRate;
+  final PriceRateOption? initialPriceRate;
   final String mode;
 
   const CounterOfferSheet({
@@ -28,7 +30,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
 class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
   late final TextEditingController _priceController;
   final TextEditingController _commentController = TextEditingController();
-  String? _priceRate;
+  PriceRateOption? _priceRate;
 
   Future<void> onSubmit() async {
     final price = int.tryParse(_priceController.text.trim());
@@ -44,7 +46,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
       // use booking notifier to create counter offer
       await notifier.createCounterOffer(
         price: price,
-        priceRate: _priceRate,
+        priceRate: _priceRate?.value,
         comment: _commentController.text.trim(),
         type: widget.mode == "owner" ? "OWNER_COUNTER" : "CLIENT_COUNTER",
         bookingId: widget.bookingId,
@@ -131,9 +133,13 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
           ),
           const SizedBox(height: 12),
 
-          InputDecorator(
-            decoration: const InputDecoration(labelText: 'Rate'),
-            child: Text(_priceRate ?? ''),
+          PriceRateSelector(
+            initialValue: _priceRate,
+            onChanged: (newRate) {
+              setState(() {
+                _priceRate = newRate;
+              });
+            },
           ),
 
           const SizedBox(height: 12),

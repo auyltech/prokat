@@ -114,6 +114,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     required NotificationSource source,
   }) {
     final id = notification.id.trim();
+
     if (id.isEmpty) return;
 
     final now = DateTime.now();

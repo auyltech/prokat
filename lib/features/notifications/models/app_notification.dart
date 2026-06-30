@@ -1,6 +1,8 @@
+import 'package:prokat/features/notifications/models/notification_type.dart';
+
 class AppNotification {
   final String id;
-  final String type;
+  final NotificationType type;
   final String category;
   final String title;
   final String body;
@@ -63,7 +65,7 @@ class AppNotification {
   factory AppNotification.fromJson(Map<String, dynamic> json) {
     return AppNotification(
       id: (json['id'] ?? '').toString(),
-      type: (json['type'] ?? '').toString(),
+      type: NotificationTypeParser.parse(json['type']),
       category: (json['category'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
       body: (json['body'] ?? '').toString(),
@@ -80,7 +82,7 @@ class AppNotification {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'type': type,
+      'type': type.backendName,
       'category': category,
       'title': title,
       'body': body,
@@ -96,7 +98,7 @@ class AppNotification {
 
   AppNotification copyWith({
     String? id,
-    String? type,
+    NotificationType? type,
     String? category,
     String? title,
     String? body,

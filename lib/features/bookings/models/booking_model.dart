@@ -1,3 +1,4 @@
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -13,7 +14,7 @@ class BookingModel {
   final DateTime? bookedAt;
 
   final int price;
-  final String priceRate;
+  final PriceRateOption priceRate;
 
   final String? comment;
   final String? instructions;
@@ -72,7 +73,7 @@ class BookingModel {
       bookedAt: tryParseDate(json['bookedAt']),
 
       price: (json['price'] as num?)?.toInt() ?? 0,
-      priceRate: json['priceRate']?.toString() ?? '',
+      priceRate: parseRateOption(json['priceRate']),
 
       comment: json['comment']?.toString(),
       instructions: json['instructions']?.toString(),
@@ -115,7 +116,7 @@ class BookingModel {
       "bookedOn": bookedOn?.toIso8601String(),
       "bookedAt": bookedAt?.toIso8601String(),
       "price": price,
-      "priceRate": priceRate,
+      "priceRate": priceRate.value,
       "comment": comment,
       "instructions": instructions,
       "equipment": equipment?.toJson(),

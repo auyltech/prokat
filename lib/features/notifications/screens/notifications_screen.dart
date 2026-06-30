@@ -97,9 +97,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   return NotificationTile(
                     notification: item,
                     onTap: () async {
-                      await ref
+                      // don't await read
+                      ref
                           .read(notificationProvider.notifier)
                           .markAsRead(item.id);
+
                       await ref
                           .read(notificationNavigationServiceProvider)
                           .navigate(item);

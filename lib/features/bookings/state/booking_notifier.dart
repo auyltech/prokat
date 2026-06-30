@@ -4,6 +4,7 @@ import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_state.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
@@ -78,6 +79,10 @@ class BookingNotifier extends StateNotifier<BookingState> {
     return state.activeActions.contains(
       Mutation(id: actionId, status: MutationStatus.submitting),
     );
+  }
+
+  void invalidate({required AppMode mode}) {
+    state = state.copyWith(fetchStatus: FetchStatus.stale);
   }
 
   List<BookingModel> getActiveBookings({required AppMode mode}) {
@@ -185,7 +190,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
     }
   }
 
-  Future<bool> createBooking() async {
+  Future<MutationResponse> createBooking() async {
     const actionId = "booking:create";
 
     try {
@@ -194,7 +199,10 @@ class BookingNotifier extends StateNotifier<BookingState> {
           state.selectedPriceEntry == null ||
           state.selectedDate == null ||
           state.selectedTime == null) {
-        return false;
+        return MutationResponse(
+          success: false,
+          message: "Please provide required information",
+        );
       }
 
       _startAction(actionId);
@@ -228,18 +236,24 @@ class BookingNotifier extends StateNotifier<BookingState> {
         ref.read(chatProvider.notifier).getChatThreads("client");
       }
 
-      return result.success;
+      return MutationResponse(
+        success: result.success,
+        message: result.success ? "Order created" : result.message,
+      );
     } catch (error) {
       _finishAction(
         actionId,
         error: AppError(
           type: ErrorType.unknown,
-          message: "Failed to create booking",
+          message: "Failed to create order",
           code: "",
         ),
       );
 
-      return false;
+      return MutationResponse(
+        success: false,
+        message: "Failed to create order",
+      );
     }
   }
 
@@ -306,7 +320,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
   Future<bool> updateBookingWorkStatus({
     required String id,
     String? status,
-    String? workStatus,
+    WorkStatus? workStatus,
   }) async {
     final actionId = "booking:workstatus:$id";
     try {

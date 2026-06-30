@@ -20,6 +20,7 @@ import 'package:go_router/go_router.dart';
 
 class ClientBookingTile extends ConsumerWidget {
   final BookingModel booking;
+
   const ClientBookingTile({super.key, required this.booking});
 
   @override
@@ -220,26 +221,17 @@ Future<void> _handleCancel(
   final theme = Theme.of(context);
   final notifier = ref.read(bookingProvider.notifier);
 
-  final modalTitle = booking.status == BookingStatus.created
-      ? l10n.cancelBooking
-      : l10n.rejectOrder;
-
-  final modalText = booking.status == BookingStatus.created
-      ? l10n.cancelOrderQuestion
-      : l10n.rejectOrderQuestion;
-
-  final submitButton = booking.status == BookingStatus.created
-      ? l10n.yesCancel
-      : l10n.yesReject;
-
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) {
       return AlertDialog(
         backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(modalTitle, style: theme.textTheme.titleMedium),
-        content: Text(modalText, style: theme.textTheme.bodyMedium),
+        title: Text(l10n.cancelBooking, style: theme.textTheme.titleMedium),
+        content: Text(
+          l10n.cancelOrderQuestion,
+          style: theme.textTheme.bodyMedium,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -247,7 +239,7 @@ Future<void> _handleCancel(
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(submitButton),
+            child: Text(l10n.yesCancel),
           ),
         ],
       );
@@ -268,9 +260,9 @@ Future<void> _handleCancel(
       workStatus: "cancelled in $difference minutes",
     );
 
-    if (result == true && context.mounted) {
-      Navigator.pop(context);
-    }
+    // if (result == true && context.mounted) {
+    //   Navigator.pop(context);
+    // }
 
     AppSnackBar.show(
       message: result ? l10n.orderCancelled : "Failed to cancel order",

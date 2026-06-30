@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
+import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
   final String mode;
@@ -27,6 +26,10 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     BuildContext context,
     Category category,
   ) async {
+    if (widget.mode == "create_request") {
+      ref.read(requestProvider.notifier).selectCategory(category);
+    }
+
     ref.read(categoriesProvider.notifier).selectCategory(category);
 
     final userProfileState = ref.read(userProfileProvider.notifier);
@@ -37,24 +40,10 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
   @override
   Widget build(BuildContext context) {
     final categoriesState = ref.watch(categoriesProvider);
-    final l10n = AppLocalizations.of(context)!;
-
-    final isRequired =
-        (widget.mode == "create_request" &&
-            categoriesState.selectedCategory == null)
-        ? true
-        : false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(
-          title: l10n.services,
-          trailing: isRequired ? "* Required" : null,
-        ),
-
-        SizedBox(height: 8),
-
         if (categoriesState.fetchStatus == FetchStatus.initial ||
             categoriesState.fetchStatus == FetchStatus.loading)
           const CategoryRowSkeleton()

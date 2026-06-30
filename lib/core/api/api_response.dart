@@ -6,7 +6,7 @@ class ApiResponse<T> {
   final String message;
 
   /// Raw technical/debug error.
-  final Object? error;
+  final String? error;
 
   /// Optional HTTP status code.
   final int? statusCode;
@@ -35,7 +35,7 @@ class ApiResponse<T> {
 
   factory ApiResponse.failure({
     required String message,
-    Object? error,
+    String? error,
     int? statusCode,
   }) {
     return ApiResponse<T>(

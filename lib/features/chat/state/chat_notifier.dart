@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_model.dart';
@@ -25,21 +28,47 @@ class ChatNotifier extends StateNotifier<ChatState> {
     super.dispose();
   }
 
+  void invalidate({required AppMode mode}) {
+    state = state.copyWith(fetchStatus: FetchStatus.stale);
+  }
+
   Future<void> getChatThreads(String? mode) async {
     try {
-      state = state.copyWith(isLoadingConversations: true, error: null);
+      final hasData = state.conversations.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getChatThreads(mode);
 
       state = state.copyWith(
-        isLoadingConversations: false,
         conversations: sortChats(result.data ?? []),
-        error: null,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "CHAT_FETCH_FAILED",
+              ),
       );
     } catch (error) {
       state = state.copyWith(
-        isLoadingConversations: false,
-        error: friendlyChatError(error),
+        fetchStatus: state.conversations.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.stale,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: friendlyChatError(error),
+          code: "CHAT_FETCH_FAILED",
+        ),
       );
     }
   }
@@ -47,35 +76,47 @@ class ChatNotifier extends StateNotifier<ChatState> {
   // Called when a chat is open, fetches the chat details, booking info, and messages
   Future<void> getChatById(String chatId) async {
     try {
-      state = state.copyWith(isLoadingConversations: true, error: null);
+      final hasData = state.conversations.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getChatById(chatId);
 
-      if (result.success && result.data is ChatModel) {
-        final messages = sortMessages(
-          (result.data?.messages ?? []).take(50).toList(growable: false),
-        );
+      final messages = sortMessages(
+        (result.data?.messages ?? []).take(50).toList(growable: false),
+      );
 
-        state = state.copyWith(
-          isLoadingConversations: false,
-          conversations: sortChats(
-            upsertChat(state.conversations, result.data as ChatModel),
-          ),
-          currentChat: result.data,
-          messages: messages,
-          sendingMessageClientTempIds: const {},
-          error: null,
-        );
-      } else {
-        state = state.copyWith(
-          isLoadingConversations: false,
-          error: result.message,
-        );
-      }
+      state = state.copyWith(
+        conversations: sortChats(
+          upsertChat(state.conversations, result.data as ChatModel),
+        ),
+        currentChat: result.data,
+        messages: messages,
+        sendingMessageClientTempIds: const {},
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "CHAT_FETCH_FAILED",
+              ),
+      );
     } catch (error) {
       state = state.copyWith(
-        isLoadingConversations: false,
-        error: friendlyChatError(error),
+        fetchStatus: state.conversations.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.stale,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: friendlyChatError(error),
+          code: "CHAT_FETCH_FAILED",
+        ),
       );
     }
   }
@@ -97,6 +138,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
           isLoadingMessages: false,
           error: "You do not have permission to view this chat.",
         );
+
         return; // Halt execution before calling backend or socket
       }
 

@@ -1,3 +1,4 @@
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
@@ -9,7 +10,7 @@ class RequestModel {
   final RequestStatus status;
   final String capacity;
   final int offeredPrice;
-  final String? offeredPriceRate;
+  final PriceRateOption? offeredPriceRate;
   final String? comment;
 
   final DateTime? requiredOn;
@@ -53,7 +54,7 @@ class RequestModel {
       comment: json['comment']?.toString() ?? '',
 
       offeredPrice: parseNullableInt(json['offeredPrice']) ?? 0,
-      offeredPriceRate: json['offeredPriceRate']?.toString(),
+      offeredPriceRate: parseRateOption(json['offeredPriceRate']),
 
       requiredOn: DateTime.parse(json['requiredOn']),
       requiredAt: json['requiredAt'] != null

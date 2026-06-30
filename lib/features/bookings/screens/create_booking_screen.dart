@@ -5,6 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_picker_component.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
@@ -66,20 +67,14 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final result = await ref.read(bookingProvider.notifier).createBooking();
 
-    final action = bookingState.activeActions
-        .where((item) => item.id == "booking:create")
-        .firstOrNull;
+    AppSnackBar.show(
+      message: result.message,
+      isSuccess: result.success,
+      isError: !result.success,
+    );
 
-    if (action?.status == MutationStatus.error) {
-      message = action?.error?.message ?? "Failed to create order";
-    } else if (action?.status == MutationStatus.success || action == null) {
-      message = "Order created";
-    }
-
-    AppSnackBar.show(message: message, isSuccess: result, isError: !result);
-
-    if (mounted) {
-      if (result) context.push(AppRoutes.clientOrders);
+    if (result.success && mounted) {
+      context.push(AppRoutes.clientOrders);
     }
   }
 
@@ -142,9 +137,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       body: ListView(
         children: [
           if (equipment == null)
-            _buildCenteredFallback(
-              icon: Icons.login_outlined,
-              message: l10n.equipmentNotFound,
+            EmptyStateTile(
+              icon: Icons.error,
+              title: "Not Found",
+              subtitle: l10n.equipmentNotFound,
             )
           else
             Column(
@@ -412,26 +408,4 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       ),
     );
   }
-}
-
-Widget _buildCenteredFallback({
-  required IconData icon,
-  required String message,
-}) {
-  return SizedBox(
-    height: 400,
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 64, color: Colors.grey.withValues(alpha: 0.4)),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(color: Colors.grey.withValues(alpha: 0.7)),
-          ),
-        ],
-      ),
-    ),
-  );
 }

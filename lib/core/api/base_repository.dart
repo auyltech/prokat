@@ -40,7 +40,7 @@ abstract class BaseRepository {
       } catch (e) {
         return ApiResponse.failure(
           message: "Failed to read server response",
-          error: e,
+          error: e.toString(),
           statusCode: statusCode,
         );
       }
@@ -53,7 +53,10 @@ abstract class BaseRepository {
         statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      return ApiResponse.failure(message: "Unexpected error", error: e);
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 

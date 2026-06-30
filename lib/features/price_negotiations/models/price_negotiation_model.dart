@@ -1,3 +1,4 @@
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 
 enum PriceNegotiationResponse { accept, reject }
@@ -11,7 +12,7 @@ class PriceNegotiation {
   final String? receiverId;
 
   final int price;
-  final String? priceRate;
+  final PriceRateOption? priceRate;
   final String? comment;
 
   final PriceNegotiationStatus status;
@@ -64,7 +65,7 @@ class PriceNegotiation {
       receiverId:
           json['receiverId']?.toString() ?? json['toUserId']?.toString(),
       price: parsePrice(json['price']),
-      priceRate: json['priceRate']?.toString(),
+      priceRate: parseRateOption(json['priceRate']),
       comment: json['comment']?.toString(),
       status: parsePriceNegotiationStatus(json['status']?.toString()),
       createdAt: _tryParseDate(json['createdAt']),
