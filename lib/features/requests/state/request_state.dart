@@ -70,6 +70,27 @@ class RequestState {
         .toList();
   }
 
+  bool get isFetching {
+    return [FetchStatus.loading, FetchStatus.refreshing].contains(fetchStatus);
+  }
+
+  bool get isSubmitting {
+    return activeActions
+        .where((item) => item.status == MutationStatus.submitting)
+        .isNotEmpty;
+  }
+
+  bool isActionActive(String actionId) {
+    return activeActions
+            .where(
+              (item) =>
+                  item.id == actionId &&
+                  item.status == MutationStatus.submitting,
+            )
+            .firstOrNull !=
+        null;
+  }
+
   RequestState copyWith({
     FetchStatus? fetchStatus,
     PaginationStatus? paginationStatus,

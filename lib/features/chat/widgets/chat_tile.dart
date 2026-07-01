@@ -44,7 +44,13 @@ class ChatTile extends StatelessWidget {
 
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
 
-    final title = chat.displayTitle(currentUserId);
+    final title = chat.type == ChatType.direct
+        ? chat.displayTitle(currentUserId)
+        : chat.type == ChatType.support
+        ? "Support"
+        : chat.type == ChatType.workflow
+        ? "Support"
+        : "Announcements";
 
     final preview = chat.lastMessage?.content ?? 'No messages yet';
 

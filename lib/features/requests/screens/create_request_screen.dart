@@ -38,11 +38,11 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
       await ref.read(requestProvider.notifier).getClientRequests();
     }
 
-    final activeRequests = ref
-        .watch(requestProvider.notifier)
-        .getActiveRequests(AppMode.clientMode);
+    // final activeRequests = ref
+    //     .watch(requestProvider.notifier)
+    //     .getActiveRequests(AppMode.clientMode);
 
-    final canCreateRequest = activeRequests.length < maxAllowedRequests;
+    // final canCreateRequest = activeRequests.length < maxAllowedRequests;
 
     // if (!canCreateRequest && mounted) {
     //   context.push(AppRoutes.clientRequests);

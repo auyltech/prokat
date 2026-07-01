@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_picker_component.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -389,13 +389,18 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       ),
 
                       const SizedBox(height: 40),
-
-                      PrimaryButton(
-                        label: "Place Order",
-                        onPressed: (!canSubmit || isSubmitting)
-                            ? null
-                            : onSubmit,
-                        isLoading: isSubmitting,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ActionButton(
+                              label: "Place Order",
+                              onPressed: (!canSubmit || isSubmitting)
+                                  ? null
+                                  : onSubmit,
+                              isLoading: isSubmitting,
+                            ),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 40),

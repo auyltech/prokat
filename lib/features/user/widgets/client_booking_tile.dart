@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -157,26 +158,44 @@ class ClientBookingTile extends ConsumerWidget {
                     BookingStatus.created,
                     BookingStatus.confirmed,
                   ].contains(booking.status)) ...[
-                    ActionButton.destructive(
-                      label: "Cancel",
-                      isLoading: isSubmittingCancel,
-                      isEnabled: !isSubmittingCancel,
-                      onPressed: !isSubmittingCancel
-                          ? () {
-                              _handleCancel(context, ref, booking, l10n);
-                            }
-                          : null,
-                    ),
+                    if (ref
+                        .watch(bookingProvider)
+                        .isActionActive("booking:update:${booking.id}"))
+                      SizedBox(
+                        height: 14,
+                        width: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                        ),
+                      )
+                    else
+                      IconButton(
+                        onPressed: !isSubmittingCancel
+                            ? () {
+                                _handleCancel(context, ref, booking, l10n);
+                              }
+                            : null,
+                        icon: Icon(
+                          LucideIcons.x,
+                          size: 25,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
 
                     const SizedBox(width: 8),
 
-                    ActionButton.ghost(
-                      icon: Icons.chat_bubble_outline_rounded,
+                    IconButton(
                       onPressed: () {
                         context.push(
-                          '${AppRoutes.clientChatList}/${booking.chatId}',
+                          '${AppRoutes.clientChatList}/direct/${booking.chatId}',
                         );
                       },
+                      icon: Icon(
+                        LucideIcons.messageCircle,
+                        size: 25,
+                        color: theme.primaryColor,
+                      ),
                     ),
                   ] else if (canReview) ...[
                     ActionButton(

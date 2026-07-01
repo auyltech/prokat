@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -11,6 +14,7 @@ import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -66,7 +70,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
     final chatState = ref.watch(chatProvider);
     final currentChat = chatState.currentChat;
-    final messages = chatState.messages;
+    final messages = chatState.messages
+        .where((item) => item.chatId == currentChat?.id)
+        .toList();
 
     final booking = currentChat?.booking;
     final request = currentChat?.request;
@@ -126,12 +132,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          if (chatState.isLoadingMessages || chatState.isLoadingConversations) {
+          if (chatState.fetchStatus == FetchStatus.loading ||
+              chatState.fetchStatus == FetchStatus.refreshing) {
             return;
           }
 
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          ref.read(requestProvider.notifier).getClientRequests();
           ref.read(offersProvider.notifier).getClientOffers();
+          ref.read(bookingProvider.notifier).getClientBookings();
           ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
         },
         child: SafeArea(
@@ -184,34 +193,10 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                         ),
                         separatorBuilder: (context, index) =>
                             SizedBox(height: 4),
-                        itemCount: (booking != null || request != null)
-                            ? messages.length + 1
-                            : messages.length,
+                        itemCount: messages.length,
                         itemBuilder: (context, index) {
-                          final hasBookingHeader =
-                              booking != null || request != null;
-
-                          if (hasBookingHeader) {
-                            if (index == 0) {
-                              // if (request != null) {
-                              //   return RequestMessageBubble(request: request);
-                              // }
-                              // if (booking != null) {
-                              //   return BookingMessageBubble(booking: booking);
-                              // }
-                              return const SizedBox.shrink();
-                            }
-                          }
-
-                          // 1. Shift index by 1 if header is present
-                          final messageIndex = hasBookingHeader
-                              ? index - 1
-                              : index;
-
                           // 2. Invert the index so oldest messages (index 0 in data) render at the top
-                          final invertedIndex =
-                              messages.length - 1 - messageIndex;
-
+                          final invertedIndex = messages.length - 1 - index;
                           final message = messages[invertedIndex];
                           final isMe =
                               message.senderId == currentUserId ||
@@ -295,7 +280,10 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: SendMessageForm(chatStatus: chatStatus),
+      bottomNavigationBar: SendMessageForm(
+        chatStatus: chatStatus,
+        mode: AppMode.clientMode,
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
@@ -28,10 +28,6 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
     final request = widget.request;
     final id = request.id;
-
-    final isSubmitting = ref
-        .watch(requestProvider.notifier)
-        .isActionActive("request:$id:cancel");
 
     return Container(
       decoration: BoxDecoration(color: theme.cardColor),
@@ -142,13 +138,29 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
 
               Spacer(),
 
-              ActionButton.danger(
-                label: l10n.cancelRequestAction,
-                isEnabled: !isSubmitting,
-                isLoading: isSubmitting,
-                onPressed: () =>
-                    _showCancelConfirmation(context, ref, request.id, l10n),
-              ),
+              if (ref
+                  .watch(requestProvider)
+                  .isActionActive("request:$id:cancel"))
+                SizedBox(
+                  height: 14,
+                  width: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
+                )
+              else
+                IconButton(
+                  onPressed: () =>
+                      _showCancelConfirmation(context, ref, request.id, l10n),
+                  icon: Icon(
+                    LucideIcons.x,
+                    size: 25,
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+
+              SizedBox(width: 12),
             ],
           ),
         ],

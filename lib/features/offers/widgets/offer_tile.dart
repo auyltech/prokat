@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/offers/widgets/offer_status_badge.dart';
+import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -22,21 +23,21 @@ class OfferTile extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
-    if (ref.read(offersProvider).isSubmitting ||
-        ref.read(offersProvider).isLoading) {
+    if (ref.read(offersProvider).isFetching ||
+        ref.read(offersProvider).isSubmitting) {
       return;
     }
 
     final notifier = ref.read(offersProvider.notifier);
 
-    final success = await notifier.acceptOffer(offer.id);
+    final result = await notifier.acceptOffer(offer.id);
 
     if (!context.mounted) return;
 
     AppSnackBar.show(
-      message: success ? l10n.offerUpdated : l10n.somethingWentWrong,
-      isSuccess: success,
-      isError: !success,
+      message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
+      isSuccess: result.success,
+      isError: !result.success,
     );
   }
 
@@ -46,19 +47,19 @@ class OfferTile extends ConsumerWidget {
     AppLocalizations l10n,
   ) async {
     if (ref.read(offersProvider).isSubmitting ||
-        ref.read(offersProvider).isLoading) {
+        ref.read(offersProvider).isFetching) {
       return;
     }
 
     final notifier = ref.read(offersProvider.notifier);
-    final success = await notifier.rejectOffer(offer.id);
+    final result = await notifier.rejectOffer(offer.id);
 
     if (!context.mounted) return;
 
     AppSnackBar.show(
-      message: success ? l10n.offerUpdated : l10n.somethingWentWrong,
-      isSuccess: success,
-      isError: !success,
+      message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
+      isSuccess: result.success,
+      isError: !result.success,
     );
   }
 
@@ -67,14 +68,7 @@ class OfferTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final owner = offer.owner;
     final equipment = offer.equipment;
-
-    final ownerName = owner?.displayName ?? "";
-
-    final ownerRating = owner?.rating?.toStringAsFixed(1) ?? "4.7";
-    final totalOrders = owner?.orderCount ?? 0;
-
     final ownerComment = offer.comment?.trim();
 
     final isHandled =
@@ -83,92 +77,39 @@ class OfferTile extends ConsumerWidget {
         offer.status == OfferStatus.expired;
 
     return Container(
-      width: double.infinity,
+      color: theme.cardColor,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// OWNER HEADER
           Row(
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: const Color(0xFFE3F2FD),
-                backgroundImage:
-                    owner?.imageUrl != null && owner!.imageUrl!.isNotEmpty
-                    ? NetworkImage(owner.imageUrl!)
-                    : null,
-                child: owner?.imageUrl == null || owner!.imageUrl!.isEmpty
-                    ? const Icon(
-                        Icons.person,
-                        color: Color(0xFF00599C),
-                        size: 22,
-                      )
-                    : null,
-              ),
+              UserInfoTile(user: offer.owner),
 
-              const SizedBox(width: 12),
+              Spacer(),
 
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      ownerName,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF161616),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          ownerRating,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        if (totalOrders > 0) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            "• $totalOrders orders",
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              OfferStatusBadge(status: offer.status),
 
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  "NEW OFFER",
-                  style: const TextStyle(
-                    color: Color(0xFF2E7D32),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 12,
+              //     vertical: 6,
+              //   ),
+              //   decoration: BoxDecoration(
+              //     color: const Color(0xFFE8F5E9),
+              //     borderRadius: BorderRadius.circular(6),
+              //   ),
+              //   child: Text(
+              //     "NEW OFFER",
+              //     style: const TextStyle(
+              //       color: Color(0xFF2E7D32),
+              //       fontSize: 11,
+              //       fontWeight: FontWeight.w800,
+              //       letterSpacing: 0.3,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
 
@@ -178,36 +119,6 @@ class OfferTile extends ConsumerWidget {
           if (equipment != null) EquipmentInfoTile(equipment: equipment),
 
           const SizedBox(height: 16),
-
-          /// OFFER RATE
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.offeredRate.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: const Color(0xFF0D47A1),
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
 
           /// OWNER COMMENT
           if (ownerComment != null && ownerComment.isNotEmpty) ...[
@@ -245,21 +156,44 @@ class OfferTile extends ConsumerWidget {
             ),
           ],
 
-          const SizedBox(height: 16),
-
-          const Divider(height: 1, thickness: 0.8, color: Color(0xFFEEEEEE)),
-
-          const SizedBox(height: 12),
-
-          /// ACTIONS
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              /// OFFER RATE
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.offeredRate.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: const Color(0xFF0D47A1),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// ACTIONS
               if (offer.chatId.isNotEmpty) ...[
-                ActionButton(
-                  icon: Icons.chat_bubble_outline_rounded,
+                IconButton(
                   onPressed: () => context.push(
-                    '${AppRoutes.clientChatList}/${offer.chatId}',
+                    '${AppRoutes.clientChatList}/direct/${offer.chatId}',
+                  ),
+                  icon: Icon(
+                    LucideIcons.messageCircle,
+                    size: 25,
+                    color: theme.primaryColor,
                   ),
                 ),
 
@@ -267,51 +201,32 @@ class OfferTile extends ConsumerWidget {
               ],
 
               if (!isHandled) ...[
-                ActionButton.destructive(
-                  label: l10n.reject,
-                  isEnabled: !ref.watch(offersProvider).isSubmitting,
+                // Reject Offer
+                IconButton(
                   onPressed: () => ref.watch(offersProvider).isSubmitting
                       ? null
                       : _handleReject(context, ref, l10n),
-                  isLoading: ref.watch(offersProvider).isSubmitting,
+                  icon: Icon(
+                    LucideIcons.x,
+                    size: 25,
+                    color: theme.colorScheme.error,
+                  ),
                 ),
 
                 const SizedBox(width: 8),
 
-                ActionButton(
-                  icon: LucideIcons.check,
-                  label: l10n.accept,
-                  isEnabled: !ref.watch(offersProvider).isSubmitting,
+                // Accept Offer
+                IconButton(
                   onPressed: () => ref.watch(offersProvider).isSubmitting
                       ? null
                       : _handleAccept(context, ref, l10n),
-                  isLoading: ref.watch(offersProvider).isSubmitting,
-                ),
-              ] else
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: offer.status == OfferStatus.accepted
-                        ? const Color(0xFFE8F5E9)
-                        : const Color(0xFFFFEBEE),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    offer.status == OfferStatus.accepted
-                        ? "ACCEPTED"
-                        : "REJECTED",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: offer.status == OfferStatus.accepted
-                          ? const Color(0xFF2E7D32)
-                          : const Color(0xFFC62828),
-                    ),
+                  icon: Icon(
+                    LucideIcons.check,
+                    size: 25,
+                    color: Colors.green[800],
                   ),
                 ),
+              ],
             ],
           ),
         ],

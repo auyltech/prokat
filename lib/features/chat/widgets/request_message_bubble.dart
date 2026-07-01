@@ -144,6 +144,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           // Location
           InfoTile.secondary(
             icon: Icons.location_on_outlined,
+            label: "Location",
             value: request.location.street,
             onTap: () => showLocationSheet(context, request.location),
           ),
@@ -152,10 +153,12 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
 
           // Date Time
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
                 child: InfoTile.secondary(
                   icon: Icons.event_outlined,
+                  label: "Date",
                   value: () {
                     if (request.requiredOn == null) return "PENDING";
 
@@ -175,6 +178,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
               Expanded(
                 child: InfoTile.secondary(
                   icon: Icons.access_time_outlined,
+                  label: "Time",
                   value: () {
                     // 2. If a specific time exists, format and append it (e.g., "14:30")
                     if (request.requiredAt != null) {
@@ -194,9 +198,29 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           const SizedBox(height: 8),
 
           // Offered Rate and Comment
-          InfoTile.destructive(
-            value:
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.offeredRate.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey,
+                  letterSpacing: 0.3,
+                ),
+              ),
+
+              const SizedBox(height: 2),
+
+              Text(
                 "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: const Color(0xFF0D47A1),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
 
           if (request.comment?.isNotEmpty ?? false)

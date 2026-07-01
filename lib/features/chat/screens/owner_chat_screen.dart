@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
@@ -247,7 +248,10 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SendMessageForm(chatStatus: chatStatus),
+      bottomNavigationBar: SendMessageForm(
+        chatStatus: chatStatus,
+        mode: AppMode.ownerMode,
+      ),
     );
   }
 }

@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'dart:ui';
 
 class SendMessageForm extends ConsumerStatefulWidget {
   final ChatStatus chatStatus;
+  final AppMode mode;
+  final ChatType type;
 
-  const SendMessageForm({super.key, required this.chatStatus});
+  const SendMessageForm({
+    super.key,
+    required this.mode,
+    required this.chatStatus,
+    this.type = ChatType.direct,
+  });
 
   @override
   ConsumerState<SendMessageForm> createState() => _SendMessageFormState();
@@ -22,7 +31,12 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       return;
     }
 
-    ref.read(chatProvider.notifier).sendMessage(text);
+    if (widget.type == ChatType.support) {
+      ref.read(chatProvider.notifier).sendSupportMessage(text, widget.mode);
+    } else {
+      ref.read(chatProvider.notifier).sendMessage(text);
+    }
+
     _controller.clear();
   }
 

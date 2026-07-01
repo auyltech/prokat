@@ -212,7 +212,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         "price": int.tryParse(
           (state.selectedPriceEntry?.price ?? 0).toString(),
         ).toString(),
-        "priceRate": state.selectedPriceEntry?.priceRate ?? "",
+        "priceRate": state.selectedPriceEntry?.priceRate.value ?? "",
         "locationId": state.selectedLocation?.id,
         "bookedOn": state.selectedDate!.toIso8601String(),
         "bookedAt": state.selectedTime!.toIso8601String(),
@@ -233,7 +233,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       if (result.success) {
         // Don't await, return true to show snackbar
         getClientBookings();
-        ref.read(chatProvider.notifier).getChatThreads("client");
+        ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
       }
 
       return MutationResponse(

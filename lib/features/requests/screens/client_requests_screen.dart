@@ -54,7 +54,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
         .watch(requestProvider.notifier)
         .getActiveRequests(AppMode.clientMode);
 
-    final offers = offersState.renterOffers.where(
+    final offers = offersState.clientOffers.where(
       (r) => [OfferStatus.created, OfferStatus.viewed].contains(r.status),
     );
 

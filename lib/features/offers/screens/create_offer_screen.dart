@@ -1,30 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/utils/parse.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_picker_component.dart';
-import 'package:prokat/core/widgets/date_time_button.dart';
 import 'package:prokat/core/widgets/drowp_down_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/utils/date_time.dart';
 
 class CreateOfferScreen extends ConsumerStatefulWidget {
-  final String requestId;
-
-  const CreateOfferScreen({super.key, required this.requestId});
+  const CreateOfferScreen({super.key});
 
   @override
   ConsumerState<CreateOfferScreen> createState() => _CreateOfferScreenState();
@@ -34,18 +27,13 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _price = TextEditingController();
   final TextEditingController _comment = TextEditingController();
-  PriceRateOption? _priceRate;
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final request = ref
-          .read(requestProvider)
-          .ownerRequests
-          .where((item) => item.id == widget.requestId)
-          .firstOrNull;
+      final request = ref.read(offersProvider).selectedRequest;
 
       if (request == null) return;
 
@@ -74,7 +62,6 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final offersState = ref.watch(offersProvider);
@@ -85,6 +72,12 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         .map((item) => EquipmentSummaryModel.fromJson(item.toJson()))
         .toList();
 
+    final canSubmit =
+        offersState.priceRate != null &&
+        offersState.selectedEquipment != null &&
+        offersState.selectedRequest != null &&
+        !ref.watch(offersProvider).isSubmitting;
+
     Future<void> onSubmit() async {
       if (_formKey.currentState?.validate() ?? false) {
         offersNotifier.setPrice(parseNullableInt(_price.text) ?? 0);
@@ -92,25 +85,22 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
         final result = await offersNotifier.createOffer();
 
-        if (result && context.mounted) {
+        if (result.success && context.mounted) {
           AppSnackBar.show(
-            message: "Offer Sent",
-            isSuccess: result,
-            isError: !result,
+            message: result.message,
+            isSuccess: result.success,
+            isError: !result.success,
           );
 
           context.pop();
         }
+      } else {
+        AppSnackBar.show(
+          message: "Please provide required information",
+          isError: true,
+        );
       }
     }
-
-    final minDate = DateTime.now();
-
-    final initialDate =
-        offersState.selectedDate != null &&
-            offersState.selectedDate!.isAfter(minDate)
-        ? offersState.selectedDate!
-        : minDate;
 
     return Scaffold(
       body: Form(
@@ -148,80 +138,90 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: InputField(
-                      label: l10n.priceKZT,
-                      controller: _price,
-                      hint: "12 000",
-                      // keyboardType: TextInputType.number,
-                      validator: (v) =>
-                          v == null || v.isEmpty ? l10n.required : null,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-              ),
+              SectionTitle(title: "Price"),
 
-              const SizedBox(height: 20),
-
-              PriceRateSelector(
-                initialValue: _priceRate,
-                onChanged: (val) => setState(() {
-                  _priceRate = val;
-                }),
-              ),
-
-              Column(
-                children: [
-                  SectionTitle(
-                    title: "Select Date",
-                    trailing: offersState.selectedDate == null
-                        ? "* Required"
-                        : null,
-                  ),
-
-                  DatePickerComponent(
-                    daysRange: 7, // Pass your dynamic 'x' range here
-                    isRequired: true, // Shows indicator text
-                    selectedDate: offersState.selectedDate,
-                    onDateSelected: (date) {
-                      offersNotifier.setDate(date);
-                    },
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  SectionTitle(
-                    title: "Select Time",
-                    trailing: offersState.selectedTime == null
-                        ? "* Required"
-                        : null,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  TimePickerComponent(
-                    slotLengthMinutes: 30, // 30 minute blocks
-                    startHour: 9, // Start at 09:00
-                    endHour: 17, // End at 17:00
-                    isRequired: true,
-                    selectedDateTime: offersState.selectedTime,
-                    onTimeSelected: (updatedDateTime) {
-                      offersNotifier.setTime(
-                        updatedDateTime,
-                      ); // This emits a full DateTime object
-                    },
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
 
               InputField(
+                icon: LucideIcons.coins,
+                label: l10n.priceKZT,
+                controller: _price,
+                hint: "12 000",
+                keyboardType: TextInputType.number,
+                validator: (v) => v == null || v.isEmpty ? l10n.required : null,
+              ),
+
+              const SizedBox(height: 12),
+
+              SectionTitle(title: "Price Rate"),
+
+              const SizedBox(height: 8),
+
+              PriceRateSelector(
+                initialValue: ref.watch(offersProvider).priceRate,
+                onChanged: (val) =>
+                    ref.read(offersProvider.notifier).setPriceRate(val),
+              ),
+
+              const SizedBox(height: 12),
+
+              SectionTitle(
+                title: "Select Date",
+                trailing: offersState.selectedDate == null
+                    ? "* Required"
+                    : null,
+              ),
+
+              const SizedBox(height: 8),
+
+              DatePickerComponent(
+                daysRange: 7, // Pass your dynamic 'x' range here
+                isRequired: true, // Shows indicator text
+                selectedDate: offersState.selectedDate,
+                onDateSelected: (date) {
+                  offersNotifier.setDate(date);
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              SectionTitle(
+                title: "Select Time",
+                trailing: offersState.selectedTime == null
+                    ? "* Required"
+                    : null,
+              ),
+
+              const SizedBox(height: 8),
+
+              TimePickerComponent(
+                slotLengthMinutes: 30, // 30 minute blocks
+                startHour: 9, // Start at 09:00
+                endHour: 17, // End at 17:00
+                isRequired: true,
+                selectedDateTime: offersState.selectedTime,
+                onTimeSelected: (updatedDateTime) {
+                  offersNotifier.setTime(
+                    updatedDateTime,
+                  ); // This emits a full DateTime object
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              SectionTitle(
+                title: "Comments",
+                trailing: offersState.selectedTime == null
+                    ? "* Required"
+                    : null,
+              ),
+
+              const SizedBox(height: 8),
+
+              InputField(
+                icon: LucideIcons.text,
                 label: l10n.comments,
                 controller: _comment,
                 hint: l10n.equipmentNameHint,
@@ -230,10 +230,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               const SizedBox(height: 24),
 
-              PrimaryButton(
-                label: l10n.sendOffer,
-                onPressed: onSubmit,
-                isLoading: offersState.isLoading,
+              Row(
+                children: [
+                  Expanded(
+                    child: ActionButton(
+                      label: l10n.sendOffer,
+                      onPressed: onSubmit,
+                      isEnabled: canSubmit,
+                      isLoading: offersState.isActionActive("offer:create"),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 
-class UserInfoTile extends StatelessWidget {
+class OwnerInfoTile extends StatelessWidget {
   final User? user;
 
-  const UserInfoTile({super.key, this.user});
+  const OwnerInfoTile({super.key, this.user});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // if (user == null) return SizedBox.shrink();
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,

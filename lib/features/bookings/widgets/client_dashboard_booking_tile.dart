@@ -125,7 +125,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                   icon: Icons.chat,
                   onPressed: () {
                     context.push(
-                      '${AppRoutes.clientChatList}/${booking.chatId}',
+                      '${AppRoutes.clientChatList}/direct/${booking.chatId}',
                     );
                   },
                 ),

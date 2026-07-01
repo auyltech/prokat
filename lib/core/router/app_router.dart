@@ -14,6 +14,7 @@ import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_screen.dart';
+import 'package:prokat/features/chat/screens/client_support_chat.dart';
 import 'package:prokat/features/chat/screens/owner_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_screen.dart';
@@ -292,19 +293,15 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.clientChatList,
                 builder: (context, state) {
-                  // TODO: REMOVE bookingId/ requestId
-                  final bookingId =
-                      state.uri.queryParameters['bookingId'] ?? '';
-                  final requestId =
-                      state.uri.queryParameters['requestId'] ?? '';
-                  return ClientChatListScreen(
-                    bookingId: bookingId,
-                    requestId: requestId,
-                  );
+                  return ClientChatListScreen();
                 },
                 routes: [
                   GoRoute(
-                    path: AppRoutes.id,
+                    path: "/support",
+                    builder: (context, state) => ClientSupportChat(),
+                  ),
+                  GoRoute(
+                    path: "direct/${AppRoutes.id}",
                     builder: (context, state) {
                       final chatId = state.pathParameters['id'] ?? '';
                       return ClientChatScreen(chatId: chatId);
@@ -447,8 +444,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.id,
                     builder: (context, state) {
-                      final id = state.pathParameters['id']!;
-                      return CreateOfferScreen(requestId: id); //
+                      return CreateOfferScreen();
                     },
                   ),
                 ],
@@ -479,10 +475,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: AppRoutes.id,
                     builder: (context, state) {
                       return OwnerChatScreen(
-                        chatId:
-                            state.pathParameters['id'] ??
-                            "", // TODO: handle null id
-                      ); //
+                        chatId: state.pathParameters['id'] ?? "",
+                      );
                     },
                     routes: [
                       GoRoute(

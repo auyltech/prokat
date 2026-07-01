@@ -3,6 +3,7 @@ import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_model.dart';
 
@@ -15,10 +16,10 @@ class ChatService {
 
   // Get Chats
   // Fetch list of chat threads for owner/user
-  Future<ApiResponse<List<ChatModel>>> getChatThreads(String? mode) async {
+  Future<ApiResponse<List<ChatModel>>> getChatThreads(AppMode? mode) async {
     try {
       final response = await _dio.get(
-        mode == "owner" ? '/chats/owner' : '/chats',
+        mode == AppMode.ownerMode ? '/chats/owner' : '/chats',
       );
 
       return handleApiResponse<List<ChatModel>>(
@@ -118,6 +119,45 @@ class ChatService {
       return ApiResponse.failure(
         message: "Unexpected error",
         error: e.toString(),
+      );
+    }
+  }
+
+  Future<ApiResponse<void>> sendChatMessage({
+    required String chatId,
+    required String content,
+    required String type,
+    String? clientTempId,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/chats/messages",
+        data: {
+          "chatId": chatId,
+          "content": content,
+          "type": type,
+          "clientTempId": clientTempId,
+        },
+      );
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Message sent",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: error.toString(),
       );
     }
   }

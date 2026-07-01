@@ -29,6 +29,7 @@ class NotificationNavigationService {
   }
 
   String resolveRoute(AppNotification notification) {
+    print(notification.type);
     switch (notification.type) {
       // ===========================
       // Requests
@@ -47,17 +48,21 @@ class NotificationNavigationService {
 
       case NotificationType.offerCreated:
       case NotificationType.offerCancelled:
+      case NotificationType.offerExpired:
+        return AppRoutes.clientRequests;
+
       case NotificationType.offerAccepted:
       case NotificationType.offerRejected:
-      case NotificationType.offerExpired:
+        return AppRoutes.ownerRequests;
+
       case NotificationType.counterOfferCreated:
       case NotificationType.counterOfferAccepted:
       case NotificationType.counterOfferRejected:
       case NotificationType.negotiationExpired:
       case NotificationType.negotiationClosed:
         return _isOwnerRole
-            ? AppRoutes.ownerRequests
-            : AppRoutes.clientRequests;
+            ? AppRoutes.ownerChatList
+            : AppRoutes.clientChatList;
 
       // ===========================
       // Bookings
@@ -91,8 +96,8 @@ class NotificationNavigationService {
 
         if (chatId != null && chatId.isNotEmpty) {
           return _isOwnerRole
-              ? '${AppRoutes.ownerChatList}/$chatId'
-              : '${AppRoutes.clientChatList}/$chatId';
+              ? '${AppRoutes.ownerChatList}/direct/$chatId'
+              : '${AppRoutes.clientChatList}/direct/$chatId';
         }
 
         return notificationsHomeRoute();
@@ -193,6 +198,8 @@ class NotificationNavigationService {
 
       return;
     }
+
+    print(route);
 
     router.go(route);
   }

@@ -1,4 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -8,8 +13,10 @@ import 'package:prokat/features/requests/models/request_model.dart';
 
 class OffersNotifier extends StateNotifier<OffersState> {
   final OffersService service;
+  final Ref ref;
 
-  OffersNotifier(this.service) : super(OffersState());
+  OffersNotifier({required this.service, required this.ref})
+    : super(OffersState());
 
   void selectRequest(RequestModel request) {
     state = state.copyWith(
@@ -24,8 +31,41 @@ class OffersNotifier extends StateNotifier<OffersState> {
     state = state.copyWith(selectedEquipment: equipment);
   }
 
+  void _startAction(String actionId) {
+    state = state.copyWith(
+      activeActions: {
+        ...state.activeActions,
+        Mutation(id: actionId, status: MutationStatus.submitting),
+      },
+    );
+  }
+
+  void _finishAction(String actionId, {AppError? error}) {
+    final actions = {...state.activeActions};
+
+    if (error == null) {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+    } else {
+      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
+
+      final action = Mutation(
+        id: actionId,
+        status: MutationStatus.error,
+        error: error,
+      );
+
+      actions.add(action);
+    }
+
+    state = state.copyWith(activeActions: actions);
+  }
+
+  void invalidate({required AppMode mode}) {
+    state = state.copyWith(fetchStatus: FetchStatus.stale);
+  }
+
   List<OfferModel> getActiveOffers(String requestId, String? mode) {
-    return (mode == "owner" ? state.ownerOffers : state.renterOffers)
+    return (mode == "owner" ? state.ownerOffers : state.clientOffers)
         .where(
           (item) =>
               item.requestId == requestId &&
@@ -36,7 +76,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
   OfferModel? getLastRequestOffer(String requestId, String? mode) {
     // 1. Filter the correct list based on the mode
-    final filtered = (mode == "owner" ? state.ownerOffers : state.renterOffers)
+    final filtered = (mode == "owner" ? state.ownerOffers : state.clientOffers)
         .where((item) => item.requestId == requestId)
         .toList(); // Creates a modifiable list
 
@@ -64,7 +104,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
     state = state.copyWith(price: price);
   }
 
-  void setPriceRate(String priceRate) {
+  void setPriceRate(PriceRateOption priceRate) {
     state = state.copyWith(priceRate: priceRate);
   }
 
@@ -82,94 +122,194 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
   Future<void> getClientOffers() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.clientOffers.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getClientOffers();
 
       state = state.copyWith(
-        isLoading: false,
-        renterOffers: result.data,
-        error: result.success ? null : result.message,
+        clientOffers: result.data,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "OFFERS_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
-        isLoading: false,
-        renterOffers: [],
-        error: e.toString(),
+        fetchStatus: state.clientOffers.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "OFFERS_FETCH_FAILED",
+        ),
       );
     }
   }
 
-  Future<bool> acceptOffer(String id, {String? chatId}) async {
+  Future<MutationResponse> acceptOffer(String id, {String? chatId}) async {
+    final actionId = "offer:accept:$id";
+
     try {
-      state = state.copyWith(isSubmitting: true, actionId: "offer:accept:$id");
+      _startAction(actionId);
 
       final result = await service.acceptOffer(id: id);
 
-      state = state.copyWith(isSubmitting: false, actionId: null);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getClientOffers();
+        getClientOffers();
+        ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
       }
 
-      return result.success;
-    } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-        actionId: null,
+      return MutationResponse(
+        success: result.success,
+        message: result.success ? "Offer accepted" : result.message,
       );
-      return false;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to accept offer",
+          code: "",
+        ),
+      );
+
+      return MutationResponse(
+        success: false,
+        message: "Failed to accept offer",
+      );
     }
   }
 
-  Future<bool> rejectOffer(String id, {String? chatId}) async {
+  Future<MutationResponse> rejectOffer(String id, {String? chatId}) async {
+    final actionId = "offer:reject:$id";
+
     try {
-      state = state.copyWith(isSubmitting: true, actionId: "offer:reject:$id");
+      _startAction(actionId);
 
       final result = await service.rejectOffer(id: id);
 
-      state = state.copyWith(isSubmitting: false, actionId: null);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getClientOffers();
+        getClientOffers();
+        ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
       }
 
-      return result.success;
-    } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-        actionId: null,
+      return MutationResponse(
+        success: result.success,
+        message: result.success ? "Offer rejected" : result.message,
       );
-      return false;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to reject offer",
+          code: "",
+        ),
+      );
+
+      return MutationResponse(
+        success: false,
+        message: "Failed to reject offer",
+      );
     }
   }
 
   Future<void> getOwnerOffers() async {
     try {
-      state = state.copyWith(isLoading: true);
+      final hasData = state.ownerOffers.isNotEmpty;
+
+      state = state.copyWith(
+        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
+        fetchError: null,
+      );
 
       final result = await service.getOwnerOffers();
 
       state = state.copyWith(
-        isLoading: false,
         ownerOffers: result.data,
-        error: result.success ? null : result.message,
+        fetchStatus: result.data == null
+            ? FetchStatus.error
+            : result.data?.isEmpty == true
+            ? FetchStatus.empty
+            : FetchStatus.success,
+        lastFetchedAt: DateTime.now(),
+        fetchError: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                message: result.error.toString(),
+                code: "OFFERS_FETCH_FAILED",
+              ),
       );
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
-        isLoading: false,
-        ownerOffers: [],
-        error: e.toString(),
+        fetchStatus: state.ownerOffers.isEmpty
+            ? FetchStatus.error
+            : FetchStatus.success,
+        fetchError: AppError(
+          type: ErrorType.unknown,
+          message: error.toString(),
+          code: "OFFERS_FETCH_FAILED",
+        ),
       );
     }
   }
 
-  Future<bool> createOffer() async {
-    try {
-      state = state.copyWith(isSubmitting: true, actionId: "offer:create");
+  Future<MutationResponse> createOffer() async {
+    const actionId = "offer:create";
 
+    try {
+      if (state.selectedEquipment == null ||
+          state.price == null ||
+          state.priceRate == null ||
+          state.selectedDate == null ||
+          state.selectedTime == null) {
+        return MutationResponse(
+          success: false,
+          message: "Please provide required information",
+        );
+      }
+
+      _startAction(actionId);
+
+      // TODO: SEND DATE AND TIME
       final result = await service.createOffer(
         price: state.price ?? 0,
         priceRate: state.priceRate.toString(),
@@ -178,43 +318,85 @@ class OffersNotifier extends StateNotifier<OffersState> {
         requestId: state.selectedRequest?.id ?? "",
       );
 
-      state = state.copyWith(isSubmitting: false, actionId: null);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getOwnerOffers();
+        getOwnerOffers();
+        ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
       }
 
-      return result.success;
-    } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-        actionId: null,
+      return MutationResponse(
+        success: result.success,
+        message: result.success ? "Offer created" : result.message,
       );
-      return false;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to create offer",
+          code: "",
+        ),
+      );
+
+      return MutationResponse(
+        success: false,
+        message: "Failed to create offer",
+      );
     }
   }
 
-  Future<bool> cancelOffer(String id, {String? chatId}) async {
+  Future<MutationResponse> cancelOffer(String id, {String? chatId}) async {
+    final actionId = "offer:cancel:$id";
+
     try {
-      state = state.copyWith(isSubmitting: true, actionId: "offer:cancel:$id");
+      _startAction(actionId);
 
       final result = await service.cancelOffer(id: id);
 
-      state = state.copyWith(isSubmitting: false, actionId: null);
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
 
       if (result.success) {
-        await getOwnerOffers();
+        getOwnerOffers();
+        ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
       }
 
-      return result.success;
-    } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-        actionId: null,
+      return MutationResponse(
+        success: result.success,
+        message: result.success ? "Offer cancelled" : result.message,
       );
-      return false;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to cancel offer",
+          code: "",
+        ),
+      );
+
+      return MutationResponse(
+        success: false,
+        message: "Failed to cancel offer",
+      );
     }
   }
 }

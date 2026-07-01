@@ -32,7 +32,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(fetchStatus: FetchStatus.stale);
   }
 
-  Future<void> getChatThreads(String? mode) async {
+  Future<void> getChatThreads(AppMode? mode) async {
     try {
       final hasData = state.conversations.isNotEmpty;
 
@@ -85,9 +85,17 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
       final result = await service.getChatById(chatId);
 
-      final messages = sortMessages(
-        (result.data?.messages ?? []).take(50).toList(growable: false),
+      final newIds = (result.data?.messages ?? []).map((item) => item.id);
+
+      final existingMessages = state.messages.where(
+        (item) => !newIds.contains((item.id)),
       );
+
+      final newMessages = (result.data?.messages ?? [])
+          .take(50)
+          .toList(growable: false);
+
+      final messages = sortMessages([...existingMessages, ...newMessages]);
 
       state = state.copyWith(
         conversations: sortChats(
@@ -142,16 +150,16 @@ class ChatNotifier extends StateNotifier<ChatState> {
         return; // Halt execution before calling backend or socket
       }
 
-      final currentUserId = ref.read(authProvider).currentUserId;
+      // final currentUserId = ref.read(authProvider).currentUserId;
 
-      if ((foundChat.client?.id != currentUserId) &&
-          (foundChat.owner?.id != currentUserId)) {
-        state = state.copyWith(
-          isLoadingMessages: false,
-          error: "You do not have permission to view this chat.",
-        );
-        return; // Halt execution before calling backend or socket
-      }
+      // if ((foundChat.client?.id != currentUserId) &&
+      //     (foundChat.owner?.id != currentUserId)) {
+      //   state = state.copyWith(
+      //     isLoadingMessages: false,
+      //     error: "You do not have permission to view this chat.",
+      //   );
+      //   return; // Halt execution before calling backend or socket
+      // }
 
       state = state.copyWith(
         currentChat: foundChat,
@@ -334,6 +342,54 @@ class ChatNotifier extends StateNotifier<ChatState> {
     } catch (error) {
       _markMessageAsFailed(clientTempId, error);
     }
+  }
+
+  Future<void> sendSupportMessage(String content, AppMode? mode) async {
+    try {
+      final trimmed = content.trim();
+
+      final clientTempId = DateTime.now().microsecondsSinceEpoch.toString();
+
+      final session = ref.read(authProvider).session;
+      final senderId = session?.user?.id;
+
+      if (senderId == null || senderId.isEmpty) {
+        return;
+      }
+
+      final optimisticMessage = ChatMessageModel(
+        id: clientTempId,
+        chatId: "support",
+        senderId: senderId,
+        senderName: 'You',
+        content: trimmed,
+        type: 'TEXT',
+        clientTempId: clientTempId,
+        isPending: true,
+        isFailed: false,
+        createdAt: DateTime.now(),
+      );
+
+      state = state.copyWith(
+        sendingMessageClientTempIds: {
+          ...state.sendingMessageClientTempIds,
+          clientTempId,
+        },
+        messages: [optimisticMessage, ...state.messages],
+        error: null,
+      );
+
+      final result = await service.sendChatMessage(
+        chatId: "support",
+        content: trimmed,
+        type: "TEXT",
+        clientTempId: clientTempId,
+      );
+
+      if (result.success) {
+        getChatThreads(mode);
+      }
+    } finally {}
   }
 
   void _markMessageAsFailed(String clientTempId, Object error) {

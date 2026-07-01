@@ -3,17 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/chat/state/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ClientChatListScreen extends ConsumerStatefulWidget {
-  final String? bookingId;
-  final String? requestId;
-
-  const ClientChatListScreen({super.key, this.bookingId, this.requestId});
+  const ClientChatListScreen({super.key});
 
   @override
   ConsumerState<ClientChatListScreen> createState() =>
@@ -26,7 +25,9 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
     super.initState();
     Future.microtask(() async {
       if (ref.read(chatProvider).conversations.isNotEmpty) {
-        await ref.read(chatProvider.notifier).getChatThreads("client");
+        await ref
+            .read(chatProvider.notifier)
+            .getChatThreads(AppMode.clientMode);
       }
     });
   }
@@ -45,7 +46,9 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(chatProvider.notifier).getChatThreads("client");
+          await ref
+              .read(chatProvider.notifier)
+              .getChatThreads(AppMode.clientMode);
         },
         child: ListView(
           children: [
@@ -74,11 +77,13 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                 itemCount: chats.length,
                 itemBuilder: (context, index) {
                   final chat = chats[index];
+                  final url = chat.type == ChatType.direct
+                      ? '${AppRoutes.clientChatList}/direct/${chat.id}'
+                      : AppRoutes.clientChatSupport;
                   return ChatTile(
                     chat: chat,
                     currentUserId: currentUserId,
-                    onTap: () =>
-                        context.push('${AppRoutes.clientChatList}/${chat.id}'),
+                    onTap: () => context.push(url),
                   );
                 },
               ),

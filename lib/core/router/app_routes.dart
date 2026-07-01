@@ -48,6 +48,7 @@ class AppRoutes {
   static const String favorites = '$clientMain/favorites';
 
   static const String clientChatList = '$clientMain/chat';
+  static const String clientChatSupport = '$clientMain/chat/support';
 
   static const String clientProfile = '$clientMain/profile';
   static const String clientSettings = '$clientMain/settings';

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
@@ -23,7 +24,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
     super.initState();
     Future.microtask(() async {
       if (ref.read(chatProvider).conversations.isNotEmpty) {
-        await ref.read(chatProvider.notifier).getChatThreads("owner");
+        await ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
       }
     });
   }
@@ -42,7 +43,9 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(chatProvider.notifier).getChatThreads("owner");
+          await ref
+              .read(chatProvider.notifier)
+              .getChatThreads(AppMode.ownerMode);
         },
         child: ListView(
           padding: EdgeInsets.zero,

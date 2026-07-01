@@ -6,6 +6,7 @@ import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/offers/widgets/offer_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OfferMessageBubble extends ConsumerStatefulWidget {
@@ -36,7 +37,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
     if (parsed == null) return const SizedBox.shrink();
 
     final offers = [
-      ...ref.watch(offersProvider).renterOffers,
+      ...ref.watch(offersProvider).clientOffers,
       ...ref.read(offersProvider).ownerOffers,
     ];
 
@@ -78,7 +79,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
 
                   Spacer(),
 
-                  Text(offer.status.name),
+                  OfferStatusBadge(status: offer.status),
                 ],
               ),
 
@@ -105,53 +106,95 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
 
                     if (offer.status == OfferStatus.created && widget.isMe) ...[
                       // Cancel Offer
-                      IconButton(
-                        onPressed: () async {
-                          await ref
-                              .read(offersProvider.notifier)
-                              .cancelOffer(
-                                offer.id,
-                                chatId: widget.message.chatId,
-                              );
-                        },
-                        iconSize: 32,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.clear, color: Colors.red),
-                      ),
+                      if (ref
+                          .watch(offersProvider)
+                          .isActionActive("offer:cancel:${offer.id}"))
+                        SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.red,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          onPressed: () async {
+                            await ref
+                                .read(offersProvider.notifier)
+                                .cancelOffer(
+                                  offer.id,
+                                  chatId: widget.message.chatId,
+                                );
+                          },
+                          iconSize: 32,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.clear, color: Colors.red),
+                        ),
                     ] else if (offer.status == OfferStatus.created) ...[
                       // Reject Offer
-                      IconButton(
-                        onPressed: () async {
-                          await ref
-                              .read(offersProvider.notifier)
-                              .rejectOffer(
-                                offer.id,
-                                chatId: widget.message.chatId,
-                              );
-                        },
-                        iconSize: 32,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.clear, color: Colors.red),
-                      ),
+                      if (ref
+                          .watch(offersProvider)
+                          .isActionActive("offer:reject:${offer.id}"))
+                        SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.red,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          onPressed: () async {
+                            await ref
+                                .read(offersProvider.notifier)
+                                .rejectOffer(
+                                  offer.id,
+                                  chatId: widget.message.chatId,
+                                );
+                          },
+                          iconSize: 32,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.clear, color: Colors.red),
+                        ),
 
                       // Accept Offer
-                      IconButton(
-                        onPressed: () async {
-                          await ref
-                              .read(offersProvider.notifier)
-                              .acceptOffer(
-                                offer.id,
-                                chatId: widget.message.chatId,
-                              );
-                        },
-                        iconSize: 32,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.check, color: Colors.green),
-                        // isEnabled: !submitState.isSubmitting,
-                        // isLoading:
-                        //     submitState.isSubmitting &&
-                        //     submitState.submitId == "price:accept",
-                      ),
+                      if (ref
+                          .watch(offersProvider)
+                          .isActionActive("offer:accept:${offer.id}"))
+                        SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.green,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          onPressed: () async {
+                            await ref
+                                .read(offersProvider.notifier)
+                                .acceptOffer(
+                                  offer.id,
+                                  chatId: widget.message.chatId,
+                                );
+                          },
+                          iconSize: 32,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.check, color: Colors.green),
+                          // isEnabled: !submitState.isSubmitting,
+                          // isLoading:
+                          //     submitState.isSubmitting &&
+                          //     submitState.submitId == "price:accept",
+                        ),
                     ],
                   ],
                 ),

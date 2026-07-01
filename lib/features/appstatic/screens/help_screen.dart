@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -150,7 +152,7 @@ class HelpScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.chat_bubble_outline),
                 title: Text(l10n.liveChat),
-                onTap: () {},
+                onTap: () => context.push(AppRoutes.clientChatSupport),
               ),
               ListTile(
                 leading: const Icon(Icons.phone_outlined),

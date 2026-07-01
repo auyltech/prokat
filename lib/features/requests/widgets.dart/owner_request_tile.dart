@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -40,16 +41,11 @@ class OwnerRequestTile extends ConsumerWidget {
 
     final requestState = getOwnerRequestState(request, offers);
 
-    final hasOffers = offers.isNotEmpty;
-
     final offersNotifier = ref.read(offersProvider.notifier);
 
     final activeOffer = offersNotifier
         .getActiveOffers(request.id, "owner")
         .firstOrNull;
-    final hasActiveOffer = offersNotifier.hasActiveOffer(request.id, "owner");
-
-    final isAccepted = hasOffers && offers.first.status == OfferStatus.accepted;
 
     final minutesLeft = getRemainingMinutes(request.createdAt);
 
@@ -207,34 +203,23 @@ class OwnerRequestTile extends ConsumerWidget {
                 children: [
                   if (activeOffer != null) ...[
                     // Go To Chat
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D47A1),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                    IconButton(
                       onPressed: () {
                         context.push(
-                          '${AppRoutes.clientChatList}/${activeOffer.chatId}',
+                          '${AppRoutes.clientChatList}/direct/${activeOffer.chatId}',
                         );
                       },
-                      child: const Icon(
-                        Icons.chat_bubble_outline_rounded,
-                        size: 22,
+                      icon: Icon(
+                        LucideIcons.messageCircle,
+                        size: 25,
+                        color: theme.primaryColor,
                       ),
                     ),
 
                     const SizedBox(width: 8),
 
                     // View Offer
-                    ElevatedButton(
+                    IconButton(
                       onPressed: () => openViewOfferSheet(
                         context: context,
                         offer: activeOffer,
@@ -244,34 +229,21 @@ class OwnerRequestTile extends ConsumerWidget {
                               .cancelOffer(activeOffer.id);
 
                           AppSnackBar.show(
-                            message: result
-                                ? "Offer Cancelled"
-                                : "Failed to cancel offer",
-                            isSuccess: result,
-                            isError: !result,
+                            message: result.message,
+                            isSuccess: result.success,
+                            isError: !result.success,
                           );
                         },
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: Text(
-                        "View Offer",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      icon: Icon(
+                        LucideIcons.scrollText,
+                        size: 25,
+                        color: Colors.blue[800],
                       ),
                     ),
                   ] else ...[
                     // Reject Request (set as viewed for this owner)
-                    ElevatedButton(
+                    IconButton(
                       onPressed: () async {
                         final result = await ref
                             .read(requestProvider.notifier)
@@ -287,65 +259,26 @@ class OwnerRequestTile extends ConsumerWidget {
                           );
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.error,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 20,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(
-                        "Hide",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
+                      icon: Icon(
+                        LucideIcons.x,
+                        size: 25,
+                        color: theme.colorScheme.error,
                       ),
                     ),
 
-                    const SizedBox(width: 8),
-
                     // Send Offer
-                    ElevatedButton(
+                    IconButton(
                       onPressed: () {
                         ref
                             .read(offersProvider.notifier)
                             .selectRequest(request);
 
-                        context.push(
-                          '${AppRoutes.ownerRequests}/${request.id}',
-                        );
+                        context.push('${AppRoutes.ownerRequests}/send-offer');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isAccepted
-                            ? Colors.green
-                            : theme.colorScheme.primary,
-                        foregroundColor: isAccepted
-                            ? Colors.white
-                            : theme.colorScheme.onPrimary,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 20,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(
-                        isAccepted
-                            ? l10n.viewBooking
-                            : (hasActiveOffer
-                                  ? l10n.viewOffer
-                                  : l10n.sendOffer),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+                      icon: Icon(
+                        LucideIcons.send,
+                        size: 25,
+                        color: Colors.green[800],
                       ),
                     ),
                   ],

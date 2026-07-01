@@ -14,5 +14,5 @@ final offersProvider = StateNotifierProvider<OffersNotifier, OffersState>((
   ref,
 ) {
   final service = ref.read(offersServiceProvider);
-  return OffersNotifier(service);
+  return OffersNotifier(service: service, ref: ref);
 });

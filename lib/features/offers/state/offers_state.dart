@@ -1,37 +1,43 @@
+import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
 class OffersState {
-  final bool isLoading;
-  final bool isSubmitting;
-  final String? actionId;
+  final FetchStatus fetchStatus;
+  final PaginationStatus paginationStatus;
 
-  final String? error;
+  final DateTime? lastFetchedAt;
+  final AppError? fetchError;
 
-  // Offers received for renter
-  final List<OfferModel> renterOffers;
+  final Set<Mutation> activeActions;
+
+  // Offers received for client
+  final List<OfferModel> clientOffers;
   final List<OfferModel> ownerOffers;
 
   final EquipmentSummaryModel? selectedEquipment;
   final RequestModel? selectedRequest;
 
   final int? price;
-  final String? priceRate;
+  final PriceRateOption? priceRate;
   final String? comment;
 
   final DateTime? selectedDate;
   final DateTime? selectedTime;
 
   OffersState({
-    this.isLoading = false,
-    this.isSubmitting = false,
-    this.actionId,
-    this.error,
+    this.fetchStatus = FetchStatus.initial,
+    this.paginationStatus = PaginationStatus.idle,
+    this.lastFetchedAt,
+    this.fetchError,
+    this.activeActions = const {},
 
     this.selectedRequest,
     this.selectedEquipment,
-    this.renterOffers = const [],
+    this.clientOffers = const [],
     this.ownerOffers = const [],
 
     this.price,
@@ -42,36 +48,58 @@ class OffersState {
     this.selectedTime,
   });
 
+  bool get isFetching {
+    return [FetchStatus.loading, FetchStatus.refreshing].contains(fetchStatus);
+  }
+
+  bool get isSubmitting {
+    return activeActions
+        .where((item) => item.status == MutationStatus.submitting)
+        .isNotEmpty;
+  }
+
+  bool isActionActive(String actionId) {
+    return activeActions
+            .where(
+              (item) =>
+                  item.id == actionId &&
+                  item.status == MutationStatus.submitting,
+            )
+            .firstOrNull !=
+        null;
+  }
+
   OffersState copyWith({
-    bool? isLoading,
-    bool? isSubmitting,
-    String? actionId,
+    FetchStatus? fetchStatus,
+    PaginationStatus? paginationStatus,
+    DateTime? lastFetchedAt,
+    AppError? fetchError,
+    Set<Mutation>? activeActions,
 
-    String? error,
-
-    List<OfferModel>? renterOffers,
+    List<OfferModel>? clientOffers,
     List<OfferModel>? ownerOffers,
 
     EquipmentSummaryModel? selectedEquipment,
     RequestModel? selectedRequest,
     int? price,
-    String? priceRate,
+    PriceRateOption? priceRate,
     String? comment,
 
     DateTime? selectedDate,
     DateTime? selectedTime,
   }) {
     return OffersState(
-      isLoading: isLoading ?? this.isLoading,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      actionId: actionId,
-      error: error,
+      fetchStatus: fetchStatus ?? this.fetchStatus,
+      paginationStatus: paginationStatus ?? this.paginationStatus,
+      lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
+      fetchError: fetchError,
+      activeActions: activeActions ?? this.activeActions,
+
+      clientOffers: clientOffers ?? this.clientOffers,
+      ownerOffers: ownerOffers ?? this.ownerOffers,
 
       selectedRequest: selectedRequest ?? this.selectedRequest,
       selectedEquipment: selectedEquipment ?? this.selectedEquipment,
-      renterOffers: renterOffers ?? this.renterOffers,
-      ownerOffers: ownerOffers ?? this.ownerOffers,
-
       price: price ?? this.price,
       priceRate: priceRate ?? this.priceRate,
       comment: comment ?? this.comment,

@@ -5,8 +5,40 @@ import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
+enum ChatType { direct, support, workflow, announcement }
+
+enum CStatus { active, closed, archived }
+
+ChatType parseChatType(dynamic value) {
+  if (value == null) return ChatType.direct;
+
+  final normalized = value.toString().trim().toLowerCase();
+
+  for (final status in ChatType.values) {
+    if (status.name.toLowerCase() == normalized) {
+      return status;
+    }
+  }
+  return ChatType.direct;
+}
+
+CStatus parseChatStatus(dynamic value) {
+  if (value == null) return CStatus.active;
+
+  final normalized = value.toString().trim().toLowerCase();
+
+  for (final status in CStatus.values) {
+    if (status.name.toLowerCase() == normalized) {
+      return status;
+    }
+  }
+  return CStatus.active;
+}
+
 class ChatModel {
   final String id;
+  final ChatType type;
+  final CStatus status;
 
   final User? client;
   final User? owner;
@@ -27,6 +59,8 @@ class ChatModel {
 
   const ChatModel({
     required this.id,
+    this.type = ChatType.direct,
+    this.status = CStatus.active,
     this.bookingId,
     this.requestId,
     this.booking,
@@ -54,6 +88,8 @@ class ChatModel {
 
   ChatModel copyWith({
     String? id,
+    ChatType? type,
+    CStatus? status,
     User? client,
     User? owner,
     String? bookingId,
@@ -68,6 +104,8 @@ class ChatModel {
   }) {
     return ChatModel(
       id: id ?? this.id,
+      type: type ?? this.type,
+      status: status ?? this.status,
       client: client ?? this.client,
       owner: owner ?? this.owner,
       bookingId: bookingId ?? this.bookingId,
@@ -86,6 +124,8 @@ class ChatModel {
     try {
       return ChatModel(
         id: json['id']?.toString() ?? "",
+        type: parseChatType(json['type']),
+        status: parseChatStatus(json['status']),
 
         client: json['client'] != null ? User.fromJson(json['client']) : null,
         owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
