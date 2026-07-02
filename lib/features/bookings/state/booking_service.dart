@@ -4,6 +4,7 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 
 class BookingService {
@@ -119,13 +120,19 @@ class BookingService {
 
   Future<ApiResponse<void>> updateBookingStatus({
     required String id,
-    String? status,
-    String? workStatus,
+    BookingStatus? status,
+    WorkStatus? workStatus,
+    String? cancelReason,
   }) async {
     try {
       final response = await _dio.patch(
         "/bookings/$id/status",
-        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+        data: {
+          "id": id,
+          "status": status?.name,
+          "workStatus": workStatus?.name,
+          "cancelReason": cancelReason,
+        },
       );
 
       return handleEmptyApiResponse(
@@ -152,13 +159,17 @@ class BookingService {
 
   Future<ApiResponse<void>> updateBookingWorkStatus({
     required String id,
-    String? status,
+    BookingStatus? status,
     WorkStatus? workStatus,
   }) async {
     try {
       final response = await _dio.patch(
         "/bookings/$id/workstatus",
-        data: {"id": id, "status": ?status, "workStatus": ?workStatus},
+        data: {
+          "id": id,
+          "status": status?.name,
+          "workStatus": workStatus?.name,
+        },
       );
 
       return handleEmptyApiResponse(
@@ -175,10 +186,10 @@ class BookingService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }

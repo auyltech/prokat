@@ -38,7 +38,7 @@ class BookingActionRow extends ConsumerWidget {
             onPressed: () async {
               await notifier.updateBookingStatus(
                 id: booking.id,
-                status: BookingStatus.confirmed.name,
+                status: BookingStatus.confirmed,
               );
               await chatNotifier.reloadChat(booking.chatId ?? "");
               if (context.mounted) Navigator.pop(context);
@@ -207,8 +207,8 @@ class BookingActionRow extends ConsumerWidget {
     if (difference < cancelWindowMinutes) {
       final res = await notifier.updateBookingStatus(
         id: booking.id,
-        status: "CANCELLED",
-        workStatus: "cancelled in $difference minutes",
+        status: BookingStatus.cancelled,
+        cancelReason: "cancelled in $difference minutes",
       );
 
       if (res == true) {

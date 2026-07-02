@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
+import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_reason_sheet.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
@@ -272,11 +274,12 @@ class OwnerChatActionBar extends ConsumerWidget {
                               onPressed: () async {
                                 Navigator.pop(context, true);
 
-                                await controller.markWorkCompleted(
-                                  context: context,
-                                  chatId: chatId,
-                                  bookingId: booking.id,
-                                );
+                                await ref
+                                    .read(bookingProvider.notifier)
+                                    .updateBookingWorkStatus(
+                                      id: booking.id,
+                                      workStatus: WorkStatus.completed,
+                                    );
                               },
                               child: const Text('Mark completed'),
                             ),

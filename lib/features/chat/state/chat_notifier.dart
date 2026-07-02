@@ -141,14 +141,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
           .firstOrNull;
 
       // 2. IDOR Prevention: Block access if the conversation is not found in their list
-      if (foundChat == null) {
-        state = state.copyWith(
-          isLoadingMessages: false,
-          error: "You do not have permission to view this chat.",
-        );
-
-        return; // Halt execution before calling backend or socket
-      }
+      // if (foundChat == null) {
+      //   state = state.copyWith(
+      //     isLoadingMessages: true,
+      //     // error: "You do not have permission to view this chat.",
+      //   );
+      //   // Halt execution before calling backend or socket
+      // }
 
       // final currentUserId = ref.read(authProvider).currentUserId;
 

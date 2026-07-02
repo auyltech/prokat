@@ -78,11 +78,11 @@ class BookingStatusSheet extends ConsumerWidget {
                   Navigator.pop(context);
 
                   AppSnackBar.show(
-                    message: result
+                    message: result.success
                         ? l10n.statusUpdated
                         : l10n.failedSaveStatus,
-                    isSuccess: result,
-                    isError: !result,
+                    isSuccess: result.success,
+                    isError: !result.success,
                   );
                 },
               );

@@ -86,7 +86,9 @@ class BookingNotifier extends StateNotifier<BookingState> {
   }
 
   List<BookingModel> getActiveBookings({required AppMode mode}) {
-    return (mode == AppMode.ownerMode ? state.ownerBookings : state.bookings)
+    return (mode == AppMode.ownerMode
+            ? state.ownerBookings
+            : state.clientBookings)
         .where(
           (b) => [
             BookingStatus.created,
@@ -97,7 +99,9 @@ class BookingNotifier extends StateNotifier<BookingState> {
   }
 
   List<BookingModel> getHistoryBookings({required AppMode mode}) {
-    return (mode == AppMode.ownerMode ? state.ownerBookings : state.bookings)
+    return (mode == AppMode.ownerMode
+            ? state.ownerBookings
+            : state.clientBookings)
         .where(
           (b) => [
             BookingStatus.cancelled,
@@ -110,7 +114,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
   Future<void> getClientBookings() async {
     try {
-      final hasData = state.bookings.isNotEmpty;
+      final hasData = state.clientBookings.isNotEmpty;
 
       state = state.copyWith(
         fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
@@ -120,7 +124,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       final result = await api.getClientBookings();
 
       state = state.copyWith(
-        bookings: result.data,
+        clientBookings: result.data,
         fetchStatus: result.data == null
             ? FetchStatus.error
             : result.data?.isEmpty == true
@@ -137,7 +141,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
       );
     } catch (error) {
       state = state.copyWith(
-        fetchStatus: state.bookings.isEmpty
+        fetchStatus: state.clientBookings.isEmpty
             ? FetchStatus.error
             : FetchStatus.success,
         fetchError: AppError(
@@ -151,13 +155,13 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
   Future<void> getOwnerBookings() async {
     try {
-      final hasData = state.bookings.isNotEmpty;
+      final hasData = state.clientBookings.isNotEmpty;
 
       state = state.copyWith(
         fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
         fetchError: null,
       );
-
+      print("fetching");
       final result = await api.getOwnerBookings();
 
       state = state.copyWith(
@@ -176,9 +180,11 @@ class BookingNotifier extends StateNotifier<BookingState> {
                 code: "BOOKING_FETCH_FAILED",
               ),
       );
+
+      print("done");
     } catch (error) {
       state = state.copyWith(
-        fetchStatus: state.bookings.isEmpty
+        fetchStatus: state.clientBookings.isEmpty
             ? FetchStatus.error
             : FetchStatus.success,
         fetchError: AppError(
@@ -259,8 +265,9 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
   Future<bool> updateBookingStatus({
     required String id,
-    String? status,
-    String? workStatus,
+    BookingStatus? status,
+    WorkStatus? workStatus,
+    String? cancelReason,
   }) async {
     final actionId = "booking:update:$id";
 
@@ -271,6 +278,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         id: id,
         status: status,
         workStatus: workStatus,
+        cancelReason: cancelReason,
       );
 
       _finishAction(
@@ -286,11 +294,12 @@ class BookingNotifier extends StateNotifier<BookingState> {
 
       if (result.success) {
         getClientBookings();
+        getOwnerBookings();
 
         final chatNotifier = ref.read(chatProvider.notifier);
 
         final booking = [
-          ...state.bookings,
+          ...state.clientBookings,
           ...state.ownerBookings,
         ].where((item) => item.id == id).firstOrNull;
 
@@ -309,7 +318,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         actionId,
         error: AppError(
           type: ErrorType.unknown,
-          message: "Failed to create booking",
+          message: "Failed to update booking",
           code: "",
         ),
       );
@@ -317,9 +326,9 @@ class BookingNotifier extends StateNotifier<BookingState> {
     }
   }
 
-  Future<bool> updateBookingWorkStatus({
+  Future<MutationResponse> updateBookingWorkStatus({
     required String id,
-    String? status,
+    BookingStatus? status,
     WorkStatus? workStatus,
   }) async {
     final actionId = "booking:workstatus:$id";
@@ -348,17 +357,20 @@ class BookingNotifier extends StateNotifier<BookingState> {
         getOwnerBookings();
       }
 
-      return result.success;
+      return MutationResponse(success: result.success, message: result.message);
     } catch (error) {
       _finishAction(
         actionId,
         error: AppError(
           type: ErrorType.unknown,
-          message: "Failed to create booking",
+          message: "Failed to update order status",
           code: "",
         ),
       );
-      return false;
+      return MutationResponse(
+        success: false,
+        message: "Failed to update order status",
+      );
     }
   }
 }

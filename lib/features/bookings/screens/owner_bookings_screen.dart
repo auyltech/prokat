@@ -51,6 +51,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen> {
 
     final bookingState = ref.watch(bookingProvider);
 
+    // final activeBookings = bookingState.ownerBookings;
     final activeBookings = ref
         .watch(bookingProvider.notifier)
         .getActiveBookings(mode: AppMode.ownerMode);

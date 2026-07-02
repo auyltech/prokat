@@ -25,6 +25,11 @@ class ChatState {
 
   final Set<String> sendingMessageClientTempIds;
 
+  bool get isLoading {
+    return fetchStatus == FetchStatus.loading ||
+        fetchStatus == FetchStatus.refreshing;
+  }
+
   const ChatState({
     this.fetchStatus = FetchStatus.initial,
     this.paginationStatus = PaginationStatus.idle,

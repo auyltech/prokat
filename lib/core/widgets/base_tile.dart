@@ -35,7 +35,7 @@ class BaseTile extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 2,
             offset: const Offset(0, 2),
           ),

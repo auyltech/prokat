@@ -198,11 +198,11 @@ void _showCancelConfirmation(
                 .cancelRequest(requestId);
 
             AppSnackBar.show(
-              message: result
+              message: result.success
                   ? l10n.requestCancelled
                   : "Failed to cancel request",
-              isSuccess: result,
-              isError: !result,
+              isSuccess: result.success,
+              isError: !result.success,
             );
           },
           child: Text(

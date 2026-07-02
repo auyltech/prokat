@@ -56,7 +56,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
         .watch(bookingProvider.notifier)
         .getActiveBookings(mode: AppMode.clientMode);
 
-    final draft = bookingState.bookings
+    final draft = bookingState.clientBookings
         .where((b) => b.status == BookingStatus.draft)
         .toList();
 

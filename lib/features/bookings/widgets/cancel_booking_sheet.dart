@@ -27,16 +27,16 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
     final status = isOwner
         ? widget.booking.status == BookingStatus.created
-              ? BookingStatus.rejected.name
-              : BookingStatus.cancelled.name
-        : BookingStatus.cancelled.name;
+              ? BookingStatus.rejected
+              : BookingStatus.cancelled
+        : BookingStatus.cancelled;
 
     Navigator.pop(context);
 
     final result = await notifier.updateBookingStatus(
       id: widget.booking.id,
       status: status,
-      workStatus: selectedReason,
+      cancelReason: selectedReason,
     );
 
     AppSnackBar.show(

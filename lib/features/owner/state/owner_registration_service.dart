@@ -80,9 +80,9 @@ class OwnerRegistrationService {
     String? message,
   }) async {
     try {
-      if ((id ?? '').isEmpty) {
-        throw Exception("Missing registration request id");
-      }
+      // if ((id ?? '').isEmpty) {
+      //   throw Exception("Missing registration request id");
+      // }
 
       final res = await _dio.patch(
         "/owner/become-owner/$id",

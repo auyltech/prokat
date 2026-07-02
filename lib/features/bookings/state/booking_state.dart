@@ -14,8 +14,13 @@ class BookingState {
 
   final Set<Mutation> activeActions;
 
+  final String? query;
+  final int currentPage;
+  final int itemsPerPage;
+  final bool hasReachedMax;
+
   // Data
-  final List<BookingModel> bookings;
+  final List<BookingModel> clientBookings;
   final List<BookingModel> ownerBookings;
 
   /// Renter draft booking
@@ -36,7 +41,13 @@ class BookingState {
     this.lastFetchedAt,
     this.fetchError,
     this.activeActions = const {},
-    this.bookings = const [],
+
+    this.query = "",
+    this.currentPage = 1,
+    this.itemsPerPage = 5,
+    this.hasReachedMax = false,
+
+    this.clientBookings = const [],
     this.ownerBookings = const [],
     this.draftBooking,
     this.selectedEquipment,
@@ -75,10 +86,19 @@ class BookingState {
     DateTime? lastFetchedAt,
     AppError? fetchError,
     Set<Mutation>? activeActions,
-    List<BookingModel>? bookings,
+
+    String? query,
+    int? currentPage,
+    int? itemsPerPage,
+    bool? hasReachedMax,
+
+    List<BookingModel>? clientBookings,
     List<BookingModel>? ownerBookings,
+
     BookingModel? draftBooking,
+
     Equipment? selectedEquipment,
+
     PriceEntry? selectedPriceEntry,
     LocationModel? selectedLocation,
     String? selectedLocationId,
@@ -92,10 +112,19 @@ class BookingState {
       lastFetchedAt: lastFetchedAt ?? this.lastFetchedAt,
       fetchError: fetchError,
       activeActions: activeActions ?? this.activeActions,
-      bookings: bookings ?? this.bookings,
+
+      query: query ?? this.query,
+      currentPage: currentPage ?? this.currentPage,
+      itemsPerPage: itemsPerPage ?? this.itemsPerPage,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+
+      clientBookings: clientBookings ?? this.clientBookings,
       ownerBookings: ownerBookings ?? this.ownerBookings,
+
       draftBooking: draftBooking ?? this.draftBooking,
+
       selectedEquipment: selectedEquipment ?? this.selectedEquipment,
+
       selectedPriceEntry: selectedPriceEntry ?? this.selectedPriceEntry,
       selectedLocation: selectedLocation ?? this.selectedLocation,
       selectedLocationId: selectedLocationId ?? this.selectedLocationId,

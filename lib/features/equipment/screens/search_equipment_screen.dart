@@ -126,12 +126,14 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     final equipmentState = ref.watch(equipmentProvider);
-
     final items = ref.watch(equipmentProvider).clientEquipment;
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
+    final selectedCategoryId = ref
+        .watch(categoriesProvider)
+        .selectedCategory
+        ?.id;
 
     return Scaffold(
       body: SafeArea(
@@ -146,7 +148,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               const SizedBox(height: 12),
 
-              const UserCategorySelector(mode: "search"),
+              UserCategorySelector(
+                mode: "search",
+                selectedCategoryId: selectedCategoryId,
+              ),
 
               const SizedBox(height: 12),
 

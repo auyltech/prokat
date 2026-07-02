@@ -472,7 +472,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const OwnerChatListScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.id,
+                    path: "/direct/${AppRoutes.id}",
                     builder: (context, state) {
                       return OwnerChatScreen(
                         chatId: state.pathParameters['id'] ?? "",

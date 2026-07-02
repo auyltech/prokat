@@ -8,6 +8,7 @@ import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends ConsumerStatefulWidget {
@@ -27,7 +28,13 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
     final l10n = AppLocalizations.of(context)!;
     final booking = ref.read(chatProvider).currentChat?.booking;
 
-    if (booking == null) return const Text("Failed to load booking");
+    final isLoading = ref.watch(chatProvider).isLoading;
+
+    if (isLoading) {
+      return OwnerBookingSkeleton();
+    } else if (booking == null) {
+      return Container(child: Text("Error loading booking"));
+    }
 
     final equipment = booking.equipment;
     final location = booking.location;

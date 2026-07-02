@@ -28,6 +28,14 @@ class CategoryState {
     this.categories = const [],
   });
 
+  Category? getCategory(String categoryId) {
+    final foundCategory = categories
+        .where((item) => item.id == categoryId)
+        .firstOrNull;
+
+    return foundCategory;
+  }
+
   CategoryState copyWith({
     FetchStatus? fetchStatus,
     PaginationStatus? paginationStatus,

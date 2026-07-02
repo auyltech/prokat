@@ -103,9 +103,9 @@ class AppRoutes {
 
   // Owner Chats
   static const String ownerChatList = '$ownerMain/chat'; // List of chats
-  static const String ownerChatId = '$ownerChatList/$id'; // List of chats
+  static const String ownerChatId = '$ownerChatList/direct/$id'; // Chat by Id
   static const String ownerChatInfo =
-      '$ownerChatList/$id/$info'; // List of chats
+      '$ownerChatList/direct/$id/$info'; // Chat info
 
   // Notifications
   static const String ownerNotifications = '$ownerMain/notifications';

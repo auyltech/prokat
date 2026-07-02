@@ -42,7 +42,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
 
-    final requestState = ref.read(requestProvider);
+    final requestState = ref.watch(requestProvider);
     final selectedCategoryId = requestState.selectedCategory?.id;
 
     String message = "";
@@ -124,7 +124,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
     final hasOfferedRate = rateController.text.isNotEmpty;
 
-    final hasCategory = requestState.selectedCategory?.id != null;
+    final selectedCategoryId = requestState.selectedCategory?.id;
+    final hasCategory = selectedCategoryId != null;
 
     final canSubmit =
         hasCategory &&
@@ -151,7 +152,10 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         SizedBox(height: 8),
 
-        const UserCategorySelector(mode: "create_request"),
+        UserCategorySelector(
+          mode: "create_request",
+          selectedCategoryId: selectedCategoryId,
+        ),
 
         const SizedBox(height: 24),
 

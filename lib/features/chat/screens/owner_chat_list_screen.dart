@@ -78,8 +78,9 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                   return ChatTile(
                     chat: chat,
                     currentUserId: currentUserId,
-                    onTap: () =>
-                        context.push('${AppRoutes.ownerChatList}/${chat.id}'),
+                    onTap: () => context.push(
+                      '${AppRoutes.ownerChatList}/direct/${chat.id}',
+                    ),
                   );
                 },
               ),

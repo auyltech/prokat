@@ -246,7 +246,7 @@ Future<void> _handleCancel(
       return AlertDialog(
         backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.cancelBooking, style: theme.textTheme.titleMedium),
+        title: Text(l10n.cancelBooking, style: theme.textTheme.titleLarge),
         content: Text(
           l10n.cancelOrderQuestion,
           style: theme.textTheme.bodyMedium,
@@ -258,7 +258,7 @@ Future<void> _handleCancel(
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.yesCancel),
+            child: Text(l10n.yesCancel, style: TextStyle(color: Colors.red)),
           ),
         ],
       );
@@ -275,8 +275,8 @@ Future<void> _handleCancel(
   if (difference < cancelWindowMinutes) {
     final result = await notifier.updateBookingStatus(
       id: booking.id,
-      status: "CANCELLED",
-      workStatus: "cancelled in $difference minutes",
+      status: BookingStatus.cancelled,
+      cancelReason: "cancelled in $difference minutes",
     );
 
     // if (result == true && context.mounted) {

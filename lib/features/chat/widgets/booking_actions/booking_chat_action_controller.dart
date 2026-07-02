@@ -84,7 +84,7 @@ class BookingChatActionController
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
-          status: BookingStatus.confirmed.name,
+          status: BookingStatus.confirmed,
         );
       },
       onSuccess: () {
@@ -105,8 +105,8 @@ class BookingChatActionController
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
-          status: BookingStatus.rejected.name,
-          workStatus: reason,
+          status: BookingStatus.rejected,
+          cancelReason: reason,
         );
       },
       onSuccess: () {
@@ -127,47 +127,13 @@ class BookingChatActionController
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
-          status: BookingStatus.cancelled.name,
-          workStatus: reason,
+          status: BookingStatus.cancelled,
+          cancelReason: reason,
         );
       },
       onSuccess: () {
         return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);
       },
-    );
-  }
-
-  Future<void> updateWorkStatus({
-    required BuildContext context,
-    required String chatId,
-    required String bookingId,
-    required WorkStatus workStatus,
-  }) async {
-    await _run(
-      context: context,
-      submitId: "booking:workstatus",
-      action: () {
-        return _bookingNotifier.updateBookingWorkStatus(
-          id: bookingId,
-          workStatus: workStatus,
-        );
-      },
-      onSuccess: () {
-        return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);
-      },
-    );
-  }
-
-  Future<void> markWorkCompleted({
-    required BuildContext context,
-    required String chatId,
-    required String bookingId,
-  }) async {
-    await updateWorkStatus(
-      context: context,
-      chatId: chatId,
-      bookingId: bookingId,
-      workStatus: WorkStatus.completed,
     );
   }
 
@@ -182,7 +148,7 @@ class BookingChatActionController
       action: () {
         return _bookingNotifier.updateBookingStatus(
           id: bookingId,
-          status: BookingStatus.completed.name,
+          status: BookingStatus.completed,
         );
       },
       onSuccess: () {
@@ -342,9 +308,9 @@ class BookingChatActionController
       if (!context.mounted) return;
 
       AppSnackBar.show(message: successMessage, isSuccess: true);
-    } catch (e) {
+    } catch (error) {
       // TODO: remove error message
-      final message = e.toString().replaceFirst('Exception: ', '');
+      final message = error.toString().replaceFirst('Exception: ', '');
 
       state = state.copyWith(
         isSubmitting: false,

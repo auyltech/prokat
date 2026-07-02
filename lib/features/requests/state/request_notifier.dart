@@ -349,7 +349,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
     }
   }
 
-  Future<bool> cancelRequest(String id) async {
+  Future<MutationResponse> cancelRequest(String id) async {
     final actionId = "request:$id:cancel";
 
     try {
@@ -372,10 +372,14 @@ class RequestNotifier extends StateNotifier<RequestState> {
         getClientRequests();
       }
 
-      return result.success;
+      return MutationResponse(success: result.success, message: result.message);
     } catch (error) {
       _finishAction(actionId);
-      return false;
+
+      return MutationResponse(
+        success: false,
+        message: "Failed to cancel request",
+      );
     }
   }
 }
