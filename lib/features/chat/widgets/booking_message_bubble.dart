@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends ConsumerStatefulWidget {
+  final AppMode mode;
   final ChatMessageModel message;
 
-  const BookingMessageBubble({super.key, required this.message});
+  const BookingMessageBubble({
+    super.key,
+    required this.message,
+    required this.mode,
+  });
 
   @override
   ConsumerState<BookingMessageBubble> createState() =>
@@ -33,7 +45,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
     if (isLoading) {
       return OwnerBookingSkeleton();
     } else if (booking == null) {
-      return Container(child: Text("Error loading booking"));
+      return Text("Error loading order");
     }
 
     final equipment = booking.equipment;
@@ -217,9 +229,144 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
           const SizedBox(height: 8),
 
-          InfoTile(
-            value:
-                "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+          Row(
+            children: [
+              InfoTile(
+                icon: LucideIcons.coins,
+                label: l10n.price,
+                value:
+                    "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+              ),
+
+              Spacer(),
+
+              // Cancel Order
+              if (ref
+                      .watch(bookingProvider)
+                      .isActionActive("booking:${booking.id}:cancel") ||
+                  ref
+                      .watch(bookingProvider)
+                      .isActionActive("booking:${booking.id}:reject"))
+                SizedBox(
+                  height: 14,
+                  width: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
+                )
+              else
+                IconButton(
+                  onPressed: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: theme.colorScheme.surface,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                    ),
+                    builder: (_) =>
+                        CancelBookingSheet(booking: booking, mode: widget.mode),
+                  ),
+                  icon: Icon(
+                    LucideIcons.x,
+                    size: 25,
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+
+              if (booking.status == BookingStatus.created) ...[
+                if (ref.watch(bookingProvider).isActionActive("price:create"))
+                  SizedBox(
+                    height: 14,
+                    width: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                    ),
+                  )
+                else
+                  IconButton(
+                    onPressed: () async {
+                      await showCounterOfferSheet(
+                        context: context,
+                        chatId: widget.message.chatId,
+                        bookingId: booking.id,
+                        initialPrice: booking.price,
+                        initialPriceRate: booking.priceRate,
+                        mode: widget.mode == AppMode.ownerMode
+                            ? "owner"
+                            : "client",
+                      );
+                    },
+                    icon: Icon(
+                      LucideIcons.coins,
+                      size: 25,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+              ],
+
+              if (widget.mode == AppMode.ownerMode &&
+                  booking.status == BookingStatus.created) ...[
+                if (ref.watch(bookingProvider).isSubmitting)
+                  SizedBox(
+                    height: 14,
+                    width: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                    ),
+                  )
+                else
+                  IconButton(
+                    onPressed: () async {
+                      await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: theme.colorScheme.surface,
+                          title: const Text('Accept order?'),
+                          content: const Text(
+                            'Confirm accepting this booking.',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
+                            ),
+
+                            ElevatedButton(
+                              onPressed: () async {
+                                Navigator.pop(context, true);
+
+                                final result = await ref
+                                    .read(bookingProvider.notifier)
+                                    .updateBookingStatus(
+                                      id: booking.id,
+                                      status: BookingStatus.confirmed,
+                                    );
+
+                                AppSnackBar.show(
+                                  message: result.message,
+                                  isSuccess: result.success,
+                                  isError: !result.success,
+                                );
+                              },
+                              child: const Text('Accept'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      LucideIcons.check,
+                      size: 25,
+                      color: Colors.green[800],
+                    ),
+                  ),
+              ],
+            ],
           ),
         ],
       ),

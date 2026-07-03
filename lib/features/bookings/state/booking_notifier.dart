@@ -263,7 +263,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
     }
   }
 
-  Future<bool> updateBookingStatus({
+  Future<MutationResponse> updateBookingStatus({
     required String id,
     BookingStatus? status,
     WorkStatus? workStatus,
@@ -312,7 +312,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         }
       }
 
-      return result.success;
+      return MutationResponse(success: result.success, message: result.message);
     } catch (error) {
       _finishAction(
         actionId,
@@ -322,7 +322,11 @@ class BookingNotifier extends StateNotifier<BookingState> {
           code: "",
         ),
       );
-      return false;
+
+      return MutationResponse(
+        success: false,
+        message: "Failed to update order status",
+      );
     }
   }
 

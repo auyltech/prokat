@@ -102,13 +102,16 @@ class LocationService {
     try {
       final response = await _dio.post('/locations', data: location.toJson());
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return ApiResponse.success(null, message: "Address created");
-      }
-
-      final message = extractBackendMessage(response.data);
-
-      throw Exception(message);
+      return handleApiResponse<LocationModel>(
+        response: response,
+        parser: (data) {
+          if (data is! Map<String, dynamic>) {
+            throw FormatException("Invalid location item");
+          }
+          return LocationModel.fromJson(data);
+        },
+        fallbackMessage: "Failed to load locations",
+      );
     } on DioException catch (e) {
       String message = "Something went wrong";
 

@@ -74,7 +74,7 @@ class AddressFormState extends ConsumerState<AddressForm> {
 
             final res = await ref
                 .read(locationProvider.notifier)
-                .createLocation(location);
+                .createLocation(location, "owner_address");
 
             if (res && context.mounted) Navigator.pop(context);
           },

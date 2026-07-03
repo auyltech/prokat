@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/state/booking_notifier.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
 import 'package:prokat/features/chat/state/chat_notifier.dart';
@@ -81,11 +80,13 @@ class BookingChatActionController
     await _run(
       context: context,
       submitId: "booking:accept",
-      action: () {
-        return _bookingNotifier.updateBookingStatus(
+      action: () async {
+        final result = await _bookingNotifier.updateBookingStatus(
           id: bookingId,
           status: BookingStatus.confirmed,
         );
+
+        return result.success;
       },
       onSuccess: () {
         return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);
@@ -102,12 +103,14 @@ class BookingChatActionController
     await _run(
       context: context,
       submitId: "booking:reject",
-      action: () {
-        return _bookingNotifier.updateBookingStatus(
+      action: () async {
+        final result = await _bookingNotifier.updateBookingStatus(
           id: bookingId,
           status: BookingStatus.rejected,
           cancelReason: reason,
         );
+
+        return result.success;
       },
       onSuccess: () {
         return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);
@@ -124,12 +127,14 @@ class BookingChatActionController
     await _run(
       context: context,
       submitId: "booking:cancel",
-      action: () {
-        return _bookingNotifier.updateBookingStatus(
+      action: () async {
+        final result = await _bookingNotifier.updateBookingStatus(
           id: bookingId,
           status: BookingStatus.cancelled,
           cancelReason: reason,
         );
+
+        return result.success;
       },
       onSuccess: () {
         return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);
@@ -145,11 +150,13 @@ class BookingChatActionController
     await _run(
       context: context,
       submitId: "booking:status",
-      action: () {
-        return _bookingNotifier.updateBookingStatus(
+      action: () async {
+        final result = await _bookingNotifier.updateBookingStatus(
           id: bookingId,
           status: BookingStatus.completed,
         );
+
+        return result.success;
       },
       onSuccess: () {
         return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);

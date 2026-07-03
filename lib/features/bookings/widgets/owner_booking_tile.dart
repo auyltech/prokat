@@ -6,6 +6,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -121,7 +122,7 @@ class OwnerBookingTile extends ConsumerWidget {
     final difference = now.difference(createdAt).inMinutes;
 
     if (difference < cancelWindowMinutes) {
-      final res = await notifier.updateBookingStatus(
+      final result = await notifier.updateBookingStatus(
         id: booking.id,
         status: BookingStatus.cancelled,
       );
@@ -132,9 +133,9 @@ class OwnerBookingTile extends ConsumerWidget {
       }
 
       AppSnackBar.show(
-        message: res ? "Order Cancelled" : "Failed to cancel order",
-        isSuccess: res,
-        isError: !res,
+        message: result.success ? "Order Cancelled" : "Failed to cancel order",
+        isSuccess: result.success,
+        isError: !result.success,
       );
 
       return;
@@ -150,7 +151,7 @@ class OwnerBookingTile extends ConsumerWidget {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         builder: (context) =>
-            CancelBookingSheet(booking: booking, mode: "owner"),
+            CancelBookingSheet(booking: booking, mode: AppMode.ownerMode),
       );
     }
   }

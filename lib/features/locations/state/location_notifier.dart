@@ -3,6 +3,7 @@ import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
+import 'package:prokat/features/requests/state/request_provider.dart';
 import '../models/location_model.dart';
 import 'location_service.dart';
 import 'location_state.dart';
@@ -139,7 +140,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 
   // Create new location
-  Future<bool> createLocation(LocationModel location) async {
+  Future<bool> createLocation(LocationModel location, String from) async {
     const actionId = "location:create";
     try {
       _startAction(actionId);
@@ -164,8 +165,17 @@ class LocationNotifier extends StateNotifier<LocationState> {
           getClientLocations();
         }
 
-        if (location.service == "ADDRESS" && state.clientLocations.isNotEmpty) {
-          selectAddress(state.clientLocations[0]);
+        if (location.service == "ADDRESS" &&
+            result.data != null &&
+            state.clientLocations.isNotEmpty) {
+          // selectAddress(state.clientLocations[0]);
+          selectAddress(result.data ?? state.clientLocations[0]);
+
+          if (from == "create_request") {
+            ref
+                .read(requestProvider.notifier)
+                .selectLocation(result.data ?? state.clientLocations[0]);
+          } else if (from == "create_booking") {}
         }
 
         return true;

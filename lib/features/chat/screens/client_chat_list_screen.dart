@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -24,7 +25,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      if (ref.read(chatProvider).conversations.isNotEmpty) {
+      if (ref.read(chatProvider).fetchStatus != FetchStatus.success) {
         await ref
             .read(chatProvider.notifier)
             .getChatThreads(AppMode.clientMode);
@@ -52,10 +53,9 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
         },
         child: ListView(
           children: [
-            if (chatState.isLoadingConversations &&
-                chatState.conversations.isEmpty)
+            if (chatState.fetchStatus == FetchStatus.loading)
               _buildSkeleton()
-            else if (chatState.error != null && chats.isEmpty)
+            else if (chatState.fetchStatus == FetchStatus.error)
               EmptyStateTile(
                 title: l10n.error,
                 subtitle: l10n.couldNotLoadChats,

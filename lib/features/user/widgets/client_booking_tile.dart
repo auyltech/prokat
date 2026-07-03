@@ -7,6 +7,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -284,9 +285,9 @@ Future<void> _handleCancel(
     // }
 
     AppSnackBar.show(
-      message: result ? l10n.orderCancelled : "Failed to cancel order",
-      isSuccess: result,
-      isError: !result,
+      message: result.success ? l10n.orderCancelled : "Failed to cancel order",
+      isSuccess: result.success,
+      isError: !result.success,
     );
 
     return;
@@ -301,6 +302,7 @@ Future<void> _handleCancel(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) => CancelBookingSheet(booking: booking, mode: "client"),
+    builder: (context) =>
+        CancelBookingSheet(booking: booking, mode: AppMode.clientMode),
   );
 }

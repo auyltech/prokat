@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/map/containers/map_container.dart';
-import 'package:prokat/features/map/containers/map_renter_equipment_container.dart';
+import 'package:prokat/features/map/containers/map_client_equipment_container.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../../../core/router/app_routes.dart';
 
-class MapRenterEquipmentScreen extends ConsumerStatefulWidget {
-  const MapRenterEquipmentScreen({super.key});
+class MapClientEquipmentScreen extends ConsumerStatefulWidget {
+  const MapClientEquipmentScreen({super.key});
 
   @override
-  ConsumerState<MapRenterEquipmentScreen> createState() =>
+  ConsumerState<MapClientEquipmentScreen> createState() =>
       _MapRenterEquipmentScreenState();
 }
 
 class _MapRenterEquipmentScreenState
-    extends ConsumerState<MapRenterEquipmentScreen> {
+    extends ConsumerState<MapClientEquipmentScreen> {
   @override
   void initState() {
     super.initState();
@@ -33,7 +33,7 @@ class _MapRenterEquipmentScreenState
       title: l10n.equipmentMap,
       redirectRoute: AppRoutes.searchList,
       redirectLabel: l10n.viewEquipmentList,
-      mobileMap: const MapRenterEquipmentContainer(),
+      mobileMap: const MapClientEquipmentContainer(),
     );
   }
 }

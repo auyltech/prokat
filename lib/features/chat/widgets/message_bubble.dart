@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/negotiation_message_bubble.dart';
@@ -8,7 +9,7 @@ import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 
 class MessageBubble extends StatefulWidget {
   final ChatMessageModel message;
-  final String mode;
+  final AppMode mode;
   final bool isMe;
 
   const MessageBubble({
@@ -42,30 +43,15 @@ class _MessageBubbleState extends State<MessageBubble> {
     //   _ => null,
     // };
 
-    final isSpecialized =
-        widget.message.type == "EVENT" || widget.message.meta != null;
+    final service = widget.message.service;
 
-    final kind = isSpecialized ? widget.message.meta!["kind"] : null;
-
-    final type = !isSpecialized
-        ? "MESSAGE"
-        : kind == "request:create"
-        ? "REQUEST"
-        : kind == "offer:create"
-        ? "OFFER"
-        : kind == "booking:create"
-        ? "BOOKING"
-        : kind == "negotiation:create"
-        ? "NEGOTIATION"
-        : "MESSAGE";
-
-    if (type == "REQUEST") {
+    if (service == "REQUEST") {
       return RequestMessageBubble(message: widget.message, mode: widget.mode);
-    } else if (type == "OFFER") {
+    } else if (service == "OFFER") {
       return OfferMessageBubble(message: widget.message, isMe: widget.isMe);
-    } else if (type == "BOOKING") {
-      return BookingMessageBubble(message: widget.message);
-    } else if (type == "NEGOTIATION") {
+    } else if (service == "BOOKING") {
+      return BookingMessageBubble(message: widget.message, mode: widget.mode);
+    } else if (service == "NEGOTIATION") {
       return NegotiationMessageBubble(
         message: widget.message,
         isMe: widget.isMe,

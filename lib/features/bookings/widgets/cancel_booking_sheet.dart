@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/state/booking_provider.dart';
@@ -10,7 +11,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class CancelBookingSheet extends ConsumerStatefulWidget {
   final BookingModel booking;
-  final String? mode;
+  final AppMode? mode;
 
   const CancelBookingSheet({super.key, required this.booking, this.mode});
 
@@ -22,7 +23,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
   String? selectedReason;
 
   Future<void> onSubmit(AppLocalizations? l10n) async {
-    final isOwner = widget.mode == "owner";
+    final isOwner = widget.mode == AppMode.ownerMode;
     final notifier = ref.read(bookingProvider.notifier);
 
     final status = isOwner
@@ -40,11 +41,11 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
     );
 
     AppSnackBar.show(
-      message: result
+      message: result.success
           ? l10n?.orderCancelled ?? "Order Cancelled"
           : "Failed to cancel order",
-      isSuccess: result,
-      isError: !result,
+      isSuccess: result.success,
+      isError: !result.success,
     );
   }
 
@@ -55,7 +56,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
     final bookingState = ref.watch(bookingProvider);
 
-    final isOwner = widget.mode == "owner";
+    final isOwner = widget.mode == AppMode.ownerMode;
 
     final ownerCancelReasons = [
       l10n.cancelReasonClientNotRespond,

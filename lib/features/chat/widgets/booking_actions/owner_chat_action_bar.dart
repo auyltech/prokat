@@ -10,7 +10,6 @@ import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
-import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
 class OwnerChatActionBar extends ConsumerWidget {
@@ -79,118 +78,12 @@ class OwnerChatActionBar extends ConsumerWidget {
               // Order Created
               if (chatStatus == ChatStatus.bookingcreated) ...[
                 // Accept order
-                Expanded(
-                  child: ActionBarButton(
-                    label: "Accept Order",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading:
-                        submitState.isSubmitting &&
-                        submitState.submitId == "booking:accept",
-                    onPressed: () async {
-                      await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: theme.colorScheme.surface,
-                          title: const Text('Accept order?'),
-                          content: const Text(
-                            'Confirm accepting this booking.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
-                            ),
-
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.pop(context, true);
-
-                                await controller.acceptBooking(
-                                  context: context,
-                                  chatId: chatId,
-                                  bookingId: booking.id,
-                                );
-                              },
-                              child: const Text('Accept'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
                 const SizedBox(width: 6),
 
                 // Create Counter Offer
-                Expanded(
-                  child: ActionBarButton.secondary(
-                    label: "Counter",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading:
-                        submitState.isSubmitting &&
-                        submitState.submitId == "price:create",
-                    onPressed: () async {
-                      await showCounterOfferSheet(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        initialPrice: booking.price,
-                        initialPriceRate: booking.priceRate,
-                        mode: "owner",
-                      );
-                    },
-                  ),
-                ),
-
                 const SizedBox(width: 6),
 
                 // Reject Order
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Reject Order",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading:
-                        submitState.isSubmitting &&
-                        submitState.submitId == "booking:reject",
-                    onPressed: () async {
-                      final decision =
-                          await showModalBottomSheet<CancelBookingDecision>(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: theme.colorScheme.surface,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                              ),
-                            ),
-                            builder: (_) => CancelBookingReasonSheet(
-                              booking: booking,
-                              useCase: 'owner',
-                            ),
-                          );
-
-                      if (!context.mounted) return;
-
-                      if (decision == null || decision.confirmed == false) {
-                        return;
-                      }
-
-                      final reason = decision.reason;
-
-                      if (reason == null || reason.trim().isEmpty) {
-                        return;
-                      }
-
-                      await controller.rejectBooking(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        reason: reason.trim(),
-                      );
-                    },
-                  ),
-                ),
               ]
               // Counter Offers
               else if (chatStatus == ChatStatus.counteroffersent) ...[

@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
-import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
-import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
@@ -56,8 +53,6 @@ class ClientChatActionBar extends ConsumerWidget {
       bookingChatActionControllerProvider(booking.id).notifier,
     );
 
-    final negotiation = ref.watch(priceNegotiationProvider);
-
     final statusText = getChatActionBarTitle(chatStatus);
 
     return Container(
@@ -85,126 +80,7 @@ class ClientChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (chatStatus == ChatStatus.bookingcreated) ...[
-                // Send Counter Offer
-                Expanded(
-                  child: ActionBarButton(
-                    label: "Counter",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      await showCounterOfferSheet(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        initialPrice: booking.price,
-                        initialPriceRate: booking.priceRate,
-                        mode: "client",
-                      );
-                    },
-                  ),
-                ),
-
-                SizedBox(width: 8),
-
-                // Cancel Order
-                Expanded(
-                  child: ActionBarButton.danger(
-                    label: "Cancel Order",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: theme.colorScheme.surface,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        builder: (_) => CancelBookingSheet(
-                          booking: booking,
-                          mode: 'client',
-                        ),
-                      );
-                      // await controller.cancelBooking(
-                      //   context: context,
-                      //   chatId: chatId,
-                      //   bookingId: booking.id,
-                      //   reason: "",
-                      // );
-                    },
-                  ),
-                ),
-              ] else if (chatStatus == ChatStatus.counteroffersent) ...[
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Cancel Offer",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      await controller.cancelNegotiation(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        negotiationId: negotiation.latestPending?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
-              ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
-                Expanded(
-                  child: ActionBarButton(
-                    label: "Accept Offer",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      await controller.acceptCounterOffer(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        negotiationId: negotiation.latestPending?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
-
-                SizedBox(width: 4),
-
-                // Reject Counter Offer
-                Expanded(
-                  child: ActionBarButton.destructive(
-                    label: "Reject Offer",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      await controller.rejectCounterOffer(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        negotiationId: negotiation.latestPending?.id ?? "",
-                      );
-                    },
-                  ),
-                ),
-              ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
-                Expanded(
-                  child: ActionBarButton.danger(
-                    label: "Cancel Order",
-                    isEnabled: !submitState.isSubmitting,
-                    isLoading: submitState.isSubmitting,
-                    onPressed: () async {
-                      await controller.cancelBooking(
-                        context: context,
-                        chatId: chatId,
-                        bookingId: booking.id,
-                        reason: "",
-                      );
-                    },
-                  ),
-                ),
-              ] else if (chatStatus == ChatStatus.workcompleted) ...[
+              if (chatStatus == ChatStatus.workcompleted) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Confirm",

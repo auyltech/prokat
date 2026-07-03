@@ -1,5 +1,6 @@
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
@@ -89,6 +90,12 @@ class RequestState {
             )
             .firstOrNull !=
         null;
+  }
+
+  RequestModel? getRequestById({required AppMode mode, required String id}) {
+    return (mode == AppMode.ownerMode ? ownerRequests : clientRequests)
+        .where((item) => item.id == id)
+        .firstOrNull;
   }
 
   RequestState copyWith({

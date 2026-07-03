@@ -5,9 +5,10 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -15,7 +16,7 @@ import 'package:intl/intl.dart';
 
 class RequestMessageBubble extends ConsumerStatefulWidget {
   final ChatMessageModel message;
-  final String mode;
+  final AppMode mode;
 
   const RequestMessageBubble({
     super.key,
@@ -34,16 +35,23 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    // final messageRequest = switch (widget.message.meta) {
-    //   Map<String, dynamic> meta => RequestModel.fromJson(meta),
-    //   _ => null,
-    // };
+    final messageRequest = switch (widget.message.meta) {
+      Map<String, dynamic> meta => RequestModel.fromJson(meta),
+      _ => null,
+    };
 
-    // if (messageRequest == null) return const SizedBox.shrink();
+    if (messageRequest == null) return Text("Error loading booking");
 
-    final request = ref.read(chatProvider).currentChat?.request;
+    final request = ref
+        .read(requestProvider)
+        .getRequestById(
+          mode: widget.mode == AppMode.ownerMode
+              ? AppMode.ownerMode
+              : AppMode.clientMode,
+          id: messageRequest.id,
+        );
 
-    if (request == null) return const SizedBox.shrink();
+    if (request == null) return Text("Error loading booking");
 
     return Container(
       width: double.infinity,

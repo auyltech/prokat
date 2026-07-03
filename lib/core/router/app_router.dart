@@ -24,8 +24,8 @@ import 'package:prokat/features/auth/screens/forgot_password_screen.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
 import 'package:prokat/features/locations/screens/renter_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
-import 'package:prokat/features/map/screens/map_renter_equipment_screen.dart';
-import 'package:prokat/features/map/screens/map_renter_pin_address_screen.dart';
+import 'package:prokat/features/map/screens/map_client_equipment_screen.dart';
+import 'package:prokat/features/map/screens/map_client_pin_address_screen.dart';
 import 'package:prokat/features/locations/screens/create_address_screen.dart';
 import 'package:prokat/features/offers/screens/create_offer_screen.dart';
 import 'package:prokat/features/owner/screens/owner_address_edit_screen.dart';
@@ -222,7 +222,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               // Map screen which displays equipment for rent
               GoRoute(
                 path: AppRoutes.searchMap,
-                builder: (_, _) => const MapRenterEquipmentScreen(),
+                builder: (_, _) => const MapClientEquipmentScreen(),
               ),
               // display equipment details in full screen
               GoRoute(
@@ -241,7 +241,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.map,
                     builder: (context, state) {
-                      return MapRenterPinAddressScreen(); //
+                      final from = state.pathParameters['from'] ?? '';
+                      return MapClientPinAddressScreen(from: from); //
                     },
                   ),
                   GoRoute(

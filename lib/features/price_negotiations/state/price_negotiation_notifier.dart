@@ -150,10 +150,13 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
       );
 
       // Refresh is called by the booking notifier
-    } catch (e) {
+      if (result.success) {
+        getPriceNegotiations();
+      }
+    } catch (error) {
       state = state.copyWith(
         isSubmitting: false,
-        error: e.toString(),
+        error: error.toString(),
         actionId: null,
       );
     }

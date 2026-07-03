@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class RequestStatusBadge extends StatelessWidget {
   final RequestStatus status;
   final OwnerRequestState? requestState;
-  final String mode;
+  final AppMode mode;
 
   const RequestStatusBadge({
     super.key,
@@ -39,7 +40,7 @@ class RequestStatusBadge extends StatelessWidget {
     String statusText = "";
     final currentRequestState = requestState;
 
-    if (mode == "owner" && currentRequestState != null) {
+    if (mode == AppMode.ownerMode && currentRequestState != null) {
       statusText = getOwnerRequestStatus(currentRequestState, l10n: l10n);
     } else {
       statusText = getRequestStatus(status, l10n: l10n);

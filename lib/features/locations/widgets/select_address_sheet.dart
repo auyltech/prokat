@@ -8,11 +8,13 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
   final String service;
+  final String from;
   final String? equipmentId;
 
   const SelectAddressSheet({
     super.key,
     this.equipmentId,
+    required this.from,
     required this.service,
   });
 
@@ -93,7 +95,11 @@ class SelectAddressSheet extends ConsumerWidget {
                 Navigator.pop(context);
                 context.push(
                   AppRoutes.clientPinAddress,
-                  extra: {'equipmentId': equipmentId, "service": service},
+                  extra: {
+                    'equipmentId': equipmentId,
+                    "service": service,
+                    "from": from,
+                  },
                 );
               },
               icon: const Icon(Icons.map_outlined, size: 24),

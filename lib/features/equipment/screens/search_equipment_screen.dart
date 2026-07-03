@@ -130,6 +130,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final items = ref.watch(equipmentProvider).clientEquipment;
 
     final bookingNotifier = ref.read(bookingProvider.notifier);
+
     final selectedCategoryId = ref
         .watch(categoriesProvider)
         .selectedCategory

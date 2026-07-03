@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -10,16 +11,18 @@ import 'package:prokat/features/map/widgets/map_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class MapRenterPinAddressContainer extends ConsumerStatefulWidget {
-  const MapRenterPinAddressContainer({super.key});
+class MapClientPinAddressContainer extends ConsumerStatefulWidget {
+  final String from;
+
+  const MapClientPinAddressContainer({super.key, required this.from});
 
   @override
-  ConsumerState<MapRenterPinAddressContainer> createState() =>
-      _MapRenterPinAddressContainerState();
+  ConsumerState<MapClientPinAddressContainer> createState() =>
+      _MapClientPinAddressContainerState();
 }
 
-class _MapRenterPinAddressContainerState
-    extends ConsumerState<MapRenterPinAddressContainer> {
+class _MapClientPinAddressContainerState
+    extends ConsumerState<MapClientPinAddressContainer> {
   double latitude = 0;
   double longitude = 0;
 
@@ -83,7 +86,7 @@ class _MapRenterPinAddressContainerState
         longitude: longitude,
       );
 
-      final created = await notifier.createLocation(location);
+      final created = await notifier.createLocation(location, widget.from);
 
       if (!mounted) return;
 
@@ -93,9 +96,9 @@ class _MapRenterPinAddressContainerState
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.failedSaveAddress)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.failedSaveAddress)));
     }
   }
 
@@ -169,11 +172,17 @@ class _MapRenterPinAddressContainerState
 
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: ActionButton(
                         onPressed: selectedAddress == null
                             ? null
                             : createAddress,
-                        child: Text(l10n.saveAddress),
+                        label: l10n.saveAddress,
+                        isLoading: ref
+                            .watch(locationProvider)
+                            .isActionActive("location:create"),
+                        isEnabled: !ref
+                            .watch(locationProvider)
+                            .isActionActive("location:create"),
                       ),
                     ),
                   ],

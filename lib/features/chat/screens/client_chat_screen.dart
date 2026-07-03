@@ -31,10 +31,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() async {
       await ref.read(chatProvider.notifier).openChatById(widget.chatId);
-      await ref.read(offersProvider.notifier).getClientOffers();
+      // await ref.read(offersProvider.notifier).getClientOffers();
     });
   }
 
@@ -43,11 +42,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() async {
-        await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-        await ref.read(offersProvider.notifier).getClientOffers();
-        await ref
-            .read(priceNegotiationProvider.notifier)
-            .getPriceNegotiations();
+        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        // ref.read(offersProvider.notifier).getClientOffers();
+        // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
       });
     }
   }
@@ -55,7 +52,6 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void dispose() {
     ref.read(chatProvider.notifier).leaveCurrentChat();
-
     super.dispose();
   }
 
@@ -138,10 +134,10 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
           }
 
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-          ref.read(requestProvider.notifier).getClientRequests();
-          ref.read(offersProvider.notifier).getClientOffers();
-          ref.read(bookingProvider.notifier).getClientBookings();
-          ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
+          // ref.read(requestProvider.notifier).getClientRequests();
+          // ref.read(offersProvider.notifier).getClientOffers();
+          // ref.read(bookingProvider.notifier).getClientBookings();
+          // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
         },
         child: SafeArea(
           child: Stack(
@@ -205,7 +201,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                           return MessageBubble(
                             message: message,
                             isMe: isMe,
-                            mode: "client",
+                            mode: AppMode.clientMode,
                           );
                         },
                       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
@@ -38,11 +39,10 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() async {
-        await ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-        await ref.read(offersProvider.notifier).getOwnerOffers();
-        await ref
-            .read(priceNegotiationProvider.notifier)
-            .getPriceNegotiations();
+        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+
+        // ref.read(offersProvider.notifier).getOwnerOffers();
+        // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
       });
     }
   }
@@ -63,7 +63,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
     final chatState = ref.watch(chatProvider);
     final currentChat = chatState.currentChat;
-    final messages = chatState.messages;
+    final messages = chatState.messages
+        .where((item) => item.chatId == currentChat?.id)
+        .toList();
 
     final booking = currentChat?.booking;
     final request = currentChat?.request;
@@ -113,13 +115,17 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          if (chatState.isLoadingMessages || chatState.isLoadingConversations) {
+          if (chatState.fetchStatus == FetchStatus.loading ||
+              chatState.fetchStatus == FetchStatus.refreshing) {
             return;
           }
 
           ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-          ref.read(offersProvider.notifier).getOwnerOffers();
-          ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
+
+          // ref.read(requestProvider.notifier).getOwnerRequests();
+          // ref.read(offersProvider.notifier).getOwnerOffers();
+          // ref.read(bookingProvider.notifier).getOwnerBookings();
+          // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
         },
         child: Stack(
           children: [
@@ -196,7 +202,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                           return MessageBubble(
                             message: message,
                             isMe: isMe,
-                            mode: "owner",
+                            mode: AppMode.ownerMode,
                           );
                         },
                       ),

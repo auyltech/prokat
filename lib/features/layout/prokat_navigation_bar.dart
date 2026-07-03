@@ -157,7 +157,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     bool isChatDetailScreen = false;
 
     if (segments.length >= 2) {
-      if (segments[0] == 'chat' && segments[1] != 'list') {
+      if (segments[0] == 'chat' && segments[1] == 'direct') {
         isChatDetailScreen = true;
       }
 

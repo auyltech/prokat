@@ -83,7 +83,10 @@ class _MapOwnerPinLocationContainerState
         equipmentId: widget.equipmentId,
       );
 
-      final created = await notifier.createLocation(location);
+      final created = await notifier.createLocation(
+        location,
+        "equipment_location",
+      );
 
       if (!mounted) return;
 

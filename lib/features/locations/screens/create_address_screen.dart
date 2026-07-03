@@ -13,6 +13,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateAddressScreen extends ConsumerStatefulWidget {
   final String service;
+  final String from;
   final String? redirectUrl;
   final String? equipmentId;
 
@@ -21,6 +22,7 @@ class CreateAddressScreen extends ConsumerStatefulWidget {
     required this.service,
     this.equipmentId,
     this.redirectUrl,
+    this.from = "",
   });
 
   @override
@@ -79,7 +81,7 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
 
     final res = await ref
         .read(locationProvider.notifier)
-        .createLocation(location);
+        .createLocation(location, widget.from);
 
     if (!mounted) return;
 

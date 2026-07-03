@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -50,10 +51,9 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            if (chatState.isLoadingConversations &&
-                chatState.conversations.isEmpty)
+            if (chatState.fetchStatus == FetchStatus.loading)
               _buildSkeleton()
-            else if (chatState.error != null && chats.isEmpty)
+            else if (chatState.fetchStatus == FetchStatus.error)
               EmptyStateTile(
                 title: l10n.error,
                 subtitle: l10n.couldNotLoadChats,

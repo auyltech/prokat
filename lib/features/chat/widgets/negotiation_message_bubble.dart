@@ -31,9 +31,7 @@ class _NegotiationMessageBubbleState
 
     final parsed = () {
       try {
-        return PriceNegotiation.fromJson(
-          widget.message.meta?["priceNegotiation"],
-        );
+        return PriceNegotiation.fromJson(widget.message.meta!);
       } catch (error) {
         return null;
       }
@@ -47,13 +45,11 @@ class _NegotiationMessageBubbleState
         .read(priceNegotiationProvider)
         .negotiations;
 
-    final priceNegotiation = priceNegotiationState
-        .where((item) => item.id == parsed.id)
-        .firstOrNull;
-
-    if (priceNegotiation == null) {
-      return Text("Failed to load negotiation");
-    }
+    final priceNegotiation =
+        priceNegotiationState
+            .where((item) => item.id == parsed.id)
+            .firstOrNull ??
+        parsed;
 
     return Align(
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -118,55 +114,91 @@ class _NegotiationMessageBubbleState
                     if (priceNegotiation.status ==
                             PriceNegotiationStatus.created &&
                         widget.isMe) ...[
-                      IconButton(
-                        // isEnabled: !submitState.isSubmitting,
-                        // isLoading:
-                        //     submitState.isSubmitting &&
-                        //     submitState.submitId == "price:cancel",
-                        onPressed: () async {
-                          await ref
-                              .read(priceNegotiationProvider.notifier)
-                              .cancelPriceNegotiation(priceNegotiation.id);
-                        },
-                        iconSize: 32,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.clear, color: Colors.red),
-                      ),
+                      if (ref.watch(priceNegotiationProvider).isSubmitting)
+                        SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.red,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          // isEnabled: !submitState.isSubmitting,
+                          // isLoading:
+                          //     submitState.isSubmitting &&
+                          //     submitState.submitId == "price:cancel",
+                          onPressed: () async {
+                            await ref
+                                .read(priceNegotiationProvider.notifier)
+                                .cancelPriceNegotiation(priceNegotiation.id);
+                          },
+                          iconSize: 32,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.clear, color: Colors.red),
+                        ),
                     ] else if (priceNegotiation.status ==
                         PriceNegotiationStatus.created) ...[
-                      IconButton(
-                        // isEnabled: !submitState.isSubmitting,
-                        // isLoading:
-                        //     submitState.isSubmitting &&
-                        //     submitState.submitId == "price:reject",
-                        onPressed: () async {
-                          await ref
-                              .read(priceNegotiationProvider.notifier)
-                              .respondToPriceNegotiation(
-                                negotiationId: priceNegotiation.id,
-                                response: PriceNegotiationResponse.reject,
-                              );
+                      if (ref.watch(priceNegotiationProvider).isSubmitting)
+                        SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.red,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          // isEnabled: !submitState.isSubmitting,
+                          // isLoading:
+                          //     submitState.isSubmitting &&
+                          //     submitState.submitId == "price:reject",
+                          onPressed: () async {
+                            await ref
+                                .read(priceNegotiationProvider.notifier)
+                                .respondToPriceNegotiation(
+                                  negotiationId: priceNegotiation.id,
+                                  response: PriceNegotiationResponse.reject,
+                                );
 
-                          // chatId: widget.message.chatId,
-                        },
-                        iconSize: 32,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.clear, color: Colors.red),
-                      ),
+                            // chatId: widget.message.chatId,
+                          },
+                          iconSize: 32,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.clear, color: Colors.red),
+                        ),
 
-                      IconButton(
-                        onPressed: () async {
-                          await ref
-                              .read(priceNegotiationProvider.notifier)
-                              .respondToPriceNegotiation(
-                                negotiationId: priceNegotiation.id,
-                                response: PriceNegotiationResponse.accept,
-                              );
-                        },
-                        iconSize: 32,
-                        padding: EdgeInsets.all(0),
-                        icon: Icon(Icons.check, color: Colors.green),
-                      ),
+                      if (ref.watch(priceNegotiationProvider).isSubmitting)
+                        SizedBox(
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.red,
+                            ),
+                          ),
+                        )
+                      else
+                        IconButton(
+                          onPressed: () async {
+                            await ref
+                                .read(priceNegotiationProvider.notifier)
+                                .respondToPriceNegotiation(
+                                  negotiationId: priceNegotiation.id,
+                                  response: PriceNegotiationResponse.accept,
+                                );
+                          },
+                          iconSize: 32,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.check, color: Colors.green),
+                        ),
                     ],
                   ],
                 ),

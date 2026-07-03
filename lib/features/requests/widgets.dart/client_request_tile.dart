@@ -5,6 +5,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
@@ -80,7 +81,10 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 ),
               ),
 
-              RequestStatusBadge(status: request.status, mode: "client"),
+              RequestStatusBadge(
+                status: request.status,
+                mode: AppMode.clientMode,
+              ),
             ],
           ),
 

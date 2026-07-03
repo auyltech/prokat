@@ -71,7 +71,7 @@ class _ClientSupportChatState extends ConsumerState<ClientSupportChat> {
                   return MessageBubble(
                     message: message,
                     isMe: isMe,
-                    mode: "client",
+                    mode: AppMode.clientMode,
                   );
                 },
               ),

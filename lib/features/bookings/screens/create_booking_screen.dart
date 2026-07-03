@@ -299,6 +299,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           builder: (context) => SelectAddressSheet(
                             equipmentId: equipment.id,
                             service: "equipment",
+                            from: "create_booking",
                           ),
                         ),
                       ),

@@ -7,8 +7,8 @@ import 'package:prokat/features/map/widgets/equipment_details_drawer.dart';
 import 'package:prokat/features/map/widgets/map_view.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class MapRenterEquipmentContainer extends ConsumerWidget {
-  const MapRenterEquipmentContainer({super.key});
+class MapClientEquipmentContainer extends ConsumerWidget {
+  const MapClientEquipmentContainer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -20,13 +20,13 @@ class MainScaffold extends StatelessWidget {
 
     final List<String> segments = GoRouterState.of(context).uri.pathSegments;
     bool isChatDetailScreen =
-        (segments[0] == 'chat' &&
-            segments.length == 2 &&
-            segments[1] != 'list') ||
-        (segments[0] == 'owner' &&
+        (segments.length > 2 &&
             segments[1] == 'chat' &&
-            segments.length == 3 &&
-            segments[2] != 'list');
+            segments[2] == 'direct') ||
+        (segments.length > 2 &&
+            segments[0] == 'owner' &&
+            segments[1] == 'chat' &&
+            segments[2] == 'direct');
 
     final bool hideAppBar = [
       AppRoutes.launch,
