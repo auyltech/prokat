@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/delete_equipment_section.dart';
@@ -35,6 +37,45 @@ class _OwnerEquipmentDetailScreenState
           .read(equipmentProvider.notifier)
           .getOwnerEquipmentById(widget.equipmentId);
     });
+  }
+
+  Future<void> handleDelete(PriceEntry entry, String equipmentId) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false, // User must tap a button to dismiss
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete Price Entry'),
+          content: Text('Are you sure you want to delete this price entry?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final bool result = await ref
+        .read(equipmentProvider.notifier)
+        .deletePriceEntry(entry, equipmentId);
+
+    AppSnackBar.show(
+      message: result ? "Price entry deleted" : "Failed to delete price entry",
+      isSuccess: result,
+      isError: !result,
+    );
   }
 
   @override
@@ -130,6 +171,7 @@ class _OwnerEquipmentDetailScreenState
                           equipment.id,
                           priceEntry: entry,
                         ),
+                        onDelete: (entry) => handleDelete(entry, equipment.id),
                       ),
 
                     if (equipment != null)

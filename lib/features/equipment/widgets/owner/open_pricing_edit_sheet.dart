@@ -34,6 +34,7 @@ Future<void> submitPriceEntry(
     ); // Use l10n if available
     return;
   }
+
   if (price > 100000) {
     AppSnackBar.show(
       message: "Price cannot exceed 100,000",
@@ -48,36 +49,36 @@ Future<void> submitPriceEntry(
     final notifier = ref.read(equipmentProvider.notifier);
 
     if (priceEntry == null) {
-      final res = await notifier.createPriceEntry({
-        "equipmentId": equipmentId,
-        "price": price,
-        "priceRate": selectedRate,
-      });
+      final result = await notifier.createPriceEntry(
+        price,
+        selectedRate,
+        equipmentId,
+      );
 
       if (!context.mounted) return;
 
-      if (res) {
-        AppSnackBar.show(message: l10n.priceEntryAdded, isSuccess: true);
-      } else {
-        AppSnackBar.show(message: l10n.failedAddPriceEntry, isError: true);
-      }
+      AppSnackBar.show(
+        message: result.success
+            ? l10n.priceEntryAdded
+            : l10n.failedAddPriceEntry,
+        isSuccess: result.success,
+        isError: !result.success,
+      );
     } else {
-      final res = await notifier.updatePriceEntry({
-        "id": priceEntry.id,
-        "equipmentId": equipmentId,
-        "price": price,
-        "priceRate": selectedRate,
-      });
+      final result = await notifier.updatePriceEntry(
+        PriceEntry(id: priceEntry.id, price: price, priceRate: selectedRate),
+        equipmentId,
+      );
 
-      if (!context.mounted) return;
-
-      if (res) {
-        AppSnackBar.show(message: l10n.priceEntrySaved);
-      } else {
-        AppSnackBar.show(message: l10n.failedUpdatePriceEntry, isError: true);
-      }
+      AppSnackBar.show(
+        message: result.success
+            ? l10n.priceEntrySaved
+            : l10n.failedUpdatePriceEntry,
+        isSuccess: result.success,
+        isError: !result.success,
+      );
     }
-  } catch (e) {
+  } catch (error) {
     if (context.mounted) {
       AppSnackBar.show(message: l10n.failedSavePriceEntry, isError: true);
     }

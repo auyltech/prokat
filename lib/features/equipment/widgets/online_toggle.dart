@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
 class OnlineToggle extends ConsumerWidget {
@@ -42,7 +41,7 @@ class OnlineToggle extends ConsumerWidget {
             onChanged: (val) async {
               final result = await ref
                   .read(equipmentProvider.notifier)
-                  .updateVisibilityStatus(id, val, EquipmentStatus.available);
+                  .toggleEquipmentOnline(id, val);
 
               if (context.mounted) {
                 AppSnackBar.show(

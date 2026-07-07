@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 
-class PriceEntryTile extends StatelessWidget {
-  final PriceEntry price;
+class PriceEntryTile extends ConsumerStatefulWidget {
+  final PriceEntry priceEntry;
   final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
-  const PriceEntryTile({super.key, required this.price, required this.onEdit});
+  const PriceEntryTile({
+    super.key,
+    required this.priceEntry,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
+  @override
+  ConsumerState<PriceEntryTile> createState() => _PriceEntryTileState();
+}
+
+class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -29,14 +42,14 @@ class PriceEntryTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  price.priceRate.label, // e.g. "Per Hour"
+                  widget.priceEntry.priceRate.label, // e.g. "Per Hour"
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "${price.price} ₸",
+                  "${widget.priceEntry.price} ₸",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -46,10 +59,39 @@ class PriceEntryTile extends StatelessWidget {
           ),
 
           /// EDIT ACTION
-          IconButton(
-            onPressed: onEdit,
-            icon: Icon(Icons.edit_rounded, color: accent, size: 20),
-          ),
+          if (ref
+              .watch(equipmentProvider)
+              .isActionActive("equipment:price:update:${widget.priceEntry.id}"))
+            SizedBox(
+              height: 14,
+              width: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              ),
+            )
+          else
+            IconButton(
+              onPressed: widget.onEdit,
+              icon: Icon(Icons.edit_rounded, color: accent, size: 20),
+            ),
+
+          if (ref
+              .watch(equipmentProvider)
+              .isActionActive("equipment:price:delete:${widget.priceEntry.id}"))
+            SizedBox(
+              height: 14,
+              width: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              ),
+            )
+          else
+            IconButton(
+              onPressed: widget.onDelete,
+              icon: Icon(Icons.delete, color: Colors.red, size: 20),
+            ),
         ],
       ),
     );

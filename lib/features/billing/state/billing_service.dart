@@ -22,11 +22,13 @@ class BillingService {
       return handleApiResponse<AccountBalanceModel>(
         response: response,
         parser: (data) {
-          if (data is! Map<String, dynamic>) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! Map<String, dynamic>) {
             throw FormatException("Invalid account balance");
           }
 
-          return AccountBalanceModel.fromJson(data);
+          return AccountBalanceModel.fromJson(itemsJson);
         },
         fallbackMessage: "Failed to load account balance",
       );
@@ -54,7 +56,7 @@ class BillingService {
 
       return handleApiResponse<List<TransactionModel>>(
         response: response,
-        parser: (data) => TransactionModel.fromJsonList(data),
+        parser: (data) => TransactionModel.fromJsonList(data["data"]),
         fallbackMessage: "Failed to load transactions",
       );
     } on DioException catch (error) {
@@ -81,7 +83,7 @@ class BillingService {
 
       return handleApiResponse<List<PricingTierModel>>(
         response: response,
-        parser: (data) => PricingTierModel.fromJsonList(data),
+        parser: (data) => PricingTierModel.fromJsonList(data["data"]),
         fallbackMessage: "Failed to load price tiers",
       );
     } on DioException catch (error) {
@@ -108,7 +110,7 @@ class BillingService {
 
       return handleApiResponse<List<VolumeDiscountModel>>(
         response: response,
-        parser: (data) => VolumeDiscountModel.fromJsonList(data),
+        parser: (data) => VolumeDiscountModel.fromJsonList(data["data"]),
         fallbackMessage: "Failed to load volume discount",
       );
     } on DioException catch (error) {

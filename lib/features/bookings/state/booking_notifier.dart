@@ -121,13 +121,17 @@ class BookingNotifier extends StateNotifier<BookingState> {
         fetchError: null,
       );
 
-      final result = await api.getClientBookings();
+      final result = await api.getClientBookings(
+        page: 1,
+        itemsPerPage: 10,
+        status: "active",
+      );
 
       state = state.copyWith(
-        clientBookings: result.data,
+        clientBookings: result.data?.items ?? [],
         fetchStatus: result.data == null
             ? FetchStatus.error
-            : result.data?.isEmpty == true
+            : result.data?.items.isEmpty == true
             ? FetchStatus.empty
             : FetchStatus.success,
         lastFetchedAt: DateTime.now(),
@@ -161,7 +165,7 @@ class BookingNotifier extends StateNotifier<BookingState> {
         fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
         fetchError: null,
       );
-      print("fetching");
+
       final result = await api.getOwnerBookings();
 
       state = state.copyWith(
@@ -180,8 +184,6 @@ class BookingNotifier extends StateNotifier<BookingState> {
                 code: "BOOKING_FETCH_FAILED",
               ),
       );
-
-      print("done");
     } catch (error) {
       state = state.copyWith(
         fetchStatus: state.clientBookings.isEmpty

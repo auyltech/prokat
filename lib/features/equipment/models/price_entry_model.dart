@@ -9,11 +9,16 @@ class PriceEntry {
   PriceEntry({required this.id, required this.price, required this.priceRate});
 
   factory PriceEntry.fromJson(Map<String, dynamic> json) {
-    return PriceEntry(
-      id: json["id"],
-      price: parseNullableInt(json['price']) ?? 0,
-      priceRate: parseRateOption(json["priceRate"]),
-    );
+    try {
+      return PriceEntry(
+        id: json["id"],
+        price: parseNullableInt(json['price']) ?? 0,
+        priceRate: parseRateOption(json["priceRate"]),
+      );
+    } catch (error) {
+      print(json);
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {

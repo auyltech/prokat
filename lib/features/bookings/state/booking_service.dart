@@ -5,6 +5,7 @@ import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/query_result.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 
 class BookingService {
@@ -14,24 +15,49 @@ class BookingService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<BookingModel>>> getClientBookings() async {
+  Future<ApiResponse<QueryResult<BookingModel>>> getClientBookings({
+    required int page,
+    required int itemsPerPage,
+    required String status,
+  }) async {
     try {
-      final response = await _dio.get("/bookings");
+      final response = await _dio.get(
+        "/bookings",
+        queryParameters: {
+          "page": page,
+          "itemsPerPage": itemsPerPage,
+          "status": status,
+        },
+      );
 
-      return handleApiResponse<List<BookingModel>>(
+      return handleApiResponse<QueryResult<BookingModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
-            throw FormatException("Expected booking list");
+          if (data is! Map<String, dynamic> && data.containsKey("data")) {
+            throw const FormatException("Expected paginated booking response");
           }
 
-          return data.map((item) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
+            throw const FormatException("Expected booking list");
+          }
+
+          final bookings = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid booking item");
             }
 
             return BookingModel.fromJson(item);
           }).toList();
+
+          return QueryResult<BookingModel>(
+            items: bookings,
+            page: (data["page"] as num?)?.toInt() ?? page,
+            itemsPerPage:
+                (data["itemsPerPage"] as num?)?.toInt() ?? itemsPerPage,
+            count: (data["count"] as num?)?.toInt() ?? bookings.length,
+          );
         },
         fallbackMessage: "Failed to load bookings",
       );
@@ -60,11 +86,13 @@ class BookingService {
       return handleApiResponse<List<BookingModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected booking list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid booking item");
             }

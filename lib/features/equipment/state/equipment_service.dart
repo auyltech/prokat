@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import '../../../core/constants/api_routes.dart';
 import '../models/equipment_model.dart';
 import 'dart:io';
@@ -36,11 +38,13 @@ class EquipmentService {
       return handleApiResponse<List<Equipment>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected equipment list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid equipment item");
             }
@@ -74,7 +78,7 @@ class EquipmentService {
 
       return handleApiResponse<Equipment>(
         response: response,
-        parser: (data) => Equipment.fromJson(data),
+        parser: (data) => Equipment.fromJson(data["data"]),
         fallbackMessage: "Failed to load equipment",
       );
     } on DioException catch (error) {
@@ -102,11 +106,13 @@ class EquipmentService {
       return handleApiResponse<List<Equipment>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected equipment list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid equipment item");
             }
@@ -126,10 +132,11 @@ class EquipmentService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
+      print(error);
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }
@@ -140,7 +147,7 @@ class EquipmentService {
 
       return handleApiResponse<Equipment>(
         response: response,
-        parser: (data) => Equipment.fromJson(data),
+        parser: (data) => Equipment.fromJson(data["data"]),
         fallbackMessage: "Failed to load equipment",
       );
     } on DioException catch (error) {
@@ -153,10 +160,11 @@ class EquipmentService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
+      print(error);
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }
@@ -298,19 +306,14 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> updateVisibilityStatus({
+  Future<ApiResponse<void>> updateEquipmentStatus({
     required String equipmentId,
-    required bool isVisible,
     required EquipmentStatus status,
   }) async {
     try {
       final response = await _dio.patch(
         '/equipment/$equipmentId/status',
-        data: {
-          "id": equipmentId,
-          "isVisible": isVisible,
-          "status": status.name.toUpperCase(),
-        },
+        data: {"id": equipmentId, "status": status.name.toUpperCase()},
       );
 
       return handleEmptyApiResponse(
@@ -327,10 +330,42 @@ class EquipmentService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
+      );
+    }
+  }
+
+  Future<ApiResponse<void>> toggleEquipmentOnline({
+    required String equipmentId,
+    required bool isVisible,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/equipment/$equipmentId/online',
+        data: {"id": equipmentId, "isVisible": isVisible},
+      );
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Equipment updated successfully",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: error.toString(),
       );
     }
   }
@@ -395,20 +430,22 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> createPriceEntry(Map<String, dynamic> data) async {
+  Future<ApiResponse<void>> createPriceEntry(
+    int price,
+    PriceRateOption priceRate,
+    String equipmentId,
+  ) async {
     try {
-      final equipmentId = data["equipmentId"];
-      final price = data["price"];
-      final priceRate = data["priceRate"];
-
       final response = await _dio.post(
         "/equipment/$equipmentId/priceEntry",
         data: {
           "equipmentId": equipmentId,
           "price": price,
-          "priceRate": priceRate,
+          "priceRate": priceRate.value,
         },
       );
+
+      print(response);
 
       return handleEmptyApiResponse(
         response: response,
@@ -432,20 +469,21 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> updatePriceEntry(Map<String, dynamic> data) async {
+  Future<ApiResponse<void>> updatePriceEntry(
+    PriceEntry entry,
+    String equipmentId,
+  ) async {
     try {
-      final equipmentId = data["equipmentId"];
-      final priceEntryId = data["id"];
-      final price = data["price"];
-      final priceRate = data["priceRate"];
+      final priceEntryId = entry.id;
 
       final response = await _dio.patch(
         '/equipment/$equipmentId/priceEntry/$priceEntryId',
         data: {
+          "id": priceEntryId,
           "equipmentId": equipmentId,
           "priceEntryId": priceEntryId,
-          "price": price,
-          "priceRate": priceRate,
+          "price": entry.price,
+          "priceRate": entry.priceRate.value,
         },
       );
 
@@ -471,13 +509,13 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> deletePriceEntry(Map<String, dynamic> data) async {
+  Future<ApiResponse<void>> deletePriceEntry(
+    PriceEntry entry,
+    String equipmentId,
+  ) async {
     try {
-      final equipmentId = data["equipmentId"];
-      final priceEntryId = data["id"];
-
       final response = await _dio.delete(
-        '/equipment/$equipmentId/priceEntry/$priceEntryId',
+        '/equipment/$equipmentId/priceEntry/${entry.id}',
       );
 
       return handleEmptyApiResponse(

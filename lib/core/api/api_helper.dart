@@ -97,11 +97,11 @@ ApiResponse<T> handleApiResponse<T>({
   }
 
   try {
-    final rawData = responseData is Map && responseData.containsKey("data")
-        ? responseData["data"]
-        : responseData;
+    // final rawData = responseData is Map && responseData.containsKey("data")
+    //     ? responseData["data"]
+    //     : responseData;
 
-    final parsedData = parser(rawData);
+    final parsedData = parser(response.data);
 
     return ApiResponse.success(
       parsedData,
@@ -128,7 +128,6 @@ ApiResponse<void> handleEmptyApiResponse({
   final isSuccess = statusCode >= 200 && statusCode < 300;
 
   if (!isSuccess) {
-    print(responseData["error"]);
     return ApiResponse.failure(
       message: extractBackendMessage(responseData, fallback: fallbackMessage),
       error: responseData["error"],

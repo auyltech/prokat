@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -67,29 +70,14 @@ class _DeleteEquipmentSectionState
           const SizedBox(height: 24),
 
           /// DELETE BUTTON
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: OutlinedButton.icon(
-              onPressed: () =>
-                  _confirmDelete(context, ref, widget.equipmentId, l10n),
-              icon: const Icon(Icons.delete_outline_outlined, size: 30),
-              label: Text(
-                l10n.deleteEquipment,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.1,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: danger,
-                side: BorderSide(color: danger.withValues(alpha: 0.4)),
-                backgroundColor: danger.withValues(alpha: 0.06),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
+          ActionButton.danger(
+            label: l10n.deleteEquipment,
+            icon: LucideIcons.trash,
+            isLoading: ref
+                .watch(equipmentProvider)
+                .isActionActive("equipment:delete:${widget.equipmentId}"),
+            onPressed: () =>
+                _confirmDelete(context, ref, widget.equipmentId, l10n),
           ),
         ],
       ),
@@ -181,15 +169,23 @@ void _confirmDelete(
                   ),
                 ),
                 onPressed: () async {
-                  await ref
+                  if (context.mounted && context.canPop()) context.pop();
+
+                  final result = await ref
                       .read(equipmentProvider.notifier)
                       .deleteEquipment(equipmentId);
-
-                  if (context.mounted && context.canPop()) context.pop();
 
                   if (context.mounted) {
                     context.pop();
                   }
+
+                  AppSnackBar.show(
+                    message: result
+                        ? "Equipment deleted"
+                        : "Failed to delete equipment",
+                    isSuccess: result,
+                    isError: !result,
+                  );
                 },
                 child: Text(
                   l10n.delete,

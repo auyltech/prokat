@@ -19,11 +19,13 @@ class PriceNegotiationService {
       return handleApiResponse<List<PriceNegotiation>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected price negotiation list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid price negotiation item");
             }

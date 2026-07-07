@@ -34,7 +34,7 @@ class InputField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         vertical: 6,
-        horizontal: 8,
+        horizontal: 20,
       ), // Adjusted vertical padding
       decoration: BoxDecoration(
         color: theme.cardColor,

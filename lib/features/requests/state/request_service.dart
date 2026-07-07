@@ -19,11 +19,13 @@ class RequestService {
       return handleApiResponse<List<RequestModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected requests list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid request item");
             }
@@ -74,8 +76,6 @@ class RequestService {
           "offeredRate": offeredRate,
         },
       );
-
-      print(response);
 
       return handleEmptyApiResponse(
         response: response,
@@ -204,11 +204,13 @@ class RequestService {
       return handleApiResponse<List<RequestModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected requests list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid request item");
             }

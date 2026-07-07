@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:prokat/features/equipment/state/equipment_state.dart';
 import 'dart:io';
@@ -564,18 +566,11 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
   }
 
   // This function uses optimistic update with a revert to original
-  Future<bool> updateVisibilityStatus(
+  Future<bool> updateEquipmentStatus(
     String equipmentId,
-    bool isVisible,
     EquipmentStatus status,
   ) async {
-    final id = equipmentId;
-
-    if (id.toString().trim().isEmpty) {
-      return false;
-    }
-
-    final actionId = "equipment:update:$id:status";
+    final actionId = "equipment:update:$equipmentId:status";
 
     _startAction(actionId);
 
@@ -585,14 +580,13 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       final updatedList = state.ownerEquipment.map((item) {
         if (item.id == equipmentId) {
           // Create a brand new instance instead of mutating the old one
-          return item.copyWith(status: status, isVisible: isVisible);
+          return item.copyWith(status: status);
         }
         return item;
       }).toList();
 
-      final result = await api.updateVisibilityStatus(
+      final result = await api.updateEquipmentStatus(
         equipmentId: equipmentId,
-        isVisible: isVisible,
         status: status,
       );
 
@@ -610,7 +604,66 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       if (result.success) {
         state = state.copyWith(ownerEquipment: updatedList);
 
-        Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
+        Future.wait([getOwnerEquipmentById(equipmentId), getOwnerEquipment()]);
+
+        ref.read(billingProvider.notifier).getOwnerBalance();
+      } else {
+        state = state.copyWith(ownerEquipment: originalList);
+      }
+
+      return result.success;
+    } catch (error) {
+      _finishAction(
+        actionId,
+        error: AppError(
+          type: ErrorType.unknown,
+          message: "Failed to update equipment",
+          code: "",
+        ),
+      );
+
+      state = state.copyWith(ownerEquipment: originalList);
+
+      return false;
+    }
+  }
+
+  Future<bool> toggleEquipmentOnline(String equipmentId, bool isVisible) async {
+    final actionId = "equipment:update:$equipmentId:status";
+
+    _startAction(actionId);
+
+    final originalList = List<Equipment>.from(state.ownerEquipment);
+
+    try {
+      final updatedList = state.ownerEquipment.map((item) {
+        if (item.id == equipmentId) {
+          // Create a brand new instance instead of mutating the old one
+          return item.copyWith(isVisible: isVisible);
+        }
+        return item;
+      }).toList();
+
+      final result = await api.toggleEquipmentOnline(
+        equipmentId: equipmentId,
+        isVisible: isVisible,
+      );
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
+      if (result.success) {
+        state = state.copyWith(ownerEquipment: updatedList);
+
+        Future.wait([getOwnerEquipmentById(equipmentId), getOwnerEquipment()]);
 
         ref.read(billingProvider.notifier).getOwnerBalance();
       } else {
@@ -722,11 +775,16 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     }
   }
 
-  Future<bool> createPriceEntry(Map<String, dynamic> data) async {
-    final id = data["id"];
-
-    if (id == null || id.toString().trim().isEmpty) {
-      return false;
+  Future<MutationResponse> createPriceEntry(
+    int price,
+    PriceRateOption priceRate,
+    String equipmentId,
+  ) async {
+    if (equipmentId.toString().trim().isEmpty) {
+      return MutationResponse(
+        success: false,
+        message: "Please provide required data",
+      );
     }
 
     final actionId = "equipment:price:create";
@@ -734,7 +792,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     try {
       _startAction(actionId);
 
-      final result = await api.createPriceEntry(data);
+      final result = await api.createPriceEntry(price, priceRate, equipmentId);
 
       _finishAction(
         actionId,
@@ -748,10 +806,15 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       );
 
       if (result.success) {
-        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
+        Future.wait([getOwnerEquipmentById(equipmentId), getOwnerEquipment()]);
       }
 
-      return result.success;
+      return MutationResponse(
+        success: result.success,
+        message: result.success
+            ? "Price entry added"
+            : "Failed to create price entry",
+      );
     } catch (error) {
       _finishAction(
         actionId,
@@ -762,19 +825,24 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         ),
       );
 
-      return false;
+      return MutationResponse(
+        success: false,
+        message: "Failed to create price entry",
+      );
     }
   }
 
-  Future<bool> updatePriceEntry(Map<String, dynamic> data) async {
-    final equipmentId = data["equipmentId"];
-    final id = data["id"];
+  Future<MutationResponse> updatePriceEntry(
+    PriceEntry entry,
+    String equipmentId,
+  ) async {
+    final id = entry.id;
 
-    if (equipmentId == null ||
-        equipmentId.toString().trim().isEmpty ||
-        id == null ||
-        id.toString().trim().isEmpty) {
-      return false;
+    if (equipmentId.toString().trim().isEmpty || id.toString().trim().isEmpty) {
+      return MutationResponse(
+        success: false,
+        message: "Please provide required data",
+      );
     }
 
     final actionId = "equipment:price:update:$id";
@@ -782,7 +850,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     try {
       _startAction(actionId);
 
-      final result = await api.updatePriceEntry(data);
+      final result = await api.updatePriceEntry(entry, equipmentId);
 
       _finishAction(
         actionId,
@@ -796,10 +864,18 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       );
 
       if (result.success) {
-        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
+        await Future.wait([
+          getOwnerEquipmentById(equipmentId),
+          getOwnerEquipment(),
+        ]);
       }
 
-      return result.success;
+      return MutationResponse(
+        success: result.success,
+        message: result.success
+            ? "Price entry saved"
+            : "Failed to save price entry",
+      );
     } catch (error) {
       _finishAction(
         actionId,
@@ -810,18 +886,17 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
         ),
       );
 
-      return false;
+      return MutationResponse(
+        success: false,
+        message: "Failed to update price entry",
+      );
     }
   }
 
-  Future<bool> deletePriceEntry(Map<String, dynamic> data) async {
-    final equipmentId = data["equipmentId"];
-    final id = data["id"];
+  Future<bool> deletePriceEntry(PriceEntry entry, String equipmentId) async {
+    final id = entry.id;
 
-    if (equipmentId == null ||
-        equipmentId.toString().trim().isEmpty ||
-        id == null ||
-        id.toString().trim().isEmpty) {
+    if (id.toString().trim().isEmpty) {
       return false;
     }
 
@@ -830,7 +905,7 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
     try {
       _startAction(actionId);
 
-      final result = await api.deletePriceEntry(data);
+      final result = await api.deletePriceEntry(entry, equipmentId);
 
       _finishAction(
         actionId,
@@ -844,7 +919,10 @@ class EquipmentNotifier extends StateNotifier<EquipmentState> {
       );
 
       if (result.success) {
-        await Future.wait([getOwnerEquipmentById(id), getOwnerEquipment()]);
+        await Future.wait([
+          getOwnerEquipmentById(equipmentId),
+          getOwnerEquipment(),
+        ]);
       }
 
       return result.success;

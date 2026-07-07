@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
+import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/price_entry_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class PricingSection extends StatelessWidget {
+class PricingSection extends ConsumerStatefulWidget {
   final List<PriceEntry> prices;
   final VoidCallback onAdd;
   final Function(PriceEntry) onEdit;
+  final Function(PriceEntry) onDelete;
   final int maxRates;
 
   const PricingSection({
@@ -16,9 +19,15 @@ class PricingSection extends StatelessWidget {
     required this.prices,
     required this.onAdd,
     required this.onEdit,
+    required this.onDelete,
     this.maxRates = 3,
   });
 
+  @override
+  ConsumerState<PricingSection> createState() => _PricingSectionState();
+}
+
+class _PricingSectionState extends ConsumerState<PricingSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -29,7 +38,11 @@ class PricingSection extends StatelessWidget {
     final accent = colorScheme.primary;
     final warning = colorScheme.tertiary;
 
-    final bool canAddMore = prices.length < maxRates;
+    final bool canAddMore = widget.prices.length < widget.maxRates;
+
+    final isSubmitting = ref
+        .watch(equipmentProvider)
+        .isActionActive("equipment:price:create");
 
     return Container(
       padding: const EdgeInsets.all(0),
@@ -42,9 +55,18 @@ class PricingSection extends StatelessWidget {
             children: [
               SectionTitle(title: l10n.prices),
 
-              if (canAddMore)
+              if (isSubmitting)
+                SizedBox(
+                  height: 14,
+                  width: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
+                )
+              else if (canAddMore)
                 IconButton(
-                  onPressed: onAdd,
+                  onPressed: widget.onAdd,
                   icon: Icon(Icons.add, color: accent, size: 24),
                 )
               else
@@ -53,7 +75,7 @@ class PricingSection extends StatelessWidget {
           ),
 
           /// EMPTY STATE
-          if (prices.isEmpty)
+          if (widget.prices.isEmpty)
             EmptyStateTile(
               title: l10n.noPricesListed,
               icon: Icons.payments_outlined,
@@ -61,8 +83,14 @@ class PricingSection extends StatelessWidget {
             )
           else
             Column(
-              children: prices
-                  .map((p) => PriceEntryTile(price: p, onEdit: () => onEdit(p)))
+              children: widget.prices
+                  .map(
+                    (p) => PriceEntryTile(
+                      priceEntry: p,
+                      onEdit: () => widget.onEdit(p),
+                      onDelete: () => widget.onDelete(p),
+                    ),
+                  )
                   .toList(),
             ),
 

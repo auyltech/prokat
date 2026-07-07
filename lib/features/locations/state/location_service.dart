@@ -23,11 +23,13 @@ class LocationService {
       return handleApiResponse<List<LocationModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected locations list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid location item");
             }
@@ -64,11 +66,13 @@ class LocationService {
       return handleApiResponse<List<LocationModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected locations list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid location item");
             }

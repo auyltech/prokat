@@ -25,11 +25,13 @@ class ChatService {
       return handleApiResponse<List<ChatModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected chat list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid chat item");
             }
@@ -64,11 +66,13 @@ class ChatService {
       return handleApiResponse<List<ChatMessageModel>>(
         response: response,
         parser: (data) {
-          if (data is! List) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
             throw FormatException("Expected chat list");
           }
 
-          return data.map((item) {
+          return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid chat message item");
             }
@@ -102,7 +106,7 @@ class ChatService {
 
       return handleApiResponse<ChatModel>(
         response: response,
-        parser: (data) => ChatModel.fromJson(data),
+        parser: (data) => ChatModel.fromJson(data["data"]),
         fallbackMessage: "Failed to load chat",
       );
     } on DioException catch (error) {

@@ -33,11 +33,7 @@ class _VisibilityStatusSectionState
   Future<void> submitForReview() async {
     final res = await ref
         .read(equipmentProvider.notifier)
-        .updateVisibilityStatus(
-          widget.equipmentId,
-          widget.isVisible,
-          EquipmentStatus.created,
-        );
+        .updateEquipmentStatus(widget.equipmentId, EquipmentStatus.created);
 
     if (mounted) {
       AppSnackBar.show(
@@ -87,10 +83,9 @@ class _VisibilityStatusSectionState
                 onPressed: () async {
                   final res = await ref
                       .read(equipmentProvider.notifier)
-                      .updateVisibilityStatus(
+                      .toggleEquipmentOnline(
                         widget.equipmentId,
                         widget.isVisible,
-                        widget.status,
                       );
 
                   if (res && context.mounted) {

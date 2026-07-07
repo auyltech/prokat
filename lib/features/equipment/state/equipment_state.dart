@@ -65,6 +65,23 @@ class EquipmentState {
     this.location,
   });
 
+  bool get isSubmitting {
+    return activeActions
+        .where((item) => item.status == MutationStatus.submitting)
+        .isNotEmpty;
+  }
+
+  bool isActionActive(String actionId) {
+    return activeActions
+            .where(
+              (item) =>
+                  item.id == actionId &&
+                  item.status == MutationStatus.submitting,
+            )
+            .firstOrNull !=
+        null;
+  }
+
   EquipmentState copyWith({
     FetchStatus? fetchStatus,
     PaginationStatus? paginationStatus,
