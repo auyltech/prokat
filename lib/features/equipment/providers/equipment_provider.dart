@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/state/equipment_notifier.dart';
+import 'package:prokat/features/equipment/state/search_equipment_notifier.dart';
 import 'package:prokat/features/equipment/state/equipment_state.dart';
 import '../../../core/api/api_provider.dart';
-import 'equipment_service.dart';
+import '../state/equipment_service.dart';
 
 final equipmentServiceProvider = Provider<EquipmentService>((ref) {
   final api = ref.watch(apiClientProvider);
@@ -10,9 +10,9 @@ final equipmentServiceProvider = Provider<EquipmentService>((ref) {
   return EquipmentService(api);
 });
 
-final equipmentProvider =
-    StateNotifierProvider<EquipmentNotifier, EquipmentState>((ref) {
+final searchEquipmentProvider =
+    StateNotifierProvider<SearchEquipmentNotifier, EquipmentState>((ref) {
       final service = ref.read(equipmentServiceProvider);
 
-      return EquipmentNotifier(service, ref);
+      return SearchEquipmentNotifier(service, ref);
     });

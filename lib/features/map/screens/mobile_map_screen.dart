@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/map/widgets/map_controls.dart';
 
 enum MapMode { browseEquipment, pickLocation, ownerPlaceEquipment }
@@ -98,16 +98,14 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
     _annotationManager!.tapEvents(onTap: _onAnnotationTapped);
 
     // 🔑 Read equipment data ONCE
-    final equipmentState = ref.read(equipmentProvider);
+    final equipmentAsync = ref.read(clientEquipmentProvider);
 
-    if (_markersAdded || equipmentState.clientEquipment.isEmpty) return;
+    if (_markersAdded || equipmentAsync.value?.items.isEmpty == true) return;
 
-    if (equipmentState.isLoading == false &&
-        equipmentState.clientEquipment.isNotEmpty) {
-      _equipments = equipmentState.clientEquipment;
-      await _addEquipmentMarkers(equipmentState.clientEquipment);
-      _markersAdded = true;
-    }
+    _equipments = equipmentAsync.value?.items ?? [];
+
+    await _addEquipmentMarkers(equipmentAsync.value?.items ?? []);
+    _markersAdded = true;
 
     _moveToUserOnce();
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CategorySelectionSheet extends ConsumerWidget {
@@ -70,13 +70,12 @@ class CategorySelectionSheet extends ConsumerWidget {
                     if (service == "create_request") {
                       // Update the Request Notifier
                       ref
-                          .read(requestProvider.notifier)
+                          .read(requestMutationProvider.notifier)
                           .selectCategory(category);
                     } else if (service == "create_equipment" ||
                         service == "edit_equipment") {
-                      // Update the Equipment Notifier
                       ref
-                          .read(equipmentProvider.notifier)
+                          .read(equipmentMutationProvider.notifier)
                           .selectCategory(category);
                     }
 

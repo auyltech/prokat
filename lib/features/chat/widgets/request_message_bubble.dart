@@ -9,7 +9,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/state/chat_message_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -43,7 +43,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
     if (messageRequest == null) return Text("Error loading booking");
 
     final request = ref
-        .read(requestProvider)
+        .read(requestMutationProvider)
         .getRequestById(
           mode: widget.mode == AppMode.ownerMode
               ? AppMode.ownerMode
@@ -241,7 +241,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
               Spacer(),
 
               if (ref
-                  .watch(requestProvider)
+                  .watch(requestMutationProvider)
                   .isActionActive("request:${request.id}:cancel"))
                 SizedBox(
                   height: 14,
@@ -295,7 +295,7 @@ void _showCancelConfirmation(
             Navigator.pop(context);
 
             final result = await ref
-                .read(requestProvider.notifier)
+                .read(requestMutationProvider.notifier)
                 .cancelRequest(requestId);
 
             AppSnackBar.show(

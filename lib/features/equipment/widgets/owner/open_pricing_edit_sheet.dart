@@ -6,7 +6,7 @@ import 'package:prokat/core/widgets/industrial_input_container.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 
@@ -46,7 +46,7 @@ Future<void> submitPriceEntry(
   Navigator.pop(context);
 
   try {
-    final notifier = ref.read(equipmentProvider.notifier);
+    final notifier = ref.read(equipmentMutationProvider.notifier);
 
     if (priceEntry == null) {
       final result = await notifier.createPriceEntry(

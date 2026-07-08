@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -21,7 +21,6 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
     const accentColor = Color(0xFF4E73DF);
 
     final notifier = ref.read(favoritesProvider.notifier);
-    final bookingNotifier = ref.read(bookingProvider.notifier);
     final isFav = notifier.isFavorite(equipment.id);
 
     return DraggableScrollableSheet(
@@ -188,7 +187,9 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     // Select equipment
-                                    bookingNotifier.selectEquipment(equipment);
+                                    ref
+                                        .read(bookingMutationProvider.notifier)
+                                        .selectEquipment(equipment);
                                     // Navigate to booking page
                                     context.push(
                                       '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',

@@ -9,7 +9,7 @@ import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OfferChatActionBar extends ConsumerWidget {
@@ -88,7 +88,7 @@ class OfferChatActionBar extends ConsumerWidget {
                       isLoading: false,
                       onPressed: () async {
                         final result = await ref
-                            .read(requestProvider.notifier)
+                            .read(requestMutationProvider.notifier)
                             .cancelRequest(requestId);
 
                         AppSnackBar.show(

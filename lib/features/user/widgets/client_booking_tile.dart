@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
@@ -10,7 +9,7 @@ import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
@@ -46,17 +45,10 @@ class ClientBookingTile extends ConsumerWidget {
         booking.myReviewId != null &&
         booking.myReviewId!.isNotEmpty;
 
-    final bookingState = ref.watch(bookingProvider);
-
     final actionId = "booking:update:${booking.id}";
-
-    final action = bookingState.activeActions
-        .where((item) => item.id == actionId)
-        .firstOrNull;
-
-    final isSubmittingCancel = action == null
-        ? false
-        : action.status == MutationStatus.submitting;
+    final isSubmittingCancel = ref
+        .watch(bookingMutationProvider)
+        .isActionActive(actionId);
 
     return Container(
       width: double.infinity,
@@ -160,7 +152,7 @@ class ClientBookingTile extends ConsumerWidget {
                     BookingStatus.confirmed,
                   ].contains(booking.status)) ...[
                     if (ref
-                        .watch(bookingProvider)
+                        .watch(bookingMutationProvider)
                         .isActionActive("booking:update:${booking.id}"))
                       SizedBox(
                         height: 14,
@@ -239,7 +231,7 @@ Future<void> _handleCancel(
   AppLocalizations l10n,
 ) async {
   final theme = Theme.of(context);
-  final notifier = ref.read(bookingProvider.notifier);
+  final notifier = ref.read(bookingMutationProvider.notifier);
 
   final confirmed = await showDialog<bool>(
     context: context,

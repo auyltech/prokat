@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
+// Not used, viewing equipment on map is currently disabled
 class EquipmentMapState {
   final Equipment? selectedEquipment;
   final bool isSheetExpanded;

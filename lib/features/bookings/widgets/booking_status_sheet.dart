@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -16,7 +16,7 @@ class BookingStatusSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final notifier = ref.read(bookingProvider.notifier);
+    final notifier = ref.read(bookingMutationProvider.notifier);
     final chatNotifier = ref.read(chatProvider.notifier);
 
     final currentStatus = booking.workStatus;

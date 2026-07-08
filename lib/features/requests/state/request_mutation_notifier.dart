@@ -1,18 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
-import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
+import 'package:prokat/core/mutation/mutation_notifier.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
-import 'package:prokat/features/requests/models/request_model.dart';
-import 'package:prokat/features/requests/models/request_status.dart';
+import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
 import 'package:prokat/features/requests/state/request_state.dart';
 
-class RequestNotifier extends StateNotifier<RequestState> {
-  final RequestService service;
+class RequestMutationNotifier extends MutationNotifier<RequestState> {
+  final RequestService api;
+  final Ref ref;
 
-  RequestNotifier(this.service) : super(RequestState());
+  RequestMutationNotifier({required this.api, required this.ref})
+    : super(RequestState());
+
+  @override
+  Set<Mutation> get activeActions => state.activeActions;
+
+  @override
+  RequestState copyState({Set<Mutation>? activeActions}) {
+    return state.copyWith(activeActions: activeActions);
+  }
 
   void selectLocation(LocationModel location) {
     state = state.copyWith(
@@ -45,151 +55,6 @@ class RequestNotifier extends StateNotifier<RequestState> {
     state = state.copyWith(capacity: capacity);
   }
 
-  void _startAction(String actionId) {
-    state = state.copyWith(
-      activeActions: {
-        ...state.activeActions,
-        Mutation(id: actionId, status: MutationStatus.submitting),
-      },
-    );
-  }
-
-  void _finishAction(String actionId, {AppError? error}) {
-    final actions = {...state.activeActions};
-
-    if (error == null) {
-      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
-    } else {
-      actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
-
-      final action = Mutation(
-        id: actionId,
-        status: MutationStatus.error,
-        error: error,
-      );
-
-      actions.add(action);
-    }
-
-    state = state.copyWith(activeActions: actions);
-  }
-
-  bool isActionActive(String actionId) {
-    return state.activeActions.contains(
-      Mutation(id: actionId, status: MutationStatus.submitting),
-    );
-  }
-
-  List<RequestModel> getActiveRequests(AppMode mode) {
-    return (mode == AppMode.ownerMode
-            ? state.ownerRequests
-            : state.clientRequests)
-        .where(
-          (r) => [
-            RequestStatus.created,
-            RequestStatus.viewed,
-            RequestStatus.responded,
-          ].contains(r.status),
-        )
-        .toList();
-  }
-
-  List<RequestModel> getRequestHistory(AppMode mode) {
-    return (mode == AppMode.ownerMode
-            ? state.ownerRequests
-            : state.clientRequests)
-        .where(
-          (r) => [
-            RequestStatus.accepted,
-            RequestStatus.cancelled,
-            RequestStatus.expired,
-          ].contains(r.status),
-        )
-        .toList();
-  }
-
-  Future<void> getClientRequests() async {
-    try {
-      final hasData = state.clientRequests.isNotEmpty;
-
-      state = state.copyWith(
-        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
-        fetchError: null,
-      );
-
-      final result = await service.getClientRequests();
-
-      state = state.copyWith(
-        clientRequests: result.data,
-        fetchStatus: result.data == null
-            ? FetchStatus.error
-            : result.data?.isEmpty == true
-            ? FetchStatus.empty
-            : FetchStatus.success,
-        lastFetchedAt: DateTime.now(),
-        fetchError: result.success
-            ? null
-            : AppError(
-                type: ErrorType.unknown,
-                message: result.error.toString(),
-                code: "REQUEST_FETCH_FAILED",
-              ),
-      );
-    } catch (error) {
-      state = state.copyWith(
-        fetchStatus: state.clientRequests.isEmpty
-            ? FetchStatus.error
-            : FetchStatus.success,
-        fetchError: AppError(
-          type: ErrorType.unknown,
-          message: error.toString(),
-          code: "BOOKING_FETCH_FAILED",
-        ),
-      );
-    }
-  }
-
-  Future<void> getOwnerRequests() async {
-    try {
-      final hasData = state.ownerRequests.isNotEmpty;
-
-      state = state.copyWith(
-        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
-        fetchError: null,
-      );
-
-      final result = await service.getOwnerRequests();
-
-      state = state.copyWith(
-        ownerRequests: result.data,
-        fetchStatus: result.data == null
-            ? FetchStatus.error
-            : result.data?.isEmpty == true
-            ? FetchStatus.empty
-            : FetchStatus.success,
-        lastFetchedAt: DateTime.now(),
-        fetchError: result.success
-            ? null
-            : AppError(
-                type: ErrorType.unknown,
-                message: result.error.toString(),
-                code: "REQUEST_FETCH_FAILED",
-              ),
-      );
-    } catch (error) {
-      state = state.copyWith(
-        fetchStatus: state.ownerRequests.isEmpty
-            ? FetchStatus.error
-            : FetchStatus.success,
-        fetchError: AppError(
-          type: ErrorType.unknown,
-          message: error.toString(),
-          code: "BOOKING_FETCH_FAILED",
-        ),
-      );
-    }
-  }
-
   Future<MutationResponse> createRequest({
     required String capacity,
     required int offeredRate,
@@ -210,7 +75,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
         );
       }
 
-      _startAction(actionId);
+      startAction(actionId);
 
       // 2. Safely merge Date and Time to avoid layout parsing bugs down the line
       final DateTime mergedDate = DateTime(
@@ -231,7 +96,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
           : null;
 
       // 3. Fire the request service
-      final result = await service.createRequest(
+      final result = await api.createRequest(
         categoryId: categoryId,
         locationId: state.selectedLocation?.id ?? "",
         capacity: capacity,
@@ -241,7 +106,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      _finishAction(
+      finishAction(
         actionId,
         error: result.success
             ? null
@@ -253,7 +118,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
       );
 
       if (result.success) {
-        getClientRequests();
+        ref.read(clientActiveRequestsProvider.notifier).refresh();
       }
 
       return MutationResponse(
@@ -261,7 +126,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
         message: result.success ? "Request created" : result.message,
       );
     } catch (error) {
-      _finishAction(
+      finishAction(
         actionId,
         error: AppError(
           type: ErrorType.unknown,
@@ -287,9 +152,9 @@ class RequestNotifier extends StateNotifier<RequestState> {
     final actionId = "request:$id:update";
 
     try {
-      _startAction(actionId);
+      startAction(actionId);
 
-      final result = await service.updateRequest(
+      final result = await api.updateRequest(
         id: id,
         locationId: locationId,
         requiredOn: requiredOn,
@@ -297,7 +162,7 @@ class RequestNotifier extends StateNotifier<RequestState> {
         offeredRate: offeredRate,
       );
 
-      _finishAction(
+      finishAction(
         actionId,
         error: result.success
             ? null
@@ -309,12 +174,12 @@ class RequestNotifier extends StateNotifier<RequestState> {
       );
 
       if (result.success) {
-        getClientRequests();
+        ref.read(clientActiveRequestsProvider.notifier).refresh();
       }
 
       return result.success;
     } catch (error) {
-      _finishAction(actionId);
+      finishAction(actionId);
       return false;
     }
   }
@@ -323,11 +188,11 @@ class RequestNotifier extends StateNotifier<RequestState> {
     final actionId = "request:$id:view";
 
     try {
-      _startAction(actionId);
+      startAction(actionId);
 
-      final result = await service.viewRequest(id);
+      final result = await api.viewRequest(id);
 
-      _finishAction(
+      finishAction(
         actionId,
         error: result.success
             ? null
@@ -339,12 +204,12 @@ class RequestNotifier extends StateNotifier<RequestState> {
       );
 
       if (result.success) {
-        getOwnerRequests();
+        ref.read(ownerActiveRequestsProvider.notifier).refresh();
       }
 
       return result.success;
     } catch (error) {
-      _finishAction(actionId);
+      finishAction(actionId);
       return false;
     }
   }
@@ -353,11 +218,11 @@ class RequestNotifier extends StateNotifier<RequestState> {
     final actionId = "request:$id:cancel";
 
     try {
-      _startAction(actionId);
+      startAction(actionId);
 
-      final result = await service.cancelRequest(id);
+      final result = await api.cancelRequest(id);
 
-      _finishAction(
+      finishAction(
         actionId,
         error: result.success
             ? null
@@ -369,12 +234,12 @@ class RequestNotifier extends StateNotifier<RequestState> {
       );
 
       if (result.success) {
-        getClientRequests();
+        ref.read(clientActiveRequestsProvider.notifier).refresh();
       }
 
       return MutationResponse(success: result.success, message: result.message);
     } catch (error) {
-      _finishAction(actionId);
+      finishAction(actionId);
 
       return MutationResponse(
         success: false,

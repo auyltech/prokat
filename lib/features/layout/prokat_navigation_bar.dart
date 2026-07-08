@@ -172,8 +172,16 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
 
     // 1. Place the color-bearing Container on the absolute outside layer
     return Container(
-      color: theme
-          .cardColor, // This forces the background color to bleed to the phone's bottom edge
+      // This forces the background color to bleed to the phone's bottom edge
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        border: Border(
+          top: BorderSide(
+            color: Colors.grey[400]!, // Light gray color
+            width: 1.0, // Border thickness
+          ),
+        ),
+      ),
       child: SafeArea(
         top:
             false, // Keeps layout restrictions focused exclusively on the bottom notch

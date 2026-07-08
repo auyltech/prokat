@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CancelBookingSheet extends ConsumerStatefulWidget {
@@ -24,7 +24,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
   Future<void> onSubmit(AppLocalizations? l10n) async {
     final isOwner = widget.mode == AppMode.ownerMode;
-    final notifier = ref.read(bookingProvider.notifier);
+    final notifier = ref.read(bookingMutationProvider.notifier);
 
     final status = isOwner
         ? widget.booking.status == BookingStatus.created
@@ -54,7 +54,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final bookingState = ref.watch(bookingProvider);
+    final bookingState = ref.watch(bookingMutationProvider);
 
     final isOwner = widget.mode == AppMode.ownerMode;
 

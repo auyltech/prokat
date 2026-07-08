@@ -4,7 +4,8 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/online_toggle.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -32,7 +33,7 @@ class _VisibilityStatusSectionState
 
   Future<void> submitForReview() async {
     final res = await ref
-        .read(equipmentProvider.notifier)
+        .read(equipmentMutationProvider.notifier)
         .updateEquipmentStatus(widget.equipmentId, EquipmentStatus.created);
 
     if (mounted) {
@@ -64,7 +65,11 @@ class _VisibilityStatusSectionState
     final accent = colorScheme.primary;
     final warning = theme.colorScheme.error;
 
-    final equipment = ref.watch(equipmentProvider).editEquipment;
+    final equipment = ref
+        .watch(ownerEquipmentProvider.notifier)
+        .findById(
+          ref.watch(equipmentMutationProvider).editingEquipmentId ?? "",
+        );
 
     final isModerated = equipment?.isModerated ?? false;
     final isDraft = equipment?.isDraft ?? false;
@@ -82,7 +87,7 @@ class _VisibilityStatusSectionState
               FilledButton.icon(
                 onPressed: () async {
                   final res = await ref
-                      .read(equipmentProvider.notifier)
+                      .read(equipmentMutationProvider.notifier)
                       .toggleEquipmentOnline(
                         widget.equipmentId,
                         widget.isVisible,

@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_notifier.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/chat/state/chat_notifier.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_state.dart';
@@ -29,7 +28,7 @@ class BookingChatActionController
   BookingChatActionController({required this.ref, required this.bookingId})
     : super(const BookingChatActionState());
 
-  BookingNotifier get _bookingNotifier => ref.read(bookingProvider.notifier);
+  // BookingNotifier get _bookingNotifier => ref.read(bookingProvider.notifier);
 
   ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
 
@@ -44,8 +43,8 @@ class BookingChatActionController
     await Future.wait([
       _priceNegotiationNotifier().getPriceNegotiations(),
       _chatNotifier.reloadChat(chatId),
-      _bookingNotifier.getOwnerBookings(),
-      _bookingNotifier.getClientBookings(),
+      // _bookingNotifier.getOwnerBookings(),
+      // _bookingNotifier.getClientBookings(),
     ]);
   }
 
@@ -55,8 +54,8 @@ class BookingChatActionController
   }) async {
     await Future.wait([
       _chatNotifier.reloadChat(chatId),
-      _bookingNotifier.getOwnerBookings(),
-      _bookingNotifier.getClientBookings(),
+      // _bookingNotifier.getOwnerBookings(),
+      // _bookingNotifier.getClientBookings(),
       _priceNegotiationNotifier().getPriceNegotiations(),
     ]);
   }
@@ -67,8 +66,8 @@ class BookingChatActionController
   }) async {
     await Future.wait([
       _chatNotifier.reloadChat(chatId),
-      _bookingNotifier.getOwnerBookings(),
-      _bookingNotifier.getClientBookings(),
+      // _bookingNotifier.getOwnerBookings(),
+      // _bookingNotifier.getClientBookings(),
     ]);
   }
 
@@ -81,10 +80,12 @@ class BookingChatActionController
       context: context,
       submitId: "booking:accept",
       action: () async {
-        final result = await _bookingNotifier.updateBookingStatus(
-          id: bookingId,
-          status: BookingStatus.confirmed,
-        );
+        final result = await ref
+            .read(bookingMutationProvider.notifier)
+            .updateBookingStatus(
+              id: bookingId,
+              status: BookingStatus.confirmed,
+            );
 
         return result.success;
       },
@@ -104,11 +105,13 @@ class BookingChatActionController
       context: context,
       submitId: "booking:reject",
       action: () async {
-        final result = await _bookingNotifier.updateBookingStatus(
-          id: bookingId,
-          status: BookingStatus.rejected,
-          cancelReason: reason,
-        );
+        final result = await ref
+            .read(bookingMutationProvider.notifier)
+            .updateBookingStatus(
+              id: bookingId,
+              status: BookingStatus.rejected,
+              cancelReason: reason,
+            );
 
         return result.success;
       },
@@ -128,11 +131,13 @@ class BookingChatActionController
       context: context,
       submitId: "booking:cancel",
       action: () async {
-        final result = await _bookingNotifier.updateBookingStatus(
-          id: bookingId,
-          status: BookingStatus.cancelled,
-          cancelReason: reason,
-        );
+        final result = await ref
+            .read(bookingMutationProvider.notifier)
+            .updateBookingStatus(
+              id: bookingId,
+              status: BookingStatus.cancelled,
+              cancelReason: reason,
+            );
 
         return result.success;
       },
@@ -151,10 +156,12 @@ class BookingChatActionController
       context: context,
       submitId: "booking:status",
       action: () async {
-        final result = await _bookingNotifier.updateBookingStatus(
-          id: bookingId,
-          status: BookingStatus.completed,
-        );
+        final result = await ref
+            .read(bookingMutationProvider.notifier)
+            .updateBookingStatus(
+              id: bookingId,
+              status: BookingStatus.completed,
+            );
 
         return result.success;
       },

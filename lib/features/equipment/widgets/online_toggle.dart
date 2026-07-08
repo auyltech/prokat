@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 
 class OnlineToggle extends ConsumerWidget {
   final String id;
@@ -14,7 +14,7 @@ class OnlineToggle extends ConsumerWidget {
     final actionId = "equipment:update:$id:status";
 
     final isSubmitting = ref
-        .watch(equipmentProvider.notifier)
+        .watch(equipmentMutationProvider.notifier)
         .isActionActive(actionId);
 
     return Row(
@@ -40,7 +40,7 @@ class OnlineToggle extends ConsumerWidget {
             activeThumbColor: const Color(0xFF4E73DF),
             onChanged: (val) async {
               final result = await ref
-                  .read(equipmentProvider.notifier)
+                  .read(equipmentMutationProvider.notifier)
                   .toggleEquipmentOnline(id, val);
 
               if (context.mounted) {

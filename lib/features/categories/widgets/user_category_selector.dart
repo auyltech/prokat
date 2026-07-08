@@ -7,7 +7,7 @@ import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
@@ -32,7 +32,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     Category category,
   ) async {
     if (widget.mode == "create_request") {
-      ref.read(requestProvider.notifier).selectCategory(category);
+      ref.read(requestMutationProvider.notifier).selectCategory(category);
     } else if (widget.mode == "search") {}
 
     ref.read(categoriesProvider.notifier).selectCategory(category);

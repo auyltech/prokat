@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_reason_sheet.dart';
 import 'package:prokat/features/chat/state/chat_status.dart';
@@ -168,7 +168,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                                 Navigator.pop(context, true);
 
                                 await ref
-                                    .read(bookingProvider.notifier)
+                                    .read(bookingMutationProvider.notifier)
                                     .updateBookingWorkStatus(
                                       id: booking.id,
                                       workStatus: WorkStatus.completed,

@@ -16,7 +16,7 @@ class EquipmentService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<Equipment>>> getClientEquipment({
+  Future<ApiResponse<List<Equipment>>> getGuestEquipment({
     String? categoryId,
     String? query,
     String? city,
@@ -25,7 +25,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.get(
-        ApiRoutes.equipment,
+        ApiRoutes.guestEquipment,
         queryParameters: {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
@@ -72,6 +72,64 @@ class EquipmentService {
     }
   }
 
+  Future<ApiResponse<List<Equipment>>> getClientEquipment({
+    String? categoryId,
+    String? query,
+    String? city,
+    int page = 1,
+    int itemsPerPage = 10,
+  }) async {
+    try {
+      final response = await _dio.get(
+        ApiRoutes.clientEquipment,
+        queryParameters: {
+          if (query?.isNotEmpty ?? false) 'query': query,
+          if (city?.isNotEmpty ?? false) 'city': city,
+          if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          'page': page,
+          'itemsPerPage': itemsPerPage,
+        },
+      );
+
+      return handleApiResponse<List<Equipment>>(
+        response: response,
+        parser: (data) {
+          final itemsJson = data["data"];
+
+          if (itemsJson is! List) {
+            throw FormatException("Expected equipment list");
+          }
+
+          return itemsJson.map((item) {
+            if (item is! Map<String, dynamic>) {
+              throw FormatException("Invalid equipment item");
+            }
+
+            return Equipment.fromJson(item);
+          }).toList();
+        },
+        fallbackMessage: "Failed to load equipment",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: exception.data ?? error,
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
+    }
+  }
+
+  // Handles fetching equipment by Id to create a booking
+  // NOT USED
   Future<ApiResponse<Equipment?>> getClientEquipmentById(String id) async {
     try {
       final response = await _dio.get("ApiRoutes.equipment/$id");
@@ -133,7 +191,6 @@ class EquipmentService {
         statusCode: exception.statusCode,
       );
     } catch (error) {
-      print(error);
       return ApiResponse.failure(
         message: "Unexpected error",
         error: error.toString(),
@@ -161,7 +218,6 @@ class EquipmentService {
         statusCode: exception.statusCode,
       );
     } catch (error) {
-      print(error);
       return ApiResponse.failure(
         message: "Unexpected error",
         error: error.toString(),
@@ -444,8 +500,6 @@ class EquipmentService {
           "priceRate": priceRate.value,
         },
       );
-
-      print(response);
 
       return handleEmptyApiResponse(
         response: response,

@@ -19,7 +19,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<QueryState<Equipment>> _fetchPage(int page) async {
-    final response = await api.getClientEquipment(
+    final response = await api.getGuestEquipment(
       page: page,
       itemsPerPage: 10,
       query: _query,
@@ -68,7 +68,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     try {
       final nextPage = current.page + 1;
 
-      final response = await api.getClientEquipment(
+      final response = await api.getGuestEquipment(
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         query: _query,

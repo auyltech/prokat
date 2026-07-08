@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 
 final offerChatActionControllerProvider = Provider<OfferChatActionController>((
   ref,
@@ -26,12 +27,11 @@ class OfferChatActionController {
     await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
     await ref.read(chatProvider.notifier).reloadChat(chatId);
 
-    final bookingNotifier = ref.read(bookingProvider.notifier);
     final offersNotifier = ref.read(offersProvider.notifier);
-
     await Future.wait([
-      bookingNotifier.getOwnerBookings(),
-      bookingNotifier.getClientBookings(),
+      ref.read(clientActiveBookingsProvider.notifier).refresh(),
+      ref.read(ownerActiveBookingsProvider.notifier).refresh(),
+
       offersNotifier.getOwnerOffers(),
       offersNotifier.getClientOffers(),
     ]);
@@ -147,7 +147,7 @@ class OfferChatActionController {
     required String requestId,
   }) async {
     try {
-      await ref.read(requestProvider.notifier).cancelRequest(requestId);
+      await ref.read(requestMutationProvider.notifier).cancelRequest(requestId);
 
       await refreshAfterNegotiation(chatId: chatId, offerId: "");
     } catch (error) {

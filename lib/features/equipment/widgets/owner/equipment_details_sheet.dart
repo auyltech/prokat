@@ -2,7 +2,7 @@
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/modern_text_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -32,7 +32,7 @@ Future<void> updateEquipmentDetails(
   }
 
   try {
-    await ref.read(equipmentProvider.notifier).updateEquipment({
+    await ref.read(equipmentMutationProvider.notifier).updateEquipment({
       "id": id,
       "name": name,
       "model": model,

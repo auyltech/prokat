@@ -1,13 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/app_router.dart';
-import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
+import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 
 // TODO: fix route reslove
 // Backend should send event, type, targetId,
@@ -29,7 +31,6 @@ class NotificationNavigationService {
   }
 
   String resolveRoute(AppNotification notification) {
-    print(notification.type);
     switch (notification.type) {
       // ===========================
       // Requests
@@ -167,21 +168,17 @@ class NotificationNavigationService {
     final session = ref.read(authProvider).session;
 
     if (notification.category == "BOOKING") {
-      ref
-          .read(bookingProvider.notifier)
-          .invalidate(
-            mode: startup == AppStartupRouteState.owner
-                ? AppMode.ownerMode
-                : AppMode.clientMode,
-          );
+      if (startup == AppStartupRouteState.owner) {
+        ref.read(ownerActiveBookingsProvider.notifier).invalidate();
+      } else {
+        ref.read(clientActiveBookingsProvider.notifier).invalidate();
+      }
     } else if (notification.category == "REQUEST") {
-      ref
-          .read(bookingProvider.notifier)
-          .invalidate(
-            mode: startup == AppStartupRouteState.owner
-                ? AppMode.ownerMode
-                : AppMode.clientMode,
-          );
+      if (startup == AppStartupRouteState.owner) {
+        ref.read(ownerActiveRequestsProvider.notifier).invalidate();
+      } else {
+        ref.read(clientActiveRequestsProvider.notifier).invalidate();
+      }
     }
 
     final isReady =
@@ -198,8 +195,6 @@ class NotificationNavigationService {
 
       return;
     }
-
-    print(route);
 
     router.go(route);
   }

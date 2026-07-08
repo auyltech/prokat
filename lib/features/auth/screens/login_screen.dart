@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/login_with_username_form.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +34,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       backgroundColor: theme.primaryColor,
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 20,
+            color: Colors.white,
+          ),
+          onPressed: () => context.push(AppRoutes.main),
+        ),
+      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {

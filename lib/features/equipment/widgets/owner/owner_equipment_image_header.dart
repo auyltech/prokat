@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -104,7 +104,7 @@ class _OwnerEquipmentImageHeaderState
     if (cropped == null) return;
 
     final ok = await ref
-        .read(equipmentProvider.notifier)
+        .read(equipmentMutationProvider.notifier)
         .uploadEquipmentImage(
           equipmentId: widget.equipmentId,
           imageFile: File(cropped.path),
@@ -115,8 +115,9 @@ class _OwnerEquipmentImageHeaderState
     if (!ok) {
       final message =
           ref
-              .read(equipmentProvider.notifier)
-              .getActionError("equipment:image:create") ??
+              .read(equipmentMutationProvider.notifier)
+              .getActionError("equipment:image:create")
+              ?.message ??
           _l10n.failedToUploadPhoto;
 
       AppSnackBar.show(message: message, isError: true);
@@ -159,7 +160,7 @@ class _OwnerEquipmentImageHeaderState
     if (confirmed != true) return;
 
     final ok = await ref
-        .read(equipmentProvider.notifier)
+        .read(equipmentMutationProvider.notifier)
         .deleteEquipmentImage(
           equipmentId: widget.equipmentId,
           imageId: image.id,
@@ -172,8 +173,9 @@ class _OwnerEquipmentImageHeaderState
 
       final message =
           ref
-              .read(equipmentProvider.notifier)
-              .getActionError("equipment:image:delete:$id") ??
+              .read(equipmentMutationProvider.notifier)
+              .getActionError("equipment:image:delete:$id")
+              ?.message ??
           _l10n.failedToDeletePhoto;
 
       AppSnackBar.show(message: message, isError: true);
@@ -182,7 +184,7 @@ class _OwnerEquipmentImageHeaderState
 
   Future<void> _setAsCover(EquipmentImage image) async {
     final ok = await ref
-        .read(equipmentProvider.notifier)
+        .read(equipmentMutationProvider.notifier)
         .setPrimaryEquipmentImage(
           equipmentId: widget.equipmentId,
           imageId: image.id,
@@ -195,8 +197,9 @@ class _OwnerEquipmentImageHeaderState
 
       final message =
           ref
-              .read(equipmentProvider.notifier)
-              .getActionError("equipment:image:delete:$id") ??
+              .read(equipmentMutationProvider.notifier)
+              .getActionError("equipment:image:delete:$id")
+              ?.message ??
           _l10n.failedToSetCoverPhoto;
 
       AppSnackBar.show(message: message, isError: true);
@@ -232,7 +235,7 @@ class _OwnerEquipmentImageHeaderState
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final state = ref.watch(equipmentProvider);
+    final state = ref.watch(equipmentMutationProvider);
 
     final actionId = "equipment:image";
 

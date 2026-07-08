@@ -11,7 +11,7 @@ import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/input_field.dart';
@@ -66,9 +66,9 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
     final offersState = ref.watch(offersProvider);
     final offersNotifier = ref.read(offersProvider.notifier);
-    final equipmentState = ref.watch(equipmentProvider);
+    final equipmentAsync = ref.watch(ownerEquipmentProvider);
 
-    final equipmentOptions = equipmentState.ownerEquipment
+    final equipmentOptions = (equipmentAsync.value?.items ?? [])
         .map((item) => EquipmentSummaryModel.fromJson(item.toJson()))
         .toList();
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -12,7 +12,7 @@ import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
@@ -42,7 +42,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
 
-    final requestState = ref.watch(requestProvider);
+    final requestState = ref.watch(requestMutationProvider);
     final selectedCategoryId = requestState.selectedCategory?.id;
 
     String message = "";
@@ -63,7 +63,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     }
 
     final result = await ref
-        .read(requestProvider.notifier)
+        .read(requestMutationProvider.notifier)
         .createRequest(
           categoryId: selectedCategoryId ?? "",
           capacity: capacityController.text.trim(),
@@ -100,14 +100,14 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final locationState = ref.watch(locationProvider);
     final categoriesState = ref.watch(categoriesProvider);
 
-    final requestState = ref.watch(requestProvider);
-    final requestNotifier = ref.read(requestProvider.notifier);
+    final requestState = ref.watch(requestMutationProvider);
+    final requestNotifier = ref.read(requestMutationProvider.notifier);
 
     ref.listen(locationProvider, (previous, next) {
       final address = next.selectedAddress;
 
       if (address?.id != null) {
-        ref.read(requestProvider.notifier).selectLocation(address!);
+        ref.read(requestMutationProvider.notifier).selectLocation(address!);
       }
     });
 
@@ -119,7 +119,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           .firstOrNull;
 
       if (profileCategoryId != null && foundCategory != null) {
-        ref.read(requestProvider.notifier).selectCategory(foundCategory);
+        ref
+            .read(requestMutationProvider.notifier)
+            .selectCategory(foundCategory);
       }
     });
 

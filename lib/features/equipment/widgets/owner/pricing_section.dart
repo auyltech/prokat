@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/price_entry_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -41,7 +41,7 @@ class _PricingSectionState extends ConsumerState<PricingSection> {
     final bool canAddMore = widget.prices.length < widget.maxRates;
 
     final isSubmitting = ref
-        .watch(equipmentProvider)
+        .watch(equipmentMutationProvider)
         .isActionActive("equipment:price:create");
 
     return Container(

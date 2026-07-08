@@ -7,7 +7,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
@@ -242,10 +242,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
               // Cancel Order
               if (ref
-                      .watch(bookingProvider)
+                      .watch(bookingMutationProvider)
                       .isActionActive("booking:${booking.id}:cancel") ||
                   ref
-                      .watch(bookingProvider)
+                      .watch(bookingMutationProvider)
                       .isActionActive("booking:${booking.id}:reject"))
                 SizedBox(
                   height: 14,
@@ -277,7 +277,9 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 ),
 
               if (booking.status == BookingStatus.created) ...[
-                if (ref.watch(bookingProvider).isActionActive("price:create"))
+                if (ref
+                    .watch(bookingMutationProvider)
+                    .isActionActive("price:create"))
                   SizedBox(
                     height: 14,
                     width: 14,
@@ -310,7 +312,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
               if (widget.mode == AppMode.ownerMode &&
                   booking.status == BookingStatus.created) ...[
-                if (ref.watch(bookingProvider).isSubmitting)
+                if (ref.watch(bookingMutationProvider).isSubmitting)
                   SizedBox(
                     height: 14,
                     width: 14,
@@ -341,7 +343,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                                 Navigator.pop(context, true);
 
                                 final result = await ref
-                                    .read(bookingProvider.notifier)
+                                    .read(bookingMutationProvider.notifier)
                                     .updateBookingStatus(
                                       id: booking.id,
                                       status: BookingStatus.confirmed,

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 
 class SearchBox extends ConsumerStatefulWidget {
   final String? placeholder;
@@ -35,14 +35,14 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
 
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
-      ref.read(equipmentProvider.notifier).setQuery(value);
+      ref.read(searchEquipmentProvider.notifier).setQuery(value);
     });
   }
 
   void _onSubmit() {
     // Cancel any pending debounce timers to avoid duplicate requests
     _debounceTimer?.cancel();
-    ref.read(equipmentProvider.notifier).setQuery(_searchController.text);
+    ref.read(searchEquipmentProvider.notifier).setQuery(_searchController.text);
   }
 
   @override

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -30,13 +30,13 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     setState(() => _loading = true);
 
     try {
-      final equipmentState = ref.watch(equipmentProvider);
+      final equipmentState = ref.watch(equipmentMutationProvider);
       final category = equipmentState.category;
 
       if (category == null) return;
 
       final result = await ref
-          .read(equipmentProvider.notifier)
+          .read(equipmentMutationProvider.notifier)
           .createEquipment({
             "categoryId": category.id,
             "city": _cityController.text.trim(),

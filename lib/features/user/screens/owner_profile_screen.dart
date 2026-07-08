@@ -7,7 +7,7 @@ import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_state.dart';
@@ -52,10 +52,9 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final ownerProfileState = ref.watch(ownerRegistrationProvider);
-    final ownerEquipmentCount = ref
-        .watch(equipmentProvider)
-        .ownerEquipment
-        .length;
+
+    final ownerEquipmentCount =
+        ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -63,7 +62,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
           ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
           ref.read(billingProvider.notifier).getOwnerBalance();
           ref.read(billingProvider.notifier).getVolumeDiscounts();
-          ref.read(equipmentProvider.notifier).getOwnerEquipment();
+          ref.read(ownerEquipmentProvider.notifier).refresh();
         },
         child: CustomScrollView(
           slivers: [

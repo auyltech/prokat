@@ -1,6 +1,7 @@
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';

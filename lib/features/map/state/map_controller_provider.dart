@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/state/equipment_map_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 
 class MapController {
@@ -32,10 +32,10 @@ class MapController {
     _ref = ref;
 
     /// Listen to equipment changes
-    ref.listen(equipmentProvider, (prev, next) async {
-      if (_map == null || next.clientEquipment.isEmpty) return;
+    ref.listen(clientEquipmentProvider, (prev, next) async {
+      if (_map == null || (next.value?.items ?? []).isEmpty) return;
 
-      await _addEquipmentMarkers(next.clientEquipment);
+      await _addEquipmentMarkers(next.value?.items ?? []);
     });
   }
 
@@ -116,12 +116,13 @@ class MapController {
     _annotationManager!.tapEvents(onTap: _onAnnotationTapped);
 
     // 🔑 Read equipment data ONCE
-    final equipmentState = ref.read(equipmentProvider);
+    final clientEquipment =
+        ref.read(clientEquipmentProvider).value?.items ?? [];
 
-    if (equipmentState.clientEquipment.isEmpty) return;
+    if (clientEquipment.isEmpty) return;
 
-    _equipments = equipmentState.clientEquipment;
-    await _addEquipmentMarkers(equipmentState.clientEquipment);
+    _equipments = clientEquipment;
+    await _addEquipmentMarkers(clientEquipment);
   }
 
   Future<void> _loadMarkerIcon() async {

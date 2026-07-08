@@ -10,7 +10,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
@@ -51,7 +51,7 @@ class OwnerBookingTile extends ConsumerWidget {
                   context.pop();
                 }
                 await ref
-                    .read(bookingProvider.notifier)
+                    .read(bookingMutationProvider.notifier)
                     .updateBookingStatus(
                       id: booking.id,
                       status: BookingStatus.confirmed,
@@ -77,7 +77,7 @@ class OwnerBookingTile extends ConsumerWidget {
     ThemeData theme,
     bool isCreatedStatus,
   ) async {
-    final notifier = ref.read(bookingProvider.notifier);
+    final notifier = ref.read(bookingMutationProvider.notifier);
 
     final modalTitle = isCreatedStatus ? "Reject Order" : "Cancel Order";
     final modalText = isCreatedStatus
@@ -166,7 +166,7 @@ class OwnerBookingTile extends ConsumerWidget {
         !(booking.myReviewId != null && booking.myReviewId?.isNotEmpty == true);
 
     final isSubmittingCancel = ref
-        .watch(bookingProvider)
+        .watch(bookingMutationProvider)
         .isActionActive("booking:update:${booking.id}");
 
     return Container(
@@ -295,7 +295,8 @@ class OwnerBookingTile extends ConsumerWidget {
                   if (booking.status == BookingStatus.created) ...[
                     // Accept Order
                     IconButton(
-                      onPressed: () => ref.watch(bookingProvider).isSubmitting
+                      onPressed: () =>
+                          ref.watch(bookingMutationProvider).isSubmitting
                           ? null
                           : handleAccept(context, ref, theme),
                       tooltip: "Accept Order",
@@ -333,7 +334,7 @@ class OwnerBookingTile extends ConsumerWidget {
                                   }
 
                                   final result = await ref
-                                      .read(bookingProvider.notifier)
+                                      .read(bookingMutationProvider.notifier)
                                       .updateBookingWorkStatus(
                                         id: booking.id,
                                         workStatus: WorkStatus.completed,

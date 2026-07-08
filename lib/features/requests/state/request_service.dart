@@ -2,6 +2,7 @@ import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+import 'package:prokat/features/bookings/models/query_result.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:dio/dio.dart';
 
@@ -12,27 +13,51 @@ class RequestService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<RequestModel>>> getClientRequests() async {
+  Future<ApiResponse<QueryResult<RequestModel>>> getClientRequests({
+    required int page,
+    required int itemsPerPage,
+    required String status,
+  }) async {
     try {
-      final response = await _dio.get('/requests');
+      final response = await _dio.get(
+        '/requests',
+        queryParameters: {
+          "page": page,
+          "itemsPerPage": itemsPerPage,
+          "status": status,
+        },
+      );
 
-      return handleApiResponse<List<RequestModel>>(
+      return handleApiResponse<QueryResult<RequestModel>>(
         response: response,
         parser: (data) {
+          if (data is! Map<String, dynamic> && data.containsKey("data")) {
+            throw const FormatException("Expected paginated requests response");
+          }
+
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
             throw FormatException("Expected requests list");
           }
 
-          return itemsJson.map((item) {
+          final requests = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid request item");
             }
 
             return RequestModel.fromJson(item);
           }).toList();
+
+          return QueryResult<RequestModel>(
+            items: requests,
+            page: (data["page"] as num?)?.toInt() ?? page,
+            itemsPerPage:
+                (data["itemsPerPage"] as num?)?.toInt() ?? itemsPerPage,
+            count: (data["count"] as num?)?.toInt() ?? requests.length,
+          );
         },
+
         fallbackMessage: "Failed to load requests",
       );
     } on DioException catch (error) {
@@ -197,26 +222,49 @@ class RequestService {
     }
   }
 
-  Future<ApiResponse<List<RequestModel>>> getOwnerRequests() async {
+  Future<ApiResponse<QueryResult<RequestModel>>> getOwnerRequests({
+    required int page,
+    required int itemsPerPage,
+    required String status,
+  }) async {
     try {
-      final response = await _dio.get('/requests/owner');
+      final response = await _dio.get(
+        '/requests/owner',
+        queryParameters: {
+          "page": page,
+          "itemsPerPage": itemsPerPage,
+          "status": status,
+        },
+      );
 
-      return handleApiResponse<List<RequestModel>>(
+      return handleApiResponse<QueryResult<RequestModel>>(
         response: response,
         parser: (data) {
+          if (data is! Map<String, dynamic> && data.containsKey("data")) {
+            throw const FormatException("Expected paginated requests response");
+          }
+
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
             throw FormatException("Expected requests list");
           }
 
-          return itemsJson.map((item) {
+          final requests = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid request item");
             }
 
             return RequestModel.fromJson(item);
           }).toList();
+
+          return QueryResult<RequestModel>(
+            items: requests,
+            page: (data["page"] as num?)?.toInt() ?? page,
+            itemsPerPage:
+                (data["itemsPerPage"] as num?)?.toInt() ?? itemsPerPage,
+            count: (data["count"] as num?)?.toInt() ?? requests.length,
+          );
         },
         fallbackMessage: "Failed to load requests",
       );

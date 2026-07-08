@@ -1,22 +1,23 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
-import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
-import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -28,57 +29,39 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   Timer? _debounce;
 
-  Future<void> _fetchData() async {
-    final state = ref.read(categoriesProvider);
-    final notifier = ref.read(categoriesProvider.notifier);
+  ProviderSubscription? _categoriesSub;
+  ProviderSubscription? _locationSub;
 
-    final categoryId = state.selectedCategory?.id;
+  Future<void> _fetchData() async {
+    final categoryState = ref.read(categoriesProvider);
+    final categoryNotifier = ref.read(categoriesProvider.notifier);
+
+    final categoryId = categoryState.selectedCategory?.id;
     final city = ref.read(locationProvider).city;
 
-    ref
-        .read(equipmentProvider.notifier)
-        .getClientEquipment(categoryId: categoryId, city: city);
+    await ref
+        .read(guestEquipmentProvider.notifier)
+        .setFilters(categoryId: categoryId, city: city);
 
-    // Fetch Categories only once
-    if (state.fetchStatus == FetchStatus.initial ||
-        state.fetchStatus == FetchStatus.error) {
-      notifier.getCategories();
+    await ref.read(guestEquipmentProvider.notifier).refresh();
+
+    if (categoryState.fetchStatus == FetchStatus.initial ||
+        categoryState.fetchStatus == FetchStatus.error) {
+      categoryNotifier.getCategories();
       return;
     }
 
-    // Optional stale refresh
-    if (state.lastFetchedAt != null) {
-      final age = DateTime.now().difference(state.lastFetchedAt!);
+    if (categoryState.lastFetchedAt != null) {
+      final age = DateTime.now().difference(categoryState.lastFetchedAt!);
 
       if (age.inMinutes >= 5) {
-        notifier.getCategories();
+        categoryNotifier.getCategories();
       }
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      _fetchData();
-
-      ref.listenManual(
-        categoriesProvider.select((s) => s.selectedCategory?.id),
-        (_, _) => _onFiltersChanged(),
-      );
-
-      ref.listenManual(
-        locationProvider.select((s) => s.city),
-        (_, _) => _onFiltersChanged(),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
+  void _loadMore() {
+    ref.read(guestEquipmentProvider.notifier).loadMore();
   }
 
   void _onFiltersChanged() {
@@ -89,14 +72,49 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     });
   }
 
+  Future<void> _onRefresh() async {
+    await ref.read(guestEquipmentProvider.notifier).refresh();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() async {
+      await _fetchData();
+
+      _categoriesSub = ref.listenManual(
+        categoriesProvider.select((s) => s.selectedCategory?.id),
+        (_, _) => _onFiltersChanged(),
+      );
+
+      _locationSub = ref.listenManual(
+        locationProvider.select((s) => s.city),
+        (_, _) => _onFiltersChanged(),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _categoriesSub?.close();
+    _locationSub?.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
     final locale = ref.watch(localeProvider);
     final langDisplay = LocaleNotifier.displayCode(locale);
 
-    final equipmentState = ref.watch(equipmentProvider);
+    final equipmentAsync = ref.watch(guestEquipmentProvider);
+    final queryState = equipmentAsync.value;
+    final items = queryState?.items ?? [];
+
     final locationState = ref.watch(locationProvider);
     final categoriesState = ref.watch(categoriesProvider);
 
@@ -108,16 +126,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _fetchData,
+        onRefresh: _onRefresh,
         child: CustomScrollView(
           slivers: [
-            // TOP BAR: Logo, language, search
-            // Top Action Header (Stays pinned at the top when collapsed)
             SliverAppBar(
               primary: true,
               pinned: true,
               backgroundColor: darkBlueBg,
               elevation: 0,
+              automaticallyImplyLeading: false,
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -137,46 +154,37 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => showLanguageSheet(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(40),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white30),
-                          ),
-                          child: Text(
-                            langDisplay,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                  GestureDetector(
+                    onTap: () => showLanguageSheet(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(40),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white30),
+                      ),
+                      child: Text(
+                        langDisplay,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-
-                      // const SizedBox(width: 12),
-
-                      // const Icon(Icons.search, color: Colors.white),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Middle Bar: Hero Banner
-            // Parallax content container
             SliverAppBar(
               primary: false,
-              expandedHeight: 420.0,
+              expandedHeight: 420,
               backgroundColor: darkBlueBg,
+              automaticallyImplyLeading: false,
               elevation: 0,
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.parallax,
@@ -184,34 +192,33 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
-            SliverToBoxAdapter(child: GuestCategorySection()),
+            const SliverToBoxAdapter(child: GuestCategorySection()),
 
-            // Popular Rents Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
                 child: SectionTitle(title: l10n.popularRents),
               ),
             ),
 
-            if (equipmentState.isLoading && !equipmentState.hasData)
-              SliverToBoxAdapter(
+            if (equipmentAsync.isLoading && items.isEmpty)
+              const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: EquipmentListSkeleton(),
                 ),
               )
-            else if (equipmentState.fetchError != null)
+            else if (equipmentAsync.hasError)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: EmptyStateTile(title: l10n.loadEquipmentErrorHint),
                 ),
               )
-            else if (equipmentState.clientEquipment.isEmpty)
+            else if (items.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: EmptyStateTile(
                     icon: Icons.deselect_outlined,
                     title:
@@ -223,43 +230,39 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverList.separated(
-                  itemCount: equipmentState.clientEquipment.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
+                  itemCount: items.length + (queryState!.isLoadingMore ? 1 : 0),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final item = equipmentState.clientEquipment[index];
-                    return GuestEquipmentCard(item: item);
+                    if (index == items.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    if (index == items.length - 1 &&
+                        queryState.hasMore &&
+                        !queryState.isLoadingMore) {
+                      Future.microtask(_loadMore);
+                    }
+
+                    return GuestEquipmentCard(item: items[index]);
                   },
                 ),
               ),
 
             SliverFillRemaining(
-              hasScrollBody:
-                  false, // Allows content inside to layout cleanly without nesting scrolls
+              hasScrollBody: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
                 child: Column(
                   children: [
-                    // Automatically pushes your CTA card right down to the absolute screen floor
                     const Spacer(),
-
-                    // ─── GUEST LOGIN CALL-TO-ACTION CARD ────────────────────────────────
                     BaseTile(
-                      // width: double.infinity,
                       padding: const EdgeInsets.all(24),
-                      // decoration: BoxDecoration(
-                      //   // Smooth light color blend or subtle dark tint based on your color modes
-                      //   color: theme.colorScheme.primaryContainer.withAlpha(50),
-                      //   borderRadius: BorderRadius.circular(24),
-                      //   border: Border.all(
-                      //     color: theme.colorScheme.primary.withAlpha(30),
-                      //     width: 1,
-                      //   ),
-                      // ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Visual Anchor: Bold iconography telling the user there is more to explore
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -273,8 +276,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-
-                          // Action Heading
                           Text(
                             "Get Started with Prokat",
                             textAlign: TextAlign.center,
@@ -283,8 +284,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-
-                          // Context Copy text
                           Text(
                             "Sign in to browse equipment, contact owners directly, place orders in a few taps.",
                             textAlign: TextAlign.center,
@@ -295,10 +294,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                               height: 1.4,
                             ),
                           ),
-
                           const SizedBox(height: 24),
-
-                          // High-Emphasis Execution Button
                           ElevatedButton(
                             onPressed: () {
                               context.push(AppRoutes.login);
@@ -315,14 +311,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(
+                                const Text(
                                   "Get Started",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Icon(
                                   Icons.login,
                                   size: 24,

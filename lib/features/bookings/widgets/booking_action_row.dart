@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
 import "package:prokat/features/bookings/models/booking_status.dart";
-import "package:prokat/features/bookings/state/booking_provider.dart";
+import "package:prokat/features/bookings/providers/booking_mutation_provider.dart";
 import "package:prokat/features/bookings/widgets/booking_status_sheet.dart";
 import "package:prokat/features/bookings/widgets/cancel_booking_sheet.dart";
 import "package:prokat/features/chat/state/chat_provider.dart";
@@ -21,7 +21,7 @@ class BookingActionRow extends ConsumerWidget {
 
   void _handleAccept(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final notifier = ref.read(bookingProvider.notifier);
+    final notifier = ref.read(bookingMutationProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
 
     showDialog(
@@ -158,7 +158,7 @@ class BookingActionRow extends ConsumerWidget {
     AppLocalizations l10n,
   ) async {
     final theme = Theme.of(context);
-    final notifier = ref.read(bookingProvider.notifier);
+    final notifier = ref.read(bookingMutationProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
 
     final modalTitle = booking.status == BookingStatus.created

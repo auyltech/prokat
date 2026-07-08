@@ -13,7 +13,7 @@ import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/view_offer_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/state/request_utils.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
@@ -247,7 +247,7 @@ class OwnerRequestTile extends ConsumerWidget {
                     IconButton(
                       onPressed: () async {
                         final result = await ref
-                            .read(requestProvider.notifier)
+                            .read(requestMutationProvider.notifier)
                             .viewRequest(request.id);
 
                         if (context.mounted) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,17 +7,18 @@ import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/categories/widgets/user_category_selector.dart';
+import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
+import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
-import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/categories/widgets/user_category_selector.dart';
-import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
@@ -36,29 +38,26 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   ProviderSubscription? _locationSub;
   ProviderSubscription? _equipmentSub;
 
-  // Fetch on first screen load and then on filters change
   Future<void> _fetchData() async {
     final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
     final city = ref.read(locationProvider).city;
-    final query = ref.read(equipmentProvider).query;
+    final query = ref.read(searchEquipmentProvider).query;
 
-    ref
-        .read(equipmentProvider.notifier)
-        .initFetch(categoryId: categoryId, city: city, query: query);
+    await ref
+        .read(clientEquipmentProvider.notifier)
+        .search(categoryId: categoryId, city: city, query: query);
 
     ref.read(favoritesProvider.notifier).getFavorites();
 
     final categoryState = ref.read(categoriesProvider);
     final categoryNotifier = ref.read(categoriesProvider.notifier);
 
-    // Fetch Categories only once
     if (categoryState.fetchStatus == FetchStatus.initial ||
         categoryState.fetchStatus == FetchStatus.error) {
       categoryNotifier.getCategories();
       return;
     }
 
-    // Optional stale refresh
     if (categoryState.lastFetchedAt != null) {
       final age = DateTime.now().difference(categoryState.lastFetchedAt!);
 
@@ -69,12 +68,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   }
 
   void _loadMore() {
-    final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
-    final city = ref.read(locationProvider).city;
-
-    ref
-        .read(equipmentProvider.notifier)
-        .fetchNextPage(categoryId: categoryId, query: widget.query, city: city);
+    ref.read(clientEquipmentProvider.notifier).loadMore();
   }
 
   void _onFiltersChanged() {
@@ -86,7 +80,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   }
 
   Future<void> _onRefresh() async {
-    _fetchData();
+    await ref.read(clientEquipmentProvider.notifier).refresh();
   }
 
   @override
@@ -94,21 +88,20 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
-      _fetchData();
+      await _fetchData();
 
-      ref.listenManual(
+      _categoriesSub = ref.listenManual(
         categoriesProvider.select((s) => s.selectedCategory?.id),
         (_, _) => _onFiltersChanged(),
       );
 
-      ref.listenManual(
+      _locationSub = ref.listenManual(
         locationProvider.select((s) => s.city),
         (_, _) => _onFiltersChanged(),
       );
 
-      // Query is debounced inside the search box
-      ref.listenManual(
-        equipmentProvider.select((s) => s.query),
+      _equipmentSub = ref.listenManual(
+        searchEquipmentProvider.select((s) => s.query),
         (_, _) => _fetchData(),
       );
     });
@@ -116,7 +109,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
   @override
   void dispose() {
-    // Always close manual subscriptions to prevent memory leaks!
+    _debounce?.cancel();
     _categoriesSub?.close();
     _locationSub?.close();
     _equipmentSub?.close();
@@ -126,10 +119,13 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final equipmentState = ref.watch(equipmentProvider);
-    final items = ref.watch(equipmentProvider).clientEquipment;
 
-    final bookingNotifier = ref.read(bookingProvider.notifier);
+    final equipmentAsync = ref.watch(clientEquipmentProvider);
+    final queryState = equipmentAsync.value;
+
+    final items = queryState?.items ?? [];
+
+    final bookingNotifier = ref.read(bookingMutationProvider.notifier);
 
     final selectedCategoryId = ref
         .watch(categoriesProvider)
@@ -160,30 +156,33 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
               const SizedBox(height: 12),
 
-              // Equipment List
-              if (equipmentState.isLoading &&
-                  equipmentState.clientEquipment.isEmpty)
+              if (equipmentAsync.isLoading && items.isEmpty)
                 const EquipmentListSkeleton()
-              else if (equipmentState.fetchError != null)
+              else if (equipmentAsync.hasError)
                 EquipmentErrorTile(
-                  onRetry: () => ref.invalidate(equipmentProvider),
+                  onRetry: () =>
+                      ref.read(clientEquipmentProvider.notifier).refresh(),
                 )
               else if (items.isEmpty)
                 const EquipmentEmptyTile()
               else
                 ListView.separated(
-                  separatorBuilder: (_, _) => SizedBox(height: 18),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 18),
+                  itemCount: items.length + (queryState!.isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
-                    if (index >= items.length) {
-                      return const SizedBox.shrink();
+                    if (index == items.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
                     }
 
-                    if (index == items.length - 1) {
-                      // Use microtask to delay execution until the layout build pass completes safely
-                      Future.microtask(() => _loadMore());
+                    if (index == items.length - 1 &&
+                        queryState.hasMore &&
+                        !queryState.isLoadingMore) {
+                      Future.microtask(_loadMore);
                     }
 
                     final equipment = items[index];
@@ -192,6 +191,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                       equipment: equipment,
                       onTap: () {
                         bookingNotifier.selectEquipment(equipment);
+
                         context.push(
                           '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
                         );
@@ -200,7 +200,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                   },
                 ),
 
-              FavoritesSection(),
+              const FavoritesSection(),
             ],
           ),
         ),

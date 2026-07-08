@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 
 class BalanceTile extends ConsumerStatefulWidget {
   const BalanceTile({super.key});
@@ -19,7 +19,9 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
     final theme = Theme.of(context);
     final billingState = ref.watch(billingProvider);
 
-    final onlineEquipment = ref.watch(equipmentProvider).onlineEquipmentCount;
+    final onlineEquipment = ref
+        .watch(ownerEquipmentProvider.notifier)
+        .onlineEquipmentCount;
 
     final burnRate = onlineEquipment == 0
         ? 0

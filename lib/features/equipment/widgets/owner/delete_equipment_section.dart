@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -74,7 +74,7 @@ class _DeleteEquipmentSectionState
             label: l10n.deleteEquipment,
             icon: LucideIcons.trash,
             isLoading: ref
-                .watch(equipmentProvider)
+                .watch(equipmentMutationProvider)
                 .isActionActive("equipment:delete:${widget.equipmentId}"),
             onPressed: () =>
                 _confirmDelete(context, ref, widget.equipmentId, l10n),
@@ -172,7 +172,7 @@ void _confirmDelete(
                   if (context.mounted && context.canPop()) context.pop();
 
                   final result = await ref
-                      .read(equipmentProvider.notifier)
+                      .read(equipmentMutationProvider.notifier)
                       .deleteEquipment(equipmentId);
 
                   if (context.mounted) {

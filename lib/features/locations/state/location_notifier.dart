@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import '../models/location_model.dart';
 import 'location_service.dart';
 import 'location_state.dart';
@@ -160,7 +161,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
       if (result.success) {
         if (location.service == "EQUIPMENT") {
-          ref.read(equipmentProvider.notifier).getOwnerEquipment();
+          ref.read(ownerEquipmentProvider.notifier).refresh();
         } else {
           getClientLocations();
         }
@@ -173,7 +174,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
           if (from == "create_request") {
             ref
-                .read(requestProvider.notifier)
+                .read(requestMutationProvider.notifier)
                 .selectLocation(result.data ?? state.clientLocations[0]);
           } else if (from == "create_booking") {}
         }

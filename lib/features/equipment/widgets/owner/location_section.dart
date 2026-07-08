@@ -5,7 +5,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class LocationSection extends StatefulWidget {
@@ -33,7 +33,7 @@ class _LocationSectionState extends State<LocationSection> {
   Future<void> _handleSave(AppLocalizations l10n) async {
     try {
       final res = await widget.ref
-          .read(equipmentProvider.notifier)
+          .read(equipmentMutationProvider.notifier)
           .updateEquipmentLocation(widget.equipment.id, {
             "id": widget.equipment.id,
             "city": _cityController.text.trim(),

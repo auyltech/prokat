@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/appstatic/widgets/search_box.dart';
-import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_history_bookings_provider.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -18,97 +15,103 @@ class OwnerBookingHistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerBookingHistoryScreenState
-    extends ConsumerState<OwnerBookingHistoryScreen> {
+    extends ConsumerState<OwnerBookingHistoryScreen>
+    with SingleTickerProviderStateMixin {
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final notifier = ref.read(bookingProvider.notifier);
-      final state = ref.read(bookingProvider);
+    _scrollController = ScrollController();
 
-      // Never loaded
-      if (state.fetchStatus == FetchStatus.initial) {
-        notifier.getOwnerBookings();
-        return;
-      }
+    _scrollController.addListener(() {
+      if (!_scrollController.hasClients) return;
 
-      // Optional stale refresh
-      if (state.lastFetchedAt != null) {
-        final age = DateTime.now().difference(state.lastFetchedAt!);
-
-        if (age.inMinutes >= 5) {
-          notifier.getOwnerBookings();
-        }
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 300) {
+        ref.read(ownerHistoryBookingsProvider.notifier).loadMore();
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(ownerHistoryBookingsProvider.notifier).refreshIfStale();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final bookingState = ref.watch(bookingProvider);
 
-    final historyBookings = bookingState.ownerBookings
-        .where(
-          (b) =>
-              b.status == BookingStatus.completed ||
-              b.status == BookingStatus.cancelled ||
-              b.status == BookingStatus.rejected ||
-              b.status == BookingStatus.failed,
-        )
-        .toList();
+    final bookingsAsync = ref.watch(ownerHistoryBookingsProvider);
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(bookingProvider.notifier).getOwnerBookings();
+          return ref.read(ownerHistoryBookingsProvider.notifier).refresh();
         },
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: SearchBox(placeholder: l10n.search),
-            ),
+        child: bookingsAsync.when(
+          loading: () => const OwnerBookingSkeleton(),
 
-            if (bookingState.fetchStatus == FetchStatus.loading)
-              const OwnerBookingSkeleton()
-            else if (bookingState.fetchStatus == FetchStatus.error)
+          error: (error, stackTrace) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
               EmptyStateTile(
                 icon: Icons.cancel,
                 title: l10n.errorLoadingOrders,
-                subtitle: bookingState.fetchError?.message,
-              )
-            else if (bookingState.fetchStatus == FetchStatus.empty ||
-                (bookingState.fetchStatus == FetchStatus.success &&
-                    historyBookings.isEmpty))
-              EmptyStateTile(
-                icon: Icons.inventory_2_outlined,
-                title: l10n.noBookingsFound,
-                subtitle: "You don't have any orders in your history",
-              )
-            else if (bookingState.fetchStatus == FetchStatus.success ||
-                bookingState.fetchStatus == FetchStatus.refreshing)
-              ListView.separated(
-                separatorBuilder: (context, index) => Divider(
-                  height: 1,
-                  thickness: 0.5,
-                  indent: 16,
-                  endIndent: 16,
-                  color: theme.dividerColor.withValues(alpha: 0.7),
-                ),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: historyBookings.length,
-                itemBuilder: (context, index) {
-                  return OwnerBookingTile(booking: historyBookings[index]);
-                },
-              )
-            else if (bookingState.fetchStatus == FetchStatus.initial)
-              const SizedBox.shrink(),
-          ],
+                subtitle: error.toString(),
+              ),
+            ],
+          ),
+
+          data: (query) {
+            final bookings = query.items;
+
+            return ListView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                if (bookings.isEmpty)
+                  EmptyStateTile(
+                    icon: Icons.inventory_2_outlined,
+                    title: l10n.noBookingsFound,
+                    subtitle: "You don't have any orders in your history",
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: bookings.length,
+                    separatorBuilder: (context, index) => Divider(
+                      height: 1,
+                      thickness: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: theme.dividerColor.withValues(alpha: 0.7),
+                    ),
+                    itemBuilder: (context, index) {
+                      return OwnerBookingTile(booking: bookings[index]);
+                    },
+                  ),
+
+                if (query.isLoadingMore)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+
+                if (!query.hasMore && bookings.isNotEmpty)
+                  const SizedBox(height: 24),
+              ],
+            );
+          },
         ),
       ),
     );

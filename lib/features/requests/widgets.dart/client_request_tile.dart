@@ -8,7 +8,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
-import 'package:prokat/features/requests/state/request_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -143,7 +143,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               Spacer(),
 
               if (ref
-                  .watch(requestProvider)
+                  .watch(requestMutationProvider)
                   .isActionActive("request:$id:cancel"))
                 SizedBox(
                   height: 14,
@@ -198,7 +198,7 @@ void _showCancelConfirmation(
             Navigator.pop(context);
 
             final result = await ref
-                .read(requestProvider.notifier)
+                .read(requestMutationProvider.notifier)
                 .cancelRequest(requestId);
 
             AppSnackBar.show(

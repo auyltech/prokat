@@ -16,7 +16,6 @@ class PriceEntry {
         priceRate: parseRateOption(json["priceRate"]),
       );
     } catch (error) {
-      print(json);
       rethrow;
     }
   }

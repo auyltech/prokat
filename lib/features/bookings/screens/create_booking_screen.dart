@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
@@ -10,9 +9,8 @@ import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
@@ -37,14 +35,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(equipmentProvider.notifier).getClientEquipment();
-
       ref.read(locationProvider.notifier).getClientLocations();
     });
   }
 
   Future<void> onSubmit() async {
-    final bookingState = ref.read(bookingProvider);
+    final bookingState = ref.read(bookingMutationProvider);
     String message = "";
 
     if (bookingState.selectedEquipment == null) {
@@ -65,7 +61,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       return;
     }
 
-    final result = await ref.read(bookingProvider.notifier).createBooking();
+    final result = await ref
+        .read(bookingMutationProvider.notifier)
+        .createBooking();
 
     AppSnackBar.show(
       message: result.message,
@@ -91,12 +89,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       final address = next.selectedAddress;
 
       if (address != null && address.id != null) {
-        ref.read(bookingProvider.notifier).selectLocation(address);
+        ref.read(bookingMutationProvider.notifier).selectLocation(address);
       }
     });
 
-    final bookingState = ref.watch(bookingProvider);
-    final bookingNotifier = ref.read(bookingProvider.notifier);
+    final bookingState = ref.watch(bookingMutationProvider);
+    final bookingNotifier = ref.read(bookingMutationProvider.notifier);
 
     final locationState = ref.watch(locationProvider);
     final selectedAddress = locationState.selectedAddress;
@@ -124,13 +122,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         bookingState.selectedDate != null &&
         bookingState.selectedTime != null;
 
-    final action = bookingState.activeActions
-        .where((item) => item.id == "booking:create")
-        .firstOrNull;
-
-    final isSubmitting = action == null
-        ? false
-        : action.status == MutationStatus.submitting;
+    final isSubmitting = ref
+        .watch(bookingMutationProvider)
+        .isActionActive("booking:create");
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -238,7 +232,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             onTap: () {
                               if (entry != null) {
                                 ref
-                                    .read(bookingProvider.notifier)
+                                    .read(bookingMutationProvider.notifier)
                                     .selectPriceEntry(entry);
                               }
                             },

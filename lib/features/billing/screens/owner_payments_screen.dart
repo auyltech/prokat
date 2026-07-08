@@ -8,7 +8,7 @@ import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
 import 'package:prokat/features/billing/widgets/volume_discount_tile.dart';
 import 'package:prokat/features/billing/widgets/top_up_cta_tile.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerPaymentsScreen extends ConsumerStatefulWidget {
@@ -28,7 +28,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
       await ref.read(billingProvider.notifier).getPricingTiers();
       await ref.read(billingProvider.notifier).getVolumeDiscounts();
       await ref.read(billingProvider.notifier).getOwnerTransactions();
-      await ref.read(equipmentProvider.notifier).getOwnerEquipment();
+      await ref.read(ownerEquipmentProvider.notifier).refresh();
     });
   }
 
@@ -42,7 +42,10 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final secondsRemaining = billingState.accountBalance?.secondsRemaining ?? 0;
     final humanReadableTime = getTimeString(secondsRemaining);
 
-    final onlineEquipment = ref.watch(equipmentProvider).onlineEquipmentCount;
+    final onlineEquipment = ref
+        .watch(ownerEquipmentProvider.notifier)
+        .onlineEquipmentCount;
+
     final volumeDiscountItems = billingState.volumeDiscounts;
 
     final dailyCost = billingState.getDailyCost(onlineEquipment);
@@ -56,7 +59,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(billingProvider.notifier).getOwnerTransactions();
-          await ref.read(equipmentProvider.notifier).getOwnerEquipment();
+          await ref.read(ownerEquipmentProvider.notifier).refresh();
         },
         child: ListView(
           padding: const EdgeInsets.all(16),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/equipment/state/equipment_map_provider.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
 import 'package:prokat/features/map/widgets/equipment_browse_sheet.dart';
 import 'package:prokat/features/map/widgets/equipment_details_drawer.dart';
 import 'package:prokat/features/map/widgets/map_view.dart';
@@ -13,20 +13,24 @@ class MapClientEquipmentContainer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+
     final mapState = ref.watch(equipmentMapProvider);
-    final equipmentState = ref.watch(equipmentProvider);
+    final equipmentAsync = ref.watch(clientEquipmentProvider);
+
+    final equipment = equipmentAsync.value?.items ?? [];
 
     return Scaffold(
       body: Stack(
         children: [
-          equipmentState.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : equipmentState.fetchError != null
-              ? Center(child: Text(l10n.somethingWentWrong))
-              : MyMapView(
-                  mode: MyMapMode.browseEquipment,
-                  equipmentList: equipmentState.clientEquipment,
-                ),
+          if (equipmentAsync.isLoading && equipment.isEmpty)
+            const Center(child: CircularProgressIndicator())
+          else if (equipmentAsync.hasError)
+            Center(child: Text(l10n.somethingWentWrong))
+          else
+            MyMapView(
+              mode: MyMapMode.browseEquipment,
+              equipmentList: equipment,
+            ),
 
           if (mapState.selectedEquipment != null)
             EquipmentDetailsDrawer(equipment: mapState.selectedEquipment!),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -80,7 +80,7 @@ void openLocationPickerSheet(
                   subtitle: loc.city,
                   onTap: () async {
                     final res = await ref
-                        .read(equipmentProvider.notifier)
+                        .read(equipmentMutationProvider.notifier)
                         .updateEquipmentLocation(equipmentId, {
                           "id": equipmentId,
                           "locationId": loc.id,

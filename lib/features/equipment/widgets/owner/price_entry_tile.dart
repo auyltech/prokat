@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 
 class PriceEntryTile extends ConsumerStatefulWidget {
   final PriceEntry priceEntry;
@@ -60,7 +60,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
 
           /// EDIT ACTION
           if (ref
-              .watch(equipmentProvider)
+              .watch(equipmentMutationProvider)
               .isActionActive("equipment:price:update:${widget.priceEntry.id}"))
             SizedBox(
               height: 14,
@@ -77,7 +77,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
             ),
 
           if (ref
-              .watch(equipmentProvider)
+              .watch(equipmentMutationProvider)
               .isActionActive("equipment:price:delete:${widget.priceEntry.id}"))
             SizedBox(
               height: 14,

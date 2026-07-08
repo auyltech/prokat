@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
-import 'package:prokat/core/api/fetch_status.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
+import 'package:prokat/features/categories/models/category.dart';
 
 class EquipmentMutationState {
   final Set<Mutation> activeActions;

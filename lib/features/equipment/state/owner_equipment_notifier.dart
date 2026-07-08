@@ -1,6 +1,6 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/state/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -12,6 +12,41 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     api = ref.read(equipmentServiceProvider);
 
     return _fetch();
+  }
+
+  List<Equipment> _sortEquipment(List<Equipment> list) {
+    final sorted = [...list];
+
+    int statusPriority(EquipmentStatus status) {
+      switch (status) {
+        case EquipmentStatus.available:
+          return 0;
+        case EquipmentStatus.booked:
+          return 1;
+        case EquipmentStatus.maintenance:
+          return 2;
+        default:
+          return 99;
+      }
+    }
+
+    sorted.sort((a, b) {
+      /// 1. Online first
+      final aOnline = a.status == EquipmentStatus.available ? 0 : 1;
+      final bOnline = b.status == EquipmentStatus.available ? 0 : 1;
+      if (aOnline != bOnline) return aOnline.compareTo(bOnline);
+
+      /// 2. Status priority
+      final statusCompare = statusPriority(
+        a.status,
+      ).compareTo(statusPriority(b.status));
+      if (statusCompare != 0) return statusCompare;
+
+      /// 3. Last updated (descending)
+      return (b.updatedAt ?? DateTime(0)).compareTo(a.updatedAt ?? DateTime(0));
+    });
+
+    return sorted;
   }
 
   Future<QueryState<Equipment>> _fetch() async {
@@ -113,5 +148,22 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     return (state.value?.items ?? const [])
         .where((item) => item.isVisible)
         .length;
+  }
+
+  Future<void> replaceItem(
+    String equipmentId,
+    Equipment Function(Equipment current) builder,
+  ) async {
+    final current = state.value;
+
+    if (current == null) return;
+
+    final items = current.items.map((item) {
+      if (item.id != equipmentId) return item;
+
+      return builder(item);
+    }).toList();
+
+    state = AsyncData(current.copyWith(items: items));
   }
 }

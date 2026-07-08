@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
-import 'package:prokat/features/bookings/state/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
@@ -33,7 +33,6 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final favoritesState = ref.watch(favoritesProvider);
-    final bookingNotifier = ref.read(bookingProvider.notifier);
 
     final favorites = favoritesState.favorites ?? [];
 
@@ -65,7 +64,9 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                   return _FavoriteCard(
                     equipment: item,
                     onTap: () {
-                      bookingNotifier.selectEquipment(item);
+                      ref
+                          .read(bookingMutationProvider.notifier)
+                          .selectEquipment(item);
                       context.push(
                         '${AppRoutes.equipment}/${item.id}/${AppRoutes.book}',
                       );
