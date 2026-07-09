@@ -1535,6 +1535,18 @@ class AppLocalizationsRu extends AppLocalizations {
       'Немедленно сообщите о проблеме через приложение. Наша служба поддержки вам поможет.';
 
   @override
+  String get byContinuing => 'By continuing, you agree to our ';
+
+  @override
+  String get termsAndConditions => 'Terms & Conditions';
+
+  @override
+  String get andOur => ' and our ';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
   String get helpUsGrow => 'Помогите нам расти';
 
   @override

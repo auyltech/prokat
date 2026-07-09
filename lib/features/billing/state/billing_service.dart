@@ -45,7 +45,7 @@ class BillingService {
     } catch (e) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: "Failed to load account balance",
       );
     }
   }
@@ -72,7 +72,7 @@ class BillingService {
     } catch (e) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: "Failed to load transactions",
       );
     }
   }
@@ -99,7 +99,7 @@ class BillingService {
     } catch (e) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: "Failed to load pricing tiers",
       );
     }
   }

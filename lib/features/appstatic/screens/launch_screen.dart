@@ -108,7 +108,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                 children: [
                   // Icon with "Glass" effect
                   Image.asset(
-                    'assets/icons/app_logo.png',
+                    'assets/icons/app_icon.png',
                     width: 150,
                     height: 150,
                     fit: BoxFit.contain,

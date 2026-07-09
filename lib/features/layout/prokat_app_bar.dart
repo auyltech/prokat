@@ -61,9 +61,13 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     String? titleString;
 
     final showBackButton =
-        currentPath.contains(AppRoutes.history) ||
-        isChatDetailScreen ||
-        currentPath.contains(AppRoutes.ownerPayment);
+        [
+          AppRoutes.history,
+          AppRoutes.ownerPayment,
+          AppRoutes.termsConditions,
+          AppRoutes.privacyPolicy,
+        ].contains(currentPath) ||
+        isChatDetailScreen;
 
     if (isChatDetailScreen) {
       // Safely extract chat ID from segments based on route depth
@@ -147,7 +151,11 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
           tooltip: 'Mark all as read',
         ),
       );
-    } else if (currentPath == AppRoutes.login) {
+    } else if ([
+      AppRoutes.login,
+      AppRoutes.termsConditions,
+      AppRoutes.privacyPolicy,
+    ].contains(currentPath)) {
       // Don't show notifications on login
     } else {
       // Always present Notification badge matching structural theme contract

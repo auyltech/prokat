@@ -173,6 +173,16 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       icon: Icons.description_outlined,
                       iconColor: Colors.teal,
                       iconBgColor: Colors.teal.withValues(alpha: 0.08),
+                      title: "Privacy Policy",
+                      onTap: () => context.push(AppRoutes.privacyPolicy),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    SettingsLinkTile(
+                      icon: Icons.description_outlined,
+                      iconColor: Colors.teal,
+                      iconBgColor: Colors.teal.withValues(alpha: 0.08),
                       title: l10n.termsConditions,
                       onTap: () => context.push(AppRoutes.termsConditions),
                     ),

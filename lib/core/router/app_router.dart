@@ -5,9 +5,9 @@ import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
+import 'package:prokat/features/appstatic/screens/privacy_policy_screen.dart';
 import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
 import 'package:prokat/features/appstatic/screens/terms_conditions_screen.dart';
-import 'package:prokat/features/auth/screens/register_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/create_booking_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
@@ -20,7 +20,6 @@ import 'package:prokat/features/chat/screens/owner_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_screen.dart';
 import 'package:prokat/features/equipment/screens/search_equipment_screen.dart';
 import 'package:prokat/features/layout/main_scaffold.dart';
-import 'package:prokat/features/auth/screens/forgot_password_screen.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
 import 'package:prokat/features/locations/screens/renter_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
@@ -178,14 +177,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const LoginScreen(),
               ),
               GoRoute(
-                path: AppRoutes.register,
-                builder: (_, _) => const RegisterScreen(),
-              ),
-              GoRoute(
-                path: AppRoutes.forgotPassword,
-                builder: (_, _) => const ForgotPasswordScreen(),
-              ),
-              GoRoute(
                 path: AppRoutes.main,
                 builder: (context, state) {
                   return MainScreen();
@@ -201,6 +192,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.supportUs,
                 builder: (_, _) => const SupportUsPage(),
+              ),
+              // Privacy Policy
+              GoRoute(
+                path: AppRoutes.privacyPolicy,
+                builder: (_, _) => const PrivacyPolicyScreen(),
               ),
               // Terms and conditions
               GoRoute(

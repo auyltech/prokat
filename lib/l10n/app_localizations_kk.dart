@@ -1534,6 +1534,18 @@ class AppLocalizationsKk extends AppLocalizations {
       'Мәселені дереу қосымша арқылы хабарлаңыз. Қолдау тобымыз сізге көмектеседі.';
 
   @override
+  String get byContinuing => 'By continuing, you agree to our ';
+
+  @override
+  String get termsAndConditions => 'Terms & Conditions';
+
+  @override
+  String get andOur => ' and our ';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
   String get helpUsGrow => 'Бізге өсуге көмектесіңіз';
 
   @override

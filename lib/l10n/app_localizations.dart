@@ -3082,6 +3082,30 @@ abstract class AppLocalizations {
   /// **'Report the issue through the app immediately. Our support team will assist you.'**
   String get faq5A;
 
+  /// No description provided for @byContinuing.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you agree to our '**
+  String get byContinuing;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get termsAndConditions;
+
+  /// No description provided for @andOur.
+  ///
+  /// In en, this message translates to:
+  /// **' and our '**
+  String get andOur;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
   /// No description provided for @helpUsGrow.
   ///
   /// In en, this message translates to:

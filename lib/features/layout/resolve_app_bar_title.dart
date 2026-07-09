@@ -7,6 +7,9 @@ String resolveAppBarTitle(
   List<String> segments,
   AppLocalizations l10n,
 ) {
+  if (path == AppRoutes.privacyPolicy) return 'Privacy Policy';
+  if (path == '/support-us') return l10n.helpUsGrow;
+  if (path == '/terms') return l10n.termsConditions;
   // Exact Client Route Matches
   // Search Equipment Screen
   if (path == AppRoutes.searchList) return 'Search';
@@ -32,8 +35,6 @@ String resolveAppBarTitle(
 
   if (path == AppRoutes.becomeOwner) return 'Become an Owner';
   if (path == AppRoutes.helpSupport) return l10n.helpSupportTitle;
-  if (path == '/support-us') return l10n.helpUsGrow;
-  if (path == '/terms') return l10n.termsConditions;
 
   if (path == AppRoutes.searchMap) return 'Map Search';
   if (path == AppRoutes.clientAddresses) return 'My Addresses';

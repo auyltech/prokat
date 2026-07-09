@@ -49,3 +49,5 @@ android/app/google-services.json
 config.json
 
 lib/firebase_options.dart
+android/key.properties
+android/app/*.jks

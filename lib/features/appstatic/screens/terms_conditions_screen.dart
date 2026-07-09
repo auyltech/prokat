@@ -1,150 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/l10n/app_localizations.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class TermsConditionsScreen extends StatelessWidget {
   const TermsConditionsScreen({super.key});
 
+  // Dynamically determines the locale code from your existing app localization state
+  String _getLocaleAssetPath(BuildContext context) {
+    try {
+      final localeCode = Localizations.localeOf(context).languageCode;
+      // Dynamically falls back to 'en' if the current language file is not yet available
+      if (localeCode == 'kz' || localeCode == 'ru') {
+        return 'assets/legal/terms_conditions_$localeCode.md';
+      }
+    } catch (_) {
+      // Fallback architecture to ensure the app never crashes
+    }
+    return 'assets/legal/terms_conditions_en.md';
+  }
+
+  Future<String> _loadTermsMarkdown(BuildContext context) async {
+    final assetPath = _getLocaleAssetPath(context);
+    return await DefaultAssetBundle.of(context).loadString(assetPath);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(l10n),
+      body: SafeArea(
+        child: FutureBuilder<String>(
+          future: _loadTermsMarkdown(context),
+          builder: (context, snapshot) {
+            // 1. Loading State
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  _buildLegalSection(
-                    title: l10n.rentalEligibilityTitle,
-                    summary: l10n.rentalEligibilitySummary,
-                    content: l10n.rentalEligibilityContent,
-                  ),
-                  _buildLegalSection(
-                    title: l10n.damageLiabilityTitle,
-                    summary: l10n.damageLiabilitySummary,
-                    content: l10n.damageLiabilityContent,
-                  ),
-                  _buildLegalSection(
-                    title: l10n.lateReturnsTitle,
-                    summary: l10n.lateReturnsSummary,
-                    content: l10n.lateReturnsContent,
-                  ),
-                  _buildLegalSection(
-                    title: l10n.cancellationsTitle,
-                    summary: l10n.cancellationsSummary,
-                    content: l10n.cancellationsContent,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildAcceptanceNotice(l10n),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-      color: Colors.grey.shade50,
-      child: Column(
-        children: [
-          const Icon(Icons.gavel_rounded, size: 48, color: Colors.blueGrey),
-          const SizedBox(height: 16),
-          Text(
-            l10n.legalStuff,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.lastUpdated,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegalSection({
-    required String title,
-    required String summary,
-    required String content,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.lightbulb_outline,
-                  size: 18,
-                  color: Colors.blue,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
+            // 2. Error Fallback State
+            if (snapshot.hasError) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
                   child: Text(
-                    summary,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.blue,
-                    ),
+                    'Failed to load Terms & Conditions. Please try again later.',
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            content,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade800,
-              height: 1.6,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+              );
+            }
 
-  Widget _buildAcceptanceNotice(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        l10n.termsAcceptanceNotice,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 12,
-          fontStyle: FontStyle.italic,
-          color: Colors.grey,
+            // 3. Document Content Display State
+            return Markdown(
+              data: snapshot.data ?? '',
+              selectable: true,
+              padding: const EdgeInsets.all(20.0),
+              styleSheet: MarkdownStyleSheet(
+                // Formats your Main Header (# Legal Stuff)
+                h1: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+                // Formats your Sections (## 1. Rental Eligibility)
+                h2: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                // Formats the Standard Paragraph Text Content
+                p: theme.textTheme.bodyMedium?.copyWith(
+                  height: 1.6,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                // Replaces your old custom _buildLegalSection summary container styling perfectly
+                blockquote: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+                blockquotePadding: const EdgeInsets.all(12.0),
+                blockquoteDecoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border(
+                    left: BorderSide(color: Colors.blue.shade400, width: 4),
+                  ),
+                ),
+                // Formats your bottom horizontal divider line (---)
+                // hr: Divider(color: theme.dividerColor, height: 40),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -1530,6 +1530,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Report the issue through the app immediately. Our support team will assist you.';
 
   @override
+  String get byContinuing => 'By continuing, you agree to our ';
+
+  @override
+  String get termsAndConditions => 'Terms & Conditions';
+
+  @override
+  String get andOur => ' and our ';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
   String get helpUsGrow => 'Help Us Grow';
 
   @override

@@ -1,10 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
-import 'package:prokat/features/auth/widgets/login_with_username_form.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -17,11 +17,34 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _privacyRecognizer;
+
   String? errorMessage;
-  bool usePassword = false;
 
   void setErrorMessage(String? msg) {
     setState(() => errorMessage = msg);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize recognizers to catch tap inputs safely
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(
+        AppRoutes.termsConditions,
+      ); // Match your router setup path
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () =>
+          context.push(AppRoutes.privacyPolicy); // Match your router setup path
+  }
+
+  @override
+  void dispose() {
+    // Crucial step: dispose gestures to prevent memory leaks in production
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,7 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+                  horizontal: 0,
                 ), // Outer screen margins
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
@@ -92,17 +115,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                           if (error != null) ErrorBoxTile(errorMessage: error),
 
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: usePassword
-                                ? LoginWithUsernameForm(
-                                    key: const ValueKey('pw'),
-                                    onError: setErrorMessage,
-                                  )
-                                : LoginWithPhoneForm(
-                                    key: const ValueKey('phone'),
-                                    onError: setErrorMessage,
+                          LoginWithPhoneForm(
+                            key: const ValueKey('phone'),
+                            onError: setErrorMessage,
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                              vertical: 16.0,
+                            ),
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                // Non-clickable standard legal prompt prefix string
+                                text: l10n.byContinuing,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                ),
+                                children: [
+                                  // Clickable Terms and Conditions string segment
+                                  TextSpan(
+                                    text: l10n.termsAndConditions,
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: _termsRecognizer,
                                   ),
+                                  // Non-clickable joining string segment
+                                  TextSpan(text: l10n.andOur),
+                                  // Clickable Privacy Policy string segment
+                                  TextSpan(
+                                    text: l10n.privacyPolicy,
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: _privacyRecognizer,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
