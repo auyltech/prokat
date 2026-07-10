@@ -120,6 +120,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             onError: setErrorMessage,
                           ),
 
+                          // Terms and conditions, Privacy notice and link
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24.0,

@@ -87,26 +87,6 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     }
   }
 
-  Future<bool> updateUserName(String username) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final updated = await service.updateUserName(username);
-
-      if (updated != null) {
-        await getUserProfile();
-
-        return true;
-      }
-
-      state = state.copyWith(isLoading: false);
-      return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-
   Future<bool> selectCategory(String selectedCategoryId) async {
     try {
       state = state.copyWith(isLoading: true);

@@ -8,7 +8,6 @@ class ApiRoutes {
   static const ownerLocations = "/locations/owner";
   // User
   static const profile = "/user/profile";
-  static const username = "/user/profile/username";
   static const userCategory = "/user/profile/category";
   static const userAddress = "/user/profile/address";
   static const userCityRegion = "/user/profile/region";

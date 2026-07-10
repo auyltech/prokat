@@ -1,8 +1,6 @@
 import 'package:prokat/core/utils/parse.dart';
 
 class UserProfileModel {
-  final String? username;
-
   final String? firstName;
   final String? lastName;
   final String? profileImageUrl;
@@ -26,7 +24,6 @@ class UserProfileModel {
   final String? darkMode;
 
   UserProfileModel({
-    this.username,
     this.role,
 
     this.firstName,
@@ -55,13 +52,12 @@ class UserProfileModel {
       return '${firstName ?? ''} ${lastName ?? ''}'.trim();
     }
 
-    return username ?? "";
+    return "";
   }
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     try {
       return UserProfileModel(
-        username: json['username']?.toString(),
         role: json['role']?.toString(),
 
         firstName: json['firstName']?.toString(),
@@ -92,7 +88,6 @@ class UserProfileModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'username': username,
       'role': role,
 
       'firstName': firstName,

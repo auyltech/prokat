@@ -71,7 +71,11 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
             final canCreateRequest = (requests.length < maxAllowedRequests);
 
             if (canCreateRequest) {
-              return const CreateRequestForm();
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.all(16),
+                children: [CreateRequestForm()],
+              );
             } else {
               return _ActiveRequestLimitView(activeCount: requests.length);
             }

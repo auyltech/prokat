@@ -54,23 +54,6 @@ class UserProfileService {
     }
   }
 
-  Future<UserProfileModel?> updateUserName(String? username) async {
-    try {
-      final res = await _dio.patch(
-        ApiRoutes.username,
-        data: {"username": ?username},
-      );
-
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return UserProfileModel.fromJson(res.data['data']);
-      }
-
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<UserProfileModel?> selectCategory(String? selectedCategoryId) async {
     try {
       final res = await _dio.patch(

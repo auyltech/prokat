@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
-import '../models/auth_credentials.dart';
 import 'auth_api_service.dart';
 import 'auth_state.dart';
 
@@ -83,59 +82,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return false;
       }
     } catch (_) {
-      return false;
-    }
-  }
-
-  /// LOGIN WITH USERNAME/PASSWORD
-  Future<bool> loginCredentials(LoginCredentials credentials) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final result = await api.loginWithCredentials(credentials);
-
-      if (result.success && result.data != null) {
-        await storage.saveSession(result.data as AuthSession);
-
-        await ref.read(appStartupProvider.notifier).reloadApp();
-
-        state = state.copyWith(session: result.data, isLoading: false);
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-
-        return false;
-      }
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-
-  /// REGISTER USER WITH NAME, USERNAME PASSWORD
-  Future<bool> registerCredentials(RegisterCredentials credentials) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final result = await api.registerCredentials(credentials);
-
-      if (result.success && result.data != null) {
-        await storage.saveSession(result.data as AuthSession);
-
-        await ref.read(appStartupProvider.notifier).reloadApp();
-
-        state = state.copyWith(session: result.data, isLoading: false);
-
-        return true;
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
-
-        return false;
-      }
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Registration failed');
-
       return false;
     }
   }
