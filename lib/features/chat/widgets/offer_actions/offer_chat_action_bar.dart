@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
@@ -13,7 +13,7 @@ import 'package:prokat/features/requests/providers/request_mutation_provider.dar
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OfferChatActionBar extends ConsumerWidget {
-  final ChatStatus chatStatus;
+  final ChatStatusDetail chatStatus;
   final String chatId;
   final String requestId;
   final String mode;
@@ -68,7 +68,7 @@ class OfferChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (chatStatus == ChatStatus.requestcreated) ...[
+              if (chatStatus == ChatStatusDetail.requestcreated) ...[
                 if (mode == "owner")
                   // Hide request
                   Expanded(
@@ -128,7 +128,7 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatStatus == ChatStatus.requestaccepted) ...[
+              ] else if (chatStatus == ChatStatusDetail.requestaccepted) ...[
                 // edge case: should have a booking
                 // Cancel request
                 Expanded(
@@ -145,11 +145,12 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatStatus == ChatStatus.offerreceived)
+              ] else if (chatStatus == ChatStatusDetail.offerreceived)
                 ...[
-              ] else if (chatStatus == ChatStatus.offercreated) ...[
+              ] else if (chatStatus == ChatStatusDetail.offercreated) ...[
                 // CANCEL OFFER
-              ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
+              ] else if (chatStatus ==
+                  ChatStatusDetail.counterofferreceived) ...[
                 // Reject Price Negotiation
                 Expanded(
                   child: ActionBarButton.destructive(
@@ -187,7 +188,7 @@ class OfferChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatStatus == ChatStatus.counteroffersent) ...[
+              ] else if (chatStatus == ChatStatusDetail.counteroffersent) ...[
                 // Cancel Price Negotiation
                 Expanded(
                   child: ActionBarButton.destructive(

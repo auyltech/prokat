@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
+import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
@@ -53,7 +53,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             // User Profile
             SliverAppBar(
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
-              expandedHeight: 250,
+              expandedHeight: 300,
               // Removes default constraints and back button spacing padding from the title area
               primary: true,
               flexibleSpace: FlexibleSpaceBar(
@@ -62,12 +62,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 // 2. Move your full-width UI block into the background property
                 background: Container(
                   width: double.infinity,
+                  margin: EdgeInsets.symmetric(vertical: 24, horizontal: 12),
                   decoration: BoxDecoration(
                     color: theme.primaryColor,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(28),
-                      bottomRight: Radius.circular(28),
-                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(28)),
                   ),
                   // SafeArea prevents content from clipping into the status bar notch
                   child: SafeArea(
@@ -123,12 +121,11 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     // const LanguageSelectorTile(),
-                    const SizedBox(height: 20),
-
+                    // const SizedBox(height: 20),
                     UserProfileTile(
                       icon: Icons.phone_android_rounded,
                       iconColor: Colors.black,
@@ -149,7 +146,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       iconBgColor: Colors.deepOrange.withValues(alpha: 0.06),
                       label: "App Language",
                       value: langDisplay,
-                      onTap: () => showLanguageSheet(context),
+                      onTap: () => LanguageSheet.show(context),
                     ),
 
                     const SizedBox(height: 40),

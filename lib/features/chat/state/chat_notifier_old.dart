@@ -3,10 +3,10 @@ import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/state/chat_model.dart';
-import 'package:prokat/features/chat/state/chat_service.dart';
-import 'package:prokat/features/chat/state/chat_socket_service.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/service/chat_service.dart';
+import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/chat/state/chat_state.dart';
 import 'package:prokat/features/chat/utils/chat_error_utils.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
@@ -41,13 +41,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
         fetchError: null,
       );
 
-      final result = await service.getChatThreads(mode);
+      final result = await service.getClientChats(itemsPerPage: 20, page: 1);
 
       state = state.copyWith(
-        conversations: sortChats(result.data ?? []),
+        conversations: sortChats(result.data?.items ?? []),
         fetchStatus: result.data == null
             ? FetchStatus.error
-            : result.data?.isEmpty == true
+            : result.data?.items.isEmpty == true
             ? FetchStatus.empty
             : FetchStatus.success,
         lastFetchedAt: DateTime.now(),
@@ -183,36 +183,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
   }
 
-  // Mark chat as read after it is open
-  Future<void> markChatAsRead({
-    required String chatId,
-    required String messageId,
-  }) async {
-    try {
-      final chat = state.currentChat;
-
-      if (chat == null) {
-        return;
-      }
-
-      final lastRealMessage = state.messages
-          .where((message) => message.id.isNotEmpty && !message.isPending)
-          .toList(growable: false)
-          .firstOrNull;
-
-      if (lastRealMessage == null) {
-        return;
-      }
-
-      await service.marckChatRead(chatId, messageId);
-    } catch (error) {
-      state = state.copyWith(
-        isLoadingMessages: false,
-        error: "Error loading chat",
-      );
-    }
-  }
-
   // helper function to get current chatId and mark as read
   Future<void> markCurrentChatAsRead() async {
     final chat = state.currentChat;
@@ -230,7 +200,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
       return;
     }
 
-    await markChatAsRead(chatId: chat.id, messageId: lastRealMessage.id);
+    // await markChatAsRead(chatId: chat.id, messageId: lastRealMessage.id);
   }
 
   // called on page refresh
@@ -427,7 +397,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     final cleanIncoming = incoming.copyWith(isPending: false, isFailed: false);
 
     final mergedMessages = isCurrentChat
-        ? mergeMessages(state.messages, cleanIncoming)
+        ? mergeMessages(state.messages, [cleanIncoming])
         : state.messages;
 
     final updatedConversations = mergeChatPreview(
@@ -459,7 +429,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     );
 
     if (isCurrentChat && incoming.id.isNotEmpty) {
-      markChatAsRead(chatId: incoming.chatId, messageId: incoming.id);
+      // markChatAsRead(chatId: incoming.chatId, messageId: incoming.id);
     }
   }
 }

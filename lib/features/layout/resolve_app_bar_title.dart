@@ -1,6 +1,8 @@
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+// TODO: FIX_L10N
+
 // TODO: Review resolution in line with new App Routes
 String resolveAppBarTitle(
   String path,
@@ -9,6 +11,7 @@ String resolveAppBarTitle(
 ) {
   if (path == AppRoutes.privacyPolicy) return 'Privacy Policy';
   if (path == '/support-us') return l10n.helpUsGrow;
+  if (path == AppRoutes.contactSupport) return 'Get in Touch';
   if (path == '/terms') return l10n.termsConditions;
   // Exact Client Route Matches
   // Search Equipment Screen
@@ -34,7 +37,7 @@ String resolveAppBarTitle(
   if (path == AppRoutes.clientSettings) return 'Settings';
 
   if (path == AppRoutes.becomeOwner) return 'Become an Owner';
-  if (path == AppRoutes.helpSupport) return l10n.helpSupportTitle;
+  if (path == AppRoutes.helpSupport) return 'Help Center';
 
   if (path == AppRoutes.searchMap) return 'Map Search';
   if (path == AppRoutes.clientAddresses) return 'My Addresses';

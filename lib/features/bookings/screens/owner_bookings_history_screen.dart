@@ -63,10 +63,13 @@ class _OwnerBookingHistoryScreenState
           error: (error, stackTrace) => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              EmptyStateTile(
-                icon: Icons.cancel,
-                title: l10n.errorLoadingOrders,
-                subtitle: error.toString(),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: EmptyStateTile(
+                  icon: Icons.cancel,
+                  title: l10n.errorLoadingOrders,
+                  subtitle: error.toString(),
+                ),
               ),
             ],
           ),
@@ -79,10 +82,13 @@ class _OwnerBookingHistoryScreenState
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 if (bookings.isEmpty)
-                  EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: l10n.noBookingsFound,
-                    subtitle: "You don't have any orders in your history",
+                  Padding(
+                    padding: EdgeInsets.all(12),
+                    child: EmptyStateTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.noBookingsFound,
+                      subtitle: "You don't have any orders in your history",
+                    ),
                   )
                 else
                   ListView.separated(

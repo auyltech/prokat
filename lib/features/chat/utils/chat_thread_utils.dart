@@ -1,5 +1,5 @@
-import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/state/chat_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 
 DateTime chatSortDate(ChatModel chat) {
   return chat.lastMessage?.createdAt ??

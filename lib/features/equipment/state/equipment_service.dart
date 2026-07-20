@@ -4,6 +4,7 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import '../../../core/constants/api_routes.dart';
 import '../models/equipment_model.dart';
@@ -200,7 +201,7 @@ class EquipmentService {
 
   Future<ApiResponse<Equipment?>> getOwnerEquipmentById(String id) async {
     try {
-      final response = await _dio.get("/equipment/owner/$id");
+      final response = await _dio.get("/equipment/owner/id/$id");
 
       return handleApiResponse<Equipment>(
         response: response,
@@ -351,13 +352,14 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: exception.data.toString(),
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
+      print(error);
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }
@@ -426,13 +428,11 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> updateEquipmentSpecs(
-    Map<String, dynamic> data,
-  ) async {
+  Future<ApiResponse<void>> updateEquipmentSpecs({
+    required String equipmentId,
+    required List<EquipmentSpecUpdateInput> specs,
+  }) async {
     try {
-      final equipmentId = data["equipmentId"] ?? "";
-      final specs = data["specs"];
-
       final response = await _dio.patch(
         '/equipment/$equipmentId/specs',
         data: {"id": equipmentId, "specs": specs},

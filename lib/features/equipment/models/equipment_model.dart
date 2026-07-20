@@ -158,13 +158,13 @@ class Equipment {
 
   factory Equipment.fromJson(Map<String, dynamic> json) {
     try {
-      final rawSpecs = json['specs'];
-      final specs = rawSpecs is List
-          ? rawSpecs
-                .whereType<Map<String, dynamic>>()
-                .map(EquipmentSpec.fromJson)
-                .toList()
-          : null;
+      final specs = (json["specs"] as List? ?? []).map((e) {
+        try {
+          return EquipmentSpec.fromJson(e);
+        } catch (err) {
+          throw Exception("EquipmentSpec parse failed: $err");
+        }
+      }).toList();
 
       return Equipment(
         id: json["id"] ?? '',
@@ -195,7 +195,9 @@ class Equipment {
             .where((e) => e.imageUrl.isNotEmpty)
             .toList(),
 
-        owner: json["owner"] != null ? User.fromJson(json["owner"]) : null,
+        owner: json["owner"] is Map<String, dynamic>
+            ? User.fromJson(json["owner"])
+            : null,
 
         city: json["city"] ?? "",
 
@@ -204,7 +206,7 @@ class Equipment {
             : null,
 
         categoryId: json["categoryId"]?.toString(),
-        category: json["category"] != null
+        category: json["category"] is Map<String, dynamic>
             ? Category.fromJson(json["category"])
             : null,
 

@@ -1,4 +1,4 @@
-enum ChatStatus {
+enum ChatStatusDetail {
   requestcreated,
   requestaccepted, // TEMP REMOVE
   offercreated,

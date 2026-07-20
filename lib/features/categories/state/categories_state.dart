@@ -29,7 +29,9 @@ class CategoryState {
     this.categories = const [],
   });
 
-  Category? getCategory(String categoryId) {
+  Category? getCategoryById(String? categoryId) {
+    if (categoryId == null) return null;
+
     final foundCategory = categories
         .where((item) => item.id == categoryId)
         .firstOrNull;

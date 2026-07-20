@@ -1,76 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
 
 class ClientChatInfoScreen extends ConsumerWidget {
-  final String? chatId;
+  final String chatId;
 
-  const ClientChatInfoScreen({super.key, this.chatId});
+  const ClientChatInfoScreen({super.key, required this.chatId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final currentUserId = ref.watch(authProvider).currentUserId;
 
-    final chatState = ref.watch(chatProvider);
+    final chatAsync = ref.watch(chatProvider(chatId));
 
-    final chat = chatState.currentChat;
+    return chatAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
 
-    final String title = (currentUserId != null && chat != null)
-        ? chat.displayTitle(currentUserId)
-        : "";
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(24),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildAvatarSection(theme, title),
-                const SizedBox(height: 32),
-                _buildInfoSection(theme, 'Context', [
-                  _buildListTile(theme, 'Chat ID', chat?.id ?? '-'),
-                  _buildListTile(
-                    theme,
-                    'Booking',
-                    (chat?.bookingId ?? '').isNotEmpty
-                        ? chat!.bookingId!
-                        : 'Not linked',
-                  ),
-                  _buildListTile(
-                    theme,
-                    'Request',
-                    (chat?.requestId ?? '').isNotEmpty
-                        ? chat!.requestId!
-                        : 'Not linked',
-                  ),
-                ]),
-              ]),
-            ),
-          ),
-        ],
+      error: (_, _) => Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: const Center(child: Text("Failed to load chat")),
       ),
-    );
-  }
 
-  Widget _buildAvatarSection(ThemeData theme, String title) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 48,
-          child: Text(title.isNotEmpty ? title[0].toUpperCase() : 'C'),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          title,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+      data: (chat) {
+        final title = currentUserId != null
+            ? chat.displayTitle(currentUserId)
+            : "";
+
+        return Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          body: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.all(24),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 48,
+                          child: Text(
+                            title.isNotEmpty ? title[0].toUpperCase() : 'C',
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          title,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    _buildInfoSection(theme, 'Context', [
+                      _buildListTile(theme, 'Chat ID', chat.id),
+                      _buildListTile(
+                        theme,
+                        'Booking',
+                        (chat.bookingId ?? '').isNotEmpty
+                            ? chat.bookingId!
+                            : 'Not linked',
+                      ),
+                      _buildListTile(
+                        theme,
+                        'Request',
+                        (chat.requestId ?? '').isNotEmpty
+                            ? chat.requestId!
+                            : 'Not linked',
+                      ),
+                    ]),
+                  ]),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 

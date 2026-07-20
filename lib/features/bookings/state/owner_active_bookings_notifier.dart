@@ -16,7 +16,7 @@ class OwnerActiveBookingsNotifier
   }
 
   Future<QueryState<BookingModel>> _fetchPage(int page) async {
-    final response = await api.getClientBookings(
+    final response = await api.getOwnerBookings(
       page: page,
       itemsPerPage: 10,
       status: "ACTIVE",
@@ -34,19 +34,21 @@ class OwnerActiveBookingsNotifier
   }
 
   Future<void> refresh() async {
-    final previous = state.value;
+    try {
+      final previous = state.value;
 
-    if (previous == null) {
-      state = const AsyncLoading();
-    } else {
-      state = AsyncData(previous.copyWith(isRefreshing: true));
-    }
+      if (previous == null) {
+        state = const AsyncLoading();
+      } else {
+        state = AsyncData(previous.copyWith(isRefreshing: true));
+      }
 
-    state = await AsyncValue.guard(() async {
-      final fresh = await _fetchPage(1);
+      state = await AsyncValue.guard(() async {
+        final fresh = await _fetchPage(1);
 
-      return fresh;
-    });
+        return fresh;
+      });
+    } finally {}
   }
 
   Future<void> loadMore() async {
@@ -63,7 +65,7 @@ class OwnerActiveBookingsNotifier
     try {
       final nextPage = current.page + 1;
 
-      final response = await api.getClientBookings(
+      final response = await api.getOwnerBookings(
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         status: "ACTIVE",
@@ -71,6 +73,7 @@ class OwnerActiveBookingsNotifier
 
       if (!response.success || response.data == null) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
+
         return;
       }
 

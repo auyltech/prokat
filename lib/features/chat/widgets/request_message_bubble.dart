@@ -7,7 +7,7 @@ import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
@@ -40,7 +40,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
       _ => null,
     };
 
-    if (messageRequest == null) return Text("Error loading booking");
+    if (messageRequest == null) return Text("Error loading request");
 
     final request = ref
         .read(requestMutationProvider)

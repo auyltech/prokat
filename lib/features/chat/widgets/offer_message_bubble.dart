@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';

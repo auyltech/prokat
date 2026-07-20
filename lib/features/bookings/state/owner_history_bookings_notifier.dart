@@ -16,10 +16,10 @@ class OwnerHistoryBookingsNotifier
   }
 
   Future<QueryState<BookingModel>> _fetchPage(int page) async {
-    final response = await api.getClientBookings(
+    final response = await api.getOwnerBookings(
       page: page,
       itemsPerPage: 10,
-      status: "ACTIVE",
+      status: "HISTORY",
     );
 
     final result = response.data;
@@ -63,10 +63,10 @@ class OwnerHistoryBookingsNotifier
     try {
       final nextPage = current.page + 1;
 
-      final response = await api.getClientBookings(
+      final response = await api.getOwnerBookings(
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
-        status: "ACTIVE",
+        status: "HISTORY",
       );
 
       if (!response.success || response.data == null) {

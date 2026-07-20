@@ -6,7 +6,7 @@ import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_sheet.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_reason_sheet.dart';
-import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
@@ -14,7 +14,7 @@ import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 
 class OwnerChatActionBar extends ConsumerWidget {
   final String chatId;
-  final ChatStatus chatStatus;
+  final ChatStatusDetail chatStatus;
   final BookingModel booking;
   final String? chatOwnerId;
   final String? chatClientId;
@@ -42,9 +42,9 @@ class OwnerChatActionBar extends ConsumerWidget {
 
     final statusText = getChatActionBarTitle(chatStatus);
 
-    if (chatStatus == ChatStatus.bookingreviewed) {
+    if (chatStatus == ChatStatusDetail.bookingreviewed) {
       return ChatStatusOnlyBar(text: "Review Sent");
-    } else if (chatStatus == ChatStatus.bookingcancelled) {
+    } else if (chatStatus == ChatStatusDetail.bookingcancelled) {
       return ChatStatusOnlyBar(text: "Order Cancelled");
     }
 
@@ -76,7 +76,7 @@ class OwnerChatActionBar extends ConsumerWidget {
           Row(
             children: [
               // Order Created
-              if (chatStatus == ChatStatus.bookingcreated) ...[
+              if (chatStatus == ChatStatusDetail.bookingcreated) ...[
                 // Accept order
                 const SizedBox(width: 6),
 
@@ -86,13 +86,14 @@ class OwnerChatActionBar extends ConsumerWidget {
                 // Reject Order
               ]
               // Counter Offers
-              else if (chatStatus == ChatStatus.counteroffersent) ...[
+              else if (chatStatus == ChatStatusDetail.counteroffersent) ...[
                 // Cancel Counter Offer
-              ] else if (chatStatus == ChatStatus.counterofferreceived) ...[
+              ] else if (chatStatus ==
+                  ChatStatusDetail.counterofferreceived) ...[
                 // Accept Counter Offer
 
                 // Reject Counter Offer
-              ] else if (chatStatus == ChatStatus.bookingconfirmed) ...[
+              ] else if (chatStatus == ChatStatusDetail.bookingconfirmed) ...[
                 Expanded(
                   child: ActionBarButton.destructive(
                     label: "Reject Order",
@@ -210,7 +211,7 @@ class OwnerChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatStatus == ChatStatus.leaveReview) ...[
+              ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
                 // Submit Review
                 Expanded(
                   child: ActionBarButton(

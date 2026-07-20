@@ -6,13 +6,15 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/bookings/models/booking_lookup.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
@@ -38,340 +40,365 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final booking = ref.read(chatProvider).currentChat?.booking;
 
-    final isLoading = ref.watch(chatProvider).isLoading;
+    final messageMeta = switch (widget.message.meta) {
+      Map<String, dynamic> meta => BookingModel.fromJson(meta),
+      _ => null,
+    };
 
-    if (isLoading) {
-      return OwnerBookingSkeleton();
-    } else if (booking == null) {
-      return Text("Error loading order");
-    }
+    if (messageMeta == null) return Text("Error loading booking");
 
-    final equipment = booking.equipment;
-    final location = booking.location;
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.dividerColor.withValues(alpha: 0.4),
-          width: 1,
+    final bookingAsync = ref.watch(
+      bookingProvider(
+        BookingLookup(
+          bookingId: messageMeta.id,
+          isOwner: widget.mode == AppMode.ownerMode,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Header Row (Order Info Text & Colored Status Badge)
-          Row(
-            children: [
-              Icon(
-                Icons.assignment_outlined,
-                color: theme.primaryColor,
-                size: 22,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                "New Order",
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.primaryColor,
-                ),
-              ),
+    );
+    // final isLoading = ref.watch(chatProvider).isLoading;
 
-              Spacer(),
+    // if (isLoading) {
+    //   return OwnerBookingSkeleton();
+    // } else
 
-              BookingStatusBadge(status: booking.status),
-            ],
-          ),
+    return bookingAsync.when(
+      loading: () => const OwnerBookingSkeleton(),
+      error: (_, _) => const Text("Error loading booking"),
+      data: (booking) {
+        if (booking == null) {
+          return const Text("Booking unavailable");
+        }
 
-          const SizedBox(height: 8),
+        final equipment = booking.equipment;
+        final location = booking.location;
 
-          // 2. Equipment Body (Triggers the external Details Sheet)
-          InkWell(
-            onTap: () {
-              EquipmentDetailsSheet.show(
-                context,
-                name: equipment?.name,
-                model: equipment?.model,
-                plateNumber: equipment?.plateNumber,
-                imageUrl: equipment?.imageUrl,
-                specifications: const [
-                  "Vacuum Pump",
-                  "Capacity 5000L",
-                ], // Optional list configuration
-              );
-            },
-            borderRadius: const BorderRadius.all(Radius.zero),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (equipment?.imageUrl != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Image.network(
-                      equipment!.imageUrl!,
-                      width: 80,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(
-                        width: 54,
-                        height: 40,
-                        color: const Color(0xFFE0E0E0),
-                        child: const Icon(
-                          Icons.image,
-                          size: 20,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  Container(
-                    width: 54,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0E0E0),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(
-                      Icons.image,
-                      color: Colors.grey,
-                      size: 20,
-                    ),
-                  ),
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        equipment?.name ?? "Unknown Equipment",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF212121),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        equipment?.model ?? "",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 8),
-              ],
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.dividerColor.withValues(alpha: 0.4),
+              width: 1,
             ),
           ),
-
-          const SizedBox(height: 8),
-
-          //  Location
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (location != null) ...[
-                Expanded(
-                  child: InfoTile(
-                    icon: Icons.location_on_outlined,
-                    label: "Location",
-                    value: booking.location?.street ?? "",
-                    onTap: () => showLocationSheet(context, location),
+              // 1. Header Row (Order Info Text & Colored Status Badge)
+              Row(
+                children: [
+                  Icon(
+                    Icons.assignment_outlined,
+                    color: theme.primaryColor,
+                    size: 22,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  Text(
+                    "New Order",
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryColor,
+                    ),
+                  ),
+
+                  Spacer(),
+
+                  BookingStatusBadge(status: booking.status),
+                ],
+              ),
+
               const SizedBox(height: 8),
 
-              // Date Time
-              Expanded(
-                child: InfoTile(
-                  icon: Icons.event_outlined,
-                  label: "Date & time",
-                  value: () {
-                    if (booking.bookedOn == null) return "TBD";
+              // 2. Equipment Body (Triggers the external Details Sheet)
+              InkWell(
+                onTap: () {
+                  EquipmentDetailsSheet.show(
+                    context,
+                    name: equipment?.name,
+                    model: equipment?.model,
+                    plateNumber: equipment?.plateNumber,
+                    imageUrl: equipment?.imageUrl,
+                    specifications: const [
+                      "Vacuum Pump",
+                      "Capacity 5000L",
+                    ], // Optional list configuration
+                  );
+                },
+                borderRadius: const BorderRadius.all(Radius.zero),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (equipment?.imageUrl != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(
+                          equipment!.imageUrl!,
+                          width: 80,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            width: 54,
+                            height: 40,
+                            color: const Color(0xFFE0E0E0),
+                            child: const Icon(
+                              Icons.image,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 54,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0E0E0),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Icon(
+                          Icons.image,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
+                      ),
+                    const SizedBox(width: 12),
 
-                    // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                    final dateStr = DateFormat(
-                      'dd MMM yyyy',
-                    ).format(booking.bookedOn!.toLocal());
-
-                    // 3. Return just the date if no time was specified
-                    return dateStr;
-                  }(),
-                ),
-              ),
-
-              if (booking.bookedAt != null) ...[
-                const SizedBox(width: 8),
-
-                Expanded(
-                  child: InfoTile(
-                    icon: Icons.access_time_outlined,
-                    value: booking.bookedAt != null
-                        ? DateFormat(
-                            'HH:mm',
-                          ).format(booking.bookedAt!.toLocal())
-                        : "",
-                  ),
-                ),
-              ],
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          Row(
-            children: [
-              InfoTile(
-                icon: LucideIcons.coins,
-                label: l10n.price,
-                value:
-                    "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
-              ),
-
-              Spacer(),
-
-              // Cancel Order
-              if (ref
-                      .watch(bookingMutationProvider)
-                      .isActionActive("booking:${booking.id}:cancel") ||
-                  ref
-                      .watch(bookingMutationProvider)
-                      .isActionActive("booking:${booking.id}:reject"))
-                SizedBox(
-                  height: 14,
-                  width: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                  ),
-                )
-              else
-                IconButton(
-                  onPressed: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: theme.colorScheme.surface,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            equipment?.name ?? "Unknown Equipment",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF212121),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            equipment?.model ?? "",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
                       ),
                     ),
-                    builder: (_) =>
-                        CancelBookingSheet(booking: booking, mode: widget.mode),
-                  ),
-                  icon: Icon(
-                    LucideIcons.x,
-                    size: 25,
-                    color: theme.colorScheme.error,
-                  ),
+
+                    const SizedBox(width: 8),
+                  ],
                 ),
+              ),
 
-              if (booking.status == BookingStatus.created) ...[
-                if (ref
-                    .watch(bookingMutationProvider)
-                    .isActionActive("price:create"))
-                  SizedBox(
-                    height: 14,
-                    width: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              const SizedBox(height: 8),
+
+              //  Location
+              Row(
+                children: [
+                  if (location != null) ...[
+                    Expanded(
+                      child: InfoTile(
+                        icon: Icons.location_on_outlined,
+                        label: "Location",
+                        value: booking.location?.street ?? "",
+                        onTap: () => showLocationSheet(context, location),
+                      ),
                     ),
-                  )
-                else
-                  IconButton(
-                    onPressed: () async {
-                      await showCounterOfferSheet(
-                        context: context,
-                        chatId: widget.message.chatId,
-                        bookingId: booking.id,
-                        initialPrice: booking.price,
-                        initialPriceRate: booking.priceRate,
-                        mode: widget.mode == AppMode.ownerMode
-                            ? "owner"
-                            : "client",
-                      );
-                    },
-                    icon: Icon(
-                      LucideIcons.coins,
-                      size: 25,
-                      color: theme.colorScheme.primary,
+                  ],
+                  const SizedBox(height: 8),
+
+                  // Date Time
+                  Expanded(
+                    child: InfoTile(
+                      icon: Icons.event_outlined,
+                      label: "Date & time",
+                      value: () {
+                        if (booking.bookedOn == null) return "TBD";
+
+                        // 1. Format the date part cleanly (e.g., "02 Jun 2026")
+                        final dateStr = DateFormat(
+                          'dd MMM yyyy',
+                        ).format(booking.bookedOn!.toLocal());
+
+                        // 3. Return just the date if no time was specified
+                        return dateStr;
+                      }(),
                     ),
                   ),
-              ],
 
-              if (widget.mode == AppMode.ownerMode &&
-                  booking.status == BookingStatus.created) ...[
-                if (ref.watch(bookingMutationProvider).isSubmitting)
-                  SizedBox(
-                    height: 14,
-                    width: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  if (booking.bookedAt != null) ...[
+                    const SizedBox(width: 8),
+
+                    Expanded(
+                      child: InfoTile(
+                        icon: Icons.access_time_outlined,
+                        value: booking.bookedAt != null
+                            ? DateFormat(
+                                'HH:mm',
+                              ).format(booking.bookedAt!.toLocal())
+                            : "",
+                      ),
                     ),
-                  )
-                else
-                  IconButton(
-                    onPressed: () async {
-                      await showDialog<bool>(
+                  ],
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  InfoTile(
+                    icon: LucideIcons.coins,
+                    label: l10n.price,
+                    value:
+                        "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+                  ),
+
+                  Spacer(),
+
+                  // Cancel Order
+                  if (ref
+                          .watch(bookingMutationProvider)
+                          .isActionActive("booking:${booking.id}:cancel") ||
+                      ref
+                          .watch(bookingMutationProvider)
+                          .isActionActive("booking:${booking.id}:reject"))
+                    SizedBox(
+                      height: 14,
+                      width: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                      ),
+                    )
+                  else
+                    IconButton(
+                      onPressed: () => showModalBottomSheet(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: theme.colorScheme.surface,
-                          title: const Text('Accept order?'),
-                          content: const Text(
-                            'Confirm accepting this booking.',
+                        isScrollControlled: true,
+                        backgroundColor: theme.colorScheme.surface,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20),
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
-                            ),
-
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.pop(context, true);
-
-                                final result = await ref
-                                    .read(bookingMutationProvider.notifier)
-                                    .updateBookingStatus(
-                                      id: booking.id,
-                                      status: BookingStatus.confirmed,
-                                    );
-
-                                AppSnackBar.show(
-                                  message: result.message,
-                                  isSuccess: result.success,
-                                  isError: !result.success,
-                                );
-                              },
-                              child: const Text('Accept'),
-                            ),
-                          ],
                         ),
-                      );
-                    },
-                    icon: Icon(
-                      LucideIcons.check,
-                      size: 25,
-                      color: Colors.green[800],
+                        builder: (_) => CancelBookingSheet(
+                          booking: booking,
+                          mode: widget.mode,
+                        ),
+                      ),
+                      icon: Icon(
+                        LucideIcons.x,
+                        size: 25,
+                        color: theme.colorScheme.error,
+                      ),
                     ),
-                  ),
-              ],
+
+                  if (booking.status == BookingStatus.created) ...[
+                    if (ref
+                        .watch(bookingMutationProvider)
+                        .isActionActive("price:create"))
+                      SizedBox(
+                        height: 14,
+                        width: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                        ),
+                      )
+                    else
+                      IconButton(
+                        onPressed: () async {
+                          await showCounterOfferSheet(
+                            context: context,
+                            chatId: widget.message.chatId,
+                            bookingId: booking.id,
+                            initialPrice: booking.price,
+                            initialPriceRate: booking.priceRate,
+                            mode: widget.mode == AppMode.ownerMode
+                                ? "owner"
+                                : "client",
+                          );
+                        },
+                        icon: Icon(
+                          LucideIcons.coins,
+                          size: 25,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                  ],
+
+                  if (widget.mode == AppMode.ownerMode &&
+                      booking.status == BookingStatus.created) ...[
+                    if (ref.watch(bookingMutationProvider).isSubmitting)
+                      SizedBox(
+                        height: 14,
+                        width: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                        ),
+                      )
+                    else
+                      IconButton(
+                        onPressed: () async {
+                          await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: theme.colorScheme.surface,
+                              title: const Text('Accept order?'),
+                              content: const Text(
+                                'Confirm accepting this booking.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.pop(context, true);
+
+                                    final result = await ref
+                                        .read(bookingMutationProvider.notifier)
+                                        .updateBookingStatus(
+                                          id: booking.id,
+                                          status: BookingStatus.confirmed,
+                                        );
+
+                                    AppSnackBar.show(
+                                      message: result.message,
+                                      isSuccess: result.success,
+                                      isError: !result.success,
+                                    );
+                                  },
+                                  child: const Text('Accept'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          LucideIcons.check,
+                          size: 25,
+                          color: Colors.green[800],
+                        ),
+                      ),
+                  ],
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

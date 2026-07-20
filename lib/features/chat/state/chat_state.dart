@@ -1,8 +1,8 @@
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
-import 'package:prokat/features/chat/state/chat_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 
 class ChatState {
   final FetchStatus fetchStatus;

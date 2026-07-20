@@ -1,4 +1,4 @@
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 
 bool withinThirtySeconds(DateTime? first, DateTime? second) {
   if (first == null || second == null) return false;
@@ -19,50 +19,49 @@ List<ChatMessageModel> sortMessages(List<ChatMessageModel> messages) {
   return sorted;
 }
 
+List<ChatMessageModel> mergeIncomingMessages(
+  List<ChatMessageModel> existing,
+  ChatMessageModel message,
+) {
+  return mergeMessages(existing, [message]);
+}
+
 List<ChatMessageModel> mergeMessages(
   List<ChatMessageModel> existing,
-  ChatMessageModel incoming,
+  List<ChatMessageModel> incoming,
 ) {
-  final updated = List<ChatMessageModel>.from(existing);
+  final map = <String, ChatMessageModel>{};
 
-  final cleanIncoming = incoming.copyWith(
-    isPending: false,
-    isFailed: false,
-  );
+  String key(ChatMessageModel message) {
+    final clientTempId = message.clientTempId?.trim();
 
-  final exactIndex = updated.indexWhere(
-    (message) => message.id.isNotEmpty && message.id == incoming.id,
-  );
+    if (clientTempId != null && clientTempId.isNotEmpty) {
+      return "temp:$clientTempId";
+    }
 
-  if (exactIndex != -1) {
-    updated[exactIndex] = cleanIncoming;
-    return sortMessages(updated);
+    return "id:${message.id}";
   }
 
-  final tempIndex = updated.indexWhere(
-    (message) =>
-        (message.clientTempId ?? '').trim().isNotEmpty &&
-        message.clientTempId == incoming.clientTempId,
-  );
-
-  if (tempIndex != -1) {
-    updated[tempIndex] = cleanIncoming;
-    return sortMessages(updated);
+  for (final message in existing) {
+    map[key(message)] = message;
   }
 
-  final fallbackPendingIndex = updated.indexWhere(
-    (message) =>
-        message.isPending &&
-        message.senderId == incoming.senderId &&
-        message.content.trim() == incoming.content.trim() &&
-        withinThirtySeconds(message.createdAt, incoming.createdAt),
-  );
+  for (final message in incoming) {
+    final clientTempId = message.clientTempId?.trim();
 
-  if (fallbackPendingIndex != -1) {
-    updated[fallbackPendingIndex] = cleanIncoming;
-    return sortMessages(updated);
+    if (clientTempId != null && clientTempId.isNotEmpty) {
+      map.remove("temp:$clientTempId");
+    }
+
+    map[key(message)] = message;
   }
 
-  updated.insert(0, cleanIncoming);
-  return sortMessages(updated);
+  final result = map.values.toList();
+
+  result.sort(
+    (a, b) =>
+        (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)),
+  );
+
+  return result;
 }

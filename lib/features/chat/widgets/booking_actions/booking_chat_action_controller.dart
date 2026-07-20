@@ -4,8 +4,6 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
-import 'package:prokat/features/chat/state/chat_notifier.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_state.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
@@ -30,7 +28,7 @@ class BookingChatActionController
 
   // BookingNotifier get _bookingNotifier => ref.read(bookingProvider.notifier);
 
-  ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
+  // ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
 
   PriceNegotiationNotifier _priceNegotiationNotifier() {
     return ref.read(priceNegotiationProvider.notifier);
@@ -42,7 +40,7 @@ class BookingChatActionController
   }) async {
     await Future.wait([
       _priceNegotiationNotifier().getPriceNegotiations(),
-      _chatNotifier.reloadChat(chatId),
+      // _chatNotifier.reloadChat(chatId),
       // _bookingNotifier.getOwnerBookings(),
       // _bookingNotifier.getClientBookings(),
     ]);
@@ -53,7 +51,7 @@ class BookingChatActionController
     required String bookingId,
   }) async {
     await Future.wait([
-      _chatNotifier.reloadChat(chatId),
+      // _chatNotifier.reloadChat(chatId),
       // _bookingNotifier.getOwnerBookings(),
       // _bookingNotifier.getClientBookings(),
       _priceNegotiationNotifier().getPriceNegotiations(),
@@ -65,7 +63,7 @@ class BookingChatActionController
     required String bookingId,
   }) async {
     await Future.wait([
-      _chatNotifier.reloadChat(chatId),
+      // _chatNotifier.reloadChat(chatId),
       // _bookingNotifier.getOwnerBookings(),
       // _bookingNotifier.getClientBookings(),
     ]);

@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class CategorySelectionSheet extends ConsumerWidget {
-  final String service;
+enum CategorySheetMode {
+  createRequest,
+  createBooking,
+  createEquipment,
+  editEquipment,
+}
 
+class CategorySelectionSheet extends ConsumerWidget {
+  final CategorySheetMode service;
   const CategorySelectionSheet({super.key, required this.service});
+
+  static Future<Category?> show(
+    BuildContext context, {
+    required CategorySheetMode service,
+  }) async {
+    return await showModalBottomSheet<Category?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => CategorySelectionSheet(service: service),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,7 +39,7 @@ class CategorySelectionSheet extends ConsumerWidget {
     final categories = ref.watch(categoriesProvider).categories;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
@@ -67,13 +89,13 @@ class CategorySelectionSheet extends ConsumerWidget {
                   ),
                   title: Text(category.name, style: theme.textTheme.bodyLarge),
                   onTap: () {
-                    if (service == "create_request") {
+                    if (service == CategorySheetMode.createRequest) {
                       // Update the Request Notifier
                       ref
                           .read(requestMutationProvider.notifier)
                           .selectCategory(category);
-                    } else if (service == "create_equipment" ||
-                        service == "edit_equipment") {
+                    } else if (service == CategorySheetMode.createEquipment ||
+                        service == CategorySheetMode.editEquipment) {
                       ref
                           .read(equipmentMutationProvider.notifier)
                           .selectCategory(category);

@@ -91,16 +91,12 @@ ApiResponse<T> handleApiResponse<T>({
   if (!isSuccess) {
     return ApiResponse.failure(
       message: extractBackendMessage(responseData, fallback: fallbackMessage),
-      error: responseData,
+      error: responseData["error"],
       statusCode: statusCode,
     );
   }
 
   try {
-    // final rawData = responseData is Map && responseData.containsKey("data")
-    //     ? responseData["data"]
-    //     : responseData;
-
     final parsedData = parser(response.data);
 
     return ApiResponse.success(
@@ -108,7 +104,15 @@ ApiResponse<T> handleApiResponse<T>({
       message: extractBackendMessage(responseData, fallback: "Success"),
       statusCode: statusCode,
     );
-  } catch (error) {
+  } catch (error, stackTrace) {
+    print("========== PARSE ERROR ==========");
+    print("handleApiResponse_ERROR");
+    print(response.requestOptions.path);
+    print("BODY:");
+    print(response.data);
+    print(error);
+    print(stackTrace);
+
     return ApiResponse.failure(
       message: "Format error occurred. Please update the application.",
       error: error

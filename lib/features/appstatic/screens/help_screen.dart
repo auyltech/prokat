@@ -1,168 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/features/appstatic/widgets/faq_tile.dart';
+import 'package:prokat/features/support/data/faq_data.dart';
+import 'package:prokat/features/support/data/guides_data.dart';
+import 'package:prokat/features/support/widgets/contact_support_sheet.dart';
+import 'package:prokat/features/support/widgets/user_guides_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 
-class HelpScreen extends StatelessWidget {
+class HelpScreen extends ConsumerStatefulWidget {
   const HelpScreen({super.key});
 
+  @override
+  ConsumerState<HelpScreen> createState() => _HelpScreenState();
+}
+
+class _HelpScreenState extends ConsumerState<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final faqs = [
-      {"q": l10n.faq1Q, "a": l10n.faq1A},
-      {"q": l10n.faq2Q, "a": l10n.faq2A},
-      {"q": l10n.faq3Q, "a": l10n.faq3A},
-      {"q": l10n.faq4Q, "a": l10n.faq4A},
-      {"q": l10n.faq5Q, "a": l10n.faq5A},
-    ];
+    final currentLocale = ref.watch(localeProvider).languageCode;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      // 1. Persistent Premium Header with Notification Badge
       body: SafeArea(
-        child: ListView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SectionTitle(title: l10n.frequentlyAskedQuestions),
-
-                  _buildFAQ(faqs),
-
-                  const SizedBox(height: 12),
-
-                  SectionTitle(title: l10n.needMoreHelp),
-
-                  _buildHelpOptions(context, theme, l10n),
-
-                  PrimaryButton(
-                    label: l10n.contactSupport,
-                    onPressed: () => _openSupport(context, l10n),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFAQ(List<Map<String, String>> faqs) {
-    return Column(
-      children: faqs.map((faq) {
-        return ExpansionTile(
-          title: Text(faq["q"]!),
-          children: [
-            Padding(padding: const EdgeInsets.all(12), child: Text(faq["a"]!)),
-          ],
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildHelpOptions(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-  ) {
-    return Column(
-      children: [
-        _helpTile(
-          theme: theme,
-          icon: Icons.book_outlined,
-          title: l10n.usingProkat,
-          subtitle: l10n.learnHowPlatformWorks,
-          onTap: () {},
-        ),
-        _helpTile(
-          theme: theme,
-          icon: Icons.payment_outlined,
-          title: l10n.paymentsAndPricing,
-          subtitle: l10n.feesPayoutsBilling,
-          onTap: () {},
-        ),
-        _helpTile(
-          theme: theme,
-          icon: Icons.security_outlined,
-          title: l10n.safetyAndTrust,
-          subtitle: l10n.guidelinesAndPolicies,
-          onTap: () {},
-        ),
-        _helpTile(
-          theme: theme,
-          icon: Icons.person_outline,
-          title: l10n.accountHelp,
-          subtitle: l10n.loginProfileSettings,
-          onTap: () {},
-        ),
-      ],
-    );
-  }
-
-  Widget _helpTile({
-    required ThemeData theme,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: theme.colorScheme.surfaceBright,
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  void _openSupport(BuildContext context, AppLocalizations l10n) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // FAQ Header Title
               Text(
-                l10n.contactSupport,
-                style: const TextStyle(
-                  fontSize: 18,
+                l10n.frequentlyAskedQuestions,
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
 
-              ListTile(
-                leading: const Icon(Icons.email_outlined),
-                title: Text(l10n.emailSupport),
-                onTap: () {},
+              // Custom FAQ Module Layout
+              Column(
+                children: faqs.map((faq) {
+                  return FaqTile(faq: faq, currentLocale: currentLocale);
+                }).toList(),
               ),
-              ListTile(
-                leading: const Icon(Icons.chat_bubble_outline),
-                title: Text(l10n.liveChat),
-                onTap: () => context.push(AppRoutes.clientChatSupport),
+
+              const SizedBox(height: 24),
+
+              // Modular Help Category Cards
+              SectionTitle(title: "User Guides"),
+              const SizedBox(height: 12),
+
+              UserGuidesSection(guides: guides, currentLocale: currentLocale),
+              const SizedBox(height: 24),
+
+              // Support Actions Header Title
+              Text(
+                l10n.needMoreHelp,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
-              ListTile(
-                leading: const Icon(Icons.phone_outlined),
-                title: Text(l10n.callUs),
-                onTap: () {},
+
+              const SizedBox(height: 12),
+              // Primary Action Form Button Wrapper
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(
+                      0xFF004699,
+                    ), // Matching image primary blue theme color
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () => ContactSupportSheet.show(context),
+                  child: Text(
+                    l10n.contactSupport,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

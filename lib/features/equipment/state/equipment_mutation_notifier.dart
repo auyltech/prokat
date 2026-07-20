@@ -6,7 +6,9 @@ import 'package:prokat/core/mutation/mutation_notifier.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_mutation_state.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
@@ -243,7 +245,8 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
       }
 
       return result.success;
@@ -399,19 +402,23 @@ class EquipmentMutationNotifier
     }
   }
 
-  Future<bool> updateEquipmentSpecs(Map<String, dynamic> data) async {
-    final id = data["id"];
-
-    if (id == null || id.toString().trim().isEmpty) {
+  Future<bool> updateEquipmentSpecs({
+    required String equipmentId,
+    required List<EquipmentSpecUpdateInput> specs,
+  }) async {
+    if (equipmentId.toString().trim().isEmpty) {
       return false;
     }
 
-    final actionId = "equipment:update:$id:specs";
+    final actionId = "equipment:update:$equipmentId:specs";
 
     try {
       startAction(actionId);
 
-      final result = await api.updateEquipmentSpecs(data);
+      final result = await api.updateEquipmentSpecs(
+        equipmentId: equipmentId,
+        specs: specs,
+      );
 
       finishAction(
         actionId,
@@ -425,7 +432,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.read(ownerEquipmentProvider.notifier).refresh();
       }
 
       return result.success;

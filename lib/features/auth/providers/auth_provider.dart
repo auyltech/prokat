@@ -7,6 +7,6 @@ import 'auth_notifier.dart';
 import 'auth_state.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final Dio dio = ref.watch(dioProvider); // ✅ SAME DIO
+  final Dio dio = ref.watch(dioProvider);
   return AuthNotifier(ref, AuthApiService(dio), AuthSecureStorage());
 });

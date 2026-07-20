@@ -4,7 +4,6 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingStatusSheet extends ConsumerWidget {
@@ -17,7 +16,6 @@ class BookingStatusSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingMutationProvider.notifier);
-    final chatNotifier = ref.read(chatProvider.notifier);
 
     final currentStatus = booking.workStatus;
     final isStarted = currentStatus.level >= WorkStatus.started.level;
@@ -70,7 +68,7 @@ class BookingStatusSheet extends ConsumerWidget {
 
                   final chatId = booking.chatId;
                   if ((chatId ?? '').isNotEmpty) {
-                    await chatNotifier.reloadChat(chatId!);
+                    // await chatNotifier.reloadChat(chatId!);
                   }
 
                   if (!context.mounted) return;

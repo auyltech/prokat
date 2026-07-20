@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
-import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_status_only_bar.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/client_chat_action_bar.dart';
@@ -29,9 +28,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   void initState() {
     super.initState();
+
     Future.microtask(() async {
-      await ref.read(chatProvider.notifier).openChatById(widget.chatId);
-      // await ref.read(offersProvider.notifier).getClientOffers();
+      await ref.read(chatSocketServiceProvider).joinChat(widget.chatId);
+
+      await ref.read(chatProvider(widget.chatId).notifier).refresh();
+
+      await ref
+          .read(chatMessagesProvider(widget.chatId).notifier)
+          .refreshIfStale();
     });
   }
 
@@ -40,16 +45,17 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() async {
-        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
-        // ref.read(offersProvider.notifier).getClientOffers();
-        // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
+        await ref.read(chatProvider(widget.chatId).notifier).refresh();
+
+        await ref.read(chatMessagesProvider(widget.chatId).notifier).refresh();
       });
     }
   }
 
   @override
   void dispose() {
-    ref.read(chatProvider.notifier).leaveCurrentChat();
+    ref.read(chatSocketServiceProvider).leaveChat(widget.chatId);
+
     super.dispose();
   }
 
@@ -62,11 +68,16 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
 
-    final chatState = ref.watch(chatProvider);
-    final currentChat = chatState.currentChat;
-    final messages = chatState.messages
-        .where((item) => item.chatId == currentChat?.id)
-        .toList();
+    // final chatState = ref.watch(chatProvider);
+    // final currentChat = chatState.currentChat;
+    // final messages = chatState.messages
+    //     .where((item) => item.chatId == currentChat?.id)
+    //     .toList();
+
+    final chatAsync = ref.watch(chatProvider(widget.chatId));
+    final messagesAsync = ref.watch(chatMessagesProvider(widget.chatId));
+    final currentChat = chatAsync.valueOrNull;
+    final messages = messagesAsync.valueOrNull?.items ?? const [];
 
     final booking = currentChat?.booking;
     final request = currentChat?.request;
@@ -104,7 +115,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         (booking?.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
-    final ChatStatus chatStatus = getChatStatus(
+    final ChatStatusDetail chatStatus = getChatStatus(
       bookingStatus: booking?.status,
       requestStatus: request?.status,
       hasActiveOffer: hasActiveOffer,
@@ -119,19 +130,19 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     );
 
     final showActionBar =
-        !(chatStatus == ChatStatus.bookingreviewed ||
-            chatStatus == ChatStatus.bookingcancelled);
+        !(chatStatus == ChatStatusDetail.bookingreviewed ||
+            chatStatus == ChatStatusDetail.bookingcancelled);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          if (chatState.fetchStatus == FetchStatus.loading ||
-              chatState.fetchStatus == FetchStatus.refreshing) {
-            return;
-          }
+          await ref.read(chatProvider(widget.chatId).notifier).refresh();
 
-          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          await ref
+              .read(chatMessagesProvider(widget.chatId).notifier)
+              .refresh();
+
           // ref.read(requestProvider.notifier).getClientRequests();
           // ref.read(offersProvider.notifier).getClientOffers();
           // ref.read(bookingProvider.notifier).getClientBookings();
@@ -144,7 +155,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
               Column(
                 children: [
                   // Handle Error
-                  if (chatState.error != null && messages.isEmpty)
+                  if (chatAsync.hasError && messages.isEmpty)
                     Expanded(
                       child: Center(
                         child: Padding(
@@ -159,15 +170,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                chatState.error!,
+                                chatAsync.error.toString(),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(color: Colors.grey),
                               ),
                               const SizedBox(height: 24),
                               ElevatedButton.icon(
                                 onPressed: () => ref
-                                    .read(chatProvider.notifier)
-                                    .openChatById(widget.chatId),
+                                    .read(chatProvider(widget.chatId).notifier)
+                                    .refresh(),
                                 icon: const Icon(Icons.refresh_rounded),
                                 label: Text(l10n.retry),
                               ),
@@ -238,7 +249,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                       alignment: Alignment
                           .bottomCenter, // 1. CENTERS THE WIDGET HORIZONTALLY
                       child: ChatStatusOnlyBar(
-                        text: chatStatus == ChatStatus.bookingreviewed
+                        text: chatStatus == ChatStatusDetail.bookingreviewed
                             ? "Review Submitted"
                             : "Order Closed",
                       ),
@@ -247,7 +258,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                 ),
 
               // Floating Loading Indicator Overlay
-              if (chatState.isLoadingMessages)
+              if (messagesAsync.valueOrNull?.isRefreshing == true)
                 Positioned(
                   top: 16, // Adjust position (e.g., below the app bar)
                   left: 0,
@@ -275,6 +286,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         ),
       ),
       bottomNavigationBar: SendMessageForm(
+        chatId: widget.chatId,
         chatStatus: chatStatus,
         mode: AppMode.clientMode,
       ),

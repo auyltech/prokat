@@ -4,7 +4,6 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -183,7 +182,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       if (result.success) {
         getClientOffers();
-        ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
+        // ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
       }
 
       return MutationResponse(
@@ -228,7 +227,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       if (result.success) {
         getClientOffers();
-        ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
+        // ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
       }
 
       return MutationResponse(
@@ -332,7 +331,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       if (result.success) {
         getOwnerOffers();
-        ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
+        // ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
       }
 
       return MutationResponse(
@@ -377,7 +376,7 @@ class OffersNotifier extends StateNotifier<OffersState> {
 
       if (result.success) {
         getOwnerOffers();
-        ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
+        // ref.read(chatProvider.notifier).getChatThreads(AppMode.ownerMode);
       }
 
       return MutationResponse(

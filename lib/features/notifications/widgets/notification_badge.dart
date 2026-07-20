@@ -31,14 +31,14 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
       badgeContent = const Icon(
         LucideIcons.bellRing,
         size: 28,
-        color: Colors.grey,
+        color: Colors.black45,
       );
     } else {
       final text = count > 99 ? '99+' : count.toString();
       badgeContent = Stack(
         clipBehavior: Clip.none,
         children: [
-          const Icon(LucideIcons.bell, size: 28, color: Colors.grey),
+          const Icon(LucideIcons.bell, size: 28, color: Colors.black54),
           Positioned(
             right: -6,
             top: -4,

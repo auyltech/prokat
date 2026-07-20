@@ -5,6 +5,7 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
+import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/delete_equipment_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/edit_equipment_details_form.dart';
@@ -93,7 +94,7 @@ class _OwnerEquipmentDetailScreenState
         body: const Center(child: CircularProgressIndicator()),
       ),
 
-      error: (_, __) => Scaffold(
+      error: (_, _) => Scaffold(
         backgroundColor: theme.colorScheme.errorContainer,
         body: Center(
           child: Column(
@@ -147,7 +148,10 @@ class _OwnerEquipmentDetailScreenState
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
                 child: Column(
                   children: [
-                    CategorySelectorTile(mode: "edit_equipment"),
+                    CategorySelectorTile(
+                      mode: CategorySheetMode.editEquipment,
+                      selectedCategoryId: equipmentAsync.value?.categoryId,
+                    ),
 
                     const SizedBox(height: 20),
 

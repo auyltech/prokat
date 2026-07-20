@@ -166,6 +166,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     if (!_isDirty || _isSaving) return;
 
     final valid = _validate();
+
     if (!valid) {
       setState(() {});
       AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
@@ -191,16 +192,14 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     }
 
     try {
-      final ok = await ref
+      final result = await ref
           .read(equipmentMutationProvider.notifier)
-          .updateEquipmentSpecs({
-            "equipmentId": widget.equipment.id,
-            "specs": payload,
-          });
+          .updateEquipmentSpecs(
+            equipmentId: widget.equipment.id,
+            specs: payload,
+          );
 
-      if (!mounted) return;
-
-      if (ok) {
+      if (result) {
         for (var i = 0; i < _sortedSpecs.length; i++) {
           final spec = _sortedSpecs[i];
           final key = _controllerKey(spec, i);
@@ -217,14 +216,16 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           _isSaving = false;
           _errorsByKey.clear();
         });
-
-        AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
       } else {
         setState(() => _isSaving = false);
-        AppSnackBar.show(message: l10n.updateFailed, isError: true);
       }
+
+      AppSnackBar.show(
+        message: result ? l10n.equipmentUpdated : l10n.updateFailed,
+        isSuccess: result,
+        isError: !result,
+      );
     } catch (_) {
-      if (!mounted) return;
       setState(() => _isSaving = false);
       AppSnackBar.show(message: l10n.updateFailed, isError: true);
     }
@@ -261,47 +262,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SectionTitle(title: l10n.technicalSpecs),
-
-              _isDirty
-                  ? TextButton.icon(
-                      onPressed: canSave ? () => _handleSave(l10n) : null,
-                      icon: _isSaving
-                          ? SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colorScheme.onPrimary,
-                              ),
-                            )
-                          : const Icon(Icons.save_rounded, size: 16),
-                      label: Text(l10n.save),
-                      style: TextButton.styleFrom(
-                        foregroundColor: colorScheme.onPrimary,
-                        backgroundColor: canSave ? accent : ghostGray,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Icon(
-                        Icons.lock_outline_rounded,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        size: 18,
-                      ),
-                    ),
-            ],
-          ),
+          SectionTitle(title: l10n.technicalSpecs),
 
           if (!hasSpecs)
             Text(
@@ -345,6 +306,41 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                 ),
               );
             }),
+
+          _isDirty
+              ? TextButton.icon(
+                  onPressed: canSave ? () => _handleSave(l10n) : null,
+                  icon: _isSaving
+                      ? SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colorScheme.onPrimary,
+                          ),
+                        )
+                      : const Icon(Icons.save_rounded, size: 16),
+                  label: Text(l10n.save),
+                  style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.onPrimary,
+                    backgroundColor: canSave ? accent : ghostGray,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    Icons.lock_outline_rounded,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    size: 18,
+                  ),
+                ),
         ],
       ),
     );

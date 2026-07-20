@@ -54,7 +54,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          return ref.read(ownerActiveBookingsProvider.notifier).refresh();
+          ref.read(ownerActiveBookingsProvider.notifier).refresh();
         },
         child: bookingsAsync.when(
           loading: () => const OwnerBookingSkeleton(),
@@ -62,10 +62,13 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
           error: (error, stackTrace) => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              EmptyStateTile(
-                icon: Icons.cancel,
-                title: l10n.errorLoadingOrders,
-                subtitle: error.toString(),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: EmptyStateTile(
+                  icon: Icons.cancel,
+                  title: l10n.errorLoadingOrders,
+                  subtitle: error.toString(),
+                ),
               ),
             ],
           ),
@@ -78,10 +81,14 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 if (bookings.isEmpty)
-                  EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: l10n.noBookingsFound,
-                    subtitle: "You don't have any active orders at the moment",
+                  Padding(
+                    padding: EdgeInsets.all(12),
+                    child: EmptyStateTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.noBookingsFound,
+                      subtitle:
+                          "You don't have any active orders at the moment",
+                    ),
                   )
                 else
                   ListView.separated(

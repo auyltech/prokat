@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';

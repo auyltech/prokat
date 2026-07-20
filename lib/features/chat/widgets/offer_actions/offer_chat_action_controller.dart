@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -25,7 +24,7 @@ class OfferChatActionController {
     required String offerId,
   }) async {
     await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
-    await ref.read(chatProvider.notifier).reloadChat(chatId);
+    // await ref.read(chatProvider.notifier).reloadChat(chatId);
 
     final offersNotifier = ref.read(offersProvider.notifier);
     await Future.wait([

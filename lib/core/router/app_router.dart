@@ -18,6 +18,7 @@ import 'package:prokat/features/chat/screens/client_support_chat.dart';
 import 'package:prokat/features/chat/screens/owner_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_screen.dart';
+import 'package:prokat/features/support/screens/contact_support_screen.dart';
 import 'package:prokat/features/equipment/screens/search_equipment_screen.dart';
 import 'package:prokat/features/layout/main_scaffold.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
@@ -188,6 +189,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.helpSupport,
                 builder: (_, _) => const HelpScreen(),
               ),
+              GoRoute(
+                path: AppRoutes.contactSupport,
+                builder: (_, _) => const ContactSupportScreen(),
+              ),
               // Support us
               GoRoute(
                 path: AppRoutes.supportUs,
@@ -307,7 +312,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                       GoRoute(
                         path: AppRoutes.info,
                         builder: (context, state) => ClientChatInfoScreen(
-                          chatId: state.pathParameters['id'],
+                          chatId: state.pathParameters['id'] ?? "",
                         ),
                       ),
                     ],
@@ -479,7 +484,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                       GoRoute(
                         path: AppRoutes.info,
                         builder: (context, state) => OwnerChatInfoScreen(
-                          chatId: state.pathParameters['id'],
+                          chatId: state.pathParameters['id'] ?? "",
                         ),
                       ),
                     ],

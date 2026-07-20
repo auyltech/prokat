@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
-import 'package:prokat/features/chat/state/chat_model.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
-import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'dart:ui';
 
 class SendMessageForm extends ConsumerStatefulWidget {
-  final ChatStatus chatStatus;
+  final String chatId;
+
+  final ChatStatusDetail chatStatus;
   final AppMode mode;
   final ChatType type;
 
   const SendMessageForm({
     super.key,
+    required this.chatId,
     required this.mode,
     required this.chatStatus,
     this.type = ChatType.direct,
@@ -31,11 +34,13 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       return;
     }
 
-    if (widget.type == ChatType.support) {
-      ref.read(chatProvider.notifier).sendSupportMessage(text, widget.mode);
-    } else {
-      ref.read(chatProvider.notifier).sendMessage(text);
-    }
+    ref.read(chatMessagesProvider(widget.chatId).notifier).sendMessage(text);
+
+    // if (widget.type == ChatType.support) {
+    //   ref.read(chatProvider.notifier).sendSupportMessage(text, widget.mode);
+    // } else {
+    //   ref.read(chatProvider.notifier).sendMessage(text);
+    // }
 
     _controller.clear();
   }
@@ -49,13 +54,15 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isSendingAny = ref.watch(
-      chatProvider.select((state) => state.isSendingMessage),
-    );
 
-    final isWorkCompleted = widget.chatStatus == ChatStatus.workcompleted;
-    final isOrderCanceled = widget.chatStatus == ChatStatus.bookingcancelled;
-    final isReviewed = widget.chatStatus == ChatStatus.bookingreviewed;
+    final messages = ref.watch(chatMessagesProvider(widget.chatId));
+    final isSendingAny =
+        messages.valueOrNull?.items.any((e) => e.isPending) ?? false;
+
+    final isWorkCompleted = widget.chatStatus == ChatStatusDetail.workcompleted;
+    final isOrderCanceled =
+        widget.chatStatus == ChatStatusDetail.bookingcancelled;
+    final isReviewed = widget.chatStatus == ChatStatusDetail.bookingreviewed;
 
     if (isWorkCompleted || isOrderCanceled || isReviewed) {
       return Container(

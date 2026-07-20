@@ -81,10 +81,13 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
           error: (error, stackTrace) => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              EmptyStateTile(
-                icon: Icons.cancel,
-                title: l10n.errorLoadingRequests,
-                subtitle: error.toString(),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: EmptyStateTile(
+                  icon: Icons.cancel,
+                  title: l10n.errorLoadingRequests,
+                  subtitle: error.toString(),
+                ),
               ),
             ],
           ),
@@ -97,11 +100,14 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 if (requests.isEmpty)
-                  EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: l10n.noRequestsAtMoment,
-                    subtitle:
-                        "You don't have any active requests at the moment",
+                  Padding(
+                    padding: EdgeInsets.all(12),
+                    child: EmptyStateTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.noRequestsAtMoment,
+                      subtitle:
+                          "You don't have any active requests at the moment",
+                    ),
                   )
                 else
                   ListView.separated(

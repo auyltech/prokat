@@ -43,7 +43,7 @@ class BookingService {
             throw const FormatException("Expected booking list");
           }
 
-          final bookings = itemsJson.map((item) {
+          final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid booking item");
             }
@@ -52,11 +52,11 @@ class BookingService {
           }).toList();
 
           return QueryResult<BookingModel>(
-            items: bookings,
+            items: items,
             page: (data["page"] as num?)?.toInt() ?? page,
             itemsPerPage:
                 (data["itemsPerPage"] as num?)?.toInt() ?? itemsPerPage,
-            count: (data["count"] as num?)?.toInt() ?? bookings.length,
+            count: (data["count"] as num?)?.toInt() ?? items.length,
           );
         },
         fallbackMessage: "Failed to load bookings",
@@ -79,26 +79,49 @@ class BookingService {
     }
   }
 
-  Future<ApiResponse<List<BookingModel>>> getOwnerBookings() async {
+  Future<ApiResponse<QueryResult<BookingModel>>> getOwnerBookings({
+    required int page,
+    required int itemsPerPage,
+    required String status,
+  }) async {
     try {
-      final response = await _dio.get("/bookings/owner");
+      final response = await _dio.get(
+        "/bookings/owner",
+        queryParameters: {
+          "page": page,
+          "itemsPerPage": itemsPerPage,
+          "status": status,
+        },
+      );
 
-      return handleApiResponse<List<BookingModel>>(
+      return handleApiResponse<QueryResult<BookingModel>>(
         response: response,
         parser: (data) {
+          if (data is! Map<String, dynamic> && data.containsKey("data")) {
+            throw const FormatException("Expected paginated booking response");
+          }
+
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
             throw FormatException("Expected booking list");
           }
 
-          return itemsJson.map((item) {
+          final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid booking item");
             }
 
             return BookingModel.fromJson(item);
           }).toList();
+
+          return QueryResult<BookingModel>(
+            items: items,
+            page: (data["page"] as num?)?.toInt() ?? page,
+            itemsPerPage:
+                (data["itemsPerPage"] as num?)?.toInt() ?? itemsPerPage,
+            count: (data["count"] as num?)?.toInt() ?? items.length,
+          );
         },
         fallbackMessage: "Failed to load bookings",
       );
@@ -112,10 +135,10 @@ class BookingService {
         error: exception.data ?? error,
         statusCode: exception.statusCode,
       );
-    } catch (e) {
+    } catch (error) {
       return ApiResponse.failure(
         message: "Unexpected error",
-        error: e.toString(),
+        error: error.toString(),
       );
     }
   }

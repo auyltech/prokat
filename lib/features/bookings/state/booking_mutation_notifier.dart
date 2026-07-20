@@ -1,14 +1,13 @@
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/mutation/mutation_notifier.dart';
-import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_mutation_state.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -99,7 +98,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
       if (result.success) {
         // Don't await, return true to show snackbar
         ref.read(clientActiveBookingsProvider.notifier).refresh();
-        ref.read(chatProvider.notifier).getChatThreads(AppMode.clientMode);
+        ref.read(clientChatsProvider.notifier).refresh();
       }
 
       return MutationResponse(

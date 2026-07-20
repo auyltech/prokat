@@ -5,6 +5,7 @@ import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -81,7 +82,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CategorySelectorTile(mode: "create_equipment"),
+                  const CategorySelectorTile(
+                    mode: CategorySheetMode.editEquipment,
+                  ),
 
                   const SizedBox(height: 16),
 

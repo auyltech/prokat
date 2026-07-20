@@ -2,12 +2,12 @@ import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
 enum ChatType { direct, support, workflow, announcement }
 
-enum CStatus { active, closed, archived }
+enum ChatStatus { active, closed, archived }
 
 ChatType parseChatType(dynamic value) {
   if (value == null) return ChatType.direct;
@@ -22,23 +22,23 @@ ChatType parseChatType(dynamic value) {
   return ChatType.direct;
 }
 
-CStatus parseChatStatus(dynamic value) {
-  if (value == null) return CStatus.active;
+ChatStatus parseChatStatus(dynamic value) {
+  if (value == null) return ChatStatus.active;
 
   final normalized = value.toString().trim().toLowerCase();
 
-  for (final status in CStatus.values) {
+  for (final status in ChatStatus.values) {
     if (status.name.toLowerCase() == normalized) {
       return status;
     }
   }
-  return CStatus.active;
+  return ChatStatus.active;
 }
 
 class ChatModel {
   final String id;
   final ChatType type;
-  final CStatus status;
+  final ChatStatus status;
 
   final User? client;
   final User? owner;
@@ -60,7 +60,7 @@ class ChatModel {
   const ChatModel({
     required this.id,
     this.type = ChatType.direct,
-    this.status = CStatus.active,
+    this.status = ChatStatus.active,
     this.bookingId,
     this.requestId,
     this.booking,
@@ -89,7 +89,7 @@ class ChatModel {
   ChatModel copyWith({
     String? id,
     ChatType? type,
-    CStatus? status,
+    ChatStatus? status,
     User? client,
     User? owner,
     String? bookingId,

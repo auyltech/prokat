@@ -1,4 +1,4 @@
-import 'package:prokat/features/chat/state/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/core/services/app_socket_service.dart';
 
 class ChatSocketService {

@@ -1,17 +1,24 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
-import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 // Used for creating and editing equipment
 class CategorySelectorTile extends ConsumerStatefulWidget {
-  final String mode;
-  const CategorySelectorTile({super.key, required this.mode});
+  final CategorySheetMode mode;
+  final String? selectedCategoryId;
+
+  const CategorySelectorTile({
+    super.key,
+    required this.mode,
+    this.selectedCategoryId,
+  });
 
   @override
   ConsumerState<CategorySelectorTile> createState() =>
@@ -24,32 +31,34 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final editEquipmentId =
-        ref.watch(equipmentMutationProvider).editingEquipmentId ?? "";
+    final editEquipmentId = ref
+        .watch(equipmentMutationProvider)
+        .editingEquipmentId;
 
-    final equipment = ref
-        .watch(ownerEquipmentDetailsProvider(editEquipmentId))
-        .value;
+    final equipment = (editEquipmentId != null && editEquipmentId.isNotEmpty)
+        ? ref.watch(ownerEquipmentDetailsProvider(editEquipmentId)).valueOrNull
+        : null;
 
-    final selectedCategory =
-        widget.mode == "create_request" || widget.mode == "create_equipment"
-        ? ref.watch(requestMutationProvider).selectedCategory
-        : ref.watch(equipmentMutationProvider).category;
+    final selectedCategory = ref
+        .watch(categoriesProvider)
+        .getCategoryById(widget.selectedCategoryId);
+
+    // widget.mode == CategorySheetMode.createRequest ||
+    //     widget.mode == CategorySheetMode.createEquipment
+    // ? ref.watch(requestMutationProvider).selectedCategory
+    // : ref.watch(equipmentMutationProvider).category;
 
     final categoryName = selectedCategory?.name ?? l10n.selectService;
-
     final bool hasCategory = selectedCategory != null;
 
     void onCategoryTap() async {
-      final Category? picked = await showModalBottomSheet<Category>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => CategorySelectionSheet(service: widget.mode),
+      final Category? picked = await CategorySelectionSheet.show(
+        context,
+        service: widget.mode,
       );
 
-      if (widget.mode == "create_equipment" ||
-          widget.mode == "create_request") {
+      if (widget.mode == CategorySheetMode.createEquipment ||
+          widget.mode == CategorySheetMode.createRequest) {
         if (picked != null) {
           ref.read(searchEquipmentProvider.notifier).selectCategory(picked);
         }
@@ -57,31 +66,21 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
         return null;
       }
 
-      if (picked?.id != null && equipment?.categoryId != picked?.id) {
-        if (widget.mode == "edit_equipment") {
-          final res = await ref
-              .read(equipmentMutationProvider.notifier)
-              .updateEquipmentCategory(
-                equipmentId: equipment?.id ?? "",
-                categoryId: picked?.id ?? "",
-              );
-
-          if (mounted && res == true) {
-            ScaffoldMessenger.of(this.context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.equipmentUpdated),
-                backgroundColor: theme.colorScheme.primary,
-              ),
+      if (picked?.id != null &&
+          equipment?.categoryId != picked?.id &&
+          widget.mode == CategorySheetMode.editEquipment) {
+        final result = await ref
+            .read(equipmentMutationProvider.notifier)
+            .updateEquipmentCategory(
+              equipmentId: equipment?.id ?? "",
+              categoryId: picked?.id ?? "",
             );
-          }
-        } else if (mounted) {
-          ScaffoldMessenger.of(this.context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.updateFailed),
-              backgroundColor: theme.colorScheme.error,
-            ),
-          );
-        }
+
+        AppSnackBar.show(
+          message: result ? l10n.equipmentUpdated : l10n.updateFailed,
+          isSuccess: result,
+          isError: !result,
+        );
       }
     }
 
@@ -110,12 +109,12 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
           ),
 
           const SizedBox(width: 16),
-          // Text Content
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text("Service", style: theme.textTheme.labelLarge),
+                Text("Service", style: theme.textTheme.labelLarge),
                 // const SizedBox(height: 2),
                 Text(
                   hasCategory ? categoryName : l10n.selectService,
@@ -127,7 +126,7 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
           // Trailing arrow
           Icon(
             Icons.chevron_right_rounded,
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
           ),
         ],
       ),

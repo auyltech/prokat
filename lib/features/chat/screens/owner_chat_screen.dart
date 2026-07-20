@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
-import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
@@ -29,7 +28,14 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await ref.read(chatProvider.notifier).openChatById(widget.chatId);
+      await ref.read(chatSocketServiceProvider).joinChat(widget.chatId);
+
+      await ref.read(chatProvider(widget.chatId).notifier).refresh();
+
+      await ref
+          .read(chatMessagesProvider(widget.chatId).notifier)
+          .refreshIfStale();
+
       await ref.read(offersProvider.notifier).getOwnerOffers();
     });
   }
@@ -39,7 +45,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.chatId != widget.chatId) {
       Future.microtask(() async {
-        ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+        await ref.read(chatSocketServiceProvider).joinChat(widget.chatId);
+
+        await ref.read(chatProvider(widget.chatId).notifier).refresh();
+
+        await ref.read(chatMessagesProvider(widget.chatId).notifier).refresh();
 
         // ref.read(offersProvider.notifier).getOwnerOffers();
         // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
@@ -49,7 +59,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
   @override
   void dispose() {
-    ref.read(chatProvider.notifier).leaveCurrentChat();
+    ref.read(chatSocketServiceProvider).leaveChat(widget.chatId);
+
     super.dispose();
   }
 
@@ -61,11 +72,10 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
 
-    final chatState = ref.watch(chatProvider);
-    final currentChat = chatState.currentChat;
-    final messages = chatState.messages
-        .where((item) => item.chatId == currentChat?.id)
-        .toList();
+    final chatAsync = ref.watch(chatProvider(widget.chatId));
+    final messagesAsync = ref.watch(chatMessagesProvider(widget.chatId));
+    final currentChat = chatAsync.valueOrNull;
+    final messages = messagesAsync.valueOrNull?.items ?? const [];
 
     final booking = currentChat?.booking;
     final request = currentChat?.request;
@@ -97,7 +107,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         (booking?.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
-    final ChatStatus chatStatus = getChatStatus(
+    final ChatStatusDetail chatStatus = getChatStatus(
       bookingStatus: booking?.status,
       requestStatus: request?.status,
       hasActiveOffer: hasActiveOffer,
@@ -115,12 +125,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          if (chatState.fetchStatus == FetchStatus.loading ||
-              chatState.fetchStatus == FetchStatus.refreshing) {
-            return;
-          }
+          await ref.read(chatProvider(widget.chatId).notifier).refresh();
 
-          ref.read(chatProvider.notifier).reloadChat(widget.chatId);
+          await ref
+              .read(chatMessagesProvider(widget.chatId).notifier)
+              .refresh();
 
           // ref.read(requestProvider.notifier).getOwnerRequests();
           // ref.read(offersProvider.notifier).getOwnerOffers();
@@ -133,7 +142,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             Column(
               children: [
                 // Loading Error Indicator
-                if (chatState.error != null && messages.isEmpty)
+                if (chatAsync.hasError && messages.isEmpty)
                   Expanded(
                     child: Center(
                       // Centers the entire error block vertically
@@ -155,7 +164,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                chatState.error!,
+                                chatAsync.error.toString(),
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: Colors.grey,
@@ -163,9 +172,21 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                               ),
                               const SizedBox(height: 24),
                               ElevatedButton.icon(
-                                onPressed: () => ref
-                                    .read(chatProvider.notifier)
-                                    .openChatById(widget.chatId),
+                                onPressed: () async {
+                                  await ref
+                                      .read(
+                                        chatProvider(widget.chatId).notifier,
+                                      )
+                                      .refresh();
+
+                                  await ref
+                                      .read(
+                                        chatMessagesProvider(
+                                          widget.chatId,
+                                        ).notifier,
+                                      )
+                                      .refresh();
+                                },
                                 icon: const Icon(Icons.refresh_rounded),
                                 label: Text(l10n.retry),
                               ),
@@ -228,7 +249,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             ),
 
             // Floating Loading Indicator Overlay
-            if (chatState.isLoadingMessages)
+            if (messagesAsync.valueOrNull?.isRefreshing == true)
               Positioned(
                 top: 16, // Adjust position (e.g., below the app bar)
                 left: 0,
@@ -255,6 +276,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         ),
       ),
       bottomNavigationBar: SendMessageForm(
+        chatId: widget.chatId,
         chatStatus: chatStatus,
         mode: AppMode.ownerMode,
       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/chat/state/chat_status.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_controller.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -17,7 +17,7 @@ class ChatAction {
 
 class ClientChatActionBar extends ConsumerWidget {
   final String chatId;
-  final ChatStatus chatStatus;
+  final ChatStatusDetail chatStatus;
   final BookingModel booking;
   final RequestModel? request;
   final String? chatOwnerId;
@@ -35,9 +35,9 @@ class ClientChatActionBar extends ConsumerWidget {
 
   List<ChatAction> getActions({
     required String mode,
-    required ChatStatus chatStatus,
+    required ChatStatusDetail chatStatus,
   }) {
-    if (chatStatus == ChatStatus.bookingcreated) {}
+    if (chatStatus == ChatStatusDetail.bookingcreated) {}
 
     return [ChatAction(type: "primary", label: "label")];
   }
@@ -80,7 +80,7 @@ class ClientChatActionBar extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              if (chatStatus == ChatStatus.workcompleted) ...[
+              if (chatStatus == ChatStatusDetail.workcompleted) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Confirm",
@@ -118,7 +118,7 @@ class ClientChatActionBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              ] else if (chatStatus == ChatStatus.leaveReview) ...[
+              ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: "Review",

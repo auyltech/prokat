@@ -11,7 +11,7 @@ import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
-import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
+import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
@@ -155,7 +155,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => showLanguageSheet(context),
+                    onTap: () => LanguageSheet.show(context),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,

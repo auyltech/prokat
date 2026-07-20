@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/features/appstatic/widgets/show_language_sheet.dart';
+import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 
 class LanguageSelectorTile extends ConsumerWidget {
   const LanguageSelectorTile({super.key});
@@ -14,7 +14,7 @@ class LanguageSelectorTile extends ConsumerWidget {
     final langDisplay = LocaleNotifier.displayCode(locale);
 
     return GestureDetector(
-      onTap: () => showLanguageSheet(context),
+      onTap: () => LanguageSheet.show(context),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),

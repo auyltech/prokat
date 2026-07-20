@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/state/chat_provider.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/widgets/chat_header_tile.dart';
 import 'package:prokat/features/layout/resolve_app_bar_title.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
@@ -66,13 +66,18 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
           AppRoutes.ownerPayment,
           AppRoutes.termsConditions,
           AppRoutes.privacyPolicy,
+          AppRoutes.helpSupport,
         ].contains(currentPath) ||
         isChatDetailScreen;
 
     if (isChatDetailScreen) {
       // Safely extract chat ID from segments based on route depth
-      // final chatId = segments.contains('owner') ? segments[3] : segments[1];
+      // /chat/direct/id
+      // /owner/chat/direct/id
+      final chatId = segments.contains('owner') ? segments[3] : segments[2];
+
       titleWidget = ChatHeaderTile(
+        chatId: chatId,
         currentUserId: currentUserId,
         isOwner: isOwnerScreen,
       );
@@ -172,7 +177,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0), // Match the border thickness
         child: Container(
-          color: Colors.grey, // Light gray color
+          color: Colors.black12, // Light gray color
           height: 1.0, // Border thickness
         ),
       ),
@@ -187,7 +192,11 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 }
 
                 if (isChatDetailScreen) {
-                  await ref.read(chatProvider.notifier).leaveCurrentChat();
+                  final chatId = segments.contains('owner')
+                      ? segments[3]
+                      : segments[2];
+
+                  ref.read(chatSocketServiceProvider).leaveChat(chatId);
                 }
               },
             )

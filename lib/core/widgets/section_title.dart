@@ -12,8 +12,12 @@ class SectionTitle extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: theme.textTheme.titleLarge),
+        Flexible(child: Text(title, style: theme.textTheme.titleLarge)),
+
+        if (trailing != null) const SizedBox(width: 16),
+
         if (trailing != null)
           Text(
             trailing ?? "",

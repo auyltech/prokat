@@ -177,7 +177,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
         color: theme.cardColor,
         border: Border(
           top: BorderSide(
-            color: Colors.grey[400]!, // Light gray color
+            color: Colors.black12, // Light gray color
             width: 1.0, // Border thickness
           ),
         ),
@@ -215,10 +215,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: IconTheme(
-                        data: IconThemeData(
-                          color: theme.colorScheme.onSurface,
-                          size: 32,
-                        ),
+                        data: IconThemeData(color: Colors.black87, size: 32),
                         child: Icon(
                           item.icon,
                           size: 28,
