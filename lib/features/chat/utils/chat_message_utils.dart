@@ -30,38 +30,104 @@ List<ChatMessageModel> mergeMessages(
   List<ChatMessageModel> existing,
   List<ChatMessageModel> incoming,
 ) {
-  final map = <String, ChatMessageModel>{};
+  String? normalized(String? value) {
+    final result = value?.trim();
+    return result == null || result.isEmpty ? null : result;
+  }
 
-  String key(ChatMessageModel message) {
-    final clientTempId = message.clientTempId?.trim();
+  String? tempIdOf(ChatMessageModel message) {
+    return normalized(message.clientTempId);
+  }
 
-    if (clientTempId != null && clientTempId.isNotEmpty) {
-      return "temp:$clientTempId";
+  String? serverIdOf(ChatMessageModel message) {
+    // Pending and failed messages are local optimistic messages.
+    // Their `id` may currently be the clientTempId, not a backend ID.
+    if (message.isPending || message.isFailed) {
+      return null;
     }
 
-    return "id:${message.id}";
+    return normalized(message.id);
+  }
+
+  bool hasSameIdentity(ChatMessageModel first, ChatMessageModel second) {
+    final firstServerId = serverIdOf(first);
+    final secondServerId = serverIdOf(second);
+
+    // This handles confirmed messages, including legacy messages
+    // that do not have a clientTempId.
+    if (firstServerId != null &&
+        secondServerId != null &&
+        firstServerId == secondServerId) {
+      return true;
+    }
+
+    final firstTempId = tempIdOf(first);
+    final secondTempId = tempIdOf(second);
+
+    // This reconciles an optimistic message with its confirmation.
+    return firstTempId != null &&
+        secondTempId != null &&
+        firstTempId == secondTempId;
+  }
+
+  ChatMessageModel preferredMessage(
+    ChatMessageModel current,
+    ChatMessageModel candidate,
+  ) {
+    final currentIsConfirmed = serverIdOf(current) != null;
+    final candidateIsConfirmed = serverIdOf(candidate) != null;
+
+    // Never replace a confirmed message with a pending or failed copy.
+    final preferred = currentIsConfirmed && !candidateIsConfirmed
+        ? current
+        : candidate;
+
+    // Preserve the clientTempId if one representation does not contain it.
+    final clientTempId = tempIdOf(candidate) ?? tempIdOf(current);
+
+    return preferred.copyWith(clientTempId: clientTempId);
+  }
+
+  final result = <ChatMessageModel>[];
+
+  void addMessage(ChatMessageModel message) {
+    var resolved = message;
+
+    // Repeat because resolving by server ID may expose a clientTempId
+    // that matches another optimistic copy already in the list.
+    while (true) {
+      final matchingIndexes = <int>[];
+
+      for (var index = 0; index < result.length; index++) {
+        if (hasSameIdentity(result[index], resolved)) {
+          matchingIndexes.add(index);
+        }
+      }
+
+      if (matchingIndexes.isEmpty) {
+        break;
+      }
+
+      for (final index in matchingIndexes) {
+        resolved = preferredMessage(result[index], resolved);
+      }
+
+      // Remove backwards so list indexes remain valid.
+      for (final index in matchingIndexes.reversed) {
+        result.removeAt(index);
+      }
+    }
+
+    result.add(resolved);
   }
 
   for (final message in existing) {
-    map[key(message)] = message;
+    addMessage(message);
   }
 
   for (final message in incoming) {
-    final clientTempId = message.clientTempId?.trim();
-
-    if (clientTempId != null && clientTempId.isNotEmpty) {
-      map.remove("temp:$clientTempId");
-    }
-
-    map[key(message)] = message;
+    addMessage(message);
   }
 
-  final result = map.values.toList();
-
-  result.sort(
-    (a, b) =>
-        (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)),
-  );
-
-  return result;
+  return sortMessages(result);
 }

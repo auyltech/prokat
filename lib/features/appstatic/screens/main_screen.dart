@@ -74,6 +74,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   Future<void> _onRefresh() async {
     await ref.read(guestEquipmentProvider.notifier).refresh();
+
+    final categoryState = ref.read(categoriesProvider);
+
+    if (categoryState.fetchStatus == FetchStatus.initial ||
+        categoryState.fetchStatus == FetchStatus.error) {
+      ref.read(categoriesProvider.notifier).getCategories();
+      return;
+    }
   }
 
   @override

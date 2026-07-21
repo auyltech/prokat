@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 
 class OwnerChatInfoScreen extends ConsumerWidget {
   final String chatId;
@@ -13,7 +13,7 @@ class OwnerChatInfoScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final currentUserId = ref.watch(authProvider).currentUserId ?? "";
 
-    final chatAsync = ref.watch(chatProvider(chatId));
+    final chatAsync = ref.watch(currentChatProvider(chatId));
     return chatAsync.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
@@ -24,7 +24,7 @@ class OwnerChatInfoScreen extends ConsumerWidget {
       ),
 
       data: (chat) {
-        final title = chat.displayTitle(currentUserId);
+        final title = chat?.displayTitle(currentUserId);
 
         return Scaffold(
           backgroundColor: theme.scaffoldBackgroundColor,
@@ -35,20 +35,20 @@ class OwnerChatInfoScreen extends ConsumerWidget {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildInfoSection(theme, 'Chat', [
-                      _buildListTile(theme, 'Participant', title),
-                      _buildListTile(theme, 'Chat ID', chat.id),
+                      _buildListTile(theme, 'Participant', title ?? ""),
+                      _buildListTile(theme, 'Chat ID', chat?.id ?? ""),
                       _buildListTile(
                         theme,
                         'Booking',
-                        (chat.bookingId ?? '').isNotEmpty
-                            ? chat.bookingId!
+                        (chat?.bookingId ?? '').isNotEmpty
+                            ? chat?.bookingId ?? ""
                             : 'Not linked',
                       ),
                       _buildListTile(
                         theme,
                         'Request',
-                        (chat.requestId ?? '').isNotEmpty
-                            ? chat.requestId!
+                        (chat?.requestId ?? '').isNotEmpty
+                            ? chat?.requestId ?? ""
                             : 'Not linked',
                       ),
                     ]),

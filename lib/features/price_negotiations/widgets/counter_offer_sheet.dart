@@ -105,16 +105,25 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
     final state = ref.watch(priceNegotiationProvider);
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16 + 32,
-      ),
+      padding: const EdgeInsets.only(bottom: 24, top: 12, left: 24, right: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.4,
+                ),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
           Text(
             'Counter offer',
             style: theme.textTheme.bodyLarge?.copyWith(
@@ -122,7 +131,9 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
               fontWeight: FontWeight.w500,
             ),
           ),
+
           const SizedBox(height: 12),
+
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.number,
@@ -131,6 +142,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
               suffixText: 'KZT',
             ),
           ),
+
           const SizedBox(height: 12),
 
           PriceRateSelector(

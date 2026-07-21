@@ -42,7 +42,7 @@ class FavoriteService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -71,7 +71,7 @@ class FavoriteService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {

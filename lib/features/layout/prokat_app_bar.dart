@@ -43,12 +43,11 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       return const SizedBox.shrink();
     }
 
-    final isOwnerScreen = segments[0] == "owner";
+    final isOwnerScreen = segments.isNotEmpty ? segments[0] == "owner" : false;
 
     // Check specific layout scenarios
     final bool isChatDetailScreen =
-        (segments.length >= 2 && segments[0] == "chat") ||
-        (segments.length >= 3 && segments[1] == "chat");
+        segments.length >= 2 && segments[1] == "chat";
 
     final bool isSearchListScreen =
         segments.length >= 2 &&
@@ -72,9 +71,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (isChatDetailScreen) {
       // Safely extract chat ID from segments based on route depth
-      // /chat/direct/id
+      // /client/chat/direct/id
       // /owner/chat/direct/id
-      final chatId = segments.contains('owner') ? segments[3] : segments[2];
+      final chatId = segments.length >= 4 ? segments[3] : "";
 
       titleWidget = ChatHeaderTile(
         chatId: chatId,
@@ -192,9 +191,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 }
 
                 if (isChatDetailScreen) {
-                  final chatId = segments.contains('owner')
+                  final chatId = segments.length == 4
                       ? segments[3]
-                      : segments[2];
+                      : segments[3];
 
                   ref.read(chatSocketServiceProvider).leaveChat(chatId);
                 }

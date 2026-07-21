@@ -46,7 +46,7 @@ class LocationService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -89,7 +89,7 @@ class LocationService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -109,10 +109,13 @@ class LocationService {
       return handleApiResponse<LocationModel>(
         response: response,
         parser: (data) {
-          if (data is! Map<String, dynamic>) {
+          final rawJson = data["data"];
+
+          if (rawJson is! Map<String, dynamic>) {
             throw FormatException("Invalid location item");
           }
-          return LocationModel.fromJson(data);
+
+          return LocationModel.fromJson(rawJson);
         },
         fallbackMessage: "Failed to load locations",
       );

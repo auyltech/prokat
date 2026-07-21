@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
-import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/features/chat/widgets/chat_header_error.dart';
+import 'package:prokat/features/chat/widgets/chat_header_skeleton.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:go_router/go_router.dart';
@@ -28,61 +30,77 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final chatAsync = ref.watch(chatProvider(widget.chatId));
-    final messagesAsync = ref.watch(chatMessagesProvider(widget.chatId));
+    final bool isValidId = widget.chatId.trim().isNotEmpty;
 
-    final chat = chatAsync.value;
-    final messages = messagesAsync.value?.items ?? const [];
+    if (!isValidId) {
+      return const SizedBox.shrink(); // Early exit for invalid IDs
+    }
 
-    final title = chat?.displayTitle(widget.currentUserId) ?? 'Chat';
-    final avatarUrl = chat?.displayImageUrl(
-      currentUserId: widget.currentUserId,
-    );
+    final chatAsync = ref.watch(currentChatProvider(widget.chatId));
 
-    final lastMessageAt = messages.isNotEmpty ? messages[0].createdAt : null;
+    return chatAsync.when(
+      loading: () => const ChatHeaderSkeleton(),
+      error: (error, stack) => ChatHeaderError(
+        error: error,
+        onRetry: () {
+          // Force riverpod to re-fetch the provider data
+          ref.invalidate(currentChatProvider(widget.chatId));
+        },
+      ),
+      data: (chat) {
+        if (chat == null) return Text(widget.chatId);
+        // if (chat == null) return const SizedBox.shrink();
 
-    return GestureDetector(
-      onTap: () {
-        context.push(
-          '${widget.isOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList}/direct/${widget.chatId}/info',
+        final avatarUrl = chat.displayImageUrl(
+          currentUserId: widget.currentUserId,
+        );
+        final lastMessageAt = chat.lastMessage?.createdAt;
+
+        if (chat.type == ChatType.support) {
+          return const Text("Support", style: TextStyle(color: Colors.black));
+        }
+
+        return GestureDetector(
+          onTap: () {
+            context.push(
+              '${widget.isOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList}/direct/${widget.chatId}/info',
+            );
+          },
+          child: Row(
+            children: [
+              UserAvatar(
+                radius: 22,
+                avatarUrl: avatarUrl,
+                fullName: chat.displayTitle(widget.currentUserId),
+              ),
+
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      chat.displayTitle(
+                        widget.currentUserId,
+                      ), // No longer nullable
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (lastMessageAt != null)
+                      Text(
+                        formatDateTime(lastMessageAt, lastMessageAt),
+                        style: theme.textTheme.labelSmall,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
-      child: (chat?.type == ChatType.support)
-          ? Text("Support")
-          : Row(
-              children: [
-                UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                      ),
-
-                      if (lastMessageAt != null)
-                        Text(
-                          formatDateTime(lastMessageAt, lastMessageAt),
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.onPrimary.withValues(
-                              alpha: 0.7,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
     );
   }
 }

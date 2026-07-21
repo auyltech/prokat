@@ -74,18 +74,22 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.dividerColor,
-                  borderRadius: BorderRadius.circular(99),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurfaceVariant.withValues(
+                      alpha: 0.4,
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               Text(title, style: theme.textTheme.titleLarge),
 

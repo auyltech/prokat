@@ -169,7 +169,6 @@ class LocationNotifier extends StateNotifier<LocationState> {
         if (location.service == "ADDRESS" &&
             result.data != null &&
             state.clientLocations.isNotEmpty) {
-          // selectAddress(state.clientLocations[0]);
           selectAddress(result.data ?? state.clientLocations[0]);
 
           if (from == "create_request") {

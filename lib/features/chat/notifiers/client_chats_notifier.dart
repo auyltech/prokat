@@ -17,14 +17,17 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
 
   Future<QueryState<ChatModel>> _fetchPage(int page) async {
     final response = await api.getClientChats(page: page, itemsPerPage: 20);
-
     final result = response.data;
 
+    if (!response.success || result == null) {
+      throw Exception(response.message);
+    }
+
     return QueryState(
-      items: result?.items ?? const [],
-      page: result?.page ?? 1,
-      itemsPerPage: result?.itemsPerPage ?? 20,
-      count: result?.count ?? 0,
+      items: _sortChats(result.items),
+      page: result.page,
+      itemsPerPage: result.itemsPerPage,
+      count: result.count,
       lastFetchedAt: DateTime.now(),
     );
   }
@@ -38,9 +41,13 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
       state = AsyncData(previous.copyWith(isRefreshing: true));
     }
 
-    state = await AsyncValue.guard(() async {
-      return _fetchPage(1);
-    });
+    try {
+      final data = await _fetchPage(1);
+      state = AsyncData(data);
+    } catch (e, stack) {
+      // Strips DioException types away, emitting a standard string to matching UI layout slots
+      state = AsyncError(e.toString(), stack);
+    }
   }
 
   Future<void> loadMore() async {
@@ -67,7 +74,7 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
 
       state = AsyncData(
         current.copyWith(
-          items: [...current.items, ...result.items],
+          items: _mergeChats(current.items, result.items),
           page: result.page,
           itemsPerPage: result.itemsPerPage,
           count: result.count,
@@ -84,7 +91,11 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     final current = state.value;
     if (current == null) return;
 
-    state = AsyncData(current.copyWith(lastFetchedAt: null));
+    state = AsyncData(
+      current.copyWith(
+        lastFetchedAt: DateTime.fromMillisecondsSinceEpoch(0),
+      ),
+    );
   }
 
   Future<void> refreshIfStale() async {
@@ -158,5 +169,27 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   void markChatRead(String chatId) {
     // We'll implement this after updating ChatModel.copyWith
     // to support newMessagesCount.
+  }
+
+  List<ChatModel> _mergeChats(
+    List<ChatModel> existing,
+    List<ChatModel> incoming,
+  ) {
+    final chats = <String, ChatModel>{
+      for (final chat in existing) chat.id: chat,
+      for (final chat in incoming) chat.id: chat,
+    };
+
+    return _sortChats(chats.values.toList());
+  }
+
+  List<ChatModel> _sortChats(List<ChatModel> chats) {
+    final sorted = List<ChatModel>.from(chats);
+    sorted.sort((a, b) {
+      final aDate = a.lastMessage?.createdAt ?? a.updatedAt ?? DateTime(0);
+      final bDate = b.lastMessage?.createdAt ?? b.updatedAt ?? DateTime(0);
+      return bDate.compareTo(aDate);
+    });
+    return sorted;
   }
 }

@@ -7,6 +7,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
+import 'package:prokat/features/chat/widgets/chat_tile_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -19,12 +20,28 @@ class ClientChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(clientChatsProvider.notifier).refreshIfStale();
-    });
+    _scrollController.addListener(_loadMoreIfNeeded);
+  }
+
+  void _loadMoreIfNeeded() {
+    if (!_scrollController.hasClients) return;
+
+    if (_scrollController.position.extentAfter < 240) {
+      ref.read(clientChatsProvider.notifier).loadMore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_loadMoreIfNeeded)
+      ..dispose();
+    super.dispose();
   }
 
   @override
@@ -33,7 +50,6 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final currentUserId = ref.watch(authProvider).currentUserId ?? "";
-
     final chatsAsync = ref.watch(clientChatsProvider);
 
     return Scaffold(
@@ -43,9 +59,25 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
           await ref.read(clientChatsProvider.notifier).refresh();
         },
         child: chatsAsync.when(
-          loading: _buildSkeleton,
+          loading: () => ListView.builder(
+            controller: _scrollController,
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            itemCount: 5,
+            itemBuilder: (context, index) {
+              return Shimmer.fromColors(
+                baseColor: Colors.black12,
+                highlightColor: Colors.grey.shade50,
+                child: ChatTileSkeleton(index: index),
+              );
+            },
+          ),
 
-          error: (_, __) => ListView(
+          error: (_, _) => ListView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.all(16),
             children: [
               EmptyStateTile(
                 title: l10n.error,
@@ -59,6 +91,8 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
 
             if (chats.isEmpty) {
               return ListView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   EmptyStateTile(
                     title: l10n.noChats,
@@ -69,7 +103,9 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
             }
 
             return ListView.separated(
-              itemCount: chats.length,
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: chats.length + (state.isLoadingMore ? 1 : 0),
               separatorBuilder: (_, _) => const Divider(
                 height: 1,
                 thickness: 1,
@@ -77,6 +113,15 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                 endIndent: 16,
               ),
               itemBuilder: (context, index) {
+                if (index == chats.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  );
+                }
+
                 final chat = chats[index];
 
                 final url = chat.type == ChatType.direct
@@ -95,29 +140,4 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
       ),
     );
   }
-}
-
-Widget _buildSkeleton() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-    child: Column(
-      // Use ListView.builder if you need it to scroll
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(
-        5,
-        (index) => Shimmer.fromColors(
-          baseColor: Colors.grey.shade200,
-          highlightColor: Colors.grey.shade50,
-          child: Container(
-            height: 80,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 }

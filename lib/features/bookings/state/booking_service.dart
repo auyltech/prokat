@@ -68,7 +68,7 @@ class BookingService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -132,7 +132,7 @@ class BookingService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -158,7 +158,7 @@ class BookingService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -197,7 +197,7 @@ class BookingService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -234,7 +234,7 @@ class BookingService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {

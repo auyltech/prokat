@@ -128,7 +128,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     WorkStatus? workStatus,
     String? cancelReason,
   }) async {
-    final actionId = "booking:update:$id";
+    final actionId = "booking:$id:update:${status?.name}";
 
     try {
       startAction(actionId);

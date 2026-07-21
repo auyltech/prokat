@@ -62,7 +62,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -118,7 +118,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -147,7 +147,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -188,7 +188,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -215,7 +215,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -250,7 +250,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -288,7 +288,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -320,7 +320,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -356,7 +356,6 @@ class EquipmentService {
         statusCode: exception.statusCode,
       );
     } catch (error) {
-      print(error);
       return ApiResponse.failure(
         message: "Unexpected error",
         error: error.toString(),
@@ -385,7 +384,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -417,7 +416,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (error) {
@@ -449,7 +448,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -475,7 +474,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -512,7 +511,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -552,7 +551,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -583,7 +582,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -625,7 +624,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -656,7 +655,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {
@@ -687,7 +686,7 @@ class EquipmentService {
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
-        error: exception.data ?? error,
+        error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
       );
     } catch (e) {

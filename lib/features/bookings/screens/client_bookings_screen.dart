@@ -62,6 +62,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
           loading: () => const OwnerBookingSkeleton(),
 
           error: (error, stackTrace) => ListView(
+            padding: EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
@@ -86,10 +87,14 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
                 if (draft.isNotEmpty) DraftBookingTile(booking: draft.first),
 
                 if (bookings.isEmpty)
-                  EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: l10n.noBookingsFound,
-                    subtitle: "You don't have any active orders at the moment",
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: EmptyStateTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.noBookingsFound,
+                      subtitle:
+                          "You don't have any active orders at the moment",
+                    ),
                   )
                 else
                   ListView.separated(

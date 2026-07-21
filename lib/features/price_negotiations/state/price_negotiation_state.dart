@@ -1,3 +1,4 @@
+import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 
@@ -5,12 +6,14 @@ class PriceNegotiationState {
   final bool isLoading;
   final bool isSubmitting;
   final String? actionId;
+  final Set<Mutation> activeActions;
 
   final String? error;
 
   final List<PriceNegotiation> negotiations;
 
   const PriceNegotiationState({
+    this.activeActions = const {},
     this.isLoading = false,
     this.isSubmitting = false,
     this.actionId,
@@ -19,6 +22,13 @@ class PriceNegotiationState {
 
     this.negotiations = const [],
   });
+
+  bool isActionActive(String actionId) {
+    return activeActions.any(
+      (action) =>
+          action.id == actionId && action.status == MutationStatus.submitting,
+    );
+  }
 
   PriceNegotiation? get latestPending {
     for (final n in negotiations) {

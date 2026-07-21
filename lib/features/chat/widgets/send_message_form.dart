@@ -36,12 +36,6 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
 
     ref.read(chatMessagesProvider(widget.chatId).notifier).sendMessage(text);
 
-    // if (widget.type == ChatType.support) {
-    //   ref.read(chatProvider.notifier).sendSupportMessage(text, widget.mode);
-    // } else {
-    //   ref.read(chatProvider.notifier).sendMessage(text);
-    // }
-
     _controller.clear();
   }
 

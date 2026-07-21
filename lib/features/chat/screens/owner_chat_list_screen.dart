@@ -19,12 +19,28 @@ class OwnerChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(ownerChatsProvider.notifier).refreshIfStale();
-    });
+    _scrollController.addListener(_loadMoreIfNeeded);
+  }
+
+  void _loadMoreIfNeeded() {
+    if (!_scrollController.hasClients) return;
+
+    if (_scrollController.position.extentAfter < 240) {
+      ref.read(ownerChatsProvider.notifier).loadMore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_loadMoreIfNeeded)
+      ..dispose();
+    super.dispose();
   }
 
   @override
@@ -43,9 +59,11 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
           await ref.read(ownerChatsProvider.notifier).refresh();
         },
         child: chatsAsync.when(
-          loading: () => _buildSkeleton(),
+          loading: () => _buildSkeleton(_scrollController),
 
           error: (_, _) => ListView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.all(12),
             children: [
               EmptyStateTile(
@@ -60,6 +78,8 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
 
             if (chats.isEmpty) {
               return ListView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.all(12),
                 children: [
                   EmptyStateTile(
@@ -72,8 +92,10 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
             }
 
             return ListView.separated(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: EdgeInsets.zero,
-              itemCount: chats.length,
+              itemCount: chats.length + (state.isLoadingMore ? 1 : 0),
               separatorBuilder: (_, _) => const Divider(
                 height: 1,
                 thickness: 1,
@@ -81,6 +103,15 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                 endIndent: 16,
               ),
               itemBuilder: (context, index) {
+                if (index == chats.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  );
+                }
+
                 final chat = chats[index];
 
                 return ChatTile(
@@ -99,15 +130,14 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
   }
 }
 
-Widget _buildSkeleton() {
-  return Padding(
+Widget _buildSkeleton(ScrollController controller) {
+  return ListView.builder(
+    controller: controller,
+    physics: const AlwaysScrollableScrollPhysics(),
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-    child: Column(
-      // Use ListView.builder if you need it to scroll
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(
-        5,
-        (index) => Shimmer.fromColors(
+    itemCount: 5,
+    itemBuilder: (context, index) {
+      return Shimmer.fromColors(
           baseColor: Colors.grey.shade200,
           highlightColor: Colors.grey.shade50,
           child: Container(
@@ -118,8 +148,7 @@ Widget _buildSkeleton() {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-        ),
-      ),
-    ),
+        );
+    },
   );
 }

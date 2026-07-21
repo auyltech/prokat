@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 
 class ClientChatInfoScreen extends ConsumerWidget {
   final String chatId;
@@ -13,7 +13,7 @@ class ClientChatInfoScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final currentUserId = ref.watch(authProvider).currentUserId;
 
-    final chatAsync = ref.watch(chatProvider(chatId));
+    final chatAsync = ref.watch(currentChatProvider(chatId));
 
     return chatAsync.when(
       loading: () =>
@@ -26,7 +26,7 @@ class ClientChatInfoScreen extends ConsumerWidget {
 
       data: (chat) {
         final title = currentUserId != null
-            ? chat.displayTitle(currentUserId)
+            ? chat?.displayTitle(currentUserId)
             : "";
 
         return Scaffold(
@@ -42,12 +42,14 @@ class ClientChatInfoScreen extends ConsumerWidget {
                         CircleAvatar(
                           radius: 48,
                           child: Text(
-                            title.isNotEmpty ? title[0].toUpperCase() : 'C',
+                            (title != null && title.isNotEmpty)
+                                ? title[0].toUpperCase()
+                                : 'C',
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          title,
+                          title ?? "",
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -58,19 +60,20 @@ class ClientChatInfoScreen extends ConsumerWidget {
                     const SizedBox(height: 32),
 
                     _buildInfoSection(theme, 'Context', [
-                      _buildListTile(theme, 'Chat ID', chat.id),
+                      _buildListTile(theme, 'Chat ID', chat?.id ?? ""),
                       _buildListTile(
                         theme,
                         'Booking',
-                        (chat.bookingId ?? '').isNotEmpty
-                            ? chat.bookingId!
+                        chat?.bookingId != null &&
+                                (chat?.bookingId ?? "").isNotEmpty
+                            ? chat?.bookingId ?? ""
                             : 'Not linked',
                       ),
                       _buildListTile(
                         theme,
                         'Request',
-                        (chat.requestId ?? '').isNotEmpty
-                            ? chat.requestId!
+                        (chat?.requestId ?? '').isNotEmpty
+                            ? chat?.requestId ?? ""
                             : 'Not linked',
                       ),
                     ]),

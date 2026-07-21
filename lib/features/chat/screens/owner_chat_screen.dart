@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
@@ -28,40 +29,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await ref.read(chatSocketServiceProvider).joinChat(widget.chatId);
-
-      await ref.read(chatProvider(widget.chatId).notifier).refresh();
-
-      await ref
-          .read(chatMessagesProvider(widget.chatId).notifier)
-          .refreshIfStale();
-
       await ref.read(offersProvider.notifier).getOwnerOffers();
     });
-  }
-
-  @override
-  void didUpdateWidget(covariant OwnerChatScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.chatId != widget.chatId) {
-      Future.microtask(() async {
-        await ref.read(chatSocketServiceProvider).joinChat(widget.chatId);
-
-        await ref.read(chatProvider(widget.chatId).notifier).refresh();
-
-        await ref.read(chatMessagesProvider(widget.chatId).notifier).refresh();
-
-        // ref.read(offersProvider.notifier).getOwnerOffers();
-        // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    ref.read(chatSocketServiceProvider).leaveChat(widget.chatId);
-
-    super.dispose();
   }
 
   @override
@@ -72,8 +41,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
 
-    final chatAsync = ref.watch(chatProvider(widget.chatId));
+    final chatAsync = ref.watch(currentChatProvider(widget.chatId));
     final messagesAsync = ref.watch(chatMessagesProvider(widget.chatId));
+
     final currentChat = chatAsync.valueOrNull;
     final messages = messagesAsync.valueOrNull?.items ?? const [];
 
@@ -125,7 +95,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(chatProvider(widget.chatId).notifier).refresh();
+          await ref.read(currentChatProvider(widget.chatId).notifier).refresh();
 
           await ref
               .read(chatMessagesProvider(widget.chatId).notifier)
@@ -142,7 +112,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             Column(
               children: [
                 // Loading Error Indicator
-                if (chatAsync.hasError && messages.isEmpty)
+                if ((chatAsync.hasError || messagesAsync.hasError) &&
+                    messages.isEmpty)
                   Expanded(
                     child: Center(
                       // Centers the entire error block vertically
@@ -164,7 +135,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                chatAsync.error.toString(),
+                                (chatAsync.error ?? messagesAsync.error)
+                                    .toString(),
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: Colors.grey,
@@ -175,7 +147,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                                 onPressed: () async {
                                   await ref
                                       .read(
-                                        chatProvider(widget.chatId).notifier,
+                                        currentChatProvider(
+                                          widget.chatId,
+                                        ).notifier,
                                       )
                                       .refresh();
 
@@ -224,6 +198,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                             message: message,
                             isMe: isMe,
                             mode: AppMode.ownerMode,
+                            currentChat: chatAsync.value,
                           );
                         },
                       ),
@@ -249,29 +224,29 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             ),
 
             // Floating Loading Indicator Overlay
-            if (messagesAsync.valueOrNull?.isRefreshing == true)
-              Positioned(
-                top: 16, // Adjust position (e.g., below the app bar)
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    color: theme.colorScheme.surface,
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2.5),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            // if (messagesAsync.valueOrNull?.isRefreshing == true)
+            //   Positioned(
+            //     top: 16, // Adjust position (e.g., below the app bar)
+            //     left: 0,
+            //     right: 0,
+            //     child: Center(
+            //       child: Card(
+            //         elevation: 4,
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(100),
+            //         ),
+            //         color: theme.colorScheme.surface,
+            //         child: const Padding(
+            //           padding: EdgeInsets.all(10.0),
+            //           child: SizedBox(
+            //             width: 20,
+            //             height: 20,
+            //             child: CircularProgressIndicator(strokeWidth: 2.5),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
           ],
         ),
       ),

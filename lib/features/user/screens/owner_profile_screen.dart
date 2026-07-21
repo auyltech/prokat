@@ -71,14 +71,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
               pinned: true,
               elevation: 0,
               floating: true,
-              backgroundColor:
-                  AppColors.teal800, // Keeps teal background fixed at the top
-              iconTheme: const IconThemeData(color: Colors.white),
+              backgroundColor: theme.scaffoldBackgroundColor,
+              // iconTheme: const IconThemeData(color: Colors.white),
               centerTitle: false,
               title: Text(
                 'Owner Profile',
                 style: theme.textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
+                  // color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -93,7 +92,6 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
               expandedHeight: 200,
               pinned: false,
               elevation: 0,
-              // Match the overall scaffold background so the corners look seamlessly cut out
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
               automaticallyImplyLeading: false,
               flexibleSpace: FlexibleSpaceBar(
@@ -211,14 +209,12 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.all(8),
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.teal800,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.circular(20),
       ),
       // Keep status bar area tinted correctly
       child: Column(

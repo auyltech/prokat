@@ -212,7 +212,7 @@ class Equipment {
 
         updatedAt: parseNullableDate(json['updatedAt']),
       );
-    } catch (e) {
+    } catch (error) {
       throw Exception(
         "Failed to parse server data. Please ensure your app is up to date.",
       );

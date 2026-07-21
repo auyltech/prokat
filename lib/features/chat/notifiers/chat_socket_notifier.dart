@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 
 class ChatSocketNotifier {
@@ -60,7 +61,7 @@ class ChatSocketNotifier {
   }
 
   void _refreshChat(String chatId) {
-    ref.read(chatProvider(chatId).notifier).refresh();
+    ref.read(currentChatProvider(chatId).notifier).refresh();
 
     ref.read(clientChatsProvider.notifier).refreshIfStale();
 

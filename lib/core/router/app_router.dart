@@ -303,9 +303,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => ClientSupportChat(),
                   ),
                   GoRoute(
-                    path: "direct/${AppRoutes.id}",
+                    path: "/direct/${AppRoutes.id}",
                     builder: (context, state) {
                       final chatId = state.pathParameters['id'] ?? '';
+
                       return ClientChatScreen(chatId: chatId);
                     },
                     routes: [

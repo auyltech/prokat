@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/features/user/widgets/delete_account_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerSettingsScreen extends StatelessWidget {
@@ -34,13 +36,35 @@ class OwnerSettingsScreen extends StatelessWidget {
                   _tile(l10n.damagePolicy, l10n.standardCoverage, () {}),
                 ]),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
-                SectionTitle(title: l10n.dangerZone),
-                _card([
-                  _dangerTile(l10n.deactivateAccount, () {}),
-                  _dangerTile(l10n.deleteAccount, () {}),
-                ]),
+                DeleteAccountTile(),
+
+                const SizedBox(height: 140),
+
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: Text("Loading..."));
+                    }
+
+                    if (snapshot.hasData) {
+                      final packageInfo = snapshot.data!;
+                      final version = packageInfo.version; // e.g., "1.0.0"
+                      final buildNumber = packageInfo.buildNumber; // e.g., "1"
+
+                      return Center(
+                        child: Text(
+                          "Version: $version ($buildNumber)",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      );
+                    }
+
+                    return const Text("Failed to load version");
+                  },
+                ),
               ],
             ),
           ),
@@ -66,13 +90,6 @@ class OwnerSettingsScreen extends StatelessWidget {
       title: Text(title),
       subtitle: Text(value),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-    );
-  }
-
-  Widget _dangerTile(String title, VoidCallback onTap) {
-    return ListTile(
-      title: Text(title, style: const TextStyle(color: Colors.red)),
       onTap: onTap,
     );
   }

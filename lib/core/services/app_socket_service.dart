@@ -9,26 +9,52 @@ class AppSocketService {
   final Ref ref;
 
   io.Socket? _socket;
+  Future<void>? _connecting;
+  int _connectionGeneration = 0;
+
+  final Map<String, void Function(dynamic payload)> _eventHandlers = {};
+  final Map<Object, void Function()> _connectListeners = {};
 
   AppSocketService(this.apiClient, this.ref);
 
   bool get isConnected => _socket?.connected ?? false;
+  int get connectionGeneration => _connectionGeneration;
 
   Future<void> connect() async {
     if (isConnected) {
       return;
     }
 
+    final connecting = _connecting;
+    if (connecting != null) {
+      return connecting;
+    }
+
+    final connection = _connect();
+    _connecting = connection;
+
+    try {
+      await connection;
+    } finally {
+      if (identical(_connecting, connection)) {
+        _connecting = null;
+      }
+    }
+  }
+
+  Future<void> _connect() async {
     final session = ref.read(authProvider).session;
     final sessionToken = session?.sessionToken;
 
     if (sessionToken == null || sessionToken.isEmpty) {
-      return;
+      throw StateError(
+        'Cannot connect socket without an authenticated session',
+      );
     }
 
     _socket?.dispose();
 
-    _socket = io.io(
+    final socket = io.io(
       apiClient.dio.options.baseUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
@@ -37,21 +63,39 @@ class AppSocketService {
           .build(),
     );
 
+    _socket = socket;
+
+    for (final entry in _eventHandlers.entries) {
+      socket.on(entry.key, entry.value);
+    }
+
     final completer = Completer<void>();
 
-    _socket?.onConnect((_) {
+    socket.onConnect((_) {
+      if (!identical(_socket, socket)) {
+        return;
+      }
+
+      _connectionGeneration++;
+
       if (!completer.isCompleted) {
         completer.complete();
       }
+
+      for (final listener in _connectListeners.values.toList()) {
+        try {
+          listener();
+        } catch (_) {}
+      }
     });
 
-    _socket?.onConnectError((error) {
+    socket.onConnectError((error) {
       if (!completer.isCompleted) {
         completer.completeError(Exception(error.toString()));
       }
     });
 
-    _socket?.connect();
+    socket.connect();
 
     await completer.future.timeout(
       const Duration(seconds: 10),
@@ -60,16 +104,32 @@ class AppSocketService {
   }
 
   void on(String event, void Function(dynamic payload) handler) {
+    _eventHandlers[event] = handler;
     _socket?.off(event);
     _socket?.on(event, handler);
   }
 
   void off(String event) {
+    _eventHandlers.remove(event);
     _socket?.off(event);
   }
 
+  void addConnectListener(Object key, void Function() listener) {
+    _connectListeners[key] = listener;
+  }
+
+  void removeConnectListener(Object key) {
+    _connectListeners.remove(key);
+  }
+
   void emit(String event, dynamic data) {
-    _socket?.emit(event, data);
+    final socket = _socket;
+
+    if (socket == null || !socket.connected) {
+      throw StateError('Socket is not connected');
+    }
+
+    socket.emit(event, data);
   }
 
   Future<dynamic> emitWithAck(
@@ -79,7 +139,7 @@ class AppSocketService {
   }) async {
     final socket = _socket;
 
-    if (socket == null) {
+    if (socket == null || !socket.connected) {
       throw Exception('Socket is not connected');
     }
 

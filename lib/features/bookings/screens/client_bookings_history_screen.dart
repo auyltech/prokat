@@ -40,11 +40,13 @@ class ClientBookingsHistoryScreenState
         },
         child: bookingsAsync.when(
           loading: () => ListView(
+            padding: EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: const [OwnerBookingSkeleton()],
           ),
 
           error: (error, _) => ListView(
+            padding: EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
@@ -62,17 +64,20 @@ class ClientBookingsHistoryScreenState
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 if (historyBookings.isEmpty)
-                  EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: l10n.noBookingsFound,
-                    subtitle: "You don't have any orders in your history",
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: EmptyStateTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.noBookingsFound,
+                      subtitle: "You don't have any orders in your history",
+                    ),
                   )
                 else
                   ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: historyBookings.length,
-                    separatorBuilder: (_, __) => Divider(
+                    separatorBuilder: (_, _) => Divider(
                       height: 1,
                       thickness: 0.5,
                       indent: 16,

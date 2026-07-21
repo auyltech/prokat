@@ -3,7 +3,6 @@ import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/models/chat_lookup.dart';
 import 'package:prokat/features/chat/notifiers/chat_messages_notifier.dart';
-import 'package:prokat/features/chat/notifiers/chat_notifier.dart';
 import 'package:prokat/features/chat/notifiers/client_chats_notifier.dart';
 import 'package:prokat/features/chat/notifiers/owner_chats_notifier.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
@@ -19,7 +18,9 @@ final chatServiceProvider = Provider<ChatService>((ref) {
 
 final chatSocketServiceProvider = Provider<ChatSocketService>((ref) {
   final appSocket = ref.watch(appSocketProvider);
-  return ChatSocketService(appSocket);
+  final service = ChatSocketService(appSocket);
+  ref.onDispose(service.dispose);
+  return service;
 });
 
 final clientChatsProvider =
@@ -30,11 +31,6 @@ final clientChatsProvider =
 final ownerChatsProvider =
     AsyncNotifierProvider<OwnerChatsNotifier, QueryState<ChatModel>>(
       OwnerChatsNotifier.new,
-    );
-
-final chatProvider =
-    AsyncNotifierProvider.family<ChatNotifier, ChatModel, String>(
-      ChatNotifier.new,
     );
 
 final chatMessagesProvider =
@@ -92,13 +88,3 @@ final chatResolverProvider = FutureProvider.family<ChatModel, ChatLookup>((
 
   return response.data!;
 });
-
-// final chatMutationProvider =
-//     AsyncNotifierProvider<ChatMutationNotifier, Mutation?>(
-//       ChatMutationNotifier.new,
-//     );
-
-// final chatSocketProvider = Provider<ChatSocketNotifier>((ref) {
-//   final socket = ref.watch(appSocketProvider);
-//   return ChatSocketNotifier(ref, socket);
-// });

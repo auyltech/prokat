@@ -91,7 +91,9 @@ ApiResponse<T> handleApiResponse<T>({
   if (!isSuccess) {
     return ApiResponse.failure(
       message: extractBackendMessage(responseData, fallback: fallbackMessage),
-      error: responseData["error"],
+      error: responseData is Map
+          ? responseData["error"]?.toString()
+          : responseData?.toString(),
       statusCode: statusCode,
     );
   }
@@ -104,15 +106,7 @@ ApiResponse<T> handleApiResponse<T>({
       message: extractBackendMessage(responseData, fallback: "Success"),
       statusCode: statusCode,
     );
-  } catch (error, stackTrace) {
-    print("========== PARSE ERROR ==========");
-    print("handleApiResponse_ERROR");
-    print(response.requestOptions.path);
-    print("BODY:");
-    print(response.data);
-    print(error);
-    print(stackTrace);
-
+  } catch (error) {
     return ApiResponse.failure(
       message: "Format error occurred. Please update the application.",
       error: error
@@ -154,7 +148,7 @@ ApiResponse<T> handleDioException<T>(
 
   return ApiResponse.failure(
     message: exception.message.isNotEmpty ? exception.message : fallbackMessage,
-    error: exception.data ?? error,
+    error: (exception.data ?? error).toString(),
     statusCode: exception.statusCode,
   );
 }

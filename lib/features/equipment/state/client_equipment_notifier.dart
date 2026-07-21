@@ -29,6 +29,10 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       categoryId: _categoryId,
     );
 
+    if (!response.success) {
+      throw Exception(response.message);
+    }
+
     final items = response.data ?? [];
 
     return QueryState(

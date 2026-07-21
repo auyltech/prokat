@@ -76,10 +76,9 @@ class ChatModel {
   });
 
   String displayTitle(String currentUserId) {
-    return (currentUserId == client?.id
-            ? owner?.displayName
-            : client?.displayName) ??
-        "";
+    return currentUserId == client?.id
+        ? owner?.displayName ?? "Owner"
+        : client?.displayName ?? "Client";
   }
 
   String? displayImageUrl({String? currentUserId}) {
@@ -153,6 +152,7 @@ class ChatModel {
         updatedAt: _parseDate(json["updatedAt"]),
       );
     } catch (e) {
+      print("===chatparseerror===");
       rethrow;
     }
   }

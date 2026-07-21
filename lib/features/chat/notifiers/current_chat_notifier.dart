@@ -3,39 +3,42 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
-class ChatNotifier extends FamilyAsyncNotifier<ChatModel, String> {
+class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
   late final ChatService api;
 
   late final String _chatId;
 
   @override
-  Future<ChatModel> build(String chatId) async {
+  Future<ChatModel?> build(String chatId) async {
     api = ref.read(chatServiceProvider);
+
     _chatId = chatId;
 
     return _fetch();
   }
 
-  Future<ChatModel> _fetch() async {
+  Future<ChatModel?> _fetch() async {
     final response = await api.getChatById(_chatId);
 
     if (!response.success || response.data == null) {
       throw Exception(response.message);
     }
 
-    return response.data!;
+    return response.data;
   }
 
   Future<void> refresh() async {
-    state = const AsyncLoading();
+    ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
 
     state = await AsyncValue.guard(_fetch);
   }
 
   Future<void> refreshAll() async {
-    await refresh();
-    await ref.read(chatMessagesProvider(_chatId).notifier).refresh();
+    refresh();
+
+    ref.read(chatMessagesProvider(_chatId).notifier).refresh();
   }
 
   Future<void> refreshIfStale({

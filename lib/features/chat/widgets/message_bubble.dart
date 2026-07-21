@@ -2,18 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/negotiation_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/request_message_bubble.dart';
 
 class MessageBubble extends StatefulWidget {
+  final ChatModel? currentChat;
   final ChatMessageModel message;
   final AppMode mode;
   final bool isMe;
 
   const MessageBubble({
     super.key,
+    this.currentChat,
     required this.message,
     required this.mode,
     required this.isMe,
@@ -50,7 +53,11 @@ class _MessageBubbleState extends State<MessageBubble> {
     } else if (service == "OFFER") {
       return OfferMessageBubble(message: widget.message, isMe: widget.isMe);
     } else if (service == "BOOKING") {
-      return BookingMessageBubble(message: widget.message, mode: widget.mode);
+      return BookingMessageBubble(
+        message: widget.message,
+        mode: widget.mode,
+        currentChat: widget.currentChat,
+      );
     } else if (service == "NEGOTIATION") {
       return NegotiationMessageBubble(
         message: widget.message,

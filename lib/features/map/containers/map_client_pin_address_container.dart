@@ -72,10 +72,6 @@ class _MapClientPinAddressContainerState
   }
 
   Future<void> createAddress() async {
-    if (selectedAddress == null) return;
-
-    final notifier = ref.read(locationProvider.notifier);
-
     try {
       final location = LocationModel(
         service: "ADDRESS",
@@ -86,12 +82,12 @@ class _MapClientPinAddressContainerState
         longitude: longitude,
       );
 
-      final created = await notifier.createLocation(location, widget.from);
+      final created = await ref
+          .read(locationProvider.notifier)
+          .createLocation(location, widget.from);
 
-      if (!mounted) return;
-
-      if (created == true) {
-        context.pop(location); // return to booking screen
+      if (created && mounted && context.canPop()) {
+        Navigator.pop(context, location); // return to booking screen
       }
     } catch (e) {
       if (!mounted) return;

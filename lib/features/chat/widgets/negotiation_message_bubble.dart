@@ -142,7 +142,9 @@ class _NegotiationMessageBubbleState
                         ),
                     ] else if (priceNegotiation.status ==
                         PriceNegotiationStatus.created) ...[
-                      if (ref.watch(priceNegotiationProvider).isSubmitting)
+                      if (ref
+                          .watch(priceNegotiationProvider)
+                          .isActionActive("price:reject"))
                         SizedBox(
                           height: 14,
                           width: 14,
@@ -155,10 +157,6 @@ class _NegotiationMessageBubbleState
                         )
                       else
                         IconButton(
-                          // isEnabled: !submitState.isSubmitting,
-                          // isLoading:
-                          //     submitState.isSubmitting &&
-                          //     submitState.submitId == "price:reject",
                           onPressed: () async {
                             await ref
                                 .read(priceNegotiationProvider.notifier)
@@ -174,7 +172,9 @@ class _NegotiationMessageBubbleState
                           icon: Icon(Icons.clear, color: Colors.red),
                         ),
 
-                      if (ref.watch(priceNegotiationProvider).isSubmitting)
+                      if (ref
+                          .watch(priceNegotiationProvider)
+                          .isActionActive("price:accept"))
                         SizedBox(
                           height: 14,
                           width: 14,

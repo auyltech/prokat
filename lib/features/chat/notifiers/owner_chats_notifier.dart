@@ -20,11 +20,15 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
 
     final result = response.data;
 
+    if (!response.success || result == null) {
+      throw Exception(response.message);
+    }
+
     return QueryState(
-      items: result?.items ?? const [],
-      page: result?.page ?? 1,
-      itemsPerPage: result?.itemsPerPage ?? 20,
-      count: result?.count ?? 0,
+      items: _sortChats(result.items),
+      page: result.page,
+      itemsPerPage: result.itemsPerPage,
+      count: result.count,
       lastFetchedAt: DateTime.now(),
     );
   }
@@ -67,7 +71,7 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
 
       state = AsyncData(
         current.copyWith(
-          items: [...current.items, ...result.items],
+          items: _mergeChats(current.items, result.items),
           page: result.page,
           itemsPerPage: result.itemsPerPage,
           count: result.count,
@@ -84,7 +88,11 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     final current = state.value;
     if (current == null) return;
 
-    state = AsyncData(current.copyWith(lastFetchedAt: null));
+    state = AsyncData(
+      current.copyWith(
+        lastFetchedAt: DateTime.fromMillisecondsSinceEpoch(0),
+      ),
+    );
   }
 
   Future<void> refreshIfStale() async {
@@ -158,5 +166,27 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   void markChatRead(String chatId) {
     // We'll implement this after updating ChatModel.copyWith
     // to support newMessagesCount.
+  }
+
+  List<ChatModel> _mergeChats(
+    List<ChatModel> existing,
+    List<ChatModel> incoming,
+  ) {
+    final chats = <String, ChatModel>{
+      for (final chat in existing) chat.id: chat,
+      for (final chat in incoming) chat.id: chat,
+    };
+
+    return _sortChats(chats.values.toList());
+  }
+
+  List<ChatModel> _sortChats(List<ChatModel> chats) {
+    final sorted = List<ChatModel>.from(chats);
+    sorted.sort((a, b) {
+      final aDate = a.lastMessage?.createdAt ?? a.updatedAt ?? DateTime(0);
+      final bDate = b.lastMessage?.createdAt ?? b.updatedAt ?? DateTime(0);
+      return bDate.compareTo(aDate);
+    });
+    return sorted;
   }
 }

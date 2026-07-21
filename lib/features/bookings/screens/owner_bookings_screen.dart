@@ -54,7 +54,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(ownerActiveBookingsProvider.notifier).refresh();
+          return ref.read(ownerActiveBookingsProvider.notifier).refresh();
         },
         child: bookingsAsync.when(
           loading: () => const OwnerBookingSkeleton(),
