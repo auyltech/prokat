@@ -82,12 +82,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           break;
 
         case AppStartupRouteState.error:
-          if (location != AppRoutes.error) {
-            return AppRoutes.error;
+          if (location == AppRoutes.error) {
+            return null;
           }
           return AppRoutes.error;
 
         case AppStartupRouteState.otp:
+          if (location == AppRoutes.login) {
+            return null;
+          }
           return AppRoutes.login;
 
         case AppStartupRouteState.guest:
@@ -97,11 +100,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           break;
 
         case AppStartupRouteState.unauthorized:
+          if (location == AppRoutes.login) {
+            return null;
+          }
           return AppRoutes.login;
 
         case AppStartupRouteState.owner:
           if (location == AppRoutes.launch) {
-            return AppRoutes.ownerEquiment;
+            return AppRoutes.ownerEquipment;
           }
           break;
 
@@ -142,14 +148,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       /// 🚫 BLOCK AUTH SCREENS WHEN LOGGED IN
       if (isLoggedIn &&
           (location == AppRoutes.login || location == AppRoutes.register)) {
+        // This value is already automatically decoded by GoRouter
         final from = state.uri.queryParameters['from'];
 
         if (from != null) {
-          final decoded = Uri.decodeComponent(from);
-
-          if (decoded.startsWith(AppRoutes.clientMain) ||
-              decoded.startsWith(AppRoutes.ownerMain)) {
-            return decoded;
+          if (from.startsWith(AppRoutes.clientMain) ||
+              from.startsWith(AppRoutes.ownerMain)) {
+            return from;
           }
         }
 
@@ -196,7 +201,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               // Support us
               GoRoute(
                 path: AppRoutes.supportUs,
-                builder: (_, _) => const SupportUsPage(),
+                builder: (_, _) => const SupportUsScreen(),
               ),
               // Privacy Policy
               GoRoute(
@@ -242,8 +247,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.map,
                     builder: (context, state) {
-                      final from = state.pathParameters['from'] ?? '';
-                      return MapClientPinAddressScreen(from: from); //
+                      // Cast state.extra safely to retrieve the map values
+                      final extraData =
+                          state.extra as Map<String, dynamic>? ?? {};
+
+                      final from = extraData['from'] as String? ?? '';
+
+                      return MapClientPinAddressScreen(from: from);
                     },
                   ),
                   GoRoute(
@@ -299,11 +309,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    path: "/support",
+                    path: AppRoutes.supportChat,
                     builder: (context, state) => ClientSupportChat(),
                   ),
                   GoRoute(
-                    path: "/direct/${AppRoutes.id}",
+                    path: "${AppRoutes.directChat}/${AppRoutes.id}",
                     builder: (context, state) {
                       final chatId = state.pathParameters['id'] ?? '';
 
@@ -366,7 +376,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               // Owner Equipment
               //
               GoRoute(
-                path: AppRoutes.ownerEquiment,
+                path: AppRoutes.ownerEquipment,
                 builder: (_, _) => const OwnerEquipmentListScreen(),
                 routes: [
                   GoRoute(
@@ -445,7 +455,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const OwnerRequestsScreen(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.id,
+                    path: AppRoutes.sendOffer,
                     builder: (context, state) {
                       return CreateOfferScreen();
                     },

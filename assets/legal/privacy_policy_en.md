@@ -10,7 +10,7 @@ By creating an account or using Prokat, you agree to the practices described in 
 
 ---
 
-# 1. About Prokat
+## 1. About Prokat
 
 Prokat is a mobile platform that enables users to browse, rent, and manage equipment rentals. The platform connects equipment owners with customers seeking to rent equipment for various purposes.
 
@@ -22,11 +22,11 @@ Depending on how you use the application, you may act as:
 
 ---
 
-# 2. Information We Collect
+## 2. Information We Collect
 
 We collect information that is necessary to operate and improve our Services.
 
-## 2.1 Account Information
+### 2.1 Account Information
 
 When creating an account, we may collect:
 
@@ -36,7 +36,7 @@ When creating an account, we may collect:
 - Username
 - Password (stored securely using industry-standard encryption)
 
-## 2.2 Profile Information
+### 2.2 Profile Information
 
 If you register as an equipment owner, we may additionally collect:
 
@@ -49,7 +49,7 @@ If you register as an equipment owner, we may additionally collect:
 - Service locations
 - Public owner profile information
 
-## 2.3 Booking Information
+### 2.3 Booking Information
 
 When you create or manage bookings, we collect:
 
@@ -60,7 +60,7 @@ When you create or manage bookings, we collect:
 - Payment status (when applicable)
 - Communication related to the booking
 
-## 2.4 Messages and Communications
+### 2.4 Messages and Communications
 
 Prokat provides an in-app messaging system.
 
@@ -72,7 +72,7 @@ Messages exchanged between users may be stored to:
 - Provide customer support
 - Prevent fraud or abuse
 
-## 2.5 Device Information
+### 2.5 Device Information
 
 We may automatically collect:
 
@@ -87,7 +87,7 @@ We may automatically collect:
 
 This information helps us improve application stability, reliability, and performance.
 
-## 2.6 Location Information
+### 2.6 Location Information
 
 With your permission, Prokat may access your device location to:
 
@@ -98,7 +98,7 @@ With your permission, Prokat may access your device location to:
 
 Location permission is optional. You may disable it at any time in your device settings, although some features may no longer function correctly.
 
-## 2.7 Photos and Media
+### 2.7 Photos and Media
 
 If you upload images, we collect the files you choose to upload, including:
 
@@ -108,7 +108,7 @@ If you upload images, we collect the files you choose to upload, including:
 
 These files are securely stored to provide the requested functionality.
 
-## 2.8 Notifications
+### 2.8 Notifications
 
 If notifications are enabled, we may collect device notification tokens in order to deliver:
 
@@ -123,7 +123,7 @@ Notification tokens are used exclusively for delivering notifications.
 
 ---
 
-# 3. How We Use Your Information
+## 3. How We Use Your Information
 
 We use your information to:
 
@@ -143,7 +143,7 @@ We use your information to:
 
 ---
 
-# 4. Legal Basis for Processing
+## 4. Legal Basis for Processing
 
 Depending on your jurisdiction, we process your information because it is necessary to:
 
@@ -155,13 +155,13 @@ Depending on your jurisdiction, we process your information because it is necess
 
 ---
 
-# 5. Sharing Your Information
+## 5. Sharing Your Information
 
 We **do not sell** your personal information.
 
 We may share limited information only in the following situations.
 
-## Between Users
+### Between Users
 
 To facilitate equipment rentals, certain information may be visible to other users, including:
 
@@ -174,7 +174,7 @@ To facilitate equipment rentals, certain information may be visible to other use
 
 Only information necessary for providing the service is shared.
 
-## Service Providers
+### Service Providers
 
 We may share limited information with trusted third-party providers that assist us with:
 
@@ -187,7 +187,7 @@ We may share limited information with trusted third-party providers that assist 
 
 These providers are required to safeguard your information and use it only for authorized purposes.
 
-## Legal Requirements
+### Legal Requirements
 
 We may disclose information if required to:
 
@@ -199,7 +199,7 @@ We may disclose information if required to:
 
 ---
 
-# 6. Data Security
+## 6. Data Security
 
 We implement reasonable technical and organizational measures to protect your information, including:
 
@@ -214,7 +214,7 @@ While we strive to protect your information, no method of electronic storage or 
 
 ---
 
-# 7. Data Retention
+## 7. Data Retention
 
 We retain your information only for as long as necessary to:
 
@@ -228,7 +228,7 @@ When no longer required, information is securely deleted or anonymized where rea
 
 ---
 
-# 8. Your Rights
+## 8. Your Rights
 
 Subject to applicable law, you may have the right to:
 
@@ -244,7 +244,7 @@ Requests may be submitted using the contact information below.
 
 ---
 
-# 9. Account Deletion
+## 9. Account Deletion
 
 You may request deletion of your Prokat account at any time.
 
@@ -258,7 +258,7 @@ If available, you may delete your account directly within the application. Other
 
 ---
 
-# 10. Cookies and Similar Technologies
+## 10. Cookies and Similar Technologies
 
 The Prokat mobile application may use secure authentication tokens, local storage, and similar technologies to:
 
@@ -271,7 +271,7 @@ These technologies are required for normal application functionality.
 
 ---
 
-# 11. Children's Privacy
+## 11. Children's Privacy
 
 Prokat is not intended for children under the age of 13, or the minimum legal age required by applicable law.
 
@@ -279,7 +279,7 @@ We do not knowingly collect personal information from children. If such informat
 
 ---
 
-# 12. International Data Transfers
+## 12. International Data Transfers
 
 Your information may be processed or stored on servers located outside your country of residence.
 
@@ -287,7 +287,7 @@ Where such transfers occur, we take reasonable measures to ensure your informati
 
 ---
 
-# 13. Third-Party Services
+## 13. Third-Party Services
 
 Prokat may integrate with trusted third-party services such as:
 
@@ -301,7 +301,7 @@ Each provider operates under its own privacy policy.
 
 ---
 
-# 14. Changes to This Privacy Policy
+## 14. Changes to This Privacy Policy
 
 We may update this Privacy Policy from time to time to reflect changes in our services, legal requirements, or operational practices.
 
@@ -311,24 +311,24 @@ Continued use of the Services after any changes become effective constitutes acc
 
 ---
 
-# 15. Contact Us
+## 15. Contact Us
 
 If you have any questions regarding this Privacy Policy or wish to exercise your privacy rights, please contact us.
 
 **Developer:** Prokat
 
-**Email:** privacy@prokat.kz
+**Email:** <privacy@prokat.kz>
 
 **Country:** Republic of Kazakhstan
 
 ---
 
-# 16. Permissions Used by the Application
+## 16. Permissions Used by the Application
 
 Depending on the features you choose to use, Prokat may request the following permissions:
 
 | Permission | Purpose |
-|------------|---------|
+| ------------ | --------- |
 | Internet | Connect to Prokat services |
 | Camera | Capture equipment and profile photos |
 | Photos / Storage | Upload equipment images |

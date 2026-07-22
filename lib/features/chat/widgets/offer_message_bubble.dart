@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -10,13 +12,17 @@ import 'package:prokat/features/offers/widgets/offer_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OfferMessageBubble extends ConsumerStatefulWidget {
+  final ChatModel? currentChat;
   final ChatMessageModel message;
   final bool isMe;
+  final AppMode mode;
 
   const OfferMessageBubble({
     super.key,
+    this.currentChat,
     required this.message,
     required this.isMe,
+    required this.mode,
   });
 
   @override
@@ -30,20 +36,20 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
     final l10n = AppLocalizations.of(context)!;
 
     final parsed = switch (widget.message.meta) {
-      Map<String, dynamic> meta => OfferModel.fromJson(meta["offer"]),
+      Map<String, dynamic> meta => OfferModel.fromJson(meta),
       _ => null,
     };
 
-    if (parsed == null) return const SizedBox.shrink();
+    if (parsed == null) {
+      return Text("Error loading offer");
+    }
 
-    final offers = [
-      ...ref.watch(offersProvider).clientOffers,
-      ...ref.read(offersProvider).ownerOffers,
-    ];
-
+    final offers = widget.currentChat?.offers ?? [];
     final offer = offers.where((item) => item.id == parsed.id).firstOrNull;
 
-    if (offer == null) return const SizedBox.shrink();
+    if (offer == null) {
+      return Text("${offers.length} Offer");
+    }
 
     return Align(
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,

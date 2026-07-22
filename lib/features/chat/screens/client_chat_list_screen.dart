@@ -91,6 +91,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
 
             if (chats.isEmpty) {
               return ListView(
+                padding: EdgeInsets.all(12),
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
@@ -116,9 +117,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                 if (index == chats.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Center(
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
+                    child: Center(child: CircularProgressIndicator.adaptive()),
                   );
                 }
 

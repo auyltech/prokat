@@ -13,10 +13,31 @@ class SelectAddressSheet extends ConsumerWidget {
 
   const SelectAddressSheet({
     super.key,
-    this.equipmentId,
-    required this.from,
     required this.service,
+    required this.from,
+    this.equipmentId,
   });
+
+  static void show(
+    BuildContext context, {
+    required String service,
+    required String from,
+    String? equipmentId,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SelectAddressSheet(
+        service: service,
+        from: from,
+        equipmentId: equipmentId,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

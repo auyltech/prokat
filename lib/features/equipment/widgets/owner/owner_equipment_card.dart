@@ -39,7 +39,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
               ref
                   .read(equipmentMutationProvider.notifier)
                   .selectEditEquipment(equipment.id);
-              context.push('${AppRoutes.ownerEquiment}/${equipment.id}');
+              context.push('${AppRoutes.ownerEquipment}/${equipment.id}');
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

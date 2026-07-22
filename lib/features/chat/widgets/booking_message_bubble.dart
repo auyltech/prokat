@@ -6,7 +6,6 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
-import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
@@ -14,8 +13,8 @@ import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
-import 'package:prokat/features/chat/widgets/show_counter_offer_sheet.dart';
 import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
+import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends ConsumerStatefulWidget {
@@ -41,17 +40,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final messageMeta = switch (widget.message.meta) {
-      Map<String, dynamic> meta => BookingModel.fromJson(meta),
-      _ => null,
-    };
-
-    if (messageMeta == null) return Text("Error loading booking");
-
     final booking = widget.currentChat?.booking;
 
     if (booking == null) {
-      return const Text("Booking unavailable");
+      return const Text("Error loading booking");
     }
 
     final equipment = booking.equipment;
@@ -239,41 +231,49 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
               Spacer(),
 
               // Cancel Order
-              if (ref
-                      .watch(bookingMutationProvider)
-                      .isActionActive("booking:${booking.id}:cancel") ||
-                  ref
-                      .watch(bookingMutationProvider)
-                      .isActionActive("booking:${booking.id}:reject"))
-                SizedBox(
-                  height: 14,
-                  width: 14,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                  ),
-                )
-              else
-                IconButton(
-                  onPressed: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: theme.colorScheme.surface,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
+              if ([
+                BookingStatus.created,
+                BookingStatus.confirmed,
+              ].contains(booking.status)) ...[
+                if (ref
+                        .watch(bookingMutationProvider)
+                        .isActionActive("booking:${booking.id}:cancel") ||
+                    ref
+                        .watch(bookingMutationProvider)
+                        .isActionActive("booking:${booking.id}:reject"))
+                  SizedBox(
+                    height: 14,
+                    width: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                    ),
+                  )
+                else
+                  IconButton(
+                    onPressed: () => showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: theme.colorScheme.surface,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      builder: (_) => CancelBookingSheet(
+                        booking: booking,
+                        mode: widget.mode,
                       ),
                     ),
-                    builder: (_) =>
-                        CancelBookingSheet(booking: booking, mode: widget.mode),
+                    icon: Icon(
+                      LucideIcons.x,
+                      size: 25,
+                      color: theme.colorScheme.error,
+                    ),
                   ),
-                  icon: Icon(
-                    LucideIcons.x,
-                    size: 25,
-                    color: theme.colorScheme.error,
-                  ),
-                ),
+              ],
 
+              // Create Price Negotiation
               if (booking.status == BookingStatus.created) ...[
                 if (ref
                     .watch(bookingMutationProvider)
@@ -289,16 +289,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 else
                   IconButton(
                     onPressed: () async {
-                      await showCounterOfferSheet(
-                        context: context,
-                        chatId: widget.message.chatId,
-                        bookingId: booking.id,
-                        initialPrice: booking.price,
-                        initialPriceRate: booking.priceRate,
-                        mode: widget.mode == AppMode.ownerMode
-                            ? "owner"
-                            : "client",
-                      );
+                      await CounterOfferSheet.show(context, mode: widget.mode);
                     },
                     icon: Icon(
                       LucideIcons.coins,
@@ -308,6 +299,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   ),
               ],
 
+              // Update Work Status
               if (widget.mode == AppMode.ownerMode &&
                   booking.status == BookingStatus.created) ...[
                 if (ref

@@ -3,7 +3,7 @@ import 'package:prokat/core/widgets/base_tile.dart';
 
 class UserProfileTile extends StatelessWidget {
   final IconData icon;
-  final Color? iconBgColor;
+  final Color iconBgColor;
   final Color? iconColor;
   final String label;
   final String value;
@@ -13,7 +13,7 @@ class UserProfileTile extends StatelessWidget {
   const UserProfileTile({
     super.key,
     required this.icon,
-    this.iconBgColor,
+    required this.iconBgColor,
     this.iconColor,
     required this.label,
     required this.value,
@@ -27,9 +27,9 @@ class UserProfileTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: BaseTile(
+      child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // decoration: BoxDecoration(
         //   color: theme.colorScheme.surface,
         //   borderRadius: BorderRadius.circular(14),
@@ -41,7 +41,7 @@ class UserProfileTile extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: iconBgColor ?? theme.colorScheme.primaryContainer,
+                color: iconBgColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -51,7 +51,7 @@ class UserProfileTile extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
 
             /// Main content
             Expanded(

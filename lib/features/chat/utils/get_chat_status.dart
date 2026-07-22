@@ -1,20 +1,30 @@
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 
 ChatStatusDetail getChatStatus({
-  RequestStatus? requestStatus,
-  BookingStatus? bookingStatus,
-  WorkStatus? workStatus,
+  ChatModel? chat,
+  AppMode? mode,
   bool? hasNegotiation,
   bool? pendingFromMe,
   bool? reviewSubmitted,
-  bool? hasActiveOffer,
-  bool? isOfferPendingFromMe,
 }) {
-  // Request Created
+  final requestStatus = chat?.request?.status;
+  final bookingStatus = chat?.booking?.status;
+  final workStatus = chat?.booking?.workStatus;
+  final activeOffer = chat?.offers
+      .where((offer) => offer.status == OfferStatus.created)
+      .firstOrNull;
 
+  final hasActiveOffer = activeOffer != null;
+  final isOfferPendingFromMe =
+      mode == AppMode.clientMode && activeOffer != null;
+
+  // Request Created
   if (requestStatus == RequestStatus.responded) {
     if (hasActiveOffer == true) {
       // Request Offer cannot be pending from owner

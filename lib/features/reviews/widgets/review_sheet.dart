@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 
 class ReviewSheet extends ConsumerStatefulWidget {
@@ -16,6 +17,27 @@ class ReviewSheet extends ConsumerStatefulWidget {
     required this.revieweeId,
     required this.title,
   });
+
+  static Future<bool> show(
+    BuildContext context, {
+    required String bookingId,
+    required String revieweeId,
+    required AppMode mode,
+  }) async {
+    return await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => ReviewSheet(
+        bookingId: bookingId,
+        revieweeId: revieweeId,
+        title: mode == AppMode.clientMode ? 'Review owner' : 'Review client',
+      ),
+    );
+  }
 
   @override
   ConsumerState<ReviewSheet> createState() => _ReviewSheetState();

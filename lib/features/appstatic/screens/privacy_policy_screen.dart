@@ -4,13 +4,23 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
-  // Future function to load the local markdown file string
-  Future<String> _loadPrivacyPolicy(BuildContext context) async {
-    // Tip: Later when adding language switching, replace 'en' with your language code variable
-    // e.g., 'assets/legal/${currentLocale.languageCode}/privacy_policy.md'
-    return await DefaultAssetBundle.of(
-      context,
-    ).loadString('assets/legal/privacy_policy_en.md');
+  String _getLocaleAssetPath(BuildContext context) {
+    try {
+      final localeCode = Localizations.localeOf(context).languageCode;
+      print(localeCode);
+      // Dynamically falls back to 'en' if the current language file is not yet available
+      if (localeCode == 'kk' || localeCode == 'ru') {
+        return 'assets/legal/privacy_policy_$localeCode.md';
+      }
+    } catch (_) {
+      // Fallback architecture to ensure the app never crashes
+    }
+    return 'assets/legal/privacy_policy_en.md';
+  }
+
+  Future<String> _loadMarkdown(BuildContext context) async {
+    final assetPath = _getLocaleAssetPath(context);
+    return await DefaultAssetBundle.of(context).loadString(assetPath);
   }
 
   @override
@@ -18,7 +28,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: FutureBuilder<String>(
-          future: _loadPrivacyPolicy(context),
+          future: _loadMarkdown(context),
           builder: (context, snapshot) {
             // 1. Loading State
             if (snapshot.connectionState == ConnectionState.waiting) {

@@ -87,7 +87,7 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
 
     if (res) {
       final url = widget.service == "equipment"
-          ? "${AppRoutes.ownerEquiment}/${widget.equipmentId}"
+          ? "${AppRoutes.ownerEquipment}/${widget.equipmentId}"
           : "${AppRoutes.equipment}/${widget.equipmentId}";
 
       context.push(url);

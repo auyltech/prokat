@@ -4,8 +4,11 @@ class AppRoutes {
   static const String id = ':id';
   static const String history = 'history';
   static const String map = 'map';
-  static const String topUp = 'topUp';
+  static const String topUp = 'top-up';
   static const String info = 'info';
+  static const String directChat = 'direct';
+  static const String supportChat = 'support';
+  static const String sendOffer = 'send-offer';
 
   // Public
   static const String launch = '/';
@@ -13,8 +16,8 @@ class AppRoutes {
 
   // Auth
   static const String login = '/login';
-  static const String register = '/register';
-  static const String forgotPassword = '/forgot-password';
+  static const String register = '/register'; // Not-used
+  static const String forgotPassword = '/forgot-password'; // Not-used
 
   // Guest Screens
   static const String main = '/main'; // Landing page with limited information
@@ -32,8 +35,7 @@ class AppRoutes {
   static const String search = '$clientMain/search';
   // Equipment Search Screen
   static const String searchList = '$clientMain/search/list';
-  // Map View: No Direct to screen, TODO: REMOVE screen and route
-  static const String searchMap = '$clientMain/search/$map';
+  static const String searchMap = '$clientMain/search/$map'; // Not used
 
   // Segment used to build the create booking path
   static const String equipment = '$clientMain/equipment';
@@ -69,16 +71,15 @@ class AppRoutes {
   static const String ownerMain = '/owner';
 
   // prefixed with /owner
-  static const String ownerDashboard = '$ownerMain/dashboard';
+  static const String ownerDashboard = '$ownerMain/dashboard'; // Not used
 
   // Owner Equipment
-  static const String ownerEquiment = '$ownerMain/equipment';
+  static const String ownerEquipment = '$ownerMain/equipment';
 
   // Full path for components
-  static const String ownerEquimentCreate = '$ownerEquiment/$create';
-  static const String ownerEquimentId = '$ownerEquiment/$id';
-  // TODO: Screen Not implemented, Remove screen and route
-  static const String ownerEquimentMap = '$ownerEquiment/$map';
+  static const String ownerEquipmentCreate = '$ownerEquipment/$create';
+  static const String ownerEquipmentId = '$ownerEquipment/$id';
+  static const String ownerEquipmentMap = '$ownerEquipment/$map'; // Not used
 
   // Owner Addresses
   static const String ownerAddresses = '$ownerMain/addresses';
@@ -89,7 +90,7 @@ class AppRoutes {
 
   // Owner Requests
   static const String ownerRequests = '$ownerMain/requests';
-  static const String ownerCreateOffer = '$ownerRequests/$id';
+  static const String ownerCreateOffer = '$ownerRequests/$sendOffer';
 
   // Owner Bookings
   static const String ownerBookings = '$ownerMain/bookings';
@@ -106,9 +107,6 @@ class AppRoutes {
 
   // Owner Chats
   static const String ownerChatList = '$ownerMain/chat'; // List of chats
-  static const String ownerChatId = '$ownerChatList/direct/$id'; // Chat by Id
-  static const String ownerChatInfo =
-      '$ownerChatList/direct/$id/$info'; // Chat info
 
   // Notifications
   static const String ownerNotifications = '$ownerMain/notifications';

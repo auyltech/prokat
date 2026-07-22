@@ -8,7 +8,6 @@ import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
-import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_state.dart';
 import 'package:prokat/features/user/widgets/balance_tile.dart';
@@ -67,29 +66,29 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         child: CustomScrollView(
           slivers: [
             // Page Header
-            SliverAppBar(
-              pinned: true,
-              elevation: 0,
-              floating: true,
-              backgroundColor: theme.scaffoldBackgroundColor,
-              // iconTheme: const IconThemeData(color: Colors.white),
-              centerTitle: false,
-              title: Text(
-                'Owner Profile',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  // color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              actions: [
-                IconButton(icon: const NotificationBadge(), onPressed: () {}),
-                const SizedBox(width: 8),
-              ],
-            ),
+            // SliverAppBar(
+            //   pinned: true,
+            //   elevation: 0,
+            //   floating: true,
+            //   backgroundColor: theme.scaffoldBackgroundColor,
+            //   // iconTheme: const IconThemeData(color: Colors.white),
+            //   centerTitle: false,
+            //   title: Text(
+            //     'Owner Profile',
+            //     style: theme.textTheme.titleLarge?.copyWith(
+            //       // color: Colors.white,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            //   actions: [
+            //     IconButton(icon: const NotificationBadge(), onPressed: () {}),
+            //     const SizedBox(width: 8),
+            //   ],
+            // ),
 
             // Owner Profile
             SliverAppBar(
-              expandedHeight: 200,
+              expandedHeight: 250,
               pinned: false,
               elevation: 0,
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
@@ -210,7 +209,7 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.teal800,

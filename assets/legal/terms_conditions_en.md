@@ -8,7 +8,7 @@ By creating an account or using the Platform, you agree to be bound by these Ter
 
 ---
 
-# 1. About Prokat
+## 1. About Prokat
 
 Prokat is a digital marketplace that connects equipment owners with individuals and businesses seeking to rent equipment.
 
@@ -16,7 +16,7 @@ Prokat provides technology services to facilitate listings, bookings, communicat
 
 ---
 
-# 2. Definitions
+## 2. Definitions
 
 For the purposes of these Terms:
 
@@ -30,7 +30,7 @@ For the purposes of these Terms:
 
 ---
 
-# 3. Eligibility
+## 3. Eligibility
 
 To use Prokat, you must:
 
@@ -43,7 +43,7 @@ You are responsible for all activity occurring under your account.
 
 ---
 
-# 4. User Accounts
+## 4. User Accounts
 
 You agree to:
 
@@ -56,7 +56,7 @@ Prokat reserves the right to suspend or terminate accounts involved in fraud, ab
 
 ---
 
-# 5. Using the Platform
+## 5. Using the Platform
 
 Users may:
 
@@ -79,7 +79,7 @@ Users may not:
 
 ---
 
-# 6. Equipment Listings
+## 6. Equipment Listings
 
 Owners are responsible for ensuring that:
 
@@ -94,7 +94,7 @@ Owners remain solely responsible for the condition, maintenance, legality, and o
 
 ---
 
-# 7. Booking Process
+## 7. Booking Process
 
 Clients may submit booking requests through the Platform.
 
@@ -104,7 +104,7 @@ Both parties are responsible for reviewing booking details before confirmation.
 
 ---
 
-# 8. Equipment Use
+## 8. Equipment Use
 
 Clients agree to:
 
@@ -118,7 +118,7 @@ Clients may be responsible for damage resulting from misuse, negligence, or unau
 
 ---
 
-# 9. Payments
+## 9. Payments
 
 Rental prices are determined by equipment Owners unless otherwise specified.
 
@@ -130,7 +130,7 @@ Failure to complete payment may result in booking cancellation or account restri
 
 ---
 
-# 10. Cancellations
+## 10. Cancellations
 
 Cancellation policies may vary depending on the booking and applicable Platform rules.
 
@@ -140,7 +140,7 @@ Repeated cancellations, no-shows, or abusive booking behavior may result in acco
 
 ---
 
-# 11. User Content
+## 11. User Content
 
 Users retain ownership of the content they upload.
 
@@ -158,7 +158,7 @@ Prokat reserves the right to remove content that violates these Terms.
 
 ---
 
-# 12. Reviews and Ratings
+## 12. Reviews and Ratings
 
 Users may leave reviews based on genuine rental experiences.
 
@@ -168,7 +168,7 @@ Prokat may remove reviews that are fraudulent, abusive, misleading, or violate a
 
 ---
 
-# 13. Communications
+## 13. Communications
 
 By using Prokat, you agree to receive communications including:
 
@@ -186,7 +186,7 @@ Users may disable certain non-essential notifications within the application set
 
 ---
 
-# 14. Identity Verification
+## 14. Identity Verification
 
 Prokat may request identity verification, ownership verification, or additional documentation at any time to improve platform security and reduce fraud.
 
@@ -194,7 +194,7 @@ Failure to provide requested information may limit access to certain Platform fe
 
 ---
 
-# 15. Platform Availability
+## 15. Platform Availability
 
 While Prokat strives to maintain reliable service, uninterrupted availability cannot be guaranteed.
 
@@ -209,7 +209,7 @@ The Platform may become temporarily unavailable due to:
 
 ---
 
-# 16. Intellectual Property
+## 16. Intellectual Property
 
 All intellectual property relating to Prokat, including but not limited to:
 
@@ -228,7 +228,7 @@ Users may not copy, distribute, modify, or reproduce Platform materials without 
 
 ---
 
-# 17. Privacy
+## 17. Privacy
 
 Our collection and use of personal information is governed by our Privacy Policy.
 
@@ -236,7 +236,7 @@ By using the Platform, you acknowledge that you have read and understood the Pri
 
 ---
 
-# 18. Third-Party Services
+## 18. Third-Party Services
 
 The Platform may integrate with third-party providers including payment processors, mapping services, cloud storage providers, analytics services, and notification services.
 
@@ -246,7 +246,7 @@ Use of such services may be subject to their own terms and privacy policies.
 
 ---
 
-# 19. Limitation of Liability
+## 19. Limitation of Liability
 
 To the maximum extent permitted by applicable law:
 
@@ -270,7 +270,7 @@ Nothing in these Terms limits liability where such limitation is prohibited by a
 
 ---
 
-# 20. Indemnification
+## 20. Indemnification
 
 Users agree to indemnify and hold harmless Prokat, its employees, officers, affiliates, and partners from claims, damages, liabilities, expenses, and legal costs arising from:
 
@@ -282,7 +282,7 @@ Users agree to indemnify and hold harmless Prokat, its employees, officers, affi
 
 ---
 
-# 21. Suspension and Termination
+## 21. Suspension and Termination
 
 Prokat may suspend or terminate accounts without prior notice if Users:
 
@@ -297,7 +297,7 @@ Users may stop using the Platform and delete their accounts at any time, subject
 
 ---
 
-# 22. Force Majeure
+## 22. Force Majeure
 
 Prokat shall not be liable for delays or failures resulting from circumstances beyond its reasonable control, including:
 
@@ -312,7 +312,7 @@ Prokat shall not be liable for delays or failures resulting from circumstances b
 
 ---
 
-# 23. Changes to These Terms
+## 23. Changes to These Terms
 
 Prokat may update these Terms periodically.
 
@@ -322,7 +322,7 @@ Continued use of the Platform after updated Terms become effective constitutes a
 
 ---
 
-# 24. Governing Law
+## 24. Governing Law
 
 These Terms shall be governed by and interpreted in accordance with the laws of the **Republic of Kazakhstan**, without regard to conflict of law principles.
 
@@ -330,37 +330,31 @@ Any disputes arising from these Terms shall be resolved by the competent courts 
 
 ---
 
-# 25. Contact Us
+## 25. Contact Us
 
 If you have questions regarding these Terms, please contact us.
 
 **Prokat**
 
-Email: support@prokat.kz
+Email: <support@prokat.kz>
 
-Website: https://prokat.kz
+Website: <https://prokat.kz>
 
 ---
 
-# 26. Severability
+## 26. Severability
 
 If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
 
 ---
 
-# 27. Entire Agreement
+## 27. Entire Agreement
 
 These Terms, together with the Privacy Policy and any additional policies expressly incorporated by reference, constitute the entire agreement between you and Prokat regarding your use of the Platform.
-
 
 ---
 
 Thank you for using **Prokat**.
-
-
-
-
-
 
 ---
 *By using the Prokat application, you confirm that you have read, understood, and agreed to be bound by these Terms and Conditions.*

@@ -6,10 +6,9 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/owner_chat_action_bar.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
-import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_bar.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
@@ -48,20 +47,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final messages = messagesAsync.valueOrNull?.items ?? const [];
 
     final booking = currentChat?.booking;
-    final request = currentChat?.request;
 
-    final chatOwnerId = currentChat?.owner?.id;
-    final chatClientId = currentChat?.client?.id;
-
-    final hasActiveOffer = ref
-        .watch(offersProvider.notifier)
-        .hasActiveOffer(request?.id ?? "", "owner");
-    // Offer will always be created by owner and responded by client
-    final isOfferPendingFromMe = false;
-
-    final lastOffer = ref
-        .read(offersProvider.notifier)
-        .getLastRequestOffer(request?.id ?? "", "owner");
+    final lastOffer = currentChat?.getActiveOffer();
 
     final pendingNegotiation = ref
         .watch(priceNegotiationProvider.notifier)
@@ -78,16 +65,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
     final ChatStatusDetail chatStatus = getChatStatus(
-      bookingStatus: booking?.status,
-      requestStatus: request?.status,
-      hasActiveOffer: hasActiveOffer,
-      isOfferPendingFromMe: isOfferPendingFromMe,
       hasNegotiation: pendingNegotiation != null,
       pendingFromMe:
           pendingNegotiationId.isNotEmpty &&
           currentUserId.isNotEmpty &&
           (pendingNegotiation?.senderId ?? '').trim() != currentUserId,
-      workStatus: booking?.workStatus,
       reviewSubmitted: reviewSubmitted,
     );
 
@@ -205,20 +187,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                     ),
                   ),
 
-                if (booking != null)
-                  OwnerChatActionBar(
-                    chatId: widget.chatId,
+                if (currentChat != null)
+                  ChatActionBar(
+                    currentChat: currentChat,
                     chatStatus: chatStatus,
-                    booking: booking,
-                    chatOwnerId: chatOwnerId,
-                    chatClientId: chatClientId,
-                  )
-                else if (request != null)
-                  OfferChatActionBar(
-                    chatStatus: chatStatus,
-                    chatId: widget.chatId,
-                    requestId: request.id,
-                    mode: "owner",
+                    mode: AppMode.ownerMode,
                   ),
               ],
             ),

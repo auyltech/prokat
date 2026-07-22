@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 
@@ -62,10 +60,7 @@ class ChatTile extends StatelessWidget {
 
     final summary = chat.bookingSummary;
 
-    final chatStatus = getChatStatus(
-      bookingStatus: parseBookingStatus(chat.bookingSummary?.status),
-      workStatus: parseWorkStatus(chat.bookingSummary),
-    );
+    final chatStatus = getChatStatus(chat: chat);
 
     final chatStatusLabel = getChatStatusLabel(chatStatus);
 

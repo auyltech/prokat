@@ -274,7 +274,7 @@ class OwnerRequestTile extends ConsumerWidget {
                             .read(offersProvider.notifier)
                             .selectRequest(request);
 
-                        context.push('${AppRoutes.ownerRequests}/send-offer');
+                        context.push(AppRoutes.ownerCreateOffer);
                       },
                       icon: Icon(
                         LucideIcons.send,

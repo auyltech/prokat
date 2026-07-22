@@ -1,18 +1,16 @@
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-// TODO: FIX_L10N
-
-// TODO: Review resolution in line with new App Routes
 String resolveAppBarTitle(
   String path,
   List<String> segments,
   AppLocalizations l10n,
 ) {
   if (path == AppRoutes.privacyPolicy) return 'Privacy Policy';
-  if (path == '/support-us') return l10n.helpUsGrow;
+  if (path == AppRoutes.supportUs) return l10n.helpUsGrow;
   if (path == AppRoutes.contactSupport) return 'Get in Touch';
-  if (path == '/terms') return l10n.termsConditions;
+  if (path == AppRoutes.termsConditions) return l10n.termsConditions;
+
   // Exact Client Route Matches
   // Search Equipment Screen
   if (path == AppRoutes.searchList) return 'Search';
@@ -27,8 +25,10 @@ String resolveAppBarTitle(
   // Requests
   if (path == AppRoutes.clientRequestsCreate) return l10n.newRequest;
   if (path == AppRoutes.clientRequests) return l10n.myRequests;
+  if (path == AppRoutes.clientRequestsHistory) return l10n.requestsHistory;
 
   if (path == AppRoutes.clientChatList) return l10n.navChats;
+  if (path == AppRoutes.clientChatSupport) return 'Support';
 
   if (path == AppRoutes.favorites) return 'Favorites';
   if (path == AppRoutes.clientNotifications) return 'Notifications';
@@ -40,38 +40,45 @@ String resolveAppBarTitle(
   if (path == AppRoutes.helpSupport) return 'Help Center';
 
   if (path == AppRoutes.searchMap) return 'Map Search';
+
   if (path == AppRoutes.clientAddresses) return 'My Addresses';
   if (path == AppRoutes.clientPinAddress) return 'Select Address';
+  if (path == AppRoutes.clientCreateAddress) return 'Add Address';
 
-  if (path.contains('owner')) {
+  if (path.startsWith('/owner')) {
     // Exact Owner Route Matches
     if (path == AppRoutes.ownerDashboard) return 'Dashboard';
-    if (path == AppRoutes.ownerNotifications) return 'Notifications';
-    if (path == AppRoutes.ownerRequests) return 'Rental Requests';
-    if (path == AppRoutes.ownerProfile) return "My Profile";
-    if (path == AppRoutes.ownerSettings) return l10n.navSettings;
-    if (path == AppRoutes.ownerRegistration) return "Registration";
-    if (path == AppRoutes.ownerEquiment) return l10n.myEquipment;
-    if (path == AppRoutes.ownerEquimentCreate) return l10n.addEquipment;
-    if (path == AppRoutes.ownerBookings) return l10n.myOrders;
-    if (path == AppRoutes.ownerBookingsHistory) return l10n.orderHistory;
 
+    if (path == AppRoutes.ownerNotifications) return 'Notifications';
+
+    if (path == AppRoutes.ownerRequests) return 'Rental Requests';
     if (path.contains(AppRoutes.ownerRequests) && segments.length == 3) {
       return "Send offer";
     }
 
-    // Fallback checks via segments/contains for variable param structures
-    if (path.contains('equipment')) {
-      if (path.contains('create')) return 'Add Equipment';
-
-      return "Equipment Details";
-    }
-
+    if (path == AppRoutes.ownerBookings) return l10n.myOrders;
+    if (path == AppRoutes.ownerBookingsHistory) return l10n.orderHistory;
     if (path.contains('orders') || path.contains('bookings')) {
       if (path.contains('history')) return l10n.orderHistory;
       return l10n.myOrders;
     }
 
+    if (path == AppRoutes.ownerProfile) return "My Profile";
+    if (path == AppRoutes.ownerSettings) return l10n.navSettings;
+
+    if (path == AppRoutes.ownerRegistration) return "Registration";
+
+    if (path == AppRoutes.ownerEquipment) return l10n.myEquipment;
+    if (path == AppRoutes.ownerEquipmentCreate) return l10n.addEquipment;
+    // Fallback checks via segments/contains for variable param structures
+    if (path.contains('equipment')) {
+      if (path.contains('create')) return 'Add Equipment';
+      return "Equipment Details";
+    }
+
+    // Notes
+    // handle edit address /owner/addresses/:id
+    // handle view addresses on map /owner/addresses/map
     if (path.contains('address')) {
       if (path.contains('create')) return 'Create Address';
       if (path.contains('edit')) return 'Edit Address';
@@ -79,17 +86,14 @@ String resolveAppBarTitle(
       return 'Addresses';
     }
 
-    if (path.contains('payment')) {
-      if (path.contains('topUp')) return 'Top Up Balance';
+    if (path == AppRoutes.ownerPaymentTopUp) {
+      return 'Top Up Balance';
+    } else if (path == AppRoutes.ownerPayment) {
       return 'Payments';
     }
 
     if (path.startsWith('/chat') || path.startsWith('/owner/chat')) {
       return l10n.navChats;
-    }
-
-    if (segments.isNotEmpty && segments[0] == 'search') {
-      return l10n.navSearch;
     }
   }
 

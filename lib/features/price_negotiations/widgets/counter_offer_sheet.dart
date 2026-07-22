@@ -4,24 +4,50 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 
 class CounterOfferSheet extends ConsumerStatefulWidget {
   final String? bookingId;
   final String? offerId;
-  final int initialPrice;
+  final int? initialPrice;
   final PriceRateOption? initialPriceRate;
-  final String mode;
+  final AppMode mode;
 
   const CounterOfferSheet({
     super.key,
     this.bookingId,
     this.offerId,
-    required this.initialPrice,
+    this.initialPrice,
     this.initialPriceRate,
     required this.mode,
   });
+
+  static Future<void> show(
+    BuildContext context, {
+    String? bookingId,
+    String? offerId,
+    int? initialPrice,
+    PriceRateOption? initialPriceRate,
+    required AppMode mode,
+  }) async {
+    return await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => CounterOfferSheet(
+        bookingId: bookingId,
+        offerId: offerId,
+        initialPrice: initialPrice,
+        initialPriceRate: initialPriceRate,
+        mode: mode,
+      ),
+    );
+  }
 
   @override
   ConsumerState<CounterOfferSheet> createState() => _CounterOfferSheetState();

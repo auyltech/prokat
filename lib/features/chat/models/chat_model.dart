@@ -3,6 +3,7 @@ import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
 enum ChatType { direct, support, workflow, announcement }
@@ -49,6 +50,7 @@ class ChatModel {
 
   final String? requestId;
   final RequestModel? request;
+  final List<OfferModel> offers;
 
   final ChatMessageModel? lastMessage;
   final List<ChatMessageModel> messages;
@@ -66,6 +68,7 @@ class ChatModel {
     this.booking,
     this.bookingSummary,
     this.request,
+    this.offers = const [],
     this.client,
     this.owner,
     this.messages = const [],
@@ -85,6 +88,10 @@ class ChatModel {
     return client?.imageUrl ?? owner?.imageUrl;
   }
 
+  OfferModel? getActiveOffer() {
+    return offers.where((item) => [].contains(item.status)).firstOrNull;
+  }
+
   ChatModel copyWith({
     String? id,
     ChatType? type,
@@ -96,6 +103,7 @@ class ChatModel {
     BookingSummaryModel? bookingSummary,
     String? requestId,
     RequestModel? request,
+    List<OfferModel>? offers,
     ChatMessageModel? lastMessage,
     List<ChatMessageModel>? messages,
     DateTime? createdAt,
@@ -112,6 +120,7 @@ class ChatModel {
       bookingSummary: bookingSummary ?? this.bookingSummary,
       requestId: requestId ?? this.requestId,
       request: request ?? this.request,
+      offers: offers ?? this.offers,
       lastMessage: lastMessage ?? this.lastMessage,
       messages: messages ?? this.messages,
       createdAt: createdAt ?? this.createdAt,
@@ -121,6 +130,7 @@ class ChatModel {
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
     try {
+      print(json["offers"]);
       return ChatModel(
         id: json['id']?.toString() ?? "",
         type: parseChatType(json['type']),
@@ -130,17 +140,22 @@ class ChatModel {
         owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
 
         bookingId: json['bookingId']?.toString() ?? "",
-        booking: json['booking'] != null
-            ? BookingModel.fromJson(json['booking'])
-            : null,
+        booking: json['booking'] == null
+            ? null
+            : BookingModel.fromJson(json['booking']),
+
         bookingSummary: json['bookingSummary'] != null
             ? BookingSummaryModel.fromJson(json['bookingSummary'])
             : null,
 
         requestId: json['requestId']?.toString(),
-        request: json['request'] != null
-            ? RequestModel.fromJson(json['request'])
-            : null,
+        request: json['request'] == null
+            ? null
+            : RequestModel.fromJson(json['request']),
+
+        offers: (json["offers"] as List<dynamic>? ?? [])
+            .map((e) => OfferModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
 
         lastMessage: _parseMessage(json['lastMessage']),
         messages: (json["messages"] as List<dynamic>? ?? [])

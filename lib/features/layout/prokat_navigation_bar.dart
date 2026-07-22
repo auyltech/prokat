@@ -50,8 +50,8 @@ final ownerNavItems = [
   _NavItem(
     icon: LucideIcons.truck,
     label: (l) => l.navMyFleet,
-    path: AppRoutes.ownerEquiment,
-    base: AppRoutes.ownerEquiment,
+    path: AppRoutes.ownerEquipment,
+    base: AppRoutes.ownerEquipment,
   ),
   _NavItem(
     icon: LucideIcons.scrollText,

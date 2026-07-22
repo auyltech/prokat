@@ -35,8 +35,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final hideAppBar =
         currentPath == AppRoutes.launch ||
         currentPath == AppRoutes.main ||
-        currentPath == AppRoutes.login ||
-        currentPath == AppRoutes.ownerProfile;
+        currentPath == AppRoutes.login;
 
     // Don't show on launch, main landing page
     if (hideAppBar) {
@@ -45,35 +44,42 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     final isOwnerScreen = segments.isNotEmpty ? segments[0] == "owner" : false;
 
-    // Check specific layout scenarios
-    final bool isChatDetailScreen =
-        segments.length >= 2 && segments[1] == "chat";
+    // 2. Structural Segment Evaluations
+    // Checks path segments explicitly match /client/chat/direct/:id or /owner/chat/direct/:id
+    final bool isChatByIdScreen =
+        segments.length >= 4 &&
+        segments[1] == "chat" &&
+        segments[2] == "direct" &&
+        segments[3].isNotEmpty;
 
+    // Safely evaluates path components targeting nested paths like client/search/list
     final bool isSearchListScreen =
-        segments.length >= 2 &&
-        segments[0] == 'search' &&
-        segments[1] == 'list';
+        segments.contains('search') && segments.contains('list');
 
     // 3. Resolve title element
-    // Custom Chat tile overrides the uniform title string block
     Widget? titleWidget;
     String? titleString;
 
+    // Replaced relative string evaluation against segments with full currentPath matching
     final showBackButton =
+        currentPath == AppRoutes.clientOrdersHistory ||
+        currentPath == AppRoutes.clientRequestsHistory ||
+        currentPath == AppRoutes.ownerBookingsHistory ||
+        currentPath == AppRoutes.ownerEquipmentCreate ||
+        currentPath == AppRoutes.ownerCreateOffer ||
+        currentPath == AppRoutes.clientChatSupport ||
         [
-          AppRoutes.history,
           AppRoutes.ownerPayment,
+          AppRoutes.ownerPaymentTopUp,
           AppRoutes.termsConditions,
           AppRoutes.privacyPolicy,
           AppRoutes.helpSupport,
         ].contains(currentPath) ||
-        isChatDetailScreen;
+        isChatByIdScreen;
 
-    if (isChatDetailScreen) {
-      // Safely extract chat ID from segments based on route depth
-      // /client/chat/direct/id
-      // /owner/chat/direct/id
-      final chatId = segments.length >= 4 ? segments[3] : "";
+    if (isChatByIdScreen) {
+      // Safely extract chat ID now that length boundary >= 4 is guaranteed
+      final chatId = segments[3];
 
       titleWidget = ChatHeaderTile(
         chatId: chatId,
@@ -85,7 +91,6 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       titleWidget = Text(
         titleString,
         style: theme.textTheme.titleLarge?.copyWith(
-          // color: isOwnerScreen ? AppColors.teal700 : theme.primaryColor,
           fontWeight: FontWeight.w600,
         ),
       );
@@ -104,7 +109,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actionWidgets.add(
         IconButton(
           onPressed: () => context.push(AppRoutes.clientOrdersHistory),
-          icon: Icon(Icons.history, color: Colors.grey, size: 24),
+          icon: const Icon(Icons.history, color: Colors.grey, size: 24),
           tooltip: l10n.orderHistory,
         ),
       );
@@ -114,18 +119,17 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actionWidgets.add(
         IconButton(
           onPressed: () => context.push(AppRoutes.clientRequestsCreate),
-          icon: Icon(Icons.add_rounded, color: Colors.grey, size: 24),
+          icon: const Icon(Icons.add_rounded, color: Colors.grey, size: 24),
           tooltip: l10n.createRequest,
         ),
       );
     }
 
-    // on owner equipment list screen
-    if (currentPath == AppRoutes.ownerEquiment) {
+    if (currentPath == AppRoutes.ownerEquipment) {
       actionWidgets.add(
         IconButton(
-          onPressed: () => context.push(AppRoutes.ownerEquimentCreate),
-          icon: Icon(Icons.add, color: Colors.grey, size: 24),
+          onPressed: () => context.push(AppRoutes.ownerEquipmentCreate),
+          icon: const Icon(Icons.add, color: Colors.grey, size: 24),
           tooltip: l10n.addEquipment,
         ),
       );
@@ -135,7 +139,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actionWidgets.add(
         IconButton(
           onPressed: () => context.push(AppRoutes.ownerBookingsHistory),
-          icon: Icon(
+          icon: const Icon(
             Icons.history_toggle_off_rounded,
             color: Colors.grey,
             size: 24,
@@ -162,7 +166,6 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     ].contains(currentPath)) {
       // Don't show notifications on login
     } else {
-      // Always present Notification badge matching structural theme contract
       actionWidgets.add(NotificationBadge());
     }
 
@@ -174,11 +177,8 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
         color: isOwnerScreen ? AppColors.teal700 : theme.primaryColor,
       ),
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1.0), // Match the border thickness
-        child: Container(
-          color: Colors.black12, // Light gray color
-          height: 1.0, // Border thickness
-        ),
+        preferredSize: const Size.fromHeight(1.0),
+        child: Container(color: Colors.black12, height: 1.0),
       ),
       leading: showBackButton
           ? IconButton(
@@ -190,21 +190,18 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   context.go(AppRoutes.main);
                 }
 
-                if (isChatDetailScreen) {
-                  final chatId = segments.length == 4
-                      ? segments[3]
-                      : segments[3];
-
+                // Fixed identical branch logic and index range exception
+                if (isChatByIdScreen) {
+                  final chatId = segments[3];
                   ref.read(chatSocketServiceProvider).leaveChat(chatId);
                 }
               },
             )
           : null,
       title: titleWidget,
-      // titleSpacing: 0,
       centerTitle: false,
       actions: actionWidgets,
-      actionsPadding: EdgeInsets.only(right: 16.0),
+      actionsPadding: const EdgeInsets.only(right: 16.0),
     );
   }
 }

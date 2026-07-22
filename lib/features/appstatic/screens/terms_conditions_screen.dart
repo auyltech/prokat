@@ -9,7 +9,7 @@ class TermsConditionsScreen extends StatelessWidget {
     try {
       final localeCode = Localizations.localeOf(context).languageCode;
       // Dynamically falls back to 'en' if the current language file is not yet available
-      if (localeCode == 'kz' || localeCode == 'ru') {
+      if (localeCode == 'kk' || localeCode == 'ru') {
         return 'assets/legal/terms_conditions_$localeCode.md';
       }
     } catch (_) {
@@ -18,7 +18,7 @@ class TermsConditionsScreen extends StatelessWidget {
     return 'assets/legal/terms_conditions_en.md';
   }
 
-  Future<String> _loadTermsMarkdown(BuildContext context) async {
+  Future<String> _loadMarkdown(BuildContext context) async {
     final assetPath = _getLocaleAssetPath(context);
     return await DefaultAssetBundle.of(context).loadString(assetPath);
   }
@@ -31,7 +31,7 @@ class TermsConditionsScreen extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: FutureBuilder<String>(
-          future: _loadTermsMarkdown(context),
+          future: _loadMarkdown(context),
           builder: (context, snapshot) {
             // 1. Loading State
             if (snapshot.connectionState == ConnectionState.waiting) {

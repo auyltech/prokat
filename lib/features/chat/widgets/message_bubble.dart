@@ -49,9 +49,18 @@ class _MessageBubbleState extends State<MessageBubble> {
     final service = widget.message.service;
 
     if (service == "REQUEST") {
-      return RequestMessageBubble(message: widget.message, mode: widget.mode);
+      return RequestMessageBubble(
+        currentChat: widget.currentChat,
+        message: widget.message,
+        mode: widget.mode,
+      );
     } else if (service == "OFFER") {
-      return OfferMessageBubble(message: widget.message, isMe: widget.isMe);
+      return OfferMessageBubble(
+        message: widget.message,
+        isMe: widget.isMe,
+        mode: widget.mode,
+        currentChat: widget.currentChat,
+      );
     } else if (service == "BOOKING") {
       return BookingMessageBubble(
         message: widget.message,

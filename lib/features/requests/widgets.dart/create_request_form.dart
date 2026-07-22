@@ -82,17 +82,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     }
   }
 
-  // TODO: REMOVE ADDRESS SHEET
-  void _openAddressSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) =>
-          const SelectAddressSheet(service: "address", from: "create_request"),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -171,7 +160,11 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         AddressPickerCard(
           selectedAddress: locationState.selectedAddress,
-          onTap: () => _openAddressSheet(context),
+          onTap: () => SelectAddressSheet.show(
+            context,
+            service: "address",
+            from: "create_request",
+          ),
         ),
 
         const SizedBox(height: 12),

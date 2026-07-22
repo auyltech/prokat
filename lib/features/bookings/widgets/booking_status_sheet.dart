@@ -11,6 +11,21 @@ class BookingStatusSheet extends ConsumerWidget {
 
   const BookingStatusSheet({super.key, required this.booking});
 
+  static Future<bool> show(
+    BuildContext context, {
+    required BookingModel booking,
+  }) async {
+    return await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => BookingStatusSheet(booking: booking),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);

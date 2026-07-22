@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:prokat/features/appstartup/app_mode_storage.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
 import "package:prokat/features/bookings/models/booking_status.dart";
 import "package:prokat/features/bookings/providers/booking_mutation_provider.dart";
@@ -143,7 +144,7 @@ class BookingActionRow extends ConsumerWidget {
         bookingId: booking.id,
         initialPrice: booking.price,
         initialPriceRate: booking.priceRate,
-        mode: "client",
+        mode: AppMode.clientMode,
       ),
     );
   }

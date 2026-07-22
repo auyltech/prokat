@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 
 class SettingsLinkTile extends StatelessWidget {
   final IconData icon;
-  final Color? iconBgColor;
-  final Color? iconColor;
+  final Color iconBgColor;
+  final Color iconColor;
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
@@ -13,8 +12,8 @@ class SettingsLinkTile extends StatelessWidget {
   const SettingsLinkTile({
     super.key,
     required this.icon,
-    this.iconBgColor,
-    this.iconColor,
+    required this.iconBgColor,
+    required this.iconColor,
     required this.title,
     this.subtitle,
     required this.onTap,
@@ -26,8 +25,8 @@ class SettingsLinkTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: BaseTile(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         // decoration: BoxDecoration(
         //   color: theme.colorScheme.surface,
         //   borderRadius: BorderRadius.circular(14),
@@ -36,17 +35,13 @@ class SettingsLinkTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 50,
+              width: 45,
               height: 50,
               decoration: BoxDecoration(
-                color: iconBgColor ?? theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(10),
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: iconColor ?? theme.colorScheme.primary,
-              ),
+              child: Icon(icon, size: 28, color: iconColor),
             ),
 
             const SizedBox(width: 12),
@@ -78,7 +73,7 @@ class SettingsLinkTile extends StatelessWidget {
 
             Icon(
               LucideIcons.chevronRight,
-              size: 20,
+              size: 18,
               color: theme.colorScheme.onSurface,
             ),
           ],

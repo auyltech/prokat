@@ -90,8 +90,7 @@ flutter:
     - assets/icons/app_icon_foreground.png
     - assets/icons/app_icon_background.png
     - assets/icons/splash_branding_footer.png
-    - assets/legal/privacy_policy_en.md
-    - assets/legal/terms_conditions_en.md
+    - assets/legal/
     # - assets/legal/licenses.md
 
 flutter_launcher_icons:

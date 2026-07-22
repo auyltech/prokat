@@ -122,10 +122,10 @@ class NotificationNavigationService {
         final equipmentId = notification.data["equipmentId"] as String?;
 
         if (_isOwnerRole && equipmentId != null && equipmentId.isNotEmpty) {
-          return '${AppRoutes.ownerEquiment}/$equipmentId';
+          return '${AppRoutes.ownerEquipment}/$equipmentId';
         }
 
-        return _isOwnerRole ? AppRoutes.ownerEquiment : AppRoutes.searchList;
+        return _isOwnerRole ? AppRoutes.ownerEquipment : AppRoutes.searchList;
 
       // ===========================
       // Owner Registration

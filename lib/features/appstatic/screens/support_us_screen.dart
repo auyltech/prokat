@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class SupportUsPage extends StatelessWidget {
-  const SupportUsPage({super.key});
+class SupportUsScreen extends StatelessWidget {
+  const SupportUsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,43 @@ class SupportUsPage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            _buildHeroHeader(context, l10n),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(0),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.favorite, size: 64, color: Colors.white),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.buildingTogether,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.missionStatement,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 12),
+
             _buildSection(
               context,
               title: l10n.theSimpleStuff,
@@ -79,41 +114,6 @@ class SupportUsPage extends StatelessWidget {
             const SizedBox(height: 40),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeroHeader(BuildContext context, AppLocalizations l10n) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.favorite, size: 64, color: Colors.white),
-          const SizedBox(height: 16),
-          Text(
-            l10n.buildingTogether,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.missionStatement,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 14,
-            ),
-          ),
-        ],
       ),
     );
   }
