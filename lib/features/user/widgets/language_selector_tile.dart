@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LanguageSelectorTile extends ConsumerWidget {
   const LanguageSelectorTile({super.key});
@@ -10,6 +11,7 @@ class LanguageSelectorTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final locale = ref.watch(localeProvider);
     final langDisplay = LocaleNotifier.displayCode(locale);
 
@@ -45,7 +47,7 @@ class LanguageSelectorTile extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("App Language"),
+                Text(l10n.appLanguage),
                 Text(
                   langDisplay,
                   style: theme.textTheme.bodyLarge?.copyWith(

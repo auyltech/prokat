@@ -136,7 +136,7 @@ class OfferTile extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "OWNER COMMENT",
+                    l10n.ownerComment.toUpperCase(),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,

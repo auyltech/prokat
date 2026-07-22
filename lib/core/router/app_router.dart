@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/appstatic/screens/about_prokat_screen.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
 import 'package:prokat/features/appstatic/screens/privacy_policy_screen.dart';
@@ -191,12 +192,16 @@ final routerProvider = Provider<GoRouter>((ref) {
               // Static Pages
               // Help And Customer Support
               GoRoute(
-                path: AppRoutes.helpSupport,
-                builder: (_, _) => const HelpScreen(),
+                path: AppRoutes.about,
+                builder: (_, _) => const AboutProkatScreen(),
               ),
               GoRoute(
                 path: AppRoutes.contactSupport,
                 builder: (_, _) => const ContactSupportScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.helpSupport,
+                builder: (_, _) => const HelpScreen(),
               ),
               // Support us
               GoRoute(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -52,7 +53,7 @@ class LogoTile extends StatelessWidget {
 
               // 3. Slogan
               Text(
-                "Equipment Renting".toUpperCase(),
+                AppLocalizations.of(context)!.equipmentRenting.toUpperCase(),
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   fontWeight: FontWeight.bold,

@@ -9,6 +9,7 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
   final String mode;
@@ -44,6 +45,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final categoriesState = ref.watch(categoriesProvider);
 
     return Column(
@@ -53,15 +55,15 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
             categoriesState.fetchStatus == FetchStatus.loading)
           const CategoryRowSkeleton()
         else if (categoriesState.fetchError != null)
-          const EmptyStateTile(
+          EmptyStateTile(
             icon: LucideIcons.router,
-            title: "Error Loading Services",
-            subtitle: "Could not load services",
+            title: l10n.errorLoadingServices,
+            subtitle: l10n.couldNotLoadServices,
           )
         else if (categoriesState.categories.isEmpty)
-          const EmptyStateTile(
-            title: "No services found",
-            subtitle: "There are no services listed at the moment",
+          EmptyStateTile(
+            title: l10n.noServicesFound,
+            subtitle: l10n.noServicesAvailable,
           )
         else
           SizedBox(

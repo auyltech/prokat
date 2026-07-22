@@ -4,6 +4,7 @@ import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -29,6 +30,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(notificationProvider);
 
     return Scaffold(
@@ -42,7 +44,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 return ListView(
                   children: [
                     SizedBox(height: 24),
-                    EmptyStateTile(title: 'Loading...'),
+                    EmptyStateTile(title: l10n.loading),
                   ],
                 );
               }
@@ -51,7 +53,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 return ListView(
                   children: [
                     const SizedBox(height: 24),
-                    EmptyStateTile(title: state.error ?? 'Error'),
+                    EmptyStateTile(title: state.error ?? l10n.error),
                   ],
                 );
               }
@@ -61,7 +63,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   children: [
                     SizedBox(height: 24),
                     EmptyStateTile(
-                      title: 'No notifications yet',
+                      title: l10n.noNotificationsYet,
                       icon: Icons.notifications_none,
                     ),
                   ],

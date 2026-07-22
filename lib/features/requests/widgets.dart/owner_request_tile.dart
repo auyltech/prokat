@@ -173,7 +173,7 @@ class OwnerRequestTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   icon: Icons.timelapse,
-                  label: "Date & Time",
+                  label: l10n.dateAndTime,
                   value: formatDateTime(request.requiredOn, request.requiredAt),
                 ),
               ),
@@ -253,8 +253,8 @@ class OwnerRequestTile extends ConsumerWidget {
                         if (context.mounted) {
                           AppSnackBar.show(
                             message: result
-                                ? "Request Viewed"
-                                : "Failed to save",
+                                ? l10n.viewedBadge
+                                : l10n.saveFailed,
                             isSuccess: result,
                             isError: !result,
                           );

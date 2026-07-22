@@ -77,7 +77,7 @@ class RentAnEquipmentTile extends ConsumerWidget {
                         height: 6,
                       ), // Expanded vertical text separation
                       Text(
-                        'Switch back to client section dashboard',
+                        l10n.switchBackToClient,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.grey.shade500,
                           fontSize: 13,

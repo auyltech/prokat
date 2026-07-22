@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:prokat/features/support/models/guide_icon.dart';
 import 'package:prokat/features/support/models/user_guide.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class UserGuideScreen extends StatelessWidget {
   const UserGuideScreen({
@@ -59,6 +60,7 @@ class _GuideHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
@@ -106,7 +108,7 @@ class _GuideHeader extends StatelessWidget {
                   children: [
                     _GuideChip(
                       icon: Icons.schedule_outlined,
-                      label: '${_readingTime(translation.content)} min read',
+                      label: l10n.minutesRead(_readingTime(translation.content)),
                     ),
                     const SizedBox(width: 8),
                     _GuideChip(

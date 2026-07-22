@@ -1,5 +1,6 @@
 // Custom Empty State Component
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EmptyCategoriesCard extends StatelessWidget {
   const EmptyCategoriesCard({super.key});
@@ -7,6 +8,7 @@ class EmptyCategoriesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -29,14 +31,14 @@ class EmptyCategoriesCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "No services available yet",
+            l10n.noServicesAvailableYet,
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
-            "Check back later for new updates.",
+            l10n.checkBackLater,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),

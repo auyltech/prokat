@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 // Standalone bottom sheet component for displaying full vehicle specifications
 class EquipmentDetailsSheet extends StatelessWidget {
@@ -47,6 +48,7 @@ class EquipmentDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -77,7 +79,7 @@ class EquipmentDetailsSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Equipment Details",
+                l10n.equipmentDetails,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -114,15 +116,15 @@ class EquipmentDetailsSheet extends StatelessWidget {
           ],
 
           // 4. Data Specification Rows
-          _buildSpecRow("Vehicle Name", name ?? "—"),
+          _buildSpecRow(l10n.vehicleName, name ?? "—"),
           const Divider(height: 16, thickness: 0.5),
-          _buildSpecRow("Model Type", model ?? "—"),
+          _buildSpecRow(l10n.modelType, model ?? "—"),
           const Divider(height: 16, thickness: 0.5),
-          _buildSpecRow("Plate Number", plateNumber ?? "—"),
+          _buildSpecRow(l10n.plateNumberLabel, plateNumber ?? "—"),
 
           if (specifications != null && specifications!.isNotEmpty) ...[
             const Divider(height: 16, thickness: 0.5),
-            _buildSpecRow("Technical Specs", specifications!.join(" • ")),
+            _buildSpecRow(l10n.technicalSpecs, specifications!.join(" • ")),
           ],
           const SizedBox(height: 12),
         ],

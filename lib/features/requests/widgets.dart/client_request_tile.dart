@@ -111,7 +111,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               Expanded(
                 child: InfoTile(
                   icon: Icons.timelapse,
-                  label: "Date & Time",
+                  label: l10n.dateAndTime,
                   value: formatDateTime(request.requiredOn, request.requiredAt),
                 ),
               ),
@@ -204,7 +204,7 @@ void _showCancelConfirmation(
             AppSnackBar.show(
               message: result.success
                   ? l10n.requestCancelled
-                  : "Failed to cancel request",
+                  : l10n.failedToCancelRequest,
               isSuccess: result.success,
               isError: !result.success,
             );

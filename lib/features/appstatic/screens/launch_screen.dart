@@ -7,6 +7,18 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/widgets/background_glow.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+String _startupStepLabel(AppStartupStep step, AppLocalizations l10n) {
+  return switch (step) {
+    AppStartupStep.loadSavedMode => l10n.startupLoadingMode,
+    AppStartupStep.restoreSession => l10n.startupRestoringSession,
+    AppStartupStep.restoreOtpSession => l10n.startupRestoringOtp,
+    AppStartupStep.refreshSession => l10n.startupRefreshingSession,
+    AppStartupStep.fetchProfileMinimal => l10n.startupLoadingProfile,
+    AppStartupStep.decideRoute => l10n.startupFinalizing,
+    AppStartupStep.done => l10n.done,
+  };
+}
+
 class LaunchScreen extends ConsumerStatefulWidget {
   const LaunchScreen({super.key});
 
@@ -181,7 +193,10 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                   children: [
                     Text(
                       showDetails
-                          ? startup.stepLabel.toUpperCase()
+                          ? _startupStepLabel(
+                              startup.step,
+                              AppLocalizations.of(context)!,
+                            ).toUpperCase()
                           : AppLocalizations.of(context)!.initializingSystems,
                       style: textTheme.labelSmall?.copyWith(
                         letterSpacing: 1.5,

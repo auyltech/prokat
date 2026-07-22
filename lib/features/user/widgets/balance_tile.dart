@@ -5,6 +5,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BalanceTile extends ConsumerStatefulWidget {
   const BalanceTile({super.key});
@@ -17,6 +18,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final billingState = ref.watch(billingProvider);
 
     final onlineEquipment = ref
@@ -61,7 +63,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Balance unavailable",
+                    l10n.balanceUnavailable,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -98,7 +100,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Account Balance",
+                l10n.accountBalance,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
                   letterSpacing: 0.3,
@@ -177,14 +179,14 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _FooterMetric(
-                label: "Burn rate",
+                label: l10n.burnRate,
                 value: "~${burnRate.toStringAsFixed(0)} min/hr",
                 align: CrossAxisAlignment.start,
                 valueColor: theme.colorScheme.onSurface,
               ),
 
               _FooterMetric(
-                label: "Est. exhaustion",
+                label: l10n.estimatedExhaustion,
                 value: billingState.formattedExhaustionTime,
                 align: CrossAxisAlignment.end,
                 valueColor: billingState.hasActiveBurn

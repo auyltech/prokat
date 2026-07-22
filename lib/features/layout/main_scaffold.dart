@@ -29,6 +29,7 @@ class MainScaffold extends StatelessWidget {
       AppRoutes.launch,
       AppRoutes.main,
       AppRoutes.login,
+      AppRoutes.about,
     ].contains(currentPath);
 
     return Scaffold(

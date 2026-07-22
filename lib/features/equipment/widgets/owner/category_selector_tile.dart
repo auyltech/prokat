@@ -114,7 +114,7 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Service", style: theme.textTheme.labelLarge),
+                Text(l10n.service, style: theme.textTheme.labelLarge),
                 // const SizedBox(height: 2),
                 Text(
                   hasCategory ? categoryName : l10n.selectService,

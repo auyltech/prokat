@@ -11,19 +11,30 @@ class SectionTitle extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Row(
+      // Safely spaces out elements when constraints are unbounded
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Flexible(child: Text(title, style: theme.textTheme.titleLarge)),
-        Spacer(),
-        if (trailing != null) const SizedBox(width: 16),
-
-        if (trailing != null)
-          Text(
-            trailing ?? "",
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.error,
+        // Flexible with fit: FlexFit.loose stops the crash in unbounded Rows
+        Flexible(
+          fit: FlexFit.loose,
+          child: Text(
+            title,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
           ),
+        ),
+
+        if (trailing != null && trailing!.isNotEmpty) ...[
+          const SizedBox(width: 16),
+          Text(
+            trailing!,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ],
     );
   }

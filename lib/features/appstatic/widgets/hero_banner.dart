@@ -31,9 +31,9 @@ class HeroBanner extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            "Find & rent\nequipment\nin minutes",
-            style: TextStyle(
+          Text(
+            l10n.heroTitle,
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: Colors.white,

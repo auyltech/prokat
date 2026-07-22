@@ -5,6 +5,7 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'dart:ui';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class SendMessageForm extends ConsumerStatefulWidget {
   final String chatId;
@@ -48,6 +49,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final messages = ref.watch(chatMessagesProvider(widget.chatId));
     final isSendingAny =
@@ -65,7 +67,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
         child: SafeArea(
           top: false,
           child: Text(
-            'Chat locked',
+            l10n.chatLocked,
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
@@ -117,7 +119,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Type a message...',
+                        hintText: l10n.typeMessageHint,
                         hintStyle: const TextStyle(
                           color: Color.fromARGB(255, 126, 126, 126),
                           fontWeight: FontWeight.w400,

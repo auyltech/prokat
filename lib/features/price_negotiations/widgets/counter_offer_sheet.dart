@@ -7,6 +7,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class CounterOfferSheet extends ConsumerStatefulWidget {
   final String? bookingId;
@@ -59,10 +60,11 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
   PriceRateOption? _priceRate;
 
   Future<void> onSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     final price = int.tryParse(_priceController.text.trim());
 
     if (price == null || price <= 0) {
-      AppSnackBar.show(message: 'Enter a valid price', isError: true);
+      AppSnackBar.show(message: l10n.enterValidPrice, isError: true);
       return;
     }
 
@@ -127,6 +129,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final state = ref.watch(priceNegotiationProvider);
 
@@ -151,7 +154,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
           const SizedBox(height: 20),
 
           Text(
-            'Counter offer',
+            l10n.counterOffer,
             style: theme.textTheme.bodyLarge?.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w500,
@@ -163,8 +166,8 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
           TextField(
             controller: _priceController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Price',
+            decoration: InputDecoration(
+              labelText: l10n.price,
               suffixText: 'KZT',
             ),
           ),
@@ -185,13 +188,13 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
           TextField(
             controller: _commentController,
             maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Comment (optional)'),
+            decoration: InputDecoration(labelText: l10n.commentOptional),
           ),
 
           const SizedBox(height: 16),
 
           ActionBarButton(
-            label: "Send",
+            label: l10n.send,
             isEnabled: !state.isSubmitting,
             isLoading: state.isSubmitting,
             onPressed: onSubmit,

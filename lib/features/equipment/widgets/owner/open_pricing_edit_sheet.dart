@@ -30,14 +30,14 @@ Future<void> submitPriceEntry(
   // 2. Enforce positive price and maximum limit (e.g., 100,000)
   if (price <= 0) {
     AppSnackBar.show(
-      message: "Price must be greater than zero",
+      message: l10n.priceMustBePositive,
     ); // Use l10n if available
     return;
   }
 
   if (price > 100000) {
     AppSnackBar.show(
-      message: "Price cannot exceed 100,000",
+      message: l10n.priceMaximumExceeded,
     ); // Use l10n if available
     return;
   }

@@ -43,7 +43,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
     final booking = widget.currentChat?.booking;
 
     if (booking == null) {
-      return const Text("Error loading booking");
+      return Text(l10n.errorLoadingBooking);
     }
 
     final equipment = booking.equipment;
@@ -73,7 +73,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
               ),
               const SizedBox(width: 6),
               Text(
-                "New Order",
+                l10n.newOrder,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.primaryColor,
@@ -97,10 +97,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 model: equipment?.model,
                 plateNumber: equipment?.plateNumber,
                 imageUrl: equipment?.imageUrl,
-                specifications: const [
-                  "Vacuum Pump",
-                  "Capacity 5000L",
-                ], // Optional list configuration
               );
             },
             borderRadius: const BorderRadius.all(Radius.zero),
@@ -148,7 +144,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        equipment?.name ?? "Unknown Equipment",
+                        equipment?.name ?? l10n.unknownEquipment,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -322,14 +318,12 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                         context: context,
                         builder: (context) => AlertDialog(
                           backgroundColor: theme.colorScheme.surface,
-                          title: const Text('Accept order?'),
-                          content: const Text(
-                            'Confirm accepting this booking.',
-                          ),
+                          title: Text(l10n.acceptOrderQuestion),
+                          content: Text(l10n.acceptOrderConfirmation),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
+                              child: Text(l10n.cancel),
                             ),
 
                             ElevatedButton(
@@ -345,13 +339,13 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
                                 AppSnackBar.show(
                                   message: result.success
-                                      ? "Order Confirmed"
-                                      : "Failed to confirm order",
+                                      ? l10n.orderConfirmed
+                                      : l10n.failedToConfirmOrder,
                                   isSuccess: result.success,
                                   isError: !result.success,
                                 );
                               },
-                              child: const Text('Accept'),
+                              child: Text(l10n.accept),
                             ),
                           ],
                         ),

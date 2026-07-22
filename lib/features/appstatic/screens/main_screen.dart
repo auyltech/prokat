@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/features/appstatic/widgets/about_prokat.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
@@ -229,8 +229,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: EmptyStateTile(
                     icon: Icons.deselect_outlined,
-                    title:
-                        "There are no ${selectedCategory?.name ?? "equipment"} listed at this moment ${selectedCity.isNotEmpty ? "in $selectedCity" : ""}",
+                    title: selectedCity.isNotEmpty
+                        ? l10n.noEquipmentListedInCity(
+                            selectedCategory?.name ?? l10n.navEquipment,
+                            selectedCity,
+                          )
+                        : l10n.noEquipmentForCategory(
+                            selectedCategory?.name ?? l10n.navEquipment,
+                          ),
                   ),
                 ),
               )
@@ -261,87 +267,106 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
             SliverFillRemaining(
               hasScrollBody: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-                child: Column(
-                  children: [
-                    const Spacer(),
-                    BaseTile(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withAlpha(25),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.lock_person_outlined,
-                              size: 32,
-                              color: theme.colorScheme.primary,
-                            ),
+              child: Container(
+                // 1. Solid surface background to cleanly alternate with your dark blue hero below
+                color: theme.colorScheme.surface,
+                child: Padding(
+                  // 2. Tall vertical padding to give the login block its own massive hero presence
+                  padding: const EdgeInsets.fromLTRB(24, 80, 24, 120),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // 3. Ultra-clean minimalist icon wrapper with no heavy boarders
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.08,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "Get Started with Prokat",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.lock_person_outlined,
+                          size: 38,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // 4. Bolder, larger headline that commands the screen
+                      Text(
+                        l10n.getStartedWithProkat,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // 5. Spacious, legible description paragraph
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          l10n.guestSignInDescription,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
                             ),
+                            fontWeight: FontWeight.w400,
+                            height: 1.55,
+                            fontSize: 15,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Sign in to browse equipment, contact owners directly, place orders in a few taps.",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.textTheme.bodyMedium?.color
-                                  ?.withAlpha(180),
-                              fontWeight: FontWeight.w400,
-                              height: 1.4,
-                            ),
+                        ),
+                      ),
+                      const SizedBox(height: 36),
+
+                      // 6. Premium full-width brand primary action button
+                      ElevatedButton(
+                        onPressed: () {
+                          context.push(AppRoutes.login);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: theme.colorScheme.onPrimary,
+                          minimumSize: const Size(
+                            double.infinity,
+                            56,
+                          ), // Tall modern button height
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: () {
-                              context.push(AppRoutes.login);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: theme.colorScheme.onPrimary,
-                              minimumSize: const Size(double.infinity, 52),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              l10n.getStarted,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
                               ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  "Get Started",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  Icons.login,
-                                  size: 24,
-                                  color: theme.colorScheme.onPrimary,
-                                ),
-                              ],
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 20,
+                              color: theme.colorScheme.onPrimary,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
+
+            AboutProkatSection(),
           ],
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ChatTile extends StatelessWidget {
   final ChatModel chat;
@@ -39,18 +40,19 @@ class ChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
 
     final title = chat.type == ChatType.direct
         ? chat.displayTitle(currentUserId)
         : chat.type == ChatType.support
-        ? "Support"
+        ? l10n.support
         : chat.type == ChatType.workflow
-        ? "Support"
-        : "Announcements";
+        ? l10n.support
+        : l10n.announcements;
 
-    final preview = chat.lastMessage?.content ?? 'No messages yet';
+    final preview = chat.lastMessage?.content ?? l10n.noMessagesYet;
 
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,
@@ -62,7 +64,7 @@ class ChatTile extends StatelessWidget {
 
     final chatStatus = getChatStatus(chat: chat);
 
-    final chatStatusLabel = getChatStatusLabel(chatStatus);
+    final chatStatusLabel = getChatStatusLabel(chatStatus, l10n);
 
     return InkWell(
       onTap: onTap,

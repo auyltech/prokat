@@ -50,7 +50,7 @@ class TopUpCtaTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Top up minutes",
+                  l10n.topUpMinutes,
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],

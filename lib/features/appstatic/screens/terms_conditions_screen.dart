@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class TermsConditionsScreen extends StatelessWidget {
   const TermsConditionsScreen({super.key});
@@ -40,11 +41,11 @@ class TermsConditionsScreen extends StatelessWidget {
 
             // 2. Error Fallback State
             if (snapshot.hasError) {
-              return const Center(
+              return Center(
                 child: Padding(
-                  padding: EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(24.0),
                   child: Text(
-                    'Failed to load Terms & Conditions. Please try again later.',
+                    AppLocalizations.of(context)!.termsLoadError,
                     textAlign: TextAlign.center,
                   ),
                 ),

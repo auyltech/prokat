@@ -152,7 +152,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                         icon: LucideIcons.globe,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
-                        label: "App Language",
+                        label: l10n.appLanguage,
                         value: langDisplay,
                         onTap: () => LanguageSheet.show(context),
                       ),
@@ -178,7 +178,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                         icon: LucideIcons.shieldCheck,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
-                        title: "Privacy Policy",
+                        title: l10n.privacyPolicy,
                         onTap: () => context.push(AppRoutes.privacyPolicy),
                       ),
 

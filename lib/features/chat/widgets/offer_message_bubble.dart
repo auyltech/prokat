@@ -41,14 +41,14 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
     };
 
     if (parsed == null) {
-      return Text("Error loading offer");
+      return Text(l10n.errorLoadingOffer);
     }
 
     final offers = widget.currentChat?.offers ?? [];
     final offer = offers.where((item) => item.id == parsed.id).firstOrNull;
 
     if (offer == null) {
-      return Text("${offers.length} Offer");
+      return Text(l10n.offerCount(offers.length));
     }
 
     return Align(
@@ -81,7 +81,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                   ),
                   const SizedBox(width: 8),
 
-                  Text("Offer", style: theme.textTheme.bodyMedium),
+                  Text(l10n.offer, style: theme.textTheme.bodyMedium),
 
                   Spacer(),
 

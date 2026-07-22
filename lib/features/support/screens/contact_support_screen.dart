@@ -4,6 +4,7 @@ import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/support/models/contact_enquiry_topic.dart';
 import 'package:prokat/features/support/state/support_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 extension ContactInquiryTopicExtension on ContactInquiryTopic {
   String get displayName {
@@ -45,6 +46,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   }
 
   Future<void> _submitForm() async {
+    final l10n = AppLocalizations.of(context)!;
     final curr = _formKey.currentState;
     if (curr == null || !curr.validate()) {
       return;
@@ -69,7 +71,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
       AppSnackBar.show(
         message: result.success
-            ? 'Support ticket submitted successfully!'
+            ? l10n.supportTicketSubmitted
             : result.message,
         isSuccess: result.success,
         isError: !result.success,
@@ -79,7 +81,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
       _phoneController.clear();
       _emailController.clear();
     } catch (error) {
-      AppSnackBar.show(message: "Failed to submit ticket", isError: true);
+      AppSnackBar.show(message: l10n.failedToSubmitTicket, isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -88,6 +90,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isSubmitting = ref.watch(supportProvider).isSubmitting;
 
     // Unified input decoration styling builder
@@ -155,7 +158,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                     children: [
                       // Header introduction section
                       Text(
-                        'How can we help you?',
+                        l10n.howCanWeHelp,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.onSurface,
@@ -163,7 +166,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Fill out the form below and our team will get back to you shortly.',
+                        l10n.supportFormDescription,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -195,7 +198,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Contact Information',
+                                    l10n.contactInformation,
                                     style: theme.textTheme.titleMedium
                                         ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
@@ -207,12 +210,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               TextFormField(
                                 controller: _nameController,
                                 decoration: buildInputDecoration(
-                                  labelText: 'Full Name *',
+                                  labelText: l10n.fullNameRequiredLabel,
                                   prefixIcon: Icons.account_circle_outlined,
                                 ),
                                 validator: (value) =>
                                     (value == null || value.trim().isEmpty)
-                                    ? 'Please enter your full name'
+                                    ? l10n.fullNameValidation
                                     : null,
                               ),
                               const SizedBox(height: 16),
@@ -222,10 +225,10 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: buildInputDecoration(
-                                  labelText: 'Email Address',
+                                  labelText: l10n.emailAddress,
                                   prefixIcon: Icons.email_outlined,
                                   helperText:
-                                      'Required if phone number is empty',
+                                      l10n.phoneRequiredIfEmailEmpty,
                                 ),
                                 onChanged: (_) =>
                                     _formKey.currentState?.validate(),
@@ -235,7 +238,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                       .isEmpty;
                                   if (phoneEmpty &&
                                       (value == null || value.trim().isEmpty)) {
-                                    return 'Provide either an email or phone number';
+                                    return l10n.emailOrPhoneRequired;
                                   }
                                   if (value != null &&
                                       value.trim().isNotEmpty) {
@@ -243,7 +246,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                                     );
                                     if (!emailRegex.hasMatch(value.trim())) {
-                                      return 'Enter a valid email';
+                                      return l10n.invalidEmail;
                                     }
                                   }
                                   return null;
@@ -256,9 +259,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                 controller: _phoneController,
                                 keyboardType: TextInputType.phone,
                                 decoration: buildInputDecoration(
-                                  labelText: 'Phone Number',
+                                  labelText: l10n.phoneNumber,
                                   prefixIcon: Icons.phone_outlined,
-                                  helperText: 'Required if email is empty',
+                                  helperText: l10n.requiredIfEmailEmpty,
                                 ),
                                 onChanged: (_) =>
                                     _formKey.currentState?.validate(),
@@ -268,7 +271,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                       .isEmpty;
                                   if (emailEmpty &&
                                       (value == null || value.trim().isEmpty)) {
-                                    return 'Provide either an email or phone number';
+                                    return l10n.emailOrPhoneRequired;
                                   }
                                   return null;
                                 },
@@ -286,7 +289,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'Inquiry Details',
+                                    l10n.inquiryDetails,
                                     style: theme.textTheme.titleMedium
                                         ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
@@ -298,7 +301,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               DropdownButtonFormField<ContactInquiryTopic>(
                                 initialValue: _selectedTopic,
                                 decoration: buildInputDecoration(
-                                  labelText: 'Inquiry Topic *',
+                                  labelText: l10n.inquiryTopicRequiredLabel,
                                   prefixIcon: Icons.unfold_more_rounded,
                                 ),
                                 items: ContactInquiryTopic.values.map((topic) {
@@ -320,12 +323,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                 controller: _messageController,
                                 maxLines: 5,
                                 decoration: buildInputDecoration(
-                                  labelText: 'Your Message *',
+                                  labelText: l10n.yourMessageRequiredLabel,
                                   prefixIcon: Icons.edit_note_rounded,
                                 ),
                                 validator: (value) =>
                                     (value == null || value.trim().isEmpty)
-                                    ? 'Please enter your message'
+                                    ? l10n.messageValidation
                                     : null,
                               ),
                             ],
@@ -337,7 +340,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         child: ActionButton(
-                          label: 'Submit Inquiry',
+                          label: l10n.submitInquiry,
                           onPressed: _submitForm,
                           isLoading: isSubmitting,
                           isEnabled: !isSubmitting,

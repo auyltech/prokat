@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OnlineToggle extends ConsumerWidget {
   final String id;
@@ -11,6 +12,7 @@ class OnlineToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final actionId = "equipment:update:$id:status";
 
     final isSubmitting = ref
@@ -23,7 +25,7 @@ class OnlineToggle extends ConsumerWidget {
         if (isSubmitting) CircularProgressIndicator(),
 
         Text(
-          isVisible ? "ONLINE" : "OFFLINE",
+          isVisible ? l10n.online : l10n.offline,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -46,8 +48,12 @@ class OnlineToggle extends ConsumerWidget {
               if (context.mounted) {
                 AppSnackBar.show(
                   message: result
-                      ? "Equipment is now ${!isVisible ? "online" : "offline"}"
-                      : "Failed to toggle ${!isVisible ? "online" : "offline"}",
+                      ? l10n.equipmentIsNow(
+                          val ? l10n.onlineStatus : l10n.offlineStatus,
+                        )
+                      : l10n.failedToToggleEquipment(
+                          val ? l10n.onlineStatus : l10n.offlineStatus,
+                        ),
                   isSuccess: result,
                   isError: !result,
                 );

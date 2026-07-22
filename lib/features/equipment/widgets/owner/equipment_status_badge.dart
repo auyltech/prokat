@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentStatusBadge extends StatelessWidget {
   final EquipmentStatus status;
@@ -8,6 +9,7 @@ class EquipmentStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final Color statusColor = status == EquipmentStatus.available
         ? const Color.fromARGB(255, 24, 143, 0)
         : status == EquipmentStatus.booked
@@ -17,16 +19,16 @@ class EquipmentStatusBadge extends StatelessWidget {
         : const Color.fromARGB(255, 131, 131, 131);
 
     final statusString = status == EquipmentStatus.draft
-        ? 'draft'
+        ? l10n.statusDraft
         : status == EquipmentStatus.created
-        ? 'Moderator Review'
+        ? l10n.moderatorReview
         : status == EquipmentStatus.accepted ||
               status == EquipmentStatus.available
-        ? 'Available'
+        ? l10n.available
         : status == EquipmentStatus.rejected
-        ? 'Resubmit'
+        ? l10n.resubmit
         : status == EquipmentStatus.maintenance
-        ? 'Maintenance'
+        ? l10n.maintenance
         : '';
 
     return Container(

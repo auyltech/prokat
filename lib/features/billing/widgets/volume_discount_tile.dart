@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/features/billing/models/volume_discount_model.dart';
 
@@ -14,6 +15,7 @@ class VolumeDiscountTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -73,7 +75,7 @@ class VolumeDiscountTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'BEST VALUE', // You can change this to a dynamic discount label
+                l10n.bestValue,
                 style: TextStyle(
                   color: colorScheme.onPrimary,
                   fontSize: 10,

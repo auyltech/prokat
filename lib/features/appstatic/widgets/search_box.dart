@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchBox extends ConsumerStatefulWidget {
   final String? placeholder;
@@ -48,6 +49,7 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return BaseTile(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -61,7 +63,7 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
         onChanged: _onChange,
         onSubmitted: (_) => _onSubmit(),
         decoration: InputDecoration(
-          hintText: widget.placeholder ?? 'Search equipment...',
+          hintText: widget.placeholder ?? l10n.searchEquipment,
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),

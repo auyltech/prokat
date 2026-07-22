@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class BalanceSummaryTile extends StatelessWidget {
   final bool isloading;
@@ -20,6 +21,7 @@ class BalanceSummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // 1. Feature Isolation: Local loading block
     if (isloading) {
@@ -53,7 +55,7 @@ class BalanceSummaryTile extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                "Balance dynamic error",
+                l10n.balanceLoadError,
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.red.shade900,
@@ -98,7 +100,7 @@ class BalanceSummaryTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Remaining Time",
+                    l10n.remainingTime,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,

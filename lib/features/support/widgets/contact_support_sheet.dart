@@ -58,7 +58,7 @@ class ContactSupportSheet extends StatelessWidget {
                   const Icon(Icons.email_outlined),
                   SizedBox(width: 12),
                   Text(
-                    "Submit an Inquiry",
+                    l10n.submitInquiry,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,

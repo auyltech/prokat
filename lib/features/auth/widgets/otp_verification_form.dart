@@ -104,7 +104,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
           .verifyOtp(widget.phone, otp);
 
       if (success != true) {
-        widget.onError("Invalid or expired OTP");
+        widget.onError(_l10n.invalidOrExpiredOtp);
       }
     } catch (e) {
       widget.onError(_l10n.somethingWentWrong);
@@ -182,7 +182,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         // Cooldown Action Section
         if (isTimerActive)
           Text(
-            'Resend OTP in $_secondsRemaining seconds',
+            _l10n.resendOtpIn(_secondsRemaining),
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
               fontWeight: FontWeight.w500,
@@ -192,7 +192,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
           TextButton(
             onPressed: authState.isLoading ? null : resendOtp,
             child: Text(
-              "Resend OTP", // Make sure to add "resendOtp" to your app_en.arb
+              _l10n.resendOtp,
               style: theme.textTheme.labelLarge?.copyWith(
                 color: primary,
                 fontWeight: FontWeight.bold,

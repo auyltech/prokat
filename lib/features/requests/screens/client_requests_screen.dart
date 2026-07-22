@@ -104,7 +104,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                     icon: Icons.inventory_2_outlined,
                     title: l10n.noRequestsAtMoment,
                     subtitle:
-                        "You don't have any active requests at the moment",
+                        l10n.noActiveRequests,
                   )
                 else
                   ListView.separated(

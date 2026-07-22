@@ -46,7 +46,7 @@ class OwnerSettingsScreen extends StatelessWidget {
                   future: PackageInfo.fromPlatform(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: Text("Loading..."));
+                      return Center(child: Text(l10n.loading));
                     }
 
                     if (snapshot.hasData) {
@@ -56,13 +56,13 @@ class OwnerSettingsScreen extends StatelessWidget {
 
                       return Center(
                         child: Text(
-                          "Version: $version ($buildNumber)",
+                          l10n.versionLabel(version, buildNumber),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       );
                     }
 
-                    return const Text("Failed to load version");
+                    return Text(l10n.failedToLoadVersion);
                   },
                 ),
               ],

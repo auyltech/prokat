@@ -45,7 +45,7 @@ class AddressPickerCard extends StatelessWidget {
                   Text(
                     selectedAddress == null
                         ? l10n.setDeliveryAddress
-                        : "Address",
+                        : l10n.address,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -53,7 +53,7 @@ class AddressPickerCard extends StatelessWidget {
                   Text(
                     selectedAddress != null
                         ? "${selectedAddress?.street}, ${selectedAddress?.city}"
-                        : "select",
+                        : l10n.selectValue,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),

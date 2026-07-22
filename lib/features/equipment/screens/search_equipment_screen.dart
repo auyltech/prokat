@@ -47,6 +47,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
         .read(clientEquipmentProvider.notifier)
         .search(categoryId: categoryId, city: city, query: query);
 
+    if (!mounted) return;
     ref.read(favoritesProvider.notifier).getFavorites();
 
     final categoryState = ref.read(categoriesProvider);
@@ -88,8 +89,11 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
+      if (!mounted) return;
+
       await _fetchData();
 
+      if (!mounted) return;
       _categoriesSub = ref.listenManual(
         categoriesProvider.select((s) => s.selectedCategory?.id),
         (_, _) => _onFiltersChanged(),

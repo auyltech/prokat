@@ -36,7 +36,7 @@ class ChatActionBar extends ConsumerWidget {
 
     final submitState = ref.watch(bookingMutationProvider);
 
-    final actionBarTitle = getChatActionBarTitle(chatStatus);
+    final actionBarTitle = getChatActionBarTitle(chatStatus, l10n);
 
     final showActionBar = [ChatStatusDetail.workcompleted].contains(chatStatus);
 
@@ -79,7 +79,7 @@ class ChatActionBar extends ConsumerWidget {
                   // Hide request
                   Expanded(
                     child: ActionBarButton.destructive(
-                      label: "Hide Request",
+                      label: l10n.hideRequest,
                       isEnabled: true,
                       isLoading: false,
                       onPressed: () async {},
@@ -89,7 +89,7 @@ class ChatActionBar extends ConsumerWidget {
                   // Cancel request
                   Expanded(
                     child: ActionBarButton.danger(
-                      label: "Cancel Request",
+                      label: l10n.cancelRequestAction,
                       isEnabled: true,
                       isLoading: false,
                       onPressed: () async {
@@ -100,7 +100,7 @@ class ChatActionBar extends ConsumerWidget {
                         AppSnackBar.show(
                           message: result.success
                               ? l10n.requestCancelled
-                              : "Failed to cancel request",
+                              : l10n.failedToCancelRequest,
                           isSuccess: result.success,
                           isError: !result.success,
                         );
@@ -112,7 +112,7 @@ class ChatActionBar extends ConsumerWidget {
                 // Create Counter Offer
                 Expanded(
                   child: ActionBarButton.secondary(
-                    label: "Counter",
+                    label: l10n.counter,
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {
@@ -137,7 +137,7 @@ class ChatActionBar extends ConsumerWidget {
                 // Cancel request
                 Expanded(
                   child: ActionBarButton.danger(
-                    label: "Cancel Request",
+                    label: l10n.cancelRequestAction,
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {
@@ -155,7 +155,7 @@ class ChatActionBar extends ConsumerWidget {
                 if (booking != null)
                   Expanded(
                     child: ActionBarButton.destructive(
-                      label: "Reject Order",
+                      label: l10n.rejectOrder,
                       isEnabled: !submitState.isSubmitting,
                       isLoading:
                           submitState.isSubmitting &&
@@ -212,7 +212,7 @@ class ChatActionBar extends ConsumerWidget {
                 // Completed Work
                 Expanded(
                   child: ActionBarButton(
-                    label: "Complete Work",
+                    label: l10n.completeWork,
                     isEnabled: !submitState.isSubmitting,
                     isLoading:
                         submitState.isSubmitting &&
@@ -222,14 +222,12 @@ class ChatActionBar extends ConsumerWidget {
                         context: context,
                         builder: (context) => AlertDialog(
                           backgroundColor: theme.colorScheme.surface,
-                          title: const Text('Mark completed?'),
-                          content: const Text(
-                            'Client will need to confirm completion.',
-                          ),
+                          title: Text(l10n.markCompletedQuestion),
+                          content: Text(l10n.clientConfirmCompletion),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel'),
+                              child: Text(l10n.cancel),
                             ),
                             ElevatedButton(
                               onPressed: () async {
@@ -242,7 +240,7 @@ class ChatActionBar extends ConsumerWidget {
                                       workStatus: WorkStatus.completed,
                                     );
                               },
-                              child: const Text('Mark completed'),
+                              child: Text(l10n.markCompleted),
                             ),
                           ],
                         ),
@@ -259,7 +257,7 @@ class ChatActionBar extends ConsumerWidget {
                 if (booking != null)
                   Expanded(
                     child: ActionBarButton.secondary(
-                      label: "Update Status",
+                      label: l10n.updateStatus,
                       isEnabled: !submitState.isSubmitting,
                       isLoading:
                           submitState.isSubmitting &&
@@ -283,7 +281,7 @@ class ChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatusDetail.workcompleted) ...[
                 Expanded(
                   child: ActionBarButton(
-                    label: "Confirm",
+                    label: l10n.confirm,
                     isEnabled: !submitState.isSubmitting,
                     isLoading: submitState.isSubmitting,
                     onPressed: () async {
@@ -291,12 +289,12 @@ class ChatActionBar extends ConsumerWidget {
                         context: context,
                         builder: (context) => AlertDialog(
                           backgroundColor: theme.colorScheme.surface,
-                          title: const Text('Confirm completion?'),
-                          content: const Text('Confirm the work is completed.'),
+                          title: Text(l10n.confirmCompletionQuestion),
+                          content: Text(l10n.confirmCompletionPrompt),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Not yet'),
+                              child: Text(l10n.notYet),
                             ),
                             ElevatedButton(
                               onPressed: () async {
@@ -321,7 +319,7 @@ class ChatActionBar extends ConsumerWidget {
                                       .refreshAll();
                                 }
                               },
-                              child: const Text('Confirm'),
+                              child: Text(l10n.confirm),
                             ),
                           ],
                         ),
@@ -332,7 +330,7 @@ class ChatActionBar extends ConsumerWidget {
               ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
                 Expanded(
                   child: ActionBarButton(
-                    label: "Review",
+                    label: l10n.review,
                     isEnabled: !submitState.isSubmitting,
                     isLoading:
                         submitState.isSubmitting &&

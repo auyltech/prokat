@@ -87,7 +87,7 @@ class _OwnerBookingHistoryScreenState
                     child: EmptyStateTile(
                       icon: Icons.inventory_2_outlined,
                       title: l10n.noBookingsFound,
-                      subtitle: "You don't have any orders in your history",
+                      subtitle: l10n.noOrderHistoryDescription,
                     ),
                   )
                 else

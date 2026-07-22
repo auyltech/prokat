@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ErrorCategoriesCard extends StatelessWidget {
   final VoidCallback? onRetry;
@@ -8,6 +9,7 @@ class ErrorCategoriesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -36,14 +38,14 @@ class ErrorCategoriesCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Couldn't load categories",
+                  l10n.couldNotLoadCategories,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onErrorContainer,
                   ),
                 ),
                 Text(
-                  "Please check your connection.",
+                  l10n.checkYourConnection,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onErrorContainer.withValues(
                       alpha: 0.8,

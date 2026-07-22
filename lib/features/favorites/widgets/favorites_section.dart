@@ -25,7 +25,8 @@ class FavoritesSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SectionTitle(title: l10n.myFavorites),
+            Expanded(child: SectionTitle(title: l10n.myFavorites)),
+
             if (favorites?.isNotEmpty == true)
               AppLinkButton(
                 label: l10n.viewAll,

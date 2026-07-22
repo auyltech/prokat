@@ -49,6 +49,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       final config = _getStatusConfig(
         registrationRequest.status?.toUpperCase() ?? 'PENDING',
         theme,
+        l10n,
       );
 
       return _buildModernCTA(
@@ -137,28 +138,32 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     );
   }
 
-  _StatusConfig _getStatusConfig(String status, ThemeData theme) {
+  _StatusConfig _getStatusConfig(
+    String status,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     switch (status) {
       case 'APPROVED':
         return _StatusConfig(
           bg: const Color(0xFFE8F5E9),
           color: const Color(0xFF2E7D32),
           icon: Icons.check,
-          label: "Request Accepted",
+          label: l10n.requestAccepted,
         );
       case 'REJECTED':
         return _StatusConfig(
           bg: const Color(0xFFFFEBEE),
           color: const Color(0xFFC62828),
           icon: Icons.error,
-          label: "Request Rejected",
+          label: l10n.requestRejected,
         );
       default: // PENDING
         return _StatusConfig(
           bg: const Color(0xFFFFF3E0),
           color: const Color(0xFFE65100),
           icon: Icons.history_toggle_off_rounded,
-          label: "Request Pending",
+          label: l10n.requestPending,
         );
     }
   }

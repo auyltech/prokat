@@ -95,7 +95,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
               const SizedBox(height: 16),
 
               Text(
-                "Upload Profile Image",
+                l10n.uploadProfileImage,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontSize: 20,
                   fontWeight: FontWeight.w500,

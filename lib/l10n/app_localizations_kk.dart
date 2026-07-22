@@ -9,6 +9,643 @@ class AppLocalizationsKk extends AppLocalizations {
   AppLocalizationsKk([String locale = 'kk']) : super(locale);
 
   @override
+  String get appLanguage => 'Қолданба тілі';
+
+  @override
+  String offerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ұсыныс',
+      one: '1 ұсыныс',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activeRequestAlreadyExists => 'Сізде белсенді сұрау бар.';
+
+  @override
+  String get supportTicketSubmitted =>
+      'Қолдау қызметіне өтініш сәтті жіберілді!';
+
+  @override
+  String get failedToSubmitTicket => 'Өтінішті жіберу мүмкін болмады';
+
+  @override
+  String get getInTouch => 'Бізбен байланысу';
+
+  @override
+  String get createOrder => 'Тапсырыс жасау';
+
+  @override
+  String get myProfile => 'Менің профилім';
+
+  @override
+  String get mapSearch => 'Картадан іздеу';
+
+  @override
+  String get myAddresses => 'Менің мекенжайларым';
+
+  @override
+  String get rentalRequests => 'Жалдау сұраулары';
+
+  @override
+  String get registration => 'Тіркелу';
+
+  @override
+  String get equipmentDetails => 'Техника мәліметтері';
+
+  @override
+  String get createAddress => 'Мекенжай жасау';
+
+  @override
+  String get editAddress => 'Мекенжайды өзгерту';
+
+  @override
+  String get pinToMap => 'Картада белгілеу';
+
+  @override
+  String get addresses => 'Мекенжайлар';
+
+  @override
+  String get topUpBalance => 'Балансты толықтыру';
+
+  @override
+  String get payments => 'Төлемдер';
+
+  @override
+  String get offerCreated => 'Ұсыныс жасалды';
+
+  @override
+  String get offerReceived => 'Ұсыныс алынды';
+
+  @override
+  String get counterOfferSent => 'Қарсы ұсыныс жіберілді';
+
+  @override
+  String get respondToCounterOffer => 'Қарсы ұсынысқа жауап беріңіз';
+
+  @override
+  String get orderHasBeenCancelled => 'Тапсырыс болдырылмады';
+
+  @override
+  String get waitingOwnerResponse => 'Иесінің жауабы күтілуде';
+
+  @override
+  String get waitingClientConfirmation => 'Клиенттің растауы күтілуде';
+
+  @override
+  String get confirmWorkCompleted => 'Жұмыстың аяқталғанын растау';
+
+  @override
+  String get orderCompleted => 'Тапсырыс аяқталды';
+
+  @override
+  String get reviewSent => 'Пікір жіберілді';
+
+  @override
+  String get orderCreated => 'Тапсырыс жасалды';
+
+  @override
+  String get workCompleted => 'Жұмыс аяқталды';
+
+  @override
+  String get selectRegistrationMethod => 'Қалаған тіркелу әдісін таңдаңыз';
+
+  @override
+  String get couldNotLoadCategories => 'Санаттарды жүктеу мүмкін болмады';
+
+  @override
+  String get checkYourConnection => 'Интернет байланысын тексеріңіз.';
+
+  @override
+  String get noServicesAvailableYet => 'Қызметтер әзірге жоқ';
+
+  @override
+  String get checkBackLater => 'Жаңартуларды кейінірек тексеріңіз.';
+
+  @override
+  String get balanceUnavailable => 'Баланс қолжетімсіз';
+
+  @override
+  String get accountBalance => 'Аккаунт балансы';
+
+  @override
+  String get notVerified => 'Расталмаған';
+
+  @override
+  String get uploadProfileImage => 'Профиль суретін жүктеу';
+
+  @override
+  String get switchBackToClient => 'Клиент бөліміне оралу';
+
+  @override
+  String get vehicleName => 'Техника атауы';
+
+  @override
+  String get modelType => 'Модель';
+
+  @override
+  String get noLocationSet => 'Орналасқан жері көрсетілмеген';
+
+  @override
+  String get noPriceSet => 'Баға көрсетілмеген';
+
+  @override
+  String get hasPricesListed => 'Тарифтер көрсетілген';
+
+  @override
+  String get dateNotSet => 'Күн көрсетілмеген';
+
+  @override
+  String get balanceLoadError => 'Балансты жүктеу мүмкін болмады';
+
+  @override
+  String get priceEntryDeleted => 'Тариф жойылды';
+
+  @override
+  String get failedToDeletePriceEntry => 'Тарифті жою мүмкін болмады';
+
+  @override
+  String get systemError => 'ЖҮЙЕЛІК ҚАТЕ';
+
+  @override
+  String get equipmentDataNotLocated => 'ТЕХНИКА ДЕРЕКТЕРІ ТАБЫЛМАДЫ';
+
+  @override
+  String get backToFleet => 'ТЕХНИКАҒА ОРАЛУ';
+
+  @override
+  String get howCanWeHelp => 'Сізге қалай көмектесе аламыз?';
+
+  @override
+  String get supportFormDescription =>
+      'Төмендегі нысанды толтырыңыз, біздің команда сізбен жақын арада байланысады.';
+
+  @override
+  String get contactInformation => 'Байланыс ақпараты';
+
+  @override
+  String get fullNameRequiredLabel => 'Толық аты-жөні *';
+
+  @override
+  String get fullNameValidation => 'Толық аты-жөніңізді енгізіңіз';
+
+  @override
+  String get emailOrPhoneRequired => 'Email немесе телефон нөмірін көрсетіңіз';
+
+  @override
+  String get phoneRequiredIfEmailEmpty =>
+      'Телефон нөмірі көрсетілмесе, міндетті';
+
+  @override
+  String get invalidEmail => 'Дұрыс email енгізіңіз';
+
+  @override
+  String get inquiryDetails => 'Өтініш мәліметтері';
+
+  @override
+  String get inquiryTopicRequiredLabel => 'Өтініш тақырыбы *';
+
+  @override
+  String get yourMessageRequiredLabel => 'Хабарламаңыз *';
+
+  @override
+  String get messageValidation => 'Хабарламаны енгізіңіз';
+
+  @override
+  String get counterOffer => 'Қарсы ұсыныс';
+
+  @override
+  String get legalDocumentLoadError =>
+      'Құжатты жүктеу мүмкін болмады. Кейінірек қайталап көріңіз.';
+
+  @override
+  String get termsLoadError =>
+      'Пайдалану шарттарын жүктеу мүмкін болмады. Кейінірек қайталап көріңіз.';
+
+  @override
+  String get startupLoadingMode => 'Қолданба режимі жүктелуде...';
+
+  @override
+  String get startupRestoringSession => 'Сеанс қалпына келтірілуде...';
+
+  @override
+  String get startupRestoringOtp => 'OTP сеансы қалпына келтірілуде...';
+
+  @override
+  String get startupRefreshingSession => 'Сеанс жаңартылуда...';
+
+  @override
+  String get startupLoadingProfile => 'Профиль жүктелуде...';
+
+  @override
+  String get startupFinalizing => 'Аяқталуда...';
+
+  @override
+  String get done => 'Дайын';
+
+  @override
+  String get offerDetails => 'Ұсыныс мәліметтері';
+
+  @override
+  String get cancelOffer => 'Ұсынысты болдырмау';
+
+  @override
+  String get invalidOrExpiredOtp => 'Код қате немесе мерзімі өткен';
+
+  @override
+  String resendOtpIn(int seconds) {
+    return 'Кодты $seconds секундтан кейін қайта жіберу';
+  }
+
+  @override
+  String get resendOtp => 'Кодты қайта жіберу';
+
+  @override
+  String get equipmentRenting => 'Техника жалдау';
+
+  @override
+  String get getStartedWithProkat => 'Prokat-пен бастаңыз';
+
+  @override
+  String get guestSignInDescription =>
+      'Техниканы көру, иелерімен байланысу және тапсырыс беру үшін жүйеге кіріңіз.';
+
+  @override
+  String get equipmentSubmittedForReview => 'Техника тексеруге жіберілді';
+
+  @override
+  String get equipmentDeleted => 'Техника жойылды';
+
+  @override
+  String get failedToDeleteEquipment => 'Техниканы жою мүмкін болмады';
+
+  @override
+  String get moderatorReview => 'Модератор тексеруі';
+
+  @override
+  String get resubmit => 'Қайта жіберу';
+
+  @override
+  String get maintenance => 'Техникалық қызмет';
+
+  @override
+  String get owner => 'Иесі';
+
+  @override
+  String get specification => 'Сипаттама';
+
+  @override
+  String get pleaseProvideRequiredInformation =>
+      'Міндетті ақпаратты көрсетіңіз';
+
+  @override
+  String failedToLoadMessage(String message) {
+    return 'Жүктеу мүмкін болмады: $message';
+  }
+
+  @override
+  String get selectValue => 'Таңдау';
+
+  @override
+  String noEquipmentForCategory(String category) {
+    return 'Қазір «$category» санатында техника жоқ.';
+  }
+
+  @override
+  String noEquipmentListedInCity(String category, String city) {
+    return 'Қазір $city қаласында «$category» санатындағы техника жоқ.';
+  }
+
+  @override
+  String equipmentIsNow(String status) {
+    return 'Техника енді $status';
+  }
+
+  @override
+  String failedToToggleEquipment(String status) {
+    return 'Техниканы «$status» күйіне ауыстыру мүмкін болмады';
+  }
+
+  @override
+  String get requestReceived => 'Сұрау алынды';
+
+  @override
+  String get byContinuing => 'Жалғастыру арқылы сіз біздің ';
+
+  @override
+  String get termsAndConditions => 'Пайдалану шарттарымен';
+
+  @override
+  String get andOur => ' және ';
+
+  @override
+  String get privacyPolicy => 'Құпиялылық саясатымызбен келісесіз';
+
+  @override
+  String get ok => 'Жарайды';
+
+  @override
+  String get confirmDeletion => 'Жоюды растаңыз';
+
+  @override
+  String get initiateAccountDeletion => 'Аккаунтты жоюды бастау';
+
+  @override
+  String get failedToRequestAccountDeletion =>
+      'Аккаунтты жою сұрауын жіберу мүмкін болмады. Қайталап көріңіз.';
+
+  @override
+  String get accountDeletionScheduledBody =>
+      'Аккаунтыңыз жоюға жоспарланды.\n\nСіз жүйеден дереу шығасыз. 14 күндік күту кезеңінде аккаунтқа қайта кіру жою сұрауын болдырмайды.';
+
+  @override
+  String get accountDeletionConfirmationBody =>
+      'Аккаунтыңыз дереу «Жойылуды күтуде» күйіне өтеді.\n\nДеректердің кездейсоқ жоғалуынан қорғау үшін олар 14 күндік күту кезеңінен кейін біржола жойылады.';
+
+  @override
+  String get permanentlyDeleteAccount => 'Аккаунтты біржола жою';
+
+  @override
+  String get accountDeletionHoldDescription =>
+      '14 күндік күту кезеңі басталады. Ол аяқталғанға дейін қайта кіру арқылы жоюдан бас тарта аласыз.';
+
+  @override
+  String get failedToLoadVersion => 'Нұсқаны жүктеу мүмкін болмады';
+
+  @override
+  String versionLabel(String version, String buildNumber) {
+    return 'Нұсқа: $version ($buildNumber)';
+  }
+
+  @override
+  String get markCompletedQuestion => 'Аяқталды деп белгілеу керек пе?';
+
+  @override
+  String get markCompleted => 'Аяқталды деп белгілеу';
+
+  @override
+  String get clientConfirmCompletion => 'Клиент аяқталғанын растауы керек.';
+
+  @override
+  String get confirmCompletionQuestion => 'Аяқталғанын растау керек пе?';
+
+  @override
+  String get confirmCompletionPrompt => 'Жұмыстың аяқталғанын растаңыз.';
+
+  @override
+  String get notYet => 'Әзірге жоқ';
+
+  @override
+  String get errorLoadingBooking => 'Тапсырысты жүктеу қатесі';
+
+  @override
+  String get errorLoadingRequest => 'Сұрауды жүктеу қатесі';
+
+  @override
+  String get errorLoadingOffer => 'Ұсынысты жүктеу қатесі';
+
+  @override
+  String get failedToLoadNegotiation => 'Келіссөздерді жүктеу мүмкін болмады';
+
+  @override
+  String get failedToLoadChat => 'Чатты жүктеу мүмкін болмады';
+
+  @override
+  String get offer => 'Ұсыныс';
+
+  @override
+  String get support => 'Қолдау';
+
+  @override
+  String get service => 'Қызмет';
+
+  @override
+  String get deletePriceEntry => 'Тарифті жою';
+
+  @override
+  String get deletePriceEntryConfirmation => 'Бұл тарифті жойғыңыз келе ме?';
+
+  @override
+  String get loginRequired => 'Жүйеге кіру қажет';
+
+  @override
+  String get loginRequiredToViewEquipment =>
+      'Мәліметтерді көру және техниканы брондау үшін жүйеге кіріңіз.';
+
+  @override
+  String get reviewOwner => 'Иесі туралы пікір';
+
+  @override
+  String get reviewClient => 'Клиент туралы пікір';
+
+  @override
+  String get requestAccepted => 'Сұрау қабылданды';
+
+  @override
+  String get requestRejected => 'Сұрау қабылданбады';
+
+  @override
+  String get requestPending => 'Сұрау күтілуде';
+
+  @override
+  String get estimatedExhaustion => 'Болжалды аяқталу';
+
+  @override
+  String get enterValidPrice => 'Дұрыс бағаны енгізіңіз';
+
+  @override
+  String get requiredIfEmailEmpty => 'Email көрсетілмесе, міндетті';
+
+  @override
+  String get submitInquiry => 'Өтінішті жіберу';
+
+  @override
+  String get couldNotLoadServices => 'Қызметтерді жүктеу мүмкін болмады';
+
+  @override
+  String get noServicesFound => 'Қызметтер табылмады';
+
+  @override
+  String get noServicesAvailable => 'Қазір тізімде қызметтер жоқ';
+
+  @override
+  String get applicationSettings => 'Қолданба баптаулары';
+
+  @override
+  String get userGuides => 'Пайдаланушы нұсқаулықтары';
+
+  @override
+  String get submitTopUpRequest => 'Толықтыру сұрауын жіберу';
+
+  @override
+  String get selectStars => 'Бағаны таңдаңыз';
+
+  @override
+  String get commentOptional => 'Пікір (міндетті емес)';
+
+  @override
+  String get completeWork => 'Жұмысты аяқтау';
+
+  @override
+  String get submitReview => 'Пікір жіберу';
+
+  @override
+  String get markAllAsRead => 'Барлығын оқылды деп белгілеу';
+
+  @override
+  String get notFound => 'Табылмады';
+
+  @override
+  String get placeOrder => 'Тапсырыс беру';
+
+  @override
+  String get notification => 'Хабарландыру';
+
+  @override
+  String get typeMessageHint => 'Хабарлама жазыңыз...';
+
+  @override
+  String get rejectPrice => 'Бағаны қабылдамау';
+
+  @override
+  String get acceptPrice => 'Бағаны қабылдау';
+
+  @override
+  String get cancelPrice => 'Бағаны болдырмау';
+
+  @override
+  String get hideRequest => 'Сұрауды жасыру';
+
+  @override
+  String get updateStatus => 'Күйді жаңарту';
+
+  @override
+  String get review => 'Пікір';
+
+  @override
+  String get saved => 'Сақталды';
+
+  @override
+  String get noNotificationsYet => 'Хабарландырулар әзірге жоқ';
+
+  @override
+  String get errorLoadingEquipment => 'Техниканы жүктеу қатесі';
+
+  @override
+  String get priceMustBePositive => 'Баға нөлден жоғары болуы керек';
+
+  @override
+  String get priceMaximumExceeded => 'Баға 100 000-нан аспауы керек';
+
+  @override
+  String get notSupportedYet => 'Әзірге қолдау көрсетілмейді';
+
+  @override
+  String get errorLoadingProfile => 'Профильді жүктеу мүмкін болмады';
+
+  @override
+  String get tapToRetry => 'Қайталау үшін басыңыз';
+
+  @override
+  String get announcements => 'Хабарландырулар';
+
+  @override
+  String get noMessagesYet => 'Хабарламалар әзірге жоқ';
+
+  @override
+  String get unknownEquipment => 'Белгісіз техника';
+
+  @override
+  String get pending => 'Күтілуде';
+
+  @override
+  String get orderConfirmed => 'Тапсырыс расталды';
+
+  @override
+  String get failedToConfirmOrder => 'Тапсырысты растау мүмкін болмады';
+
+  @override
+  String get chatLocked => 'Чат бұғатталған';
+
+  @override
+  String get priceOffer => 'Баға ұсынысы';
+
+  @override
+  String offeredPrice(String price) {
+    return 'Ұсынылғаны: $price';
+  }
+
+  @override
+  String get topUpAdded => 'Толықтыру қосылды';
+
+  @override
+  String get failedToCompleteTopUp => 'Толықтыруды аяқтау мүмкін болмады';
+
+  @override
+  String get remainingTime => 'Қалған уақыт';
+
+  @override
+  String get bestValue => 'ЕҢ ТИІМДІ';
+
+  @override
+  String activeRequestCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count белсенді сұрау',
+      one: '1 белсенді сұрау',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesRead(int count) {
+    return '$count мин оқу';
+  }
+
+  @override
+  String get pleaseSelectCategory => 'Санатты таңдаңыз';
+
+  @override
+  String get pleaseSelectEquipment => 'Техниканы таңдаңыз';
+
+  @override
+  String get pleaseSelectPrice => 'Бағаны таңдаңыз';
+
+  @override
+  String get pleaseSelectLocation => 'Орналасқан жерді таңдаңыз';
+
+  @override
+  String get pleaseSelectDate => 'Күнді таңдаңыз';
+
+  @override
+  String get pleaseSelectTime => 'Уақытты таңдаңыз';
+
+  @override
+  String get noRequestHistory => 'Сұраулар тарихы әзірге бос';
+
+  @override
+  String get noOrderHistoryDescription => 'Тапсырыстар тарихы әзірге бос';
+
+  @override
+  String get reviewSubmitted => 'Пікір жіберілді';
+
+  @override
+  String get failedToSubmitReview => 'Пікірді жіберу мүмкін болмады';
+
+  @override
+  String get failedToCancelOrder => 'Тапсырысты болдырмау мүмкін болмады';
+
+  @override
+  String get failedToCancelRequest => 'Сұрауды болдырмау мүмкін болмады';
+
+  @override
+  String get saveFailed => 'Сақтау мүмкін болмады';
+
+  @override
   String get heroPlatformTag => 'ҚАЗАҚСТАНДАҒЫ №1 ЖАЛДАУ ПЛАТФОРМАСЫ';
 
   @override
@@ -382,7 +1019,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get startWork => 'Жұмысты бастау';
 
   @override
-  String get orderCancelled => 'Тапсырыс болдырылмады';
+  String get orderCancelled => 'Тапсырыс жойылды';
 
   @override
   String get cancelBooking => 'Брондауды жою';
@@ -562,13 +1199,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentUpdated => 'Техника жаңартылды';
 
   @override
-  String get pleaseEnterValidValues => 'Жарамды мәндерді енгізіңіз';
+  String get pleaseEnterValidValues => 'Дұрыс мәндерді енгізіңіз';
 
   @override
   String get equipmentUpdatedSuccessfully => 'Техника сәтті жаңартылды';
 
   @override
-  String get failedToUpdateEquipment => 'Техниканы жаңарту мүмкін болмады';
+  String get failedToUpdateEquipment => 'Техниканы жаңарту сәтсіз аяқталды';
 
   @override
   String get editEquipment => 'Техниканы өзгерту';
@@ -1532,18 +2169,6 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get faq5A =>
       'Мәселені дереу қосымша арқылы хабарлаңыз. Қолдау тобымыз сізге көмектеседі.';
-
-  @override
-  String get byContinuing => 'By continuing, you agree to our ';
-
-  @override
-  String get termsAndConditions => 'Terms & Conditions';
-
-  @override
-  String get andOur => ' and our ';
-
-  @override
-  String get privacyPolicy => 'Privacy Policy';
 
   @override
   String get helpUsGrow => 'Бізге өсуге көмектесіңіз';

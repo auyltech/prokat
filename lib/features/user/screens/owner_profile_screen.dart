@@ -88,7 +88,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
             // Owner Profile
             SliverAppBar(
-              expandedHeight: 250,
+              expandedHeight: 400,
               pinned: false,
               elevation: 0,
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
@@ -111,7 +111,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                           child: _StatCard(
                             value: ownerEquipmentCount
                                 .toString(), // wire up from billingProvider
-                            label: "Equipment",
+                            label: l10n.navEquipment,
                             valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.truck,
                           ),
@@ -122,7 +122,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                           child: _StatCard(
                             value:
                                 "${ownerProfileState.ownerProfile?.orderCount ?? 0}",
-                            label: "Orders",
+                            label: l10n.ordersUnit,
                             valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.package,
                           ),
@@ -147,7 +147,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                               date: ownerProfileState.ownerProfile?.verifiedAt,
                               format: "dd MMM yyyy",
                             )
-                          : "Not Verified",
+                          : l10n.notVerified,
                       onTap: () => context.push(AppRoutes.ownerRegistration),
                     ),
                     const SizedBox(height: 10),

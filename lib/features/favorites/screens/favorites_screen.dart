@@ -45,9 +45,9 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         child: ListView(
           children: [
             if (isLoading && favorites.isEmpty)
-              EmptyStateTile(title: "Loading")
+              EmptyStateTile(title: l10n.loading)
             else if (error != null)
-              EmptyStateTile(title: "Error loading")
+              EmptyStateTile(title: l10n.somethingWentWrong)
             else if (favorites.isEmpty)
               EmptyStateTile(
                 title: l10n.noSavedMachinery,

@@ -30,12 +30,13 @@ class OwnerBookingTile extends ConsumerWidget {
     WidgetRef ref,
     ThemeData theme,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Accept Order?'),
-          content: const Text('Are you sure you want to accept this order?'),
+          title: Text(l10n.acceptOrderQuestion),
+          content: Text(l10n.acceptOrderConfirmation),
           actions: [
             TextButton(
               onPressed: () {
@@ -43,7 +44,7 @@ class OwnerBookingTile extends ConsumerWidget {
                   context.pop();
                 }
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -58,7 +59,7 @@ class OwnerBookingTile extends ConsumerWidget {
                     );
               },
               child: Text(
-                'Confirm',
+                l10n.confirm,
                 style: TextStyle(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -77,13 +78,14 @@ class OwnerBookingTile extends ConsumerWidget {
     ThemeData theme,
     bool isCreatedStatus,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingMutationProvider.notifier);
 
-    final modalTitle = isCreatedStatus ? "Reject Order" : "Cancel Order";
+    final modalTitle = isCreatedStatus ? l10n.rejectOrder : l10n.cancelBooking;
     final modalText = isCreatedStatus
-        ? "Are you sure you want to reject this order?"
-        : "Are you sure you want to cancel this order?";
-    final submitButton = isCreatedStatus ? "Yes, Reject" : "Yes, Cancel";
+        ? l10n.rejectOrderQuestion
+        : l10n.cancelOrderQuestion;
+    final submitButton = isCreatedStatus ? l10n.yesReject : l10n.yesCancel;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -99,7 +101,7 @@ class OwnerBookingTile extends ConsumerWidget {
               foregroundColor: theme.primaryColor,
               elevation: 0,
             ),
-            child: const Text("No"),
+            child: Text(l10n.no),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -133,7 +135,9 @@ class OwnerBookingTile extends ConsumerWidget {
       }
 
       AppSnackBar.show(
-        message: result.success ? "Order Cancelled" : "Failed to cancel order",
+        message: result.success
+            ? l10n.orderCancelled
+            : l10n.failedToCancelOrder,
         isSuccess: result.success,
         isError: !result.success,
       );
@@ -221,7 +225,7 @@ class OwnerBookingTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   icon: Icons.timelapse,
-                  label: "Date & Time",
+                      label: l10n.dateAndTime,
                   value: formatDateTime(booking.bookedOn, booking.bookedAt),
                 ),
               ),
@@ -244,7 +248,7 @@ class OwnerBookingTile extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InfoTile.ghost(label: "Price", value: formatPrice(booking.price)),
+              InfoTile.ghost(label: l10n.price, value: formatPrice(booking.price)),
 
               Spacer(),
 
@@ -299,7 +303,7 @@ class OwnerBookingTile extends ConsumerWidget {
                           ref.watch(bookingMutationProvider).isSubmitting
                           ? null
                           : handleAccept(context, ref, theme),
-                      tooltip: "Accept Order",
+                      tooltip: l10n.acceptOrder,
                       icon: Icon(
                         LucideIcons.check,
                         size: 25,
@@ -308,16 +312,14 @@ class OwnerBookingTile extends ConsumerWidget {
                     ),
                   ] else if (booking.status == BookingStatus.confirmed) ...[
                     ActionButton(
-                      label: 'Complete Work',
+                      label: l10n.completeWork,
                       onPressed: () async {
                         await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: theme.colorScheme.surface,
-                            title: const Text('Mark completed?'),
-                            content: const Text(
-                              'Client will need to confirm completion.',
-                            ),
+                            title: Text(l10n.markCompletedQuestion),
+                            content: Text(l10n.clientConfirmCompletion),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -325,7 +327,7 @@ class OwnerBookingTile extends ConsumerWidget {
                                     context.pop();
                                   }
                                 },
-                                child: const Text('Cancel'),
+                                child: Text(l10n.cancel),
                               ),
                               ElevatedButton(
                                 onPressed: () async {
@@ -346,7 +348,7 @@ class OwnerBookingTile extends ConsumerWidget {
                                     isError: !result.success,
                                   );
                                 },
-                                child: const Text('Mark completed'),
+                                child: Text(l10n.markCompleted),
                               ),
                             ],
                           ),
@@ -355,7 +357,7 @@ class OwnerBookingTile extends ConsumerWidget {
                     ),
                   ] else if (canReview) ...[
                     ActionButton(
-                      label: "Submit Review",
+                      label: l10n.submitReview,
                       onPressed: () async {
                         await showModalBottomSheet<bool>(
                           context: context,
@@ -369,7 +371,7 @@ class OwnerBookingTile extends ConsumerWidget {
                           builder: (_) => ReviewSheet(
                             bookingId: booking.id,
                             revieweeId: booking.client?.id ?? "",
-                            title: 'Review client',
+                            title: l10n.reviewClient,
                           ),
                         );
                       },

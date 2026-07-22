@@ -38,7 +38,7 @@ class _NegotiationMessageBubbleState
     }();
 
     if (parsed == null) {
-      return Text("Failed to load negotiation");
+      return Text(l10n.failedToLoadNegotiation);
     }
 
     final priceNegotiationState = ref
@@ -83,7 +83,7 @@ class _NegotiationMessageBubbleState
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    "Price Offer",
+                    l10n.priceOffer,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.primaryColor,

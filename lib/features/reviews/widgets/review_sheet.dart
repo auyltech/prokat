@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ReviewSheet extends ConsumerStatefulWidget {
   final String bookingId;
@@ -24,6 +25,7 @@ class ReviewSheet extends ConsumerStatefulWidget {
     required String revieweeId,
     required AppMode mode,
   }) async {
+    final l10n = AppLocalizations.of(context)!;
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -34,7 +36,7 @@ class ReviewSheet extends ConsumerStatefulWidget {
       builder: (context) => ReviewSheet(
         bookingId: bookingId,
         revieweeId: revieweeId,
-        title: mode == AppMode.clientMode ? 'Review owner' : 'Review client',
+        title: mode == AppMode.clientMode ? l10n.reviewOwner : l10n.reviewClient,
       ),
     );
   }
@@ -48,8 +50,9 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   final TextEditingController _commentController = TextEditingController();
 
   Future<void> onSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_stars <= 0) {
-      AppSnackBar.show(message: 'Select stars', isError: true);
+      AppSnackBar.show(message: l10n.selectStars, isError: true);
       return;
     }
     try {
@@ -67,7 +70,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
 
       if (mounted) {
         AppSnackBar.show(
-          message: result ? "Review Submitted" : "Failed to submit review",
+          message: result ? l10n.reviewSubmitted : l10n.failedToSubmitReview,
           isError: true,
         );
       }
@@ -90,6 +93,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(reviewByBookingProvider(widget.bookingId));
 
     return Padding(
@@ -126,7 +130,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           ),
 
           InputField(
-            label: 'Comment (optional)',
+            label: l10n.commentOptional,
             controller: _commentController,
             hint: "",
           ),
@@ -136,7 +140,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           Row(
             children: [
               Expanded(
-                child: ActionBarButton(label: "Submit", onPressed: onSubmit),
+                child: ActionBarButton(label: l10n.submit, onPressed: onSubmit),
               ),
             ],
           ),

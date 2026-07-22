@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class DeleteAccountTile extends ConsumerStatefulWidget {
   const DeleteAccountTile({super.key});
@@ -18,6 +19,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
   bool get wantKeepAlive => true;
 
   Future<void> onSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     final profileState = ref.read(userProfileProvider.notifier);
 
     final result = await profileState.deleteAccount();
@@ -27,7 +29,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
       _showSuccessAndLogoutDialog(context);
     } else if (mounted) {
       AppSnackBar.show(
-        message: 'Failed to request account deletion. Please try again.',
+        message: l10n.failedToRequestAccountDeletion,
         isError: true,
       );
     }
@@ -35,6 +37,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
 
   void _showSuccessAndLogoutDialog(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -55,15 +58,10 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                 size: 28,
               ),
               const SizedBox(width: 10),
-              const Text('Request Received'),
+              Text(l10n.requestReceived),
             ],
           ),
-          content: const Text(
-            'Your account is now safely scheduled for deletion.\n\n'
-            'You will be signed out immediately. Remember that logging back into '
-            'the app with this phone number within the next 14 days will automatically '
-            'restore your data and cancel this request.',
-          ),
+          content: Text(l10n.accountDeletionScheduledBody),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -89,7 +87,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                   ).pushNamedAndRemoveUntil('/login', (route) => false);
                 }
               },
-              child: const Text('OK'),
+              child: Text(l10n.ok),
             ),
           ],
         );
@@ -99,6 +97,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
 
   void _showDeletionConfirmationDialog(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -117,20 +116,15 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                 size: 28,
               ),
               const SizedBox(width: 10),
-              const Text('Confirm Deletion'),
+              Text(l10n.confirmDeletion),
             ],
           ),
-          content: const Text(
-            'Your account will immediately enter a "Pending Deletion" status.\n\n'
-            'To protect against accidental data loss, all data will be permanently '
-            'erased in exactly 14 days. Logging back into your account before '
-            'this period ends will cancel the deletion request.',
-          ),
+          content: Text(l10n.accountDeletionConfirmationBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
-                'Cancel',
+                l10n.cancel,
                 style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
               ),
             ),
@@ -145,7 +139,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
 
                 onSubmit();
               },
-              child: const Text('Delete Account'),
+              child: Text(l10n.deleteAccount),
             ),
           ],
         );
@@ -157,6 +151,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
   Widget build(BuildContext context) {
     super.build(context); // Required by AutomaticKeepAliveClientMixin
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       mainAxisAlignment:
@@ -173,7 +168,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Danger Zone',
+                l10n.dangerZone,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.error,
                   fontWeight: FontWeight.bold,
@@ -213,7 +208,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Permanently Delete Account',
+                      l10n.permanentlyDeleteAccount,
                       style: theme.textTheme.titleSmall?.copyWith(
                         color: theme.colorScheme.onErrorContainer,
                         fontWeight: FontWeight.bold,
@@ -223,9 +218,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'This actions kicks off a 14-day hold window. If you do not change your mind '
-                  'and opt out by logging back into your profile before this period lapses, '
-                  'all personal records, history, cloud files, and purchases will be completely erased.',
+                  l10n.accountDeletionHoldDescription,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onErrorContainer.withValues(
                       alpha: 0.8,
@@ -243,7 +236,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
         // Production Danger Zone Trigger Button
         OutlinedButton.icon(
           icon: const Icon(Icons.delete_forever_rounded),
-          label: const Text('Initiate Account Deletion'),
+          label: Text(l10n.initiateAccountDeletion),
           style: OutlinedButton.styleFrom(
             foregroundColor: theme.colorScheme.error,
             side: BorderSide(color: theme.colorScheme.error),

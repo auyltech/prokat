@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class FavoriteTile extends ConsumerWidget {
   final Equipment equipment;
@@ -13,17 +14,18 @@ class FavoriteTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // Check favorite status to handle the "Un-favorite" action
     final isFavorite = ref
         .read(favoritesProvider.notifier)
         .isFavorite(equipment.id);
 
-    final location = equipment.location?.city ?? "Unknown location";
+    final location = equipment.location?.city ?? l10n.unknownLocation;
 
     final price = equipment.prices.isNotEmpty
         ? "${equipment.prices.first.price} ₸/${equipment.prices.first.priceRate}"
-        : "No price";
+        : l10n.noPrice;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),

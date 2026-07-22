@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class PriceEntryTile extends ConsumerStatefulWidget {
   final PriceEntry priceEntry;
@@ -23,6 +25,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final accent = colorScheme.primary;
 
@@ -42,7 +45,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.priceEntry.priceRate.label, // e.g. "Per Hour"
+                  getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.primaryColor,
                   ),

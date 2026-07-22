@@ -21,6 +21,7 @@ class AppRoutes {
 
   // Guest Screens
   static const String main = '/main'; // Landing page with limited information
+  static const String about = '/about';
   static const String helpSupport = '/help';
   static const String contactSupport = '/contact';
   static const String supportUs = '/support-us';

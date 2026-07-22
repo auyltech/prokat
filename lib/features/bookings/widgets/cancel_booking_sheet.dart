@@ -22,7 +22,7 @@ class CancelBookingSheet extends ConsumerStatefulWidget {
 class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
   String? selectedReason;
 
-  Future<void> onSubmit(AppLocalizations? l10n) async {
+  Future<void> onSubmit(AppLocalizations l10n) async {
     final isOwner = widget.mode == AppMode.ownerMode;
     final notifier = ref.read(bookingMutationProvider.notifier);
 
@@ -42,8 +42,8 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
     AppSnackBar.show(
       message: result.success
-          ? l10n?.orderCancelled ?? "Order Cancelled"
-          : "Failed to cancel order",
+          ? l10n.orderCancelled
+          : l10n.failedToCancelOrder,
       isSuccess: result.success,
       isError: !result.success,
     );

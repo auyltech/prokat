@@ -34,7 +34,7 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
         : 0.0;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -48,16 +48,16 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
           if (categoriesState.fetchStatus == FetchStatus.loading)
             const CategoryRowSkeleton()
           else if (categoriesState.fetchStatus == FetchStatus.error)
-            const EmptyStateTile(
+            EmptyStateTile(
               icon: LucideIcons.router,
-              title: "Error Loading Services",
-              subtitle: "Could not load services",
+              title: l10n.errorLoadingServices,
+              subtitle: l10n.couldNotLoadServices,
             )
           else if (categoriesState.fetchStatus == FetchStatus.empty)
-            const EmptyStateTile(
+            EmptyStateTile(
               icon: LucideIcons.box,
-              title: "No Services Found",
-              subtitle: "There are no services listed at the moment",
+              title: l10n.noServicesFound,
+              subtitle: l10n.noServicesAvailable,
             )
           else
             SizedBox(

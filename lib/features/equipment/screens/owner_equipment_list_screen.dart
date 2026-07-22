@@ -78,7 +78,7 @@ class _OwnerEquipmentListScreenState
             children: [
               EmptyStateTile(
                 icon: Icons.error_outline,
-                title: "Error Loading Equipment",
+                title: l10n.errorLoadingEquipment,
                 subtitle: error.toString(),
               ),
             ],

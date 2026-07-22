@@ -8,6 +8,7 @@ import 'package:prokat/features/chat/widgets/chat_header_skeleton.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ChatHeaderTile extends ConsumerStatefulWidget {
   final String chatId;
@@ -28,6 +29,7 @@ class ChatHeaderTile extends ConsumerStatefulWidget {
 class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     final bool isValidId = widget.chatId.trim().isNotEmpty;
@@ -57,7 +59,7 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
         final lastMessageAt = chat.lastMessage?.createdAt;
 
         if (chat.type == ChatType.support) {
-          return const Text("Support", style: TextStyle(color: Colors.black));
+          return Text(l10n.support, style: const TextStyle(color: Colors.black));
         }
 
         return GestureDetector(

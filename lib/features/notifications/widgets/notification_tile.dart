@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class NotificationTile extends StatelessWidget {
   final AppNotification notification;
@@ -16,6 +17,7 @@ class NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final isUnread = notification.isUnread;
 
@@ -31,7 +33,7 @@ class NotificationTile extends StatelessWidget {
         child: Icon(isUnread ? Icons.notifications_active : Icons.notifications),
       ),
       title: Text(
-        notification.title.isNotEmpty ? notification.title : 'Notification',
+        notification.title.isNotEmpty ? notification.title : l10n.notification,
         style: theme.textTheme.titleSmall?.copyWith(
           fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
         ),
@@ -46,7 +48,7 @@ class NotificationTile extends StatelessWidget {
           : IconButton(
               onPressed: onDelete,
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete',
+              tooltip: l10n.delete,
             ),
     );
   }

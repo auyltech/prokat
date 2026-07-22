@@ -82,7 +82,7 @@ class _ClientRequestsHistoryScreenState
                   EmptyStateTile(
                     icon: Icons.inventory_2_outlined,
                     title: l10n.noRequestsAtMoment,
-                    subtitle: "You don't have any requests in your history",
+                    subtitle: l10n.noRequestHistory,
                   )
                 else
                   ListView.separated(

@@ -21,13 +21,13 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
-    final locationText = equipment.city ?? "No location set";
+    final locationText = equipment.city ?? l10n.noLocationSet;
     final priceEntry = equipment.prices.firstOrNull;
 
     final hasPrice = priceEntry != null;
     final priceDisplay = hasPrice
         ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
-        : "No Price Set";
+        : l10n.noPriceSet;
 
     return Container(
       decoration: BoxDecoration(color: theme.cardColor),
@@ -112,8 +112,8 @@ class OwnerEquipmentCard extends ConsumerWidget {
                 children: [
                   Tooltip(
                     message: hasPrice
-                        ? "Has prices listed"
-                        : "No prices listed",
+                        ? l10n.hasPricesListed
+                        : l10n.noPricesListed,
                     triggerMode: TooltipTriggerMode.tap,
                     child: Icon(
                       hasPrice

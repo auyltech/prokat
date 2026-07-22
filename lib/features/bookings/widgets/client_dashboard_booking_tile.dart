@@ -101,7 +101,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
             Icons.calendar_today_outlined,
             booking.bookedOn != null
                 ? DateFormat('MMM dd, yyyy • hh:mm a').format(booking.bookedOn!)
-                : "Date not set",
+                : l10n.dateNotSet,
             Colors.orange,
           ),
 

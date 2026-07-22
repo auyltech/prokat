@@ -22,13 +22,14 @@ class _OwnerPaymentsTopupScreenState
 
   Future<void> submitTopUpRequest(String? id) async {
     if (id == null) return;
+    final l10n = AppLocalizations.of(context)!;
 
     final result = await ref
         .read(billingProvider.notifier)
         .topUpBalance(id: id);
 
     AppSnackBar.show(
-      message: result ? "Top up added" : "Failed to complete to-up",
+      message: result ? l10n.topUpAdded : l10n.failedToCompleteTopUp,
       isSuccess: result,
       isError: !result,
     );
@@ -101,7 +102,7 @@ class _OwnerPaymentsTopupScreenState
 
             // --- 2. Action Buttons ---
             PrimaryButton(
-              label: "Submit Top Up Request",
+              label: l10n.submitTopUpRequest,
               onPressed: selectedTierId == null || billingState.isSubmitting
                   ? null
                   : () => submitTopUpRequest(selectedTierId!),

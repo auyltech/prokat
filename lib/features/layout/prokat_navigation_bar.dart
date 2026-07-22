@@ -31,7 +31,7 @@ final ownerNavItems = [
   // ),
   _NavItem(
     icon: LucideIcons.user2,
-    label: (l) => 'Profile',
+    label: (l) => l.navProfile,
     path: AppRoutes.ownerProfile,
     base: AppRoutes.ownerProfile,
   ),
@@ -43,7 +43,7 @@ final ownerNavItems = [
   // ),
   _NavItem(
     icon: LucideIcons.send,
-    label: (l) => 'Requests',
+    label: (l) => l.navRequests,
     path: AppRoutes.ownerRequests,
     base: AppRoutes.ownerRequests,
   ),
@@ -71,7 +71,7 @@ final clientNavItems = [
   // _NavItem(icon: Icons.home_rounded, label: l.navHome, path: AppRoutes.dashboard),
   _NavItem(
     icon: LucideIcons.user2,
-    label: (l) => 'Profile',
+    label: (l) => l.navProfile,
     path: AppRoutes.clientProfile,
     base: AppRoutes.clientProfile,
   ),

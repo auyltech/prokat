@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 const _localeStorageKey = 'app_locale';
-const _supportedCodes = {'en', 'ru', 'kk'};
+final _supportedCodes = AppLocalizations.supportedLocales
+    .map((locale) => locale.languageCode)
+    .toSet();
 
 Locale _resolveLocale(String languageCode) {
   if (_supportedCodes.contains(languageCode)) return Locale(languageCode);

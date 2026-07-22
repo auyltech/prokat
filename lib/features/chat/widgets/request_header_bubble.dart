@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class RequestHeaderBubble extends StatelessWidget {
   final RequestModel request;
@@ -10,6 +11,7 @@ class RequestHeaderBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -26,7 +28,7 @@ class RequestHeaderBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'REQUEST',
+            l10n.requestLabel.toUpperCase(),
             style: theme.textTheme.labelMedium?.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: 1.1,
@@ -40,7 +42,7 @@ class RequestHeaderBubble extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Offered: ${formatPrice(request.offeredPrice)}',
+            l10n.offeredPrice(formatPrice(request.offeredPrice)),
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),

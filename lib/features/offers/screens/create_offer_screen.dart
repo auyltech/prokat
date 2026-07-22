@@ -96,7 +96,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         }
       } else {
         AppSnackBar.show(
-          message: "Please provide required information",
+          message: l10n.pleaseProvideRequiredInformation,
           isError: true,
         );
       }
@@ -140,7 +140,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               const SizedBox(height: 12),
 
-              SectionTitle(title: "Price"),
+              SectionTitle(title: l10n.price),
 
               const SizedBox(height: 8),
 
@@ -155,7 +155,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               const SizedBox(height: 12),
 
-              SectionTitle(title: "Price Rate"),
+              SectionTitle(title: l10n.priceRateLabel),
 
               const SizedBox(height: 8),
 
@@ -168,7 +168,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               const SizedBox(height: 12),
 
               SectionTitle(
-                title: "Select Date",
+                title: l10n.selectDate,
                 trailing: offersState.selectedDate == null
                     ? "* Required"
                     : null,
@@ -188,7 +188,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               const SizedBox(height: 12),
 
               SectionTitle(
-                title: "Select Time",
+                title: l10n.selectTime,
                 trailing: offersState.selectedTime == null
                     ? "* Required"
                     : null,
@@ -212,7 +212,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               const SizedBox(height: 12),
 
               SectionTitle(
-                title: "Comments",
+                title: l10n.comments,
                 trailing: offersState.selectedTime == null
                     ? "* Required"
                     : null,

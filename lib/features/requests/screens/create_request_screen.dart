@@ -107,13 +107,13 @@ class _ActiveRequestLimitView extends StatelessWidget {
             const SizedBox(height: 16),
 
             Text(
-              "You already have an active request.",
+              l10n.activeRequestAlreadyExists,
               textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: 8),
 
-            Text("$activeCount active request(s)", textAlign: TextAlign.center),
+            Text(l10n.activeRequestCount(activeCount), textAlign: TextAlign.center),
 
             const SizedBox(height: 20),
 

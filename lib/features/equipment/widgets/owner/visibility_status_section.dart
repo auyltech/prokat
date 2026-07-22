@@ -32,13 +32,14 @@ class _VisibilityStatusSectionState
   late EquipmentStatus _tempStatus;
 
   Future<void> submitForReview() async {
+    final l10n = AppLocalizations.of(context)!;
     final res = await ref
         .read(equipmentMutationProvider.notifier)
         .updateEquipmentStatus(widget.equipmentId, EquipmentStatus.created);
 
     if (mounted) {
       AppSnackBar.show(
-        message: res ? "Equipment submited for review" : "Failed to submit",
+        message: res ? l10n.equipmentSubmittedForReview : l10n.failedToSubmit,
         isSuccess: res,
         isError: !res,
       );

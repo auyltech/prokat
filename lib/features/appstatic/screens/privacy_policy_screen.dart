@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -41,7 +42,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Text(
-                    'Error loading document. Please try again later.',
+                    AppLocalizations.of(context)!.legalDocumentLoadError,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,

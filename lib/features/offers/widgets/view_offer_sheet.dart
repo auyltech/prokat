@@ -60,7 +60,7 @@ class ViewOfferSheet extends StatelessWidget {
           ),
 
           Text(
-            'Offer Details',
+            l10n.offerDetails,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -172,7 +172,7 @@ class ViewOfferSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "OWNER COMMENT",
+                    l10n.ownerComment.toUpperCase(),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -208,9 +208,9 @@ class ViewOfferSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text(
-              'Cancel Offer',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            child: Text(
+              l10n.cancelOffer,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ],

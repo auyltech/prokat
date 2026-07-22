@@ -16,6 +16,7 @@ import 'package:prokat/features/equipment/widgets/owner/open_pricing_edit_sheet.
 import 'package:prokat/features/equipment/widgets/owner/pricing_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/visibility_status_section.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentDetailScreen extends ConsumerStatefulWidget {
   final String equipmentId;
@@ -42,17 +43,18 @@ class _OwnerEquipmentDetailScreenState
   }
 
   Future<void> handleDelete(PriceEntry entry, String equipmentId) async {
+    final l10n = AppLocalizations.of(context)!;
     final bool? confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false, // User must tap a button to dismiss
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Price Entry'),
-          content: Text('Are you sure you want to delete this price entry?'),
+          title: Text(l10n.deletePriceEntry),
+          content: Text(l10n.deletePriceEntryConfirmation),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -60,7 +62,7 @@ class _OwnerEquipmentDetailScreenState
                 foregroundColor: Colors.white,
               ),
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -74,7 +76,7 @@ class _OwnerEquipmentDetailScreenState
         .deletePriceEntry(entry, equipmentId);
 
     AppSnackBar.show(
-      message: result ? "Price entry deleted" : "Failed to delete price entry",
+      message: result ? l10n.priceEntryDeleted : l10n.failedToDeletePriceEntry,
       isSuccess: result,
       isError: !result,
     );
@@ -83,6 +85,7 @@ class _OwnerEquipmentDetailScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final equipmentAsync = ref.watch(
       ownerEquipmentDetailsProvider(widget.equipmentId),
@@ -107,7 +110,7 @@ class _OwnerEquipmentDetailScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                "SYSTEM ERROR",
+                l10n.systemError,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: Colors.grey[200],
                   fontWeight: FontWeight.bold,
@@ -115,7 +118,7 @@ class _OwnerEquipmentDetailScreenState
                 ),
               ),
               Text(
-                "EQUIPMENT DATA NOT LOCATED",
+                l10n.equipmentDataNotLocated,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurface,
                 ),
@@ -124,7 +127,7 @@ class _OwnerEquipmentDetailScreenState
               TextButton(
                 onPressed: () => context.pop(),
                 child: Text(
-                  "BACK TO FLEET",
+                  l10n.backToFleet,
                   style: TextStyle(color: theme.primaryColor),
                 ),
               ),

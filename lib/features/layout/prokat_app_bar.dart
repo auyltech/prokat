@@ -156,7 +156,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
           onPressed: () =>
               ref.read(notificationProvider.notifier).markAllAsRead(),
           icon: const Icon(Icons.done_all),
-          tooltip: 'Mark all as read',
+          tooltip: l10n.markAllAsRead,
         ),
       );
     } else if ([

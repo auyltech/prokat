@@ -5,6 +5,7 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 ChatStatusDetail getChatStatus({
   ChatModel? chat,
@@ -86,104 +87,104 @@ ChatStatusDetail getChatStatus({
   return ChatStatusDetail.unknown;
 }
 
-String getChatActionBarTitle(ChatStatusDetail status) {
+String getChatActionBarTitle(ChatStatusDetail status, AppLocalizations l10n) {
   switch (status) {
     case ChatStatusDetail.requestcreated:
-      return "Request Pending";
+      return l10n.requestPending;
 
     case ChatStatusDetail.offercreated:
-      return "Offer Created";
+      return l10n.offerCreated;
 
     case ChatStatusDetail.offerreceived:
-      return "Offer Received";
+      return l10n.offerReceived;
 
     case ChatStatusDetail.counteroffersent:
-      return "Counter Offer Sent";
+      return l10n.counterOfferSent;
 
     case ChatStatusDetail.counterofferreceived:
-      return "Respond to Counter Offer";
+      return l10n.respondToCounterOffer;
 
     case ChatStatusDetail.bookingcreated:
-      return "New Order";
+      return l10n.newOrder;
 
     case ChatStatusDetail.bookingcancelled:
-      return "Order has been cancelled";
+      return l10n.orderHasBeenCancelled;
 
     case ChatStatusDetail.bookingconfirmed:
-      return "Update Work Status";
+      return l10n.updateWorkStatus;
 
     case ChatStatusDetail.waitingownerresponse:
-      return "Waiting Owner Response";
+      return l10n.waitingOwnerResponse;
 
     case ChatStatusDetail.workcompleted:
-      return "Waiting Client Confirmation";
+      return l10n.waitingClientConfirmation;
 
     case ChatStatusDetail.confirmcompleted:
-      return "Confirm Work Completed";
+      return l10n.confirmWorkCompleted;
 
     case ChatStatusDetail.bookingcompleted:
-      return "Order Completed";
+      return l10n.orderCompleted;
 
     case ChatStatusDetail.leaveReview:
-      return "Submit Review";
+      return l10n.submitReview;
 
     case ChatStatusDetail.bookingreviewed:
-      return "Review Sent";
+      return l10n.reviewSent;
 
     case ChatStatusDetail.requestaccepted:
-      return "Request Accepted";
+      return l10n.requestAccepted;
 
     case ChatStatusDetail.unknown:
       return "";
   }
 }
 
-String getChatStatusLabel(ChatStatusDetail status) {
+String getChatStatusLabel(ChatStatusDetail status, AppLocalizations l10n) {
   switch (status) {
     case ChatStatusDetail.requestcreated:
-      return "Request Pending";
+      return l10n.requestPending;
 
     case ChatStatusDetail.offercreated:
-      return "Offer Created";
+      return l10n.offerCreated;
 
     case ChatStatusDetail.offerreceived:
-      return "Offer Received";
+      return l10n.offerReceived;
 
     case ChatStatusDetail.counteroffersent:
-      return "Counter Offer Sent";
+      return l10n.counterOfferSent;
 
     case ChatStatusDetail.counterofferreceived:
-      return "Respond to Counter Offer";
+      return l10n.respondToCounterOffer;
 
     case ChatStatusDetail.bookingcreated:
-      return "Order Created";
+      return l10n.orderCreated;
 
     case ChatStatusDetail.bookingcancelled:
-      return "Order Cancelled";
+      return l10n.orderCancelled;
 
     case ChatStatusDetail.bookingconfirmed:
-      return "Order Confirmed";
+      return l10n.orderConfirmed;
 
     case ChatStatusDetail.waitingownerresponse:
-      return "Waiting Owner Response";
+      return l10n.waitingOwnerResponse;
 
     case ChatStatusDetail.workcompleted:
-      return "Work Completed";
+      return l10n.workCompleted;
 
     case ChatStatusDetail.confirmcompleted:
-      return "Confirm Work Completed";
+      return l10n.confirmWorkCompleted;
 
     case ChatStatusDetail.bookingcompleted:
-      return "Order Completed";
+      return l10n.orderCompleted;
 
     case ChatStatusDetail.leaveReview:
-      return "Submit Review";
+      return l10n.submitReview;
 
     case ChatStatusDetail.bookingreviewed:
-      return "Review Sent";
+      return l10n.reviewSent;
 
     case ChatStatusDetail.requestaccepted:
-      return "Request Accepted";
+      return l10n.requestAccepted;
 
     case ChatStatusDetail.unknown:
       return "";

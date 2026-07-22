@@ -7,6 +7,7 @@ import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_con
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OfferChatActionBar extends ConsumerWidget {
   final ChatStatusDetail chatStatus;
@@ -25,6 +26,7 @@ class OfferChatActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(offerChatActionControllerProvider);
 
     final lastOffer = ref
@@ -35,7 +37,7 @@ class OfferChatActionBar extends ConsumerWidget {
     final pending = negotiationState.latestPending;
     final pendingId = (pending?.id ?? '').trim();
 
-    final actionBarTitle = getChatActionBarTitle(chatStatus);
+    final actionBarTitle = getChatActionBarTitle(chatStatus, l10n);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
@@ -66,7 +68,7 @@ class OfferChatActionBar extends ConsumerWidget {
                 // Reject Price Negotiation
                 Expanded(
                   child: ActionBarButton.destructive(
-                    label: "Reject Price",
+                    label: l10n.rejectPrice,
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {
@@ -86,7 +88,7 @@ class OfferChatActionBar extends ConsumerWidget {
                 // Accept Price Negotiation
                 Expanded(
                   child: ActionBarButton(
-                    label: "Accept Price",
+                    label: l10n.acceptPrice,
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {
@@ -104,7 +106,7 @@ class OfferChatActionBar extends ConsumerWidget {
                 // Cancel Price Negotiation
                 Expanded(
                   child: ActionBarButton.destructive(
-                    label: "Cancel Price",
+                    label: l10n.cancelPrice,
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {

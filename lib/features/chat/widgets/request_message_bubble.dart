@@ -39,7 +39,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
     final l10n = AppLocalizations.of(context)!;
     final request = widget.currentChat?.request;
 
-    if (request == null) return Text("Error loading request");
+    if (request == null) return Text(l10n.errorLoadingRequest);
 
     return Container(
       width: double.infinity,
@@ -143,7 +143,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           // Location
           InfoTile.secondary(
             icon: Icons.location_on_outlined,
-            label: "Location",
+            label: l10n.location,
             value: request.location.street,
             onTap: () => showLocationSheet(context, request.location),
           ),
@@ -157,7 +157,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
               Expanded(
                 child: InfoTile.secondary(
                   icon: Icons.event_outlined,
-                  label: "Date",
+                  label: l10n.date,
                   value: () {
                     if (request.requiredOn == null) return "PENDING";
 
@@ -177,7 +177,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
               Expanded(
                 child: InfoTile.secondary(
                   icon: Icons.access_time_outlined,
-                  label: "Time",
+                  label: l10n.time,
                   value: () {
                     // 2. If a specific time exists, format and append it (e.g., "14:30")
                     if (request.requiredAt != null) {
@@ -295,7 +295,7 @@ void _showCancelConfirmation(
             AppSnackBar.show(
               message: result.success
                   ? l10n.requestCancelled
-                  : "Failed to cancel request",
+                  : l10n.failedToCancelRequest,
               isSuccess: result.success,
               isError: !result.success,
             );

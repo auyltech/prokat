@@ -9,6 +9,657 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get appLanguage => 'Язык приложения';
+
+  @override
+  String offerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count предложения',
+      many: '$count предложений',
+      few: '$count предложения',
+      one: '1 предложение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activeRequestAlreadyExists => 'У вас уже есть активный запрос.';
+
+  @override
+  String get supportTicketSubmitted =>
+      'Обращение в поддержку успешно отправлено!';
+
+  @override
+  String get failedToSubmitTicket => 'Не удалось отправить обращение';
+
+  @override
+  String get getInTouch => 'Связаться с нами';
+
+  @override
+  String get createOrder => 'Создать заказ';
+
+  @override
+  String get myProfile => 'Мой профиль';
+
+  @override
+  String get mapSearch => 'Поиск на карте';
+
+  @override
+  String get myAddresses => 'Мои адреса';
+
+  @override
+  String get rentalRequests => 'Запросы на аренду';
+
+  @override
+  String get registration => 'Регистрация';
+
+  @override
+  String get equipmentDetails => 'Сведения о технике';
+
+  @override
+  String get createAddress => 'Создать адрес';
+
+  @override
+  String get editAddress => 'Изменить адрес';
+
+  @override
+  String get pinToMap => 'Отметить на карте';
+
+  @override
+  String get addresses => 'Адреса';
+
+  @override
+  String get topUpBalance => 'Пополнить баланс';
+
+  @override
+  String get payments => 'Платежи';
+
+  @override
+  String get offerCreated => 'Предложение создано';
+
+  @override
+  String get offerReceived => 'Предложение получено';
+
+  @override
+  String get counterOfferSent => 'Встречное предложение отправлено';
+
+  @override
+  String get respondToCounterOffer => 'Ответьте на встречное предложение';
+
+  @override
+  String get orderHasBeenCancelled => 'Заказ отменён';
+
+  @override
+  String get waitingOwnerResponse => 'Ожидание ответа владельца';
+
+  @override
+  String get waitingClientConfirmation => 'Ожидание подтверждения клиента';
+
+  @override
+  String get confirmWorkCompleted => 'Подтвердить завершение работы';
+
+  @override
+  String get orderCompleted => 'Заказ завершён';
+
+  @override
+  String get reviewSent => 'Отзыв отправлен';
+
+  @override
+  String get orderCreated => 'Заказ создан';
+
+  @override
+  String get workCompleted => 'Работа завершена';
+
+  @override
+  String get selectRegistrationMethod =>
+      'Выберите предпочтительный способ регистрации';
+
+  @override
+  String get couldNotLoadCategories => 'Не удалось загрузить категории';
+
+  @override
+  String get checkYourConnection => 'Проверьте подключение к интернету.';
+
+  @override
+  String get noServicesAvailableYet => 'Услуг пока нет';
+
+  @override
+  String get checkBackLater => 'Загляните позже — появятся обновления.';
+
+  @override
+  String get balanceUnavailable => 'Баланс недоступен';
+
+  @override
+  String get accountBalance => 'Баланс аккаунта';
+
+  @override
+  String get notVerified => 'Не подтверждено';
+
+  @override
+  String get uploadProfileImage => 'Загрузить фото профиля';
+
+  @override
+  String get switchBackToClient => 'Вернуться в клиентский раздел';
+
+  @override
+  String get vehicleName => 'Название техники';
+
+  @override
+  String get modelType => 'Модель';
+
+  @override
+  String get noLocationSet => 'Местоположение не указано';
+
+  @override
+  String get noPriceSet => 'Цена не указана';
+
+  @override
+  String get hasPricesListed => 'Тарифы указаны';
+
+  @override
+  String get dateNotSet => 'Дата не указана';
+
+  @override
+  String get balanceLoadError => 'Не удалось загрузить баланс';
+
+  @override
+  String get priceEntryDeleted => 'Тариф удалён';
+
+  @override
+  String get failedToDeletePriceEntry => 'Не удалось удалить тариф';
+
+  @override
+  String get systemError => 'СИСТЕМНАЯ ОШИБКА';
+
+  @override
+  String get equipmentDataNotLocated => 'ДАННЫЕ О ТЕХНИКЕ НЕ НАЙДЕНЫ';
+
+  @override
+  String get backToFleet => 'НАЗАД К ТЕХНИКЕ';
+
+  @override
+  String get howCanWeHelp => 'Чем мы можем помочь?';
+
+  @override
+  String get supportFormDescription =>
+      'Заполните форму, и наша команда свяжется с вами в ближайшее время.';
+
+  @override
+  String get contactInformation => 'Контактная информация';
+
+  @override
+  String get fullNameRequiredLabel => 'Полное имя *';
+
+  @override
+  String get fullNameValidation => 'Введите полное имя';
+
+  @override
+  String get emailOrPhoneRequired => 'Укажите email или номер телефона';
+
+  @override
+  String get phoneRequiredIfEmailEmpty =>
+      'Обязательно, если номер телефона не указан';
+
+  @override
+  String get invalidEmail => 'Введите корректный email';
+
+  @override
+  String get inquiryDetails => 'Сведения об обращении';
+
+  @override
+  String get inquiryTopicRequiredLabel => 'Тема обращения *';
+
+  @override
+  String get yourMessageRequiredLabel => 'Ваше сообщение *';
+
+  @override
+  String get messageValidation => 'Введите сообщение';
+
+  @override
+  String get counterOffer => 'Встречное предложение';
+
+  @override
+  String get legalDocumentLoadError =>
+      'Не удалось загрузить документ. Попробуйте позже.';
+
+  @override
+  String get termsLoadError =>
+      'Не удалось загрузить условия использования. Попробуйте позже.';
+
+  @override
+  String get startupLoadingMode => 'Загрузка режима приложения...';
+
+  @override
+  String get startupRestoringSession => 'Восстановление сеанса...';
+
+  @override
+  String get startupRestoringOtp => 'Восстановление OTP-сеанса...';
+
+  @override
+  String get startupRefreshingSession => 'Обновление сеанса...';
+
+  @override
+  String get startupLoadingProfile => 'Загрузка профиля...';
+
+  @override
+  String get startupFinalizing => 'Завершение...';
+
+  @override
+  String get done => 'Готово';
+
+  @override
+  String get offerDetails => 'Сведения о предложении';
+
+  @override
+  String get cancelOffer => 'Отменить предложение';
+
+  @override
+  String get invalidOrExpiredOtp => 'Неверный или просроченный код';
+
+  @override
+  String resendOtpIn(int seconds) {
+    return 'Отправить код повторно через $seconds сек.';
+  }
+
+  @override
+  String get resendOtp => 'Отправить код повторно';
+
+  @override
+  String get equipmentRenting => 'Аренда техники';
+
+  @override
+  String get getStartedWithProkat => 'Начните работу с Prokat';
+
+  @override
+  String get guestSignInDescription =>
+      'Войдите, чтобы просматривать технику, связываться с владельцами и оформлять заказы в несколько нажатий.';
+
+  @override
+  String get equipmentSubmittedForReview => 'Техника отправлена на проверку';
+
+  @override
+  String get equipmentDeleted => 'Техника удалена';
+
+  @override
+  String get failedToDeleteEquipment => 'Не удалось удалить технику';
+
+  @override
+  String get moderatorReview => 'Проверка модератором';
+
+  @override
+  String get resubmit => 'Отправить повторно';
+
+  @override
+  String get maintenance => 'Обслуживание';
+
+  @override
+  String get owner => 'Владелец';
+
+  @override
+  String get specification => 'Характеристика';
+
+  @override
+  String get pleaseProvideRequiredInformation =>
+      'Укажите обязательную информацию';
+
+  @override
+  String failedToLoadMessage(String message) {
+    return 'Не удалось загрузить: $message';
+  }
+
+  @override
+  String get selectValue => 'Выбрать';
+
+  @override
+  String noEquipmentForCategory(String category) {
+    return 'Сейчас техника в категории «$category» отсутствует.';
+  }
+
+  @override
+  String noEquipmentListedInCity(String category, String city) {
+    return 'Сейчас техника в категории «$category» в городе $city отсутствует.';
+  }
+
+  @override
+  String equipmentIsNow(String status) {
+    return 'Техника теперь $status';
+  }
+
+  @override
+  String failedToToggleEquipment(String status) {
+    return 'Не удалось перевести технику в статус «$status»';
+  }
+
+  @override
+  String get requestReceived => 'Запрос получен';
+
+  @override
+  String get byContinuing => 'Продолжая, вы соглашаетесь с нашими ';
+
+  @override
+  String get termsAndConditions => 'Условиями использования';
+
+  @override
+  String get andOur => ' и нашей ';
+
+  @override
+  String get privacyPolicy => 'Политикой конфиденциальности';
+
+  @override
+  String get ok => 'ОК';
+
+  @override
+  String get confirmDeletion => 'Подтвердите удаление';
+
+  @override
+  String get initiateAccountDeletion => 'Начать удаление аккаунта';
+
+  @override
+  String get failedToRequestAccountDeletion =>
+      'Не удалось запросить удаление аккаунта. Попробуйте ещё раз.';
+
+  @override
+  String get accountDeletionScheduledBody =>
+      'Ваш аккаунт поставлен в очередь на удаление.\n\nВы немедленно выйдете из системы. Вход в аккаунт в течение 14-дневного периода ожидания отменит запрос на удаление.';
+
+  @override
+  String get accountDeletionConfirmationBody =>
+      'Ваш аккаунт немедленно получит статус «Ожидает удаления».\n\nДля защиты от случайной потери данных они будут окончательно удалены после 14-дневного периода ожидания.';
+
+  @override
+  String get permanentlyDeleteAccount => 'Удалить аккаунт навсегда';
+
+  @override
+  String get accountDeletionHoldDescription =>
+      'Начнётся 14-дневный период ожидания. Чтобы отменить удаление до его окончания, войдите в аккаунт снова.';
+
+  @override
+  String get failedToLoadVersion => 'Не удалось загрузить версию';
+
+  @override
+  String versionLabel(String version, String buildNumber) {
+    return 'Версия: $version ($buildNumber)';
+  }
+
+  @override
+  String get markCompletedQuestion => 'Отметить завершённым?';
+
+  @override
+  String get markCompleted => 'Отметить завершённым';
+
+  @override
+  String get clientConfirmCompletion =>
+      'Клиенту потребуется подтвердить завершение.';
+
+  @override
+  String get confirmCompletionQuestion => 'Подтвердить завершение?';
+
+  @override
+  String get confirmCompletionPrompt => 'Подтвердите, что работа завершена.';
+
+  @override
+  String get notYet => 'Ещё нет';
+
+  @override
+  String get errorLoadingBooking => 'Ошибка загрузки заказа';
+
+  @override
+  String get errorLoadingRequest => 'Ошибка загрузки запроса';
+
+  @override
+  String get errorLoadingOffer => 'Ошибка загрузки предложения';
+
+  @override
+  String get failedToLoadNegotiation => 'Не удалось загрузить переговоры';
+
+  @override
+  String get failedToLoadChat => 'Не удалось загрузить чат';
+
+  @override
+  String get offer => 'Предложение';
+
+  @override
+  String get support => 'Поддержка';
+
+  @override
+  String get service => 'Услуга';
+
+  @override
+  String get deletePriceEntry => 'Удалить тариф';
+
+  @override
+  String get deletePriceEntryConfirmation => 'Удалить этот тариф?';
+
+  @override
+  String get loginRequired => 'Требуется вход';
+
+  @override
+  String get loginRequiredToViewEquipment =>
+      'Войдите, чтобы просмотреть подробности и забронировать технику.';
+
+  @override
+  String get reviewOwner => 'Отзыв о владельце';
+
+  @override
+  String get reviewClient => 'Отзыв о клиенте';
+
+  @override
+  String get requestAccepted => 'Запрос принят';
+
+  @override
+  String get requestRejected => 'Запрос отклонён';
+
+  @override
+  String get requestPending => 'Запрос ожидает ответа';
+
+  @override
+  String get estimatedExhaustion => 'Прогноз исчерпания';
+
+  @override
+  String get enterValidPrice => 'Введите корректную цену';
+
+  @override
+  String get requiredIfEmailEmpty => 'Обязательно, если email не указан';
+
+  @override
+  String get submitInquiry => 'Отправить обращение';
+
+  @override
+  String get couldNotLoadServices => 'Не удалось загрузить услуги';
+
+  @override
+  String get noServicesFound => 'Услуги не найдены';
+
+  @override
+  String get noServicesAvailable => 'Сейчас в списке нет услуг';
+
+  @override
+  String get applicationSettings => 'Настройки приложения';
+
+  @override
+  String get userGuides => 'Руководства пользователя';
+
+  @override
+  String get submitTopUpRequest => 'Отправить запрос на пополнение';
+
+  @override
+  String get selectStars => 'Выберите оценку';
+
+  @override
+  String get commentOptional => 'Комментарий (необязательно)';
+
+  @override
+  String get completeWork => 'Завершить работу';
+
+  @override
+  String get submitReview => 'Отправить отзыв';
+
+  @override
+  String get markAllAsRead => 'Отметить всё прочитанным';
+
+  @override
+  String get notFound => 'Не найдено';
+
+  @override
+  String get placeOrder => 'Оформить заказ';
+
+  @override
+  String get notification => 'Уведомление';
+
+  @override
+  String get typeMessageHint => 'Введите сообщение...';
+
+  @override
+  String get rejectPrice => 'Отклонить цену';
+
+  @override
+  String get acceptPrice => 'Принять цену';
+
+  @override
+  String get cancelPrice => 'Отменить цену';
+
+  @override
+  String get hideRequest => 'Скрыть запрос';
+
+  @override
+  String get updateStatus => 'Обновить статус';
+
+  @override
+  String get review => 'Отзыв';
+
+  @override
+  String get saved => 'Сохранено';
+
+  @override
+  String get noNotificationsYet => 'Уведомлений пока нет';
+
+  @override
+  String get errorLoadingEquipment => 'Ошибка загрузки техники';
+
+  @override
+  String get priceMustBePositive => 'Цена должна быть больше нуля';
+
+  @override
+  String get priceMaximumExceeded => 'Цена не может превышать 100 000';
+
+  @override
+  String get notSupportedYet => 'Пока не поддерживается';
+
+  @override
+  String get errorLoadingProfile => 'Не удалось загрузить профиль';
+
+  @override
+  String get tapToRetry => 'Нажмите, чтобы повторить';
+
+  @override
+  String get announcements => 'Объявления';
+
+  @override
+  String get noMessagesYet => 'Сообщений пока нет';
+
+  @override
+  String get unknownEquipment => 'Неизвестная техника';
+
+  @override
+  String get pending => 'Ожидается';
+
+  @override
+  String get orderConfirmed => 'Заказ подтверждён';
+
+  @override
+  String get failedToConfirmOrder => 'Не удалось подтвердить заказ';
+
+  @override
+  String get chatLocked => 'Чат заблокирован';
+
+  @override
+  String get priceOffer => 'Предложение цены';
+
+  @override
+  String offeredPrice(String price) {
+    return 'Предложено: $price';
+  }
+
+  @override
+  String get topUpAdded => 'Пополнение добавлено';
+
+  @override
+  String get failedToCompleteTopUp => 'Не удалось выполнить пополнение';
+
+  @override
+  String get remainingTime => 'Оставшееся время';
+
+  @override
+  String get bestValue => 'ЛУЧШАЯ ЦЕНА';
+
+  @override
+  String activeRequestCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count активного запроса',
+      many: '$count активных запросов',
+      few: '$count активных запроса',
+      one: '1 активный запрос',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мин чтения',
+      many: '$count мин чтения',
+      few: '$count мин чтения',
+      one: '1 мин чтения',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pleaseSelectCategory => 'Выберите категорию';
+
+  @override
+  String get pleaseSelectEquipment => 'Выберите технику';
+
+  @override
+  String get pleaseSelectPrice => 'Выберите цену';
+
+  @override
+  String get pleaseSelectLocation => 'Выберите местоположение';
+
+  @override
+  String get pleaseSelectDate => 'Выберите дату';
+
+  @override
+  String get pleaseSelectTime => 'Выберите время';
+
+  @override
+  String get noRequestHistory => 'В истории пока нет запросов';
+
+  @override
+  String get noOrderHistoryDescription => 'В истории пока нет заказов';
+
+  @override
+  String get reviewSubmitted => 'Отзыв отправлен';
+
+  @override
+  String get failedToSubmitReview => 'Не удалось отправить отзыв';
+
+  @override
+  String get failedToCancelOrder => 'Не удалось отменить заказ';
+
+  @override
+  String get failedToCancelRequest => 'Не удалось отменить запрос';
+
+  @override
+  String get saveFailed => 'Не удалось сохранить';
+
+  @override
   String get heroPlatformTag => 'ПЛАТФОРМА АРЕНДЫ №1 В КАЗАХСТАНЕ';
 
   @override
@@ -562,8 +1213,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentUpdated => 'Техника обновлена';
 
   @override
-  String get pleaseEnterValidValues =>
-      'Пожалуйста, введите корректные значения';
+  String get pleaseEnterValidValues => 'Введите корректные значения';
 
   @override
   String get equipmentUpdatedSuccessfully => 'Техника успешно обновлена';
@@ -1533,18 +2183,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get faq5A =>
       'Немедленно сообщите о проблеме через приложение. Наша служба поддержки вам поможет.';
-
-  @override
-  String get byContinuing => 'By continuing, you agree to our ';
-
-  @override
-  String get termsAndConditions => 'Terms & Conditions';
-
-  @override
-  String get andOur => ' and our ';
-
-  @override
-  String get privacyPolicy => 'Privacy Policy';
 
   @override
   String get helpUsGrow => 'Помогите нам расти';

@@ -9,6 +9,653 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get appLanguage => 'App Language';
+
+  @override
+  String offerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count offers',
+      one: '1 offer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activeRequestAlreadyExists =>
+      'You already have an active request.';
+
+  @override
+  String get supportTicketSubmitted => 'Support ticket submitted successfully!';
+
+  @override
+  String get failedToSubmitTicket => 'Failed to submit ticket';
+
+  @override
+  String get getInTouch => 'Get in Touch';
+
+  @override
+  String get createOrder => 'Create Order';
+
+  @override
+  String get myProfile => 'My Profile';
+
+  @override
+  String get mapSearch => 'Map Search';
+
+  @override
+  String get myAddresses => 'My Addresses';
+
+  @override
+  String get rentalRequests => 'Rental Requests';
+
+  @override
+  String get registration => 'Registration';
+
+  @override
+  String get equipmentDetails => 'Equipment Details';
+
+  @override
+  String get createAddress => 'Create Address';
+
+  @override
+  String get editAddress => 'Edit Address';
+
+  @override
+  String get pinToMap => 'Pin to Map';
+
+  @override
+  String get addresses => 'Addresses';
+
+  @override
+  String get topUpBalance => 'Top Up Balance';
+
+  @override
+  String get payments => 'Payments';
+
+  @override
+  String get offerCreated => 'Offer Created';
+
+  @override
+  String get offerReceived => 'Offer Received';
+
+  @override
+  String get counterOfferSent => 'Counter Offer Sent';
+
+  @override
+  String get respondToCounterOffer => 'Respond to Counter Offer';
+
+  @override
+  String get orderHasBeenCancelled => 'Order has been cancelled';
+
+  @override
+  String get waitingOwnerResponse => 'Waiting Owner Response';
+
+  @override
+  String get waitingClientConfirmation => 'Waiting Client Confirmation';
+
+  @override
+  String get confirmWorkCompleted => 'Confirm Work Completed';
+
+  @override
+  String get orderCompleted => 'Order Completed';
+
+  @override
+  String get reviewSent => 'Review Sent';
+
+  @override
+  String get orderCreated => 'Order Created';
+
+  @override
+  String get workCompleted => 'Work Completed';
+
+  @override
+  String get selectRegistrationMethod =>
+      'Select your preferred registration method';
+
+  @override
+  String get couldNotLoadCategories => 'Couldn\'t load categories';
+
+  @override
+  String get checkYourConnection => 'Please check your connection.';
+
+  @override
+  String get noServicesAvailableYet => 'No services available yet';
+
+  @override
+  String get checkBackLater => 'Check back later for new updates.';
+
+  @override
+  String get balanceUnavailable => 'Balance unavailable';
+
+  @override
+  String get accountBalance => 'Account Balance';
+
+  @override
+  String get notVerified => 'Not Verified';
+
+  @override
+  String get uploadProfileImage => 'Upload Profile Image';
+
+  @override
+  String get switchBackToClient => 'Switch back to client section dashboard';
+
+  @override
+  String get vehicleName => 'Vehicle Name';
+
+  @override
+  String get modelType => 'Model Type';
+
+  @override
+  String get noLocationSet => 'No location set';
+
+  @override
+  String get noPriceSet => 'No Price Set';
+
+  @override
+  String get hasPricesListed => 'Has prices listed';
+
+  @override
+  String get dateNotSet => 'Date not set';
+
+  @override
+  String get balanceLoadError => 'Could not load balance';
+
+  @override
+  String get priceEntryDeleted => 'Price entry deleted';
+
+  @override
+  String get failedToDeletePriceEntry => 'Failed to delete price entry';
+
+  @override
+  String get systemError => 'SYSTEM ERROR';
+
+  @override
+  String get equipmentDataNotLocated => 'EQUIPMENT DATA NOT LOCATED';
+
+  @override
+  String get backToFleet => 'BACK TO FLEET';
+
+  @override
+  String get howCanWeHelp => 'How can we help you?';
+
+  @override
+  String get supportFormDescription =>
+      'Fill out the form below and our team will get back to you shortly.';
+
+  @override
+  String get contactInformation => 'Contact Information';
+
+  @override
+  String get fullNameRequiredLabel => 'Full Name *';
+
+  @override
+  String get fullNameValidation => 'Please enter your full name';
+
+  @override
+  String get emailOrPhoneRequired => 'Provide either an email or phone number';
+
+  @override
+  String get phoneRequiredIfEmailEmpty => 'Required if phone number is empty';
+
+  @override
+  String get invalidEmail => 'Enter a valid email';
+
+  @override
+  String get inquiryDetails => 'Inquiry Details';
+
+  @override
+  String get inquiryTopicRequiredLabel => 'Inquiry Topic *';
+
+  @override
+  String get yourMessageRequiredLabel => 'Your Message *';
+
+  @override
+  String get messageValidation => 'Please enter your message';
+
+  @override
+  String get counterOffer => 'Counter offer';
+
+  @override
+  String get legalDocumentLoadError =>
+      'Error loading document. Please try again later.';
+
+  @override
+  String get termsLoadError =>
+      'Failed to load Terms & Conditions. Please try again later.';
+
+  @override
+  String get startupLoadingMode => 'Loading app mode...';
+
+  @override
+  String get startupRestoringSession => 'Restoring session...';
+
+  @override
+  String get startupRestoringOtp => 'Restoring OTP session...';
+
+  @override
+  String get startupRefreshingSession => 'Refreshing session...';
+
+  @override
+  String get startupLoadingProfile => 'Loading profile...';
+
+  @override
+  String get startupFinalizing => 'Finalizing...';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get offerDetails => 'Offer Details';
+
+  @override
+  String get cancelOffer => 'Cancel Offer';
+
+  @override
+  String get invalidOrExpiredOtp => 'Invalid or expired OTP';
+
+  @override
+  String resendOtpIn(int seconds) {
+    return 'Resend OTP in $seconds seconds';
+  }
+
+  @override
+  String get resendOtp => 'Resend OTP';
+
+  @override
+  String get equipmentRenting => 'Equipment Renting';
+
+  @override
+  String get getStartedWithProkat => 'Get Started with Prokat';
+
+  @override
+  String get guestSignInDescription =>
+      'Sign in to browse equipment, contact owners directly, and place orders in a few taps.';
+
+  @override
+  String get equipmentSubmittedForReview => 'Equipment submitted for review';
+
+  @override
+  String get equipmentDeleted => 'Equipment deleted';
+
+  @override
+  String get failedToDeleteEquipment => 'Failed to delete equipment';
+
+  @override
+  String get moderatorReview => 'Moderator Review';
+
+  @override
+  String get resubmit => 'Resubmit';
+
+  @override
+  String get maintenance => 'Maintenance';
+
+  @override
+  String get owner => 'Owner';
+
+  @override
+  String get specification => 'Specification';
+
+  @override
+  String get pleaseProvideRequiredInformation =>
+      'Please provide required information';
+
+  @override
+  String failedToLoadMessage(String message) {
+    return 'Failed to load: $message';
+  }
+
+  @override
+  String get selectValue => 'Select';
+
+  @override
+  String noEquipmentForCategory(String category) {
+    return 'There are no $category listed at the moment.';
+  }
+
+  @override
+  String noEquipmentListedInCity(String category, String city) {
+    return 'There are no $category listed in $city at the moment.';
+  }
+
+  @override
+  String equipmentIsNow(String status) {
+    return 'Equipment is now $status';
+  }
+
+  @override
+  String failedToToggleEquipment(String status) {
+    return 'Failed to set equipment $status';
+  }
+
+  @override
+  String get requestReceived => 'Request Received';
+
+  @override
+  String get byContinuing => 'By continuing, you agree to our ';
+
+  @override
+  String get termsAndConditions => 'Terms & Conditions';
+
+  @override
+  String get andOur => ' and our ';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get confirmDeletion => 'Confirm Deletion';
+
+  @override
+  String get initiateAccountDeletion => 'Initiate Account Deletion';
+
+  @override
+  String get failedToRequestAccountDeletion =>
+      'Failed to request account deletion. Please try again.';
+
+  @override
+  String get accountDeletionScheduledBody =>
+      'Your account is now safely scheduled for deletion.\n\nYou will be signed out immediately. Logging back in during the 14-day hold period will cancel the deletion request.';
+
+  @override
+  String get accountDeletionConfirmationBody =>
+      'Your account will immediately enter Pending Deletion status.\n\nTo protect against accidental data loss, your data will be permanently deleted after a 14-day hold period.';
+
+  @override
+  String get permanentlyDeleteAccount => 'Permanently Delete Account';
+
+  @override
+  String get accountDeletionHoldDescription =>
+      'This starts a 14-day hold period. You can cancel deletion by logging back in before it ends.';
+
+  @override
+  String get failedToLoadVersion => 'Failed to load version';
+
+  @override
+  String versionLabel(String version, String buildNumber) {
+    return 'Version: $version ($buildNumber)';
+  }
+
+  @override
+  String get markCompletedQuestion => 'Mark completed?';
+
+  @override
+  String get markCompleted => 'Mark completed';
+
+  @override
+  String get clientConfirmCompletion =>
+      'The client will need to confirm completion.';
+
+  @override
+  String get confirmCompletionQuestion => 'Confirm completion?';
+
+  @override
+  String get confirmCompletionPrompt => 'Confirm the work is completed.';
+
+  @override
+  String get notYet => 'Not yet';
+
+  @override
+  String get errorLoadingBooking => 'Error loading booking';
+
+  @override
+  String get errorLoadingRequest => 'Error loading request';
+
+  @override
+  String get errorLoadingOffer => 'Error loading offer';
+
+  @override
+  String get failedToLoadNegotiation => 'Failed to load negotiation';
+
+  @override
+  String get failedToLoadChat => 'Failed to load chat';
+
+  @override
+  String get offer => 'Offer';
+
+  @override
+  String get support => 'Support';
+
+  @override
+  String get service => 'Service';
+
+  @override
+  String get deletePriceEntry => 'Delete Price Entry';
+
+  @override
+  String get deletePriceEntryConfirmation =>
+      'Are you sure you want to delete this price entry?';
+
+  @override
+  String get loginRequired => 'Login is required';
+
+  @override
+  String get loginRequiredToViewEquipment =>
+      'You need to login to view details and reserve equipment.';
+
+  @override
+  String get reviewOwner => 'Review owner';
+
+  @override
+  String get reviewClient => 'Review client';
+
+  @override
+  String get requestAccepted => 'Request Accepted';
+
+  @override
+  String get requestRejected => 'Request Rejected';
+
+  @override
+  String get requestPending => 'Request Pending';
+
+  @override
+  String get estimatedExhaustion => 'Est. exhaustion';
+
+  @override
+  String get enterValidPrice => 'Enter a valid price';
+
+  @override
+  String get requiredIfEmailEmpty => 'Required if email is empty';
+
+  @override
+  String get submitInquiry => 'Submit Inquiry';
+
+  @override
+  String get couldNotLoadServices => 'Could not load services';
+
+  @override
+  String get noServicesFound => 'No services found';
+
+  @override
+  String get noServicesAvailable =>
+      'There are no services listed at the moment';
+
+  @override
+  String get applicationSettings => 'Application Settings';
+
+  @override
+  String get userGuides => 'User Guides';
+
+  @override
+  String get submitTopUpRequest => 'Submit Top Up Request';
+
+  @override
+  String get selectStars => 'Select stars';
+
+  @override
+  String get commentOptional => 'Comment (optional)';
+
+  @override
+  String get completeWork => 'Complete Work';
+
+  @override
+  String get submitReview => 'Submit Review';
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get notFound => 'Not Found';
+
+  @override
+  String get placeOrder => 'Place Order';
+
+  @override
+  String get notification => 'Notification';
+
+  @override
+  String get typeMessageHint => 'Type a message...';
+
+  @override
+  String get rejectPrice => 'Reject Price';
+
+  @override
+  String get acceptPrice => 'Accept Price';
+
+  @override
+  String get cancelPrice => 'Cancel Price';
+
+  @override
+  String get hideRequest => 'Hide Request';
+
+  @override
+  String get updateStatus => 'Update Status';
+
+  @override
+  String get review => 'Review';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get noNotificationsYet => 'No notifications yet';
+
+  @override
+  String get errorLoadingEquipment => 'Error Loading Equipment';
+
+  @override
+  String get priceMustBePositive => 'Price must be greater than zero';
+
+  @override
+  String get priceMaximumExceeded => 'Price cannot exceed 100,000';
+
+  @override
+  String get notSupportedYet => 'Not supported yet';
+
+  @override
+  String get errorLoadingProfile => 'Failed to load profile';
+
+  @override
+  String get tapToRetry => 'Tap to retry';
+
+  @override
+  String get announcements => 'Announcements';
+
+  @override
+  String get noMessagesYet => 'No messages yet';
+
+  @override
+  String get unknownEquipment => 'Unknown Equipment';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get orderConfirmed => 'Order Confirmed';
+
+  @override
+  String get failedToConfirmOrder => 'Failed to confirm order';
+
+  @override
+  String get chatLocked => 'Chat locked';
+
+  @override
+  String get priceOffer => 'Price Offer';
+
+  @override
+  String offeredPrice(String price) {
+    return 'Offered: $price';
+  }
+
+  @override
+  String get topUpAdded => 'Top up added';
+
+  @override
+  String get failedToCompleteTopUp => 'Failed to complete top up';
+
+  @override
+  String get remainingTime => 'Remaining Time';
+
+  @override
+  String get bestValue => 'BEST VALUE';
+
+  @override
+  String activeRequestCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count active requests',
+      one: '1 active request',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesRead(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min read',
+      one: '1 min read',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pleaseSelectCategory => 'Please select category';
+
+  @override
+  String get pleaseSelectEquipment => 'Please select equipment';
+
+  @override
+  String get pleaseSelectPrice => 'Please select price';
+
+  @override
+  String get pleaseSelectLocation => 'Please select location';
+
+  @override
+  String get pleaseSelectDate => 'Please select date';
+
+  @override
+  String get pleaseSelectTime => 'Please select time';
+
+  @override
+  String get noRequestHistory => 'You don\'t have any requests in your history';
+
+  @override
+  String get noOrderHistoryDescription =>
+      'You don\'t have any orders in your history';
+
+  @override
+  String get reviewSubmitted => 'Review Submitted';
+
+  @override
+  String get failedToSubmitReview => 'Failed to submit review';
+
+  @override
+  String get failedToCancelOrder => 'Failed to cancel order';
+
+  @override
+  String get failedToCancelRequest => 'Failed to cancel request';
+
+  @override
+  String get saveFailed => 'Failed to save';
+
+  @override
   String get heroPlatformTag => 'KAZAKHSTAN\'S #1 RENTAL PLATFORM';
 
   @override
@@ -1528,18 +2175,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get faq5A =>
       'Report the issue through the app immediately. Our support team will assist you.';
-
-  @override
-  String get byContinuing => 'By continuing, you agree to our ';
-
-  @override
-  String get termsAndConditions => 'Terms & Conditions';
-
-  @override
-  String get andOur => ' and our ';
-
-  @override
-  String get privacyPolicy => 'Privacy Policy';
 
   @override
   String get helpUsGrow => 'Help Us Grow';

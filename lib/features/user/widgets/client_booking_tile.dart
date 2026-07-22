@@ -99,7 +99,7 @@ class ClientBookingTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   icon: Icons.timelapse,
-                  label: "Date & Time",
+                  label: l10n.dateAndTime,
                   value: formatDateTime(booking.bookedOn, booking.bookedAt),
                 ),
               ),
@@ -206,7 +206,7 @@ class ClientBookingTile extends ConsumerWidget {
                           builder: (_) => ReviewSheet(
                             bookingId: booking.id,
                             revieweeId: booking.client?.id ?? "",
-                            title: 'Review owner',
+                            title: l10n.reviewOwner,
                           ),
                         );
                       },
@@ -277,7 +277,7 @@ Future<void> _handleCancel(
     // }
 
     AppSnackBar.show(
-      message: result.success ? l10n.orderCancelled : "Failed to cancel order",
+      message: result.success ? l10n.orderCancelled : l10n.failedToCancelOrder,
       isSuccess: result.success,
       isError: !result.success,
     );

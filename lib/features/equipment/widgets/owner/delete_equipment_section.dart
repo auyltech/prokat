@@ -181,8 +181,8 @@ void _confirmDelete(
 
                   AppSnackBar.show(
                     message: result
-                        ? "Equipment deleted"
-                        : "Failed to delete equipment",
+                        ? l10n.equipmentDeleted
+                        : l10n.failedToDeleteEquipment,
                     isSuccess: result,
                     isError: !result,
                   );

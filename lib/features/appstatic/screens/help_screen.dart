@@ -54,7 +54,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               const SizedBox(height: 24),
 
               // Modular Help Category Cards
-              SectionTitle(title: "User Guides"),
+              SectionTitle(title: l10n.userGuides),
               const SizedBox(height: 12),
 
               UserGuidesSection(guides: guides, currentLocale: currentLocale),

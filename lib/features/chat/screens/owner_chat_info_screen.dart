@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerChatInfoScreen extends ConsumerWidget {
   final String chatId;
@@ -11,6 +12,7 @@ class OwnerChatInfoScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final currentUserId = ref.watch(authProvider).currentUserId ?? "";
 
     final chatAsync = ref.watch(currentChatProvider(chatId));
@@ -20,7 +22,7 @@ class OwnerChatInfoScreen extends ConsumerWidget {
 
       error: (_, _) => Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
-        body: const Center(child: Text("Failed to load chat")),
+        body: Center(child: Text(l10n.failedToLoadChat)),
       ),
 
       data: (chat) {

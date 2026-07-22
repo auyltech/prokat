@@ -40,19 +40,20 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   }
 
   Future<void> onSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     final bookingState = ref.read(bookingMutationProvider);
     String message = "";
 
     if (bookingState.selectedEquipment == null) {
-      message = "Please select equipment";
+      message = l10n.pleaseSelectEquipment;
     } else if (bookingState.selectedPriceEntry == null) {
-      message = "Please select price";
+      message = l10n.pleaseSelectPrice;
     } else if (bookingState.selectedLocation == null) {
-      message = "Please select location";
+      message = l10n.pleaseSelectLocation;
     } else if (bookingState.selectedDate == null) {
-      message = "Please select date";
+      message = l10n.pleaseSelectDate;
     } else if (bookingState.selectedTime == null) {
-      message = "Please select time";
+      message = l10n.pleaseSelectTime;
     }
 
     if (message.isNotEmpty) {
@@ -133,7 +134,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
           if (equipment == null)
             EmptyStateTile(
               icon: Icons.error,
-              title: "Not Found",
+              title: l10n.notFound,
               subtitle: l10n.equipmentNotFound,
             )
           else
@@ -301,7 +302,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       const SizedBox(height: 12),
 
                       SectionTitle(
-                        title: "Select Date",
+                        title: l10n.selectDate,
                         trailing: bookingState.selectedDate == null
                             ? "* Required"
                             : null,
@@ -317,7 +318,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       ),
 
                       SectionTitle(
-                        title: "Select Time",
+                        title: l10n.selectTime,
                         trailing: bookingState.selectedTime == null
                             ? "* Required"
                             : null,
@@ -388,7 +389,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         children: [
                           Expanded(
                             child: ActionButton(
-                              label: "Place Order",
+                              label: l10n.placeOrder,
                               onPressed: (!canSubmit || isSubmitting)
                                   ? null
                                   : onSubmit,

@@ -87,7 +87,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
                       icon: Icons.inventory_2_outlined,
                       title: l10n.noBookingsFound,
                       subtitle:
-                          "You don't have any active orders at the moment",
+                          l10n.noActiveOrders,
                     ),
                   )
                 else

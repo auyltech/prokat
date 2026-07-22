@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ChatHeaderError extends StatelessWidget {
   final Object error;
@@ -9,6 +10,7 @@ class ChatHeaderError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final errorColor = theme.colorScheme.error;
 
     return Row(
@@ -29,7 +31,7 @@ class ChatHeaderError extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Failed to load profile",
+                l10n.errorLoadingProfile,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -39,7 +41,7 @@ class ChatHeaderError extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                "Tap to retry",
+                l10n.tapToRetry,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: errorColor,
                   fontWeight: FontWeight.w500,

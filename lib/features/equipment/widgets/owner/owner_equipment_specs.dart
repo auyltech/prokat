@@ -248,8 +248,8 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = theme.colorScheme;
 
     final accent = colorScheme.primary;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
@@ -369,6 +369,7 @@ class _SpecField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
 
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
@@ -392,7 +393,7 @@ class _SpecField extends StatelessWidget {
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 8),
           border: InputBorder.none,
-          hintText: 'Not supported yet',
+          hintText: l10n.notSupportedYet,
           hintStyle: TextStyle(color: ghostGray.withValues(alpha: 0.5)),
         ),
       );
