@@ -62,6 +62,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     String? phoneCountryCode,
     String? profileImageUrl,
     String? darkMode,
+    String? language,
     String? selectedAddressId,
   }) async {
     try {
@@ -72,6 +73,7 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
         lastName: lastName,
         profileImageUrl: profileImageUrl,
         darkMode: darkMode,
+        language: language,
         selectedAddressId: selectedAddressId,
       );
 
@@ -127,11 +129,14 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     }
   }
 
-  Future<bool> selectCityRegion(String city, String region) async {
+  Future<bool> selectCityRegion({String? city, String? region}) async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final updated = await service.selectCityRegion(city, region);
+      final updated = await service.selectCityRegion(
+        city: city,
+        region: region,
+      );
 
       if (updated != null) {
         await getUserProfile();

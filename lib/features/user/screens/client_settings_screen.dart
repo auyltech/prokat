@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
-import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/widgets/prokat_list_tile.dart';
+import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
+import 'package:prokat/features/user/widgets/client_notifications_preferences.dart';
 import 'package:prokat/features/user/widgets/delete_account_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -20,38 +23,47 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
+    final locale = ref.watch(localeProvider);
+    final langDisplay = LocaleNotifier.displayCode(locale);
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // SECTION: PREFERENCES
-            SectionTitle(title: l10n.applicationSettings),
-
-            const SizedBox(height: 8),
-
-            _SettingsSwitchTile(
-              icon: Icons.notifications_none_rounded,
-              title: l10n.pushNotifications,
-              subtitle: l10n.bookingAlerts,
-              value: true,
-              onChanged: (val) {},
+            ProkatListTile(
+              icon: LucideIcons.globe,
+              iconColor: theme.primaryColor,
+              iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
+              title: l10n.appLanguage,
+              subtitle: langDisplay,
+              onTap: () => LanguageSheet.show(context),
             ),
 
             const SizedBox(height: 16),
 
-            _SettingsSwitchTile(
-              icon: Icons.fingerprint_rounded,
-              iconColor: Colors.black,
-              iconBgColor: Colors.black.withValues(alpha: 0.08),
-              title: l10n.biometricLogin,
-              subtitle: l10n.secureAccess,
-              value: false,
-              onChanged: (val) {},
+            ClientNotificationsSection(
+              initialValue: const ClientNotificationPreferences(),
+              onSave: (preferences) async {
+                // Replace with your notification-preferences API/provider.
+                // Return false when saving fails.
+                return true;
+              },
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+
+            ProkatListTile(
+              icon: Icons.security_outlined,
+              iconBgColor: Colors.black12,
+              iconColor: Colors.black,
+              title: 'Service and safety notices',
+              subtitle: 'Account, security and important platform alerts',
+              onTap: () {},
+            ),
+
+            const SizedBox(height: 60),
 
             DeleteAccountTile(),
 
@@ -81,74 +93,6 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
               },
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsSwitchTile extends StatelessWidget {
-  final IconData icon;
-  final Color? iconBgColor;
-  final Color? iconColor;
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _SettingsSwitchTile({
-    required this.icon,
-    this.iconBgColor,
-    this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return BaseTile(
-      // decoration: BoxDecoration(
-      //   color: theme.colorScheme.surface,
-      //   borderRadius: BorderRadius.circular(14),
-      //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
-      // ),
-      padding: EdgeInsets.all(0),
-      child: ListTile(
-        leading: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color:
-                iconBgColor ??
-                theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            icon,
-            size: 32,
-            color: iconColor ?? theme.colorScheme.primary,
-          ),
-        ),
-        title: Text(
-          title,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
-          ),
-        ),
-        trailing: Switch(
-          value: value,
-          onChanged: onChanged,
-          activeThumbColor: const Color(0xFF4E73DF),
         ),
       ),
     );

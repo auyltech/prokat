@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 
 class UserProfileTile extends StatelessWidget {
   final IconData icon;

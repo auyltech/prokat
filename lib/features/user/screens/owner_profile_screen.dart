@@ -3,19 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
-import 'package:prokat/features/owner/state/owner_registration_state.dart';
-import 'package:prokat/features/user/widgets/balance_tile.dart';
-import 'package:prokat/features/user/widgets/rent_an_equipment_tile.dart';
+import 'package:prokat/features/owner/widgets/balance_tile.dart';
+import 'package:prokat/features/owner/widgets/owner_profile_header.dart';
+import 'package:prokat/features/owner/widgets/owner_status_tile.dart';
+import 'package:prokat/features/owner/widgets/rent_an_equipment_tile.dart';
+import 'package:prokat/features/user/widgets/owner_stat_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:prokat/features/user/widgets/profile_image_picker.dart';
 
 class OwnerProfileScreen extends ConsumerStatefulWidget {
   const OwnerProfileScreen({super.key});
@@ -51,7 +51,6 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final ownerProfileState = ref.watch(ownerRegistrationProvider);
-
     final ownerEquipmentCount =
         ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
 
@@ -94,21 +93,21 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
               automaticallyImplyLeading: false,
               flexibleSpace: FlexibleSpaceBar(
-                background: _ProfileHeader(
-                  ownerProfileState: ownerProfileState,
+                background: OwnerProfileHeader(
+                  ownerProfile: ownerProfileState.ownerProfile,
                 ),
               ),
             ),
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+                padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         Expanded(
-                          child: _StatCard(
+                          child: OwnerStatCard(
                             value: ownerEquipmentCount
                                 .toString(), // wire up from billingProvider
                             label: l10n.navEquipment,
@@ -119,7 +118,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
                         const SizedBox(width: 10),
                         Expanded(
-                          child: _StatCard(
+                          child: OwnerStatCard(
                             value:
                                 "${ownerProfileState.ownerProfile?.orderCount ?? 0}",
                             label: l10n.ordersUnit,
@@ -130,17 +129,21 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
 
                     const BalanceTile(),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
 
-                    _MenuItem(
-                      iconData: Icons.assignment_turned_in_outlined,
-                      iconBgColor: const Color(0xFFE1F5EE),
-                      iconColor: const Color(0xFF0D5F5C),
-                      label: l10n.registrationStatus,
+                    const OwnerStatusTile(),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.fileCheck,
+                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
+                      iconColor: AppColors.teal800,
+                      title: l10n.registrationStatus,
                       subtitle:
                           ownerProfileState.ownerProfile?.isVerified == true
                           ? formatDate(
@@ -150,32 +153,34 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                           : l10n.notVerified,
                       onTap: () => context.push(AppRoutes.ownerRegistration),
                     ),
-                    const SizedBox(height: 10),
-                    _MenuItem(
-                      iconData: Icons.settings_outlined,
-                      iconBgColor: const Color(0xFFE6F1FB),
-                      iconColor: const Color(0xFF185FA5),
-                      label: l10n.appSettings,
+
+                    const SizedBox(height: 20),
+                    ProkatListTile(
+                      icon: LucideIcons.settings,
+                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
+                      iconColor: AppColors.teal800,
+                      title: l10n.appSettings,
                       subtitle: l10n.appSettingsSubtitle,
                       onTap: () => context.push(AppRoutes.ownerSettings),
                     ),
-                    const SizedBox(height: 10),
-                    _MenuItem(
-                      iconData: Icons.help_outline,
-                      iconBgColor: const Color(0xFFF1EFE8),
-                      iconColor: const Color(0xFF5F5E5A),
-                      label: l10n.helpSupportTitle,
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.lifeBuoy,
+                      iconColor: Colors.red,
+                      iconBgColor: Colors.red.withValues(alpha: 0.15),
+                      title: l10n.helpSupportTitle,
                       subtitle: l10n.helpFaqsSubtitle,
                       onTap: () => context.push(AppRoutes.helpSupport),
                     ),
 
-                    const SizedBox(height: 12),
-
-                    const RentAnEquipmentTile(),
+                    const SizedBox(height: 22),
                   ],
                 ),
               ),
             ),
+
+            SliverToBoxAdapter(child: const RentAnEquipmentTile()),
 
             SliverFillRemaining(
               hasScrollBody: false, // Prevents nested inner scrollbars
@@ -189,201 +194,6 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 ),
                 child: const LogoutButton(),
               ),
-            ),
-
-            // const SliverToBoxAdapter(
-            //   child: SafeArea(top: false, child: SizedBox(height: 130)),
-            // ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileHeader extends StatelessWidget {
-  final OwnerRegistrationState ownerProfileState;
-  const _ProfileHeader({required this.ownerProfileState});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.teal800,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      // Keep status bar area tinted correctly
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // ── Avatar ──
-          ProfileImagePicker(
-            initialImageUrl:
-                ownerProfileState.ownerProfile?.profileImageUrl ?? "",
-          ),
-
-          const SizedBox(height: 10),
-
-          // ── Name ──
-          const DisplayName(),
-
-          // ── Rating + orders row ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.star_rate_rounded,
-                size: 25,
-                color: Color(0xFFF5C842),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                (ownerProfileState.ownerProfile?.ratingAverage ?? 0)
-                    .toStringAsFixed(1),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              // const SizedBox(width: 12),
-              // Text(
-              //   "${ownerProfileState.ownerProfile?.ratingCount ?? 0} ratings",
-              //   style: TextStyle(
-              //     color: Colors.white.withValues(alpha: 0.75),
-              //     fontSize: 14,
-              //   ),
-              // ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color valueColor;
-  final IconData icon;
-
-  const _StatCard({
-    required this.value,
-    required this.label,
-    required this.valueColor,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return BaseTile(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(14),
-      //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
-      // ),
-      child: Row(
-        children: [
-          Icon(icon, size: 32, color: theme.colorScheme.onSurface),
-
-          const SizedBox(width: 8),
-
-          Spacer(),
-
-          Text(
-            value,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: valueColor,
-              fontSize: 30,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MenuItem extends StatelessWidget {
-  final IconData iconData;
-  final Color iconBgColor;
-  final Color iconColor;
-  final String label;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _MenuItem({
-    required this.iconData,
-    required this.iconBgColor,
-    required this.iconColor,
-    required this.label,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: BaseTile(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-        child: Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(iconData, color: iconColor, size: 20),
-            ),
-
-            const SizedBox(width: 14),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(
-                        alpha: 0.45,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
-              size: 18,
             ),
           ],
         ),

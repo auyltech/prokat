@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
+import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/user_profile_provider.dart';
 import 'package:prokat/features/user/widgets/become_owner_cta.dart';
 import 'package:prokat/features/user/widgets/profile_image_picker.dart';
-import 'package:prokat/features/user/widgets/user_profile_tile.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
-import 'package:prokat/features/user/widgets/setting_link_tile.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/features/user/widgets/client_rental_preferences_section.dart';
 
 class ClientProfileScreen extends ConsumerStatefulWidget {
   const ClientProfileScreen({super.key});
@@ -42,9 +40,6 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final userProfileState = ref.watch(userProfileProvider);
-
-    final locale = ref.watch(localeProvider);
-    final langDisplay = LocaleNotifier.displayCode(locale);
 
     return Scaffold(
       body: SafeArea(
@@ -132,38 +127,41 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 40),
 
-                      UserProfileTile(
+                      ProkatListTile(
                         icon: Icons.phone_android_rounded,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
-                        label: l10n.phoneNumber,
-                        value:
+                        title: l10n.phoneNumber,
+                        subtitle:
                             userProfileState.userProfile?.phoneNumber ??
                             "+7 234 ...",
                         onTap: () {},
-                        trailing: const Icon(Icons.edit, color: Colors.white54),
+                        // trailing: const Icon(Icons.edit, color: Colors.white54),
                       ),
 
                       const SizedBox(height: 20),
 
-                      UserProfileTile(
-                        icon: LucideIcons.globe,
-                        iconColor: theme.primaryColor,
-                        iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
-                        label: l10n.appLanguage,
-                        value: langDisplay,
-                        onTap: () => LanguageSheet.show(context),
-                      ),
+                      ClientRentalPreferencesSection(),
+                    ],
+                  ),
+                ),
+              ),
 
-                      const SizedBox(height: 20),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 40),
+                  child: const BecomeOwnerCTA(),
+                ),
+              ),
 
-                      const BecomeOwnerCTA(),
-
-                      const SizedBox(height: 20),
-
-                      SettingsLinkTile(
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      ProkatListTile(
                         icon: Icons.favorite_outline,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
@@ -174,27 +172,29 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                       const SizedBox(height: 20),
 
-                      SettingsLinkTile(
+                      ProkatListTile(
                         icon: LucideIcons.shieldCheck,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
                         title: l10n.privacyPolicy,
+                        subtitle: "Privacy Policy",
                         onTap: () => context.push(AppRoutes.privacyPolicy),
                       ),
 
                       const SizedBox(height: 20),
 
-                      SettingsLinkTile(
+                      ProkatListTile(
                         icon: LucideIcons.fileSignature,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
                         title: l10n.termsConditions,
+                        subtitle: "Terms and conditions",
                         onTap: () => context.push(AppRoutes.termsConditions),
                       ),
 
                       const SizedBox(height: 20),
 
-                      SettingsLinkTile(
+                      ProkatListTile(
                         icon: LucideIcons.lifeBuoy,
                         iconColor: Colors.red,
                         iconBgColor: Colors.red.withValues(alpha: 0.15),
@@ -205,7 +205,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                       const SizedBox(height: 20),
 
-                      SettingsLinkTile(
+                      ProkatListTile(
                         icon: LucideIcons.settings,
                         iconColor: theme.primaryColor,
                         iconBgColor: theme.primaryColor.withValues(alpha: 0.15),

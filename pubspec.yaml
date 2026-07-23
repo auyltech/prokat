@@ -90,6 +90,8 @@ flutter:
     - assets/icons/app_icon_foreground.png
     - assets/icons/app_icon_background.png
     - assets/icons/splash_branding_footer.png
+    - assets/icons/splash_icon_android12.png
+    - assets/icons/logo_brand.png
     - assets/legal/
     # - assets/legal/licenses.md
 
@@ -99,14 +101,15 @@ flutter_launcher_icons:
   image_path: "assets/icons/prokat_app_icon.png"
   adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
   adaptive_icon_background: "assets/icons/app_icon_background.png"
+  adaptive_icon_foreground_inset: 20
   remove_alpha_ios: true
 
 flutter_native_splash:
-  color: "#ffffff"
-  image: "assets/icons/app_icon_foreground.png"
+  color: "#00489B"
+  image: "assets/icons/splash_icon_android12.png"
   branding: "assets/icons/splash_branding_footer.png"
 
   android_12:
-    color: "#ffffff"
-    image: "assets/icons/app_icon_foreground.png"
+    color: "#00489B"
+    image: "assets/icons/splash_icon_android12.png"
     branding: "assets/icons/splash_branding_footer.png"

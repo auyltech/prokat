@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -15,10 +16,10 @@ class RentAnEquipmentTile extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 40),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceBright,
-        borderRadius: BorderRadius.circular(14), // Matches the top cards
-        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
+        color: Colors.blue.shade800.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(0),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -34,17 +35,15 @@ class RentAnEquipmentTile extends ConsumerWidget {
           onTap: () async {
             await ref.read(appStartupProvider.notifier).setClientMode();
             if (!context.mounted) return;
-            context.go(AppRoutes.searchList);
+            context.go(AppRoutes.clientProfile);
           },
           child: Padding(
-            // Expanded vertical padding provides a taller footprint
             padding: const EdgeInsets.symmetric(
               vertical: 32.0,
               horizontal: 18.0,
             ),
             child: Row(
               children: [
-                // Expanded Icon Container Box
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -53,13 +52,12 @@ class RentAnEquipmentTile extends ConsumerWidget {
                   ),
                   child: const Icon(
                     Icons.storefront_outlined,
-                    size: 26, // Scaled up icon
+                    size: 26,
                     color: Color(0xFF1B3E8C),
                   ),
                 ),
                 const SizedBox(width: 18),
 
-                // Expanded Text Layout
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,13 +67,11 @@ class RentAnEquipmentTile extends ConsumerWidget {
                         l10n.rentAnEquipment,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          fontSize: 17, // Made slightly prominent
+                          fontSize: 17,
                           color: const Color(0xFF1B3E8C),
                         ),
                       ),
-                      const SizedBox(
-                        height: 6,
-                      ), // Expanded vertical text separation
+                      const SizedBox(height: 6),
                       Text(
                         l10n.switchBackToClient,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -87,10 +83,8 @@ class RentAnEquipmentTile extends ConsumerWidget {
                   ),
                 ),
 
-                // Trailing Navigation Icon
                 Icon(
-                  Icons
-                      .arrow_forward_ios_rounded, // Switched to a cleaner chevron
+                  LucideIcons.chevronRight,
                   color: Colors.grey.shade400,
                   size: 18,
                 ),

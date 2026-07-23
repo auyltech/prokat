@@ -10,8 +10,6 @@ class UserInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // if (user == null) return SizedBox.shrink();
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

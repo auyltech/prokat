@@ -5,7 +5,7 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/billing/widgets/balance_summary_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
-import 'package:prokat/features/user/widgets/price_tier_tile.dart';
+import 'package:prokat/features/owner/widgets/price_tier_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerPaymentsTopupScreen extends ConsumerStatefulWidget {

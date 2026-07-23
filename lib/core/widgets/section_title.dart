@@ -30,8 +30,7 @@ class SectionTitle extends StatelessWidget {
           Text(
             trailing!,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.error,
             ),
           ),
         ],

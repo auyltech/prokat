@@ -27,6 +27,7 @@ class UserProfileService {
     String? firstName,
     String? lastName,
     String? profileImageUrl,
+    String? language,
     String? darkMode,
     String? selectedCategoryId,
     String? selectedAddressId,
@@ -39,6 +40,7 @@ class UserProfileService {
           "lastName": ?lastName,
           "profileImageUrl": ?profileImageUrl,
           "darkMode": ?darkMode,
+          "language": ?language,
           "selectedCategoryId": ?selectedCategoryId,
           "selectedAddressId": ?selectedAddressId,
         },
@@ -66,7 +68,7 @@ class UserProfileService {
       }
 
       return null;
-    } catch (e) {
+    } catch (error) {
       return null;
     }
   }
@@ -83,15 +85,15 @@ class UserProfileService {
       }
 
       return null;
-    } catch (e) {
+    } catch (error) {
       return null;
     }
   }
 
-  Future<UserProfileModel?> selectCityRegion(
+  Future<UserProfileModel?> selectCityRegion({
     String? city,
     String? region,
-  ) async {
+  }) async {
     try {
       final res = await _dio.patch(
         ApiRoutes.userCityRegion,

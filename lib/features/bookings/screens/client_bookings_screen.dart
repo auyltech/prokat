@@ -5,7 +5,7 @@ import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/widgets/draft_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
-import 'package:prokat/features/user/widgets/client_booking_tile.dart';
+import 'package:prokat/features/bookings/widgets/client_booking_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientBookingsScreen extends ConsumerStatefulWidget {
@@ -92,8 +92,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
                     child: EmptyStateTile(
                       icon: Icons.inventory_2_outlined,
                       title: l10n.noBookingsFound,
-                      subtitle:
-                          l10n.noActiveOrders,
+                      subtitle: l10n.noActiveOrders,
                     ),
                   )
                 else

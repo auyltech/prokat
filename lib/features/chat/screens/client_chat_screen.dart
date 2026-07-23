@@ -90,7 +90,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
                       return ListView.separated(
                         // 2. Set reverse to true so it stays anchored to the bottom like real chat apps
-                        reverse: true,
+                        reverse: false,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12.0,
                           vertical: 12.0,
@@ -100,7 +100,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                         itemCount: messagesData.items.length,
                         itemBuilder: (context, index) {
                           // 3. Since reverse: true handles bottom-up rendering, use direct index access
-                          final message = messagesData.items[index];
+                          final invertedIndex =
+                              messagesData.items.length - 1 - index;
+                          final message = messagesData.items[invertedIndex];
 
                           final isMe =
                               message.senderId == currentUserId ||

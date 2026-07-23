@@ -151,13 +151,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 24),
 
-        SectionTitle(
-          title: l10n.deliveryLocation,
-          trailing: requestState.selectedLocation == null ? "* Required" : null,
-        ),
-
-        const SizedBox(height: 6),
-
         AddressPickerCard(
           selectedAddress: locationState.selectedAddress,
           onTap: () => SelectAddressSheet.show(
@@ -165,6 +158,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
             service: "address",
             from: "create_request",
           ),
+          isRequired: requestState.selectedLocation == null,
         ),
 
         const SizedBox(height: 12),
@@ -173,21 +167,16 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           valueListenable: capacityController,
           builder: (context, value, child) {
             final hasOfferedRate = value.text.isNotEmpty;
-            return SectionTitle(
-              title: l10n.equipmentSpecs,
-              trailing: hasOfferedRate ? null : "* Required",
+            return InputField(
+              label: l10n.requiredCapacity,
+              controller: capacityController,
+              hint: l10n.capacityHint,
+              icon: Icons.propane_outlined,
+              suffixText: "M3",
+              isRequired: !hasOfferedRate,
+              iconBgColor: Colors.black12,
             );
           },
-        ),
-
-        const SizedBox(height: 8),
-
-        InputField(
-          label: l10n.requiredCapacity,
-          controller: capacityController,
-          hint: l10n.capacityHint,
-          icon: Icons.propane_outlined,
-          suffixText: "M3",
         ),
 
         const SizedBox(height: 12),
@@ -196,33 +185,25 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           valueListenable: rateController,
           builder: (context, value, child) {
             final hasOfferedRate = value.text.isNotEmpty;
-            return SectionTitle(
-              title: l10n.offeredRate,
-              trailing: hasOfferedRate ? null : "* Required",
+            return InputField(
+              label: l10n.offeredRate,
+              controller: rateController,
+              hint: l10n.offeredRateHint,
+              icon: Icons.payments_outlined,
+              isRequired: !hasOfferedRate,
+              iconBgColor: Colors.black12,
             );
           },
         ),
 
-        const SizedBox(height: 8),
-
-        InputField(
-          label: l10n.offeredRate,
-          controller: rateController,
-          hint: l10n.offeredRateHint,
-          icon: Icons.payments_outlined,
-        ),
-
         const SizedBox(height: 12),
-
-        SectionTitle(title: l10n.comments),
-
-        const SizedBox(height: 8),
 
         InputField(
           label: l10n.comments,
           controller: commentController,
           hint: l10n.additionalDetails,
           icon: Icons.chat_bubble_outline_rounded,
+          iconBgColor: Colors.black12,
         ),
 
         const SizedBox(height: 12),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/bookings/providers/client_history_bookings_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
-import 'package:prokat/features/user/widgets/client_booking_tile.dart';
+import 'package:prokat/features/bookings/widgets/client_booking_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientBookingsHistoryScreen extends ConsumerStatefulWidget {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -68,11 +69,13 @@ class LogoutButton extends ConsumerWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
-            color: theme.colorScheme.error,
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: theme.colorScheme.error),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 width: 20,
@@ -80,19 +83,21 @@ class LogoutButton extends ConsumerWidget {
                 child: authState.isLoading
                     ? CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: theme.colorScheme.onError,
+                        color: theme.colorScheme.error,
                       )
                     : Icon(
-                        Icons.logout_rounded,
-                        color: theme.colorScheme.onError,
-                        size: 20,
+                        LucideIcons.logOut,
+                        color: theme.colorScheme.error,
+                        size: 28,
                       ),
               ),
-              const SizedBox(width: 12),
+
+              const SizedBox(width: 20),
+
               Text(
                 l10n.logout,
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onError,
+                  color: theme.colorScheme.error,
                   fontWeight: FontWeight.w500,
                 ),
               ),

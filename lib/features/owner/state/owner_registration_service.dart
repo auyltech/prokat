@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 
 class OwnerRegistrationService {
@@ -185,6 +186,25 @@ class OwnerRegistrationService {
             "serviceDescription": serviceDescription,
           if ((serviceCities ?? '').isNotEmpty) "serviceCities": serviceCities,
         },
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return true;
+      }
+
+      return false;
+    } on DioException catch (e) {
+      throw Exception(extractBackendMessage(e));
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  Future<bool> updateOwnerStatus({required OwnerStatus ownerStatus}) async {
+    try {
+      final res = await _dio.patch(
+        "/owner/profile/status",
+        data: {"onlineStatus": ownerStatus.name.toUpperCase()},
       );
 
       if (res.statusCode == 200 || res.statusCode == 201) {

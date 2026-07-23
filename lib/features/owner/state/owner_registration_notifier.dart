@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/owner/models/owner_profile_model.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/features/owner/state/owner_registration_state.dart';
 
@@ -16,18 +18,6 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
       state = state.copyWith(isLoading: false, registrationRequest: data);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<void> getOwnerProfile() async {
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final data = await api.getOwnerProfile();
-
-      state = state.copyWith(isLoading: false, ownerProfile: data);
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
     }
   }
 
@@ -50,6 +40,8 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
         message: message,
         phoneNumber: phoneNumber,
       );
+
+      state = state.copyWith(isLoading: false);
 
       if (created == true) {
         await getRegistrationRequest();
@@ -87,6 +79,8 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
         phoneNumber: phoneNumber,
       );
 
+      state = state.copyWith(isLoading: false);
+
       if (updated == true) {
         await getRegistrationRequest();
 
@@ -94,6 +88,45 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
       }
 
       return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<void> getOwnerProfile() async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+
+      final data = await api.getOwnerProfile();
+
+      state = state.copyWith(isLoading: false, ownerProfile: data);
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
+    }
+  }
+
+  Future<bool> updateOwnerProfile(OwnerProfileModel updatedProfile) async {
+    try {
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  Future<bool> updateOwnerStatus({required OwnerStatus ownerStatus}) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+
+      final result = await api.updateOwnerStatus(ownerStatus: ownerStatus);
+
+      if (result) {
+        await getOwnerProfile();
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
+
+      return result;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;

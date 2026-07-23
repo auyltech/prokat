@@ -196,6 +196,14 @@ class NotificationNavigationService {
       return;
     }
 
+    if (route.startsWith(AppRoutes.ownerMain) &&
+        startup == AppStartupRouteState.client) {
+      await ref.read(appStartupProvider.notifier).setOwnerMode();
+    } else if (route.startsWith(AppRoutes.clientMain) &&
+        startup == AppStartupRouteState.owner) {
+      await ref.read(appStartupProvider.notifier).setClientMode();
+    }
+
     router.go(route);
   }
 
