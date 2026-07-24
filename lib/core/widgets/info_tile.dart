@@ -118,7 +118,7 @@ class InfoTile extends StatelessWidget {
                   Row(
                     children: [
                       if (icon != null) ...[
-                        Icon(icon, color: theme.primaryColor, size: 20),
+                        Icon(icon, color: theme.colorScheme.primary, size: 20),
                         SizedBox(width: 6),
                       ],
 
@@ -156,7 +156,7 @@ class InfoTile extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (icon != null)
-                    Icon(icon, color: theme.primaryColor, size: 20),
+                    Icon(icon, color: theme.colorScheme.primary, size: 20),
 
                   Text(
                     value,

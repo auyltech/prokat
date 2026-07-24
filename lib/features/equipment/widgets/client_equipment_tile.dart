@@ -133,7 +133,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: theme.primaryColor,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       Text(
@@ -227,7 +227,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: onTap,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.primaryColor,
+                      backgroundColor: theme.colorScheme.primary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(

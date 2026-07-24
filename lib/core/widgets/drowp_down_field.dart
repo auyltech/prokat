@@ -78,7 +78,7 @@ class DropDownfield<T> extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 8),

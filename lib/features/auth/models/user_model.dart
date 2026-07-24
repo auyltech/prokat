@@ -16,7 +16,7 @@ UserRole? parseUserRole(dynamic value) {
   return null;
 }
 
-class User {
+class UserModel {
   final String? id;
   final String? phoneNumber;
   final String? firstName;
@@ -26,7 +26,7 @@ class User {
   final UserRole? role;
   final String? imageUrl;
 
-  const User({
+  const UserModel({
     this.id,
     this.phoneNumber,
     this.firstName,
@@ -59,9 +59,9 @@ class User {
     return role == UserRole.owner;
   }
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(Map<String, dynamic> json) {
     try {
-      return User(
+      return UserModel(
         id: json['id']?.toString(),
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),

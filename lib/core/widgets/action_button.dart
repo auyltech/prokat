@@ -101,7 +101,7 @@ class ActionButton extends StatelessWidget {
     // Determine context active color palette
     final bool isSecondary = variant == ButtonVariant.secondary;
     final Color variantColor = isSecondary
-        ? theme.primaryColor
+        ? theme.colorScheme.primary
         : theme.colorScheme.error;
 
     if (variant == ButtonVariant.ghost) {
@@ -110,7 +110,7 @@ class ActionButton extends StatelessWidget {
         constraints: const BoxConstraints(),
         icon: Icon(
           Icons.chat_bubble_outline,
-          color: theme.primaryColor,
+          color: theme.colorScheme.primary,
           size: 30,
         ),
         onPressed: onPressed,
@@ -154,7 +154,7 @@ class ActionButton extends StatelessWidget {
     // Filled Buttons (Primary & Danger)
     final Color baseFillColor = variant == ButtonVariant.danger
         ? theme.colorScheme.error
-        : theme.primaryColor;
+        : theme.colorScheme.primary;
 
     return ElevatedButton(
       onPressed: (isLoading || !isEnabled) ? null : onPressed,

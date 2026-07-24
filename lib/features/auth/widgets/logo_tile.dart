@@ -19,11 +19,11 @@ class LogoTile extends StatelessWidget {
           // 1. Icon
           Container(
             padding: const EdgeInsets.all(16),
-            // decoration: BoxDecoration(
-            //   color: theme.primaryColor.withValues(alpha: 0.15),
-            //   shape: BoxShape.circle,
-            // ),
-            child: Icon(LucideIcons.truck, color: theme.primaryColor, size: 60),
+            child: Icon(
+              LucideIcons.truck,
+              color: theme.colorScheme.primary,
+              size: 60,
+            ),
           ),
 
           const SizedBox(width: 8),

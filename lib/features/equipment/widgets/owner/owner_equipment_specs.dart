@@ -441,7 +441,7 @@ class _SpecField extends StatelessWidget {
                     child: Text(
                       label.toUpperCase(),
                       style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.primaryColor,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                   ),

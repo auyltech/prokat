@@ -84,7 +84,7 @@ final clientNavItems = [
   _NavItem(
     icon: LucideIcons.send,
     label: (l) => l.navCreate,
-    path: AppRoutes.clientRequestsCreate,
+    path: AppRoutes.clientRequests,
     base: AppRoutes.clientRequests,
   ),
   // _NavItem(
@@ -138,8 +138,8 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
 
     final Color primary = switch (startupState) {
       AppStartupRouteState.owner => AppColors.teal800,
-      AppStartupRouteState.client => theme.primaryColor,
-      _ => theme.primaryColor,
+      AppStartupRouteState.client => theme.colorScheme.primary,
+      _ => theme.colorScheme.primary,
     };
 
     if (navItems.isEmpty) {

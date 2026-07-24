@@ -7,16 +7,26 @@ import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-ChatStatusDetail getChatStatus({
+class ChatConfig {
+  ChatStatusDetail status;
+  String actionBartitle;
+  String statusLabel;
+
+  ChatConfig({
+    required this.status,
+    required this.actionBartitle,
+    required this.statusLabel,
+  });
+}
+
+ChatConfig getChatConfig({
   ChatModel? chat,
   AppMode? mode,
   bool? hasNegotiation,
   bool? pendingFromMe,
   bool? reviewSubmitted,
+  required AppLocalizations l10n,
 }) {
-  final requestStatus = chat?.request?.status;
-  final bookingStatus = chat?.booking?.status;
-  final workStatus = chat?.booking?.workStatus;
   final activeOffer = chat?.offers
       .where((offer) => offer.status == OfferStatus.created)
       .firstOrNull;
@@ -25,168 +35,157 @@ ChatStatusDetail getChatStatus({
   final isOfferPendingFromMe =
       mode == AppMode.clientMode && activeOffer != null;
 
-  // Request Created
-  if (requestStatus == RequestStatus.responded) {
-    if (hasActiveOffer == true) {
-      // Request Offer cannot be pending from owner
-      if (isOfferPendingFromMe == true) {
-        return ChatStatusDetail.offerreceived;
+  switch (chat?.booking?.status) {
+    case BookingStatus.reviewed:
+      {
+        return ChatConfig(
+          status: ChatStatusDetail.bookingreviewed,
+          actionBartitle: l10n.orderCompleted,
+          statusLabel: l10n.orderCompleted,
+        );
       }
 
-      return ChatStatusDetail.offercreated;
-    } else if (hasNegotiation == true) {
-      return pendingFromMe == true
-          ? ChatStatusDetail.counterofferreceived
-          : ChatStatusDetail.counteroffersent;
-    }
+    case BookingStatus.completed:
+      if (reviewSubmitted == true) {
+        return ChatConfig(
+          status: ChatStatusDetail.bookingreviewed,
+          actionBartitle: l10n.reviewSent,
+          statusLabel: l10n.reviewSent,
+        );
+      } else {
+        return ChatConfig(
+          status: ChatStatusDetail.leaveReview,
+          actionBartitle: l10n.submitReview,
+          statusLabel: l10n.submitReview,
+        );
+      }
 
-    return ChatStatusDetail.requestcreated;
+    case BookingStatus.confirmed:
+      if (chat?.booking?.workStatus == WorkStatus.completed) {
+        return mode == AppMode.ownerMode
+            ? ChatConfig(
+                status: ChatStatusDetail.workcompleted,
+                actionBartitle: l10n.waitingClientConfirmation,
+                statusLabel: l10n.workCompleted,
+              )
+            : ChatConfig(
+                status: ChatStatusDetail.confirmcompleted,
+                actionBartitle: l10n.confirmWorkCompleted,
+                statusLabel: l10n.confirmWorkCompleted,
+              );
+      } else {
+        return ChatConfig(
+          status: ChatStatusDetail.bookingconfirmed,
+          actionBartitle: l10n.updateWorkStatus,
+          statusLabel: l10n.orderConfirmed,
+        );
+      }
+
+    case BookingStatus.created:
+      if (hasNegotiation == true) {
+        return pendingFromMe == true
+            ? ChatConfig(
+                status: ChatStatusDetail.counterofferreceived,
+                actionBartitle: "Price Offer Received",
+                statusLabel: "Price Offer",
+              )
+            : ChatConfig(
+                status: ChatStatusDetail.counteroffersent,
+                actionBartitle: mode == AppMode.ownerMode
+                    ? "Waiting client response"
+                    : l10n.waitingOwnerResponse,
+                statusLabel: l10n.waitingOwnerResponse,
+              );
+      }
+
+      return ChatConfig(
+        status: ChatStatusDetail.bookingcreated,
+        actionBartitle: l10n.newOrder,
+        statusLabel: l10n.orderCreated,
+      );
+
+    case BookingStatus.cancelled:
+    case BookingStatus.rejected:
+    case BookingStatus.failed:
+      return ChatConfig(
+        status: ChatStatusDetail.bookingcancelled,
+        actionBartitle: l10n.orderHasBeenCancelled,
+        statusLabel: l10n.orderCancelled,
+      );
+
+    case BookingStatus.draft:
+      return ChatConfig(
+        status: ChatStatusDetail.unknown,
+        actionBartitle: "",
+        statusLabel: "",
+      );
+
+    case null:
+      break;
   }
 
-  if (bookingStatus == BookingStatus.created) {
-    if (hasNegotiation == true) {
-      return pendingFromMe == true
-          ? ChatStatusDetail.counterofferreceived
-          : ChatStatusDetail.counteroffersent;
-    }
+  switch (chat?.request?.status) {
+    case RequestStatus.created:
+    case RequestStatus.viewed:
+    case RequestStatus.responded:
+      if (hasActiveOffer == true) {
+        // Request Offer cannot be pending from owner
+        if (isOfferPendingFromMe == true) {
+          return ChatConfig(
+            status: ChatStatusDetail.offerreceived,
+            actionBartitle: l10n.offerReceived,
+            statusLabel: l10n.offerReceived,
+          );
+        }
 
-    return ChatStatusDetail.bookingcreated;
+        return ChatConfig(
+          status: ChatStatusDetail.offercreated,
+          actionBartitle: l10n.offerCreated,
+          statusLabel: l10n.offerCreated,
+        );
+      } else if (hasNegotiation == true) {
+        return pendingFromMe == true
+            ? ChatConfig(
+                status: ChatStatusDetail.counterofferreceived,
+                actionBartitle: l10n.respondToCounterOffer,
+                statusLabel: l10n.respondToCounterOffer,
+              )
+            : ChatConfig(
+                status: ChatStatusDetail.counteroffersent,
+                actionBartitle: l10n.counterOfferSent,
+                statusLabel: l10n.counterOfferSent,
+              );
+      }
+
+      return ChatConfig(
+        status: ChatStatusDetail.requestcreated,
+        actionBartitle: l10n.requestPending,
+        statusLabel: l10n.requestPending,
+      );
+
+    case RequestStatus.accepted:
+      return ChatConfig(
+        status: ChatStatusDetail.requestaccepted,
+        actionBartitle: l10n.requestAccepted,
+        statusLabel: l10n.requestAccepted,
+      );
+
+    case RequestStatus.cancelled:
+    case RequestStatus.expired:
+      return ChatConfig(
+        status: ChatStatusDetail.requestcancelled,
+        actionBartitle: "",
+        statusLabel: "",
+      );
+
+    case RequestStatus.draft:
+    case null:
+      break;
   }
 
-  if (bookingStatus == BookingStatus.confirmed) {
-    if (workStatus == WorkStatus.completed) {
-      return ChatStatusDetail.workcompleted;
-    }
-
-    return ChatStatusDetail.bookingconfirmed;
-  }
-
-  if (bookingStatus == BookingStatus.completed) {
-    if (reviewSubmitted == true) {
-      return ChatStatusDetail.bookingreviewed;
-    }
-
-    return ChatStatusDetail.leaveReview;
-  }
-
-  if (bookingStatus == BookingStatus.reviewed) {
-    return ChatStatusDetail.bookingreviewed;
-  }
-
-  if (bookingStatus == BookingStatus.cancelled ||
-      bookingStatus == BookingStatus.rejected ||
-      bookingStatus == BookingStatus.failed) {
-    return ChatStatusDetail.bookingcancelled;
-  }
-
-  if (requestStatus == RequestStatus.created ||
-      requestStatus == RequestStatus.accepted) {
-    return ChatStatusDetail.requestaccepted;
-  }
-
-  return ChatStatusDetail.unknown;
-}
-
-String getChatActionBarTitle(ChatStatusDetail status, AppLocalizations l10n) {
-  switch (status) {
-    case ChatStatusDetail.requestcreated:
-      return l10n.requestPending;
-
-    case ChatStatusDetail.offercreated:
-      return l10n.offerCreated;
-
-    case ChatStatusDetail.offerreceived:
-      return l10n.offerReceived;
-
-    case ChatStatusDetail.counteroffersent:
-      return l10n.counterOfferSent;
-
-    case ChatStatusDetail.counterofferreceived:
-      return l10n.respondToCounterOffer;
-
-    case ChatStatusDetail.bookingcreated:
-      return l10n.newOrder;
-
-    case ChatStatusDetail.bookingcancelled:
-      return l10n.orderHasBeenCancelled;
-
-    case ChatStatusDetail.bookingconfirmed:
-      return l10n.updateWorkStatus;
-
-    case ChatStatusDetail.waitingownerresponse:
-      return l10n.waitingOwnerResponse;
-
-    case ChatStatusDetail.workcompleted:
-      return l10n.waitingClientConfirmation;
-
-    case ChatStatusDetail.confirmcompleted:
-      return l10n.confirmWorkCompleted;
-
-    case ChatStatusDetail.bookingcompleted:
-      return l10n.orderCompleted;
-
-    case ChatStatusDetail.leaveReview:
-      return l10n.submitReview;
-
-    case ChatStatusDetail.bookingreviewed:
-      return l10n.reviewSent;
-
-    case ChatStatusDetail.requestaccepted:
-      return l10n.requestAccepted;
-
-    case ChatStatusDetail.unknown:
-      return "";
-  }
-}
-
-String getChatStatusLabel(ChatStatusDetail status, AppLocalizations l10n) {
-  switch (status) {
-    case ChatStatusDetail.requestcreated:
-      return l10n.requestPending;
-
-    case ChatStatusDetail.offercreated:
-      return l10n.offerCreated;
-
-    case ChatStatusDetail.offerreceived:
-      return l10n.offerReceived;
-
-    case ChatStatusDetail.counteroffersent:
-      return l10n.counterOfferSent;
-
-    case ChatStatusDetail.counterofferreceived:
-      return l10n.respondToCounterOffer;
-
-    case ChatStatusDetail.bookingcreated:
-      return l10n.orderCreated;
-
-    case ChatStatusDetail.bookingcancelled:
-      return l10n.orderCancelled;
-
-    case ChatStatusDetail.bookingconfirmed:
-      return l10n.orderConfirmed;
-
-    case ChatStatusDetail.waitingownerresponse:
-      return l10n.waitingOwnerResponse;
-
-    case ChatStatusDetail.workcompleted:
-      return l10n.workCompleted;
-
-    case ChatStatusDetail.confirmcompleted:
-      return l10n.confirmWorkCompleted;
-
-    case ChatStatusDetail.bookingcompleted:
-      return l10n.orderCompleted;
-
-    case ChatStatusDetail.leaveReview:
-      return l10n.submitReview;
-
-    case ChatStatusDetail.bookingreviewed:
-      return l10n.reviewSent;
-
-    case ChatStatusDetail.requestaccepted:
-      return l10n.requestAccepted;
-
-    case ChatStatusDetail.unknown:
-      return "";
-  }
+  return ChatConfig(
+    status: ChatStatusDetail.unknown,
+    actionBartitle: "",
+    statusLabel: "",
+  );
 }

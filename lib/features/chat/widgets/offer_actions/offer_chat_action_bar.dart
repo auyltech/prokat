@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
-import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
@@ -37,8 +36,6 @@ class OfferChatActionBar extends ConsumerWidget {
     final pending = negotiationState.latestPending;
     final pendingId = (pending?.id ?? '').trim();
 
-    final actionBarTitle = getChatActionBarTitle(chatStatus, l10n);
-
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       decoration: BoxDecoration(
@@ -55,7 +52,7 @@ class OfferChatActionBar extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            actionBarTitle,
+            "actionBarTitle",
             style: theme.textTheme.bodyLarge?.copyWith(
               fontSize: 20,
               fontWeight: FontWeight.w500,

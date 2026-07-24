@@ -91,7 +91,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
             context,
             Icons.location_on_outlined,
             l10n.unknownLocation,
-            theme.primaryColor,
+            theme.colorScheme.primary,
           ),
 
           const SizedBox(height: 6),
@@ -144,7 +144,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: theme.primaryColor,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       TextSpan(

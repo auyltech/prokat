@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/unauthorized_signal_provider.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 
 enum AppStartupRouteState {
   loading,
@@ -158,9 +159,9 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
       state = _statusForStep(AppStartupStep.fetchProfileMinimal);
 
-      await ref.read(userProfileProvider.notifier).getUserProfile();
+      await ref.read(clientProfileProvider.notifier).getUserProfile();
 
-      final profile = ref.read(userProfileProvider).userProfile;
+      final profile = ref.read(clientProfileProvider).userProfile;
 
       if (profile == null) {
         state = _statusForStep(
@@ -194,13 +195,15 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     try {
       await ref.read(authProvider.notifier).logout();
       await ref.read(authProvider.notifier).clearLocalSession();
+
+      await ref.read(pushNotificationServiceProvider).deactivateCurrentDevice();
       // TODO: clear Providers (profile, billing, categories, equipment)
     } catch (_) {
       // Ignore errors to ensure we still force reroute.
     }
 
     // Kill global provider caches
-    ref.invalidate(userProfileProvider);
+    ref.invalidate(clientProfileProvider);
 
     ///
     ///
@@ -237,7 +240,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
     if (ref.read(authProvider).session == null) return;
 
-    final profile = ref.read(userProfileProvider).userProfile;
+    final profile = ref.read(clientProfileProvider).userProfile;
 
     if (profile == null) {
       await init();
@@ -372,10 +375,10 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
       await measure(
         AppStartupStep.fetchProfileMinimal,
-        () => ref.read(userProfileProvider.notifier).getUserProfile(),
+        () => ref.read(clientProfileProvider.notifier).getUserProfile(),
       );
 
-      final profile = ref.read(userProfileProvider).userProfile;
+      final profile = ref.read(clientProfileProvider).userProfile;
 
       if (profile == null) {
         state = _statusForStep(

@@ -255,6 +255,8 @@ class LocationNotifier extends StateNotifier<LocationState> {
         .where((item) => item.id == addressId)
         .firstOrNull;
 
-    state = state.copyWith(selectedAddress: foundAddress);
+    if (addressId != null && addressId.isNotEmpty && foundAddress != null) {
+      state = state.copyWith(selectedAddress: foundAddress);
+    }
   }
 }

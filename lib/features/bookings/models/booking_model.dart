@@ -21,8 +21,8 @@ class BookingModel {
 
   final String? chatId;
 
-  final User? client;
-  final User? owner;
+  final UserModel? client;
+  final UserModel? owner;
 
   final EquipmentSummaryModel? equipment;
   final LocationModel? location;
@@ -82,8 +82,10 @@ class BookingModel {
 
       myReviewId: json['myReviewId']?.toString(),
 
-      client: json['client'] != null ? User.fromJson(json['client']) : null,
-      owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
+      client: json['client'] != null
+          ? UserModel.fromJson(json['client'])
+          : null,
+      owner: json['owner'] != null ? UserModel.fromJson(json['owner']) : null,
 
       equipment: json['equipment'] != null
           ? EquipmentSummaryModel.fromJson(json['equipment'])

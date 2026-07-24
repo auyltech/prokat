@@ -100,11 +100,13 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 if (requests.isEmpty)
-                  EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: l10n.noRequestsAtMoment,
-                    subtitle:
-                        l10n.noActiveRequests,
+                  Padding(
+                    padding: EdgeInsets.all(12),
+                    child: EmptyStateTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.noRequestsAtMoment,
+                      subtitle: l10n.noActiveRequests,
+                    ),
                   )
                 else
                   ListView.separated(

@@ -17,7 +17,7 @@ class RequestModel {
   final DateTime? requiredAt;
 
   final LocationModel location;
-  final User? client;
+  final UserModel? client;
 
   final Category? category;
   final String? categoryId;
@@ -70,7 +70,9 @@ class RequestModel {
           ? LocationModel.fromJson(json['location'])
           : throw Exception("Location is required but missing"),
 
-      client: json["client"] != null ? User.fromJson(json["client"]) : null,
+      client: json["client"] != null
+          ? UserModel.fromJson(json["client"])
+          : null,
 
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])

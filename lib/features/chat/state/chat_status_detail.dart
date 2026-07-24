@@ -1,6 +1,8 @@
 enum ChatStatusDetail {
   requestcreated,
   requestaccepted, // TEMP REMOVE
+  requestcancelled,
+
   offercreated,
   offerreceived,
 

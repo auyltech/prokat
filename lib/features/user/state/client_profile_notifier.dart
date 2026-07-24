@@ -1,15 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/user/state/user_profile_service.dart';
-import 'package:prokat/features/user/state/user_profile_state.dart';
+import 'package:prokat/features/user/models/client_notification_preferences.dart';
+import 'package:prokat/features/user/state/client_profile_service.dart';
+import 'package:prokat/features/user/state/client_profile_state.dart';
 import 'dart:io';
 
-class UserProfileNotifier extends StateNotifier<UserProfileState> {
-  UserProfileNotifier(this.ref, this.service) : super(UserProfileState());
+class ClientProfileNotifier extends StateNotifier<ClientProfileState> {
+  ClientProfileNotifier(this.ref, this.service) : super(ClientProfileState());
 
   final Ref ref;
-  final UserProfileService service;
+  final ClientProfileService service;
 
   void setFirstName(String firstName) {
     state = state.copyWith(firstName: firstName);
@@ -36,19 +37,21 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       }
 
       ref.read(locationProvider.notifier).selectCity(data.city ?? "");
+
       ref
           .read(categoriesProvider.notifier)
           .selectCategoryById(data.selectedCategoryId);
+
       ref
           .read(locationProvider.notifier)
           .selectAddressById(data.selectedAddressId);
 
       return true;
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
         isLoading: false,
         userProfile: () => null,
-        error: e.toString(),
+        error: error.toString(),
       );
 
       return false;
@@ -83,8 +86,31 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       }
 
       return result.success;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateClientNotificationSettings(
+    ClientNotificationPreferences preferences,
+  ) async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      final result = await service.updateClientNotificationSettings(
+        preferences,
+      );
+
+      state = state.copyWith(isLoading: false);
+      if (result.success) {
+        await getUserProfile();
+      }
+
+      return result.success;
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
+
       return false;
     }
   }
@@ -103,8 +129,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
       state = state.copyWith(isLoading: false);
       return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
       return false;
     }
   }
@@ -123,8 +149,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
       state = state.copyWith(isLoading: false);
       return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
       return false;
     }
   }
@@ -146,8 +172,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
 
       state = state.copyWith(isLoading: false);
       return false;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
       return false;
     }
   }
@@ -163,8 +189,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       state = state.copyWith(isLoading: false);
 
       return response;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
 
       return false;
     }
@@ -179,8 +205,8 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
       state = state.copyWith(isLoading: false);
 
       return result;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
       return false;
     }
   }

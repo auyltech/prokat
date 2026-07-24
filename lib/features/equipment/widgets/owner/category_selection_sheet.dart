@@ -7,6 +7,7 @@ import 'package:prokat/features/requests/providers/request_mutation_provider.dar
 import 'package:prokat/l10n/app_localizations.dart';
 
 enum CategorySheetMode {
+  selectCategory,
   createRequest,
   createBooking,
   createEquipment,

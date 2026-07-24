@@ -8,7 +8,7 @@ import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
@@ -38,7 +38,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
 
     ref.read(categoriesProvider.notifier).selectCategory(category);
 
-    final userProfileState = ref.read(userProfileProvider.notifier);
+    final userProfileState = ref.read(clientProfileProvider.notifier);
 
     userProfileState.selectCategory(category.id);
   }

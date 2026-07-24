@@ -56,9 +56,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final error = authState.error;
 
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.colorScheme.primary,
       appBar: AppBar(
-        backgroundColor: theme.primaryColor,
+        backgroundColor: theme.colorScheme.primary,
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -69,9 +70,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCity == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select your city')));
+      AppSnackBar.show(message: 'Please select your city');
       return;
     }
 
@@ -92,10 +91,9 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           .updateOwnerProfile(updatedProfile);
 
       if (mounted && success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Verification request submitted successfully!'),
-          ),
+        AppSnackBar.show(
+          message: 'Verification request submitted successfully!',
+          isSuccess: true,
         );
       }
     });

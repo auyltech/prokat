@@ -140,7 +140,7 @@ class OwnerRequestTile extends ConsumerWidget {
                         : formatRequestTime(request.createdAt.toString()),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: minutesLeft > 0
-                          ? theme.primaryColor
+                          ? theme.colorScheme.primary
                           : theme.colorScheme.error,
                       fontWeight: FontWeight.bold,
                     ),
@@ -182,6 +182,12 @@ class OwnerRequestTile extends ConsumerWidget {
 
           const SizedBox(height: 8),
 
+          if (request.comment != null && request.comment!.isNotEmpty) ...[
+            InfoTile(label: l10n.comments, value: request.comment!),
+
+            const SizedBox(height: 8),
+          ],
+
           /// FOOTER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,7 +199,7 @@ class OwnerRequestTile extends ConsumerWidget {
                   Text(
                     formatPrice(request.offeredPrice),
                     style: theme.textTheme.titleLarge?.copyWith(
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -213,7 +219,7 @@ class OwnerRequestTile extends ConsumerWidget {
                       icon: Icon(
                         LucideIcons.messageCircle,
                         size: 25,
-                        color: theme.primaryColor,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
 

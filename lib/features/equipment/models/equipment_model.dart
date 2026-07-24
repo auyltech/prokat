@@ -49,7 +49,7 @@ class Equipment {
   final EquipmentStatus status;
   final bool isVisible;
 
-  final User? owner;
+  final UserModel? owner;
   final String? imageUrl;
   final List<EquipmentImage> images;
 
@@ -196,7 +196,7 @@ class Equipment {
             .toList(),
 
         owner: json["owner"] is Map<String, dynamic>
-            ? User.fromJson(json["owner"])
+            ? UserModel.fromJson(json["owner"])
             : null,
 
         city: json["city"] ?? "",
@@ -231,7 +231,7 @@ class Equipment {
     String? rentCondition,
     EquipmentStatus? status,
     bool? isVisible,
-    User? owner,
+    UserModel? owner,
     String? imageUrl,
     List<EquipmentImage>? images,
     List<PriceEntry>? prices,

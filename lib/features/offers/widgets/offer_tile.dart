@@ -193,7 +193,7 @@ class OfferTile extends ConsumerWidget {
                   icon: Icon(
                     LucideIcons.messageCircle,
                     size: 25,
-                    color: theme.primaryColor,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
 

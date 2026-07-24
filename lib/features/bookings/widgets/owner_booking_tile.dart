@@ -98,7 +98,7 @@ class OwnerBookingTile extends ConsumerWidget {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, false),
             style: ElevatedButton.styleFrom(
-              foregroundColor: theme.primaryColor,
+              foregroundColor: theme.colorScheme.primary,
               elevation: 0,
             ),
             child: Text(l10n.no),
@@ -225,7 +225,7 @@ class OwnerBookingTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   icon: Icons.timelapse,
-                      label: l10n.dateAndTime,
+                  label: l10n.dateAndTime,
                   value: formatDateTime(booking.bookedOn, booking.bookedAt),
                 ),
               ),
@@ -237,7 +237,12 @@ class OwnerBookingTile extends ConsumerWidget {
           if (booking.comment != null && booking.comment!.isNotEmpty) ...[
             Row(
               children: [
-                InfoTile(label: l10n.comments, value: booking.comment!),
+                Expanded(
+                  child: InfoTile(
+                    label: l10n.comments,
+                    value: booking.comment!,
+                  ),
+                ),
               ],
             ),
 
@@ -248,7 +253,10 @@ class OwnerBookingTile extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InfoTile.ghost(label: l10n.price, value: formatPrice(booking.price)),
+              InfoTile.ghost(
+                label: l10n.price,
+                value: formatPrice(booking.price),
+              ),
 
               Spacer(),
 
@@ -290,7 +298,7 @@ class OwnerBookingTile extends ConsumerWidget {
                       icon: Icon(
                         LucideIcons.messageCircle,
                         size: 25,
-                        color: theme.primaryColor,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
 
@@ -313,6 +321,9 @@ class OwnerBookingTile extends ConsumerWidget {
                   ] else if (booking.status == BookingStatus.confirmed) ...[
                     ActionButton(
                       label: l10n.completeWork,
+                      isLoading: ref
+                          .watch(bookingMutationProvider)
+                          .isActionActive("booking:workstatus:${booking.id}"),
                       onPressed: () async {
                         await showDialog<bool>(
                           context: context,

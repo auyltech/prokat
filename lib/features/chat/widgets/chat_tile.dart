@@ -62,9 +62,7 @@ class ChatTile extends StatelessWidget {
 
     final summary = chat.bookingSummary;
 
-    final chatStatus = getChatStatus(chat: chat);
-
-    final chatStatusLabel = getChatStatusLabel(chatStatus, l10n);
+    final chatStatus = getChatConfig(chat: chat, l10n: l10n);
 
     return InkWell(
       onTap: onTap,
@@ -187,7 +185,7 @@ class ChatTile extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            chatStatusLabel,
+                            chatStatus.statusLabel,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: _getStatusColor(summary.status, theme),
                               fontWeight: FontWeight.bold,

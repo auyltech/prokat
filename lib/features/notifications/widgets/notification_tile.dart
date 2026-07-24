@@ -28,9 +28,12 @@ class NotificationTile extends StatelessWidget {
         backgroundColor: isUnread
             ? theme.colorScheme.primary.withValues(alpha: 0.12)
             : theme.colorScheme.surfaceContainerHighest,
-        foregroundColor:
-            isUnread ? theme.colorScheme.primary : theme.colorScheme.onSurface,
-        child: Icon(isUnread ? Icons.notifications_active : Icons.notifications),
+        foregroundColor: isUnread
+            ? theme.colorScheme.primary
+            : theme.colorScheme.onSurface,
+        child: Icon(
+          isUnread ? Icons.notifications_active : Icons.notifications,
+        ),
       ),
       title: Text(
         notification.title.isNotEmpty ? notification.title : l10n.notification,

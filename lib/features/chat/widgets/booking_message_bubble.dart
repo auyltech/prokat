@@ -7,6 +7,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
@@ -68,7 +69,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
             children: [
               Icon(
                 Icons.assignment_outlined,
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
                 size: 22,
               ),
               const SizedBox(width: 6),
@@ -76,7 +77,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 l10n.newOrder,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.primaryColor,
+                  color: theme.colorScheme.primary,
                 ),
               ),
 
@@ -228,9 +229,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
               // Cancel Order
               if ([
-                BookingStatus.created,
-                BookingStatus.confirmed,
-              ].contains(booking.status)) ...[
+                    BookingStatus.created,
+                    BookingStatus.confirmed,
+                  ].contains(booking.status) &&
+                  booking.workStatus != WorkStatus.completed) ...[
                 if (ref
                         .watch(bookingMutationProvider)
                         .isActionActive("booking:${booking.id}:cancel") ||

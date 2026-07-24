@@ -4,7 +4,7 @@ import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_service.dart';
 import 'package:prokat/features/categories/state/categories_state.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 
 class CategoriesNotifier extends StateNotifier<CategoryState> {
   Ref ref;
@@ -67,7 +67,7 @@ class CategoriesNotifier extends StateNotifier<CategoryState> {
 
       if (result.success) {
         final selectedCategoryId = ref
-            .read(userProfileProvider)
+            .read(clientProfileProvider)
             .userProfile
             ?.selectedCategoryId;
 

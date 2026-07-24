@@ -128,7 +128,7 @@ class _OwnerEquipmentDetailScreenState
                 onPressed: () => context.pop(),
                 child: Text(
                   l10n.backToFleet,
-                  style: TextStyle(color: theme.primaryColor),
+                  style: TextStyle(color: theme.colorScheme.primary),
                 ),
               ),
             ],

@@ -87,7 +87,7 @@ class BalanceSummaryTile extends StatelessWidget {
               hasActiveBurn
                   ? Icons.timelapse_rounded
                   : Icons.account_balance_wallet_rounded,
-              color: hasActiveBurn ? Colors.green : theme.primaryColor,
+              color: hasActiveBurn ? Colors.green : theme.colorScheme.primary,
               size: 20,
             ),
 
@@ -113,7 +113,7 @@ class BalanceSummaryTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

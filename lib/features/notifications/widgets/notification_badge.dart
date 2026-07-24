@@ -28,17 +28,17 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
     Widget badgeContent;
 
     if (count <= 0) {
-      badgeContent = const Icon(
+      badgeContent = Icon(
         LucideIcons.bellRing,
         size: 28,
-        color: Colors.black45,
+        color: theme.colorScheme.onSurface,
       );
     } else {
       final text = count > 99 ? '99+' : count.toString();
       badgeContent = Stack(
         clipBehavior: Clip.none,
         children: [
-          const Icon(LucideIcons.bell, size: 28, color: Colors.black54),
+          Icon(LucideIcons.bell, size: 32, color: theme.colorScheme.onSurface),
           Positioned(
             right: -6,
             top: -4,

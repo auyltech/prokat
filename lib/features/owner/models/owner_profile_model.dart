@@ -1,6 +1,7 @@
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
+import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 
 class OwnerProfileModel {
   final String? id;
@@ -33,6 +34,8 @@ class OwnerProfileModel {
   final bool? isVerified;
   final DateTime? verifiedAt;
 
+  final OwnerNotificationPreferences notificationSettings;
+
   OwnerProfileModel({
     this.id,
 
@@ -60,6 +63,7 @@ class OwnerProfileModel {
     this.verifiedAt,
 
     required this.onlineStatus,
+    this.notificationSettings = const OwnerNotificationPreferences(),
   });
 
   OwnerProfileModel copyWith({
@@ -84,6 +88,7 @@ class OwnerProfileModel {
     OwnerStatus? onlineStatus,
     bool? isVerified,
     DateTime? verifiedAt,
+    OwnerNotificationPreferences? notificationSettings,
   }) {
     return OwnerProfileModel(
       id: id ?? this.id,
@@ -107,6 +112,7 @@ class OwnerProfileModel {
       onlineStatus: onlineStatus ?? this.onlineStatus,
       isVerified: isVerified ?? this.isVerified,
       verifiedAt: verifiedAt ?? this.verifiedAt,
+      notificationSettings: notificationSettings ?? this.notificationSettings,
     );
   }
 
@@ -143,6 +149,41 @@ class OwnerProfileModel {
       verifiedAt: parseNullableDate(json['verifiedAt']),
 
       onlineStatus: parseOwnerStatus(json['onlineStatus']),
+      notificationSettings: json['notificationSettings'] is Map
+          ? OwnerNotificationPreferences.fromJson(
+              Map<String, dynamic>.from(json['notificationSettings'] as Map),
+            )
+          : const OwnerNotificationPreferences(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'ownerType': ownerType,
+      'companyName': companyName,
+      'legalName': legalName,
+      'firstName': firstName,
+      'lastName': lastName,
+      'profileImageUrl': profileImageUrl,
+      'ratingAverage': ratingAverage,
+      'ratingCount': ratingCount,
+      'orderCount': orderCount,
+      'phoneNumber': phoneNumber,
+      'email': email,
+      'city': city,
+      'region': region,
+      'iin': iin,
+      'serviceDescription': serviceDescription,
+      'serviceCities': serviceCities,
+      // Converts enums to their raw String names
+      'status': status?.name,
+      'onlineStatus': onlineStatus.name,
+      'isVerified': isVerified,
+      // Converts DateTime to an ISO 8601 string format
+      'verifiedAt': verifiedAt?.toIso8601String(),
+      // Calls toJson on the nested settings class
+      'notificationSettings': notificationSettings.toJson(),
+    };
   }
 }

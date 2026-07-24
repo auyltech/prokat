@@ -103,7 +103,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                     Text(
                       "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.primaryColor,
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

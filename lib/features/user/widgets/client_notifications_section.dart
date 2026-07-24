@@ -1,42 +1,13 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
-
-class ClientNotificationPreferences {
-  final bool requestsAndOffers;
-  final bool orderUpdates;
-  final bool workProgress;
-  final bool messages;
-  final bool remindersAndReviews;
-
-  const ClientNotificationPreferences({
-    this.requestsAndOffers = true,
-    this.orderUpdates = true,
-    this.workProgress = true,
-    this.messages = true,
-    this.remindersAndReviews = true,
-  });
-
-  ClientNotificationPreferences copyWith({
-    bool? requestsAndOffers,
-    bool? orderUpdates,
-    bool? workProgress,
-    bool? messages,
-    bool? remindersAndReviews,
-  }) {
-    return ClientNotificationPreferences(
-      requestsAndOffers: requestsAndOffers ?? this.requestsAndOffers,
-      orderUpdates: orderUpdates ?? this.orderUpdates,
-      workProgress: workProgress ?? this.workProgress,
-      messages: messages ?? this.messages,
-      remindersAndReviews: remindersAndReviews ?? this.remindersAndReviews,
-    );
-  }
-}
+import 'package:prokat/features/user/models/client_notification_preferences.dart';
 
 class ClientNotificationsSection extends StatefulWidget {
   final ClientNotificationPreferences initialValue;
+  final Future<void> Function()? onPushAuthorized;
 
   /// Return true when the preferences were saved successfully.
   final Future<bool> Function(ClientNotificationPreferences preferences) onSave;
@@ -45,6 +16,7 @@ class ClientNotificationsSection extends StatefulWidget {
     super.key,
     required this.initialValue,
     required this.onSave,
+    this.onPushAuthorized,
   });
 
   @override
@@ -82,7 +54,15 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshPermission();
+      _refreshAndSyncPermission();
+    }
+  }
+
+  Future<void> _refreshAndSyncPermission() async {
+    await _refreshPermission();
+
+    if (_pushEnabled) {
+      await widget.onPushAuthorized?.call();
     }
   }
 
@@ -129,7 +109,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
       provisional: false,
     );
 
-    await _refreshPermission();
+    await _refreshAndSyncPermission();
   }
 
   String get _permissionTitle {
@@ -170,10 +150,9 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
     });
 
     if (!saved) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to save notification preferences.'),
-        ),
+      AppSnackBar.show(
+        message: 'Failed to save notification preferences.',
+        isError: true,
       );
     }
   }
@@ -182,6 +161,13 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  bool get _pushEnabled {
+    final status = _notificationSettings?.authorizationStatus;
+
+    return status == AuthorizationStatus.authorized ||
+        status == AuthorizationStatus.provisional;
   }
 
   @override
@@ -204,14 +190,15 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
           icon: Icons.notifications_outlined,
           title: 'Push notifications',
           subtitle: _permissionTitle,
-          value: false,
-          onChanged: (val) {},
+          value: _pushEnabled,
+          onChanged: (_) {
+            _manageNotificationPermission();
+          },
           isLoading: _loadingPermission,
         ),
 
         const SizedBox(height: 16),
         SettingsSwitchTile(
-          onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
           title: 'Rental requests and offers',
           subtitle: 'New offers, counteroffers and request updates',
@@ -225,7 +212,6 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
         const SizedBox(height: 16),
         SettingsSwitchTile(
-          onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
           title: 'Order updates',
           subtitle: 'Confirmations, cancellations and status changes',
@@ -240,7 +226,6 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         const SizedBox(height: 16),
 
         SettingsSwitchTile(
-          onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
           title: 'Work progress',
           subtitle: 'Owner on the way, arrived, started or completed',
@@ -254,7 +239,6 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
         const SizedBox(height: 16),
         SettingsSwitchTile(
-          onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
           title: 'Messages',
           subtitle: 'New chat and negotiation messages',
@@ -269,7 +253,6 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         const SizedBox(height: 16),
 
         SettingsSwitchTile(
-          onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
           title: 'Reminders and reviews',
           subtitle: 'Upcoming rentals and review reminders',

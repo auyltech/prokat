@@ -78,7 +78,7 @@ class _NegotiationMessageBubbleState
                 children: [
                   Icon(
                     Icons.balance_outlined,
-                    color: theme.primaryColor,
+                    color: theme.colorScheme.primary,
                     size: 26,
                   ),
                   const SizedBox(width: 6),
@@ -86,7 +86,7 @@ class _NegotiationMessageBubbleState
                     l10n.priceOffer,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                     ),
                   ),
 
@@ -105,7 +105,7 @@ class _NegotiationMessageBubbleState
                     Text(
                       "${formatPrice(parsed.price)} ${getPriceRate(priceNegotiation.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.primaryColor,
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class DeleteAccountTile extends ConsumerStatefulWidget {
@@ -20,7 +20,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
 
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
-    final profileState = ref.read(userProfileProvider.notifier);
+    final profileState = ref.read(clientProfileProvider.notifier);
 
     final result = await profileState.deleteAccount();
 

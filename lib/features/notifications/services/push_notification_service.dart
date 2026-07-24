@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform, kDebugMode, kIsWeb;
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
@@ -51,17 +51,14 @@ class PushNotificationService {
       // Best-effort: local notifications shouldn't crash startup.
     }
 
+    // Register this device only when OS permission is granted.
     try {
-      await requestPermission();
-    } catch (_) {}
+      await syncCurrentDevice(session: session);
+    } catch (_) {
+      // Best-effort: push setup should not crash startup.
+    }
 
-    try {
-      final token = await getFcmToken();
-      if ((token ?? '').isNotEmpty) {
-        await registerTokenWithBackend(session: session, token: token!);
-      }
-    } catch (_) {}
-
+    // Future token changes are also permission-gated.
     try {
       listenForTokenRefresh(session: session);
     } catch (_) {}
@@ -77,19 +74,6 @@ class PushNotificationService {
     try {
       await handleTerminatedNotificationTap();
     } catch (_) {}
-  }
-
-  Future<void> requestPermission() async {
-    if (kIsWeb) return;
-
-    // final settings = await messaging.requestPermission(
-    //   alert: true,
-    //   badge: true,
-    //   sound: true,
-    //   provisional: true,
-    // );
-
-    if (kDebugMode) {}
   }
 
   Future<String?> getFcmToken() async {
@@ -149,6 +133,14 @@ class PushNotificationService {
     _onTokenRefreshSub?.cancel();
     _onTokenRefreshSub = messaging.onTokenRefresh.listen((token) async {
       try {
+        final settings = await messaging.getNotificationSettings();
+
+        final authorized =
+            settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional;
+
+        if (!authorized) return;
+
         await registerTokenWithBackend(session: session, token: token);
       } catch (_) {
         // Best-effort.
@@ -289,6 +281,42 @@ class PushNotificationService {
       notificationDetails: details,
       payload: jsonEncode(notification.toJson()),
     );
+  }
+
+  Future<bool> syncCurrentDevice({required AuthSession session}) async {
+    if (kIsWeb) return false;
+
+    final settings = await messaging.getNotificationSettings();
+
+    final authorized =
+        settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+
+    if (!authorized) {
+      return false;
+    }
+
+    final token = await getFcmToken();
+
+    if ((token ?? '').trim().isEmpty) {
+      return false;
+    }
+
+    await registerTokenWithBackend(session: session, token: token!);
+
+    return true;
+  }
+
+  Future<void> deactivateCurrentDevice() async {
+    if (kIsWeb) return;
+
+    final token = await getFcmToken();
+
+    if ((token ?? '').isNotEmpty) {
+      await api.deactivateDeviceToken(token: token!);
+    }
+
+    await storage.clearLastRegisteredToken();
   }
 
   void dispose() {

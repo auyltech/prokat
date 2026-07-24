@@ -60,7 +60,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
             children: [
               Icon(
                 Icons.request_page_outlined,
-                color: theme.primaryColor,
+                color: theme.colorScheme.primary,
                 size: 26,
               ),
               const SizedBox(width: 8),
@@ -68,7 +68,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                 'New Request',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.primaryColor,
+                  color: theme.colorScheme.primary,
                 ),
               ),
               Spacer(),

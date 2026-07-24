@@ -2,28 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
-import 'package:prokat/features/user/models/client_notification_preferences.dart';
-import 'package:prokat/features/user/state/client_profile_provider.dart';
-import 'package:prokat/features/user/widgets/client_notifications_section.dart';
+import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
+import 'package:prokat/features/owner/widgets/owner_notifications_section.dart';
 import 'package:prokat/features/user/widgets/delete_account_tile.dart';
 import 'package:prokat/features/user/widgets/theme_selection_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 
-class ClientSettingsScreen extends ConsumerStatefulWidget {
-  const ClientSettingsScreen({super.key});
+class OwnerSettingsScreen extends ConsumerStatefulWidget {
+  const OwnerSettingsScreen({super.key});
 
   @override
-  ConsumerState<ClientSettingsScreen> createState() =>
-      _ClientSettingsScreenState();
+  ConsumerState<OwnerSettingsScreen> createState() =>
+      _OwnerSettingsScreenState();
 }
 
-class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
+class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
+    with SingleTickerProviderStateMixin {
   String _themeLabel(ThemeMode mode) {
     return switch (mode) {
       ThemeMode.system => 'System default',
@@ -37,8 +39,8 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
     super.initState();
 
     Future.microtask(() async {
-      if (ref.read(clientProfileProvider).userProfile == null) {
-        await ref.read(clientProfileProvider.notifier).getUserProfile();
+      if (ref.read(ownerRegistrationProvider).ownerProfile == null) {
+        await ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
       }
     });
   }
@@ -49,14 +51,17 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final locale = ref.watch(localeProvider);
-    final langDisplay = LocaleNotifier.displayCode(locale);
+    final language = LocaleNotifier.displayCode(locale);
     final currentMode = ref.watch(themeModeProvider);
 
-    final profileState = ref.watch(clientProfileProvider);
-    final profile = profileState.userProfile;
+    final ownerState = ref.watch(ownerRegistrationProvider);
+    final ownerProfile = ownerState.ownerProfile;
 
     final notificationPreferences =
-        profile?.notificationSettings ?? const ClientNotificationPreferences();
+        ownerProfile?.notificationSettings ??
+        const OwnerNotificationPreferences();
+
+    final ownerColor = AppColors.teal800;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -66,19 +71,19 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
           children: [
             ProkatListTile(
               icon: LucideIcons.globe,
-              iconColor: theme.colorScheme.primary,
-              iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
+              iconColor: ownerColor,
+              iconBgColor: ownerColor.withValues(alpha: 0.15),
               title: l10n.appLanguage,
-              subtitle: langDisplay,
+              subtitle: language,
               onTap: () => LanguageSheet.show(context),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             ProkatListTile(
               icon: LucideIcons.palette,
-              iconColor: theme.colorScheme.primary,
-              iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
+              iconColor: ownerColor,
+              iconBgColor: ownerColor.withValues(alpha: 0.15),
               title: 'Application theme',
               subtitle: _themeLabel(currentMode),
               onTap: () async {
@@ -93,21 +98,16 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
               },
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 30),
 
-            if (profile == null && profileState.isLoading)
+            if (ownerProfile == null && ownerState.isLoading)
               const Padding(
                 padding: EdgeInsets.all(24),
                 child: Center(child: CircularProgressIndicator()),
               )
             else
-              ClientNotificationsSection(
+              OwnerNotificationsSection(
                 initialValue: notificationPreferences,
-                onSave: (preferences) {
-                  return ref
-                      .read(clientProfileProvider.notifier)
-                      .updateClientNotificationSettings(preferences);
-                },
                 onPushAuthorized: () async {
                   final session = ref.read(authProvider).session;
 
@@ -119,20 +119,9 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
                 },
               ),
 
-            const SizedBox(height: 16),
-
-            ProkatListTile(
-              icon: Icons.security_outlined,
-              iconBgColor: Colors.black12,
-              iconColor: Colors.black,
-              title: 'Service and safety notices',
-              subtitle: 'Account, security and important platform alerts',
-              onTap: () {},
-            ),
-
             const SizedBox(height: 60),
 
-            DeleteAccountTile(),
+            const DeleteAccountTile(),
 
             const SizedBox(height: 140),
 
@@ -145,18 +134,19 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
                 if (snapshot.hasData) {
                   final packageInfo = snapshot.data!;
-                  final version = packageInfo.version; // e.g., "1.0.0"
-                  final buildNumber = packageInfo.buildNumber; // e.g., "1"
 
                   return Center(
                     child: Text(
-                      l10n.versionLabel(version, buildNumber),
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      l10n.versionLabel(
+                        packageInfo.version,
+                        packageInfo.buildNumber,
+                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   );
                 }
 
-                return Text(l10n.failedToLoadVersion);
+                return Center(child: Text(l10n.failedToLoadVersion));
               },
             ),
           ],

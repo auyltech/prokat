@@ -3,7 +3,7 @@ import 'package:prokat/features/auth/models/user_model.dart';
 class AuthSession {
   final String? sessionToken;
   final DateTime? expires;
-  final User? user;
+  final UserModel? user;
 
   const AuthSession({this.sessionToken, this.user, this.expires});
 
@@ -16,7 +16,7 @@ class AuthSession {
     return AuthSession(
       sessionToken: json['sessionToken'],
       expires: json['expires'] != null ? DateTime.parse(json['expires']) : null,
-      user: json['user'] != null ? User.fromJson(json['user']) : null,
+      user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
     );
   }
 

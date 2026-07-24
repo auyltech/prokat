@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CityPickerSheet extends ConsumerStatefulWidget {
@@ -44,10 +44,12 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
       return;
     }
 
-    final profile = ref.read(userProfileProvider).userProfile;
+    final profile = ref.read(clientProfileProvider).userProfile;
 
     if (profile != null) {
-      await ref.read(userProfileProvider.notifier).selectCityRegion(city: city);
+      await ref
+          .read(clientProfileProvider.notifier)
+          .selectCityRegion(city: city);
     }
   }
 

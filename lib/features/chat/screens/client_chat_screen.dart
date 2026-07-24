@@ -5,7 +5,6 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
-import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
@@ -56,13 +55,15 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         (booking?.myReviewId?.isNotEmpty ?? false) ||
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
-    final ChatStatusDetail chatStatus = getChatStatus(
+    final chatConfig = getChatConfig(
       hasNegotiation: pendingNegotiationId.isNotEmpty,
       pendingFromMe:
           pendingNegotiationId.isNotEmpty &&
           currentUserId.isNotEmpty &&
           (pendingNegotiation?.senderId ?? '').trim() != currentUserId,
       reviewSubmitted: reviewSubmitted,
+      l10n: l10n,
+      mode: AppMode.clientMode,
     );
 
     return Scaffold(
@@ -129,8 +130,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                 if (currentChat != null)
                   ChatActionBar(
                     currentChat: currentChat,
-                    chatStatus: chatStatus,
+                    chatStatus: chatConfig.status,
                     mode: AppMode.clientMode,
+                    actionBarTitle: chatConfig.actionBartitle,
                   ),
               ],
             ),
@@ -173,7 +175,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       ),
       bottomNavigationBar: SendMessageForm(
         chatId: widget.chatId,
-        chatStatus: chatStatus,
+        chatStatus: chatConfig.status,
         mode: AppMode.clientMode,
       ),
     );

@@ -1,21 +1,26 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/app.dart';
 import 'package:prokat/firebase_options.dart';
 
-// This line handles the platform check at compile time
+// Handles the platform check at compile time
 import 'package:prokat/map_setup_stub.dart'
     if (dart.library.io) 'package:prokat/setup_mapbox.dart';
 
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Perform short, non-UI background work here.
+}
+
 void main() async {
+  //  Ensure binding is active before any async plugin calls
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (!kIsWeb) {
-    setupMapbox();
-  }
-
+  // Initialize Firebase FIRST before setting up background messaging listeners
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(
@@ -25,11 +30,17 @@ void main() async {
       Firebase.app();
     }
   } catch (e) {
-    if (e.toString().contains('duplicate-app')) {
-      Firebase.app();
-    } else {
+    if (!e.toString().contains('duplicate-app')) {
       rethrow;
     }
+  }
+
+  //  Register background listener AFTER Firebase is initialized
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  //  Initialize platform-specific map setups
+  if (!kIsWeb) {
+    setupMapbox();
   }
 
   runApp(const ProviderScope(child: MyApp()));

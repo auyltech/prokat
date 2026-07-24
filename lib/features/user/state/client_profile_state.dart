@@ -1,6 +1,6 @@
 import 'package:prokat/features/user/models/user_profile_model.dart';
 
-class UserProfileState {
+class ClientProfileState {
   final bool isLoading;
   final String? error;
 
@@ -13,7 +13,7 @@ class UserProfileState {
 
   final UserProfileModel? userProfile;
 
-  UserProfileState({
+  ClientProfileState({
     this.isLoading = false,
     this.error,
     this.userProfile,
@@ -25,7 +25,7 @@ class UserProfileState {
     this.darkMode,
   });
 
-  UserProfileState copyWith({
+  ClientProfileState copyWith({
     bool? isLoading,
     String? error,
     String? firstName,
@@ -36,7 +36,7 @@ class UserProfileState {
     String? darkMode,
     UserProfileModel? Function()? userProfile,
   }) {
-    return UserProfileState(
+    return ClientProfileState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
       firstName: firstName ?? this.firstName,

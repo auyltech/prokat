@@ -4,11 +4,10 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/become_owner_cta.dart';
-import 'package:prokat/features/user/widgets/profile_image_picker.dart';
-import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/widgets/client_profile_header.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/features/user/widgets/client_rental_preferences_section.dart';
@@ -27,7 +26,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
     super.initState();
 
     Future.microtask(() async {
-      await ref.read(userProfileProvider.notifier).getUserProfile();
+      await ref.read(clientProfileProvider.notifier).getUserProfile();
       await ref
           .read(ownerRegistrationProvider.notifier)
           .getRegistrationRequest();
@@ -39,13 +38,13 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final userProfileState = ref.watch(userProfileProvider);
+    final userProfileState = ref.watch(clientProfileProvider);
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            await ref.read(userProfileProvider.notifier).getUserProfile();
+            await ref.read(clientProfileProvider.notifier).getUserProfile();
             await ref
                 .read(ownerRegistrationProvider.notifier)
                 .getRegistrationRequest();
@@ -62,62 +61,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                   // 1. Reset titlePadding so the background layout fills the entire width
                   titlePadding: EdgeInsets.zero,
                   // 2. Move your full-width UI block into the background property
-                  background: Container(
-                    width: double.infinity,
-                    // margin: EdgeInsets.symmetric(vertical: 24, horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor,
-                      // borderRadius: const BorderRadius.all(Radius.circular(28)),
-                    ),
-                    // SafeArea prevents content from clipping into the status bar notch
-                    child: SafeArea(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ProfileImagePicker(
-                            initialImageUrl:
-                                userProfileState.userProfile?.profileImageUrl ??
-                                "",
-                          ),
-
-                          SizedBox(height: 12),
-
-                          const DisplayName(),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.star_rate_rounded,
-                                size: 30,
-                                color: Colors.amber,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                (userProfileState.userProfile?.ratingAverage ??
-                                        0)
-                                    .toStringAsFixed(1),
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onPrimary,
-                                ),
-                              ),
-
-                              const SizedBox(width: 8),
-
-                              Text(
-                                "- ${userProfileState.userProfile?.orderCount ?? 0} orders",
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  color: theme.colorScheme.onPrimary.withValues(
-                                    alpha: 0.8,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  background: ClientProfileHeader(
+                    userProfile: userProfileState.userProfile,
                   ),
                 ),
               ),
@@ -131,8 +76,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                       ProkatListTile(
                         icon: Icons.phone_android_rounded,
-                        iconColor: theme.primaryColor,
-                        iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
+                        iconColor: theme.colorScheme.primary,
+                        iconBgColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.18,
+                        ),
                         title: l10n.phoneNumber,
                         subtitle:
                             userProfileState.userProfile?.phoneNumber ??
@@ -163,8 +110,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     children: [
                       ProkatListTile(
                         icon: Icons.favorite_outline,
-                        iconColor: theme.primaryColor,
-                        iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
+                        iconColor: theme.colorScheme.primary,
+                        iconBgColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.2,
+                        ),
                         title: l10n.supportUsTitle,
                         subtitle: l10n.donateOrHelp,
                         onTap: () => context.push(AppRoutes.supportUs),
@@ -174,8 +123,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                       ProkatListTile(
                         icon: LucideIcons.shieldCheck,
-                        iconColor: theme.primaryColor,
-                        iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
+                        iconColor: theme.colorScheme.primary,
+                        iconBgColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.2,
+                        ),
                         title: l10n.privacyPolicy,
                         subtitle: "Privacy Policy",
                         onTap: () => context.push(AppRoutes.privacyPolicy),
@@ -185,8 +136,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                       ProkatListTile(
                         icon: LucideIcons.fileSignature,
-                        iconColor: theme.primaryColor,
-                        iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
+                        iconColor: theme.colorScheme.primary,
+                        iconBgColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.2,
+                        ),
                         title: l10n.termsConditions,
                         subtitle: "Terms and conditions",
                         onTap: () => context.push(AppRoutes.termsConditions),
@@ -207,8 +160,10 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                       ProkatListTile(
                         icon: LucideIcons.settings,
-                        iconColor: theme.primaryColor,
-                        iconBgColor: theme.primaryColor.withValues(alpha: 0.15),
+                        iconColor: theme.colorScheme.primary,
+                        iconBgColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.2,
+                        ),
                         title: l10n.appSettings,
                         subtitle: l10n.appSettingsSubtitle,
                         onTap: () => context.push(AppRoutes.clientSettings),

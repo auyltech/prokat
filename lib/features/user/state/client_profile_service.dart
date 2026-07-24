@@ -3,13 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
+import 'package:prokat/core/errors/api_exception.dart';
+import 'package:prokat/features/user/models/client_notification_preferences.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'dart:io';
 
-class UserProfileService {
+class ClientProfileService {
   final ApiClient apiClient;
 
-  UserProfileService(this.apiClient);
+  ClientProfileService(this.apiClient);
 
   Dio get _dio => apiClient.dio;
 
@@ -53,6 +55,37 @@ class UserProfileService {
       return ApiResponse.failure(message: res.statusCode.toString());
     } catch (e) {
       return ApiResponse.failure(message: extractBackendMessage(e));
+    }
+  }
+
+  Future<ApiResponse<void>> updateClientNotificationSettings(
+    ClientNotificationPreferences preferences,
+  ) async {
+    try {
+      final response = await _dio.patch(
+        ApiRoutes.clientNotificationSettings,
+        data: preferences.toPatchJson(),
+      );
+
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Settings updated",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: e.toString(),
+      );
     }
   }
 

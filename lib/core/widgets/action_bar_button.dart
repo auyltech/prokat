@@ -86,10 +86,10 @@ class ActionBarButton extends StatelessWidget {
     // Explicitly clamp minimum sizes and compress padding metrics dynamically
     final buttonStyle = variant == ActionBarButtonVariant.secondary
         ? OutlinedButton.styleFrom(
-            foregroundColor: theme.primaryColor,
+            foregroundColor: theme.colorScheme.primary,
             side: BorderSide(
               color: isButtonActive
-                  ? theme.primaryColor
+                  ? theme.colorScheme.primary
                   : theme.disabledColor.withValues(alpha: 0.2),
               width: 1.5,
             ),
@@ -136,7 +136,8 @@ class ActionBarButton extends StatelessWidget {
             shape: const StadiumBorder(),
           )
         : ElevatedButton.styleFrom(
-            backgroundColor: theme.primaryColor, // Uniform matching color tint
+            backgroundColor:
+                theme.colorScheme.primary, // Uniform matching color tint
             foregroundColor: theme.colorScheme.onPrimary,
             elevation: 0,
             minimumSize: const Size(0, 44),
@@ -151,12 +152,12 @@ class ActionBarButton extends StatelessWidget {
         ? OutlinedButton(
             onPressed: nativeOnPressed,
             style: buttonStyle,
-            child: _buildChild(context, theme.primaryColor),
+            child: _buildChild(context, theme.colorScheme.primary),
           )
         : ElevatedButton(
             onPressed: nativeOnPressed,
             style: buttonStyle,
-            child: _buildChild(context, theme.primaryColor),
+            child: _buildChild(context, theme.colorScheme.primary),
           );
   }
 

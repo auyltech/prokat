@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:go_router/go_router.dart';
 
 // TODO: REMOVE, NOT USED
@@ -23,7 +23,7 @@ class _CategoryTileState extends ConsumerState<CategoryTile> {
     Category category,
   ) async {
     ref.read(categoriesProvider.notifier).selectCategory(category);
-    final userProfileState = ref.read(userProfileProvider.notifier);
+    final userProfileState = ref.read(clientProfileProvider.notifier);
 
     await userProfileState.selectCategory(category.id);
 
@@ -50,18 +50,11 @@ class _CategoryTileState extends ConsumerState<CategoryTile> {
           borderRadius: BorderRadius.circular(24),
           color: theme.cardColor,
           border: Border.all(
-            color: widget.isSelected ? theme.primaryColor : Colors.transparent,
+            color: widget.isSelected
+                ? theme.colorScheme.primary
+                : Colors.transparent,
             width: 2,
           ),
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: widget.isSelected
-          //         ? theme.primaryColor.withValues(alpha: 0.2)
-          //         : Colors.black.withValues(alpha: 0.04),
-          //     blurRadius: 10,
-          //     offset: const Offset(0, 4),
-          //   ),
-          // ],
         ),
         child: Stack(
           children: [
@@ -96,7 +89,7 @@ class _CategoryTileState extends ConsumerState<CategoryTile> {
                     fontWeight: widget.isSelected
                         ? FontWeight.w800
                         : FontWeight.w600,
-                    color: widget.isSelected ? theme.primaryColor : null,
+                    color: widget.isSelected ? theme.colorScheme.primary : null,
                   ),
                 ),
               ),

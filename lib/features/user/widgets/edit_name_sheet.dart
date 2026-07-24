@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EditNameSheet extends ConsumerStatefulWidget {
@@ -37,7 +37,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
     final parts = newName.split(' ');
 
     final success = await ref
-        .read(userProfileProvider.notifier)
+        .read(clientProfileProvider.notifier)
         .updateUserProfile(
           firstName: parts.first,
           lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
@@ -58,7 +58,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(userProfileProvider);
+    final state = ref.watch(clientProfileProvider);
     final isLoading = state.isLoading;
 
     return Padding(

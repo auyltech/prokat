@@ -43,7 +43,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         .read(guestEquipmentProvider.notifier)
         .setFilters(categoryId: categoryId, city: city);
 
-    await ref.read(guestEquipmentProvider.notifier).refresh();
+    ref.read(guestEquipmentProvider.notifier).refresh();
 
     if (categoryState.fetchStatus == FetchStatus.initial ||
         categoryState.fetchStatus == FetchStatus.error) {

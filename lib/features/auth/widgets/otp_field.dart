@@ -16,7 +16,7 @@ class OtpField extends StatelessWidget {
       height: 60,
       textStyle: TextStyle(
         fontSize: 24,
-        color: theme.primaryColor,
+        color: theme.colorScheme.primary,
         fontWeight: FontWeight.bold,
       ),
       decoration: BoxDecoration(
@@ -29,7 +29,7 @@ class OtpField extends StatelessWidget {
     // Define the look when a box is focused
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        border: Border.all(color: theme.primaryColor, width: 1.5),
+        border: Border.all(color: theme.colorScheme.primary, width: 1.5),
       ),
     );
 
@@ -47,7 +47,7 @@ class OtpField extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             width: 22,
             height: 1,
-            color: theme.primaryColor,
+            color: theme.colorScheme.primary,
           ),
         ],
       ),

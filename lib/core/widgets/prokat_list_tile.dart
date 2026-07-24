@@ -8,6 +8,7 @@ class ProkatListTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final String? variant;
 
   const ProkatListTile({
     super.key,
@@ -17,7 +18,29 @@ class ProkatListTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.variant = "default",
   });
+
+  factory ProkatListTile.secondary({
+    Key? key,
+    required IconData icon,
+    required Color iconBgColor,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ProkatListTile(
+      key: key,
+      icon: icon,
+      iconBgColor: iconBgColor,
+      iconColor: iconColor,
+      onTap: onTap,
+      subtitle: subtitle,
+      title: title,
+      variant: "secondary",
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,21 +68,37 @@ class ProkatListTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: variant == "secondary"
+                      ? theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.45,
+                          ),
+                        )
+                      : theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-                  ),
+                  style: variant == "secondary"
+                      ? theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        )
+                      : theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.45,
+                          ),
+                        ),
                 ),
               ],
             ),
           ),
-          Icon(LucideIcons.chevronRight, color: Colors.black38, size: 22),
+          Icon(
+            LucideIcons.chevronRight,
+            color: theme.colorScheme.onSurfaceVariant,
+            size: 22,
+          ),
         ],
       ),
     );

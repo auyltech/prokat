@@ -67,29 +67,37 @@ class LogoutButton extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: theme.colorScheme.error),
-          ),
+          // padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          // decoration: BoxDecoration(
+          //   color: theme.colorScheme.surface,
+          //   borderRadius: BorderRadius.circular(14),
+          //   border: Border.all(color: theme.colorScheme.error),
+          // ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: authState.isLoading
-                    ? CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.error,
-                      )
-                    : Icon(
-                        LucideIcons.logOut,
-                        color: theme.colorScheme.error,
-                        size: 28,
-                      ),
+              Container(
+                width: 45,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.error.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: authState.isLoading
+                      ? CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.error,
+                        )
+                      : Icon(
+                          LucideIcons.logOut,
+                          color: theme.colorScheme.error,
+                          size: 28,
+                        ),
+                ),
               ),
 
               const SizedBox(width: 20),

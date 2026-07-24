@@ -114,7 +114,7 @@ class FavoriteItemTile extends ConsumerWidget {
                       Text(
                         priceEntry != null ? "${priceEntry.price} ₸" : "POA",
                         style: TextStyle(
-                          color: theme.primaryColor,
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
                         ),

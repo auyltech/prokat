@@ -23,7 +23,7 @@ import 'package:prokat/features/support/screens/contact_support_screen.dart';
 import 'package:prokat/features/equipment/screens/search_equipment_screen.dart';
 import 'package:prokat/features/layout/main_scaffold.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
-import 'package:prokat/features/locations/screens/renter_addresses_screen.dart';
+import 'package:prokat/features/locations/screens/client_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
 import 'package:prokat/features/map/screens/map_client_equipment_screen.dart';
 import 'package:prokat/features/map/screens/map_client_pin_address_screen.dart';
@@ -42,9 +42,9 @@ import 'package:prokat/features/requests/screens/client_requests_history_screen.
 import 'package:prokat/features/requests/screens/client_requests_screen.dart';
 import 'package:prokat/features/billing/screens/owner_payments_screen.dart';
 import 'package:prokat/features/billing/screens/owner_payments_topup_screen.dart';
-import 'package:prokat/features/user/screens/owner_profile_screen.dart';
-import 'package:prokat/features/user/screens/owner_registration_screen.dart';
-import 'package:prokat/features/user/screens/owner_settings_screen.dart';
+import 'package:prokat/features/owner/screens/owner_profile_screen.dart';
+import 'package:prokat/features/owner/screens/owner_registration_screen.dart';
+import 'package:prokat/features/owner/screens/owner_settings_screen.dart';
 import 'package:prokat/features/owner/screens/register_owner_screen.dart';
 import 'package:prokat/features/user/screens/client_profile_screen.dart';
 import 'package:prokat/features/user/screens/client_settings_screen.dart';
@@ -246,7 +246,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.clientAddresses,
                 builder: (context, state) {
-                  return RenterAddressesScreen();
+                  return ClientAddressesScreen();
                 },
                 routes: [
                   GoRoute(

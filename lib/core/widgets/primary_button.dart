@@ -21,9 +21,11 @@ class PrimaryButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: theme.primaryColor,
+        backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
-        disabledBackgroundColor: theme.primaryColor.withValues(alpha: 0.8),
+        disabledBackgroundColor: theme.colorScheme.primary.withValues(
+          alpha: 0.8,
+        ),
         disabledForegroundColor: theme.colorScheme.onPrimary.withValues(
           alpha: 0.8,
         ),

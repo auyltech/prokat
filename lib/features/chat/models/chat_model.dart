@@ -41,8 +41,8 @@ class ChatModel {
   final ChatType type;
   final ChatStatus status;
 
-  final User? client;
-  final User? owner;
+  final UserModel? client;
+  final UserModel? owner;
 
   final String? bookingId;
   final BookingModel? booking;
@@ -96,8 +96,8 @@ class ChatModel {
     String? id,
     ChatType? type,
     ChatStatus? status,
-    User? client,
-    User? owner,
+    UserModel? client,
+    UserModel? owner,
     String? bookingId,
     BookingModel? booking,
     BookingSummaryModel? bookingSummary,
@@ -130,14 +130,15 @@ class ChatModel {
 
   factory ChatModel.fromJson(Map<String, dynamic> json) {
     try {
-      print(json["offers"]);
       return ChatModel(
         id: json['id']?.toString() ?? "",
         type: parseChatType(json['type']),
         status: parseChatStatus(json['status']),
 
-        client: json['client'] != null ? User.fromJson(json['client']) : null,
-        owner: json['owner'] != null ? User.fromJson(json['owner']) : null,
+        client: json['client'] != null
+            ? UserModel.fromJson(json['client'])
+            : null,
+        owner: json['owner'] != null ? UserModel.fromJson(json['owner']) : null,
 
         bookingId: json['bookingId']?.toString() ?? "",
         booking: json['booking'] == null
@@ -167,7 +168,6 @@ class ChatModel {
         updatedAt: _parseDate(json["updatedAt"]),
       );
     } catch (e) {
-      print("===chatparseerror===");
       rethrow;
     }
   }

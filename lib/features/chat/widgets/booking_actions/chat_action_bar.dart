@@ -11,7 +11,6 @@ import 'package:prokat/features/bookings/widgets/cancel_booking_reason_sheet.dar
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
-import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
@@ -21,12 +20,14 @@ class ChatActionBar extends ConsumerWidget {
   final ChatModel currentChat;
   final ChatStatusDetail chatStatus;
   final AppMode mode;
+  final String actionBarTitle;
 
   const ChatActionBar({
     super.key,
     required this.currentChat,
     required this.chatStatus,
     required this.mode,
+    required this.actionBarTitle,
   });
 
   @override
@@ -35,12 +36,6 @@ class ChatActionBar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final submitState = ref.watch(bookingMutationProvider);
-
-    final actionBarTitle = getChatActionBarTitle(chatStatus, l10n);
-
-    final showActionBar = [ChatStatusDetail.workcompleted].contains(chatStatus);
-
-    if (!showActionBar) return SizedBox.shrink();
 
     final booking = currentChat.booking;
     final request = currentChat.request;
@@ -278,7 +273,9 @@ class ChatActionBar extends ConsumerWidget {
                       },
                     ),
                   ),
-              ] else if (chatStatus == ChatStatusDetail.workcompleted) ...[
+              ] else if (chatStatus == ChatStatusDetail.workcompleted)
+                ...[]
+              else if (chatStatus == ChatStatusDetail.workcompleted) ...[
                 Expanded(
                   child: ActionBarButton(
                     label: l10n.confirm,

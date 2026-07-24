@@ -24,7 +24,7 @@ class PageHeader extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      color: primaryColor ?? theme.primaryColor,
+      color: primaryColor ?? theme.colorScheme.primary,
       // padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       // 2. SafeArea moves inside the container to push text below the status bar
       child: SafeArea(

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
@@ -106,10 +109,40 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
     }
   }
 
-  Future<bool> updateOwnerProfile(OwnerProfileModel updatedProfile) async {
+  Future<bool> updateOwnerProfile(OwnerProfileModel profile) async {
     try {
-      return false;
+      state = state.copyWith(isLoading: true, error: null);
+
+      await api.updateOwnerProfile(profile);
+
+      state = state.copyWith(isLoading: false);
+
+      getOwnerProfile();
+
+      return true;
     } catch (error) {
+      return false;
+    }
+  }
+
+  Future<bool> updateOwnerNotificationSettings(
+    OwnerNotificationPreferences preferences,
+  ) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+
+      final updated = await api.updateOwnerNotificationSettings(preferences);
+
+      if (updated) {
+        await getOwnerProfile();
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
+
+      return updated;
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
+
       return false;
     }
   }
@@ -129,6 +162,24 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
       return result;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> uploadProfileImage(File imageFile) async {
+    try {
+      state = state.copyWith(isLoading: true);
+
+      final result = await api.uploadProfileImage(imageFile);
+
+      await api.getOwnerProfile();
+
+      state = state.copyWith(isLoading: false);
+
+      return result.success;
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
+
       return false;
     }
   }

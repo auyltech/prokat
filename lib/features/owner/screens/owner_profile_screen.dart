@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
@@ -10,8 +9,8 @@ import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/widgets/balance_tile.dart';
+import 'package:prokat/features/owner/widgets/owner_buisness_preferences.dart';
 import 'package:prokat/features/owner/widgets/owner_profile_header.dart';
-import 'package:prokat/features/owner/widgets/owner_status_tile.dart';
 import 'package:prokat/features/owner/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/owner_stat_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -135,26 +134,10 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
                     const SizedBox(height: 20),
 
-                    const OwnerStatusTile(),
+                    const OwnerBusinessPreferencesSection(),
 
                     const SizedBox(height: 20),
 
-                    ProkatListTile(
-                      icon: LucideIcons.fileCheck,
-                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
-                      iconColor: AppColors.teal800,
-                      title: l10n.registrationStatus,
-                      subtitle:
-                          ownerProfileState.ownerProfile?.isVerified == true
-                          ? formatDate(
-                              date: ownerProfileState.ownerProfile?.verifiedAt,
-                              format: "dd MMM yyyy",
-                            )
-                          : l10n.notVerified,
-                      onTap: () => context.push(AppRoutes.ownerRegistration),
-                    ),
-
-                    const SizedBox(height: 20),
                     ProkatListTile(
                       icon: LucideIcons.settings,
                       iconBgColor: AppColors.teal800.withValues(alpha: 0.15),

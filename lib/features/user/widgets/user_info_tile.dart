@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 
 class UserInfoTile extends StatelessWidget {
-  final User? user;
+  final UserModel? user;
 
   const UserInfoTile({super.key, this.user});
 
@@ -16,9 +16,12 @@ class UserInfoTile extends StatelessWidget {
         CircleAvatar(
           radius: 24,
           backgroundColor: theme.colorScheme.surfaceContainer,
+          backgroundImage: (user?.imageUrl ?? '').isNotEmpty
+              ? NetworkImage(user?.imageUrl ?? "")
+              : null,
           child: Icon(
             Icons.person_rounded,
-            color: theme.primaryColor,
+            color: theme.colorScheme.primary,
             size: 22,
           ),
         ),

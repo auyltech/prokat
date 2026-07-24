@@ -17,7 +17,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 
 class CreateRequestForm extends ConsumerStatefulWidget {
   const CreateRequestForm({super.key});
@@ -100,7 +100,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       }
     });
 
-    ref.listen(userProfileProvider, (previous, next) {
+    ref.listen(clientProfileProvider, (previous, next) {
       final profileCategoryId = next.userProfile?.selectedCategoryId;
 
       final foundCategory = categoriesState.categories

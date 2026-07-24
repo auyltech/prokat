@@ -15,7 +15,7 @@ class OfferModel {
 
   final String equipmentId;
   final EquipmentSummaryModel? equipment;
-  final User? owner;
+  final UserModel? owner;
 
   final int price;
   final PriceRateOption? priceRate;
@@ -55,7 +55,7 @@ class OfferModel {
         equipment: json['equipment'] != null
             ? EquipmentSummaryModel.fromJson(json['equipment'])
             : null,
-        owner: json["owner"] != null ? User.fromJson(json["owner"]) : null,
+        owner: json["owner"] != null ? UserModel.fromJson(json["owner"]) : null,
 
         bookingId: json['bookingId']?.toString().toLowerCase() == "null"
             ? null

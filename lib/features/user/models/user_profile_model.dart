@@ -1,4 +1,5 @@
 import 'package:prokat/core/utils/parse.dart';
+import 'package:prokat/features/user/models/client_notification_preferences.dart';
 
 class UserProfileModel {
   final String? firstName;
@@ -22,6 +23,8 @@ class UserProfileModel {
 
   // Settings
   final String? darkMode;
+  final String? language;
+  final ClientNotificationPreferences notificationSettings;
 
   UserProfileModel({
     this.role,
@@ -45,6 +48,8 @@ class UserProfileModel {
     this.region,
 
     this.darkMode,
+    this.language,
+    this.notificationSettings = const ClientNotificationPreferences(),
   });
 
   String get displayName {
@@ -80,6 +85,13 @@ class UserProfileModel {
         region: json['region']?.toString(),
 
         darkMode: json['darkMode']?.toString(),
+        language: json['language']?.toString(),
+
+        notificationSettings: json['notificationSettings'] is Map
+            ? ClientNotificationPreferences.fromJson(
+                Map<String, dynamic>.from(json['notificationSettings'] as Map),
+              )
+            : const ClientNotificationPreferences(),
       );
     } catch (e) {
       rethrow;
@@ -107,6 +119,8 @@ class UserProfileModel {
       'region': region,
 
       'darkMode': darkMode,
+      'language': language,
+      'notificationSettings': notificationSettings.toJson(),
     };
   }
 }

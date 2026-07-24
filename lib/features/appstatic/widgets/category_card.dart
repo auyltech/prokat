@@ -21,7 +21,6 @@ class CategoryCard extends StatelessWidget {
       onTap: onTap,
       child: SizedBox(
         width: 140,
-        // borderColor: isSelected ? theme.primaryColor : null,
         child: Column(
           children: [
             Expanded(
@@ -49,7 +48,7 @@ class CategoryCard extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: isSelected
-                    ? theme.primaryColor
+                    ? theme.colorScheme.primary
                     : theme.textTheme.bodyMedium?.color,
               ),
               maxLines: 1,

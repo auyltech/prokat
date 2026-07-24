@@ -133,7 +133,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                   Text(
                     formatPrice(request.offeredPrice),
                     style: theme.textTheme.titleLarge?.copyWith(
-                      color: theme.primaryColor,
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

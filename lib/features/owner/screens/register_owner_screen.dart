@@ -6,7 +6,7 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class RegisterOwnerPage extends ConsumerStatefulWidget {
@@ -36,9 +36,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
 
-      final profileState = ref.read(userProfileProvider);
+      final profileState = ref.read(clientProfileProvider);
       if (profileState.userProfile == null && profileState.isLoading != true) {
-        ref.read(userProfileProvider.notifier).getUserProfile();
+        ref.read(clientProfileProvider.notifier).getUserProfile();
       }
     });
   }
@@ -145,7 +145,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       }
 
       if (request == null && !_prefilledFromProfile) {
-        final profile = ref.read(userProfileProvider).userProfile;
+        final profile = ref.read(clientProfileProvider).userProfile;
         if (profile != null) {
           _prefillFromProfile(profile);
           _prefilledFromProfile = true;
@@ -153,7 +153,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       }
     });
 
-    ref.listen(userProfileProvider, (previous, next) {
+    ref.listen(clientProfileProvider, (previous, next) {
       final hasRequest = ref
           .read(ownerRegistrationProvider)
           .registrationRequest;

@@ -3,13 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:prokat/features/user/state/user_profile_provider.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ProfileImagePicker extends ConsumerStatefulWidget {
   final String? initialImageUrl;
+  final AppMode mode;
 
-  const ProfileImagePicker({super.key, this.initialImageUrl});
+  const ProfileImagePicker({
+    super.key,
+    this.initialImageUrl,
+    required this.mode,
+  });
 
   @override
   ConsumerState<ProfileImagePicker> createState() => _ProfileImagePickerState();
@@ -128,14 +136,18 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
 
   Future<void> onImageSelected(File? file) async {
     if (file != null) {
-      await ref.read(userProfileProvider.notifier).uploadProfileImage(file);
+      if (widget.mode == AppMode.ownerMode) {
+        await ref
+            .read(ownerRegistrationProvider.notifier)
+            .uploadProfileImage(file);
+      } else {
+        await ref.read(clientProfileProvider.notifier).uploadProfileImage(file);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Center(
       child: GestureDetector(
         onTap: _showPickerOptions,
@@ -144,10 +156,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                  width: 1,
-                ),
+                border: Border.all(color: Colors.white, width: 3),
                 // boxShadow: [
                 //   BoxShadow(
                 //     color: Colors.black.withValues(alpha: 0.4),
@@ -157,7 +166,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                 // ],
               ),
               child: CircleAvatar(
-                radius: 50,
+                radius: 80,
                 backgroundColor: Colors.white,
                 backgroundImage: _selectedImage != null
                     ? FileImage(_selectedImage!)
@@ -176,15 +185,20 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
               ),
             ),
             Positioned(
-              bottom: 0,
-              right: 0,
+              bottom: 8,
+              right: 8,
               child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
                   color: Colors.deepPurple,
                   shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey, width: 1),
                 ),
-                child: const Icon(Icons.edit, color: Colors.white, size: 20),
+                child: const Icon(
+                  LucideIcons.pencil,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
             ),
           ],

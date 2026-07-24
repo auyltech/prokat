@@ -30,6 +30,8 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     final currentStatus = ref
         .watch(ownerRegistrationProvider)
         .ownerProfile
@@ -39,7 +41,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade400),
       ),

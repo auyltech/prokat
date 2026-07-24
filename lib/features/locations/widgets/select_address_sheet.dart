@@ -142,6 +142,21 @@ class SelectAddressSheet extends ConsumerWidget {
               ),
             ),
           ),
+
+          if (addresses.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.push(AppRoutes.clientAddresses);
+                },
+                icon: const Icon(Icons.edit_location_alt),
+                label: const Text('Manage my addresses'),
+              ),
+            ),
+          ],
         ],
       ),
     );

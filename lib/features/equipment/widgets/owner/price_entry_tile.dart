@@ -47,7 +47,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
                 Text(
                   getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.primaryColor,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 4),
