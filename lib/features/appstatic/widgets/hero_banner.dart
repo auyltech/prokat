@@ -44,8 +44,10 @@ class HeroBanner extends StatelessWidget {
 
           // Location Dropdown Selector
           GestureDetector(
-            onTap: () =>
-                CityPickerSheet.show(context: context, service: "main_screen"),
+            onTap: () => CityPickerSheet.show(
+              context: context,
+              service: CitySelectorService.guestcategory,
+            ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(

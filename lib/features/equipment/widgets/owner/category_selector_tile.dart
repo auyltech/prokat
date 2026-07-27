@@ -1,11 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
-import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -31,13 +28,13 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final editEquipmentId = ref
-        .watch(equipmentMutationProvider)
-        .editingEquipmentId;
+    // final editEquipmentId = ref
+    //     .watch(equipmentMutationProvider)
+    //     .editingEquipmentId;
 
-    final equipment = (editEquipmentId != null && editEquipmentId.isNotEmpty)
-        ? ref.watch(ownerEquipmentDetailsProvider(editEquipmentId)).valueOrNull
-        : null;
+    // final equipment = (editEquipmentId != null && editEquipmentId.isNotEmpty)
+    //     ? ref.watch(ownerEquipmentDetailsProvider(editEquipmentId)).valueOrNull
+    //     : null;
 
     final selectedCategory = ref
         .watch(categoriesProvider)
@@ -66,26 +63,30 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
         return null;
       }
 
-      if (picked?.id != null &&
-          equipment?.categoryId != picked?.id &&
-          widget.mode == CategorySheetMode.editEquipment) {
-        final result = await ref
-            .read(equipmentMutationProvider.notifier)
-            .updateEquipmentCategory(
-              equipmentId: equipment?.id ?? "",
-              categoryId: picked?.id ?? "",
-            );
+      if (widget.mode == CategorySheetMode.editEquipment) {
+        return null;
 
-        AppSnackBar.show(
-          message: result ? l10n.equipmentUpdated : l10n.updateFailed,
-          isSuccess: result,
-          isError: !result,
-        );
+        // picked?.id != null &&
+        //     equipment?.categoryId != picked?.id &&
+        // final result = await ref
+        //     .read(equipmentMutationProvider.notifier)
+        //     .updateEquipmentCategory(
+        //       equipmentId: equipment?.id ?? "",
+        //       categoryId: picked?.id ?? "",
+        //     );
+
+        // AppSnackBar.show(
+        //   message: result ? l10n.equipmentUpdated : l10n.updateFailed,
+        //   isSuccess: result,
+        //   isError: !result,
+        // );
       }
     }
 
     return GestureDetector(
-      onTap: onCategoryTap,
+      onTap: widget.mode == CategorySheetMode.editEquipment
+          ? null
+          : onCategoryTap,
       child: Row(
         children: [
           // Icon Container

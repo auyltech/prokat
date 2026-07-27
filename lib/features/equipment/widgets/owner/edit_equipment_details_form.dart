@@ -114,7 +114,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SectionTitle(title: l10n.information),
+              Expanded(child: SectionTitle(title: l10n.information)),
 
               _isDirty
                   ? TextButton.icon(
@@ -156,7 +156,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.name,
             controller: _nameController,
             onChanged: _onChanged,
-            hint: "",
+            hint: "Name",
           ),
 
           SizedBox(height: 12),
@@ -165,7 +165,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.model,
             controller: _modelController,
             onChanged: _onChanged,
-            hint: "",
+            hint: "Model",
           ),
 
           SizedBox(height: 12),
@@ -174,7 +174,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.plateNumberLabel,
             controller: _plateNumberController,
             onChanged: _onChanged,
-            hint: "",
+            hint: "Plate Number",
           ),
 
           SizedBox(height: 12),

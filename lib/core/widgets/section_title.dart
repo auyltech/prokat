@@ -11,14 +11,17 @@ class SectionTitle extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Row(
-      // Safely spaces out elements when constraints are unbounded
+      // 1. Changes layout behaviors to shrink-wrap instead of infinite expansion
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Flexible with fit: FlexFit.loose stops the crash in unbounded Rows
+        // 2. Uses Flexible with loose constraints to survive inside unbounded parents
         Flexible(
           fit: FlexFit.loose,
           child: Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),

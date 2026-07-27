@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/custom_icon_button.dart';
+import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
@@ -251,247 +253,70 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
 
-    final accent = colorScheme.primary;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
 
     final hasSpecs = _sortedSpecs.isNotEmpty;
     final canSave = hasSpecs && _isDirty && !_isSaving && !_hasErrors();
 
-    return Container(
-      padding: const EdgeInsets.all(0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionTitle(title: l10n.technicalSpecs),
-
-          if (!hasSpecs)
-            Text(
-              l10n.noSpecsConfigured,
-              style: theme.textTheme.bodyMedium?.copyWith(color: ghostGray),
-            )
-          else
-            ...List.generate(_sortedSpecs.length, (i) {
-              final spec = _sortedSpecs[i];
-              final key = _controllerKey(spec, i);
-              final controller = _controllersByKey[key];
-
-              if (controller == null) return const SizedBox.shrink();
-
-              final type = (spec.inputType ?? 'TEXT').toUpperCase();
-              final errorKey = _errorsByKey[key];
-              final String? errorText = errorKey == 'required'
-                  ? l10n.required
-                  : errorKey == 'invalidNumber'
-                  ? l10n.invalidNumber
-                  : null;
-
-              final label = spec.name.trim().isNotEmpty
-                  ? spec.name.trim()
-                  : (spec.key.trim().isNotEmpty ? spec.key.trim() : 'Spec');
-
-              final isRequired = spec.isRequired == true;
-
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: i == _sortedSpecs.length - 1 ? 0 : 12,
-                ),
-                child: _SpecField(
-                  label: label,
-                  isRequired: isRequired,
-                  unit: spec.unit.trim().isEmpty ? null : spec.unit.trim(),
-                  inputType: type,
-                  controller: controller,
-                  errorText: errorText,
-                  onChanged: _onFieldChanged,
-                ),
-              );
-            }),
-
-          _isDirty
-              ? TextButton.icon(
-                  onPressed: canSave ? () => _handleSave(l10n) : null,
-                  icon: _isSaving
-                      ? SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colorScheme.onPrimary,
-                          ),
-                        )
-                      : const Icon(Icons.save_rounded, size: 16),
-                  label: Text(l10n.save),
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.onPrimary,
-                    backgroundColor: canSave ? accent : ghostGray,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Icon(
-                    Icons.lock_outline_rounded,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    size: 18,
-                  ),
-                ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SpecField extends StatelessWidget {
-  final String label;
-  final bool isRequired;
-  final String? unit;
-  final String inputType;
-  final TextEditingController controller;
-  final String? errorText;
-  final VoidCallback onChanged;
-
-  const _SpecField({
-    required this.label,
-    required this.isRequired,
-    required this.unit,
-    required this.inputType,
-    required this.controller,
-    required this.errorText,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = theme.colorScheme;
-
-    final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
-    final accent = colorScheme.primary;
-
-    Widget input;
-    if (inputType == 'BOOLEAN') {
-      final current = controller.text.trim().toLowerCase() == 'true';
-      input = Switch(
-        value: current,
-        onChanged: (v) {
-          controller.text = v ? 'true' : 'false';
-          onChanged();
-        },
-      );
-    } else if (inputType == 'SELECT') {
-      input = TextFormField(
-        controller: controller,
-        enabled: false,
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          border: InputBorder.none,
-          hintText: l10n.notSupportedYet,
-          hintStyle: TextStyle(color: ghostGray.withValues(alpha: 0.5)),
-        ),
-      );
-    } else {
-      final isNumeric = inputType == 'NUMBER';
-      input = TextFormField(
-        controller: controller,
-        onChanged: (_) => onChanged(),
-        keyboardType: isNumeric
-            ? const TextInputType.numberWithOptions(decimal: true)
-            : TextInputType.text,
-        cursorColor: accent,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-          color: colorScheme.onSurface,
-        ),
-        decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          border: InputBorder.none,
-          hintText: isNumeric ? '0' : null,
-          hintStyle: TextStyle(color: ghostGray.withValues(alpha: 0.4)),
-        ),
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceBright,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: colorScheme.outline.withValues(alpha: 0.2),
+        Row(
+          children: [
+            Expanded(child: SectionTitle(title: l10n.technicalSpecs)),
+
+            CustomIconButton(
+              onPressed: canSave ? () => _handleSave(l10n) : null,
+              icon: _isDirty ? Icons.save_rounded : Icons.lock_outline_rounded,
+              iconColor: _isDirty
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface,
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      label.toUpperCase(),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                  if (isRequired)
-                    Text(
-                      ' *',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colorScheme.error,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(child: input),
-                  if (unit != null)
-                    Container(
-                      margin: const EdgeInsets.only(left: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        unit!,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
+          ],
         ),
-        if (errorText != null) ...[
-          const SizedBox(height: 6),
+
+        SizedBox(height: 8),
+
+        if (!hasSpecs)
           Text(
-            errorText!,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.error,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+            l10n.noSpecsConfigured,
+            style: theme.textTheme.bodyMedium?.copyWith(color: ghostGray),
+          )
+        else
+          ...List.generate(_sortedSpecs.length, (i) {
+            final spec = _sortedSpecs[i];
+            final key = _controllerKey(spec, i);
+            final controller = _controllersByKey[key];
+
+            if (controller == null) return const SizedBox.shrink();
+
+            final type = (spec.inputType ?? 'TEXT').toUpperCase();
+            final errorKey = _errorsByKey[key];
+            final String? errorText = errorKey == 'required'
+                ? l10n.required
+                : errorKey == 'invalidNumber'
+                ? l10n.invalidNumber
+                : null;
+
+            final label = spec.name.trim().isNotEmpty
+                ? spec.name.trim()
+                : (spec.key.trim().isNotEmpty ? spec.key.trim() : 'Spec');
+
+            final isRequired = spec.isRequired == true;
+
+            return InputField(
+              label: label,
+              controller: controller,
+              hint: label,
+              isRequired:
+                  isRequired &&
+                  (spec.value == null || spec.value?.isEmpty != false),
+              suffixText: spec.unit.trim().isEmpty ? null : spec.unit.trim(),
+              onChanged: _onFieldChanged,
+              isNumeric: type == "number",
+              errorText: errorText,
+            );
+          }),
       ],
     );
   }

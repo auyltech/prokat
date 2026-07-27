@@ -31,7 +31,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
 
     return Container(
       margin: EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(16),

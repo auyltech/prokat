@@ -6,13 +6,18 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+enum CitySelectorService { guestcategory, createequipment, clientcity }
+
 class CityPickerSheet extends ConsumerStatefulWidget {
-  final String? service;
+  final CitySelectorService? service;
 
   const CityPickerSheet({super.key, this.service});
 
-  static Future<void> show({required BuildContext context, String? service}) {
-    return showModalBottomSheet<void>(
+  static Future<String?> show({
+    required BuildContext context,
+    CitySelectorService? service,
+  }) {
+    return showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -31,26 +36,26 @@ class CityPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
-  Future<void> _onCitySelected(String city) async {
+  Future<String?> _onCitySelected(String city) async {
     ref.read(locationProvider.notifier).selectCity(city);
 
     if (mounted && context.canPop()) {
-      context.pop();
+      context.pop(city);
     }
 
-    if (widget.service == "main_screen") {
-      return;
-    } else if (widget.service == "equipment:create") {
-      return;
+    if (widget.service == CitySelectorService.guestcategory) {
+      return city;
+    } else if (widget.service == CitySelectorService.createequipment) {
+      return city;
     }
 
     final profile = ref.read(clientProfileProvider).userProfile;
 
     if (profile != null) {
-      await ref
-          .read(clientProfileProvider.notifier)
-          .selectCityRegion(city: city);
+      ref.read(clientProfileProvider.notifier).selectCityRegion(city: city);
     }
+
+    return city;
   }
 
   @override
@@ -61,7 +66,7 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     final selectedCity = ref.watch(locationProvider).city;
     final title = l10n?.selectCity ?? "Select City";
 
-    final cityOptions = widget.service == "main_screen"
+    final cityOptions = widget.service == CitySelectorService.guestcategory
         ? ["", ...cities]
         : cities;
 
@@ -116,7 +121,8 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
                               color: theme.colorScheme.primary,
                             )
                           : null,
-                      onTap: () => _onCitySelected(cityOptions[index]),
+                      onTap: () async =>
+                          await _onCitySelected(cityOptions[index]),
                     );
                   },
                 ),

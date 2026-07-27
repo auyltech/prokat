@@ -14,6 +14,7 @@ class InputField extends StatelessWidget {
   final Color? iconColor;
   final VoidCallback? onChanged;
   final TextInputType? keyboardType;
+  final String? errorText;
 
   const InputField({
     super.key,
@@ -30,6 +31,7 @@ class InputField extends StatelessWidget {
     this.iconColor,
     this.onChanged,
     this.keyboardType,
+    this.errorText,
   });
 
   @override
@@ -40,7 +42,7 @@ class InputField extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (icon != null)
+        if (icon != null) ...[
           Container(
             width: 45,
             height: 50,
@@ -51,7 +53,8 @@ class InputField extends StatelessWidget {
             child: Icon(icon, color: iconColor, size: 25),
           ),
 
-        const SizedBox(width: 12),
+          const SizedBox(width: 12),
+        ],
 
         Expanded(
           child: Column(
@@ -135,6 +138,17 @@ class InputField extends StatelessWidget {
                     ),
                 ],
               ),
+
+              if (errorText != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  errorText!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

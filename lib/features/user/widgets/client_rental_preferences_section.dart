@@ -71,7 +71,10 @@ class _ClientRentalPreferencesSectionState
           subtitle:
               ref.watch(clientProfileProvider).userProfile?.city ??
               "Select City",
-          onTap: () => CityPickerSheet.show(context: context),
+          onTap: () => CityPickerSheet.show(
+            context: context,
+            service: CitySelectorService.clientcity,
+          ),
         ),
 
         const SizedBox(height: 12),

@@ -5,21 +5,13 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
-import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/online_toggle.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class VisibilityStatusSection extends ConsumerStatefulWidget {
-  final bool isVisible;
-  final EquipmentStatus status;
-  final String equipmentId;
+  final Equipment? equipment;
 
-  const VisibilityStatusSection({
-    super.key,
-    required this.isVisible,
-    required this.status,
-    required this.equipmentId,
-  });
+  const VisibilityStatusSection({super.key, required this.equipment});
 
   @override
   ConsumerState<VisibilityStatusSection> createState() =>
@@ -35,7 +27,10 @@ class _VisibilityStatusSectionState
     final l10n = AppLocalizations.of(context)!;
     final res = await ref
         .read(equipmentMutationProvider.notifier)
-        .updateEquipmentStatus(widget.equipmentId, EquipmentStatus.created);
+        .updateEquipmentStatus(
+          widget.equipment?.id ?? "",
+          EquipmentStatus.created,
+        );
 
     if (mounted) {
       AppSnackBar.show(
@@ -49,12 +44,13 @@ class _VisibilityStatusSectionState
   @override
   void initState() {
     super.initState();
-    _tempVisible = widget.isVisible;
-    _tempStatus = widget.status;
+    _tempVisible = widget.equipment?.isVisible ?? false;
+    _tempStatus = widget.equipment?.status ?? EquipmentStatus.draft;
   }
 
   bool get _isDirty =>
-      (_tempVisible != widget.isVisible) || (_tempStatus != widget.status);
+      (_tempVisible != widget.equipment?.isVisible) ||
+      (_tempStatus != widget.equipment?.status);
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +62,32 @@ class _VisibilityStatusSectionState
     final accent = colorScheme.primary;
     final warning = theme.colorScheme.error;
 
-    final equipment = ref
-        .watch(ownerEquipmentProvider.notifier)
-        .findById(
-          ref.watch(equipmentMutationProvider).editingEquipmentId ?? "",
-        );
+    final equipment = widget.equipment;
+    final hasImage = equipment?.images.isNotEmpty == true;
+
+    final hasDetails =
+        equipment?.category?.id.isNotEmpty == true &&
+        equipment?.name.isNotEmpty == true &&
+        equipment?.model.isNotEmpty == true &&
+        equipment?.plateNumber?.isNotEmpty == true;
+
+    final hasPrice = equipment?.prices.isNotEmpty == true;
+
+    final hasCity = equipment?.city?.isNotEmpty == true;
+
+    final hasSpecs =
+        equipment?.specs?.isNotEmpty == true &&
+        equipment?.specs
+                ?.where(
+                  (item) =>
+                      item.isRequired == true && item.value?.isEmpty == true,
+                )
+                .isEmpty ==
+            true;
+
+    final hasData = hasImage && hasDetails && hasPrice && hasCity && hasSpecs;
 
     final isModerated = equipment?.isModerated ?? false;
-    final isDraft = equipment?.isDraft ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,21 +100,23 @@ class _VisibilityStatusSectionState
 
             if (_isDirty)
               FilledButton.icon(
-                onPressed: () async {
-                  final res = await ref
-                      .read(equipmentMutationProvider.notifier)
-                      .toggleEquipmentOnline(
-                        widget.equipmentId,
-                        widget.isVisible,
-                      );
+                onPressed: equipment == null
+                    ? null
+                    : () async {
+                        final res = await ref
+                            .read(equipmentMutationProvider.notifier)
+                            .toggleEquipmentOnline(
+                              widget.equipment?.id ?? "",
+                              widget.equipment?.isVisible ?? false,
+                            );
 
-                  if (res && context.mounted) {
-                    AppSnackBar.show(
-                      message: l10n.submittedForReview,
-                      isSuccess: true,
-                    );
-                  }
-                },
+                        if (res && context.mounted) {
+                          AppSnackBar.show(
+                            message: l10n.submittedForReview,
+                            isSuccess: true,
+                          );
+                        }
+                      },
                 icon: const Icon(Icons.sync_rounded, size: 16),
                 label: Text(l10n.save),
                 style: FilledButton.styleFrom(
@@ -128,76 +144,6 @@ class _VisibilityStatusSectionState
 
               SizedBox(height: 8),
 
-              // Row(
-              //   children: [
-              //     GestureDetector(
-              //       onTap: () => setState(() => _tempVisible = true),
-              //       child: AnimatedContainer(
-              //         duration: const Duration(milliseconds: 200),
-              //         margin: const EdgeInsets.only(right: 8),
-              //         padding: const EdgeInsets.symmetric(
-              //           horizontal: 16,
-              //           vertical: 10,
-              //         ),
-              //         decoration: BoxDecoration(
-              //           color: _tempVisible
-              //               ? theme.colorScheme.primary
-              //               : colorScheme.surfaceContainerHigh,
-              //           borderRadius: BorderRadius.circular(12),
-              //           border: Border.all(
-              //             color: _tempVisible
-              //                 ? theme.colorScheme.primary
-              //                 : theme.colorScheme.outline,
-              //             width: 1.5,
-              //           ),
-              //         ),
-              //         child: Text(
-              //           l10n.online,
-              //           style: theme.textTheme.labelMedium?.copyWith(
-              //             fontWeight: FontWeight.bold,
-              //             letterSpacing: 1,
-              //             color: _tempVisible
-              //                 ? theme.colorScheme.onPrimary
-              //                 : theme.colorScheme.onSurface,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //     GestureDetector(
-              //       onTap: () => setState(() => _tempVisible = false),
-              //       child: AnimatedContainer(
-              //         duration: const Duration(milliseconds: 200),
-              //         margin: const EdgeInsets.only(right: 8),
-              //         padding: const EdgeInsets.symmetric(
-              //           horizontal: 16,
-              //           vertical: 10,
-              //         ),
-              //         decoration: BoxDecoration(
-              //           color: _tempVisible
-              //               ? theme.colorScheme.surfaceBright
-              //               : theme.colorScheme.errorContainer,
-              //           borderRadius: BorderRadius.circular(12),
-              //           border: Border.all(
-              //             color: _tempVisible
-              //                 ? theme.colorScheme.outline
-              //                 : theme.colorScheme.error,
-              //             width: 1.5,
-              //           ),
-              //         ),
-              //         child: Text(
-              //           l10n.offline,
-              //           style: theme.textTheme.labelMedium?.copyWith(
-              //             fontWeight: FontWeight.bold,
-              //             letterSpacing: 1,
-              //             color: _tempVisible
-              //                 ? theme.colorScheme.onSurface
-              //                 : theme.colorScheme.error,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
               if (equipment?.status == EquipmentStatus.available ||
                   equipment?.status == EquipmentStatus.accepted)
                 OnlineToggle(
@@ -264,11 +210,20 @@ class _VisibilityStatusSectionState
             ],
           ),
 
-        if (isDraft)
-          PrimaryButton(
-            label: l10n.submitForReview,
-            onPressed: submitForReview,
+        if (!hasData) ...[
+          Text(
+            "*Please provide required information before submitting for review",
+            style: TextStyle(color: theme.colorScheme.error, fontSize: 14),
           ),
+          SizedBox(height: 8),
+        ],
+
+        // if (isDraft)
+        PrimaryButton(
+          label: l10n.submitForReview,
+          onPressed: hasData ? submitForReview : null,
+          isLoading: ref.watch(equipmentMutationProvider).isSubmitting,
+        ),
       ],
     );
   }

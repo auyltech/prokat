@@ -525,7 +525,8 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
       }
 
       return MutationResponse(
@@ -583,11 +584,9 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
-        // await Future.wait([
-        //   getOwnerEquipmentById(equipmentId),
-        //   getOwnerEquipment(),
-        // ]);
+        ref.read(ownerEquipmentProvider.notifier).refresh();
+
+        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
       }
 
       return MutationResponse(
@@ -639,7 +638,8 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
+        ref.read(ownerEquipmentProvider.notifier).refresh();
       }
 
       return result.success;
