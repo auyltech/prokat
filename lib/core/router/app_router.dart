@@ -167,8 +167,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 
     routes: [
       /// 🚀 PUBLIC
+      /// Routes outside StatefulShellRoute are fully separate navigation trees.
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
 
       /// 🧱 MAIN APP
       StatefulShellRoute.indexedStack(
@@ -179,10 +181,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           /// Guest
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: AppRoutes.login,
-                builder: (_, _) => const LoginScreen(),
-              ),
               GoRoute(
                 path: AppRoutes.main,
                 builder: (context, state) {

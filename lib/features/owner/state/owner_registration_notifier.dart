@@ -12,15 +12,23 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
 
   OwnerRegistrationNotifier(this.api) : super(OwnerRegistrationState());
 
+  void reset() {
+    state = OwnerRegistrationState();
+  }
+
   Future<void> getRegistrationRequest() async {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
       final data = await api.getOwnerRegistrationRequest();
 
-      state = state.copyWith(isLoading: false, registrationRequest: data);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        registrationRequest: data,
+        clearRegistrationRequest: data == null,
+      );
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
     }
   }
 

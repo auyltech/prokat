@@ -27,6 +27,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
     Future.microtask(() async {
       await ref.read(clientProfileProvider.notifier).getUserProfile();
+
       await ref
           .read(ownerRegistrationProvider.notifier)
           .getRegistrationRequest();

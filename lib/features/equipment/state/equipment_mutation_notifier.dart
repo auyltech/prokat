@@ -46,52 +46,10 @@ class EquipmentMutationNotifier
     state = state.copyWith(category: null);
   }
 
-  // void startAction(String actionId) {
-  //   state = state.copyWith(
-  //     activeActions: {
-  //       ...state.activeActions,
-  //       Mutation(id: actionId, status: MutationStatus.submitting),
-  //     },
-  //   );
-  // }
-
-  // void finishAction(String actionId, {AppError? error}) {
-  //   final actions = {...state.activeActions};
-
-  //   if (error == null) {
-  //     actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
-  //   } else {
-  //     actions.remove(Mutation(id: actionId, status: MutationStatus.submitting));
-
-  //     final action = Mutation(
-  //       id: actionId,
-  //       status: MutationStatus.error,
-  //       error: error,
-  //     );
-
-  //     actions.add(action);
-  //   }
-
-  //   state = state.copyWith(activeActions: actions);
-  // }
-
-  // bool isActionActive(String actionId) {
-  //   final foundAction = state.activeActions
-  //       .where((item) => item.id == actionId)
-  //       .firstOrNull;
-
-  //   return foundAction == null
-  //       ? false
-  //       : foundAction.status == MutationStatus.submitting;
-  // }
-
-  // String? getActionError(String actionId) {
-  //   final foundAction = state.activeActions
-  //       .where((item) => item.id == actionId)
-  //       .firstOrNull;
-
-  //   return foundAction?.error?.message;
-  // }
+  Future<void> _refreshEquipmentCaches(String equipmentId) async {
+    ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
+    await ref.read(ownerEquipmentProvider.notifier).refresh();
+  }
 
   /// CREATE
   Future<bool> createEquipment(Map<String, dynamic> data) async {
@@ -134,13 +92,13 @@ class EquipmentMutationNotifier
 
   /// UPDATE
   Future<bool> updateEquipment(Map<String, dynamic> data) async {
-    final id = data["id"];
+    final equipmentId = data["id"];
 
-    if (id == null || id.toString().trim().isEmpty) {
+    if (equipmentId == null || equipmentId.toString().trim().isEmpty) {
       return false;
     }
 
-    final actionId = "equipment:update:$id:info";
+    final actionId = "equipment:update:$equipmentId:info";
 
     try {
       startAction(actionId);
@@ -159,7 +117,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -181,21 +139,32 @@ class EquipmentMutationNotifier
     String id,
     Map<String, dynamic> data,
   ) async {
-    final id = data["id"];
+    final equipmentId = data["id"];
 
-    if (id == null || id.toString().trim().isEmpty) {
+    if (equipmentId == null || equipmentId.toString().trim().isEmpty) {
       return false;
     }
 
-    final actionId = "equipment:update:$id:location";
+    final actionId = "equipment:update:$equipmentId:location";
 
     try {
       startAction(actionId);
 
       final result = await api.updateEquipmentLocation(id, data);
 
+      finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: "",
+                message: result.message,
+              ),
+      );
+
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -217,13 +186,11 @@ class EquipmentMutationNotifier
     required String equipmentId,
     required String categoryId,
   }) async {
-    final id = equipmentId;
-
-    if (id.toString().trim().isEmpty) {
+    if (equipmentId.toString().trim().isEmpty) {
       return false;
     }
 
-    final actionId = "equipment:update:$id:category";
+    final actionId = "equipment:update:$equipmentId:category";
 
     try {
       startAction(actionId);
@@ -245,8 +212,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        ref.read(ownerEquipmentProvider.notifier).refresh();
-        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -276,22 +242,12 @@ class EquipmentMutationNotifier
     final ownerNotifier = ref.read(ownerEquipmentProvider.notifier);
     final original = ownerNotifier.findById(equipmentId);
 
-    if (original == null) {
-      finishAction(
-        actionId,
-        error: AppError(
-          type: ErrorType.unknown,
-          code: "",
-          message: "Equipment not found.",
-        ),
+    if (original != null) {
+      await ownerNotifier.replaceItem(
+        equipmentId,
+        (item) => item.copyWith(status: status),
       );
-      return false;
     }
-
-    await ownerNotifier.replaceItem(
-      equipmentId,
-      (item) => item.copyWith(status: status),
-    );
 
     try {
       final result = await api.updateEquipmentStatus(
@@ -302,12 +258,15 @@ class EquipmentMutationNotifier
       if (result.success) {
         finishAction(actionId);
 
+        _refreshEquipmentCaches(equipmentId);
         ref.read(billingProvider.notifier).getOwnerBalance();
 
         return true;
       }
 
-      await ownerNotifier.replaceItem(equipmentId, (_) => original);
+      if (original != null) {
+        await ownerNotifier.replaceItem(equipmentId, (_) => original);
+      }
 
       finishAction(
         actionId,
@@ -320,7 +279,9 @@ class EquipmentMutationNotifier
 
       return false;
     } catch (_) {
-      await ownerNotifier.replaceItem(equipmentId, (_) => original);
+      if (original != null) {
+        await ownerNotifier.replaceItem(equipmentId, (_) => original);
+      }
 
       finishAction(
         actionId,
@@ -370,6 +331,7 @@ class EquipmentMutationNotifier
         finishAction(actionId);
 
         ref.read(billingProvider.notifier).getOwnerBalance();
+        _refreshEquipmentCaches(equipmentId);
 
         return true;
       }
@@ -432,7 +394,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        ref.read(ownerEquipmentProvider.notifier).refresh();
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -452,17 +414,17 @@ class EquipmentMutationNotifier
 
   /// DELETE Equipment
   /// Allowed until equipment has a booking or offer (handled by backed)
-  Future<bool> deleteEquipment(String id) async {
-    if (id.toString().trim().isEmpty) {
+  Future<bool> deleteEquipment(String equipmentId) async {
+    if (equipmentId.toString().trim().isEmpty) {
       return false;
     }
 
-    final actionId = "equipment:delete:$id";
+    final actionId = "equipment:delete:$equipmentId";
 
     try {
       startAction(actionId);
 
-      final result = await api.deleteEquipment(id);
+      final result = await api.deleteEquipment(equipmentId);
 
       finishAction(
         actionId,
@@ -476,7 +438,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -525,8 +487,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        ref.read(ownerEquipmentProvider.notifier).refresh();
-        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return MutationResponse(
@@ -584,9 +545,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        ref.read(ownerEquipmentProvider.notifier).refresh();
-
-        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return MutationResponse(
@@ -638,8 +597,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
-        ref.read(ownerEquipmentProvider.notifier).refresh();
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -686,7 +644,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -733,7 +691,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
@@ -780,7 +738,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
+        _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;

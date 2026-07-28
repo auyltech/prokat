@@ -8,6 +8,7 @@ import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 
 class RegisterOwnerPage extends ConsumerStatefulWidget {
   const RegisterOwnerPage({super.key});
@@ -29,16 +30,45 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   bool _prefilledFromRequest = false;
   bool _prefilledFromProfile = false;
 
+  void _clearFormForAccountChange() {
+    _formKey.currentState?.reset();
+
+    _firstNameController.clear();
+    _lastNameController.clear();
+    _phoneController.clear();
+    _emailController.clear();
+    _cityController.clear();
+    _messageController.clear();
+
+    _prefilledFromRequest = false;
+    _prefilledFromProfile = false;
+  }
+
+  Future<void> _loadCurrentAccount(String userId) async {
+    final profileState = ref.read(clientProfileProvider);
+
+    if (profileState.userProfile == null && profileState.isLoading != true) {
+      await ref.read(clientProfileProvider.notifier).getUserProfile();
+    }
+
+    if (!mounted || ref.read(authProvider).currentUserId != userId) {
+      return;
+    }
+
+    await ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
+  }
+
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
+      if (!mounted) return;
 
-      final profileState = ref.read(clientProfileProvider);
-      if (profileState.userProfile == null && profileState.isLoading != true) {
-        ref.read(clientProfileProvider.notifier).getUserProfile();
+      final userId = ref.read(authProvider).currentUserId;
+
+      if (userId != null) {
+        _loadCurrentAccount(userId);
       }
     });
   }
@@ -130,7 +160,42 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final status = (request?.status ?? '').toLowerCase();
     final isAccepted = status == 'accepted';
 
+    ref.listen<String?>(authProvider.select((auth) => auth.currentUserId), (
+      previousUserId,
+      nextUserId,
+    ) {
+      if (previousUserId == nextUserId) return;
+
+      _clearFormForAccountChange();
+
+      if (nextUserId != null) {
+        Future.microtask(() {
+          if (mounted) {
+            return _loadCurrentAccount(nextUserId);
+          }
+        });
+      }
+    });
+
     ref.listen(ownerRegistrationProvider, (previous, next) {
+      final previousRequest = previous?.registrationRequest;
+      final request = next.registrationRequest;
+
+      if (previousRequest != null && request == null) {
+        _clearFormForAccountChange();
+
+        final profile = ref.read(clientProfileProvider).userProfile;
+        if (profile != null) {
+          _prefillFromProfile(profile);
+          _prefilledFromProfile = true;
+        }
+      }
+
+      if (!_prefilledFromRequest && request != null) {
+        _prefillFromRequest(request);
+        _prefilledFromRequest = true;
+      }
+
       final prevError = previous?.error;
       final nextError = next.error;
 
@@ -138,7 +203,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         AppSnackBar.show(message: nextError, isError: true);
       }
 
-      final request = next.registrationRequest;
       if (!_prefilledFromRequest && request != null) {
         _prefillFromRequest(request);
         _prefilledFromRequest = true;

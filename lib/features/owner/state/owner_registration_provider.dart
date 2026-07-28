@@ -3,6 +3,7 @@ import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_notifier.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/features/owner/state/owner_registration_state.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 
 final ownerRegistrationServiceProvider = Provider<OwnerRegistrationService>((
   ref,
@@ -15,6 +16,8 @@ final ownerRegistrationProvider =
     StateNotifierProvider<OwnerRegistrationNotifier, OwnerRegistrationState>((
       ref,
     ) {
+      ref.watch(authProvider.select((auth) => auth.currentUserId));
+
       final service = ref.read(ownerRegistrationServiceProvider);
       return OwnerRegistrationNotifier(service);
     });

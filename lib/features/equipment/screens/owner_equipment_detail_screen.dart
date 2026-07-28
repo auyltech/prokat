@@ -92,6 +92,7 @@ class _OwnerEquipmentDetailScreenState
                     const SizedBox(height: 20),
 
                     EditEquipmentDetailsForm(equipment: equipment, ref: ref),
+
                     OwnerEquipmentSpecs(equipment: equipment),
 
                     const SizedBox(height: 20),

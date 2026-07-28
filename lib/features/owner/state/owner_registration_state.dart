@@ -20,12 +20,18 @@ class OwnerRegistrationState {
     String? error,
     OwnerProfileModel? ownerProfile,
     RegistrationRequestModel? registrationRequest,
+    bool clearOwnerProfile = false,
+    bool clearRegistrationRequest = false,
   }) {
     return OwnerRegistrationState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
-      ownerProfile: ownerProfile ?? this.ownerProfile,
-      registrationRequest: registrationRequest ?? this.registrationRequest,
+      ownerProfile: clearOwnerProfile
+          ? null
+          : ownerProfile ?? this.ownerProfile,
+      registrationRequest: clearRegistrationRequest
+          ? null
+          : registrationRequest ?? this.registrationRequest,
     );
   }
 }

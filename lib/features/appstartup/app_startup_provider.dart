@@ -1,12 +1,41 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/core/providers/unauthorized_signal_provider.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/bookings/providers/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/client_history_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_history_bookings_provider.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
+import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/client_history_requests_provider.dart';
+import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
+import 'package:prokat/features/reviews/state/review_provider.dart';
+import 'package:prokat/features/support/state/support_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 
 enum AppStartupRouteState {
   loading,
@@ -191,25 +220,110 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     await forceSignedOut(unauthorized: true);
   }
 
-  Future<void> forceSignedOut({bool unauthorized = false}) async {
-    try {
-      await ref.read(authProvider.notifier).logout();
-      await ref.read(authProvider.notifier).clearLocalSession();
+  void _clearUserScopedProviders() {
+    // Profile and owner registration
+    ref.invalidate(clientProfileProvider);
+    ref.invalidate(ownerRegistrationProvider);
 
-      await ref.read(pushNotificationServiceProvider).deactivateCurrentDevice();
+    // User addresses and profile-derived selections
+    ref.invalidate(locationProvider);
+    ref.invalidate(categoriesProvider);
+
+    // Search state and personalized equipment
+    ref.invalidate(searchEquipmentProvider);
+    ref.invalidate(clientEquipmentProvider);
+    ref.invalidate(ownerEquipmentProvider);
+    ref.invalidate(ownerEquipmentDetailsProvider);
+    ref.invalidate(equipmentMutationProvider);
+
+    // Map state can retain selected/personalized equipment.
+    // ref.invalidate(equipmentMapProvider);
+    // ref.invalidate(mapControllerProvider);
+
+    // Favorites
+    ref.invalidate(favoritesProvider);
+
+    // Billing
+    ref.invalidate(billingProvider);
+
+    // Client bookings
+    ref.invalidate(clientActiveBookingsProvider);
+    ref.invalidate(clientHistoryBookingsProvider);
+
+    // Owner bookings
+    ref.invalidate(ownerActiveBookingsProvider);
+    ref.invalidate(ownerHistoryBookingsProvider);
+
+    // Booking details and unfinished booking forms
+    ref.invalidate(bookingProvider);
+    ref.invalidate(bookingMutationProvider);
+
+    // Client requests
+    ref.invalidate(clientActiveRequestsProvider);
+    ref.invalidate(clientHistoryRequestsProvider);
+
+    // Owner requests
+    ref.invalidate(ownerActiveRequestsProvider);
+
+    // Request drafts and mutations
+    ref.invalidate(requestMutationProvider);
+
+    // Offers and negotiations
+    ref.invalidate(offersProvider);
+    ref.invalidate(priceNegotiationProvider);
+
+    // Chat lists and all family instances
+    ref.invalidate(clientChatsProvider);
+    ref.invalidate(ownerChatsProvider);
+    ref.invalidate(currentChatProvider);
+    ref.invalidate(chatMessagesProvider);
+    ref.invalidate(chatResolverProvider);
+
+    // Dispose chat socket listeners after chat providers.
+    ref.invalidate(chatSocketServiceProvider);
+
+    // Booking-specific review state
+    ref.invalidate(reviewByBookingProvider);
+
+    // Optional: clears in-progress support submission state.
+    ref.invalidate(supportProvider);
+
+    ref.read(notificationProvider.notifier).clearOnLogout();
+    ref.read(appSocketProvider).disconnectSocket();
+
+    ref.read(notificationLocalStorageProvider).clearPendingRoute();
+  }
+
+  Future<void> forceSignedOut({bool unauthorized = false}) async {
+    final authNotifier = ref.read(authProvider.notifier);
+
+    try {
+      try {
+        await ref
+            .read(pushNotificationServiceProvider)
+            .deactivateCurrentDevice();
+      } catch (_) {
+        // Push-token cleanup must not prevent logout.
+      }
+
+      await authNotifier.logout();
       // TODO: clear Providers (profile, billing, categories, equipment)
     } catch (_) {
       // Ignore errors to ensure we still force reroute.
+
+      // Guarantee that the local session is removed.
+      await authNotifier.clearLocalSession();
+    } finally {
+      // Clear every cache containing account-specific information.
+      ref.invalidate(clientProfileProvider);
+      ref.invalidate(ownerRegistrationProvider);
+
+      ///
+      ///
+      // Add more providers here if they are carrying over cache!
+      ///
+      ///
     }
-
-    // Kill global provider caches
-    ref.invalidate(clientProfileProvider);
-
-    ///
-    ///
-    // Add more providers here if they are carrying over cache!
-    ///
-    ///
 
     state = _statusForStep(
       AppStartupStep.done,
@@ -217,6 +331,10 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
           ? AppStartupRouteState.unauthorized
           : AppStartupRouteState.guest,
     );
+
+    await WidgetsBinding.instance.endOfFrame;
+
+    _clearUserScopedProviders();
   }
 
   Future<AppMode> loadSavedMode() async {

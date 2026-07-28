@@ -24,6 +24,9 @@ class _VisibilityStatusSectionState
   late EquipmentStatus _tempStatus;
 
   Future<void> submitForReview() async {
+    final equipment = widget.equipment;
+    if (equipment == null) return;
+
     final l10n = AppLocalizations.of(context)!;
     final res = await ref
         .read(equipmentMutationProvider.notifier)
@@ -32,14 +35,16 @@ class _VisibilityStatusSectionState
           EquipmentStatus.created,
         );
 
-    if (mounted) {
-      AppSnackBar.show(
-        message: res ? l10n.equipmentSubmittedForReview : l10n.failedToSubmit,
-        isSuccess: res,
-        isError: !res,
-      );
-    }
+    if (!mounted) return;
+
+    AppSnackBar.show(
+      message: res ? l10n.equipmentSubmittedForReview : l10n.failedToSubmit,
+      isSuccess: res,
+      isError: !res,
+    );
   }
+
+  bool hasText(String? value) => value?.trim().isNotEmpty == true;
 
   @override
   void initState() {
@@ -63,29 +68,39 @@ class _VisibilityStatusSectionState
     final warning = theme.colorScheme.error;
 
     final equipment = widget.equipment;
-    final hasImage = equipment?.images.isNotEmpty == true;
+
+    final hasImage =
+        equipment != null &&
+        (equipment.images.any((image) => hasText(image.imageUrl)) ||
+            hasText(equipment.imageUrl));
 
     final hasDetails =
-        equipment?.category?.id.isNotEmpty == true &&
-        equipment?.name.isNotEmpty == true &&
-        equipment?.model.isNotEmpty == true &&
-        equipment?.plateNumber?.isNotEmpty == true;
+        equipment != null &&
+        (hasText(equipment.categoryId) || hasText(equipment.category?.id)) &&
+        hasText(equipment.name) &&
+        hasText(equipment.model) &&
+        hasText(equipment.plateNumber);
 
-    final hasPrice = equipment?.prices.isNotEmpty == true;
+    final hasPrice =
+        equipment != null && equipment.prices.any((entry) => entry.price > 0);
 
-    final hasCity = equipment?.city?.isNotEmpty == true;
+    final hasCity =
+        equipment != null &&
+        (hasText(equipment.city) || hasText(equipment.location?.city));
 
     final hasSpecs =
-        equipment?.specs?.isNotEmpty == true &&
         equipment?.specs
-                ?.where(
-                  (item) =>
-                      item.isRequired == true && item.value?.isEmpty == true,
-                )
-                .isEmpty ==
-            true;
+            ?.where((spec) => spec.isRequired == true)
+            .every((spec) => hasText(spec.value)) ??
+        true;
 
-    final hasData = hasImage && hasDetails && hasPrice && hasCity && hasSpecs;
+    final hasData =
+        equipment != null &&
+        hasImage &&
+        hasDetails &&
+        hasPrice &&
+        hasCity &&
+        hasSpecs;
 
     final isModerated = equipment?.isModerated ?? false;
 
@@ -222,7 +237,11 @@ class _VisibilityStatusSectionState
         PrimaryButton(
           label: l10n.submitForReview,
           onPressed: hasData ? submitForReview : null,
-          isLoading: ref.watch(equipmentMutationProvider).isSubmitting,
+          isLoading: equipment == null
+              ? false
+              : ref
+                    .watch(equipmentMutationProvider)
+                    .isActionActive("equipment:update:${equipment.id}:status"),
         ),
       ],
     );
