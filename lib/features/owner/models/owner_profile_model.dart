@@ -3,10 +3,24 @@ import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 
+enum OwnerType { individual, organization }
+
+OwnerType? parseOwnerType(dynamic value) {
+  if (value?.toString().trim().toLowerCase() == "individual") {
+    return OwnerType.individual;
+  }
+
+  if (value?.toString().trim().toLowerCase() == "organization") {
+    return OwnerType.organization;
+  }
+
+  return null;
+}
+
 class OwnerProfileModel {
   final String? id;
 
-  final String? ownerType;
+  final OwnerType? ownerType;
   final String? companyName;
   final String? legalName;
 
@@ -68,7 +82,7 @@ class OwnerProfileModel {
 
   OwnerProfileModel copyWith({
     String? id,
-    String? ownerType,
+    OwnerType? ownerType,
     String? companyName,
     String? legalName,
     String? firstName,
@@ -120,7 +134,7 @@ class OwnerProfileModel {
     return OwnerProfileModel(
       id: json['id']?.toString(),
 
-      ownerType: json['ownerType']?.toString(),
+      ownerType: parseOwnerType(json['ownerType']),
       companyName: json['companyName']?.toString(),
       legalName: json['legalName']?.toString(),
 
@@ -157,10 +171,23 @@ class OwnerProfileModel {
     );
   }
 
+  Map<String, dynamic> toPatchJson() {
+    return {
+      'ownerType': ownerType?.name.toUpperCase(),
+      'companyName': companyName,
+      'legalName': legalName,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phoneNumber': phoneNumber,
+      'city': city,
+      'serviceDescription': serviceDescription,
+    };
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'ownerType': ownerType,
+      'ownerType': ownerType?.name.toUpperCase(),
       'companyName': companyName,
       'legalName': legalName,
       'firstName': firstName,

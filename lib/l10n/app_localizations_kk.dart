@@ -333,16 +333,26 @@ class AppLocalizationsKk extends AppLocalizations {
   String get requestReceived => 'Сұрау алынды';
 
   @override
-  String get byContinuing => 'Жалғастыру арқылы сіз біздің ';
+  String get legalNoticePrefix => 'Жалғастыру арқылы сіз ';
 
   @override
-  String get termsAndConditions => 'Пайдалану шарттарымен';
+  String get userAgreement => 'Пайдаланушылық келісімді';
 
   @override
-  String get andOur => ' және ';
+  String get legalNoticeAfterAgreement => ' қабылдайсыз, ';
 
   @override
-  String get privacyPolicy => 'Құпиялылық саясатымызбен келісесіз';
+  String get privacyPolicy => 'Құпиялылық саясатымен';
+
+  @override
+  String get legalNoticeAfterPrivacy => ' танысқаныңызды растайсыз және ';
+
+  @override
+  String get personalDataConsent =>
+      'дербес деректерді жинауға және өңдеуге келісім';
+
+  @override
+  String get legalNoticeSuffix => ' бересіз.';
 
   @override
   String get ok => 'Жарайды';

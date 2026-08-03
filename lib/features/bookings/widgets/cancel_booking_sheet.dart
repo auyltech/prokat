@@ -41,9 +41,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
     );
 
     AppSnackBar.show(
-      message: result.success
-          ? l10n.orderCancelled
-          : l10n.failedToCancelOrder,
+      message: result.success ? l10n.orderCancelled : l10n.failedToCancelOrder,
       isSuccess: result.success,
       isError: !result.success,
     );
@@ -175,7 +173,7 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
 
               Expanded(
                 child: ActionBarButton.destructive(
-                  label: widget.mode == "client"
+                  label: widget.mode == AppMode.clientMode
                       ? l10n.cancelBooking
                       : widget.booking.status == BookingStatus.created
                       ? l10n.rejectOrder

@@ -6,9 +6,10 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/screens/about_prokat_screen.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
+import 'package:prokat/features/appstatic/screens/personal_data_consent_screen.dart';
 import 'package:prokat/features/appstatic/screens/privacy_policy_screen.dart';
 import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
-import 'package:prokat/features/appstatic/screens/terms_conditions_screen.dart';
+import 'package:prokat/features/appstatic/screens/user_agreement_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/create_booking_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
@@ -172,6 +173,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
 
+      // Privacy Policy
+      GoRoute(
+        path: AppRoutes.privacyPolicy,
+        builder: (_, _) => const PrivacyPolicyScreen(),
+      ),
+      // Terms and conditions --> User Agreement
+      GoRoute(
+        path: AppRoutes.userAgreement,
+        builder: (_, _) => const UserAgreementScreen(),
+      ),
+      // Personal Data Consent
+      GoRoute(
+        path: AppRoutes.personalDataConsent,
+        builder: (_, _) => const PersonalDataConsentScreen(),
+      ),
+
       /// 🧱 MAIN APP
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -205,16 +222,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.supportUs,
                 builder: (_, _) => const SupportUsScreen(),
-              ),
-              // Privacy Policy
-              GoRoute(
-                path: AppRoutes.privacyPolicy,
-                builder: (_, _) => const PrivacyPolicyScreen(),
-              ),
-              // Terms and conditions
-              GoRoute(
-                path: AppRoutes.termsConditions,
-                builder: (_, _) => const TermsConditionsScreen(),
               ),
             ],
           ),

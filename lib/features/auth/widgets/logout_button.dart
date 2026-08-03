@@ -65,14 +65,8 @@ class LogoutButton extends ConsumerWidget {
       child: AnimatedOpacity(
         opacity: authState.isLoading ? 0.6 : 1.0,
         duration: const Duration(milliseconds: 200),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
-          // padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          // decoration: BoxDecoration(
-          //   color: theme.colorScheme.surface,
-          //   borderRadius: BorderRadius.circular(14),
-          //   border: Border.all(color: theme.colorScheme.error),
-          // ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,

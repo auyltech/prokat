@@ -6,10 +6,13 @@ class AuthState {
 
   final bool isLoading;
   final String? error;
+  final String? errorCode;
   final String? success;
 
   final String? otpPhone;
   final DateTime? otpRequestedAt;
+  final String? otpCooldownPhone;
+  final DateTime? otpRetryAt;
 
   bool get isOtpActive =>
       otpPhone != null &&
@@ -20,9 +23,12 @@ class AuthState {
     this.session,
     this.isLoading = false,
     this.error,
+    this.errorCode,
     this.success,
     this.otpPhone,
     this.otpRequestedAt,
+    this.otpCooldownPhone,
+    this.otpRetryAt,
   });
 
   bool get isAuthenticated => session != null;
@@ -36,16 +42,24 @@ class AuthState {
     AuthSession? session,
     bool? isLoading,
     String? error,
+    String? errorCode,
     String? otpPhone,
     DateTime? otpRequestedAt,
+    String? otpCooldownPhone,
+    DateTime? otpRetryAt,
     bool clearOtp = false,
   }) {
     return AuthState(
       session: session ?? this.session,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      errorCode: errorCode,
       otpPhone: clearOtp ? null : (otpPhone ?? this.otpPhone),
       otpRequestedAt: clearOtp ? null : (otpRequestedAt ?? this.otpRequestedAt),
+      otpCooldownPhone: clearOtp
+          ? null
+          : (otpCooldownPhone ?? this.otpCooldownPhone),
+      otpRetryAt: clearOtp ? null : (otpRetryAt ?? this.otpRetryAt),
     );
   }
 }

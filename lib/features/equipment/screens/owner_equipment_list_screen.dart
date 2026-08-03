@@ -77,7 +77,7 @@ class _OwnerEquipmentListScreenState
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
-                icon: Icons.error_outline,
+                imageName: 'empty_error.png',
                 title: l10n.errorLoadingEquipment,
                 subtitle: error.toString(),
               ),
@@ -91,7 +91,7 @@ class _OwnerEquipmentListScreenState
                 if (query.items.isEmpty)
                   EmptyStateTile(
                     title: l10n.noEquipmentListed,
-                    icon: Icons.inventory_2_outlined,
+                    imageName: 'empty_equipment.png',
                   )
                 else ...[
                   if (query.isRefreshing)

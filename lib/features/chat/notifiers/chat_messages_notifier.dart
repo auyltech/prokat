@@ -8,7 +8,7 @@ import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatMessagesNotifier
     extends FamilyAsyncNotifier<QueryState<ChatMessageModel>, String> {
@@ -105,7 +105,9 @@ class ChatMessagesNotifier
   }
 
   void _flushIncomingBuffer() {
-    if (!_shouldMaintainSession || state.value == null || _incomingBuffer.isEmpty) {
+    if (!_shouldMaintainSession ||
+        state.value == null ||
+        _incomingBuffer.isEmpty) {
       return;
     }
 

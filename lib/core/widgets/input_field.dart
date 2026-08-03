@@ -15,6 +15,7 @@ class InputField extends StatelessWidget {
   final VoidCallback? onChanged;
   final TextInputType? keyboardType;
   final String? errorText;
+  final String requiredMessage;
 
   const InputField({
     super.key,
@@ -24,6 +25,7 @@ class InputField extends StatelessWidget {
     this.isNumeric = false,
     this.isLast = false,
     this.isRequired = false, // Defaulted to false
+    this.requiredMessage = 'Field is required',
     this.validator,
     this.suffixText,
     this.icon,
@@ -62,25 +64,20 @@ class InputField extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Top row: Label and required indicator
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+              Text.rich(
+                TextSpan(
+                  text: label,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                  if (isRequired == true)
-                    Text(
-                      "* Required",
-                      style: TextStyle(
-                        color: theme.colorScheme.error,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                  children: [
+                    if (isRequired)
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: theme.colorScheme.error),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
 
               // Bottom row: Input field and suffix text
@@ -90,7 +87,15 @@ class InputField extends StatelessWidget {
                     // Fixes layout crash by constraining the TextFormField width
                     child: TextFormField(
                       controller: controller,
-                      validator: validator,
+                      validator: (value) {
+                        final text = value?.trim() ?? '';
+
+                        if (isRequired && text.isEmpty) {
+                          return requiredMessage;
+                        }
+
+                        return validator?.call(value);
+                      },
                       onChanged: (_) => onChanged?.call(),
                       keyboardType: isNumeric
                           ? TextInputType.number

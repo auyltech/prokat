@@ -50,7 +50,7 @@ class ClientBookingsHistoryScreenState
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
-                icon: Icons.cancel,
+                imageName: 'empty_error.png',
                 title: l10n.errorLoadingOrders,
                 subtitle: error.toString(),
               ),
@@ -67,7 +67,7 @@ class ClientBookingsHistoryScreenState
                   Padding(
                     padding: EdgeInsets.all(16),
                     child: EmptyStateTile(
-                      icon: Icons.inventory_2_outlined,
+                      imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
                       subtitle: l10n.noOrderHistoryDescription,
                     ),

@@ -11,18 +11,28 @@ class ApiResponse<T> {
   /// Optional HTTP status code.
   final int? statusCode;
 
+  /// Stable backend error/success code for client-side behavior.
+  final String? errorCode;
+
+  /// Absolute local time when the request may be attempted again.
+  final DateTime? retryAt;
+
   const ApiResponse({
     required this.success,
     this.data,
     required this.message,
     this.error,
     this.statusCode,
+    this.errorCode,
+    this.retryAt,
   });
 
   factory ApiResponse.success(
     T data, {
     String message = "Success",
     int? statusCode,
+    String? errorCode,
+    DateTime? retryAt,
   }) {
     return ApiResponse<T>(
       success: true,
@@ -30,6 +40,8 @@ class ApiResponse<T> {
       message: message,
       error: null,
       statusCode: statusCode,
+      errorCode: errorCode,
+      retryAt: retryAt,
     );
   }
 
@@ -37,6 +49,8 @@ class ApiResponse<T> {
     required String message,
     String? error,
     int? statusCode,
+    String? errorCode,
+    DateTime? retryAt,
   }) {
     return ApiResponse<T>(
       success: false,
@@ -44,6 +58,8 @@ class ApiResponse<T> {
       message: message,
       error: error,
       statusCode: statusCode,
+      errorCode: errorCode,
+      retryAt: retryAt,
     );
   }
 }

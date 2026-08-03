@@ -7,7 +7,8 @@ import 'package:prokat/features/notifications/providers/notification_provider.da
 import 'package:lucide_icons/lucide_icons.dart';
 
 class NotificationBadge extends ConsumerStatefulWidget {
-  const NotificationBadge({super.key});
+  final Color? color;
+  const NotificationBadge({super.key, this.color});
 
   @override
   ConsumerState<NotificationBadge> createState() => _NotificationBadgeState();
@@ -29,16 +30,20 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
 
     if (count <= 0) {
       badgeContent = Icon(
-        LucideIcons.bellRing,
+        LucideIcons.bell,
         size: 28,
-        color: theme.colorScheme.onSurface,
+        color: widget.color ?? theme.colorScheme.onSurface,
       );
     } else {
       final text = count > 99 ? '99+' : count.toString();
       badgeContent = Stack(
         clipBehavior: Clip.none,
         children: [
-          Icon(LucideIcons.bell, size: 32, color: theme.colorScheme.onSurface),
+          Icon(
+            LucideIcons.bell,
+            size: 32,
+            color: widget.color ?? theme.colorScheme.onSurface,
+          ),
           Positioned(
             right: -6,
             top: -4,
@@ -68,10 +73,16 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
     return InkWell(
       onTap: () => context.push(notificationsRoute),
       customBorder: const CircleBorder(), // Keeps the ripple effect circular
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(
-          8.0,
+          12,
         ), // Padding ensures a good hit target size
+        decoration: widget.color == null
+            ? null
+            : BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(100),
+              ),
         child: badgeContent,
       ),
     );

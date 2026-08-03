@@ -133,7 +133,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         children: [
           if (equipment == null)
             EmptyStateTile(
-              icon: Icons.error,
+              imageName: 'empty_equipment.png',
               title: l10n.notFound,
               subtitle: l10n.equipmentNotFound,
             )

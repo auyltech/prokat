@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-class PhoneInputField extends StatelessWidget {
+class PhoneInputField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
 
@@ -12,34 +12,45 @@ class PhoneInputField extends StatelessWidget {
   });
 
   @override
+  State<PhoneInputField> createState() => _PhoneInputFieldState();
+}
+
+class _PhoneInputFieldState extends State<PhoneInputField> {
+  late final MaskTextInputFormatter _phoneMask;
+
+  @override
+  void initState() {
+    super.initState();
+    _phoneMask = MaskTextInputFormatter(
+      mask: '(###) ###-##-##',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.lazy,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final onSurface = theme.colorScheme.onSurface;
     final primary = theme.colorScheme.primary;
 
-    // Kazakhstan mask: (7xx) xxx-xx-xx
-    final phoneMask = MaskTextInputFormatter(
-      mask: '(###) ###-##-##',
-      filter: {"#": RegExp(r'[0-9]')},
-      type: MaskAutoCompletionType.lazy,
-    );
-
     return TextField(
-      controller: controller,
+      controller: widget.controller,
       keyboardType: TextInputType.phone,
-      inputFormatters: [phoneMask],
+      inputFormatters: [_phoneMask],
       style: theme.textTheme.bodyMedium?.copyWith(
         color: onSurface,
         fontSize: 16,
       ),
       decoration: InputDecoration(
-        labelText: label,
+        labelText: widget.label,
+        prefixIconConstraints: const BoxConstraints(minWidth: 105),
         labelStyle: theme.textTheme.bodyMedium?.copyWith(
           color: onSurface.withValues(alpha: 0.6),
         ),
         // Static Prefix for KZ
         prefixIcon: Container(
-          width: 85,
+          width: 105,
           padding: const EdgeInsets.only(left: 16, right: 8),
           child: Row(
             mainAxisSize: MainAxisSize.min,

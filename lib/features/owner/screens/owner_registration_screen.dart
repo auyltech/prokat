@@ -18,29 +18,36 @@ class _OwnerRegistrationScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final initialProfile = ref.watch(ownerRegistrationProvider).ownerProfile;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // _buildStatusCard(
-                //   theme,
-                //   l10n,
-                //   OwnerRegistrationStatus.incomplete,
-                // ),
-                if (initialProfile != null)
-                  OwnerProfileForm(initialProfile: initialProfile),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
+        },
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildStatusCard(
+                    theme,
+                    l10n,
+                    OwnerRegistrationStatus.incomplete,
+                  ),
+
+                  if (initialProfile != null)
+                    OwnerProfileForm(initialProfile: initialProfile),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

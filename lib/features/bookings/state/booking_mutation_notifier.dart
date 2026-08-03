@@ -11,7 +11,7 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
   final BookingService api;

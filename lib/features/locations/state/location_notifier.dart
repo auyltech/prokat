@@ -239,7 +239,9 @@ class LocationNotifier extends StateNotifier<LocationState> {
       final results = await api.searchLocation(query);
 
       state = state.copyWith(suggestions: results);
-    } catch (e) {}
+    } catch (_) {
+      state = state.copyWith(suggestions: []);
+    }
   }
 
   void clearSuggestions() {

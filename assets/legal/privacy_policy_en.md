@@ -1,344 +1,208 @@
-# Privacy Policy
+# PRIVACY AND PERSONAL DATA PROCESSING POLICY FOR THE “PROKAT” MOBILE APPLICATION
 
-**Last Updated:** July 9, 2026
-
-Welcome to **Prokat** ("Prokat", "we", "our", or "us"). We are committed to protecting your privacy and handling your personal information responsibly.
-
-This Privacy Policy explains how Prokat collects, uses, stores, shares, and protects your information when you use our mobile application, website, and related services (collectively, the "Services").
-
-By creating an account or using Prokat, you agree to the practices described in this Privacy Policy.
+**Place of publication:** Atyrau, Republic of Kazakhstan
+**Effective date:** July 23, 2026
 
 ---
 
-## 1. About Prokat
+## 1. General Provisions
 
-Prokat is a mobile platform that enables users to browse, rent, and manage equipment rentals. The platform connects equipment owners with customers seeking to rent equipment for various purposes.
+### 1.1
 
-Depending on how you use the application, you may act as:
+This Privacy and Personal Data Processing Policy (the **“Policy”**) establishes the procedures and conditions for the collection, storage, processing, and cross-border transfer of the personal data of users of the **PROKAT** mobile application (the **“Application”**).
 
-- A customer renting equipment
-- An equipment owner listing equipment
-- Both
+### 1.2
 
----
+The owner and operator of the database containing the personal data of Application users is **AuylTech Limited Liability Partnership**:
 
-## 2. Information We Collect
+* **Business Identification Number (BIN):** 260240018291;
+* **address:** 10 Äbilqaiyr Khan Avenue, Atyrau, Atyrau Region, 060000, Republic of Kazakhstan.
 
-We collect information that is necessary to operate and improve our Services.
+Hereinafter referred to as the **“Operator.”**
 
-### 2.1 Account Information
+### 1.3
 
-When creating an account, we may collect:
+Personal data processing within the Application is carried out strictly in accordance with Law of the Republic of Kazakhstan No. 94-V dated May 21, 2013, **“On Personal Data and Its Protection”** (the **“Law No. 94-V”**), as well as other applicable regulatory legal acts of the Republic of Kazakhstan.
 
-- Full name or display name
-- Mobile phone number
-- Email address (if provided)
-- Username
-- Password (stored securely using industry-standard encryption)
+### 1.4
 
-### 2.2 Profile Information
+This Policy is legally connected with the User’s Consent to the Collection and Processing of Personal Data, which forms an integral part of this Policy and is available at the following direct link:
 
-If you register as an equipment owner, we may additionally collect:
+[auyltech.kz/prokat/consent](https://auyltech.kz/prokat/consent)
 
-- Business or owner profile information
-- Equipment listings
-- Equipment descriptions
-- Rental pricing
-- Equipment availability
-- Equipment photos
-- Service locations
-- Public owner profile information
-
-### 2.3 Booking Information
-
-When you create or manage bookings, we collect:
-
-- Booking dates and times
-- Selected equipment
-- Pickup or delivery information
-- Booking status
-- Payment status (when applicable)
-- Communication related to the booking
-
-### 2.4 Messages and Communications
-
-Prokat provides an in-app messaging system.
-
-Messages exchanged between users may be stored to:
-
-- Deliver conversations
-- Synchronize messages across devices
-- Resolve disputes
-- Provide customer support
-- Prevent fraud or abuse
-
-### 2.5 Device Information
-
-We may automatically collect:
-
-- Device model
-- Operating system version
-- Application version
-- Device identifiers
-- Language settings
-- Time zone
-- Crash logs
-- Performance diagnostics
-
-This information helps us improve application stability, reliability, and performance.
-
-### 2.6 Location Information
-
-With your permission, Prokat may access your device location to:
-
-- Display nearby equipment
-- Show equipment on maps
-- Determine pickup or delivery locations
-- Improve search results
-
-Location permission is optional. You may disable it at any time in your device settings, although some features may no longer function correctly.
-
-### 2.7 Photos and Media
-
-If you upload images, we collect the files you choose to upload, including:
-
-- Equipment photos
-- Profile pictures
-- Other media voluntarily submitted through the application
-
-These files are securely stored to provide the requested functionality.
-
-### 2.8 Notifications
-
-If notifications are enabled, we may collect device notification tokens in order to deliver:
-
-- Booking updates
-- Chat messages
-- Rental requests
-- Rental offers
-- Status updates
-- System announcements
-
-Notification tokens are used exclusively for delivering notifications.
+By using or signing in to the Application, the User unconditionally agrees to the terms of this Policy and the Consent.
 
 ---
 
-## 3. How We Use Your Information
+## 2. Categories and Scope of Data Processed
 
-We use your information to:
+### 2.1
 
-- Create and manage your account
-- Verify your identity
-- Facilitate equipment rentals
-- Process bookings
-- Enable communication between users
-- Display equipment listings
-- Deliver push notifications
-- Improve search results
-- Provide customer support
-- Detect fraudulent or abusive activity
-- Maintain platform security
-- Improve application performance
-- Comply with applicable legal obligations
+The collection of personal data is strictly limited to the purposes necessary for the operation of the Platform.
 
----
+The Operator does not collect:
 
-## 4. Legal Basis for Processing
+* biometric data, including facial photographs used for liveness verification;
+* Users’ bank card details.
 
-Depending on your jurisdiction, we process your information because it is necessary to:
+### 2.2
 
-- Provide the services you request
-- Fulfill contractual obligations
-- Protect legitimate business interests
-- Comply with legal requirements
-- Obtain your consent where required
+The Operator may process the following data:
 
----
+* the User’s name;
+* the internal identifier of the User’s account;
+* telephone number;
+* addresses;
+* approximate and precise location;
+* coordinates of points selected on the map;
+* chat messages;
+* photographs;
+* user-generated content;
+* information about actions performed within the Application;
+* device identifiers;
+* FCM token.
 
-## 5. Sharing Your Information
+### 2.3
 
-We **do not sell** your personal information.
+User-generated content includes:
 
-We may share limited information only in the following situations.
+* listings;
+* descriptions and specifications of equipment;
+* comments;
+* ratings;
+* reviews;
+* other information independently submitted by the User.
 
-### Between Users
+### 2.4
 
-To facilitate equipment rentals, certain information may be visible to other users, including:
+Information about actions performed within the Application includes:
 
-- Username
-- Public profile information
-- Equipment listings
-- Equipment images
-- Rental availability
-- Public owner information
+* creating and editing listings;
+* creating and modifying orders;
+* changing statuses;
+* adding items to favorites;
+* interacting with the Application’s features.
 
-Only information necessary for providing the service is shared.
+### 2.5
 
-### Service Providers
+For the verification of Equipment Owners, the Operator may request the following information and documents:
 
-We may share limited information with trusted third-party providers that assist us with:
-
-- Cloud hosting
-- File storage
-- Push notifications
-- Analytics
-- Error reporting
-- Customer support
-
-These providers are required to safeguard your information and use it only for authorized purposes.
-
-### Legal Requirements
-
-We may disclose information if required to:
-
-- Comply with applicable laws
-- Respond to lawful governmental requests
-- Protect users or the public
-- Prevent fraud
-- Protect our legal rights
+* Individual Identification Number — IIN;
+* a copy of the technical passport or registration document for the specialized equipment;
+* documents confirming ownership of or the right to operate or dispose of the equipment;
+* driver’s license.
 
 ---
 
-## 6. Data Security
+## 3. Purposes of Data Collection and Processing
 
-We implement reasonable technical and organizational measures to protect your information, including:
+The Operator processes personal data solely for the following purposes:
 
-- Encrypted communications (HTTPS/TLS)
-- Secure authentication
-- Restricted administrative access
-- Server-side security controls
-- Continuous monitoring
-- Regular security updates
-
-While we strive to protect your information, no method of electronic storage or internet transmission is completely secure.
-
----
-
-## 7. Data Retention
-
-We retain your information only for as long as necessary to:
-
-- Provide our services
-- Maintain your account
-- Resolve disputes
-- Enforce agreements
-- Comply with legal obligations
-
-When no longer required, information is securely deleted or anonymized where reasonably possible.
+* creating, maintaining, and protecting the User’s account;
+* registering and authenticating the User and verifying the User’s telephone number;
+* providing the Application’s core functionality;
+* publishing listings and user-generated content;
+* creating and processing booking requests;
+* identifying the addresses and coordinates of equipment and work locations;
+* enabling chats between Users;
+* saving favorites, statuses, and the history of interactions with Application features;
+* sending system and push notifications;
+* preventing fraud;
+* protecting user accounts;
+* investigating information security incidents.
 
 ---
 
-## 8. Your Rights
+## 4. Infrastructure, Data Location, and Cross-Border Data Transfers
 
-Subject to applicable law, you may have the right to:
+### 4.1
 
-- Access your personal information
-- Correct inaccurate information
-- Update your profile
-- Request deletion of your account
-- Withdraw consent
-- Object to certain processing activities
-- Request a copy of your personal data
+Due to the use of cloud services required for the technical operation of the Platform, the Application’s databases and files are physically processed and stored on foreign servers operated by service providers:
 
-Requests may be submitted using the contact information below.
+* the main relational database, including account data, chats, and listings, as well as media files, is hosted on servers operated by **Supabase Inc.** in the Tokyo region, Japan;
+* the backend application responsible for processing requests is hosted on servers operated by **Render** in the Frankfurt region, Germany.
 
----
+### 4.2
 
-## 9. Account Deletion
+The User agrees to the cross-border transfer of personal data to Japan and Germany solely for the technical operation of the PROKAT Application through the use of Supabase and Render services, in accordance with this Policy and the laws of the Republic of Kazakhstan.
 
-You may request deletion of your Prokat account at any time.
+### 4.3
 
-After deletion:
+The Operator engages third parties in data processing exclusively to perform the technical functions of the Platform:
 
-- Personal profile information will be removed or anonymized where appropriate.
-- Active bookings may be retained until completed.
-- Certain records may be retained where required for legal, accounting, fraud prevention, dispute resolution, or regulatory purposes.
-
-If available, you may delete your account directly within the application. Otherwise, please contact us using the email below.
+* **GREEN API** receives the User’s telephone number solely to deliver a one-time verification code through WhatsApp;
+* **Mapbox Inc.** receives the coordinates of a point selected on the map to determine the corresponding textual address;
+* **Firebase Cloud Messaging — FCM (Google)** processes technical identifiers for the delivery of push notifications.
 
 ---
 
-## 10. Cookies and Similar Technologies
+## 5. Account Deletion and Data Retention Periods
 
-The Prokat mobile application may use secure authentication tokens, local storage, and similar technologies to:
+### 5.1
 
-- Keep you signed in
-- Remember your preferences
-- Improve security
-- Maintain application sessions
+The User’s personal data is retained for as long as the User’s account remains active.
 
-These technologies are required for normal application functionality.
+### 5.2
 
----
+The User may initiate the deletion of their account and the related data in either of the following ways:
 
-## 11. Children's Privacy
+* by selecting the **“Delete Account”** button in the profile settings within the Application;
+* by submitting a request through the following webpage:
 
-Prokat is not intended for children under the age of 13, or the minimum legal age required by applicable law.
+[auyltech.kz/prokat/account-deletion](https://auyltech.kz/prokat/account-deletion)
 
-We do not knowingly collect personal information from children. If such information is identified, it will be deleted as soon as reasonably possible.
+### 5.3
 
----
+Access to the account is terminated upon receipt of the deletion request. The User’s primary data will be completely deleted within 30 calendar days.
 
-## 12. International Data Transfers
+### 5.4
 
-Your information may be processed or stored on servers located outside your country of residence.
+In accordance with applicable security standards, the Operator establishes the following maximum data retention periods:
 
-Where such transfers occur, we take reasonable measures to ensure your information remains protected in accordance with applicable privacy laws.
+* primary account data is deleted within 30 calendar days;
+* standard technical security logs are retained for no longer than 6 months;
+* materials relating to a specific confirmed case of fraud, a violation of the Platform rules, or a dispute may be retained until the relevant matter has been resolved, but for no longer than 12 months, unless a longer retention period is expressly required by the laws of the Republic of Kazakhstan.
 
----
+### 5.5
 
-## 13. Third-Party Services
+The existence of an active request does not prevent the deletion of the User’s account.
 
-Prokat may integrate with trusted third-party services such as:
-
-- Cloud storage providers
-- Mapping services
-- Push notification providers
-- Analytics services
-- Authentication providers
-
-Each provider operates under its own privacy policy.
+Where there is a specific unresolved dispute, security incident, or legal requirement, the Operator may temporarily retain only the minimum amount of data necessary to consider the relevant matter or comply with applicable legal obligations.
 
 ---
 
-## 14. Changes to This Privacy Policy
+## 6. User Rights
 
-We may update this Privacy Policy from time to time to reflect changes in our services, legal requirements, or operational practices.
+### 6.1
 
-When significant changes are made, we will update the **Last Updated** date and may notify users through the application or other appropriate means.
+The User has all rights granted to a personal data subject under Law No. 94-V and is entitled to:
 
-Continued use of the Services after any changes become effective constitutes acceptance of the updated Privacy Policy.
-
----
-
-## 15. Contact Us
-
-If you have any questions regarding this Privacy Policy or wish to exercise your privacy rights, please contact us.
-
-**Developer:** Prokat
-
-**Email:** <privacy@prokat.kz>
-
-**Country:** Republic of Kazakhstan
+* obtain information about which of their personal data is processed by the Operator;
+* request the correction of inaccurate, incomplete, or outdated information;
+* withdraw their consent to the collection and processing of personal data at any time;
+* delete their account and the personal data associated with it;
+* contact AuylTech LLP regarding any matter related to the processing of their personal data.
 
 ---
 
-## 16. Permissions Used by the Application
+## 7. Data Protection Measures
 
-Depending on the features you choose to use, Prokat may request the following permissions:
+### 7.1
 
-| Permission | Purpose |
-| ------------ | --------- |
-| Internet | Connect to Prokat services |
-| Camera | Capture equipment and profile photos |
-| Photos / Storage | Upload equipment images |
-| Notifications | Receive booking, chat, and system notifications |
-| Location (Optional) | Display nearby equipment and maps |
+The Operator implements appropriate organizational and technical measures to protect the User’s personal data against unauthorized or accidental access, destruction, alteration, blocking, copying, or distribution.
 
-Permissions are requested only when required for specific functionality and may be revoked at any time through your device settings.
+In particular:
+
+* data is transmitted through secure connections using SSL/TLS encryption;
+* administrative access to databases is restricted exclusively to persons authorized by the Operator;
+* one-time verification codes have a strictly limited validity period.
 
 ---
 
-Thank you for choosing **Prokat**.
+## 8. Contact Information
 
-We are committed to protecting your privacy while providing a secure, reliable, and user-friendly equipment rental platform.
+### 8.1
+
+For matters relating to the processing, correction, restriction of processing, or deletion of personal data, the User may contact **AuylTech LLP** at its official email address:
+
+[compliance@auyltech.kz](mailto:compliance@auyltech.kz)

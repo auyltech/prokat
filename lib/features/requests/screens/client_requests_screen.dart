@@ -85,7 +85,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
-                icon: Icons.cancel,
+                imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
                 subtitle: error.toString(),
               ),
@@ -103,7 +103,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                   Padding(
                     padding: EdgeInsets.all(12),
                     child: EmptyStateTile(
-                      icon: Icons.inventory_2_outlined,
+                      imageName: 'empty_requests.png',
                       title: l10n.noRequestsAtMoment,
                       subtitle: l10n.noActiveRequests,
                     ),

@@ -76,7 +76,9 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
         price: price,
         priceRate: _priceRate?.value,
         comment: _commentController.text.trim(),
-        type: widget.mode == "owner" ? "OWNER_COUNTER" : "CLIENT_COUNTER",
+        type: widget.mode == AppMode.ownerMode
+            ? "OWNER_COUNTER"
+            : "CLIENT_COUNTER",
         bookingId: widget.bookingId,
         offerId: widget.offerId,
       );

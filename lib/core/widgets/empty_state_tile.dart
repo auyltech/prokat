@@ -5,6 +5,7 @@ class EmptyStateTile extends StatelessWidget {
   final String? title;
   final String? subtitle;
   final IconData? icon;
+  final String? imageName;
   final Color? color;
 
   const EmptyStateTile({
@@ -12,6 +13,7 @@ class EmptyStateTile extends StatelessWidget {
     this.title,
     this.subtitle,
     this.icon,
+    this.imageName,
     this.color,
   });
 
@@ -19,6 +21,7 @@ class EmptyStateTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final displayColor = color ?? theme.colorScheme.outline;
+    final hasImage = imageName?.trim().isNotEmpty ?? false;
 
     return BaseTile(
       width: double.infinity,
@@ -26,22 +29,37 @@ class EmptyStateTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (icon != null) ...[
+          if (hasImage) ...[
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/media/$imageName',
+                  height: 340,
+                  width: 340,
+                  fit: BoxFit.cover,
+                  excludeFromSemantics: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ] else if (icon != null) ...[
             Icon(icon, color: displayColor, size: 32),
             const SizedBox(height: 12),
           ],
+
           if (title != null)
             Text(
               title!,
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium,
+              style: theme.textTheme.bodyLarge,
             ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               subtitle!,
               textAlign: TextAlign.center,
-              style: theme.textTheme.labelSmall,
+              style: theme.textTheme.labelMedium,
             ),
           ],
         ],

@@ -17,8 +17,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _agreementRecognizer;
   late final TapGestureRecognizer _privacyRecognizer;
+  late final TapGestureRecognizer _personalDataRecognizer;
 
   String? errorMessage;
 
@@ -29,21 +30,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize recognizers to catch tap inputs safely
-    _termsRecognizer = TapGestureRecognizer()
-      ..onTap = () => context.push(
-        AppRoutes.termsConditions,
-      ); // Match your router setup path
+    _agreementRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(AppRoutes.userAgreement);
+
     _privacyRecognizer = TapGestureRecognizer()
-      ..onTap = () =>
-          context.push(AppRoutes.privacyPolicy); // Match your router setup path
+      ..onTap = () => context.push(AppRoutes.privacyPolicy);
+
+    _personalDataRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(AppRoutes.personalDataConsent);
   }
 
   @override
   void dispose() {
     // Crucial step: dispose gestures to prevent memory leaks in production
-    _termsRecognizer.dispose();
+    _agreementRecognizer.dispose();
     _privacyRecognizer.dispose();
+    _personalDataRecognizer.dispose();
     super.dispose();
   }
 
@@ -130,25 +132,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               textAlign: TextAlign.center,
                               text: TextSpan(
                                 // Non-clickable standard legal prompt prefix string
-                                text: l10n.byContinuing,
+                                text: l10n.legalNoticePrefix,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                   height: 1.4,
                                 ),
                                 children: [
-                                  // Clickable Terms and Conditions string segment
                                   TextSpan(
-                                    text: l10n.termsAndConditions,
+                                    text: l10n.userAgreement,
                                     style: TextStyle(
                                       color: theme.colorScheme.primary,
                                       fontWeight: FontWeight.bold,
                                       decoration: TextDecoration.underline,
                                     ),
-                                    recognizer: _termsRecognizer,
+                                    recognizer: _agreementRecognizer,
                                   ),
-                                  // Non-clickable joining string segment
-                                  TextSpan(text: l10n.andOur),
-                                  // Clickable Privacy Policy string segment
+                                  TextSpan(
+                                    text: l10n.legalNoticeAfterAgreement,
+                                  ),
                                   TextSpan(
                                     text: l10n.privacyPolicy,
                                     style: TextStyle(
@@ -158,6 +159,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ),
                                     recognizer: _privacyRecognizer,
                                   ),
+                                  TextSpan(text: l10n.legalNoticeAfterPrivacy),
+                                  TextSpan(
+                                    text: l10n.personalDataConsent,
+                                    style: TextStyle(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: _personalDataRecognizer,
+                                  ),
+                                  TextSpan(text: l10n.legalNoticeSuffix),
                                 ],
                               ),
                             ),

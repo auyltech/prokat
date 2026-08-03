@@ -2,7 +2,7 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ClientHistoryRequestsNotifier
     extends AsyncNotifier<QueryState<RequestModel>> {

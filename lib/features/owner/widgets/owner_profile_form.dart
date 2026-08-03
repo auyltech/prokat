@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 
@@ -26,15 +27,15 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   late final TextEditingController _descriptionController;
 
   // Local state properties for non-text selections
-  String? _selectedOwnerType;
+  OwnerType? _selectedOwnerType;
   String? _selectedCity;
 
   // Static list example of label/value city configurations
   final List<Map<String, String>> _citiesList = [
+    {'label': 'Atyrau', 'value': 'atyrau'},
     {'label': 'Almaty', 'value': 'almaty'},
     {'label': 'Astana', 'value': 'astana'},
     {'label': 'Shymkent', 'value': 'shymkent'},
-    {'label': 'Atyrau', 'value': 'atyrau'},
   ];
 
   @override
@@ -52,7 +53,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     );
 
     // Bind state variations directly from the profile instance
-    _selectedOwnerType = profile.ownerType ?? 'individual';
+    _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
     _selectedCity = profile.city;
   }
 
@@ -90,12 +91,16 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           .read(ownerRegistrationProvider.notifier)
           .updateOwnerProfile(updatedProfile);
 
-      if (mounted && success) {
-        AppSnackBar.show(
-          message: 'Verification request submitted successfully!',
-          isSuccess: true,
-        );
-      }
+      if (!mounted) return;
+
+      AppSnackBar.show(
+        message: success
+            ? 'Profile updated successfully'
+            : ref.read(ownerRegistrationProvider).error ??
+                  'Failed to update profile',
+        isSuccess: success,
+        isError: !success,
+      );
     });
   }
 
@@ -106,11 +111,14 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     final providerState = ref.watch(ownerRegistrationProvider);
     final isLoading = providerState.isLoading;
 
+    final isOrganization = _selectedOwnerType == OwnerType.organization;
+
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 20),
           // Owner Type Selector
           Text(
             "Owner Type",
@@ -122,9 +130,9 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
           Row(
             children: [
-              _buildTypeButton("Individual", "individual", theme),
+              _buildTypeButton("Individual", OwnerType.individual, theme),
               const SizedBox(width: 12),
-              _buildTypeButton("Organization", "organization", theme),
+              _buildTypeButton("Organization", OwnerType.organization, theme),
             ],
           ),
           const SizedBox(height: 16),
@@ -141,19 +149,18 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             label: "Company Name",
             hint: "Enter company name",
             controller: _companyNameController,
-            isRequired: true,
-            validator: (val) =>
-                val == null || val.isEmpty ? "Field is required" : null,
+            isRequired: isOrganization,
           ),
+
           const SizedBox(height: 12),
+
           InputField(
             label: "Legal entity name",
             hint: "As written in official documents",
             controller: _legalNameController,
-            isRequired: true,
-            validator: (val) =>
-                val == null || val.isEmpty ? "Field is required" : null,
+            isRequired: isOrganization,
           ),
+
           const SizedBox(height: 24),
 
           Text(
@@ -162,34 +169,44 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 12),
+
           InputField(
             label: "First Name",
             hint: "Enter first name",
             controller: _firstNameController,
             isRequired: true,
-            validator: (val) =>
-                val == null || val.isEmpty ? "Field is required" : null,
           ),
+
           const SizedBox(height: 12),
+
           InputField(
             label: "Last Name",
             hint: "Enter last name",
             controller: _lastNameController,
             isRequired: true,
-            validator: (val) =>
-                val == null || val.isEmpty ? "Field is required" : null,
           ),
+
           const SizedBox(height: 12),
+
           InputField(
             label: "Phone Number",
             hint: "+7 (700) 000-00-00",
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             isRequired: true,
-            validator: (val) =>
-                val == null || val.isEmpty ? "Field is required" : null,
+            validator: (value) {
+              final phone = value?.trim() ?? '';
+
+              if (phone.isNotEmpty && phone.length < 10) {
+                return 'Enter a valid phone number';
+              }
+
+              return null;
+            },
           ),
+
           const SizedBox(height: 24),
 
           // Custom City Selection Field using a Wrap layout
@@ -263,36 +280,17 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           ),
           const SizedBox(height: 32),
 
-          ElevatedButton(
+          PrimaryButton(
+            label: "Update Profile",
+            isLoading: isLoading,
             onPressed: isLoading ? null : _submitForm,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0F5A56),
-              foregroundColor: Colors.white,
-              minimumSize: const Size.fromHeight(54),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: isLoading
-                ? const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                    ),
-                  )
-                : const Text(
-                    "Submit Verification Profile",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTypeButton(String label, String value, ThemeData theme) {
+  Widget _buildTypeButton(String label, OwnerType value, ThemeData theme) {
     final isSelected = _selectedOwnerType == value;
     final primaryColor = const Color(0xFF0F5A56);
     return Expanded(

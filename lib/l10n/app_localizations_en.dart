@@ -333,16 +333,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestReceived => 'Request Received';
 
   @override
-  String get byContinuing => 'By continuing, you agree to our ';
+  String get legalNoticePrefix => 'By continuing, you accept the ';
 
   @override
-  String get termsAndConditions => 'Terms & Conditions';
+  String get userAgreement => 'User Agreement';
 
   @override
-  String get andOur => ' and our ';
+  String get legalNoticeAfterAgreement => ', acknowledge the ';
 
   @override
   String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get legalNoticeAfterPrivacy => ', and consent to the ';
+
+  @override
+  String get personalDataConsent =>
+      'collection and processing of your personal data';
+
+  @override
+  String get legalNoticeSuffix => '.';
 
   @override
   String get ok => 'OK';

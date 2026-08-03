@@ -26,8 +26,9 @@ class AppRoutes {
   static const String contactSupport = '/contact';
   static const String supportUs = '/support-us';
 
-  static const String termsConditions = '/terms';
+  static const String userAgreement = '/user-agreement';
   static const String privacyPolicy = '/privacy-policy';
+  static const String personalDataConsent = '/personal-data-consent';
 
   // Client Screens
   static const String clientMain = '/client';

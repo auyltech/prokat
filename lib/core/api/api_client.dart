@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:prokat/core/services/client_request_metadata_service.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import '../config/env.dart';
 import 'api_interceptor.dart';
@@ -8,6 +9,7 @@ class ApiClient {
 
   ApiClient(
     AuthSecureStorage secureStorage, {
+    required ClientRequestMetadataService requestMetadata,
     required void Function() onUnauthorized,
   }) {
     dio = Dio(
@@ -26,7 +28,11 @@ class ApiClient {
     );
 
     dio.interceptors.add(
-      ApiInterceptor(secureStorage, onUnauthorized: onUnauthorized),
+      ApiInterceptor(
+        secureStorage,
+        requestMetadata: requestMetadata,
+        onUnauthorized: onUnauthorized,
+      ),
     );
   }
 }

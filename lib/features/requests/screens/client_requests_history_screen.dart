@@ -64,7 +64,7 @@ class _ClientRequestsHistoryScreenState
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
-                icon: Icons.cancel,
+                imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
                 subtitle: error.toString(),
               ),
@@ -80,7 +80,7 @@ class _ClientRequestsHistoryScreenState
               children: [
                 if (requests.isEmpty)
                   EmptyStateTile(
-                    icon: Icons.inventory_2_outlined,
+                    imageName: 'empty_requests.png',
                     title: l10n.noRequestsAtMoment,
                     subtitle: l10n.noRequestHistory,
                   )

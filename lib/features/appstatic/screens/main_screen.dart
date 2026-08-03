@@ -220,7 +220,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: EmptyStateTile(title: l10n.loadEquipmentErrorHint),
+                  child: EmptyStateTile(
+                    imageName: 'empty_error.png',
+                    title: l10n.loadEquipmentErrorHint,
+                  ),
                 ),
               )
             else if (items.isEmpty)
@@ -228,7 +231,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: EmptyStateTile(
-                    icon: Icons.deselect_outlined,
+                    imageName: 'empty_equipment.png',
                     title: selectedCity.isNotEmpty
                         ? l10n.noEquipmentListedInCity(
                             selectedCategory?.name ?? l10n.navEquipment,

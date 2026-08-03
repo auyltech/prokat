@@ -71,8 +71,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
         [
           AppRoutes.ownerPayment,
           AppRoutes.ownerPaymentTopUp,
-          AppRoutes.termsConditions,
+          AppRoutes.userAgreement,
           AppRoutes.privacyPolicy,
+          AppRoutes.personalDataConsent,
           AppRoutes.helpSupport,
         ].contains(currentPath) ||
         isChatByIdScreen;
@@ -161,8 +162,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       );
     } else if ([
       AppRoutes.login,
-      AppRoutes.termsConditions,
+      AppRoutes.userAgreement,
       AppRoutes.privacyPolicy,
+      AppRoutes.personalDataConsent,
     ].contains(currentPath)) {
       // Don't show notifications on login
     } else {

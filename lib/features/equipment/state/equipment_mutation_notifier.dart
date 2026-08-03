@@ -12,7 +12,7 @@ import 'package:prokat/features/equipment/providers/owner_equipment_details_prov
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_mutation_state.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EquipmentMutationNotifier
     extends MutationNotifier<EquipmentMutationState> {

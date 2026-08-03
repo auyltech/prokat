@@ -161,14 +161,11 @@ class OwnerRegistrationService {
     try {
       final res = await _dio.patch(
         ApiRoutes.ownerProfile,
-        data: profile.toJson(),
+        data: profile.toPatchJson(),
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return true;
-      }
-
-      return false;
+      final status = res.statusCode ?? 0;
+      return status >= 200 && status < 300;
     } on DioException catch (e) {
       throw Exception(extractBackendMessage(e));
     } catch (e) {

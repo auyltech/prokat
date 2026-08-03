@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
+import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/become_owner_cta.dart';
@@ -42,155 +43,170 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
     final userProfileState = ref.watch(clientProfileProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await ref.read(clientProfileProvider.notifier).getUserProfile();
-            await ref
-                .read(ownerRegistrationProvider.notifier)
-                .getRegistrationRequest();
-          },
-          child: CustomScrollView(
-            slivers: [
-              // User Profile
-              SliverAppBar(
-                backgroundColor: const Color.fromARGB(255, 240, 240, 240),
-                expandedHeight: 400,
-                // Removes default constraints and back button spacing padding from the title area
-                primary: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  // 1. Reset titlePadding so the background layout fills the entire width
-                  titlePadding: EdgeInsets.zero,
-                  // 2. Move your full-width UI block into the background property
-                  background: ClientProfileHeader(
-                    userProfile: userProfileState.userProfile,
-                  ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(clientProfileProvider.notifier).getUserProfile();
+          await ref
+              .read(ownerRegistrationProvider.notifier)
+              .getRegistrationRequest();
+        },
+        child: CustomScrollView(
+          slivers: [
+            // User Profile
+            SliverAppBar(
+              backgroundColor: theme.colorScheme.primary,
+              expandedHeight: 400,
+              actions: [
+                NotificationBadge(color: Colors.white),
+                SizedBox(width: 16),
+              ],
+              // Removes default constraints and back button spacing padding from the title area
+              primary: true,
+              flexibleSpace: FlexibleSpaceBar(
+                // 1. Reset titlePadding so the background layout fills the entire width
+                titlePadding: EdgeInsets.zero,
+                // 2. Move your full-width UI block into the background property
+                background: ClientProfileHeader(
+                  userProfile: userProfileState.userProfile,
                 ),
               ),
+            ),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
 
-                      ProkatListTile(
-                        icon: Icons.phone_android_rounded,
-                        iconColor: theme.colorScheme.primary,
-                        iconBgColor: theme.colorScheme.primary.withValues(
-                          alpha: 0.18,
-                        ),
-                        title: l10n.phoneNumber,
-                        subtitle:
-                            userProfileState.userProfile?.phoneNumber ??
-                            "+7 234 ...",
-                        onTap: () {},
-                        // trailing: const Icon(Icons.edit, color: Colors.white54),
+                    ProkatListTile(
+                      icon: Icons.phone_android_rounded,
+                      iconColor: theme.colorScheme.primary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.18,
                       ),
+                      title: l10n.phoneNumber,
+                      subtitle:
+                          userProfileState.userProfile?.phoneNumber ??
+                          "+7 234 ...",
+                      onTap: () {},
+                      // trailing: const Icon(Icons.edit, color: Colors.white54),
+                    ),
 
-                      const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                      ClientRentalPreferencesSection(),
-                    ],
-                  ),
+                    ClientRentalPreferencesSection(),
+                  ],
                 ),
               ),
+            ),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: const BecomeOwnerCTA(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: const BecomeOwnerCTA(),
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    ProkatListTile(
+                      icon: Icons.favorite_outline,
+                      iconColor: theme.colorScheme.primary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: l10n.supportUsTitle,
+                      subtitle: l10n.donateOrHelp,
+                      onTap: () => context.push(AppRoutes.supportUs),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.shieldCheck,
+                      iconColor: theme.colorScheme.primary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: l10n.privacyPolicy,
+                      subtitle: "Privacy Policy",
+                      onTap: () => context.push(AppRoutes.privacyPolicy),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.fileSignature,
+                      iconColor: theme.colorScheme.primary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: l10n.userAgreement,
+                      subtitle: "User Agreement",
+                      onTap: () => context.push(AppRoutes.userAgreement),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.text,
+                      iconColor: theme.colorScheme.primary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: "User Consent",
+                      subtitle: "Sharing of Personal Data",
+                      onTap: () => context.push(AppRoutes.personalDataConsent),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.lifeBuoy,
+                      iconColor: Colors.red,
+                      iconBgColor: Colors.red.withValues(alpha: 0.15),
+                      title: l10n.helpSupportTitle,
+                      subtitle: l10n.helpSupportSubtitle,
+                      onTap: () => context.push(AppRoutes.helpSupport),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.settings,
+                      iconColor: theme.colorScheme.primary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: l10n.appSettings,
+                      subtitle: l10n.appSettingsSubtitle,
+                      onTap: () => context.push(AppRoutes.clientSettings),
+                    ),
+
+                    const SizedBox(height: 40),
+                  ],
                 ),
               ),
+            ),
 
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      ProkatListTile(
-                        icon: Icons.favorite_outline,
-                        iconColor: theme.colorScheme.primary,
-                        iconBgColor: theme.colorScheme.primary.withValues(
-                          alpha: 0.2,
-                        ),
-                        title: l10n.supportUsTitle,
-                        subtitle: l10n.donateOrHelp,
-                        onTap: () => context.push(AppRoutes.supportUs),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      ProkatListTile(
-                        icon: LucideIcons.shieldCheck,
-                        iconColor: theme.colorScheme.primary,
-                        iconBgColor: theme.colorScheme.primary.withValues(
-                          alpha: 0.2,
-                        ),
-                        title: l10n.privacyPolicy,
-                        subtitle: "Privacy Policy",
-                        onTap: () => context.push(AppRoutes.privacyPolicy),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      ProkatListTile(
-                        icon: LucideIcons.fileSignature,
-                        iconColor: theme.colorScheme.primary,
-                        iconBgColor: theme.colorScheme.primary.withValues(
-                          alpha: 0.2,
-                        ),
-                        title: l10n.termsConditions,
-                        subtitle: "Terms and conditions",
-                        onTap: () => context.push(AppRoutes.termsConditions),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      ProkatListTile(
-                        icon: LucideIcons.lifeBuoy,
-                        iconColor: Colors.red,
-                        iconBgColor: Colors.red.withValues(alpha: 0.15),
-                        title: l10n.helpSupportTitle,
-                        subtitle: l10n.helpSupportSubtitle,
-                        onTap: () => context.push(AppRoutes.helpSupport),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      ProkatListTile(
-                        icon: LucideIcons.settings,
-                        iconColor: theme.colorScheme.primary,
-                        iconBgColor: theme.colorScheme.primary.withValues(
-                          alpha: 0.2,
-                        ),
-                        title: l10n.appSettings,
-                        subtitle: l10n.appSettingsSubtitle,
-                        onTap: () => context.push(AppRoutes.clientSettings),
-                      ),
-
-                      const SizedBox(height: 40),
-                    ],
-                  ),
+            SliverFillRemaining(
+              hasScrollBody: false, // Prevents nested inner scrollbars
+              fillOverscroll: true,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 40,
+                  bottom: 60,
+                  left: 16,
+                  right: 16,
                 ),
+                child: const LogoutButton(),
               ),
-
-              SliverFillRemaining(
-                hasScrollBody: false, // Prevents nested inner scrollbars
-                fillOverscroll: true,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: 40,
-                    bottom: 60,
-                    left: 16,
-                    right: 16,
-                  ),
-                  child: const LogoutButton(),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

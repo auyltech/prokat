@@ -336,16 +336,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestReceived => 'Запрос получен';
 
   @override
-  String get byContinuing => 'Продолжая, вы соглашаетесь с нашими ';
+  String get legalNoticePrefix => 'Продолжая, вы принимаете ';
 
   @override
-  String get termsAndConditions => 'Условиями использования';
+  String get userAgreement => 'Пользовательское соглашение';
 
   @override
-  String get andOur => ' и нашей ';
+  String get legalNoticeAfterAgreement => ', подтверждаете ознакомление с ';
 
   @override
   String get privacyPolicy => 'Политикой конфиденциальности';
+
+  @override
+  String get legalNoticeAfterPrivacy => ' и даете ';
+
+  @override
+  String get personalDataConsent =>
+      'согласие на сбор и обработку персональных данных';
+
+  @override
+  String get legalNoticeSuffix => '.';
 
   @override
   String get ok => 'ОК';

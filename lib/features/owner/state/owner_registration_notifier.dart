@@ -121,14 +121,22 @@ class OwnerRegistrationNotifier extends StateNotifier<OwnerRegistrationState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
 
-      await api.updateOwnerProfile(profile);
+      final updated = await api.updateOwnerProfile(profile);
 
-      state = state.copyWith(isLoading: false);
+      if (!updated) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Failed to update owner profile',
+        );
+        return false;
+      }
 
-      getOwnerProfile();
+      await getOwnerProfile();
 
       return true;
     } catch (error) {
+      state = state.copyWith(isLoading: false, error: error.toString());
+
       return false;
     }
   }

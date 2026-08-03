@@ -6,7 +6,9 @@ import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/widgets/balance_tile.dart';
 import 'package:prokat/features/owner/widgets/owner_buisness_preferences.dart';
@@ -53,6 +55,9 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     final ownerEquipmentCount =
         ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
 
+    final activeOrders =
+        ref.watch(ownerActiveBookingsProvider).value?.count ?? 0;
+
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
@@ -63,27 +68,6 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         },
         child: CustomScrollView(
           slivers: [
-            // Page Header
-            // SliverAppBar(
-            //   pinned: true,
-            //   elevation: 0,
-            //   floating: true,
-            //   backgroundColor: theme.scaffoldBackgroundColor,
-            //   // iconTheme: const IconThemeData(color: Colors.white),
-            //   centerTitle: false,
-            //   title: Text(
-            //     'Owner Profile',
-            //     style: theme.textTheme.titleLarge?.copyWith(
-            //       // color: Colors.white,
-            //       fontWeight: FontWeight.bold,
-            //     ),
-            //   ),
-            //   actions: [
-            //     IconButton(icon: const NotificationBadge(), onPressed: () {}),
-            //     const SizedBox(width: 8),
-            //   ],
-            // ),
-
             // Owner Profile
             SliverAppBar(
               expandedHeight: 400,
@@ -91,6 +75,10 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
               elevation: 0,
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
               automaticallyImplyLeading: false,
+              actions: [
+                NotificationBadge(color: Colors.white),
+                const SizedBox(width: 8),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: OwnerProfileHeader(
                   ownerProfile: ownerProfileState.ownerProfile,
@@ -118,8 +106,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: OwnerStatCard(
-                            value:
-                                "${ownerProfileState.ownerProfile?.orderCount ?? 0}",
+                            value: activeOrders.toString(),
                             label: l10n.ordersUnit,
                             valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.package,

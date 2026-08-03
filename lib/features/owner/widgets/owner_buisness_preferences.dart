@@ -7,6 +7,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/widgets/owner_status_tile.dart';
 
@@ -58,7 +59,7 @@ class _OwnerBusinessPreferencesSectionState
 
     final businessName = (profile?.companyName ?? '').trim().isNotEmpty
         ? profile!.companyName!.trim()
-        : profile?.ownerType == 'organization'
+        : profile?.ownerType == OwnerType.organization
         ? 'Organization'
         : 'Individual owner';
 

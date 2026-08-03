@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/auth/widgets/auth_error_message.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../widgets/otp_field.dart';
 import 'dart:async';
@@ -27,7 +28,15 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
 
   Timer? _cooldownTimer;
   int _secondsRemaining = 0;
-  static const int _cooldownDurationSeconds = 60; // 1-minute default cooldown
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncCooldown(ref.read(authProvider).otpRetryAt);
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -42,45 +51,27 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
     super.dispose();
   }
 
-  // Calculates remaining seconds based on when the OTP session started
-  void _updateTimerState(DateTime requestedAt) {
-    final difference = DateTime.now().difference(requestedAt).inSeconds;
-    final remaining = _cooldownDurationSeconds - difference;
-
-    if (remaining > 0) {
-      if (_secondsRemaining != remaining) {
-        setState(() {
-          _secondsRemaining = remaining;
-        });
-      }
-      _startTimerLoop(requestedAt);
-    } else {
-      if (_secondsRemaining != 0) {
-        setState(() {
-          _secondsRemaining = 0;
-        });
-        _cooldownTimer?.cancel();
-      }
-    }
-  }
-
-  void _startTimerLoop(DateTime requestedAt) {
+  void _syncCooldown(DateTime? retryAt) {
     _cooldownTimer?.cancel();
-    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      final difference = DateTime.now().difference(requestedAt).inSeconds;
-      final remaining = _cooldownDurationSeconds - difference;
 
-      if (remaining <= 0) {
-        setState(() {
-          _secondsRemaining = 0;
-        });
-        timer.cancel();
-      } else {
-        setState(() {
-          _secondsRemaining = remaining;
-        });
+    void update() {
+      final milliseconds =
+          retryAt?.difference(DateTime.now()).inMilliseconds ?? 0;
+      final remaining = milliseconds <= 0 ? 0 : (milliseconds + 999) ~/ 1000;
+      if (!mounted) return;
+      if (_secondsRemaining != remaining) {
+        setState(() => _secondsRemaining = remaining);
       }
-    });
+      if (remaining == 0) _cooldownTimer?.cancel();
+    }
+
+    update();
+    if (_secondsRemaining > 0) {
+      _cooldownTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => update(),
+      );
+    }
   }
 
   Future<void> verifyOtp() async {
@@ -120,7 +111,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
           .requestOtp(widget.phone);
 
       if (!success) {
-        widget.onError(_l10n.failedSendOtp);
+        widget.onError(otpRequestErrorMessage(ref.read(authProvider), _l10n));
       }
     } catch (e) {
       widget.onError(_l10n.somethingWentWrong);
@@ -132,10 +123,10 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
     final theme = Theme.of(context);
     final authState = ref.watch(authProvider);
 
-    // Sync state time from your global provider context layer
-    if (authState.otpRequestedAt != null) {
-      _updateTimerState(authState.otpRequestedAt!);
-    }
+    ref.listen<DateTime?>(
+      authProvider.select((state) => state.otpRetryAt),
+      (_, retryAt) => _syncCooldown(retryAt),
+    );
 
     final onSurface = theme.colorScheme.onSurface;
     final primary = theme.colorScheme.primary;

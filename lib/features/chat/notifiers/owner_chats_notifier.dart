@@ -3,7 +3,7 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   late final ChatService api;
@@ -89,9 +89,7 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     if (current == null) return;
 
     state = AsyncData(
-      current.copyWith(
-        lastFetchedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      ),
+      current.copyWith(lastFetchedAt: DateTime.fromMillisecondsSinceEpoch(0)),
     );
   }
 

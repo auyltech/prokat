@@ -69,6 +69,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
               EmptyStateTile(
                 title: l10n.error,
                 subtitle: l10n.couldNotLoadChats,
+                imageName: "connection_error.png",
               ),
             ],
           ),
@@ -106,9 +107,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                 if (index == chats.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Center(
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
+                    child: Center(child: CircularProgressIndicator.adaptive()),
                   );
                 }
 
@@ -138,17 +137,17 @@ Widget _buildSkeleton(ScrollController controller) {
     itemCount: 5,
     itemBuilder: (context, index) {
       return Shimmer.fromColors(
-          baseColor: Colors.grey.shade200,
-          highlightColor: Colors.grey.shade50,
-          child: Container(
-            height: 80,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+        baseColor: Colors.grey.shade200,
+        highlightColor: Colors.grey.shade50,
+        child: Container(
+          height: 80,
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
           ),
-        );
+        ),
+      );
     },
   );
 }

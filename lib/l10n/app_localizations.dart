@@ -694,29 +694,47 @@ abstract class AppLocalizations {
   /// **'Request Received'**
   String get requestReceived;
 
-  /// No description provided for @byContinuing.
+  /// No description provided for @legalNoticePrefix.
   ///
   /// In en, this message translates to:
-  /// **'By continuing, you agree to our '**
-  String get byContinuing;
+  /// **'By continuing, you accept the '**
+  String get legalNoticePrefix;
 
-  /// No description provided for @termsAndConditions.
+  /// No description provided for @userAgreement.
   ///
   /// In en, this message translates to:
-  /// **'Terms & Conditions'**
-  String get termsAndConditions;
+  /// **'User Agreement'**
+  String get userAgreement;
 
-  /// No description provided for @andOur.
+  /// No description provided for @legalNoticeAfterAgreement.
   ///
   /// In en, this message translates to:
-  /// **' and our '**
-  String get andOur;
+  /// **', acknowledge the '**
+  String get legalNoticeAfterAgreement;
 
   /// No description provided for @privacyPolicy.
   ///
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get privacyPolicy;
+
+  /// No description provided for @legalNoticeAfterPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **', and consent to the '**
+  String get legalNoticeAfterPrivacy;
+
+  /// No description provided for @personalDataConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'collection and processing of your personal data'**
+  String get personalDataConsent;
+
+  /// No description provided for @legalNoticeSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get legalNoticeSuffix;
 
   /// No description provided for @ok.
   ///

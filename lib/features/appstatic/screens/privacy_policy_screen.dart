@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class PrivacyPolicyScreen extends StatelessWidget {
+class PrivacyPolicyScreen extends ConsumerStatefulWidget {
   const PrivacyPolicyScreen({super.key});
 
+  @override
+  ConsumerState<PrivacyPolicyScreen> createState() =>
+      _PrivacyPolicyScreenState();
+}
+
+class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
   String _getLocaleAssetPath(BuildContext context) {
     try {
       final localeCode = Localizations.localeOf(context).languageCode;
-      print(localeCode);
+
       // Dynamically falls back to 'en' if the current language file is not yet available
       if (localeCode == 'kk' || localeCode == 'ru') {
         return 'assets/legal/privacy_policy_$localeCode.md';
@@ -26,7 +36,45 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final locale = ref.watch(localeProvider);
+    final langDisplay = LocaleNotifier.displayCode(locale);
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Data Processing"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () async {
+            if (GoRouter.of(context).canPop()) {
+              context.pop();
+            }
+          },
+        ),
+        actions: [
+          GestureDetector(
+            onTap: () => LanguageSheet.show(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withAlpha(40),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white30),
+              ),
+              child: Text(
+                langDisplay,
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+        actionsPadding: EdgeInsets.only(right: 8),
+      ),
       body: SafeArea(
         child: FutureBuilder<String>(
           future: _loadMarkdown(context),

@@ -35,21 +35,48 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<bool> restoreOtpSession() async {
     final data = await storage.readOtpSession();
+    final cooldown = await storage.readOtpCooldown();
+    final now = DateTime.now();
+    final activeCooldown = cooldown != null && cooldown.retryAt.isAfter(now)
+        ? cooldown
+        : null;
 
-    if (data == null) return false;
+    if (cooldown != null && activeCooldown == null) {
+      await storage.clearOtpCooldown();
+    }
 
-    final isExpired =
-        DateTime.now().difference(data.requestedAt) >
-        const Duration(minutes: 5);
-
-    if (isExpired) {
-      await storage.clearOtpSession();
+    if (data == null) {
+      if (activeCooldown != null) {
+        state = state.copyWith(
+          otpCooldownPhone: activeCooldown.phone,
+          otpRetryAt: activeCooldown.retryAt,
+        );
+      }
       return false;
     }
 
+    final isExpired =
+        now.difference(data.requestedAt) > const Duration(minutes: 5);
+
+    if (isExpired) {
+      await storage.clearOtpSession();
+      if (activeCooldown != null) {
+        state = state.copyWith(
+          otpCooldownPhone: activeCooldown.phone,
+          otpRetryAt: activeCooldown.retryAt,
+        );
+      }
+      return false;
+    }
+
+    final retryAt = activeCooldown?.phone == data.phone
+        ? activeCooldown?.retryAt
+        : data.retryAt;
     state = state.copyWith(
       otpPhone: data.phone,
       otpRequestedAt: data.requestedAt,
+      otpCooldownPhone: data.phone,
+      otpRetryAt: retryAt,
     );
 
     return true;
@@ -57,6 +84,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> clearOtpSession() async {
     await storage.clearOtpSession();
+    await storage.clearOtpCooldown();
 
     state = state.copyWith(
       otpPhone: null,
@@ -88,39 +116,58 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// REQUEST OTP
   Future<bool> requestOtp(String phone) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null, errorCode: null);
 
     try {
       final result = await api.requestOtp(phone);
 
       if (result.success) {
         final now = DateTime.now();
+        final retryAt = result.retryAt ?? now.add(const Duration(seconds: 60));
 
         // SAVE TO STORAGE
-        await storage.saveOtpSession(phone, now);
+        await storage.saveOtpSession(phone, now, retryAt: retryAt);
+        await storage.saveOtpCooldown(phone, retryAt);
 
         state = state.copyWith(
           isLoading: false,
           otpPhone: phone,
           otpRequestedAt: now,
+          otpCooldownPhone: phone,
+          otpRetryAt: retryAt,
           error: null,
+          errorCode: null,
         );
-      } else if (result.statusCode == 409) {
-        final now = DateTime.now();
-
-        state = state.copyWith(
-          isLoading: false,
-          otpPhone: phone,
-          otpRequestedAt: now,
-          error: result.message,
-        );
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
+        return true;
       }
 
-      return result.success;
+      if (result.statusCode == 429 || result.errorCode == 'RATE_LIMITED') {
+        final retryAt =
+            result.retryAt ?? DateTime.now().add(const Duration(seconds: 60));
+        await storage.saveOtpCooldown(phone, retryAt);
+
+        state = state.copyWith(
+          isLoading: false,
+          otpCooldownPhone: phone,
+          otpRetryAt: retryAt,
+          error: result.message,
+          errorCode: result.errorCode ?? 'RATE_LIMITED',
+        );
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          error: result.message,
+          errorCode: result.errorCode,
+        );
+      }
+
+      return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "Failed to request OTP");
+      state = state.copyWith(
+        isLoading: false,
+        error: "Failed to request OTP",
+        errorCode: null,
+      );
 
       return false;
     }
@@ -128,7 +175,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// VERIFY OTP
   Future<bool> verifyOtp(String phone, String otp) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null, errorCode: null);
 
     try {
       final result = await api.verifyOtp(phone, otp);
@@ -137,11 +184,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         await storage.saveSession(result.data!);
 
         await storage.clearOtpSession();
+        await storage.clearOtpCooldown();
 
         state = state.copyWith(
           session: result.data,
           isLoading: false,
           error: result.success ? null : result.message,
+          errorCode: null,
+          clearOtp: true,
         );
 
         // DO NOT AWAIT RELOADING TO ALLOW REDIRECT FROM LOGIN
@@ -153,11 +203,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         error: result.success ? null : result.message,
+        errorCode: result.errorCode,
       );
 
       return false;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Verification failed');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Verification failed',
+        errorCode: null,
+      );
 
       return false;
     }

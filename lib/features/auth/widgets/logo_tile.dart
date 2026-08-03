@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 
 class LogoTile extends StatelessWidget {
@@ -19,10 +18,10 @@ class LogoTile extends StatelessWidget {
           // 1. Icon
           Container(
             padding: const EdgeInsets.all(16),
-            child: Icon(
-              LucideIcons.truck,
-              color: theme.colorScheme.primary,
-              size: 60,
+            child: Image.asset(
+              'assets/icons/app_icon.png',
+              width: 60,
+              height: 60,
             ),
           ),
 

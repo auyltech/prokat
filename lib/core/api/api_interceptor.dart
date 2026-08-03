@@ -1,13 +1,19 @@
 import 'package:dio/dio.dart';
+import 'package:prokat/core/services/client_request_metadata_service.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 
 class ApiInterceptor extends Interceptor {
   final AuthSecureStorage secureStorage;
+  final ClientRequestMetadataService requestMetadata;
   final void Function() onUnauthorized;
 
   DateTime? _lastUnauthorizedAt;
 
-  ApiInterceptor(this.secureStorage, {required this.onUnauthorized});
+  ApiInterceptor(
+    this.secureStorage, {
+    required this.requestMetadata,
+    required this.onUnauthorized,
+  });
 
   /// Attach auth token
   @override
@@ -28,6 +34,11 @@ class ApiInterceptor extends Interceptor {
 
       options.headers.putIfAbsent("Content-Type", () => "application/json");
       options.headers.putIfAbsent("Accept", () => "application/json");
+
+      final identityHeaders = await requestMetadata.headers();
+      for (final entry in identityHeaders.entries) {
+        options.headers.putIfAbsent(entry.key, () => entry.value);
+      }
 
       handler.next(options);
     } catch (_) {

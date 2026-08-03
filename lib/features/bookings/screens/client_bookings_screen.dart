@@ -66,7 +66,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
-                icon: Icons.cancel,
+                imageName: 'empty_error.png',
                 title: l10n.errorLoadingOrders,
                 subtitle: error.toString(),
               ),
@@ -90,9 +90,9 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
                   Padding(
                     padding: EdgeInsets.all(16),
                     child: EmptyStateTile(
-                      icon: Icons.inventory_2_outlined,
+                      imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
-                      subtitle: l10n.noActiveOrders,
+                      subtitle: "You don't have any active orders",
                     ),
                   )
                 else

@@ -1,0 +1,65 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/api/api_helper.dart';
+
+void main() {
+  group('parseRetryAfter', () {
+    final now = DateTime.utc(2026, 8, 3, 10);
+
+    test('parses delta seconds', () {
+      expect(
+        parseRetryAfter('45', now: now),
+        now.add(const Duration(seconds: 45)),
+      );
+    });
+
+    test('parses an HTTP date', () {
+      final parsed = parseRetryAfter('Mon, 03 Aug 2026 10:01:00 GMT', now: now);
+
+      expect(parsed?.toUtc(), DateTime.utc(2026, 8, 3, 10, 1));
+    });
+
+    test('clamps a past date to now', () {
+      expect(parseRetryAfter('Mon, 03 Aug 2026 09:59:00 GMT', now: now), now);
+    });
+
+    test('returns null for missing or malformed values', () {
+      expect(parseRetryAfter(null, now: now), isNull);
+      expect(parseRetryAfter('not-a-date', now: now), isNull);
+    });
+  });
+
+  test('extractRetryAt prefers Retry-After over response body', () {
+    final now = DateTime.utc(2026, 8, 3, 10);
+    final response = Response<dynamic>(
+      requestOptions: RequestOptions(path: '/auth/otp'),
+      data: {'resendAfterSeconds': 60},
+      headers: Headers.fromMap({
+        'retry-after': ['30'],
+      }),
+    );
+
+    expect(
+      extractRetryAt(response, now: now),
+      now.add(const Duration(seconds: 30)),
+    );
+  });
+
+  test('handleEmptyApiResponse extracts code and resend cooldown', () {
+    final before = DateTime.now();
+    final response = Response<dynamic>(
+      requestOptions: RequestOptions(path: '/auth/otp'),
+      statusCode: 202,
+      data: {'code': 'OTP_ACCEPTED', 'resendAfterSeconds': 60},
+    );
+
+    final result = handleEmptyApiResponse(response: response);
+
+    expect(result.success, isTrue);
+    expect(result.errorCode, 'OTP_ACCEPTED');
+    expect(
+      result.retryAt!.difference(before).inSeconds,
+      inInclusiveRange(59, 60),
+    );
+  });
+}

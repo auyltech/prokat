@@ -4,7 +4,7 @@ import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/services/push_notification_service.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final pushNotificationServiceProvider = Provider<PushNotificationService>((
   ref,

@@ -98,6 +98,7 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                   EmptyStateTile(
                     title: l10n.noChats,
                     subtitle: l10n.youHaveNoChats,
+                    imageName: "empty_chats.png",
                   ),
                 ],
               );

@@ -1,6 +1,6 @@
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 import 'package:prokat/features/notifications/services/notification_navigation_service.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final notificationLocalStorageProvider = Provider<NotificationLocalStorage>((
   ref,

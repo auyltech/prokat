@@ -6,14 +6,18 @@ String resolveAppBarTitle(
   List<String> segments,
   AppLocalizations l10n,
 ) {
-  if (path == AppRoutes.privacyPolicy) return l10n.privacyPolicy;
   if (path == AppRoutes.supportUs) return l10n.helpUsGrow;
   if (path == AppRoutes.contactSupport) return l10n.getInTouch;
-  if (path == AppRoutes.termsConditions) return l10n.termsConditions;
+
+  // Legal
+  if (path == AppRoutes.privacyPolicy) return l10n.privacyPolicy;
+  if (path == AppRoutes.userAgreement) return l10n.userAgreement;
+  if (path == AppRoutes.personalDataConsent) return "Data Processing";
 
   // Exact Client Route Matches
   // Search Equipment Screen
   if (path == AppRoutes.searchList) return l10n.search;
+
   // Create Order
   if (path.contains("equipment") && !path.contains("owner")) {
     return l10n.createOrder;

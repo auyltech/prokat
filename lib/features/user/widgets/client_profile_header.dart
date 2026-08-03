@@ -19,8 +19,8 @@ class ClientProfileHeader extends StatelessWidget {
       // margin: EdgeInsets.symmetric(vertical: 24, horizontal: 12),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
             Color(0xFF002C63), // Your original primary color
             Color(0xFF004B87), // A lighter blue for the gradient effect
@@ -33,6 +33,12 @@ class ClientProfileHeader extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.end,
+            //   children: [NotificationBadge(color: Colors.white)],
+            // ),
+            SizedBox(height: 40),
+
             ProfileImagePicker(
               initialImageUrl: userProfile?.profileImageUrl ?? "",
               mode: AppMode.clientMode,

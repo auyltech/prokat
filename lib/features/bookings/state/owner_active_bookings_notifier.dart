@@ -2,7 +2,7 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerActiveBookingsNotifier
     extends AsyncNotifier<QueryState<BookingModel>> {

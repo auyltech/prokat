@@ -42,29 +42,27 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             builder: (context) {
               if (state.isLoading) {
                 return ListView(
-                  children: [
-                    SizedBox(height: 24),
-                    EmptyStateTile(title: l10n.loading),
-                  ],
+                  padding: EdgeInsets.all(12),
+                  children: [EmptyStateTile(title: l10n.loading)],
                 );
               }
 
               if ((state.error ?? '').isNotEmpty) {
                 return ListView(
-                  children: [
-                    const SizedBox(height: 24),
-                    EmptyStateTile(title: state.error ?? l10n.error),
-                  ],
+                  padding: EdgeInsets.all(12),
+                  children: [EmptyStateTile(title: state.error ?? l10n.error)],
                 );
               }
 
               if (state.items.isEmpty) {
                 return ListView(
+                  padding: EdgeInsets.all(12),
                   children: [
-                    SizedBox(height: 24),
                     EmptyStateTile(
-                      title: l10n.noNotificationsYet,
                       icon: Icons.notifications_none,
+                      imageName: "empty_notifications.png",
+                      title: l10n.noNotificationsYet,
+                      subtitle: "You don't have any notifications",
                     ),
                   ],
                 );

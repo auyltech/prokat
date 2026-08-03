@@ -5,7 +5,7 @@ import 'package:prokat/features/bookings/providers/client_history_bookings_provi
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/providers/owner_history_bookings_provider.dart';
 import 'package:prokat/features/bookings/utils/booking_extensions.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BookingNotifier
     extends FamilyAsyncNotifier<BookingModel?, BookingLookup> {

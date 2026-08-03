@@ -2,6 +2,87 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'api_response.dart';
 
+String? extractBackendCode(dynamic data) {
+  if (data is! Map) return null;
+
+  final code = data['code'];
+  if (code is! String || code.trim().isEmpty) return null;
+  return code.trim();
+}
+
+DateTime? parseRetryAfter(String? value, {DateTime? now}) {
+  final normalized = value?.trim();
+  if (normalized == null || normalized.isEmpty) return null;
+
+  final currentTime = now ?? DateTime.now();
+  final seconds = int.tryParse(normalized);
+  if (seconds != null) {
+    return currentTime.add(Duration(seconds: seconds < 0 ? 0 : seconds));
+  }
+
+  final parsedIso = DateTime.tryParse(normalized);
+  if (parsedIso != null) {
+    final local = parsedIso.toLocal();
+    return local.isBefore(currentTime) ? currentTime : local;
+  }
+
+  final match = RegExp(
+    r'^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{2}) '
+    r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) '
+    r'(\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT$',
+  ).firstMatch(normalized);
+  if (match == null) return null;
+
+  const months = {
+    'Jan': 1,
+    'Feb': 2,
+    'Mar': 3,
+    'Apr': 4,
+    'May': 5,
+    'Jun': 6,
+    'Jul': 7,
+    'Aug': 8,
+    'Sep': 9,
+    'Oct': 10,
+    'Nov': 11,
+    'Dec': 12,
+  };
+
+  try {
+    final parsed = DateTime.utc(
+      int.parse(match.group(3)!),
+      months[match.group(2)]!,
+      int.parse(match.group(1)!),
+      int.parse(match.group(4)!),
+      int.parse(match.group(5)!),
+      int.parse(match.group(6)!),
+    ).toLocal();
+    return parsed.isBefore(currentTime) ? currentTime : parsed;
+  } catch (_) {
+    return null;
+  }
+}
+
+DateTime? extractRetryAt(Response response, {DateTime? now}) {
+  final currentTime = now ?? DateTime.now();
+  final fromHeader = parseRetryAfter(
+    response.headers.value('retry-after'),
+    now: currentTime,
+  );
+  if (fromHeader != null) return fromHeader;
+
+  final data = response.data;
+  if (data is! Map) return null;
+
+  final rawSeconds = data['resendAfterSeconds'];
+  final seconds = rawSeconds is num
+      ? rawSeconds.toInt()
+      : int.tryParse(rawSeconds?.toString() ?? '');
+  if (seconds == null) return null;
+
+  return currentTime.add(Duration(seconds: seconds < 0 ? 0 : seconds));
+}
+
 String extractBackendMessage(
   dynamic data, {
   String fallback = "Something went wrong",
@@ -85,6 +166,8 @@ ApiResponse<T> handleApiResponse<T>({
 }) {
   final statusCode = response.statusCode ?? 0;
   final responseData = response.data;
+  final errorCode = extractBackendCode(responseData);
+  final retryAt = extractRetryAt(response);
 
   final isSuccess = statusCode >= 200 && statusCode < 300;
 
@@ -95,6 +178,8 @@ ApiResponse<T> handleApiResponse<T>({
           ? responseData["error"]?.toString()
           : responseData?.toString(),
       statusCode: statusCode,
+      errorCode: errorCode,
+      retryAt: retryAt,
     );
   }
 
@@ -105,6 +190,8 @@ ApiResponse<T> handleApiResponse<T>({
       parsedData,
       message: extractBackendMessage(responseData, fallback: "Success"),
       statusCode: statusCode,
+      errorCode: errorCode,
+      retryAt: retryAt,
     );
   } catch (error) {
     return ApiResponse.failure(
@@ -122,14 +209,20 @@ ApiResponse<void> handleEmptyApiResponse({
 }) {
   final statusCode = response.statusCode ?? 0;
   final responseData = response.data;
+  final errorCode = extractBackendCode(responseData);
+  final retryAt = extractRetryAt(response);
 
   final isSuccess = statusCode >= 200 && statusCode < 300;
 
   if (!isSuccess) {
     return ApiResponse.failure(
       message: extractBackendMessage(responseData, fallback: fallbackMessage),
-      error: responseData["error"],
+      error: responseData is Map
+          ? responseData["error"]?.toString()
+          : responseData?.toString(),
       statusCode: statusCode,
+      errorCode: errorCode,
+      retryAt: retryAt,
     );
   }
 
@@ -137,6 +230,8 @@ ApiResponse<void> handleEmptyApiResponse({
     null,
     message: extractBackendMessage(responseData, fallback: fallbackMessage),
     statusCode: statusCode,
+    errorCode: errorCode,
+    retryAt: retryAt,
   );
 }
 

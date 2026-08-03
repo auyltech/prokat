@@ -72,6 +72,16 @@ class OwnerProfileHeader extends StatelessWidget {
               ),
             ],
           ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            "${(ownerProfile?.orderCount ?? 0).toString()} Orders Completed",
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.75),
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );

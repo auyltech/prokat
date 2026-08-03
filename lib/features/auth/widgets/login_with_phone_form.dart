@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/auth/widgets/auth_error_message.dart';
 import 'package:prokat/features/auth/widgets/phone_input_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'otp_verification_form.dart';
@@ -21,6 +24,17 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
 
   bool showOtp = false;
   String phone = "";
+  Timer? _cooldownTimer;
+  int _secondsRemaining = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncCooldown(ref.read(authProvider).otpRetryAt);
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -30,8 +44,32 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
 
   @override
   void dispose() {
+    _cooldownTimer?.cancel();
     phoneController.dispose();
     super.dispose();
+  }
+
+  void _syncCooldown(DateTime? retryAt) {
+    _cooldownTimer?.cancel();
+
+    void update() {
+      final milliseconds =
+          retryAt?.difference(DateTime.now()).inMilliseconds ?? 0;
+      final remaining = milliseconds <= 0 ? 0 : (milliseconds + 999) ~/ 1000;
+      if (!mounted) return;
+      if (_secondsRemaining != remaining) {
+        setState(() => _secondsRemaining = remaining);
+      }
+      if (remaining == 0) _cooldownTimer?.cancel();
+    }
+
+    update();
+    if (_secondsRemaining > 0) {
+      _cooldownTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => update(),
+      );
+    }
   }
 
   bool isValidKazakhstanPhone(String phone) {
@@ -64,7 +102,7 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
           .requestOtp(fullPhone);
 
       if (!success) {
-        widget.onError(_l10n.failedSendOtp);
+        widget.onError(otpRequestErrorMessage(ref.read(authProvider), _l10n));
       }
     } catch (e) {
       widget.onError(_l10n.somethingWentWrong);
@@ -74,6 +112,11 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+
+    ref.listen<DateTime?>(
+      authProvider.select((state) => state.otpRetryAt),
+      (_, retryAt) => _syncCooldown(retryAt),
+    );
 
     final hasOtpSession =
         authState.otpPhone != null && authState.otpRequestedAt != null;
@@ -101,12 +144,21 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
               '',
             );
             final fullPhone = "+7$rawDigits";
+            final cooldownSeconds = authState.otpCooldownPhone == fullPhone
+                ? _secondsRemaining
+                : 0;
 
             final canSubmit =
-                isValidKazakhstanPhone(fullPhone) && !authState.isLoading;
+                isValidKazakhstanPhone(fullPhone) &&
+                !authState.isLoading &&
+                cooldownSeconds == 0;
 
             return PrimaryButton(
-              label: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
+              label: authState.isLoading
+                  ? _l10n.sending
+                  : cooldownSeconds > 0
+                  ? _l10n.resendOtpIn(cooldownSeconds)
+                  : _l10n.sendOtp,
               isLoading: authState.isLoading,
               onPressed: canSubmit ? requestOtp : null,
             );

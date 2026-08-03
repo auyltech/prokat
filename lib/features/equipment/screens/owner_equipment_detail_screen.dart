@@ -68,7 +68,7 @@ class _OwnerEquipmentDetailScreenState
 
           error: (_, _) => EmptyStateTile(
             title: l10n.systemError,
-            icon: Icons.error_outline,
+            imageName: 'empty_error.png',
             subtitle: l10n.equipmentDataNotLocated,
           ),
 

@@ -2,9 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/support/models/contact_enquiry_topic.dart';
 import 'package:prokat/features/support/state/support_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+
+enum ContactInquiryTopic {
+  general,
+  support,
+  bugReport,
+  featureRequest,
+  sales,
+  partnership,
+  billing,
+  callMe,
+  accountDeletion,
+  accountRecovery,
+  accountIssue,
+  other,
+}
 
 extension ContactInquiryTopicExtension on ContactInquiryTopic {
   String get displayName {
@@ -33,7 +47,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   final _phoneController = TextEditingController();
   final _messageController = TextEditingController();
 
-  ContactInquiryTopic _selectedTopic = ContactInquiryTopic.GENERAL;
+  ContactInquiryTopic _selectedTopic = ContactInquiryTopic.general;
   bool _isLoading = false;
 
   @override
@@ -70,9 +84,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           );
 
       AppSnackBar.show(
-        message: result.success
-            ? l10n.supportTicketSubmitted
-            : result.message,
+        message: result.success ? l10n.supportTicketSubmitted : result.message,
         isSuccess: result.success,
         isError: !result.success,
       );
@@ -156,6 +168,18 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            'assets/media/contact_support.png',
+                            height: 340,
+                            width: 340,
+                            fit: BoxFit.contain,
+                            excludeFromSemantics: true,
+                          ),
+                        ),
+                      ),
                       // Header introduction section
                       Text(
                         l10n.howCanWeHelp,
@@ -227,8 +251,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                 decoration: buildInputDecoration(
                                   labelText: l10n.emailAddress,
                                   prefixIcon: Icons.email_outlined,
-                                  helperText:
-                                      l10n.phoneRequiredIfEmailEmpty,
+                                  helperText: l10n.phoneRequiredIfEmailEmpty,
                                 ),
                                 onChanged: (_) =>
                                     _formKey.currentState?.validate(),

@@ -58,7 +58,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
-                icon: Icons.cancel,
+                imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
                 subtitle: error.toString(),
               ),
@@ -106,14 +106,14 @@ class _ActiveRequestLimitView extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            Text(
-              l10n.activeRequestAlreadyExists,
-              textAlign: TextAlign.center,
-            ),
+            Text(l10n.activeRequestAlreadyExists, textAlign: TextAlign.center),
 
             const SizedBox(height: 8),
 
-            Text(l10n.activeRequestCount(activeCount), textAlign: TextAlign.center),
+            Text(
+              l10n.activeRequestCount(activeCount),
+              textAlign: TextAlign.center,
+            ),
 
             const SizedBox(height: 20),
 
