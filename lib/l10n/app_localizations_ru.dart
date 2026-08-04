@@ -264,6 +264,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String otpRetryIn(int seconds) {
+    return 'Повторно запросить код можно через $seconds сек.';
+  }
+
+  @override
   String get resendOtp => 'Отправить код повторно';
 
   @override

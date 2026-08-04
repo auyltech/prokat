@@ -88,7 +88,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
     Future.microtask(() async {
       final success = await ref
-          .read(ownerRegistrationProvider.notifier)
+          .read(ownerRegistrationMutationProvider.notifier)
           .updateOwnerProfile(updatedProfile);
 
       if (!mounted) return;
@@ -96,7 +96,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       AppSnackBar.show(
         message: success
             ? 'Profile updated successfully'
-            : ref.read(ownerRegistrationProvider).error ??
+            : ref.read(ownerRegistrationMutationProvider).error ??
                   'Failed to update profile',
         isSuccess: success,
         isError: !success,
@@ -108,7 +108,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final providerState = ref.watch(ownerRegistrationProvider);
+    final providerState = ref.watch(ownerRegistrationMutationProvider);
     final isLoading = providerState.isLoading;
 
     final isOrganization = _selectedOwnerType == OwnerType.organization;

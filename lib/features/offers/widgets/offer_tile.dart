@@ -23,14 +23,17 @@ class OfferTile extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
-    if (ref.read(offersProvider).isFetching ||
-        ref.read(offersProvider).isSubmitting) {
+    if (ref.read(offerMutationProvider).isSubmitting) {
       return;
     }
 
-    final notifier = ref.read(offersProvider.notifier);
+    final notifier = ref.read(offerMutationProvider.notifier);
 
-    final result = await notifier.acceptOffer(offer.id);
+    final result = await notifier.acceptOffer(
+      offer.id,
+      chatId: offer.chatId,
+      requestId: offer.requestId,
+    );
 
     if (!context.mounted) return;
 
@@ -46,13 +49,16 @@ class OfferTile extends ConsumerWidget {
     WidgetRef ref,
     AppLocalizations l10n,
   ) async {
-    if (ref.read(offersProvider).isSubmitting ||
-        ref.read(offersProvider).isFetching) {
+    if (ref.read(offerMutationProvider).isSubmitting) {
       return;
     }
 
-    final notifier = ref.read(offersProvider.notifier);
-    final result = await notifier.rejectOffer(offer.id);
+    final notifier = ref.read(offerMutationProvider.notifier);
+    final result = await notifier.rejectOffer(
+      offer.id,
+      chatId: offer.chatId,
+      requestId: offer.requestId,
+    );
 
     if (!context.mounted) return;
 
@@ -203,7 +209,7 @@ class OfferTile extends ConsumerWidget {
               if (!isHandled) ...[
                 // Reject Offer
                 IconButton(
-                  onPressed: () => ref.watch(offersProvider).isSubmitting
+                  onPressed: () => ref.watch(offerMutationProvider).isSubmitting
                       ? null
                       : _handleReject(context, ref, l10n),
                   icon: Icon(
@@ -217,7 +223,7 @@ class OfferTile extends ConsumerWidget {
 
                 // Accept Offer
                 IconButton(
-                  onPressed: () => ref.watch(offersProvider).isSubmitting
+                  onPressed: () => ref.watch(offerMutationProvider).isSubmitting
                       ? null
                       : _handleAccept(context, ref, l10n),
                   icon: Icon(

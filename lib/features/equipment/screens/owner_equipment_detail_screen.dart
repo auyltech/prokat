@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
@@ -34,13 +33,7 @@ class _OwnerEquipmentDetailScreenState
     Future.microtask(() async {
       await ref.read(ownerEquipmentDetailsProvider(widget.equipmentId).future);
 
-      final categoryState = ref.read(categoriesProvider);
-
-      if (categoryState.fetchStatus == FetchStatus.initial ||
-          categoryState.fetchStatus == FetchStatus.error) {
-        ref.read(categoriesProvider.notifier).getCategories();
-        return;
-      }
+      await ref.read(categoriesProvider.notifier).refreshIfStale();
     });
   }
 

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:go_router/go_router.dart';
 
 // TODO: REMOVE, NOT USED
@@ -18,15 +17,8 @@ class CategoryTile extends ConsumerStatefulWidget {
 }
 
 class _CategoryTileState extends ConsumerState<CategoryTile> {
-  Future<void> onCategorySelected(
-    BuildContext context,
-    Category category,
-  ) async {
-    ref.read(categoriesProvider.notifier).selectCategory(category);
-    final userProfileState = ref.read(clientProfileProvider.notifier);
-
-    await userProfileState.selectCategory(category.id);
-
+  void onCategorySelected(BuildContext context, Category category) {
+    ref.read(selectedCategoryProvider.notifier).select(category);
     if (context.mounted) {
       final uri = Uri(
         path: AppRoutes.searchList,

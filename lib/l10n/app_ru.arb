@@ -90,6 +90,12 @@
       "seconds": { "type": "int" }
     }
   },
+  "otpRetryIn": "Повторно запросить код можно через {seconds} сек.",
+  "@otpRetryIn": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
   "resendOtp": "Отправить код повторно",
   "equipmentRenting": "Аренда техники",
   "getStartedWithProkat": "Начните работу с Prokat",

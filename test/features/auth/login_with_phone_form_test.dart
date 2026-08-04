@@ -100,7 +100,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.textContaining('Resend OTP in'), findsOneWidget);
+    expect(find.text('Send Code'), findsOneWidget);
+    expect(
+      find.textContaining('You can request another code in'),
+      findsOneWidget,
+    );
     expect(error, 'Please try again later');
     expect(
       tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,

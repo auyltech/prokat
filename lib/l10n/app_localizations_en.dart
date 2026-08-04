@@ -261,6 +261,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String otpRetryIn(int seconds) {
+    return 'You can request another code in $seconds seconds';
+  }
+
+  @override
   String get resendOtp => 'Resend OTP';
 
   @override

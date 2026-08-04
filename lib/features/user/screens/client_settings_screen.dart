@@ -37,9 +37,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
     super.initState();
 
     Future.microtask(() async {
-      if (ref.read(clientProfileProvider).userProfile == null) {
-        await ref.read(clientProfileProvider.notifier).getUserProfile();
-      }
+      await ref.read(clientProfileProvider.notifier).refreshIfStale();
     });
   }
 
@@ -52,8 +50,8 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
     final langDisplay = LocaleNotifier.displayCode(locale);
     final currentMode = ref.watch(themeModeProvider);
 
-    final profileState = ref.watch(clientProfileProvider);
-    final profile = profileState.userProfile;
+    final profileAsync = ref.watch(clientProfileProvider);
+    final profile = profileAsync.valueOrNull;
 
     final notificationPreferences =
         profile?.notificationSettings ?? const ClientNotificationPreferences();
@@ -95,7 +93,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             const SizedBox(height: 16),
 
-            if (profile == null && profileState.isLoading)
+            if (profile == null && profileAsync.isLoading)
               const Padding(
                 padding: EdgeInsets.all(24),
                 child: Center(child: CircularProgressIndicator()),
@@ -105,7 +103,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
                 initialValue: notificationPreferences,
                 onSave: (preferences) {
                   return ref
-                      .read(clientProfileProvider.notifier)
+                      .read(clientProfileMutationProvider.notifier)
                       .updateClientNotificationSettings(preferences);
                 },
                 onPushAuthorized: () async {

@@ -45,6 +45,48 @@ void main() {
     );
   });
 
+  test('extractRetryAt prefers error retry seconds over Retry-After', () {
+    final now = DateTime.utc(2026, 8, 3, 10);
+    final response = Response<dynamic>(
+      requestOptions: RequestOptions(path: '/auth/otp'),
+      data: {'retryAfterSeconds': 45},
+      headers: Headers.fromMap({
+        'retry-after': ['3600'],
+      }),
+    );
+
+    expect(
+      extractRetryAt(response, now: now),
+      now.add(const Duration(seconds: 45)),
+    );
+  });
+
+  test('handleDioException retains error code and retry cooldown', () {
+    final response = Response<dynamic>(
+      requestOptions: RequestOptions(path: '/auth/otp'),
+      statusCode: 429,
+      data: {
+        'code': 'RATE_LIMITED',
+        'message': 'Please try again later',
+        'retryAfterSeconds': 75,
+      },
+    );
+    final error = DioException.badResponse(
+      statusCode: 429,
+      requestOptions: response.requestOptions,
+      response: response,
+    );
+
+    final before = DateTime.now();
+    final result = handleDioException<void>(error);
+
+    expect(result.errorCode, 'RATE_LIMITED');
+    expect(
+      result.retryAt!.difference(before).inSeconds,
+      inInclusiveRange(74, 75),
+    );
+  });
+
   test('handleEmptyApiResponse extracts code and resend cooldown', () {
     final before = DateTime.now();
     final response = Response<dynamic>(

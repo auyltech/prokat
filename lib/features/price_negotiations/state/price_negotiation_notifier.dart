@@ -1,86 +1,86 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/core/mutation/mutation_model.dart';
+import 'package:prokat/core/mutation/mutation_notifier.dart';
+import 'package:prokat/features/bookings/models/booking_lookup.dart';
+import 'package:prokat/features/bookings/providers/booking_provider.dart';
+import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_service.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_state.dart';
 
-class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
+class PriceNegotiationMutationNotifier
+    extends MutationNotifier<PriceNegotiationState> {
+  PriceNegotiationMutationNotifier(this.ref, this.service)
+    : super(const PriceNegotiationState());
+
+  final Ref ref;
   final PriceNegotiationService service;
 
-  PriceNegotiationNotifier(this.service) : super(const PriceNegotiationState());
+  PostMutationCacheCoordinator get _cacheCoordinator =>
+      ref.read(postMutationCacheCoordinatorProvider);
 
-  // Helper Method
-  bool isLatestPendingFromMe(String? currentUserId) {
-    final pending = state.latestPending;
-    final userId = (currentUserId ?? '').trim();
+  @override
+  Set<Mutation> get activeActions => state.activeActions;
 
-    if (pending == null || userId.isEmpty) return false;
-    return (pending.senderId ?? '').trim() == userId;
+  @override
+  PriceNegotiationState copyState({Set<Mutation>? activeActions}) =>
+      state.copyWith(activeActions: activeActions);
+
+  PriceNegotiationQuery? _queryFor({String? bookingId, String? offerId}) {
+    final booking = (bookingId ?? '').trim();
+    final offer = (offerId ?? '').trim();
+    if ((booking.isNotEmpty) == (offer.isNotEmpty)) return null;
+    return PriceNegotiationQuery(
+      bookingId: booking.isEmpty ? null : booking,
+      offerId: offer.isEmpty ? null : offer,
+      filter: PriceNegotiationListFilter.active,
+    );
   }
 
-  // Helper Method
-  PriceNegotiation? getPendingNegotiation({
-    String? bookingId,
-    String? offerId,
-    String? currentUserId,
-    String? mode,
-  }) {
+  Future<void> _syncQueries(PriceNegotiationQuery query) async {
+    final updates = <Future<void>>[];
+    final active = priceNegotiationsProvider(query);
+    if (ref.exists(active)) {
+      updates.add(ref.read(active.notifier).refresh());
+    }
+
+    final history = priceNegotiationsProvider(
+      query.withFilter(PriceNegotiationListFilter.history),
+    );
+    if (ref.exists(history)) {
+      updates.add(ref.read(history.notifier).invalidate());
+    }
+    await Future.wait(updates);
+  }
+
+  Future<void> _refreshSubject(PriceNegotiationQuery query) async {
+    final refreshes = <Future<void>>[];
+    final bookingId = query.bookingId;
     if (bookingId != null) {
-      final found = state.negotiations
-          .where(
-            (item) =>
-                (item.bookingId == bookingId) &&
-                (item.status == PriceNegotiationStatus.created),
-          )
-          .firstOrNull;
-
-      return found;
-    } else if (offerId != null) {
-      final found = state.negotiations
-          .where(
-            (item) =>
-                item.offerId == offerId &&
-                item.status == PriceNegotiationStatus.created,
-          )
-          .firstOrNull;
-
-      return found;
-    } else {
-      return null;
-    }
-  }
-
-  // Fetch Price Negotiations
-  Future<void> getPriceNegotiations() async {
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final result = await service.getPriceNegotiations();
-
-      if (result.success) {
-        final sorted = List<PriceNegotiation>.from(result.data?.toList() ?? []);
-
-        sorted.sort((a, b) {
-          final aDate = a.createdAt ?? DateTime(1970);
-          final bDate = b.createdAt ?? DateTime(1970);
-          return bDate.compareTo(aDate);
-        });
-
-        state = state.copyWith(
-          isLoading: false,
-          negotiations: sorted,
-          error: null,
+      for (final isOwner in [false, true]) {
+        final provider = bookingProvider(
+          BookingLookup(bookingId: bookingId, isOwner: isOwner),
         );
-      } else {
-        state = state.copyWith(isLoading: false, error: result.message);
+        if (ref.exists(provider)) {
+          ref.invalidate(provider);
+        }
       }
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        negotiations: const [],
-        error: e.toString(),
-      );
+    } else {
+      for (final provider in [
+        clientOffersProvider(const OfferQuery.active()),
+        ownerOffersProvider(const OfferQuery.active()),
+      ]) {
+        if (ref.exists(provider)) {
+          refreshes.add(ref.read(provider.notifier).refresh());
+        }
+      }
     }
+    await Future.wait(refreshes);
   }
 
   Future<void> createCounterOffer({
@@ -90,14 +90,15 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
     String? priceRate,
     String? comment,
     required String type,
+    String? chatId,
   }) async {
+    const actionId = 'price:create';
+    final query = _queryFor(bookingId: bookingId, offerId: offerId);
+    if (query == null) {
+      throw Exception('Provide exactly one bookingId or offerId');
+    }
+    startAction(actionId);
     try {
-      state = state.copyWith(
-        isSubmitting: true,
-        actionId: "price:create",
-        error: null,
-      );
-
       final result = await service.createPriceNegotiation(
         bookingId: bookingId,
         offerId: offerId,
@@ -106,73 +107,93 @@ class PriceNegotiationNotifier extends StateNotifier<PriceNegotiationState> {
         comment: comment,
         type: type,
       );
-
-      state = state.copyWith(
-        isSubmitting: false,
-        error: result.success ? null : result.message,
-        actionId: null,
+      finishAction(
+        actionId,
+        error: result.success ? null : _error(result.message),
       );
-
-      if (result.success) {
-        await getPriceNegotiations();
-      }
+      if (!result.success) throw Exception(result.message);
+      await Future.wait([
+        _syncQueries(query),
+        _refreshSubject(query),
+        _cacheCoordinator.refreshAffectedChats(chatId),
+      ]);
     } catch (error) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: error.toString(),
-        actionId: null,
-      );
+      finishAction(actionId, error: _error(error.toString()));
+      rethrow;
     }
   }
 
   Future<void> respondToPriceNegotiation({
     required String negotiationId,
     required PriceNegotiationResponse response,
+    String? bookingId,
+    String? offerId,
+    String? chatId,
   }) async {
+    final actionId = response == PriceNegotiationResponse.accept
+        ? 'price:accept'
+        : 'price:reject';
+    startAction(actionId);
     try {
-      state = state.copyWith(
-        isSubmitting: true,
-        actionId: response == PriceNegotiationResponse.accept
-            ? "price:accept"
-            : "price:reject",
-        error: null,
-      );
-
       final result = await service.respondToPriceNegotiation(
         negotiationId: negotiationId,
         decision: response,
       );
-
-      state = state.copyWith(
-        isSubmitting: false,
-        error: result.success ? null : result.message,
-        actionId: null,
+      finishAction(
+        actionId,
+        error: result.success ? null : _error(result.message),
       );
-
-      // Refresh is called by the booking notifier
-      if (result.success) {
-        getPriceNegotiations();
+      if (!result.success) throw Exception(result.message);
+      final query = _queryFor(bookingId: bookingId, offerId: offerId);
+      if (query != null) {
+        await Future.wait([
+          _syncQueries(query),
+          _refreshSubject(query),
+          _cacheCoordinator.refreshAffectedChats(chatId),
+        ]);
+      } else {
+        await _cacheCoordinator.refreshAffectedChats(chatId);
       }
     } catch (error) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: error.toString(),
-        actionId: null,
-      );
-    }
-  }
-
-  Future<void> cancelPriceNegotiation(String negotiationId) async {
-    try {
-      state = state.copyWith(isSubmitting: true, error: null);
-
-      await service.cancelPriceNegotiation(negotiationId);
-      state = state.copyWith(isSubmitting: false);
-
-      await getPriceNegotiations();
-    } catch (e) {
-      state = state.copyWith(isSubmitting: false, error: e.toString());
+      finishAction(actionId, error: _error(error.toString()));
       rethrow;
     }
   }
+
+  Future<void> cancelPriceNegotiation(
+    String negotiationId, {
+    String? bookingId,
+    String? offerId,
+    String? chatId,
+  }) async {
+    final actionId = 'price:cancel:$negotiationId';
+    startAction(actionId);
+    try {
+      final result = await service.cancelPriceNegotiation(negotiationId);
+      finishAction(
+        actionId,
+        error: result.success ? null : _error(result.message),
+      );
+      if (!result.success) throw Exception(result.message);
+      final query = _queryFor(bookingId: bookingId, offerId: offerId);
+      if (query != null) {
+        await Future.wait([
+          _syncQueries(query),
+          _refreshSubject(query),
+          _cacheCoordinator.refreshAffectedChats(chatId),
+        ]);
+      } else {
+        await _cacheCoordinator.refreshAffectedChats(chatId);
+      }
+    } catch (error) {
+      finishAction(actionId, error: _error(error.toString()));
+      rethrow;
+    }
+  }
+
+  AppError _error(String message) => AppError(
+    type: ErrorType.unknown,
+    code: 'PRICE_NEGOTIATION_FAILED',
+    message: message,
+  );
 }

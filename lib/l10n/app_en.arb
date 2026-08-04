@@ -90,6 +90,12 @@
       "seconds": { "type": "int" }
     }
   },
+  "otpRetryIn": "You can request another code in {seconds} seconds",
+  "@otpRetryIn": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
   "resendOtp": "Resend OTP",
   "equipmentRenting": "Equipment Renting",
   "getStartedWithProkat": "Get Started with Prokat",

@@ -9,7 +9,11 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
+import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -23,6 +27,18 @@ class ClientChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
+  PriceNegotiationQuery? _entryNegotiationQuery;
+  OfferQuery? _entryOfferQuery;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale();
+      ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -39,15 +55,48 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
 
     final booking = currentChat?.booking;
     final lastOffer = currentChat?.getActiveOffer();
+    final requestId = (currentChat?.requestId ?? currentChat?.request?.id ?? '')
+        .trim();
+    final offerQuery = requestId.isEmpty
+        ? null
+        : OfferQuery(
+            filter: OfferListFilter.active,
+            requestId: requestId,
+          );
+    if (offerQuery != null && offerQuery != _entryOfferQuery) {
+      _entryOfferQuery = offerQuery;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref
+            .read(clientOffersProvider(offerQuery).notifier)
+            .refreshIfStale();
+      });
+    }
 
-    final pendingNegotiation = ref
-        .watch(priceNegotiationProvider.notifier)
-        .getPendingNegotiation(
-          bookingId: booking?.id,
-          offerId: lastOffer?.id ?? "",
-          currentUserId: currentUserId,
-          mode: "client",
-        );
+    final negotiationQuery = priceNegotiationQueryFor(
+      bookingId: booking?.id,
+      offerId: lastOffer?.id,
+    );
+    if (negotiationQuery != null &&
+        negotiationQuery != _entryNegotiationQuery) {
+      _entryNegotiationQuery = negotiationQuery;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref
+            .read(priceNegotiationsProvider(negotiationQuery).notifier)
+            .refreshIfStale();
+      });
+    }
+    final negotiations = negotiationQuery == null
+        ? const []
+        : ref
+                  .watch(priceNegotiationsProvider(negotiationQuery))
+                  .valueOrNull
+                  ?.items ??
+              const [];
+    final pendingNegotiation = negotiations
+        .where((item) => item.status == PriceNegotiationStatus.created)
+        .firstOrNull;
 
     final pendingNegotiationId = (pendingNegotiation?.id ?? '').trim();
 
@@ -70,12 +119,16 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            await ref
-                .read(currentChatProvider(widget.chatId).notifier)
-                .refresh();
-            await ref
-                .read(chatMessagesProvider(widget.chatId).notifier)
-                .refresh();
+            await Future.wait([
+              ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
+              ref.read(chatMessagesProvider(widget.chatId).notifier).refresh(),
+              if (negotiationQuery != null)
+                ref
+                    .read(priceNegotiationsProvider(negotiationQuery).notifier)
+                    .refresh(),
+              if (offerQuery != null)
+                ref.read(clientOffersProvider(offerQuery).notifier).refresh(),
+            ]);
           },
           child: chatAsync.when(
             data: (data) => Column(

@@ -123,7 +123,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (result.success) {
         final now = DateTime.now();
-        final retryAt = result.retryAt ?? now.add(const Duration(seconds: 60));
+        final retryAt = result.retryAt ?? _fallbackRetryAt(now: now);
 
         // SAVE TO STORAGE
         await storage.saveOtpSession(phone, now, retryAt: retryAt);
@@ -141,9 +141,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return true;
       }
 
-      if (result.statusCode == 429 || result.errorCode == 'RATE_LIMITED') {
-        final retryAt =
-            result.retryAt ?? DateTime.now().add(const Duration(seconds: 60));
+      final isRateLimited =
+          result.statusCode == 429 || result.errorCode == 'RATE_LIMITED';
+      final shouldStartCooldown = result.retryAt != null || isRateLimited;
+
+      if (shouldStartCooldown) {
+        final retryAt = result.retryAt ?? _fallbackRetryAt();
         await storage.saveOtpCooldown(phone, retryAt);
 
         state = state.copyWith(
@@ -151,7 +154,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
           otpCooldownPhone: phone,
           otpRetryAt: retryAt,
           error: result.message,
-          errorCode: result.errorCode ?? 'RATE_LIMITED',
+          errorCode:
+              result.errorCode ?? (isRateLimited ? 'RATE_LIMITED' : null),
         );
       } else {
         state = state.copyWith(
@@ -171,6 +175,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       return false;
     }
+  }
+
+  DateTime _fallbackRetryAt({DateTime? now}) {
+    return (now ?? DateTime.now()).add(const Duration(seconds: 60));
   }
 
   /// VERIFY OTP

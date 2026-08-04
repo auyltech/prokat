@@ -46,6 +46,7 @@ class PriceNegotiationState {
   }
 
   PriceNegotiationState copyWith({
+    Set<Mutation>? activeActions,
     bool? isLoading,
     bool? isSubmitting,
     String? actionId,
@@ -54,6 +55,7 @@ class PriceNegotiationState {
   }) {
     return PriceNegotiationState(
       isLoading: isLoading ?? this.isLoading,
+      activeActions: activeActions ?? this.activeActions,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       actionId: actionId,
       error: error,

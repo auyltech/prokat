@@ -1,213 +1,77 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/user/models/client_notification_preferences.dart';
+import 'package:prokat/features/user/models/user_profile_model.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/state/client_profile_service.dart';
-import 'package:prokat/features/user/state/client_profile_state.dart';
-import 'dart:io';
 
-class ClientProfileNotifier extends StateNotifier<ClientProfileState> {
-  ClientProfileNotifier(this.ref, this.service) : super(ClientProfileState());
+class ClientProfileNotifier extends AsyncNotifier<UserProfileModel?> {
+  static const staleAfter = Duration(minutes: 5);
 
-  final Ref ref;
-  final ClientProfileService service;
+  late final ClientProfileService service;
+  DateTime? _lastFetchedAt;
+  Future<void>? _refreshing;
 
-  void setFirstName(String firstName) {
-    state = state.copyWith(firstName: firstName);
+  @override
+  Future<UserProfileModel?> build() async {
+    service = ref.read(clientProfileServiceProvider);
+    return _fetch();
   }
 
-  void setLastName(String lastName) {
-    state = state.copyWith(lastName: lastName);
-  }
-
-  void setDarkMode(String darkMode) {
-    state = state.copyWith(darkMode: darkMode);
-  }
-
-  Future<bool> getUserProfile() async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final data = await service.getUserProfile();
-
-      state = state.copyWith(isLoading: false, userProfile: () => data);
-
-      if (data == null) {
-        return false;
-      }
-
-      ref.read(locationProvider.notifier).selectCity(data.city ?? "");
-
-      ref
-          .read(categoriesProvider.notifier)
-          .selectCategoryById(data.selectedCategoryId);
-
+  Future<UserProfileModel?> _fetch() async {
+    final profile = await service.getUserProfile();
+    _lastFetchedAt = DateTime.now();
+    if (profile != null) {
+      ref.read(locationProvider.notifier).selectCity(profile.city ?? '');
       ref
           .read(locationProvider.notifier)
-          .selectAddressById(data.selectedAddressId);
-
-      return true;
-    } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        userProfile: () => null,
-        error: error.toString(),
-      );
-
-      return false;
+          .selectAddressById(profile.selectedAddressId);
     }
+    return profile;
   }
 
-  Future<bool> updateUserProfile({
-    String? firstName,
-    String? lastName,
-    String? phoneNumber,
-    String? phoneCountryCode,
-    String? profileImageUrl,
-    String? darkMode,
-    String? language,
-    String? selectedAddressId,
-  }) async {
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refresh() async {
+    final hadData = state is AsyncData<UserProfileModel?>;
+    final previous = state.value;
+    if (!hadData && state.isLoading) {
+      try {
+        await future;
+        return;
+      } catch (_) {}
+    }
+
+    if (!hadData) {
+      state = const AsyncLoading();
+      state = await AsyncValue.guard(_fetch);
+      return;
+    }
+
     try {
-      state = state.copyWith(isLoading: true);
-
-      final result = await service.updateUserProfile(
-        firstName: firstName,
-        lastName: lastName,
-        profileImageUrl: profileImageUrl,
-        darkMode: darkMode,
-        language: language,
-        selectedAddressId: selectedAddressId,
-      );
-
-      state = state.copyWith(isLoading: false);
-      if (result.success) {
-        await getUserProfile();
-      }
-
-      return result.success;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-      return false;
+      state = AsyncData(await _fetch());
+    } catch (_) {
+      state = AsyncData(previous);
     }
   }
 
-  Future<bool> updateClientNotificationSettings(
-    ClientNotificationPreferences preferences,
-  ) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final result = await service.updateClientNotificationSettings(
-        preferences,
-      );
-
-      state = state.copyWith(isLoading: false);
-      if (result.success) {
-        await getUserProfile();
-      }
-
-      return result.success;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-
-      return false;
+  Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
+    final fetchedAt = _lastFetchedAt;
+    if (fetchedAt == null ||
+        DateTime.now().difference(fetchedAt) > staleAfter) {
+      await refresh();
     }
   }
 
-  Future<bool> selectCategory(String selectedCategoryId) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final updated = await service.selectCategory(selectedCategoryId);
-
-      if (updated != null) {
-        await getUserProfile();
-
-        return true;
-      }
-
-      state = state.copyWith(isLoading: false);
-      return false;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-      return false;
-    }
-  }
-
-  Future<bool> selectAddress(String addressId) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final updated = await service.selectAddress(addressId);
-
-      if (updated != null) {
-        await getUserProfile();
-
-        return true;
-      }
-
-      state = state.copyWith(isLoading: false);
-      return false;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-      return false;
-    }
-  }
-
-  Future<bool> selectCityRegion({String? city, String? region}) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final updated = await service.selectCityRegion(
-        city: city,
-        region: region,
-      );
-
-      if (updated != null) {
-        await getUserProfile();
-
-        return true;
-      }
-
-      state = state.copyWith(isLoading: false);
-      return false;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-      return false;
-    }
-  }
-
-  Future<bool> uploadProfileImage(File imageFile) async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final response = await service.uploadProfileImage(imageFile);
-
-      await service.getUserProfile();
-
-      state = state.copyWith(isLoading: false);
-
-      return response;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-
-      return false;
-    }
-  }
-
-  Future<bool> deleteAccount() async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final result = await service.deleteAccount();
-
-      state = state.copyWith(isLoading: false);
-
-      return result;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, error: error.toString());
-      return false;
-    }
-  }
+  void invalidate() => _lastFetchedAt = null;
 }

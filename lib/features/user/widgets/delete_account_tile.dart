@@ -20,7 +20,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
 
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
-    final profileState = ref.read(clientProfileProvider.notifier);
+    final profileState = ref.read(clientProfileMutationProvider.notifier);
 
     final result = await profileState.deleteAccount();
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
@@ -33,14 +34,18 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
         ref.read(ownerActiveRequestsProvider.notifier).loadMore();
+        ref
+            .read(ownerOffersProvider(const OfferQuery.active()).notifier)
+            .loadMore();
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ownerActiveRequestsProvider.notifier).refresh();
-
-      ref.read(ownerEquipmentProvider.notifier).refresh();
-      ref.read(offersProvider.notifier).getOwnerOffers();
+      ref.read(ownerActiveRequestsProvider.notifier).refreshIfStale();
+      ref.read(ownerEquipmentProvider.notifier).refreshIfStale();
+      ref
+          .read(ownerOffersProvider(const OfferQuery.active()).notifier)
+          .refreshIfStale();
     });
   }
 
@@ -57,11 +62,14 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
 
     final requestsAsync = ref.watch(ownerActiveRequestsProvider);
 
-    final offersState = ref.watch(offersProvider);
+    final offersAsync = ref.watch(
+      ownerOffersProvider(const OfferQuery.active()),
+    );
 
     final offersByRequest = <String, List<OfferModel>>{};
 
-    for (final offer in offersState.ownerOffers) {
+    for (final offer
+        in offersAsync.valueOrNull?.items ?? const <OfferModel>[]) {
       if (![OfferStatus.created].contains(offer.status)) continue;
 
       offersByRequest.putIfAbsent(offer.requestId, () => []);
@@ -72,8 +80,13 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(offersProvider.notifier).getOwnerOffers();
-          await ref.read(ownerActiveRequestsProvider.notifier).refresh();
+          await Future.wait([
+            ref.read(ownerActiveRequestsProvider.notifier).refresh(),
+            ref.read(ownerEquipmentProvider.notifier).refresh(),
+            ref
+                .read(ownerOffersProvider(const OfferQuery.active()).notifier)
+                .refresh(),
+          ]);
         },
         child: requestsAsync.when(
           loading: () => const RequestTileSkeleton(),

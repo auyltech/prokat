@@ -113,7 +113,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                     if (offer.status == OfferStatus.created && widget.isMe) ...[
                       // Cancel Offer
                       if (ref
-                          .watch(offersProvider)
+                          .watch(offerMutationProvider)
                           .isActionActive("offer:cancel:${offer.id}"))
                         SizedBox(
                           height: 14,
@@ -129,10 +129,11 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                         IconButton(
                           onPressed: () async {
                             await ref
-                                .read(offersProvider.notifier)
+                                .read(offerMutationProvider.notifier)
                                 .cancelOffer(
                                   offer.id,
                                   chatId: widget.message.chatId,
+                                  requestId: offer.requestId,
                                 );
                           },
                           iconSize: 32,
@@ -142,7 +143,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                     ] else if (offer.status == OfferStatus.created) ...[
                       // Reject Offer
                       if (ref
-                          .watch(offersProvider)
+                          .watch(offerMutationProvider)
                           .isActionActive("offer:reject:${offer.id}"))
                         SizedBox(
                           height: 14,
@@ -158,10 +159,11 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                         IconButton(
                           onPressed: () async {
                             await ref
-                                .read(offersProvider.notifier)
+                                .read(offerMutationProvider.notifier)
                                 .rejectOffer(
                                   offer.id,
                                   chatId: widget.message.chatId,
+                                  requestId: offer.requestId,
                                 );
                           },
                           iconSize: 32,
@@ -171,7 +173,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
 
                       // Accept Offer
                       if (ref
-                          .watch(offersProvider)
+                          .watch(offerMutationProvider)
                           .isActionActive("offer:accept:${offer.id}"))
                         SizedBox(
                           height: 14,
@@ -187,10 +189,11 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                         IconButton(
                           onPressed: () async {
                             await ref
-                                .read(offersProvider.notifier)
+                                .read(offerMutationProvider.notifier)
                                 .acceptOffer(
                                   offer.id,
                                   chatId: widget.message.chatId,
+                                  requestId: offer.requestId,
                                 );
                           },
                           iconSize: 32,

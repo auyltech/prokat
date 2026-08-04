@@ -25,6 +25,9 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_loadMoreIfNeeded);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(ownerChatsProvider.notifier).refreshIfStale();
+    });
   }
 
   void _loadMoreIfNeeded() {

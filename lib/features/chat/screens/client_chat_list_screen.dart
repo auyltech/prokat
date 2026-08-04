@@ -26,6 +26,9 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_loadMoreIfNeeded);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(clientChatsProvider.notifier).refreshIfStale();
+    });
   }
 
   void _loadMoreIfNeeded() {

@@ -111,6 +111,34 @@ void main() {
     );
   });
 
+  test('error body retryAfterSeconds updates the cooldown state', () async {
+    final container = ProviderContainer(
+      overrides: [
+        dioProvider.overrideWithValue(
+          _stubDio(429, {
+            'code': 'RATE_LIMITED',
+            'message': 'Please try again later',
+            'retryAfterSeconds': 75,
+          }),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final success = await container
+        .read(authProvider.notifier)
+        .requestOtp('+77001234567');
+    final state = container.read(authProvider);
+
+    expect(success, isFalse);
+    expect(state.otpPhone, isNull);
+    expect(state.otpCooldownPhone, '+77001234567');
+    expect(
+      state.otpRetryAt!.difference(DateTime.now()).inSeconds,
+      inInclusiveRange(73, 75),
+    );
+  });
+
   test('409 does not create an OTP session', () async {
     final container = ProviderContainer(
       overrides: [

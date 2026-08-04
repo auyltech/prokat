@@ -30,32 +30,22 @@ class BookingChatActionController
 
   // ChatNotifier get _chatNotifier => ref.read(chatProvider.notifier);
 
-  PriceNegotiationNotifier _priceNegotiationNotifier() {
-    return ref.read(priceNegotiationProvider.notifier);
+  PriceNegotiationMutationNotifier _priceNegotiationNotifier() {
+    return ref.read(priceNegotiationMutationProvider.notifier);
   }
 
   Future<void> refreshAfterNegotiation({
     required String chatId,
     required String bookingId,
   }) async {
-    await Future.wait([
-      _priceNegotiationNotifier().getPriceNegotiations(),
-      // _chatNotifier.reloadChat(chatId),
-      // _bookingNotifier.getOwnerBookings(),
-      // _bookingNotifier.getClientBookings(),
-    ]);
+    // The mutation notifier refreshes the exact negotiation and chat caches.
   }
 
   Future<void> refreshAfterBookingAction({
     required String chatId,
     required String bookingId,
   }) async {
-    await Future.wait([
-      // _chatNotifier.reloadChat(chatId),
-      // _bookingNotifier.getOwnerBookings(),
-      // _bookingNotifier.getClientBookings(),
-      _priceNegotiationNotifier().getPriceNegotiations(),
-    ]);
+    // Booking mutations coordinate booking and chat cache updates.
   }
 
   Future<void> refreshAfterReview({
@@ -183,10 +173,12 @@ class BookingChatActionController
       submitId: "price:create",
       action: () async {
         await _priceNegotiationNotifier().createCounterOffer(
+          bookingId: bookingId,
           type: type,
           price: price,
           priceRate: priceRate.value,
           comment: comment,
+          chatId: chatId,
         );
 
         return true;
@@ -245,7 +237,11 @@ class BookingChatActionController
       context: context,
       submitId: "price:cancel",
       action: () async {
-        await _priceNegotiationNotifier().cancelPriceNegotiation(id);
+        await _priceNegotiationNotifier().cancelPriceNegotiation(
+          id,
+          bookingId: bookingId,
+          chatId: chatId,
+        );
         return true;
       },
       onSuccess: () {
@@ -277,6 +273,8 @@ class BookingChatActionController
         await _priceNegotiationNotifier().respondToPriceNegotiation(
           negotiationId: id,
           response: response,
+          bookingId: bookingId,
+          chatId: chatId,
         );
 
         return true;

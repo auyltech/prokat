@@ -30,13 +30,8 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      if (ref.read(ownerRegistrationProvider).ownerProfile == null) {
-        ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
-      }
-
-      if (ref.read(ownerRegistrationProvider).registrationRequest == null) {
-        ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
-      }
+      ref.read(ownerProfileProvider.notifier).refreshIfStale();
+      ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale();
 
       if (ref.read(billingProvider).accountBalance == null) {
         ref.read(billingProvider.notifier).getOwnerBalance();
@@ -51,7 +46,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final ownerProfileState = ref.watch(ownerRegistrationProvider);
+    final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
     final ownerEquipmentCount =
         ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
 
@@ -61,7 +56,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
+          await ref.read(ownerProfileProvider.notifier).refresh();
           ref.read(billingProvider.notifier).getOwnerBalance();
           ref.read(billingProvider.notifier).getVolumeDiscounts();
           ref.read(ownerEquipmentProvider.notifier).refresh();
@@ -80,9 +75,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 const SizedBox(width: 8),
               ],
               flexibleSpace: FlexibleSpaceBar(
-                background: OwnerProfileHeader(
-                  ownerProfile: ownerProfileState.ownerProfile,
-                ),
+                background: OwnerProfileHeader(ownerProfile: ownerProfile),
               ),
             ),
 

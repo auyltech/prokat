@@ -261,6 +261,11 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String otpRetryIn(int seconds) {
+    return 'Кодты $seconds секундтан кейін қайта сұратуға болады';
+  }
+
+  @override
   String get resendOtp => 'Кодты қайта жіберу';
 
   @override

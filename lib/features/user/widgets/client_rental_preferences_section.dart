@@ -54,7 +54,18 @@ class _ClientRentalPreferencesSectionState
     final theme = Theme.of(context);
     final locationState = ref.watch(locationProvider);
     final selectedAddress = locationState.selectedAddress;
-    final selectedCategory = ref.watch(categoriesProvider).selectedCategory;
+    final selectedCategoryId = ref
+        .watch(clientProfileProvider)
+        .userProfile
+        ?.selectedCategoryId;
+    final categories =
+        ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
+    final selectedCategories = categories.where(
+      (category) => category.id == selectedCategoryId,
+    );
+    final selectedCategory = selectedCategories.isEmpty
+        ? null
+        : selectedCategories.first;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,10 +96,17 @@ class _ClientRentalPreferencesSectionState
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           title: 'Service',
           subtitle: selectedCategory?.name ?? "Select Service",
-          onTap: () => CategorySelectionSheet.show(
-            context,
-            service: CategorySheetMode.selectCategory,
-          ),
+          onTap: () async {
+            final category = await CategorySelectionSheet.show(
+              context,
+              service: CategorySheetMode.selectCategory,
+            );
+            if (category != null) {
+              await ref
+                  .read(clientProfileMutationProvider.notifier)
+                  .selectCategory(category.id);
+            }
+          },
         ),
 
         const SizedBox(height: 12),

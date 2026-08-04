@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class OwnerActiveRequestsNotifier
     extends AsyncNotifier<QueryState<RequestModel>> {
   late final RequestService api;
+  Future<void>? _refreshing;
 
   @override
   Future<QueryState<RequestModel>> build() async {
@@ -23,30 +24,48 @@ class OwnerActiveRequestsNotifier
     );
 
     final result = response.data;
+    if (!response.success || result == null) {
+      throw Exception(response.message);
+    }
 
     return QueryState(
-      items: result?.items ?? [],
-      page: result?.page ?? 1,
-      itemsPerPage: result?.itemsPerPage ?? 10,
-      count: result?.count ?? 0,
+      items: result.items,
+      page: result.page,
+      itemsPerPage: result.itemsPerPage,
+      count: result.count,
       lastFetchedAt: DateTime.now(),
     );
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refresh() async {
     final previous = state.value;
 
     if (previous == null) {
+      if (state.isLoading) {
+        try {
+          await future;
+          return;
+        } catch (_) {}
+      }
       state = const AsyncLoading();
-    } else {
-      state = AsyncData(previous.copyWith(isRefreshing: true));
+      state = await AsyncValue.guard(() => _fetchPage(1));
+      return;
     }
 
-    state = await AsyncValue.guard(() async {
-      final fresh = await _fetchPage(1);
-
-      return fresh;
-    });
+    state = AsyncData(previous.copyWith(isRefreshing: true));
+    try {
+      state = AsyncData(await _fetchPage(1));
+    } catch (error) {
+      state = AsyncData(previous.withRefreshError(error));
+    }
   }
 
   Future<void> loadMore() async {
@@ -82,7 +101,7 @@ class OwnerActiveRequestsNotifier
           page: result.page,
           itemsPerPage: result.itemsPerPage,
           count: result.count,
-          lastFetchedAt: DateTime.now(),
+          lastFetchedAt: DateTime.now,
           isLoadingMore: false,
         ),
       );
@@ -96,10 +115,15 @@ class OwnerActiveRequestsNotifier
 
     if (current == null) return;
 
-    state = AsyncData(current.copyWith(lastFetchedAt: null));
+    state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
 
   Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
     final current = state.value;
 
     if (current == null) {

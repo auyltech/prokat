@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   late final EquipmentService api;
+  Future<void>? _refreshing;
 
   @override
   Future<QueryState<Equipment>> build() async {
@@ -17,6 +18,10 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   Future<QueryState<Equipment>> _fetch() async {
     final response = await api.getOwnerEquipment();
 
+    if (!response.success) {
+      throw Exception(response.message);
+    }
+
     final items = response.data ?? [];
 
     items.sort(_compareEquipment);
@@ -24,7 +29,7 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     return QueryState(
       items: items,
       page: 1,
-      itemsPerPage: items.length,
+      itemsPerPage: items.isEmpty ? 1 : items.length,
       count: items.length,
       lastFetchedAt: DateTime.now(),
     );
@@ -62,18 +67,35 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     return (b.updatedAt ?? DateTime(0)).compareTo(a.updatedAt ?? DateTime(0));
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refresh() async {
     final previous = state.value;
 
     if (previous == null) {
+      if (state.isLoading) {
+        try {
+          await future;
+          return;
+        } catch (_) {}
+      }
       state = const AsyncLoading();
-    } else {
-      state = AsyncData(previous.copyWith(isRefreshing: true));
+      state = await AsyncValue.guard(_fetch);
+      return;
     }
 
-    state = await AsyncValue.guard(() async {
-      return _fetch();
-    });
+    state = AsyncData(previous.copyWith(isRefreshing: true));
+    try {
+      state = AsyncData(await _fetch());
+    } catch (error) {
+      state = AsyncData(previous.withRefreshError(error));
+    }
   }
 
   Future<void> invalidate() async {
@@ -81,10 +103,15 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
     if (current == null) return;
 
-    state = AsyncData(current.copyWith(lastFetchedAt: null));
+    state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
 
   Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
     final current = state.value;
 
     if (current == null) {

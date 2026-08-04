@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -33,31 +32,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ProviderSubscription? _locationSub;
 
   Future<void> _fetchData() async {
-    final categoryState = ref.read(categoriesProvider);
-    final categoryNotifier = ref.read(categoriesProvider.notifier);
-
-    final categoryId = categoryState.selectedCategory?.id;
+    final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
 
     await ref
         .read(guestEquipmentProvider.notifier)
         .setFilters(categoryId: categoryId, city: city);
 
-    ref.read(guestEquipmentProvider.notifier).refresh();
-
-    if (categoryState.fetchStatus == FetchStatus.initial ||
-        categoryState.fetchStatus == FetchStatus.error) {
-      categoryNotifier.getCategories();
-      return;
-    }
-
-    if (categoryState.lastFetchedAt != null) {
-      final age = DateTime.now().difference(categoryState.lastFetchedAt!);
-
-      if (age.inMinutes >= 5) {
-        categoryNotifier.getCategories();
-      }
-    }
+    await ref.read(categoriesProvider.notifier).refreshIfStale();
   }
 
   void _loadMore() {
@@ -74,14 +56,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   Future<void> _onRefresh() async {
     await ref.read(guestEquipmentProvider.notifier).refresh();
-
-    final categoryState = ref.read(categoriesProvider);
-
-    if (categoryState.fetchStatus == FetchStatus.initial ||
-        categoryState.fetchStatus == FetchStatus.error) {
-      ref.read(categoriesProvider.notifier).getCategories();
-      return;
-    }
+    await ref.read(categoriesProvider.notifier).refresh();
   }
 
   @override
@@ -92,7 +67,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       await _fetchData();
 
       _categoriesSub = ref.listenManual(
-        categoriesProvider.select((s) => s.selectedCategory?.id),
+        selectedCategoryProvider.select((s) => s?.id),
         (_, _) => _onFiltersChanged(),
       );
 
@@ -124,9 +99,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final items = queryState?.items ?? [];
 
     final locationState = ref.watch(locationProvider);
-    final categoriesState = ref.watch(categoriesProvider);
-
-    final selectedCategory = categoriesState.selectedCategory;
+    ref.watch(categoriesProvider);
+    final selectedCategory = ref.watch(selectedCategoryProvider);
     final selectedCity = locationState.city ?? "";
 
     const Color darkBlueBg = Color(0xFF071D49);

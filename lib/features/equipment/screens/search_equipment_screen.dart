@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
@@ -39,7 +38,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   ProviderSubscription? _equipmentSub;
 
   Future<void> _fetchData() async {
-    final categoryId = ref.read(categoriesProvider).selectedCategory?.id;
+    final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
     final query = ref.read(searchEquipmentProvider).query;
 
@@ -50,22 +49,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     if (!mounted) return;
     ref.read(favoritesProvider.notifier).getFavorites();
 
-    final categoryState = ref.read(categoriesProvider);
-    final categoryNotifier = ref.read(categoriesProvider.notifier);
-
-    if (categoryState.fetchStatus == FetchStatus.initial ||
-        categoryState.fetchStatus == FetchStatus.error) {
-      categoryNotifier.getCategories();
-      return;
-    }
-
-    if (categoryState.lastFetchedAt != null) {
-      final age = DateTime.now().difference(categoryState.lastFetchedAt!);
-
-      if (age.inMinutes >= 5) {
-        categoryNotifier.getCategories();
-      }
-    }
+    await ref.read(categoriesProvider.notifier).refreshIfStale();
   }
 
   void _loadMore() {
@@ -81,7 +65,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   }
 
   Future<void> _onRefresh() async {
-    await ref.read(clientEquipmentProvider.notifier).refresh();
+    await Future.wait([
+      ref.read(clientEquipmentProvider.notifier).refresh(),
+      ref.read(categoriesProvider.notifier).refresh(),
+    ]);
   }
 
   @override
@@ -95,7 +82,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
       if (!mounted) return;
       _categoriesSub = ref.listenManual(
-        categoriesProvider.select((s) => s.selectedCategory?.id),
+        selectedCategoryProvider.select((s) => s?.id),
         (_, _) => _onFiltersChanged(),
       );
 
@@ -131,10 +118,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     final bookingNotifier = ref.read(bookingMutationProvider.notifier);
 
-    final selectedCategoryId = ref
-        .watch(categoriesProvider)
-        .selectedCategory
-        ?.id;
+    ref.watch(categoriesProvider);
+    final selectedCategoryId = ref.watch(selectedCategoryProvider)?.id;
 
     return Scaffold(
       body: SafeArea(

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -36,9 +36,11 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
     //     ? ref.watch(ownerEquipmentDetailsProvider(editEquipmentId)).valueOrNull
     //     : null;
 
-    final selectedCategory = ref
-        .watch(categoriesProvider)
-        .getCategoryById(widget.selectedCategoryId);
+    final categories =
+        ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
+    final selectedCategory = categories
+        .where((item) => item.id == widget.selectedCategoryId)
+        .firstOrNull;
 
     // widget.mode == CategorySheetMode.createRequest ||
     //     widget.mode == CategorySheetMode.createEquipment

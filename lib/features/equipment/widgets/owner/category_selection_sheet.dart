@@ -37,7 +37,8 @@ class CategorySelectionSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final categories = ref.watch(categoriesProvider).categories;
+    final categories =
+        ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),

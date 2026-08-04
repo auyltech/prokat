@@ -3,6 +3,8 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
+import 'package:prokat/features/bookings/models/query_result.dart';
 import 'package:dio/dio.dart';
 
 class OffersService {
@@ -12,26 +14,66 @@ class OffersService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<OfferModel>>> getClientOffers() async {
-    try {
-      final response = await _dio.get('/offers');
+  Future<ApiResponse<QueryResult<OfferModel>>> getClientOffers({
+    required int page,
+    required int itemsPerPage,
+    OfferListFilter? filter,
+    String? requestId,
+  }) {
+    return _getOffers(
+      path: '/offers',
+      page: page,
+      itemsPerPage: itemsPerPage,
+      filter: filter,
+      requestId: requestId,
+    );
+  }
 
-      return handleApiResponse<List<OfferModel>>(
+  Future<ApiResponse<QueryResult<OfferModel>>> _getOffers({
+    required String path,
+    required int page,
+    required int itemsPerPage,
+    OfferListFilter? filter,
+    String? requestId,
+  }) async {
+    try {
+      final response = await _dio.get(
+        path,
+        queryParameters: {
+          'page': page,
+          'itemsPerPage': itemsPerPage,
+          if (filter != null) 'status': filter.apiValue,
+          if ((requestId ?? '').trim().isNotEmpty) 'requestId': requestId,
+        },
+      );
+
+      return handleApiResponse<QueryResult<OfferModel>>(
         response: response,
         parser: (data) {
-          final itemsJson = data["data"];
+          final payload = data is Map<String, dynamic> && data['data'] is Map
+              ? Map<String, dynamic>.from(data['data'] as Map)
+              : Map<String, dynamic>.from(data as Map);
+          final itemsJson = payload['items'] ?? payload['data'];
 
           if (itemsJson is! List) {
             throw FormatException("Expected offers list");
           }
 
-          return itemsJson.map((item) {
+          final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid offer item");
             }
 
             return OfferModel.fromJson(item);
           }).toList();
+
+          return QueryResult(
+            items: items,
+            page: (payload['page'] as num?)?.toInt() ?? page,
+            itemsPerPage:
+                (payload['itemsPerPage'] as num?)?.toInt() ?? itemsPerPage,
+            count: (payload['count'] as num?)?.toInt() ?? items.length,
+          );
         },
         fallbackMessage: "Failed to load offers",
       );
@@ -53,45 +95,19 @@ class OffersService {
     }
   }
 
-  Future<ApiResponse<List<OfferModel>>> getOwnerOffers() async {
-    try {
-      final response = await _dio.get('/offers/owner');
-
-      return handleApiResponse<List<OfferModel>>(
-        response: response,
-        parser: (data) {
-          final itemsJson = data["data"];
-
-          if (itemsJson is! List) {
-            throw FormatException("Expected offers list");
-          }
-
-          return itemsJson.map((item) {
-            if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid offer item");
-            }
-
-            return OfferModel.fromJson(item);
-          }).toList();
-        },
-        fallbackMessage: "Failed to load offers",
-      );
-    } on DioException catch (error) {
-      final exception = ApiException.fromDio(error);
-
-      return ApiResponse.failure(
-        message: exception.message.isNotEmpty
-            ? exception.message
-            : "Request failed",
-        error: (exception.data ?? error).toString(),
-        statusCode: exception.statusCode,
-      );
-    } catch (e) {
-      return ApiResponse.failure(
-        message: "Unexpected error",
-        error: e.toString(),
-      );
-    }
+  Future<ApiResponse<QueryResult<OfferModel>>> getOwnerOffers({
+    required int page,
+    required int itemsPerPage,
+    OfferListFilter? filter,
+    String? requestId,
+  }) {
+    return _getOffers(
+      path: '/offers/owner',
+      page: page,
+      itemsPerPage: itemsPerPage,
+      filter: filter,
+      requestId: requestId,
+    );
   }
 
   Future<ApiResponse<void>> createOffer({

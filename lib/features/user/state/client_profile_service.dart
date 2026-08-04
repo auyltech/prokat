@@ -20,8 +20,8 @@ class ClientProfileService {
       final res = await _dio.get(ApiRoutes.profile);
 
       return UserProfileModel.fromJson(res.data['data']);
-    } catch (e) {
-      return null;
+    } on DioException catch (error) {
+      throw Exception(extractBackendMessage(error));
     }
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
@@ -22,11 +21,12 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    final categoriesState = ref.watch(categoriesProvider);
-    final selectedCategory = categoriesState.selectedCategory;
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final categories = categoriesAsync.valueOrNull?.items ?? const [];
+    final selectedCategory = ref.watch(selectedCategoryProvider);
 
     const int columns = 3;
-    final int rowCount = (categoriesState.categories.length / columns).ceil();
+    final int rowCount = (categories.length / columns).ceil();
 
     // Explicit double calculations to fix typing warnings
     final double gridHeight = rowCount > 0
@@ -45,15 +45,15 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
           const SizedBox(height: 12),
 
           // Categories / Services Grid Area
-          if (categoriesState.fetchStatus == FetchStatus.loading)
+          if (categoriesAsync.isLoading && categories.isEmpty)
             const CategoryRowSkeleton()
-          else if (categoriesState.fetchStatus == FetchStatus.error)
+          else if (categoriesAsync.hasError && categories.isEmpty)
             EmptyStateTile(
               icon: LucideIcons.router,
               title: l10n.errorLoadingServices,
               subtitle: l10n.couldNotLoadServices,
             )
-          else if (categoriesState.fetchStatus == FetchStatus.empty)
+          else if (categories.isEmpty)
             EmptyStateTile(
               icon: LucideIcons.box,
               title: l10n.noServicesFound,
@@ -66,7 +66,7 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
                 padding: EdgeInsets.zero,
                 physics:
                     const NeverScrollableScrollPhysics(), // Disables nested scrolling
-                itemCount: categoriesState.categories.length,
+                itemCount: categories.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,
                   mainAxisSpacing: 10.0,
@@ -75,14 +75,14 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
                       110.0, // Matches your gridHeight calculation math
                 ),
                 itemBuilder: (context, i) {
-                  final category = categoriesState.categories[i];
+                  final category = categories[i];
 
                   return CategoryCard(
                     isSelected: selectedCategory?.id == category.id,
                     category: category,
                     onTap: () => ref
-                        .read(categoriesProvider.notifier)
-                        .selectCategory(category),
+                        .read(selectedCategoryProvider.notifier)
+                        .select(category),
                   );
                 },
               ),

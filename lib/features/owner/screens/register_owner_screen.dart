@@ -45,17 +45,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   }
 
   Future<void> _loadCurrentAccount(String userId) async {
-    final profileState = ref.read(clientProfileProvider);
-
-    if (profileState.userProfile == null && profileState.isLoading != true) {
-      await ref.read(clientProfileProvider.notifier).getUserProfile();
-    }
+    await ref.read(clientProfileProvider.notifier).refreshIfStale();
 
     if (!mounted || ref.read(authProvider).currentUserId != userId) {
       return;
     }
 
-    await ref.read(ownerRegistrationProvider.notifier).getRegistrationRequest();
+    await ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale();
   }
 
   @override
@@ -101,8 +97,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   }
 
   Future<void> _submit() async {
-    final state = ref.read(ownerRegistrationProvider);
-    final request = state.registrationRequest;
+    final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
 
     final status = (request?.status ?? '').toLowerCase();
     if (status == 'accepted') return;
@@ -111,7 +106,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       return;
     }
 
-    final notifier = ref.read(ownerRegistrationProvider.notifier);
+    final notifier = ref.read(ownerRegistrationMutationProvider.notifier);
 
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
@@ -154,8 +149,8 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final colors = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final state = ref.watch(ownerRegistrationProvider);
-    final request = state.registrationRequest;
+    final request = ref.watch(ownerRegistrationRequestProvider).valueOrNull;
+    final mutationState = ref.watch(ownerRegistrationMutationProvider);
 
     final status = (request?.status ?? '').toLowerCase();
     final isAccepted = status == 'accepted';
@@ -177,9 +172,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       }
     });
 
-    ref.listen(ownerRegistrationProvider, (previous, next) {
-      final previousRequest = previous?.registrationRequest;
-      final request = next.registrationRequest;
+    ref.listen(ownerRegistrationRequestProvider, (previous, next) {
+      final previousRequest = previous?.valueOrNull;
+      final request = next.valueOrNull;
 
       if (previousRequest != null && request == null) {
         _clearFormForAccountChange();
@@ -194,13 +189,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       if (!_prefilledFromRequest && request != null) {
         _prefillFromRequest(request);
         _prefilledFromRequest = true;
-      }
-
-      final prevError = previous?.error;
-      final nextError = next.error;
-
-      if (nextError != null && nextError.isNotEmpty && nextError != prevError) {
-        AppSnackBar.show(message: nextError, isError: true);
       }
 
       if (!_prefilledFromRequest && request != null) {
@@ -218,9 +206,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     });
 
     ref.listen(clientProfileProvider, (previous, next) {
-      final hasRequest = ref
-          .read(ownerRegistrationProvider)
-          .registrationRequest;
+      final hasRequest = ref.read(ownerRegistrationRequestProvider).valueOrNull;
       if (hasRequest != null) return;
 
       final profile = next.userProfile;
@@ -375,9 +361,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                         const SizedBox(height: 16),
                         PrimaryButton(
                           label: submitLabel,
-                          isLoading: state.isLoading,
+                          isLoading: mutationState.isLoading,
                           icon: Icons.send_rounded,
-                          onPressed: state.isLoading ? null : _submit,
+                          onPressed: mutationState.isLoading ? null : _submit,
                         ),
                       ] else ...[
                         _AcceptedInfo(theme: theme),

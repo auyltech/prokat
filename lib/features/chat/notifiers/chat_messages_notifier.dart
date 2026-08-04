@@ -20,6 +20,7 @@ class ChatMessagesNotifier
   final List<ChatMessageModel> _incomingBuffer = [];
   final Map<String, Timer> _pendingConfirmationTimers = {};
   bool _shouldMaintainSession = true;
+  Future<void>? _refreshing;
 
   @override
   Future<QueryState<ChatMessageModel>> build(String chatId) async {
@@ -221,30 +222,50 @@ class ChatMessagesNotifier
     return sendMessage(message.content);
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refresh() async {
     final previous = state.value;
 
     if (previous == null) {
+      if (state.isLoading) {
+        try {
+          await future;
+          return;
+        } catch (_) {}
+      }
       state = const AsyncLoading();
-    } else {
-      state = AsyncData(previous.copyWith(isRefreshing: true));
+      state = await AsyncValue.guard(() async {
+        await _activateChatSession();
+        return _fetchPage(1);
+      });
+      return;
     }
 
-    state = await AsyncValue.guard(() async {
+    state = AsyncData(previous.copyWith(isRefreshing: true));
+    try {
       await _activateChatSession();
       final fresh = await _fetchPage(1);
-
-      return previous == null
-          ? fresh
-          : previous.copyWith(
-              items: mergeMessages(previous.items, fresh.items),
-              page: fresh.page,
-              itemsPerPage: fresh.itemsPerPage,
-              count: fresh.count,
-              lastFetchedAt: DateTime.now(),
-              isRefreshing: false,
-            );
-    });
+      state = AsyncData(
+        previous.copyWith(
+          items: mergeMessages(previous.items, fresh.items),
+          page: fresh.page,
+          itemsPerPage: fresh.itemsPerPage,
+          count: fresh.count,
+          lastFetchedAt: DateTime.now,
+          isRefreshing: false,
+          refreshError: () => null,
+        ),
+      );
+    } catch (error) {
+      state = AsyncData(previous.withRefreshError(error));
+    }
   }
 
   Future<void> loadMore() async {
@@ -278,7 +299,7 @@ class ChatMessagesNotifier
           page: result.page,
           itemsPerPage: result.itemsPerPage,
           count: result.count,
-          lastFetchedAt: DateTime.now(),
+          lastFetchedAt: DateTime.now,
           isLoadingMore: false,
         ),
       );
@@ -312,10 +333,15 @@ class ChatMessagesNotifier
 
     if (current == null) return;
 
-    state = AsyncData(current.copyWith(lastFetchedAt: null));
+    state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
 
   Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
     final current = state.value;
 
     if (current == null) {

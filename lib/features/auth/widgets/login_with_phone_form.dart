@@ -7,7 +7,6 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_error_message.dart';
 import 'package:prokat/features/auth/widgets/phone_input_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'otp_verification_form.dart';
 
 class LoginWithPhoneForm extends ConsumerStatefulWidget {
   final Function(String?) onError;
@@ -22,7 +21,6 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
   final phoneController = TextEditingController(text: "");
   late AppLocalizations _l10n;
 
-  bool showOtp = false;
   String phone = "";
   Timer? _cooldownTimer;
   int _secondsRemaining = 0;
@@ -55,11 +53,15 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
     void update() {
       final milliseconds =
           retryAt?.difference(DateTime.now()).inMilliseconds ?? 0;
+
       final remaining = milliseconds <= 0 ? 0 : (milliseconds + 999) ~/ 1000;
+
       if (!mounted) return;
+
       if (_secondsRemaining != remaining) {
         setState(() => _secondsRemaining = remaining);
       }
+
       if (remaining == 0) _cooldownTimer?.cancel();
     }
 
@@ -111,6 +113,7 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final authState = ref.watch(authProvider);
 
     ref.listen<DateTime?>(
@@ -118,20 +121,8 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
       (_, retryAt) => _syncCooldown(retryAt),
     );
 
-    final hasOtpSession =
-        authState.otpPhone != null && authState.otpRequestedAt != null;
-
-    if (hasOtpSession) {
-      return OtpVerificationForm(
-        phone: authState.otpPhone!,
-        onError: widget.onError,
-      );
-    }
-
     return Column(
       children: [
-        const SizedBox(height: 20),
-
         PhoneInputField(label: _l10n.phoneNumber, controller: phoneController),
 
         const SizedBox(height: 24),
@@ -153,14 +144,26 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
                 !authState.isLoading &&
                 cooldownSeconds == 0;
 
-            return PrimaryButton(
-              label: authState.isLoading
-                  ? _l10n.sending
-                  : cooldownSeconds > 0
-                  ? _l10n.resendOtpIn(cooldownSeconds)
-                  : _l10n.sendOtp,
-              isLoading: authState.isLoading,
-              onPressed: canSubmit ? requestOtp : null,
+            return Column(
+              children: [
+                PrimaryButton(
+                  label: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
+                  isLoading: authState.isLoading,
+                  onPressed: canSubmit ? requestOtp : null,
+                ),
+                if (cooldownSeconds > 0) ...[
+                  const SizedBox(height: 8),
+
+                  Text(
+                    _l10n.otpRetryIn(cooldownSeconds),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ],
             );
           },
         ),

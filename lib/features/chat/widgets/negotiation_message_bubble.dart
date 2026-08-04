@@ -4,6 +4,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -41,9 +42,15 @@ class _NegotiationMessageBubbleState
       return Text(l10n.failedToLoadNegotiation);
     }
 
-    final priceNegotiationState = ref
-        .read(priceNegotiationProvider)
-        .negotiations;
+    final query = priceNegotiationQueryFor(
+      bookingId: parsed.bookingId,
+      offerId: parsed.offerId,
+    );
+    final priceNegotiationState = query == null
+        ? const <PriceNegotiation>[]
+        : ref.watch(priceNegotiationsProvider(query)).valueOrNull?.items ??
+              const <PriceNegotiation>[];
+    final mutationState = ref.watch(priceNegotiationMutationProvider);
 
     final priceNegotiation =
         priceNegotiationState
@@ -114,7 +121,7 @@ class _NegotiationMessageBubbleState
                     if (priceNegotiation.status ==
                             PriceNegotiationStatus.created &&
                         widget.isMe) ...[
-                      if (ref.watch(priceNegotiationProvider).isSubmitting)
+                      if (mutationState.isSubmitting)
                         SizedBox(
                           height: 14,
                           width: 14,
@@ -133,8 +140,13 @@ class _NegotiationMessageBubbleState
                           //     submitState.submitId == "price:cancel",
                           onPressed: () async {
                             await ref
-                                .read(priceNegotiationProvider.notifier)
-                                .cancelPriceNegotiation(priceNegotiation.id);
+                                .read(priceNegotiationMutationProvider.notifier)
+                                .cancelPriceNegotiation(
+                                  priceNegotiation.id,
+                                  bookingId: query?.bookingId,
+                                  offerId: query?.offerId,
+                                  chatId: widget.message.chatId,
+                                );
                           },
                           iconSize: 32,
                           padding: EdgeInsets.all(0),
@@ -143,7 +155,7 @@ class _NegotiationMessageBubbleState
                     ] else if (priceNegotiation.status ==
                         PriceNegotiationStatus.created) ...[
                       if (ref
-                          .watch(priceNegotiationProvider)
+                          .watch(priceNegotiationMutationProvider)
                           .isActionActive("price:reject"))
                         SizedBox(
                           height: 14,
@@ -159,10 +171,13 @@ class _NegotiationMessageBubbleState
                         IconButton(
                           onPressed: () async {
                             await ref
-                                .read(priceNegotiationProvider.notifier)
+                                .read(priceNegotiationMutationProvider.notifier)
                                 .respondToPriceNegotiation(
                                   negotiationId: priceNegotiation.id,
                                   response: PriceNegotiationResponse.reject,
+                                  bookingId: query?.bookingId,
+                                  offerId: query?.offerId,
+                                  chatId: widget.message.chatId,
                                 );
 
                             // chatId: widget.message.chatId,
@@ -173,7 +188,7 @@ class _NegotiationMessageBubbleState
                         ),
 
                       if (ref
-                          .watch(priceNegotiationProvider)
+                          .watch(priceNegotiationMutationProvider)
                           .isActionActive("price:accept"))
                         SizedBox(
                           height: 14,
@@ -189,10 +204,13 @@ class _NegotiationMessageBubbleState
                         IconButton(
                           onPressed: () async {
                             await ref
-                                .read(priceNegotiationProvider.notifier)
+                                .read(priceNegotiationMutationProvider.notifier)
                                 .respondToPriceNegotiation(
                                   negotiationId: priceNegotiation.id,
                                   response: PriceNegotiationResponse.accept,
+                                  bookingId: query?.bookingId,
+                                  offerId: query?.offerId,
+                                  chatId: widget.message.chatId,
                                 );
                           },
                           iconSize: 32,

@@ -574,6 +574,12 @@ abstract class AppLocalizations {
   /// **'Resend OTP in {seconds} seconds'**
   String resendOtpIn(int seconds);
 
+  /// No description provided for @otpRetryIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You can request another code in {seconds} seconds'**
+  String otpRetryIn(int seconds);
+
   /// No description provided for @resendOtp.
   ///
   /// In en, this message translates to:

@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/mutation/mutation_notifier.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/booking_lookup.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
+import 'package:prokat/features/bookings/providers/booking_provider.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/client_history_bookings_provider.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_history_bookings_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_mutation_state.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -19,6 +25,33 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
 
   BookingMutationNotifier({required this.api, required this.ref})
     : super(const BookingMutationState());
+
+  void _refreshActiveCaches() {
+    if (ref.exists(clientActiveBookingsProvider)) {
+      unawaited(ref.read(clientActiveBookingsProvider.notifier).refresh());
+    }
+    if (ref.exists(ownerActiveBookingsProvider)) {
+      unawaited(ref.read(ownerActiveBookingsProvider.notifier).refresh());
+    }
+  }
+
+  void _invalidateHistoryCaches() {
+    if (ref.exists(clientHistoryBookingsProvider)) {
+      unawaited(ref.read(clientHistoryBookingsProvider.notifier).invalidate());
+    }
+    if (ref.exists(ownerHistoryBookingsProvider)) {
+      unawaited(ref.read(ownerHistoryBookingsProvider.notifier).invalidate());
+    }
+  }
+
+  void _invalidateBookingDetails(String id) {
+    ref.invalidate(
+      bookingProvider(BookingLookup(bookingId: id, isOwner: false)),
+    );
+    ref.invalidate(
+      bookingProvider(BookingLookup(bookingId: id, isOwner: true)),
+    );
+  }
 
   @override
   Set<Mutation> get activeActions => state.activeActions;
@@ -97,8 +130,10 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
 
       if (result.success) {
         // Don't await, return true to show snackbar
-        ref.read(clientActiveBookingsProvider.notifier).refresh();
-        ref.read(clientChatsProvider.notifier).refresh();
+        _refreshActiveCaches();
+        if (ref.exists(clientChatsProvider)) {
+          unawaited(ref.read(clientChatsProvider.notifier).refresh());
+        }
       }
 
       return MutationResponse(
@@ -152,8 +187,16 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
       );
 
       if (result.success) {
-        ref.read(clientActiveBookingsProvider.notifier).refresh();
-        ref.read(ownerActiveBookingsProvider.notifier).refresh();
+        _refreshActiveCaches();
+        _invalidateBookingDetails(id);
+
+        if (status == BookingStatus.rejected ||
+            status == BookingStatus.cancelled ||
+            status == BookingStatus.failed ||
+            status == BookingStatus.completed ||
+            status == BookingStatus.reviewed) {
+          _invalidateHistoryCaches();
+        }
 
         // final chatNotifier = ref.read(chatProvider.notifier);
 
@@ -216,8 +259,8 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
       );
 
       if (result.success) {
-        ref.read(clientActiveBookingsProvider.notifier).refresh();
-        ref.read(ownerActiveBookingsProvider.notifier).refresh();
+        _refreshActiveCaches();
+        _invalidateBookingDetails(id);
       }
 
       return MutationResponse(success: result.success, message: result.message);

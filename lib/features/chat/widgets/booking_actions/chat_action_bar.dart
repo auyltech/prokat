@@ -39,6 +39,7 @@ class ChatActionBar extends ConsumerWidget {
 
     final booking = currentChat.booking;
     final request = currentChat.request;
+    final activeOffer = currentChat.getActiveOffer();
     final chatOwnerId = currentChat.owner?.id;
     final chatClientId = currentChat.client?.id;
 
@@ -108,22 +109,21 @@ class ChatActionBar extends ConsumerWidget {
                 Expanded(
                   child: ActionBarButton.secondary(
                     label: l10n.counter,
-                    isEnabled: true,
+                    isEnabled:
+                        activeOffer != null && activeOffer.priceRate != null,
                     isLoading: false,
                     onPressed: () async {
-                      final offer = currentChat.getActiveOffer();
+                      final offer = activeOffer;
+                      if (offer == null || offer.priceRate == null) return;
 
                       await CounterOfferSheet.show(
                         context,
-                        offerId: offer?.id,
-                        initialPrice: offer?.price ?? 0,
-                        initialPriceRate: (offer?.priceRate)!,
+                        offerId: offer.id,
+                        chatId: currentChat.id,
+                        initialPrice: offer.price,
+                        initialPriceRate: offer.priceRate,
                         mode: mode,
                       );
-
-                      await ref
-                          .read(currentChatProvider(currentChat.id).notifier)
-                          .refreshAll();
                     },
                   ),
                 ),

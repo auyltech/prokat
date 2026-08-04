@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
-import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
@@ -28,39 +26,35 @@ class UserCategorySelector extends ConsumerStatefulWidget {
 
 class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
   // Handle submit
-  Future<void> onCategorySelected(
-    BuildContext context,
-    Category category,
-  ) async {
+  void onCategorySelected(BuildContext context, Category category) {
     if (widget.mode == "create_request") {
       ref.read(requestMutationProvider.notifier).selectCategory(category);
-    } else if (widget.mode == "search") {}
+      return;
+    }
 
-    ref.read(categoriesProvider.notifier).selectCategory(category);
-
-    final userProfileState = ref.read(clientProfileProvider.notifier);
-
-    userProfileState.selectCategory(category.id);
+    if (widget.mode == "search") {
+      ref.read(selectedCategoryProvider.notifier).select(category);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final categoriesState = ref.watch(categoriesProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final categories = categoriesAsync.valueOrNull?.items ?? const [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (categoriesState.fetchStatus == FetchStatus.initial ||
-            categoriesState.fetchStatus == FetchStatus.loading)
+        if (categoriesAsync.isLoading && categories.isEmpty)
           const CategoryRowSkeleton()
-        else if (categoriesState.fetchError != null)
+        else if (categoriesAsync.hasError && categories.isEmpty)
           EmptyStateTile(
             icon: LucideIcons.router,
             title: l10n.errorLoadingServices,
             subtitle: l10n.couldNotLoadServices,
           )
-        else if (categoriesState.categories.isEmpty)
+        else if (categories.isEmpty)
           EmptyStateTile(
             title: l10n.noServicesFound,
             subtitle: l10n.noServicesAvailable,
@@ -70,11 +64,11 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
             height: 110,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: categoriesState.categories.length,
+              itemCount: categories.length,
               padding: const EdgeInsets.symmetric(horizontal: 4),
               separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
-                final cat = categoriesState.categories[index];
+                final cat = categories[index];
                 final isSelected = widget.selectedCategoryId == cat.id;
 
                 return CategoryCard(

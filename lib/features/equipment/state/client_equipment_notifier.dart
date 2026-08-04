@@ -6,6 +6,7 @@ import 'package:prokat/features/equipment/state/equipment_service.dart';
 
 class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   late final EquipmentService api;
+  Future<void>? _refreshing;
 
   String? _query;
   String? _city;
@@ -46,18 +47,35 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     );
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refresh() async {
     final previous = state.value;
 
     if (previous == null) {
+      if (state.isLoading) {
+        try {
+          await future;
+          return;
+        } catch (_) {}
+      }
       state = const AsyncLoading();
-    } else {
-      state = AsyncData(previous.copyWith(isRefreshing: true));
+      state = await AsyncValue.guard(() => _fetchPage(1));
+      return;
     }
 
-    state = await AsyncValue.guard(() async {
-      return _fetchPage(1);
-    });
+    state = AsyncData(previous.copyWith(isRefreshing: true));
+    try {
+      state = AsyncData(await _fetchPage(1));
+    } catch (error) {
+      state = AsyncData(previous.withRefreshError(error));
+    }
   }
 
   Future<void> loadMore() async {
@@ -96,7 +114,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
           count: items.length < current.itemsPerPage
               ? current.count + items.length
               : current.count + current.itemsPerPage,
-          lastFetchedAt: DateTime.now(),
+          lastFetchedAt: DateTime.now,
           isLoadingMore: false,
         ),
       );
@@ -106,19 +124,35 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> search({String? query, String? city, String? categoryId}) async {
+    final changed =
+        _query != query || _city != city || _categoryId != categoryId;
     _query = query;
     _city = city;
     _categoryId = categoryId;
 
+    if (!changed) {
+      await refreshIfStale();
+      return;
+    }
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
     await refresh();
   }
 
   Future<void> clearSearch() async {
+    final changed = _query != null || _city != null || _categoryId != null;
     _query = null;
     _city = null;
     _categoryId = null;
 
-    await refresh();
+    if (changed) {
+      await refresh();
+    } else {
+      await refreshIfStale();
+    }
   }
 
   Future<void> invalidate() async {
@@ -126,10 +160,15 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
     if (current == null) return;
 
-    state = AsyncData(current.copyWith(lastFetchedAt: null));
+    state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
 
   Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
     final current = state.value;
 
     if (current == null) {

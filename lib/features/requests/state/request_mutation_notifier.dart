@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
@@ -5,6 +7,7 @@ import 'package:prokat/core/mutation/mutation_notifier.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/client_history_requests_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
 import 'package:prokat/features/requests/state/request_state.dart';
@@ -15,6 +18,24 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
 
   RequestMutationNotifier({required this.api, required this.ref})
     : super(RequestState());
+
+  void _refreshClientActive() {
+    if (ref.exists(clientActiveRequestsProvider)) {
+      unawaited(ref.read(clientActiveRequestsProvider.notifier).refresh());
+    }
+  }
+
+  void _refreshOwnerActive() {
+    if (ref.exists(ownerActiveRequestsProvider)) {
+      unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+    }
+  }
+
+  void _invalidateClientHistory() {
+    if (ref.exists(clientHistoryRequestsProvider)) {
+      unawaited(ref.read(clientHistoryRequestsProvider.notifier).invalidate());
+    }
+  }
 
   @override
   Set<Mutation> get activeActions => state.activeActions;
@@ -118,7 +139,8 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
       );
 
       if (result.success) {
-        ref.read(clientActiveRequestsProvider.notifier).refresh();
+        _refreshClientActive();
+        _refreshOwnerActive();
       }
 
       return MutationResponse(
@@ -174,7 +196,8 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
       );
 
       if (result.success) {
-        ref.read(clientActiveRequestsProvider.notifier).refresh();
+        _refreshClientActive();
+        _refreshOwnerActive();
       }
 
       return result.success;
@@ -204,7 +227,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
       );
 
       if (result.success) {
-        ref.read(ownerActiveRequestsProvider.notifier).refresh();
+        _refreshOwnerActive();
       }
 
       return result.success;
@@ -234,7 +257,9 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
       );
 
       if (result.success) {
-        ref.read(clientActiveRequestsProvider.notifier).refresh();
+        _refreshClientActive();
+        _refreshOwnerActive();
+        _invalidateClientHistory();
       }
 
       return MutationResponse(success: result.success, message: result.message);

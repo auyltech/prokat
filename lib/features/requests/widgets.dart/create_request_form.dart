@@ -87,7 +87,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
-    final categoriesState = ref.watch(categoriesProvider);
+    final categories =
+        ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
 
     final requestState = ref.watch(requestMutationProvider);
     final requestNotifier = ref.read(requestMutationProvider.notifier);
@@ -103,7 +104,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     ref.listen(clientProfileProvider, (previous, next) {
       final profileCategoryId = next.userProfile?.selectedCategoryId;
 
-      final foundCategory = categoriesState.categories
+      final foundCategory = categories
           .where((item) => item.id == profileCategoryId)
           .firstOrNull;
 

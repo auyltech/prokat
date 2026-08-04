@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/widgets/offer_actions/offer_chat_action_controller.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -28,12 +30,37 @@ class OfferChatActionBar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(offerChatActionControllerProvider);
 
-    final lastOffer = ref
-        .read(offersProvider.notifier)
-        .getLastRequestOffer(requestId, mode);
+    final offerQuery = OfferQuery(
+      filter: OfferListFilter.active,
+      requestId: requestId,
+    );
+    final offerState = mode == 'owner'
+        ? ref.watch(ownerOffersProvider(offerQuery))
+        : ref.watch(clientOffersProvider(offerQuery));
+    final offers = offerState.valueOrNull?.items ?? const [];
+    final matching = offers.where((offer) => offer.requestId == requestId);
+    final lastOffer = matching.isEmpty ? null : matching.first;
 
-    final negotiationState = ref.watch(priceNegotiationProvider);
-    final pending = negotiationState.latestPending;
+    final negotiationQuery = lastOffer == null
+        ? null
+        : PriceNegotiationQuery(
+            offerId: lastOffer.id,
+            filter: PriceNegotiationListFilter.active,
+          );
+    final negotiations = negotiationQuery == null
+        ? const <PriceNegotiation>[]
+        : ref
+                  .watch(priceNegotiationsProvider(negotiationQuery))
+                  .valueOrNull
+                  ?.items ??
+              const <PriceNegotiation>[];
+    PriceNegotiation? pending;
+    for (final negotiation in negotiations) {
+      if (negotiation.isPending) {
+        pending = negotiation;
+        break;
+      }
+    }
     final pendingId = (pending?.id ?? '').trim();
 
     return Container(

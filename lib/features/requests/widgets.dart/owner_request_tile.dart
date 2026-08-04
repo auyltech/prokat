@@ -42,11 +42,7 @@ class OwnerRequestTile extends ConsumerWidget {
 
     final requestState = getOwnerRequestState(request, offers);
 
-    final offersNotifier = ref.read(offersProvider.notifier);
-
-    final activeOffer = offersNotifier
-        .getActiveOffers(request.id, "owner")
-        .firstOrNull;
+    final activeOffer = offers.firstOrNull;
 
     final minutesLeft = getRemainingMinutes(request.createdAt);
 
@@ -232,8 +228,12 @@ class OwnerRequestTile extends ConsumerWidget {
                         offer: activeOffer,
                         onCancel: () async {
                           final result = await ref
-                              .read(offersProvider.notifier)
-                              .cancelOffer(activeOffer.id);
+                              .read(offerMutationProvider.notifier)
+                              .cancelOffer(
+                                activeOffer.id,
+                                chatId: activeOffer.chatId,
+                                requestId: activeOffer.requestId,
+                              );
 
                           AppSnackBar.show(
                             message: result.message,
@@ -277,7 +277,7 @@ class OwnerRequestTile extends ConsumerWidget {
                     IconButton(
                       onPressed: () {
                         ref
-                            .read(offersProvider.notifier)
+                            .read(offerMutationProvider.notifier)
                             .selectRequest(request);
 
                         context.push(AppRoutes.ownerCreateOffer);

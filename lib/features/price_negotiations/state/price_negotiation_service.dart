@@ -4,6 +4,8 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/bookings/models/query_result.dart';
 
 class PriceNegotiationService {
   final ApiClient apiClient;
@@ -12,26 +14,51 @@ class PriceNegotiationService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<PriceNegotiation>>> getPriceNegotiations() async {
+  Future<ApiResponse<QueryResult<PriceNegotiation>>> getPriceNegotiations({
+    required PriceNegotiationQuery query,
+    required int page,
+  }) async {
     try {
-      final response = await _dio.get('/price-negotiations/booking');
+      final isBooking = query.bookingId != null;
+      final response = await _dio.get(
+        isBooking ? '/price-negotiations/booking' : '/price-negotiations/offer',
+        queryParameters: {
+          'page': page,
+          'itemsPerPage': query.itemsPerPage,
+          if (isBooking) 'bookingId': query.bookingId,
+          if (!isBooking) 'offerId': query.offerId,
+          if (query.filter != null) 'status': query.filter!.apiValue,
+        },
+      );
 
-      return handleApiResponse<List<PriceNegotiation>>(
+      return handleApiResponse<QueryResult<PriceNegotiation>>(
         response: response,
         parser: (data) {
-          final itemsJson = data["data"];
+          final payload = data is Map<String, dynamic> && data['data'] is Map
+              ? Map<String, dynamic>.from(data['data'] as Map)
+              : Map<String, dynamic>.from(data as Map);
+          final itemsJson = payload['items'] ?? payload['data'];
 
           if (itemsJson is! List) {
             throw FormatException("Expected price negotiation list");
           }
 
-          return itemsJson.map((item) {
+          final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
               throw FormatException("Invalid price negotiation item");
             }
 
             return PriceNegotiation.fromJson(item);
           }).toList();
+
+          return QueryResult(
+            items: items,
+            page: (payload['page'] as num?)?.toInt() ?? page,
+            itemsPerPage:
+                (payload['itemsPerPage'] as num?)?.toInt() ??
+                query.itemsPerPage,
+            count: (payload['count'] as num?)?.toInt() ?? items.length,
+          );
         },
         fallbackMessage: "Failed to load price negotiations",
       );

@@ -39,9 +39,7 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
     super.initState();
 
     Future.microtask(() async {
-      if (ref.read(ownerRegistrationProvider).ownerProfile == null) {
-        await ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
-      }
+      await ref.read(ownerProfileProvider.notifier).refreshIfStale();
     });
   }
 
@@ -54,8 +52,8 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
     final language = LocaleNotifier.displayCode(locale);
     final currentMode = ref.watch(themeModeProvider);
 
-    final ownerState = ref.watch(ownerRegistrationProvider);
-    final ownerProfile = ownerState.ownerProfile;
+    final ownerProfileAsync = ref.watch(ownerProfileProvider);
+    final ownerProfile = ownerProfileAsync.valueOrNull;
 
     final notificationPreferences =
         ownerProfile?.notificationSettings ??
@@ -100,7 +98,7 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
 
             const SizedBox(height: 30),
 
-            if (ownerProfile == null && ownerState.isLoading)
+            if (ownerProfile == null && ownerProfileAsync.isLoading)
               const Padding(
                 padding: EdgeInsets.all(24),
                 child: Center(child: CircularProgressIndicator()),

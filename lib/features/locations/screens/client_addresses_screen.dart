@@ -128,7 +128,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                           ? null
                           : () async {
                               final saved = await ref
-                                  .read(clientProfileProvider.notifier)
+                                  .read(clientProfileMutationProvider.notifier)
                                   .selectAddress(addressId);
 
                               if (!context.mounted) return;

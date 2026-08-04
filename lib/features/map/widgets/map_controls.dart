@@ -18,7 +18,7 @@ class MapControls extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = ref.watch(categoriesProvider).selectedCategory;
+    final selectedCategory = ref.watch(selectedCategoryProvider);
     const bgColor = Color(0xFF1E2125); // Card Charcoal
     const accentColor = Color(0xFF4E73DF); // Industrial Blue
 

@@ -65,22 +65,37 @@ DateTime? parseRetryAfter(String? value, {DateTime? now}) {
 
 DateTime? extractRetryAt(Response response, {DateTime? now}) {
   final currentTime = now ?? DateTime.now();
+
+  final data = response.data;
+  if (data is Map) {
+    // Error responses use retryAfterSeconds. Prefer it when present because it
+    // describes the cooldown for the specific failed request.
+    final retryAfterSeconds = _parsePositiveSeconds(data['retryAfterSeconds']);
+    if (retryAfterSeconds != null) {
+      return currentTime.add(Duration(seconds: retryAfterSeconds));
+    }
+  }
+
   final fromHeader = parseRetryAfter(
     response.headers.value('retry-after'),
     now: currentTime,
   );
   if (fromHeader != null) return fromHeader;
 
-  final data = response.data;
   if (data is! Map) return null;
 
-  final rawSeconds = data['resendAfterSeconds'];
-  final seconds = rawSeconds is num
-      ? rawSeconds.toInt()
-      : int.tryParse(rawSeconds?.toString() ?? '');
+  // Successful OTP requests use resendAfterSeconds.
+  final seconds = _parsePositiveSeconds(data['resendAfterSeconds']);
   if (seconds == null) return null;
 
-  return currentTime.add(Duration(seconds: seconds < 0 ? 0 : seconds));
+  return currentTime.add(Duration(seconds: seconds));
+}
+
+int? _parsePositiveSeconds(dynamic value) {
+  final seconds = value is num
+      ? value.toInt()
+      : int.tryParse(value?.toString() ?? '');
+  return seconds != null && seconds > 0 ? seconds : null;
 }
 
 String extractBackendMessage(
@@ -240,11 +255,14 @@ ApiResponse<T> handleDioException<T>(
   String fallbackMessage = "Request failed",
 }) {
   final exception = ApiException.fromDio(error);
+  final response = error.response;
 
   return ApiResponse.failure(
     message: exception.message.isNotEmpty ? exception.message : fallbackMessage,
     error: (exception.data ?? error).toString(),
     statusCode: exception.statusCode,
+    errorCode: response == null ? null : extractBackendCode(response.data),
+    retryAt: response == null ? null : extractRetryAt(response),
   );
 }
 

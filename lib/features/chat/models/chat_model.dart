@@ -4,6 +4,7 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 
 enum ChatType { direct, support, workflow, announcement }
@@ -89,7 +90,13 @@ class ChatModel {
   }
 
   OfferModel? getActiveOffer() {
-    return offers.where((item) => [].contains(item.status)).firstOrNull;
+    return offers
+        .where(
+          (item) =>
+              item.status == OfferStatus.created ||
+              item.status == OfferStatus.viewed,
+        )
+        .firstOrNull;
   }
 
   ChatModel copyWith({

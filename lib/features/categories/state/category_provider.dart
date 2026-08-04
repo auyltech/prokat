@@ -1,18 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/api/api_provider.dart';
+import 'package:prokat/features/bookings/models/query_state.dart';
+import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/categories_notifier.dart';
-import 'package:prokat/features/categories/state/categories_state.dart';
-import '../../../core/api/api_provider.dart';
-import 'category_service.dart';
+import 'package:prokat/features/categories/state/category_service.dart';
 
 final categoryServiceProvider = Provider<CategoryService>((ref) {
-  final dio = ref.watch(apiClientProvider);
-
-  return CategoryService(dio);
+  return CategoryService(ref.watch(apiClientProvider));
 });
 
 final categoriesProvider =
-    StateNotifierProvider<CategoriesNotifier, CategoryState>((ref) {
-      final service = ref.watch(categoryServiceProvider);
+    AsyncNotifierProvider<CategoriesNotifier, QueryState<Category>>(
+      CategoriesNotifier.new,
+    );
 
-      return CategoriesNotifier(service, ref);
-    });
+final selectedCategoryProvider =
+    NotifierProvider<SelectedCategoryNotifier, Category?>(
+      SelectedCategoryNotifier.new,
+    );

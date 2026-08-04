@@ -16,7 +16,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     final newStatus = turnOnline ? OwnerStatus.online : OwnerStatus.offline;
 
     final result = await ref
-        .read(ownerRegistrationProvider.notifier)
+        .read(ownerRegistrationMutationProvider.notifier)
         .updateOwnerStatus(ownerStatus: newStatus);
 
     AppSnackBar.show(
@@ -33,8 +33,8 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     final theme = Theme.of(context);
 
     final currentStatus = ref
-        .watch(ownerRegistrationProvider)
-        .ownerProfile
+        .watch(ownerProfileProvider)
+        .valueOrNull
         ?.onlineStatus;
 
     final isOnline = currentStatus == OwnerStatus.online;
@@ -63,7 +63,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
           activeThumbColor: const Color(
             0xFF0F5A56,
           ), // Matches your app's green theme
-          onChanged: ref.watch(ownerRegistrationProvider).isLoading
+          onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
               ? null
               : _onToggleMethod,
         ),

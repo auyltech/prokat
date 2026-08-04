@@ -16,17 +16,25 @@ class OwnerRegistrationScreen extends ConsumerStatefulWidget {
 class _OwnerRegistrationScreenState
     extends ConsumerState<OwnerRegistrationScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(ownerProfileProvider.notifier).refreshIfStale();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final initialProfile = ref.watch(ownerRegistrationProvider).ownerProfile;
+    final initialProfile = ref.watch(ownerProfileProvider).valueOrNull;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
+          await ref.read(ownerProfileProvider.notifier).refresh();
         },
         child: ListView(
           children: [

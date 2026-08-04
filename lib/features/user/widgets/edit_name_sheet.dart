@@ -37,7 +37,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
     final parts = newName.split(' ');
 
     final success = await ref
-        .read(clientProfileProvider.notifier)
+        .read(clientProfileMutationProvider.notifier)
         .updateUserProfile(
           firstName: parts.first,
           lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
@@ -58,7 +58,7 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(clientProfileProvider);
+    final state = ref.watch(clientProfileMutationProvider);
     final isLoading = state.isLoading;
 
     return Padding(

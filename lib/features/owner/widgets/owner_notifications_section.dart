@@ -159,7 +159,7 @@ class _OwnerNotificationsSectionState
     });
 
     final saved = await ref
-        .read(ownerRegistrationProvider.notifier)
+        .read(ownerRegistrationMutationProvider.notifier)
         .updateOwnerNotificationSettings(nextValue);
 
     if (!mounted) return;

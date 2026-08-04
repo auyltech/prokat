@@ -138,10 +138,12 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
     if (file != null) {
       if (widget.mode == AppMode.ownerMode) {
         await ref
-            .read(ownerRegistrationProvider.notifier)
+            .read(ownerRegistrationMutationProvider.notifier)
             .uploadProfileImage(file);
       } else {
-        await ref.read(clientProfileProvider.notifier).uploadProfileImage(file);
+        await ref
+            .read(clientProfileMutationProvider.notifier)
+            .uploadProfileImage(file);
       }
     }
   }

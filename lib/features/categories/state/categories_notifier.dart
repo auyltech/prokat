@@ -1,89 +1,94 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
-import 'package:prokat/core/errors/app_error.dart';
+import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/state/category_service.dart';
-import 'package:prokat/features/categories/state/categories_state.dart';
-import 'package:prokat/features/user/state/client_profile_provider.dart';
 
-class CategoriesNotifier extends StateNotifier<CategoryState> {
-  Ref ref;
-  final CategoryService service;
+class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
+  static const staleAfter = Duration(hours: 24);
 
-  CategoriesNotifier(this.service, this.ref) : super(CategoryState());
+  late final CategoryService service;
+  Future<void>? _refreshing;
 
-  void selectCategory(Category? category) {
-    state = state.copyWith(selectedCategory: category, showSelect: false);
+  @override
+  Future<QueryState<Category>> build() async {
+    service = ref.read(categoryServiceProvider);
+    return _fetch();
   }
 
-  void selectCategoryById(String? categoryId) {
-    Category? foundCategory;
-
-    if (categoryId != null) {
-      foundCategory = state.categories
-          .where((item) => item.id == categoryId)
-          .firstOrNull;
+  Future<QueryState<Category>> _fetch() async {
+    final result = await service.getCategories();
+    if (!result.success || result.data == null) {
+      throw Exception(result.message);
     }
 
-    if (foundCategory != null) {
-      state = state.copyWith(
-        selectedCategory: foundCategory,
-        showSelect: false,
-      );
-    }
+    final items = result.data!;
+    return QueryState(
+      items: items,
+      page: 1,
+      itemsPerPage: items.isEmpty ? 1 : items.length,
+      count: items.length,
+      lastFetchedAt: DateTime.now(),
+    );
   }
 
-  void clearCategory() {
-    state = state.copyWith(showSelect: true);
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
   }
 
-  Future<void> getCategories() async {
-    try {
-      final hasData = state.categories.isNotEmpty;
-
-      state = state.copyWith(
-        fetchStatus: hasData ? FetchStatus.refreshing : FetchStatus.loading,
-        fetchError: null,
-      );
-
-      final result = await service.getCategories();
-
-      state = state.copyWith(
-        categories: result.data,
-        fetchStatus: result.data == null
-            ? FetchStatus.error
-            : result.data?.isEmpty == true
-            ? FetchStatus.empty
-            : FetchStatus.success,
-        lastFetchedAt: DateTime.now(),
-        fetchError: result.success
-            ? null
-            : AppError(
-                type: ErrorType.unknown,
-                message: result.error.toString(),
-                code: "CATEGORY_FETCH_FAILED",
-              ),
-      );
-
-      if (result.success) {
-        final selectedCategoryId = ref
-            .read(clientProfileProvider)
-            .userProfile
-            ?.selectedCategoryId;
-
-        selectCategoryById(selectedCategoryId);
+  Future<void> _refresh() async {
+    final previous = state.value;
+    if (previous == null) {
+      if (state.isLoading) {
+        try {
+          await future;
+          return;
+        } catch (_) {}
       }
+      state = const AsyncLoading();
+      state = await AsyncValue.guard(_fetch);
+      return;
+    }
+
+    state = AsyncData(previous.copyWith(isRefreshing: true));
+    try {
+      state = AsyncData(await _fetch());
     } catch (error) {
-      state = state.copyWith(
-        fetchStatus: state.categories.isEmpty
-            ? FetchStatus.error
-            : FetchStatus.success,
-        fetchError: AppError(
-          type: ErrorType.unknown,
-          message: error.toString(),
-          code: "CATEGORY_FETCH_FAILED",
-        ),
-      );
+      state = AsyncData(previous.withRefreshError(error));
     }
   }
+
+  Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
+    final current = state.value;
+    if (current == null || current.isStaleAfter(staleAfter)) {
+      await refresh();
+    }
+  }
+}
+
+class SelectedCategoryNotifier extends Notifier<Category?> {
+  @override
+  Category? build() => null;
+
+  void select(Category? category) => state = category;
+
+  void selectById(String? id) {
+    if (id == null) {
+      state = null;
+      return;
+    }
+    final items = ref.read(categoriesProvider).valueOrNull?.items ?? const [];
+    state = items.where((item) => item.id == id).firstOrNull;
+  }
+
+  void clear() => state = null;
 }

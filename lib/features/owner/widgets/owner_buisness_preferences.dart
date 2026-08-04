@@ -29,9 +29,7 @@ class _OwnerBusinessPreferencesSectionState
   }
 
   Future<void> _loadBusinessData() async {
-    if (ref.read(ownerRegistrationProvider).ownerProfile == null) {
-      await ref.read(ownerRegistrationProvider.notifier).getOwnerProfile();
-    }
+    await ref.read(ownerProfileProvider.notifier).refreshIfStale();
 
     if (ref.read(locationProvider).ownerLocations.isEmpty) {
       await ref.read(locationProvider.notifier).getOwnerLocations();
@@ -44,7 +42,7 @@ class _OwnerBusinessPreferencesSectionState
 
   @override
   Widget build(BuildContext context) {
-    final profile = ref.watch(ownerRegistrationProvider).ownerProfile;
+    final profile = ref.watch(ownerProfileProvider).valueOrNull;
 
     final equipmentCount =
         ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;

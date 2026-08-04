@@ -33,22 +33,22 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final request = ref.read(offersProvider).selectedRequest;
+      final request = ref.read(offerMutationProvider).selectedRequest;
 
       if (request == null) return;
 
       // Price
       _price.text = request.offeredPrice.toString();
-      ref.read(offersProvider.notifier).setPrice(request.offeredPrice);
+      ref.read(offerMutationProvider.notifier).setPrice(request.offeredPrice);
 
       // Date
       if (request.requiredOn != null) {
-        ref.read(offersProvider.notifier).setDate(request.requiredOn!);
+        ref.read(offerMutationProvider.notifier).setDate(request.requiredOn!);
       }
 
       // Time
       if (request.requiredAt != null) {
-        ref.read(offersProvider.notifier).setTime(request.requiredAt!);
+        ref.read(offerMutationProvider.notifier).setTime(request.requiredAt!);
       }
     });
   }
@@ -64,8 +64,8 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    final offersState = ref.watch(offersProvider);
-    final offersNotifier = ref.read(offersProvider.notifier);
+    final offersState = ref.watch(offerMutationProvider);
+    final offersNotifier = ref.read(offerMutationProvider.notifier);
     final equipmentAsync = ref.watch(ownerEquipmentProvider);
 
     final equipmentOptions = (equipmentAsync.value?.items ?? [])
@@ -76,7 +76,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         offersState.priceRate != null &&
         offersState.selectedEquipment != null &&
         offersState.selectedRequest != null &&
-        !ref.watch(offersProvider).isSubmitting;
+        !ref.watch(offerMutationProvider).isSubmitting;
 
     Future<void> onSubmit() async {
       if (_formKey.currentState?.validate() ?? false) {
@@ -160,9 +160,9 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               const SizedBox(height: 8),
 
               PriceRateSelector(
-                initialValue: ref.watch(offersProvider).priceRate,
+                initialValue: ref.watch(offerMutationProvider).priceRate,
                 onChanged: (val) =>
-                    ref.read(offersProvider.notifier).setPriceRate(val),
+                    ref.read(offerMutationProvider.notifier).setPriceRate(val),
               ),
 
               const SizedBox(height: 12),

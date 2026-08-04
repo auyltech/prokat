@@ -6,6 +6,7 @@ import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/logo_tile.dart';
+import 'package:prokat/features/auth/widgets/otp_verification_form.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -57,6 +58,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
     final error = authState.error;
 
+    final hasOtpSession =
+        authState.otpPhone != null && authState.otpRequestedAt != null;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.primary,
       appBar: AppBar(
@@ -68,7 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             size: 20,
             color: Colors.white,
           ),
-          onPressed: () => context.push(AppRoutes.main),
+          onPressed: () => context.go(AppRoutes.main),
         ),
       ),
       body: SafeArea(
@@ -77,6 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
+                  vertical: 0,
                   horizontal: 0,
                 ), // Outer screen margins
                 child: ConstrainedBox(
@@ -99,12 +104,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const LogoTile(),
 
                           const SizedBox(height: 32),
+
                           Text(
                             l10n.getStarted,
                             style: theme.textTheme.headlineSmall?.copyWith(
                               letterSpacing: -1,
                             ),
                           ),
+
                           Text(
                             l10n.loginSubtitle,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -113,14 +120,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                           ),
+
                           const SizedBox(height: 20),
 
                           if (error != null) ErrorBoxTile(errorMessage: error),
 
-                          LoginWithPhoneForm(
-                            key: const ValueKey('phone'),
-                            onError: setErrorMessage,
-                          ),
+                          if (hasOtpSession)
+                            OtpVerificationForm(
+                              phone: authState.otpPhone!,
+                              onError: setErrorMessage,
+                            )
+                          else
+                            LoginWithPhoneForm(
+                              key: const ValueKey('phone'),
+                              onError: setErrorMessage,
+                            ),
 
                           // Terms and conditions, Privacy notice and link
                           Padding(

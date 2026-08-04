@@ -287,7 +287,14 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 else
                   IconButton(
                     onPressed: () async {
-                      await CounterOfferSheet.show(context, mode: widget.mode);
+                      await CounterOfferSheet.show(
+                        context,
+                        bookingId: booking.id,
+                        chatId: widget.message.chatId,
+                        initialPrice: booking.price,
+                        initialPriceRate: booking.priceRate,
+                        mode: widget.mode,
+                      );
                     },
                     icon: Icon(
                       LucideIcons.coins,

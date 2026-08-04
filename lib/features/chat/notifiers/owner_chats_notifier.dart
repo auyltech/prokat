@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   late final ChatService api;
+  Future<void>? _refreshing;
 
   @override
   Future<QueryState<ChatModel>> build() async {
@@ -33,18 +34,35 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     );
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh() {
+    final active = _refreshing;
+    if (active != null) return active;
+    final operation = _refresh();
+    _refreshing = operation;
+    return operation.whenComplete(() => _refreshing = null);
+  }
+
+  Future<void> _refresh() async {
     final previous = state.value;
 
     if (previous == null) {
+      if (state.isLoading) {
+        try {
+          await future;
+          return;
+        } catch (_) {}
+      }
       state = const AsyncLoading();
-    } else {
-      state = AsyncData(previous.copyWith(isRefreshing: true));
+      state = await AsyncValue.guard(() => _fetchPage(1));
+      return;
     }
 
-    state = await AsyncValue.guard(() async {
-      return _fetchPage(1);
-    });
+    state = AsyncData(previous.copyWith(isRefreshing: true));
+    try {
+      state = AsyncData(await _fetchPage(1));
+    } catch (error) {
+      state = AsyncData(previous.withRefreshError(error));
+    }
   }
 
   Future<void> loadMore() async {
@@ -76,7 +94,7 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
           itemsPerPage: result.itemsPerPage,
           count: result.count,
           isLoadingMore: false,
-          lastFetchedAt: DateTime.now(),
+          lastFetchedAt: DateTime.now,
         ),
       );
     } catch (_) {
@@ -88,12 +106,15 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     final current = state.value;
     if (current == null) return;
 
-    state = AsyncData(
-      current.copyWith(lastFetchedAt: DateTime.fromMillisecondsSinceEpoch(0)),
-    );
+    state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
 
   Future<void> refreshIfStale() async {
+    if (state.isLoading) {
+      try {
+        await future;
+      } catch (_) {}
+    }
     final current = state.value;
 
     if (current == null || current.isStale) {

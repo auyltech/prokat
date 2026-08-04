@@ -12,6 +12,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 class CounterOfferSheet extends ConsumerStatefulWidget {
   final String? bookingId;
   final String? offerId;
+  final String? chatId;
   final int? initialPrice;
   final PriceRateOption? initialPriceRate;
   final AppMode mode;
@@ -20,6 +21,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
     super.key,
     this.bookingId,
     this.offerId,
+    this.chatId,
     this.initialPrice,
     this.initialPriceRate,
     required this.mode,
@@ -29,6 +31,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     String? bookingId,
     String? offerId,
+    String? chatId,
     int? initialPrice,
     PriceRateOption? initialPriceRate,
     required AppMode mode,
@@ -43,6 +46,7 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
       builder: (context) => CounterOfferSheet(
         bookingId: bookingId,
         offerId: offerId,
+        chatId: chatId,
         initialPrice: initialPrice,
         initialPriceRate: initialPriceRate,
         mode: mode,
@@ -68,7 +72,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
       return;
     }
 
-    final notifier = ref.read(priceNegotiationProvider.notifier);
+    final notifier = ref.read(priceNegotiationMutationProvider.notifier);
 
     try {
       // use booking notifier to create counter offer
@@ -81,6 +85,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
             : "CLIENT_COUNTER",
         bookingId: widget.bookingId,
         offerId: widget.offerId,
+        chatId: widget.chatId,
       );
 
       // use chat notifier to create counter offer
@@ -133,7 +138,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final state = ref.watch(priceNegotiationProvider);
+    final state = ref.watch(priceNegotiationMutationProvider);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24, top: 12, left: 24, right: 24),

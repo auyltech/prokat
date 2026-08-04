@@ -22,8 +22,8 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     final l10n = AppLocalizations.of(context)!;
 
     final registrationRequest = ref
-        .watch(ownerRegistrationProvider)
-        .registrationRequest;
+        .watch(ownerRegistrationRequestProvider)
+        .valueOrNull;
 
     final isOwner = ref.watch(authProvider).isOwner;
 

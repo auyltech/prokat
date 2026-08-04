@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -69,13 +68,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     super.initState();
 
     Future.microtask(() async {
-      final categoryState = ref.read(categoriesProvider);
-
-      if (categoryState.fetchStatus == FetchStatus.initial ||
-          categoryState.fetchStatus == FetchStatus.error) {
-        ref.read(categoriesProvider.notifier).getCategories();
-        return;
-      }
+      await ref.read(categoriesProvider.notifier).refreshIfStale();
     });
   }
 
@@ -95,7 +88,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(categoriesProvider.notifier).getCategories();
+          await ref.read(categoriesProvider.notifier).refresh();
         },
         child: ListView(
           padding: EdgeInsets.zero,

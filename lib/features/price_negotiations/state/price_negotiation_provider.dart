@@ -1,21 +1,33 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_provider.dart';
+import 'package:prokat/features/bookings/models/query_state.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_service.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_state.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiations_query_notifier.dart';
 
 final priceNegotiationServiceProvider = Provider<PriceNegotiationService>((
   ref,
 ) {
-  final apiClient = ref.watch(apiClientProvider);
-  return PriceNegotiationService(apiClient);
+  return PriceNegotiationService(ref.watch(apiClientProvider));
 });
 
-final priceNegotiationProvider =
-    StateNotifierProvider<PriceNegotiationNotifier, PriceNegotiationState>((
-      ref,
-    ) {
-      final api = ref.read(priceNegotiationServiceProvider);
+final priceNegotiationsProvider =
+    AsyncNotifierProvider.family<
+      PriceNegotiationsNotifier,
+      QueryState<PriceNegotiation>,
+      PriceNegotiationQuery
+    >(PriceNegotiationsNotifier.new);
 
-      return PriceNegotiationNotifier(api);
+final priceNegotiationMutationProvider =
+    StateNotifierProvider<
+      PriceNegotiationMutationNotifier,
+      PriceNegotiationState
+    >((ref) {
+      return PriceNegotiationMutationNotifier(
+        ref,
+        ref.read(priceNegotiationServiceProvider),
+      );
     });

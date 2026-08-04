@@ -9,7 +9,10 @@ import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dar
 import 'package:prokat/features/chat/widgets/message_bubble.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -23,11 +26,17 @@ class OwnerChatScreen extends ConsumerStatefulWidget {
 }
 
 class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
+  PriceNegotiationQuery? _entryNegotiationQuery;
+  OfferQuery? _entryOfferQuery;
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await ref.read(offersProvider.notifier).getOwnerOffers();
+      await Future.wait([
+        ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale(),
+        ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale(),
+      ]);
     });
   }
 
@@ -48,15 +57,48 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     final booking = currentChat?.booking;
 
     final lastOffer = currentChat?.getActiveOffer();
+    final requestId = (currentChat?.requestId ?? currentChat?.request?.id ?? '')
+        .trim();
+    final offerQuery = requestId.isEmpty
+        ? null
+        : OfferQuery(
+            filter: OfferListFilter.active,
+            requestId: requestId,
+          );
+    if (offerQuery != null && offerQuery != _entryOfferQuery) {
+      _entryOfferQuery = offerQuery;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref
+            .read(ownerOffersProvider(offerQuery).notifier)
+            .refreshIfStale();
+      });
+    }
 
-    final pendingNegotiation = ref
-        .watch(priceNegotiationProvider.notifier)
-        .getPendingNegotiation(
-          bookingId: booking?.id,
-          currentUserId: currentUserId,
-          mode: "owner",
-          offerId: lastOffer?.id ?? "",
-        );
+    final negotiationQuery = priceNegotiationQueryFor(
+      bookingId: booking?.id,
+      offerId: lastOffer?.id,
+    );
+    if (negotiationQuery != null &&
+        negotiationQuery != _entryNegotiationQuery) {
+      _entryNegotiationQuery = negotiationQuery;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref
+            .read(priceNegotiationsProvider(negotiationQuery).notifier)
+            .refreshIfStale();
+      });
+    }
+    final negotiations = negotiationQuery == null
+        ? const []
+        : ref
+                  .watch(priceNegotiationsProvider(negotiationQuery))
+                  .valueOrNull
+                  ?.items ??
+              const [];
+    final pendingNegotiation = negotiations
+        .where((item) => item.status == PriceNegotiationStatus.created)
+        .firstOrNull;
     final pendingNegotiationId = (pendingNegotiation?.id ?? '').trim();
 
     final reviewSubmitted =
@@ -79,11 +121,16 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(currentChatProvider(widget.chatId).notifier).refresh();
-
-          await ref
-              .read(chatMessagesProvider(widget.chatId).notifier)
-              .refresh();
+          await Future.wait([
+            ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
+            ref.read(chatMessagesProvider(widget.chatId).notifier).refresh(),
+            if (negotiationQuery != null)
+              ref
+                  .read(priceNegotiationsProvider(negotiationQuery).notifier)
+                  .refresh(),
+            if (offerQuery != null)
+              ref.read(ownerOffersProvider(offerQuery).notifier).refresh(),
+          ]);
 
           // ref.read(requestProvider.notifier).getOwnerRequests();
           // ref.read(offersProvider.notifier).getOwnerOffers();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
@@ -32,13 +33,18 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
         ref.read(clientActiveRequestsProvider.notifier).loadMore();
+        ref
+            .read(clientOffersProvider(const OfferQuery.active()).notifier)
+            .loadMore();
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
 
-      ref.read(offersProvider.notifier).getClientOffers();
+      ref
+          .read(clientOffersProvider(const OfferQuery.active()).notifier)
+          .refreshIfStale();
     });
   }
 
@@ -54,9 +60,11 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final requestsAsync = ref.watch(clientActiveRequestsProvider);
-    final offersState = ref.watch(offersProvider);
+    final offersAsync = ref.watch(
+      clientOffersProvider(const OfferQuery.active()),
+    );
 
-    final offers = offersState.clientOffers.where(
+    final offers = (offersAsync.valueOrNull?.items ?? const []).where(
       (r) => [OfferStatus.created, OfferStatus.viewed].contains(r.status),
     );
 
@@ -76,7 +84,12 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          return ref.read(clientActiveRequestsProvider.notifier).refresh();
+          await Future.wait([
+            ref.read(clientActiveRequestsProvider.notifier).refresh(),
+            ref
+                .read(clientOffersProvider(const OfferQuery.active()).notifier)
+                .refresh(),
+          ]);
         },
         child: requestsAsync.when(
           loading: () => const RequestTileSkeleton(),

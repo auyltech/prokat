@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
-import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -19,23 +17,6 @@ class OfferChatActionController {
 
   OfferChatActionController(this.ref);
 
-  Future<void> refreshAfterNegotiation({
-    required String chatId,
-    required String offerId,
-  }) async {
-    await ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
-    // await ref.read(chatProvider.notifier).reloadChat(chatId);
-
-    final offersNotifier = ref.read(offersProvider.notifier);
-    await Future.wait([
-      ref.read(clientActiveBookingsProvider.notifier).refresh(),
-      ref.read(ownerActiveBookingsProvider.notifier).refresh(),
-
-      offersNotifier.getOwnerOffers(),
-      offersNotifier.getClientOffers(),
-    ]);
-  }
-
   Future<void> respond({
     required BuildContext context,
     required String chatId,
@@ -45,13 +26,13 @@ class OfferChatActionController {
   }) async {
     try {
       await ref
-          .read(priceNegotiationProvider.notifier)
+          .read(priceNegotiationMutationProvider.notifier)
           .respondToPriceNegotiation(
             negotiationId: negotiationId,
             response: response,
+            offerId: offerId,
+            chatId: chatId,
           );
-      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
-
       if (!context.mounted) return;
       AppSnackBar.show(message: 'Saved', isSuccess: true);
     } catch (e) {
@@ -71,10 +52,12 @@ class OfferChatActionController {
   }) async {
     try {
       await ref
-          .read(priceNegotiationProvider.notifier)
-          .cancelPriceNegotiation(negotiationId);
-      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
-
+          .read(priceNegotiationMutationProvider.notifier)
+          .cancelPriceNegotiation(
+            negotiationId,
+            offerId: offerId,
+            chatId: chatId,
+          );
       if (!context.mounted) return;
       AppSnackBar.show(message: 'Saved', isSuccess: true);
     } catch (error) {
@@ -90,11 +73,12 @@ class OfferChatActionController {
     required BuildContext context,
     required String chatId,
     required String offerId,
+    String? requestId,
   }) async {
     try {
-      await ref.read(offersProvider.notifier).acceptOffer(offerId);
-
-      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
+      await ref
+          .read(offerMutationProvider.notifier)
+          .acceptOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
@@ -108,11 +92,12 @@ class OfferChatActionController {
     required BuildContext context,
     required String chatId,
     required String offerId,
+    String? requestId,
   }) async {
     try {
-      await ref.read(offersProvider.notifier).rejectOffer(offerId);
-
-      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
+      await ref
+          .read(offerMutationProvider.notifier)
+          .rejectOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
@@ -126,11 +111,12 @@ class OfferChatActionController {
     required BuildContext context,
     required String chatId,
     required String offerId,
+    String? requestId,
   }) async {
     try {
-      await ref.read(offersProvider.notifier).cancelOffer(offerId);
-
-      await refreshAfterNegotiation(chatId: chatId, offerId: offerId);
+      await ref
+          .read(offerMutationProvider.notifier)
+          .cancelOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
@@ -147,8 +133,6 @@ class OfferChatActionController {
   }) async {
     try {
       await ref.read(requestMutationProvider.notifier).cancelRequest(requestId);
-
-      await refreshAfterNegotiation(chatId: chatId, offerId: "");
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
@@ -162,11 +146,12 @@ class OfferChatActionController {
     required BuildContext context,
     required String chatId,
     required String offerId,
+    String? requestId,
   }) async {
     try {
-      await ref.read(offersProvider.notifier).cancelOffer(offerId);
-
-      await refreshAfterNegotiation(chatId: chatId, offerId: "");
+      await ref
+          .read(offerMutationProvider.notifier)
+          .cancelOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(

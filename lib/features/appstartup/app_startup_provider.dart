@@ -188,7 +188,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
       state = _statusForStep(AppStartupStep.fetchProfileMinimal);
 
-      await ref.read(clientProfileProvider.notifier).getUserProfile();
+      await ref.read(clientProfileProvider.notifier).refresh();
 
       final profile = ref.read(clientProfileProvider).userProfile;
 
@@ -223,11 +223,14 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
   void _clearUserScopedProviders() {
     // Profile and owner registration
     ref.invalidate(clientProfileProvider);
-    ref.invalidate(ownerRegistrationProvider);
+    ref.invalidate(clientProfileMutationProvider);
+    ref.invalidate(ownerProfileProvider);
+    ref.invalidate(ownerRegistrationRequestProvider);
+    ref.invalidate(ownerRegistrationMutationProvider);
 
     // User addresses and profile-derived selections
     ref.invalidate(locationProvider);
-    ref.invalidate(categoriesProvider);
+    ref.invalidate(selectedCategoryProvider);
 
     // Search state and personalized equipment
     ref.invalidate(searchEquipmentProvider);
@@ -269,8 +272,11 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.invalidate(requestMutationProvider);
 
     // Offers and negotiations
-    ref.invalidate(offersProvider);
-    ref.invalidate(priceNegotiationProvider);
+    ref.invalidate(clientOffersProvider);
+    ref.invalidate(ownerOffersProvider);
+    ref.invalidate(offerMutationProvider);
+    ref.invalidate(priceNegotiationsProvider);
+    ref.invalidate(priceNegotiationMutationProvider);
 
     // Chat lists and all family instances
     ref.invalidate(clientChatsProvider);
@@ -316,7 +322,9 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     } finally {
       // Clear every cache containing account-specific information.
       ref.invalidate(clientProfileProvider);
-      ref.invalidate(ownerRegistrationProvider);
+      ref.invalidate(ownerProfileProvider);
+      ref.invalidate(ownerRegistrationRequestProvider);
+      ref.invalidate(ownerRegistrationMutationProvider);
 
       ///
       ///
@@ -493,7 +501,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
       await measure(
         AppStartupStep.fetchProfileMinimal,
-        () => ref.read(clientProfileProvider.notifier).getUserProfile(),
+        () => ref.read(clientProfileProvider.notifier).refresh(),
       );
 
       final profile = ref.read(clientProfileProvider).userProfile;

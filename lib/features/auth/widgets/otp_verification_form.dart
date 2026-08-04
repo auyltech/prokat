@@ -171,25 +171,25 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         const SizedBox(height: 24),
 
         // Cooldown Action Section
-        if (isTimerActive)
+        TextButton(
+          onPressed: isTimerActive || authState.isLoading ? null : resendOtp,
+          child: Text(
+            _l10n.resendOtp,
+            style: theme.textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        if (isTimerActive) ...[
           Text(
-            _l10n.resendOtpIn(_secondsRemaining),
+            _l10n.otpRetryIn(_secondsRemaining),
+            textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
               fontWeight: FontWeight.w500,
             ),
-          )
-        else
-          TextButton(
-            onPressed: authState.isLoading ? null : resendOtp,
-            child: Text(
-              _l10n.resendOtp,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ),
+        ],
         const SizedBox(height: 8),
         Center(
           child: TextButton(
