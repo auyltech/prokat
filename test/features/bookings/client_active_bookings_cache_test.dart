@@ -45,7 +45,7 @@ void main() {
 
       final container = ProviderContainer(
         overrides: [
-          bookingApiProvider.overrideWithValue(
+          bookingServiceProvider.overrideWithValue(
             BookingService(_TestApiClient(dio)),
           ),
         ],
@@ -101,7 +101,7 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
-        bookingApiProvider.overrideWithValue(
+        bookingServiceProvider.overrideWithValue(
           BookingService(_TestApiClient(dio)),
         ),
       ],

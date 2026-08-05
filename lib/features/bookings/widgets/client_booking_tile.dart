@@ -153,7 +153,9 @@ class ClientBookingTile extends ConsumerWidget {
                   ].contains(booking.status)) ...[
                     if (ref
                         .watch(bookingMutationProvider)
-                        .isActionActive("booking:update:${booking.id}"))
+                        .isActionActive(
+                          "booking:${booking.id}:update:${BookingStatus.cancelled}",
+                        ))
                       SizedBox(
                         height: 14,
                         width: 14,

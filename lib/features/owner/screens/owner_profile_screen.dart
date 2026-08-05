@@ -30,8 +30,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      ref.read(ownerProfileProvider.notifier).refreshIfStale();
-      ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale();
+      await Future.wait([
+        ref.read(ownerProfileProvider.notifier).refreshIfStale(),
+        ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale(),
+        ref.read(ownerEquipmentProvider.notifier).refreshIfStale(),
+        ref.read(ownerActiveBookingsProvider.notifier).refreshIfStale(),
+      ]);
+      if (!mounted) return;
 
       if (ref.read(billingProvider).accountBalance == null) {
         ref.read(billingProvider.notifier).getOwnerBalance();
@@ -56,10 +61,14 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(ownerProfileProvider.notifier).refresh();
+          await Future.wait([
+            ref.read(ownerProfileProvider.notifier).refresh(),
+            ref.read(ownerRegistrationRequestProvider.notifier).refresh(),
+            ref.read(ownerEquipmentProvider.notifier).refresh(),
+            ref.read(ownerActiveBookingsProvider.notifier).refresh(),
+          ]);
           ref.read(billingProvider.notifier).getOwnerBalance();
           ref.read(billingProvider.notifier).getVolumeDiscounts();
-          ref.read(ownerEquipmentProvider.notifier).refresh();
         },
         child: CustomScrollView(
           slivers: [

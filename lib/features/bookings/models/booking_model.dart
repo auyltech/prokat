@@ -4,6 +4,7 @@ import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/utils/date_time.dart';
 
 class BookingModel {
   final String id;
@@ -54,23 +55,14 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    DateTime? tryParseDate(dynamic value) {
-      if (value == null) return null;
-      try {
-        return DateTime.parse(value);
-      } catch (_) {
-        return null;
-      }
-    }
-
     return BookingModel(
       id: json['id']?.toString() ?? '',
 
       status: parseBookingStatus(json['status']),
       workStatus: parseWorkStatus(json['workStatus']),
 
-      bookedOn: tryParseDate(json['bookedOn']),
-      bookedAt: tryParseDate(json['bookedAt']),
+      bookedOn: parseLocalDateTime(json['bookedOn']),
+      bookedAt: parseLocalDateTime(json['bookedAt']),
 
       price: (json['price'] as num?)?.toInt() ?? 0,
       priceRate: parseRateOption(json['priceRate']),

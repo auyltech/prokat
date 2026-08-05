@@ -256,7 +256,12 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
 
     final hasSpecs = _sortedSpecs.isNotEmpty;
-    final canSave = hasSpecs && _isDirty && !_isSaving && !_hasErrors();
+    final canSave =
+        hasSpecs &&
+        widget.equipment.isDraft &&
+        _isDirty &&
+        !_isSaving &&
+        !_hasErrors();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -13,10 +13,6 @@ class ClientProfileMutationNotifier extends StateNotifier<ClientProfileState> {
   final Ref ref;
   final ClientProfileService service;
 
-  void setFirstName(String value) => state = state.copyWith(firstName: value);
-  void setLastName(String value) => state = state.copyWith(lastName: value);
-  void setDarkMode(String value) => state = state.copyWith(darkMode: value);
-
   Future<void> _refreshProfile() =>
       ref.read(clientProfileProvider.notifier).refresh();
 

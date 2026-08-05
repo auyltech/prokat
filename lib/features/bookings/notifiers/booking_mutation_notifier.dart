@@ -45,12 +45,14 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
   }
 
   void _invalidateBookingDetails(String id) {
-    ref.invalidate(
-      bookingProvider(BookingLookup(bookingId: id, isOwner: false)),
-    );
-    ref.invalidate(
-      bookingProvider(BookingLookup(bookingId: id, isOwner: true)),
-    );
+    for (final isOwner in [false, true]) {
+      final provider = bookingProvider(
+        BookingLookup(bookingId: id, isOwner: isOwner),
+      );
+      if (ref.exists(provider)) {
+        ref.invalidate(provider);
+      }
+    }
   }
 
   @override
@@ -112,8 +114,8 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         ).toString(),
         "priceRate": state.selectedPriceEntry?.priceRate.value ?? "",
         "locationId": state.selectedLocation?.id,
-        "bookedOn": state.selectedDate!.toIso8601String(),
-        "bookedAt": state.selectedTime!.toIso8601String(),
+        "bookedOn": state.selectedDate!.toUtc().toIso8601String(),
+        "bookedAt": state.selectedTime!.toUtc().toIso8601String(),
         "comment": state.comment,
       });
 

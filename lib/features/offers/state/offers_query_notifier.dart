@@ -7,28 +7,27 @@ import 'package:prokat/features/offers/state/offers_service.dart';
 
 abstract class OffersQueryNotifier
     extends FamilyAsyncNotifier<QueryState<OfferModel>, OfferQuery> {
-  bool get isOwner;
+  OffersService get api => ref.read(offersServiceProvider);
 
-  late final OffersService service;
   late final OfferQuery query;
   Future<void>? _refreshing;
+  bool get isOwner;
 
   @override
   Future<QueryState<OfferModel>> build(OfferQuery arg) async {
-    service = ref.read(offersServiceProvider);
     query = arg;
     return _fetchPage(1);
   }
 
   Future<QueryState<OfferModel>> _fetchPage(int page) async {
     final response = isOwner
-        ? await service.getOwnerOffers(
+        ? await api.getOwnerOffers(
             page: page,
             itemsPerPage: query.itemsPerPage,
             filter: query.filter,
             requestId: query.requestId,
           )
-        : await service.getClientOffers(
+        : await api.getClientOffers(
             page: page,
             itemsPerPage: query.itemsPerPage,
             filter: query.filter,

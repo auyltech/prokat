@@ -1,27 +1,12 @@
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
-import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 
 class PriceNegotiationState {
-  final bool isLoading;
-  final bool isSubmitting;
-  final String? actionId;
   final Set<Mutation> activeActions;
 
-  final String? error;
+  const PriceNegotiationState({this.activeActions = const {}});
 
-  final List<PriceNegotiation> negotiations;
-
-  const PriceNegotiationState({
-    this.activeActions = const {},
-    this.isLoading = false,
-    this.isSubmitting = false,
-    this.actionId,
-
-    this.error,
-
-    this.negotiations = const [],
-  });
+  bool get isSubmitting =>
+      activeActions.any((action) => action.status == MutationStatus.submitting);
 
   bool isActionActive(String actionId) {
     return activeActions.any(
@@ -30,36 +15,9 @@ class PriceNegotiationState {
     );
   }
 
-  PriceNegotiation? get latestPending {
-    for (final n in negotiations) {
-      if (n.status == PriceNegotiationStatus.created) return n;
-    }
-
-    return null;
-  }
-
-  PriceNegotiation? get latestAccepted {
-    for (final n in negotiations) {
-      if (n.status == PriceNegotiationStatus.accepted) return n;
-    }
-    return null;
-  }
-
-  PriceNegotiationState copyWith({
-    Set<Mutation>? activeActions,
-    bool? isLoading,
-    bool? isSubmitting,
-    String? actionId,
-    String? error,
-    List<PriceNegotiation>? negotiations,
-  }) {
+  PriceNegotiationState copyWith({Set<Mutation>? activeActions}) {
     return PriceNegotiationState(
-      isLoading: isLoading ?? this.isLoading,
       activeActions: activeActions ?? this.activeActions,
-      isSubmitting: isSubmitting ?? this.isSubmitting,
-      actionId: actionId,
-      error: error,
-      negotiations: negotiations ?? this.negotiations,
     );
   }
 }

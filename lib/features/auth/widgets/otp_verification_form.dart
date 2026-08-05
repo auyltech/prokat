@@ -170,27 +170,40 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         ),
         const SizedBox(height: 24),
 
-        // Cooldown Action Section
-        TextButton(
-          onPressed: isTimerActive || authState.isLoading ? null : resendOtp,
-          child: Text(
-            _l10n.resendOtp,
-            style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        // Consolidated Resend Logic UI Section
         if (isTimerActive) ...[
+          // State A: Timer is ticking down
           Text(
-            _l10n.otpRetryIn(_secondsRemaining),
+            "You can request a new code in ${_secondsRemaining}s",
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
           ),
+        ] else ...[
+          // State B: Timer reached 0. Actionable Resend Link
+          TextButton(
+            onPressed: authState.isLoading ? null : resendOtp,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              "Didn't receive the code? Resend Now",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ],
-        const SizedBox(height: 8),
+
+        const SizedBox(
+          height: 24,
+        ), // Gives clean breathing room before exit action
+        // Change Phone Number Section
         Center(
           child: TextButton(
             onPressed: authState.isLoading
@@ -198,11 +211,18 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
                 : () async {
                     await ref.read(authProvider.notifier).clearOtpSession();
                   },
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             child: Text(
-              _l10n.changePhoneNumber,
-              style: theme.textTheme.labelLarge?.copyWith(
+              "Change phone number",
+              style: theme.textTheme.bodyMedium?.copyWith(
                 color: primary,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration
+                    .underline, // Subtle distinction from resend text
               ),
             ),
           ),

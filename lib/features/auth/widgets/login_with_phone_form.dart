@@ -114,6 +114,8 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
     final authState = ref.watch(authProvider);
 
     ref.listen<DateTime?>(
@@ -123,6 +125,20 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
 
     return Column(
       children: [
+        Text(
+          l10n.getStarted,
+          style: theme.textTheme.headlineSmall?.copyWith(letterSpacing: -1),
+        ),
+
+        Text(
+          l10n.loginSubtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
         PhoneInputField(label: _l10n.phoneNumber, controller: phoneController),
 
         const SizedBox(height: 24),

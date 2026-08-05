@@ -118,7 +118,9 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
 
               _isDirty
                   ? TextButton.icon(
-                      onPressed: _isSaving ? null : () => _handleSave(l10n),
+                      onPressed: _isSaving || !widget.equipment.isDraft
+                          ? null
+                          : () => _handleSave(l10n),
                       icon: _isSaving
                           ? SizedBox(
                               width: 14,

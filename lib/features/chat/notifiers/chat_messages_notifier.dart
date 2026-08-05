@@ -12,7 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatMessagesNotifier
     extends FamilyAsyncNotifier<QueryState<ChatMessageModel>, String> {
-  late final ChatService api;
+  ChatService get api => ref.read(chatServiceProvider);
+
   late final String chatId;
   late final ChatSocketService socketService;
 
@@ -24,7 +25,6 @@ class ChatMessagesNotifier
 
   @override
   Future<QueryState<ChatMessageModel>> build(String chatId) async {
-    api = ref.read(chatServiceProvider);
     this.chatId = chatId;
     socketService = ref.read(chatSocketServiceProvider);
 

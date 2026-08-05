@@ -4,15 +4,13 @@ import 'package:prokat/features/bookings/providers/booking_mutation_provider.dar
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class OwnerHistoryBookingsNotifier
+class OwnerActiveBookingsNotifier
     extends AsyncNotifier<QueryState<BookingModel>> {
-  late final BookingService api;
+  BookingService get api => ref.read(bookingServiceProvider);
   Future<void>? _refreshing;
 
   @override
   Future<QueryState<BookingModel>> build() async {
-    api = ref.read(bookingApiProvider);
-
     return _fetchPage(1);
   }
 
@@ -20,7 +18,7 @@ class OwnerHistoryBookingsNotifier
     final response = await api.getOwnerBookings(
       page: page,
       itemsPerPage: 10,
-      status: "HISTORY",
+      status: "ACTIVE",
     );
 
     final result = response.data;
@@ -85,11 +83,12 @@ class OwnerHistoryBookingsNotifier
       final response = await api.getOwnerBookings(
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
-        status: "HISTORY",
+        status: "ACTIVE",
       );
 
       if (!response.success || response.data == null) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
+
         return;
       }
 

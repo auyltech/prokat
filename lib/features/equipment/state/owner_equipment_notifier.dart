@@ -5,13 +5,11 @@ import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
-  late final EquipmentService api;
+  EquipmentService get api => ref.read(equipmentServiceProvider);
   Future<void>? _refreshing;
 
   @override
   Future<QueryState<Equipment>> build() async {
-    api = ref.read(equipmentServiceProvider);
-
     return _fetch();
   }
 

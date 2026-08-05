@@ -23,17 +23,21 @@ class _VisibilityStatusSectionState
   late bool _tempVisible;
   late EquipmentStatus _tempStatus;
 
-  Future<void> submitForReview() async {
+  Future<void> onSubmit() async {
     final equipment = widget.equipment;
     if (equipment == null) return;
 
     final l10n = AppLocalizations.of(context)!;
+
+    final nextStatus =
+        (equipment.status == EquipmentStatus.draft ||
+            equipment.status == EquipmentStatus.created)
+        ? EquipmentStatus.created
+        : EquipmentStatus.draft;
+
     final res = await ref
         .read(equipmentMutationProvider.notifier)
-        .updateEquipmentStatus(
-          widget.equipment?.id ?? "",
-          EquipmentStatus.created,
-        );
+        .updateEquipmentStatus(widget.equipment?.id ?? "", nextStatus);
 
     if (!mounted) return;
 
@@ -222,6 +226,8 @@ class _VisibilityStatusSectionState
                       }).toList(),
                 ),
               ),
+
+              SizedBox(height: 8),
             ],
           ),
 
@@ -235,8 +241,12 @@ class _VisibilityStatusSectionState
 
         // if (isDraft)
         PrimaryButton(
-          label: l10n.submitForReview,
-          onPressed: hasData ? submitForReview : null,
+          label: equipment?.status == EquipmentStatus.draft
+              ? l10n.submitForReview
+              : equipment?.status == EquipmentStatus.created
+              ? "Re-Submit"
+              : "Edit Equipment",
+          onPressed: hasData ? onSubmit : null,
           isLoading: equipment == null
               ? false
               : ref

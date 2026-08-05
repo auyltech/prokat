@@ -319,18 +319,6 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
       // Guarantee that the local session is removed.
       await authNotifier.clearLocalSession();
-    } finally {
-      // Clear every cache containing account-specific information.
-      ref.invalidate(clientProfileProvider);
-      ref.invalidate(ownerProfileProvider);
-      ref.invalidate(ownerRegistrationRequestProvider);
-      ref.invalidate(ownerRegistrationMutationProvider);
-
-      ///
-      ///
-      // Add more providers here if they are carrying over cache!
-      ///
-      ///
     }
 
     state = _statusForStep(

@@ -5,19 +5,20 @@ import 'package:prokat/features/owner/state/owner_registration_service.dart';
 
 class OwnerRegistrationRequestNotifier
     extends AsyncNotifier<RegistrationRequestModel?> {
+  OwnerRegistrationService get api =>
+      ref.read(ownerRegistrationServiceProvider);
+
   static const staleAfter = Duration(minutes: 1);
-  late final OwnerRegistrationService service;
   DateTime? _lastFetchedAt;
   Future<void>? _refreshing;
 
   @override
   Future<RegistrationRequestModel?> build() async {
-    service = ref.read(ownerRegistrationServiceProvider);
     return _fetch();
   }
 
   Future<RegistrationRequestModel?> _fetch() async {
-    final request = await service.getOwnerRegistrationRequest();
+    final request = await api.getOwnerRegistrationRequest();
     _lastFetchedAt = DateTime.now();
     return request;
   }

@@ -61,17 +61,12 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         .trim();
     final offerQuery = requestId.isEmpty
         ? null
-        : OfferQuery(
-            filter: OfferListFilter.active,
-            requestId: requestId,
-          );
+        : OfferQuery(filter: OfferListFilter.active, requestId: requestId);
     if (offerQuery != null && offerQuery != _entryOfferQuery) {
       _entryOfferQuery = offerQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref
-            .read(ownerOffersProvider(offerQuery).notifier)
-            .refreshIfStale();
+        ref.read(ownerOffersProvider(offerQuery).notifier).refreshIfStale();
       });
     }
 
@@ -131,11 +126,6 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
             if (offerQuery != null)
               ref.read(ownerOffersProvider(offerQuery).notifier).refresh(),
           ]);
-
-          // ref.read(requestProvider.notifier).getOwnerRequests();
-          // ref.read(offersProvider.notifier).getOwnerOffers();
-          // ref.read(bookingProvider.notifier).getOwnerBookings();
-          // ref.read(priceNegotiationProvider.notifier).getPriceNegotiations();
         },
         child: Stack(
           children: [

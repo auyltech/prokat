@@ -7,17 +7,16 @@ import 'package:prokat/features/categories/state/category_service.dart';
 class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
   static const staleAfter = Duration(hours: 24);
 
-  late final CategoryService service;
+  CategoryService get api => ref.read(categoryServiceProvider);
   Future<void>? _refreshing;
 
   @override
   Future<QueryState<Category>> build() async {
-    service = ref.read(categoryServiceProvider);
     return _fetch();
   }
 
   Future<QueryState<Category>> _fetch() async {
-    final result = await service.getCategories();
+    final result = await api.getCategories();
     if (!result.success || result.data == null) {
       throw Exception(result.message);
     }

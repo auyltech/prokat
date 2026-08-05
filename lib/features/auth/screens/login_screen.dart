@@ -105,24 +105,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                           const SizedBox(height: 32),
 
-                          Text(
-                            l10n.getStarted,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              letterSpacing: -1,
-                            ),
-                          ),
-
-                          Text(
-                            l10n.loginSubtitle,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
                           if (error != null) ErrorBoxTile(errorMessage: error),
 
                           if (hasOtpSession)

@@ -4,6 +4,7 @@ import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
+import 'package:prokat/utils/date_time.dart';
 
 class RequestModel {
   final String id;
@@ -56,10 +57,8 @@ class RequestModel {
       offeredPrice: parseNullableInt(json['offeredPrice']) ?? 0,
       offeredPriceRate: parseRateOption(json['offeredPriceRate']),
 
-      requiredOn: DateTime.parse(json['requiredOn']),
-      requiredAt: json['requiredAt'] != null
-          ? DateTime.parse(json['requiredAt'])
-          : null,
+      requiredOn: parseLocalDateTime(json['requiredOn']),
+      requiredAt: parseLocalDateTime(json['requiredAt']),
 
       categoryId: json['categoryId']?.toString() ?? '',
       category: json['category'] != null
@@ -94,8 +93,8 @@ class RequestModel {
       "comment": comment,
       "location": location.toJson(),
       "client": client?.toJson(),
-      "requiredOn": requiredOn?.toIso8601String(),
-      "requiredAt": requiredAt?.toIso8601String(),
+      "requiredOn": requiredOn?.toUtc().toIso8601String(),
+      "requiredAt": requiredAt?.toUtc().toIso8601String(),
     };
   }
 }

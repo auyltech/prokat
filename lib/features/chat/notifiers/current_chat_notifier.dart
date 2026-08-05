@@ -5,7 +5,7 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 
 class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
-  late final ChatService api;
+  ChatService get api => ref.read(chatServiceProvider);
 
   late final String _chatId;
   DateTime? _lastFetchedAt;
@@ -13,8 +13,6 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
 
   @override
   Future<ChatModel?> build(String chatId) async {
-    api = ref.read(chatServiceProvider);
-
     _chatId = chatId;
 
     return _fetch();
@@ -33,26 +31,33 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
 
   Future<void> refresh() {
     final active = _refreshing;
+
     if (active != null) return active;
+
     final operation = _refresh();
+
     _refreshing = operation;
+
     return operation.whenComplete(() => _refreshing = null);
   }
 
   Future<void> _refresh() async {
     final hadData = state is AsyncData<ChatModel?>;
-    final previous = state.value;
+    final previous = state.valueOrNull;
+
     if (!hadData && state.isLoading) {
       try {
         await future;
         return;
       } catch (_) {}
     }
+
     if (!hadData) {
       state = const AsyncLoading();
       state = await AsyncValue.guard(_fetch);
       return;
     }
+
     try {
       state = AsyncData(await _fetch());
     } catch (_) {

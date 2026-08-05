@@ -93,6 +93,7 @@ class _OwnerEquipmentDetailScreenState
                     PricingSection(
                       prices: equipment.prices,
                       equipmentId: equipment.id,
+                      isDraft: equipment.isDraft,
                     ),
 
                     LocationSection(

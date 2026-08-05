@@ -5,7 +5,8 @@ import 'package:prokat/features/equipment/providers/guest_equipment_provider.dar
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 
 class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
-  late final EquipmentService api;
+  EquipmentService get api => ref.read(equipmentServiceProvider);
+
   Future<void>? _refreshing;
 
   String? _query;
@@ -14,8 +15,6 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   @override
   Future<QueryState<Equipment>> build() async {
-    api = ref.read(equipmentServiceProvider);
-
     return _fetchPage(1);
   }
 

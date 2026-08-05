@@ -11,22 +11,19 @@ class PriceNegotiationsNotifier
           QueryState<PriceNegotiation>,
           PriceNegotiationQuery
         > {
-  late final PriceNegotiationService service;
+  PriceNegotiationService get api => ref.read(priceNegotiationServiceProvider);
+
   late final PriceNegotiationQuery query;
   Future<void>? _refreshing;
 
   @override
   Future<QueryState<PriceNegotiation>> build(PriceNegotiationQuery arg) async {
-    service = ref.read(priceNegotiationServiceProvider);
     query = arg;
     return _fetchPage(1);
   }
 
   Future<QueryState<PriceNegotiation>> _fetchPage(int page) async {
-    final response = await service.getPriceNegotiations(
-      query: query,
-      page: page,
-    );
+    final response = await api.getPriceNegotiations(query: query, page: page);
     final result = response.data;
     if (!response.success || result == null) throw Exception(response.message);
     return QueryState(

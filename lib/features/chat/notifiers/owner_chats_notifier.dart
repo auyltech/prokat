@@ -6,13 +6,11 @@ import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
-  late final ChatService api;
+  ChatService get api => ref.read(chatServiceProvider);
   Future<void>? _refreshing;
 
   @override
   Future<QueryState<ChatModel>> build() async {
-    api = ref.read(chatServiceProvider);
-
     return _fetchPage(1);
   }
 

@@ -11,3 +11,10 @@ DateTime get initialTargetDateTime {
     return DateTime(now.year, now.month, now.day, now.hour + 1);
   }
 }
+
+DateTime? parseLocalDateTime(dynamic value) {
+  if (value == null) return null;
+
+  final parsed = DateTime.tryParse(value.toString());
+  return parsed?.toLocal();
+}

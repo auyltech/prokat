@@ -136,8 +136,10 @@ class RequestService {
         '/requests/$id',
         data: {
           "locationId": ?locationId,
-          if (requiredOn != null) "requiredOn": requiredOn.toIso8601String(),
-          if (requiredAt != null) "requiredAt": requiredAt.toIso8601String(),
+          if (requiredOn != null)
+            "requiredOn": requiredOn.toUtc().toIso8601String(),
+          if (requiredAt != null)
+            "requiredAt": requiredAt.toUtc().toIso8601String(),
           "offeredRate": ?offeredRate,
         },
       );

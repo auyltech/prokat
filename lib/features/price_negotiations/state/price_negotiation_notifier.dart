@@ -4,6 +4,8 @@ import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/mutation/mutation_notifier.dart';
 import 'package:prokat/features/bookings/models/booking_lookup.dart';
 import 'package:prokat/features/bookings/providers/booking_provider.dart';
+import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -62,6 +64,15 @@ class PriceNegotiationMutationNotifier
     final refreshes = <Future<void>>[];
     final bookingId = query.bookingId;
     if (bookingId != null) {
+      if (ref.exists(clientActiveBookingsProvider)) {
+        refreshes.add(
+          ref.read(clientActiveBookingsProvider.notifier).refresh(),
+        );
+      }
+      if (ref.exists(ownerActiveBookingsProvider)) {
+        refreshes.add(ref.read(ownerActiveBookingsProvider.notifier).refresh());
+      }
+      await Future.wait(refreshes);
       for (final isOwner in [false, true]) {
         final provider = bookingProvider(
           BookingLookup(bookingId: bookingId, isOwner: isOwner),
@@ -70,6 +81,7 @@ class PriceNegotiationMutationNotifier
           ref.invalidate(provider);
         }
       }
+      return;
     } else {
       for (final provider in [
         clientOffersProvider(const OfferQuery.active()),

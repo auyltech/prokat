@@ -6,13 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OwnerActiveRequestsNotifier
     extends AsyncNotifier<QueryState<RequestModel>> {
-  late final RequestService api;
+  RequestService get api => ref.read(requestServiceProvider);
   Future<void>? _refreshing;
 
   @override
   Future<QueryState<RequestModel>> build() async {
-    api = ref.read(requestServiceProvider);
-
     return _fetchPage(1);
   }
 

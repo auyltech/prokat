@@ -84,8 +84,7 @@ class _LocationSectionState extends State<LocationSection> {
     final accent = colorScheme.primary;
     final warning = colorScheme.tertiary;
 
-    // final location = widget.location;
-    // final bool hasLocation = location != null && location.isNotEmpty;
+    final canSave = widget.equipment.isDraft;
 
     return Container(
       padding: EdgeInsets.all(0),
@@ -100,7 +99,9 @@ class _LocationSectionState extends State<LocationSection> {
 
               _isDirty
                   ? TextButton.icon(
-                      onPressed: _isSaving ? null : () => _handleSave(l10n),
+                      onPressed: (_isSaving || !canSave)
+                          ? null
+                          : () => _handleSave(l10n),
                       icon: _isSaving
                           ? SizedBox(
                               width: 14,

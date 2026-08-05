@@ -14,12 +14,14 @@ class PricingSection extends ConsumerStatefulWidget {
   final List<PriceEntry> prices;
   final String equipmentId;
   final int maxRates;
+  final bool isDraft;
 
   const PricingSection({
     super.key,
     required this.prices,
     required this.equipmentId,
     this.maxRates = 3,
+    required this.isDraft,
   });
 
   @override
@@ -72,7 +74,8 @@ class _PricingSectionState extends ConsumerState<PricingSection> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final bool canAddMore = widget.prices.length < widget.maxRates;
+    final bool canAddMore =
+        (widget.prices.length < widget.maxRates) && !widget.isDraft;
 
     final isSubmitting = ref
         .watch(equipmentMutationProvider)
@@ -88,10 +91,12 @@ class _PricingSectionState extends ConsumerState<PricingSection> {
             SectionTitle(title: l10n.prices),
 
             CustomIconButton(
-              onPressed: () => PriceEntrySheet.show(
-                context,
-                equipmentId: widget.equipmentId,
-              ),
+              onPressed: !canAddMore
+                  ? null
+                  : () => PriceEntrySheet.show(
+                      context,
+                      equipmentId: widget.equipmentId,
+                    ),
               icon: canAddMore ? Icons.add : Icons.lock,
               iconColor: canAddMore
                   ? theme.colorScheme.primary

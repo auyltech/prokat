@@ -5,20 +5,20 @@ import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/state/client_profile_service.dart';
 
 class ClientProfileNotifier extends AsyncNotifier<UserProfileModel?> {
+  ClientProfileService get api => ref.read(clientProfileServiceProvider);
+
   static const staleAfter = Duration(minutes: 5);
 
-  late final ClientProfileService service;
   DateTime? _lastFetchedAt;
   Future<void>? _refreshing;
 
   @override
   Future<UserProfileModel?> build() async {
-    service = ref.read(clientProfileServiceProvider);
     return _fetch();
   }
 
   Future<UserProfileModel?> _fetch() async {
-    final profile = await service.getUserProfile();
+    final profile = await api.getUserProfile();
     _lastFetchedAt = DateTime.now();
     if (profile != null) {
       ref.read(locationProvider.notifier).selectCity(profile.city ?? '');
