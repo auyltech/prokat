@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 enum RunMode { remote, local }
 
-const RunMode runMode = RunMode.local;
+const RunMode runMode = RunMode.remote;
 
 class Env {
   static String get baseUrl {
@@ -11,7 +11,7 @@ class Env {
       return "https://prokatbackend.onrender.com";
     }
 
-    if (runMode == RunMode.remote) {
+    if (runMode == RunMode.local) {
       if (kIsWeb) {
         return "http://localhost:4000";
       }

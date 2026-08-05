@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_error_message.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -57,7 +58,12 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
     void update() {
       final milliseconds =
           retryAt?.difference(DateTime.now()).inMilliseconds ?? 0;
-      final remaining = milliseconds <= 0 ? 0 : (milliseconds + 999) ~/ 1000;
+      final remaining = milliseconds <= 0
+          ? 0
+          : ((milliseconds + 999) ~/ 1000).clamp(
+              0,
+              otpCooldownDuration.inSeconds,
+            );
       if (!mounted) return;
       if (_secondsRemaining != remaining) {
         setState(() => _secondsRemaining = remaining);

@@ -37,11 +37,25 @@ class AuthSecureStorage {
   }
 
   Future<AuthSession?> readSession() async {
-    final value = await _storage.read(key: _authKey);
+    try {
+      final value = await _storage.read(key: _authKey);
 
-    if (value == null) return null;
+      if (value == null || value.isEmpty) return null;
 
-    return AuthSession.fromJson(jsonDecode(value));
+      final decoded = jsonDecode(value);
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('Invalid session format');
+      }
+
+      return AuthSession.fromJson(decoded);
+    } catch (error) {
+      try {
+        await _storage.delete(key: _authKey);
+      } catch (_) {}
+
+      // A broken local session means signed out, not app failure.
+      return null;
+    }
   }
 
   Future<void> clearSession() async {
@@ -64,16 +78,37 @@ class AuthSecureStorage {
   }
 
   Future<OtpSessionData?> readOtpSession() async {
-    final value = await _storage.read(key: _otpKey);
-    if (value == null) return null;
+    try {
+      final value = await _storage.read(key: _otpKey);
+      if (value == null || value.isEmpty) return null;
 
-    final json = jsonDecode(value);
+      final decoded = jsonDecode(value);
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('Invalid OTP session format');
+      }
 
-    return OtpSessionData(
-      phone: json['phone'],
-      requestedAt: DateTime.parse(json['requestedAt']),
-      retryAt: DateTime.tryParse(json['retryAt']?.toString() ?? ''),
-    );
+      final phone = decoded['phone']?.toString();
+      final requestedAt = DateTime.tryParse(
+        decoded['requestedAt']?.toString() ?? '',
+      );
+      final retryAtValue = decoded['retryAt'];
+      final retryAt = retryAtValue == null
+          ? null
+          : DateTime.tryParse(retryAtValue.toString());
+
+      if (phone == null || phone.isEmpty || requestedAt == null) {
+        throw const FormatException('Invalid OTP session data');
+      }
+
+      return OtpSessionData(
+        phone: phone,
+        requestedAt: requestedAt,
+        retryAt: retryAt,
+      );
+    } catch (_) {
+      await _deleteSilently(_otpKey);
+      return null;
+    }
   }
 
   Future<void> clearOtpSession() async {
@@ -88,17 +123,33 @@ class AuthSecureStorage {
   }
 
   Future<OtpCooldownData?> readOtpCooldown() async {
-    final value = await _storage.read(key: _otpCooldownKey);
-    if (value == null) return null;
-
     try {
-      final json = jsonDecode(value);
-      final phone = json['phone']?.toString();
-      final retryAt = DateTime.tryParse(json['retryAt']?.toString() ?? '');
-      if (phone == null || phone.isEmpty || retryAt == null) return null;
+      final value = await _storage.read(key: _otpCooldownKey);
+      if (value == null || value.isEmpty) return null;
+
+      final decoded = jsonDecode(value);
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('Invalid OTP cooldown format');
+      }
+
+      final phone = decoded['phone']?.toString();
+      final retryAt = DateTime.tryParse(decoded['retryAt']?.toString() ?? '');
+      if (phone == null || phone.isEmpty || retryAt == null) {
+        throw const FormatException('Invalid OTP cooldown data');
+      }
+
       return OtpCooldownData(phone: phone, retryAt: retryAt);
     } catch (_) {
+      await _deleteSilently(_otpCooldownKey);
       return null;
+    }
+  }
+
+  Future<void> _deleteSilently(String key) async {
+    try {
+      await _storage.delete(key: key);
+    } catch (_) {
+      // The storage itself may be unreadable; startup must still continue.
     }
   }
 

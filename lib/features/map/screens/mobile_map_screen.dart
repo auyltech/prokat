@@ -7,6 +7,7 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/map/widgets/map_controls.dart';
+import 'package:prokat/setup_mapbox.dart';
 
 enum MapMode { browseEquipment, pickLocation, ownerPlaceEquipment }
 
@@ -40,6 +41,9 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
   @override
   void initState() {
     super.initState();
+
+    MapboxConfig.ensureInitialized();
+
     _loadLocation();
   }
 

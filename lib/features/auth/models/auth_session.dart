@@ -13,9 +13,18 @@ class AuthSession {
   }
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
+    final expiresValue = json['expires'];
+    final expires = expiresValue == null
+        ? null
+        : DateTime.tryParse(expiresValue.toString());
+
+    if (expiresValue != null && expires == null) {
+      throw const FormatException('Invalid session expiry date');
+    }
+
     return AuthSession(
       sessionToken: json['sessionToken'],
-      expires: json['expires'] != null ? DateTime.parse(json['expires']) : null,
+      expires: expires,
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
     );
   }

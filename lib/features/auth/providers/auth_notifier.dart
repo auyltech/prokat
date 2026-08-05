@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'auth_api_service.dart';
@@ -38,8 +39,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final cooldown = await storage.readOtpCooldown();
     final now = DateTime.now();
     final activeCooldown = cooldown != null && cooldown.retryAt.isAfter(now)
-        ? cooldown
+        ? OtpCooldownData(
+            phone: cooldown.phone,
+            retryAt: _capRetryAt(cooldown.retryAt, now: now),
+          )
         : null;
+
+    if (activeCooldown != null && activeCooldown.retryAt != cooldown!.retryAt) {
+      await storage.saveOtpCooldown(
+        activeCooldown.phone,
+        activeCooldown.retryAt,
+      );
+    }
 
     if (cooldown != null && activeCooldown == null) {
       await storage.clearOtpCooldown();
@@ -69,9 +80,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return false;
     }
 
-    final retryAt = activeCooldown?.phone == data.phone
+    final storedRetryAt = activeCooldown?.phone == data.phone
         ? activeCooldown?.retryAt
         : data.retryAt;
+    final retryAt = storedRetryAt == null
+        ? null
+        : _capRetryAt(storedRetryAt, now: now);
     state = state.copyWith(
       otpPhone: data.phone,
       otpRequestedAt: data.requestedAt,
@@ -123,7 +137,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (result.success) {
         final now = DateTime.now();
-        final retryAt = result.retryAt ?? _fallbackRetryAt(now: now);
+        final retryAt = _capRetryAt(
+          result.retryAt ?? _fallbackRetryAt(now: now),
+          now: now,
+        );
 
         // SAVE TO STORAGE
         await storage.saveOtpSession(phone, now, retryAt: retryAt);
@@ -146,7 +163,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final shouldStartCooldown = result.retryAt != null || isRateLimited;
 
       if (shouldStartCooldown) {
-        final retryAt = result.retryAt ?? _fallbackRetryAt();
+        final now = DateTime.now();
+        final retryAt = _capRetryAt(
+          result.retryAt ?? _fallbackRetryAt(now: now),
+          now: now,
+        );
         await storage.saveOtpCooldown(phone, retryAt);
 
         state = state.copyWith(
@@ -178,7 +199,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   DateTime _fallbackRetryAt({DateTime? now}) {
-    return (now ?? DateTime.now()).add(const Duration(seconds: 60));
+    return (now ?? DateTime.now()).add(otpCooldownDuration);
+  }
+
+  DateTime _capRetryAt(DateTime retryAt, {required DateTime now}) {
+    final maximumRetryAt = now.add(otpCooldownDuration);
+    return retryAt.isAfter(maximumRetryAt) ? maximumRetryAt : retryAt;
   }
 
   /// VERIFY OTP

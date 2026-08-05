@@ -76,7 +76,7 @@ void main() {
     expect(state.otpCooldownPhone, '+77001234567');
     expect(
       state.otpRetryAt!.difference(DateTime.now()).inSeconds,
-      inInclusiveRange(88, 90),
+      inInclusiveRange(58, 60),
     );
   });
 
@@ -135,7 +135,7 @@ void main() {
     expect(state.otpCooldownPhone, '+77001234567');
     expect(
       state.otpRetryAt!.difference(DateTime.now()).inSeconds,
-      inInclusiveRange(73, 75),
+      inInclusiveRange(58, 60),
     );
   });
 

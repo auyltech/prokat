@@ -16,21 +16,35 @@ class AppModeStorage {
   }
 
   Future<AppMode?> readMode() async {
-    final value = await _storage.read(key: _modeKey);
-    if (value == null || value.isEmpty) {
+    try {
+      final value = await _storage.read(key: _modeKey);
+      if (value == null || value.isEmpty) {
+        return null;
+      }
+
+      for (final mode in AppMode.values) {
+        if (mode.name == value) {
+          return mode;
+        }
+      }
+
+      await _deleteSilently();
+      return null;
+    } catch (_) {
+      await _deleteSilently();
       return null;
     }
-
-    for (final mode in AppMode.values) {
-      if (mode.name == value) {
-        return mode;
-      }
-    }
-
-    return null;
   }
 
   Future<void> clearMode() async {
     await _storage.delete(key: _modeKey);
+  }
+
+  Future<void> _deleteSilently() async {
+    try {
+      await _storage.delete(key: _modeKey);
+    } catch (_) {
+      // The storage itself may be unreadable; startup must still continue.
+    }
   }
 }

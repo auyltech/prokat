@@ -4,6 +4,20 @@ import 'package:flutter/foundation.dart';
 // If your Mapbox SDK requires specific package imports, leave them here
 
 class MapboxConfig {
+  static bool _initialized = false;
+
+  static void ensureInitialized() {
+    if (_initialized) return;
+
+    final token = const String.fromEnvironment('MAPBOX_TOKEN');
+    if (token.isEmpty) {
+      throw StateError('Missing MAPBOX_TOKEN');
+    }
+
+    MapboxOptions.setAccessToken(token);
+    _initialized = true;
+  }
+
   /// Extracts the compile-time token and triggers an explicit runtime crash if missing.
   static String get publicToken {
     const token = String.fromEnvironment('MAPBOX_TOKEN');
