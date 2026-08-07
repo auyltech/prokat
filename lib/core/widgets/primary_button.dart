@@ -29,7 +29,7 @@ class PrimaryButton extends StatelessWidget {
         disabledForegroundColor: theme.colorScheme.onPrimary.withValues(
           alpha: 0.8,
         ),
-        minimumSize: const Size(double.infinity, 54),
+        minimumSize: const Size(double.infinity, 46),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
@@ -50,6 +50,7 @@ class PrimaryButton extends StatelessWidget {
             Icon(icon, size: 18),
             const SizedBox(width: 8),
           ],
+
           Text(
             label,
             style: const TextStyle(

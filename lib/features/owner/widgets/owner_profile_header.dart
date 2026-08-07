@@ -33,6 +33,8 @@ class OwnerProfileHeader extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          const SizedBox(height: 80),
+
           // ── Avatar ──
           ProfileImagePicker(
             initialImageUrl: ownerProfile?.profileImageUrl ?? "",
@@ -64,7 +66,7 @@ class OwnerProfileHeader extends StatelessWidget {
               const SizedBox(width: 12),
 
               Text(
-                "${ownerProfile?.ratingCount ?? 0} ratings",
+                "${ownerProfile?.ratingCount ?? 0} rating${ownerProfile?.ratingCount == 1 ? "" : "s"}",
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.75),
                   fontSize: 14,
@@ -73,10 +75,10 @@ class OwnerProfileHeader extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
 
           Text(
-            "${(ownerProfile?.orderCount ?? 0).toString()} Orders Completed",
+            "${(ownerProfile?.orderCount ?? 0).toString()} Order${ownerProfile?.orderCount == 1 ? "" : "s"} Completed",
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.75),
               fontSize: 14,

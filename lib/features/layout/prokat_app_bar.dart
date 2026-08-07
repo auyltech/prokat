@@ -172,7 +172,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     }
 
     return AppBar(
-      elevation: 2,
+      elevation: 5,
       backgroundColor: theme.cardColor,
       automaticallyImplyLeading: showBackButton,
       iconTheme: IconThemeData(

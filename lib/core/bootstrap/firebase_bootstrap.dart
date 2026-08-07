@@ -8,14 +8,11 @@ import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
-import 'package:prokat/firebase_options.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> initializeFirebaseServices() async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp();
   }
 
   if (!kIsWeb &&
@@ -36,8 +33,7 @@ class FirebaseBootstrap extends ConsumerStatefulWidget {
   const FirebaseBootstrap({super.key});
 
   @override
-  ConsumerState<FirebaseBootstrap> createState() =>
-      _FirebaseBootstrapState();
+  ConsumerState<FirebaseBootstrap> createState() => _FirebaseBootstrapState();
 }
 
 class _FirebaseBootstrapState extends ConsumerState<FirebaseBootstrap> {

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
@@ -19,7 +20,10 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<QueryState<Equipment>> _fetchPage(int page) async {
+    final locale = ref.watch(localeProvider);
+
     final response = await api.getGuestEquipment(
+      locale: locale.languageCode.toUpperCase(),
       page: page,
       itemsPerPage: 10,
       query: _query,
@@ -87,9 +91,12 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     state = AsyncData(current.copyWith(isLoadingMore: true));
 
     try {
+      final locale = ref.watch(localeProvider);
+
       final nextPage = current.page + 1;
 
       final response = await api.getGuestEquipment(
+        locale: locale.languageCode.toUpperCase(),
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         query: _query,

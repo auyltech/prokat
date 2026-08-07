@@ -55,8 +55,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Future<void> _onRefresh() async {
-    await ref.read(guestEquipmentProvider.notifier).refresh();
-    await ref.read(categoriesProvider.notifier).refresh();
+    ref.read(categoriesProvider.notifier).refresh();
+    ref.read(guestEquipmentProvider.notifier).refresh();
   }
 
   @override

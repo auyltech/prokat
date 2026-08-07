@@ -130,6 +130,7 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
     );
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l10n.getStarted,

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -16,7 +17,9 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
   }
 
   Future<QueryState<Category>> _fetch() async {
-    final result = await api.getCategories();
+    final locale = ref.watch(localeProvider);
+
+    final result = await api.getCategories(locale.languageCode.toUpperCase());
     if (!result.success || result.data == null) {
       throw Exception(result.message);
     }
@@ -33,9 +36,13 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
 
   Future<void> refresh() {
     final active = _refreshing;
+
     if (active != null) return active;
+
     final operation = _refresh();
+
     _refreshing = operation;
+
     return operation.whenComplete(() => _refreshing = null);
   }
 
@@ -67,7 +74,9 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
         await future;
       } catch (_) {}
     }
+
     final current = state.value;
+
     if (current == null || current.isStaleAfter(staleAfter)) {
       await refresh();
     }

@@ -7,6 +7,7 @@ class EmptyStateTile extends StatelessWidget {
   final IconData? icon;
   final String? imageName;
   final Color? color;
+  final Widget? actionButton;
 
   const EmptyStateTile({
     super.key,
@@ -15,6 +16,7 @@ class EmptyStateTile extends StatelessWidget {
     this.icon,
     this.imageName,
     this.color,
+    this.actionButton,
   });
 
   @override
@@ -26,6 +28,7 @@ class EmptyStateTile extends StatelessWidget {
     return BaseTile(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
+      borderRadius: 20,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -35,7 +38,7 @@ class EmptyStateTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
                   'assets/media/$imageName',
-                  height: 340,
+                  height: 200,
                   width: 340,
                   fit: BoxFit.cover,
                   excludeFromSemantics: true,
@@ -62,6 +65,12 @@ class EmptyStateTile extends StatelessWidget {
               style: theme.textTheme.labelMedium,
             ),
           ],
+
+          if (actionButton != null)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: actionButton,
+            ),
         ],
       ),
     );

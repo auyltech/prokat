@@ -37,9 +37,13 @@ class OwnerActiveBookingsNotifier
 
   Future<void> refresh() {
     final active = _refreshing;
+
     if (active != null) return active;
+
     final operation = _refresh();
+
     _refreshing = operation;
+
     return operation.whenComplete(() => _refreshing = null);
   }
 
@@ -55,14 +59,21 @@ class OwnerActiveBookingsNotifier
       }
       state = const AsyncLoading();
       state = await AsyncValue.guard(() => _fetchPage(1));
+
       return;
     }
 
-    state = AsyncData(previous.copyWith(isRefreshing: true));
+    // state = AsyncData(previous.copyWith(isRefreshing: true));
+    state = AsyncLoading<QueryState<BookingModel>>().copyWithPrevious(state);
+
     try {
       state = AsyncData(await _fetchPage(1));
-    } catch (error) {
-      state = AsyncData(previous.withRefreshError(error));
+    } catch (error, stackTrace) {
+      // state = AsyncData(previous.withRefreshError(error));
+      state = AsyncError<QueryState<BookingModel>>(
+        error,
+        stackTrace,
+      ).copyWithPrevious(state);
     }
   }
 

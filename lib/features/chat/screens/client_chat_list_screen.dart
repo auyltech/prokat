@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
@@ -102,6 +104,14 @@ class _ClientChatListScreenState extends ConsumerState<ClientChatListScreen> {
                     title: l10n.noChats,
                     subtitle: l10n.youHaveNoChats,
                     imageName: "empty_chats.png",
+                    actionButton: PrimaryButton(
+                      label: "Refresh",
+                      isLoading: chatsAsync.isRefreshing,
+                      icon: LucideIcons.refreshCw,
+                      onPressed: () async {
+                        await ref.read(clientChatsProvider.notifier).refresh();
+                      },
+                    ),
                   ),
                 ],
               );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
@@ -57,6 +59,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
           return ref.read(ownerActiveBookingsProvider.notifier).refresh();
         },
         child: bookingsAsync.when(
+          skipLoadingOnRefresh: false,
           loading: () => const OwnerBookingSkeleton(),
 
           error: (error, stackTrace) => ListView(
@@ -76,6 +79,10 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
           data: (query) {
             final bookings = query.items;
 
+            if (bookingsAsync.isRefreshing) {
+              return OwnerBookingSkeleton();
+            }
+
             return ListView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
@@ -87,6 +94,16 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
                       subtitle: l10n.noActiveOrders,
+                      actionButton: PrimaryButton(
+                        label: "Refresh",
+                        isLoading: bookingsAsync.isRefreshing,
+                        icon: LucideIcons.refreshCw,
+                        onPressed: () async {
+                          await ref
+                              .read(ownerActiveBookingsProvider.notifier)
+                              .refresh();
+                        },
+                      ),
                     ),
                   )
                 else

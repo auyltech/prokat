@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/widgets/chat_tile.dart';
@@ -62,6 +63,7 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
           await ref.read(ownerChatsProvider.notifier).refresh();
         },
         child: chatsAsync.when(
+          skipLoadingOnRefresh: false,
           loading: () => _buildSkeleton(_scrollController),
 
           error: (_, _) => ListView(
@@ -80,6 +82,10 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
           data: (state) {
             final chats = state.items;
 
+            if (state.isRefreshing) {
+              return _buildSkeleton(_scrollController);
+            }
+
             if (chats.isEmpty) {
               return ListView(
                 controller: _scrollController,
@@ -90,6 +96,15 @@ class _OwnerChatListScreenState extends ConsumerState<OwnerChatListScreen> {
                     icon: LucideIcons.messageCircle,
                     title: l10n.noChats,
                     subtitle: l10n.youHaveNoChats,
+                    imageName: "empty_chats.png",
+                    actionButton: PrimaryButton(
+                      label: "Refresh",
+                      isLoading: chatsAsync.isRefreshing,
+                      icon: LucideIcons.refreshCw,
+                      onPressed: () async {
+                        await ref.read(ownerChatsProvider.notifier).refresh();
+                      },
+                    ),
                   ),
                 ],
               );
@@ -139,9 +154,24 @@ Widget _buildSkeleton(ScrollController controller) {
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
     itemCount: 5,
     itemBuilder: (context, index) {
-      return Shimmer.fromColors(
-        baseColor: Colors.grey.shade200,
-        highlightColor: Colors.grey.shade50,
+      return Shimmer(
+        // baseColor: Colors.grey.shade300,
+        // highlightColor: Colors.grey.shade100,
+        // direction: ShimmerDirection.ttb,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft, // 👈 Slants the start point
+          end: Alignment.bottomRight, // 👈 Slants the end point
+          colors: [
+            Colors.grey.shade300,
+            Colors.grey.shade100,
+            Colors.grey.shade300,
+          ],
+          stops: const [
+            0.3,
+            0.5,
+            0.7,
+          ], // Controls the sharpness of the shimmer line
+        ),
         child: Container(
           height: 80,
           margin: const EdgeInsets.only(bottom: 16),

@@ -13,9 +13,12 @@ class CategoryService {
 
   Dio get _dio => apiClient.dio;
 
-  Future<ApiResponse<List<Category>>> getCategories() async {
+  Future<ApiResponse<List<Category>>> getCategories(String locale) async {
     try {
-      final response = await _dio.get(ApiRoutes.categories);
+      final response = await _dio.get(
+        ApiRoutes.categories,
+        queryParameters: {'locale': locale},
+      );
 
       return handleApiResponse<List<Category>>(
         response: response,

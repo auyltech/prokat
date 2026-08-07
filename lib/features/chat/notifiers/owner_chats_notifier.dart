@@ -34,9 +34,13 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
 
   Future<void> refresh() {
     final active = _refreshing;
+
     if (active != null) return active;
+
     final operation = _refresh();
+
     _refreshing = operation;
+
     return operation.whenComplete(() => _refreshing = null);
   }
 
@@ -52,10 +56,13 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
       }
       state = const AsyncLoading();
       state = await AsyncValue.guard(() => _fetchPage(1));
+
       return;
     }
 
     state = AsyncData(previous.copyWith(isRefreshing: true));
+    // state = AsyncLoading<QueryState<ChatModel>>().copyWithPrevious(state);
+
     try {
       state = AsyncData(await _fetchPage(1));
     } catch (error) {

@@ -46,6 +46,7 @@ class ClientBookingTile extends ConsumerWidget {
         booking.myReviewId!.isNotEmpty;
 
     final actionId = "booking:update:${booking.id}";
+
     final isSubmittingCancel = ref
         .watch(bookingMutationProvider)
         .isActionActive(actionId);

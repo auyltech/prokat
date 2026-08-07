@@ -3,6 +3,11 @@ import 'package:flutter/foundation.dart';
 
 enum RunMode { remote, local }
 
+//
+//
+// Switch run mode to local to connect to local DB
+//
+//
 const RunMode runMode = RunMode.remote;
 
 class Env {
