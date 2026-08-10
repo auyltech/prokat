@@ -5,15 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/app.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/services/crash_reporting_service.dart';
 import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
+import 'package:prokat/firebase_options.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> initializeFirebaseServices() async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
+
+  await CrashReportingService.initialize();
 
   if (!kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
