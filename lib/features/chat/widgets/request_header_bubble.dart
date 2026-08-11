@@ -36,10 +36,7 @@ class RequestHeaderBubble extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            request.comment ?? '',
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(request.comment ?? '', style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           Text(
             l10n.offeredPrice(formatPrice(request.offeredPrice)),
@@ -59,4 +56,3 @@ class RequestHeaderBubble extends StatelessWidget {
     );
   }
 }
-

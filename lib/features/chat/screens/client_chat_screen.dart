@@ -59,17 +59,12 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         .trim();
     final offerQuery = requestId.isEmpty
         ? null
-        : OfferQuery(
-            filter: OfferListFilter.active,
-            requestId: requestId,
-          );
+        : OfferQuery(filter: OfferListFilter.active, requestId: requestId);
     if (offerQuery != null && offerQuery != _entryOfferQuery) {
       _entryOfferQuery = offerQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref
-            .read(clientOffersProvider(offerQuery).notifier)
-            .refreshIfStale();
+        ref.read(clientOffersProvider(offerQuery).notifier).refreshIfStale();
       });
     }
 

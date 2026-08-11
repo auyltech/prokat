@@ -6,8 +6,8 @@ class EquipmentErrorTile extends StatelessWidget {
   final String? errorMessage;
 
   const EquipmentErrorTile({
-    super.key, 
-    required this.onRetry, 
+    super.key,
+    required this.onRetry,
     this.errorMessage,
   });
 
@@ -20,10 +20,10 @@ class EquipmentErrorTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withValues(alpha:0.3),
+        color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha:0.2),
+          color: theme.colorScheme.error.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -47,7 +47,7 @@ class EquipmentErrorTile extends StatelessWidget {
             errorMessage ?? l10n.loadEquipmentErrorHint,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onErrorContainer.withValues(alpha:0.7),
+              color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.7),
             ),
           ),
           const SizedBox(height: 16),

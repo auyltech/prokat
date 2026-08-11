@@ -59,7 +59,10 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
         final lastMessageAt = chat.lastMessage?.createdAt;
 
         if (chat.type == ChatType.support) {
-          return Text(l10n.support, style: const TextStyle(color: Colors.black));
+          return Text(
+            l10n.support,
+            style: const TextStyle(color: Colors.black),
+          );
         }
 
         return GestureDetector(

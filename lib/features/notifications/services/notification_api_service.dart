@@ -37,12 +37,7 @@ class NotificationApiService {
 
   Future<void> deactivateDeviceToken({required String token}) async {
     try {
-      await dio.patch(
-        _deactivateTokenPath,
-        data: {
-          'token': token,
-        },
-      );
+      await dio.patch(_deactivateTokenPath, data: {'token': token});
     } on DioException catch (error) {
       throw Exception(extractBackendMessage(error));
     } catch (error) {
@@ -57,10 +52,7 @@ class NotificationApiService {
     try {
       final res = await dio.get(
         _notificationsPath,
-        queryParameters: {
-          'page': page,
-          'limit': limit,
-        },
+        queryParameters: {'page': page, 'limit': limit},
       );
 
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;

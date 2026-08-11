@@ -6,11 +6,6 @@ import 'package:flutter/foundation.dart';
 class CrashReportingService {
   CrashReportingService._();
 
-  static const bool _enableInDebug = bool.fromEnvironment('ENABLE_CRASHLYTICS');
-  static const bool _triggerTestCrash = bool.fromEnvironment(
-    'CRASHLYTICS_TEST_CRASH',
-  );
-
   static bool _initialized = false;
 
   static bool get _isSupportedPlatform =>
@@ -25,7 +20,7 @@ class CrashReportingService {
     }
 
     final crashlytics = FirebaseCrashlytics.instance;
-    final collectionEnabled = !kDebugMode || _enableInDebug;
+    final collectionEnabled = !kDebugMode;
 
     await crashlytics.setCrashlyticsCollectionEnabled(collectionEnabled);
 
@@ -35,17 +30,6 @@ class CrashReportingService {
         unawaited(crashlytics.recordError(error, stackTrace, fatal: true));
         return true;
       };
-
-      assert(() {
-        if (_triggerTestCrash) {
-          unawaited(
-            Future<void>.microtask(
-              () => throw StateError('Crashlytics test crash'),
-            ),
-          );
-        }
-        return true;
-      }());
     }
 
     _initialized = true;

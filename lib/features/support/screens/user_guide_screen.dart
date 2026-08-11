@@ -108,7 +108,9 @@ class _GuideHeader extends StatelessWidget {
                   children: [
                     _GuideChip(
                       icon: Icons.schedule_outlined,
-                      label: l10n.minutesRead(_readingTime(translation.content)),
+                      label: l10n.minutesRead(
+                        _readingTime(translation.content),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     _GuideChip(

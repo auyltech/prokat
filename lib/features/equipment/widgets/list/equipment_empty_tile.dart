@@ -12,10 +12,10 @@ class EquipmentEmptyTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.2),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha:0.4),
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
           style: BorderStyle.solid,
         ),
       ),
@@ -27,7 +27,7 @@ class EquipmentEmptyTile extends StatelessWidget {
             backgroundColor: theme.colorScheme.surfaceContainerHighest,
             child: Icon(
               Icons.inventory_2_outlined,
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha:0.5),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               size: 32,
             ),
           ),
@@ -44,7 +44,7 @@ class EquipmentEmptyTile extends StatelessWidget {
             l10n.noEquipmentMatchingCategory,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha:0.7),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
           ),
         ],

@@ -85,10 +85,7 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
       ),
       _refreshOfferQuery(
         owner: owner,
-        query: OfferQuery(
-          filter: OfferListFilter.active,
-          requestId: requestId,
-        ),
+        query: OfferQuery(filter: OfferListFilter.active, requestId: requestId),
       ),
     ]);
   }
@@ -134,7 +131,9 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
       updates.add(ref.read(ownerHistoryBookingsProvider.notifier).invalidate());
     }
     if (ref.exists(clientHistoryRequestsProvider)) {
-      updates.add(ref.read(clientHistoryRequestsProvider.notifier).invalidate());
+      updates.add(
+        ref.read(clientHistoryRequestsProvider.notifier).invalidate(),
+      );
     }
     if (ref.exists(ownerActiveRequestsProvider)) {
       updates.add(ref.read(ownerActiveRequestsProvider.notifier).refresh());
