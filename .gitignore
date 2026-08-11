@@ -48,8 +48,8 @@ android/app/google-services.json
 .env
 config.json
 
-lib/firebase_options.dart
 android/key.properties
 android/app/*.jks
 
 .claude/
+.plans/

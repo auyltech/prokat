@@ -22,10 +22,7 @@ class ChatSocketService {
   final Object _connectListenerKey = Object();
 
   ChatSocketService(this.appSocket) {
-    appSocket.addConnectListener(
-      _connectListenerKey,
-      _handleSocketConnected,
-    );
+    appSocket.addConnectListener(_connectListenerKey, _handleSocketConnected);
   }
 
   Future<void> connect() async {
@@ -114,9 +111,7 @@ class ChatSocketService {
       await _leaveChat(joinedChatId!);
     }
 
-    appSocket.emit(joinChatEvent, {
-      'chatId': chatId,
-    });
+    appSocket.emit(joinChatEvent, {'chatId': chatId});
 
     _joinedChatId = chatId;
     _joinedConnectionGeneration = appSocket.connectionGeneration;
@@ -226,7 +221,9 @@ class ChatSocketService {
 
     if (response is Map) {
       if (response['success'] == false || response['error'] != null) {
-        throw Exception(response['message'] ?? response['error'] ?? fallbackMessage);
+        throw Exception(
+          response['message'] ?? response['error'] ?? fallbackMessage,
+        );
       }
 
       return;

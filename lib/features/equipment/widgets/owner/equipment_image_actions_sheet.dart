@@ -46,7 +46,10 @@ class EquipmentImageActionsSheet extends StatelessWidget {
                 ),
               ),
             ListTile(
-              leading: Icon(Icons.photo_library, color: canAddMore ? null : disabledColor),
+              leading: Icon(
+                Icons.photo_library,
+                color: canAddMore ? null : disabledColor,
+              ),
               title: Text(
                 l10n.chooseFromGallery,
                 style: canAddMore ? null : TextStyle(color: disabledColor),
@@ -58,7 +61,10 @@ class EquipmentImageActionsSheet extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.camera_alt, color: canAddMore ? null : disabledColor),
+              leading: Icon(
+                Icons.camera_alt,
+                color: canAddMore ? null : disabledColor,
+              ),
               title: Text(
                 l10n.takePhoto,
                 style: canAddMore ? null : TextStyle(color: disabledColor),
@@ -71,7 +77,10 @@ class EquipmentImageActionsSheet extends StatelessWidget {
             ),
             if (onSetAsCover != null)
               ListTile(
-                leading: Icon(Icons.star_outline, color: isBusy ? disabledColor : null),
+                leading: Icon(
+                  Icons.star_outline,
+                  color: isBusy ? disabledColor : null,
+                ),
                 title: Text(
                   l10n.setAsCover,
                   style: isBusy ? TextStyle(color: disabledColor) : null,
@@ -84,7 +93,10 @@ class EquipmentImageActionsSheet extends StatelessWidget {
               ),
             if (onDelete != null)
               ListTile(
-                leading: Icon(Icons.delete_outline, color: isBusy ? disabledColor : colorScheme.error),
+                leading: Icon(
+                  Icons.delete_outline,
+                  color: isBusy ? disabledColor : colorScheme.error,
+                ),
                 title: Text(
                   l10n.deletePhoto,
                   style: theme.textTheme.bodyLarge?.copyWith(

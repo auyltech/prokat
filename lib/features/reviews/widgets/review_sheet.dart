@@ -36,7 +36,9 @@ class ReviewSheet extends ConsumerStatefulWidget {
       builder: (context) => ReviewSheet(
         bookingId: bookingId,
         revieweeId: revieweeId,
-        title: mode == AppMode.clientMode ? l10n.reviewOwner : l10n.reviewClient,
+        title: mode == AppMode.clientMode
+            ? l10n.reviewOwner
+            : l10n.reviewClient,
       ),
     );
   }

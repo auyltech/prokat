@@ -8,9 +8,9 @@ class ChatStatusOnlyBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(40,12,40,12),
+      padding: const EdgeInsets.fromLTRB(40, 12, 40, 12),
       decoration: BoxDecoration(
         color: theme.cardColor,
         boxShadow: const [
@@ -20,7 +20,7 @@ class ChatStatusOnlyBar extends StatelessWidget {
             offset: Offset(0, -5),
           ),
         ],
-        borderRadius: BorderRadius.circular(16)
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         text,
