@@ -304,7 +304,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       // 6. Premium full-width brand primary action button
                       ElevatedButton(
                         onPressed: () {
-                          context.push(AppRoutes.login);
+                          context.go(AppRoutes.login);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.colorScheme.primary,

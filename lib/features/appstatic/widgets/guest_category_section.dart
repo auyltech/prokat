@@ -64,8 +64,7 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
               height: gridHeight,
               child: GridView.builder(
                 padding: EdgeInsets.zero,
-                physics:
-                    const NeverScrollableScrollPhysics(), // Disables nested scrolling
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: categories.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,

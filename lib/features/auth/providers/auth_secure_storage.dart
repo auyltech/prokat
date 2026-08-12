@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
 import '../models/auth_session.dart';
 
@@ -23,9 +24,11 @@ class OtpCooldownData {
 }
 
 class AuthSecureStorage {
-  static const _authKey = 'auth_session';
-  static const _otpKey = 'otp_session';
-  static const _otpCooldownKey = 'otp_cooldown';
+  static String get _authKey => _environmentKey('auth_session');
+  static String get _otpKey => _environmentKey('otp_session');
+  static String get _otpCooldownKey => _environmentKey('otp_cooldown');
+
+  static String _environmentKey(String key) => Env.isLocal ? 'local_$key' : key;
 
   final FlutterSecureStorage _storage;
 

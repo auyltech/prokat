@@ -55,15 +55,27 @@ android {
         versionName = flutter.versionName
         
         var mapboxToken = ""
+
+        val envFile = project.rootProject.file("../.env")
+        if (envFile.exists()) {
+            val envProperties = Properties()
+            FileInputStream(envFile).use(envProperties::load)
+            mapboxToken = envProperties
+                .getProperty("MAPBOX_TOKEN", "")
+                .trim()
+                .removeSurrounding("\"")
+                .removeSurrounding("'")
+        }
         
-        // Automated config.json lookup during compilation pipeline
-        val configFile = project.rootProject.file("../config.json")
-        if (configFile.exists()) {
-            val jsonText = configFile.readText()
-            val match = Regex("\"MAPBOX_TOKEN\"\\s*:\\s*\"([^\"]+)\"").find(jsonText)
-            if (match != null) {
-                // Fixed: Explicitly select index 1 to read the string match group
-                mapboxToken = match.groupValues[1]
+        // Backward-compatible fallback for existing developer setups.
+        if (mapboxToken.isEmpty()) {
+            val configFile = project.rootProject.file("../config.json")
+            if (configFile.exists()) {
+                val jsonText = configFile.readText()
+                val match = Regex("\"MAPBOX_TOKEN\"\\s*:\\s*\"([^\"]+)\"").find(jsonText)
+                if (match != null) {
+                    mapboxToken = match.groupValues[1]
+                }
             }
         }
         

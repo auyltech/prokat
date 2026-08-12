@@ -16,7 +16,7 @@ class LoginTile extends StatelessWidget {
     return // Login
     GestureDetector(
       onTap: () {
-        context.push(AppRoutes.login);
+        context.go(AppRoutes.login);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),

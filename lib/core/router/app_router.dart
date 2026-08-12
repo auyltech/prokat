@@ -191,8 +191,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       /// 🧱 MAIN APP
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return MainScaffold(navigationShell: navigationShell);
+        pageBuilder: (context, state, navigationShell) {
+          return NoTransitionPage<void>(
+            key: state.pageKey,
+            child: MainScaffold(navigationShell: navigationShell),
+          );
         },
         branches: [
           /// Guest

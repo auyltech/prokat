@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -55,7 +56,7 @@ class AppSocketService {
     _socket?.dispose();
 
     final socket = io.io(
-      apiClient.dio.options.baseUrl,
+      Env.socketUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()

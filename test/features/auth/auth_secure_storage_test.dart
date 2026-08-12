@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
@@ -12,7 +13,7 @@ void main() {
   group('AuthSecureStorage defensive reads', () {
     test('removes an OTP session with an invalid requestedAt date', () async {
       FlutterSecureStorage.setMockInitialValues({
-        'otp_session': jsonEncode({
+        _environmentKey('otp_session'): jsonEncode({
           'phone': '+77001234567',
           'requestedAt': 'not-a-date',
         }),
@@ -21,7 +22,9 @@ void main() {
 
       expect(await storage.readOtpSession(), isNull);
       expect(
-        await SecureStorageClient.instance.read(key: 'otp_session'),
+        await SecureStorageClient.instance.read(
+          key: _environmentKey('otp_session'),
+        ),
         isNull,
       );
     });
@@ -30,7 +33,7 @@ void main() {
       const requestedAt = '2026-08-05T10:00:00.000Z';
       const retryAt = '2026-08-05T10:01:00.000Z';
       FlutterSecureStorage.setMockInitialValues({
-        'otp_session': jsonEncode({
+        _environmentKey('otp_session'): jsonEncode({
           'phone': '+77001234567',
           'requestedAt': requestedAt,
           'retryAt': retryAt,
@@ -48,7 +51,7 @@ void main() {
 
     test('removes malformed OTP cooldown data', () async {
       FlutterSecureStorage.setMockInitialValues({
-        'otp_cooldown': jsonEncode({
+        _environmentKey('otp_cooldown'): jsonEncode({
           'phone': '+77001234567',
           'retryAt': 'not-a-date',
         }),
@@ -57,14 +60,16 @@ void main() {
 
       expect(await storage.readOtpCooldown(), isNull);
       expect(
-        await SecureStorageClient.instance.read(key: 'otp_cooldown'),
+        await SecureStorageClient.instance.read(
+          key: _environmentKey('otp_cooldown'),
+        ),
         isNull,
       );
     });
 
     test('removes a session with an invalid expiry date', () async {
       FlutterSecureStorage.setMockInitialValues({
-        'auth_session': jsonEncode({
+        _environmentKey('auth_session'): jsonEncode({
           'sessionToken': 'token',
           'expires': 'not-a-date',
         }),
@@ -73,7 +78,9 @@ void main() {
 
       expect(await storage.readSession(), isNull);
       expect(
-        await SecureStorageClient.instance.read(key: 'auth_session'),
+        await SecureStorageClient.instance.read(
+          key: _environmentKey('auth_session'),
+        ),
         isNull,
       );
     });
@@ -98,3 +105,5 @@ void main() {
     });
   });
 }
+
+String _environmentKey(String key) => Env.isLocal ? 'local_$key' : key;
