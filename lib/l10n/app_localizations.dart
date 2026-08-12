@@ -4773,6 +4773,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Details'**
   String get details;
+
+  /// No description provided for @demandSurveyCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Other equipment?'**
+  String get demandSurveyCardTitle;
+
+  /// No description provided for @demandSurveyCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what you need'**
+  String get demandSurveyCardSubtitle;
+
+  /// No description provided for @demandSurveyQuestionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What equipment do you need?'**
+  String get demandSurveyQuestionTitle;
+
+  /// No description provided for @demandSurveyQuestionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select one or more options or describe another type.'**
+  String get demandSurveyQuestionSubtitle;
+
+  /// No description provided for @demandSurveyCityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get demandSurveyCityLabel;
+
+  /// No description provided for @demandSurveySelectCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a city'**
+  String get demandSurveySelectCity;
+
+  /// No description provided for @demandSurveyOtherOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Other equipment'**
+  String get demandSurveyOtherOption;
+
+  /// No description provided for @demandSurveyOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the equipment'**
+  String get demandSurveyOtherHint;
+
+  /// No description provided for @demandSurveySubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get demandSurveySubmit;
+
+  /// No description provided for @demandSurveyThankYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. Your response was saved.'**
+  String get demandSurveyThankYou;
+
+  /// No description provided for @demandSurveyLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The survey is unavailable right now.'**
+  String get demandSurveyLoadError;
+
+  /// No description provided for @demandSurveySubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the form and try again.'**
+  String get demandSurveySubmitError;
+
+  /// No description provided for @demandSurveyAlreadySubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already responded.'**
+  String get demandSurveyAlreadySubmitted;
+
+  /// No description provided for @demandSurveyInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'This survey is no longer active.'**
+  String get demandSurveyInactive;
 }
 
 class _AppLocalizationsDelegate

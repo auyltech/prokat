@@ -8,6 +8,9 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
   final String mode;
@@ -42,6 +45,8 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     final l10n = AppLocalizations.of(context)!;
     final categoriesAsync = ref.watch(categoriesProvider);
     final categories = categoriesAsync.valueOrNull?.items ?? const [];
+    final demandConfig = ref.watch(demandConfigProvider).valueOrNull;
+    final showSurvey = demandConfig?.shouldShow == true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,10 +69,16 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
             height: 110,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
+              itemCount: categories.length + (showSurvey ? 1 : 0),
               padding: const EdgeInsets.symmetric(horizontal: 4),
               separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
+                if (index == categories.length && showSurvey) {
+                  return DemandCategoryCard(
+                    title: l10n.demandSurveyCardTitle,
+                    onTap: () => context.push(AppRoutes.equipmentDemandPath(demandConfig!.campaignId!)),
+                  );
+                }
                 final cat = categories[index];
                 final isSelected = widget.selectedCategoryId == cat.id;
 

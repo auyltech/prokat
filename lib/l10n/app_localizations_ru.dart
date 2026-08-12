@@ -2460,4 +2460,47 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get details => 'Подробнее';
+
+  @override
+  String get demandSurveyCardTitle => 'Другая техника?';
+
+  @override
+  String get demandSurveyCardSubtitle => 'Расскажите, что вам нужно';
+
+  @override
+  String get demandSurveyQuestionTitle => 'Какая техника вам нужна?';
+
+  @override
+  String get demandSurveyQuestionSubtitle =>
+      'Выберите варианты или опишите другую технику.';
+
+  @override
+  String get demandSurveyCityLabel => 'Город';
+
+  @override
+  String get demandSurveySelectCity => 'Выберите город';
+
+  @override
+  String get demandSurveyOtherOption => 'Другая техника';
+
+  @override
+  String get demandSurveyOtherHint => 'Опишите нужную технику';
+
+  @override
+  String get demandSurveySubmit => 'Отправить';
+
+  @override
+  String get demandSurveyThankYou => 'Спасибо. Ваш ответ сохранён.';
+
+  @override
+  String get demandSurveyLoadError => 'Опрос сейчас недоступен.';
+
+  @override
+  String get demandSurveySubmitError => 'Проверьте форму и попробуйте снова.';
+
+  @override
+  String get demandSurveyAlreadySubmitted => 'Вы уже ответили на этот опрос.';
+
+  @override
+  String get demandSurveyInactive => 'Этот опрос больше не активен.';
 }

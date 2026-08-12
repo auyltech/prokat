@@ -7,6 +7,9 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
 class GuestCategorySection extends ConsumerStatefulWidget {
   const GuestCategorySection({super.key});
@@ -24,9 +27,12 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
     final categoriesAsync = ref.watch(categoriesProvider);
     final categories = categoriesAsync.valueOrNull?.items ?? const [];
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final demandConfig = ref.watch(demandConfigProvider).valueOrNull;
+    final showSurvey = demandConfig?.shouldShow == true;
+    final totalItemCount = categories.length + (showSurvey ? 1 : 0);
 
     const int columns = 3;
-    final int rowCount = (categories.length / columns).ceil();
+    final int rowCount = (totalItemCount / columns).ceil();
 
     // Explicit double calculations to fix typing warnings
     final double gridHeight = rowCount > 0
@@ -65,7 +71,7 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
               child: GridView.builder(
                 padding: EdgeInsets.zero,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: categories.length,
+                itemCount: totalItemCount,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,
                   mainAxisSpacing: 10.0,
@@ -74,6 +80,12 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
                       110.0, // Matches your gridHeight calculation math
                 ),
                 itemBuilder: (context, i) {
+                  if (i == categories.length && showSurvey) {
+                    return DemandCategoryCard(
+                      title: l10n.demandSurveyCardTitle,
+                      onTap: () => context.push(AppRoutes.equipmentDemandPath(demandConfig!.campaignId!)),
+                    );
+                  }
                   final category = categories[i];
 
                   return CategoryCard(

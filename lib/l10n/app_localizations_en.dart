@@ -2448,4 +2448,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get details => 'Details';
+
+  @override
+  String get demandSurveyCardTitle => 'Other equipment?';
+
+  @override
+  String get demandSurveyCardSubtitle => 'Tell us what you need';
+
+  @override
+  String get demandSurveyQuestionTitle => 'What equipment do you need?';
+
+  @override
+  String get demandSurveyQuestionSubtitle =>
+      'Select one or more options or describe another type.';
+
+  @override
+  String get demandSurveyCityLabel => 'City';
+
+  @override
+  String get demandSurveySelectCity => 'Select a city';
+
+  @override
+  String get demandSurveyOtherOption => 'Other equipment';
+
+  @override
+  String get demandSurveyOtherHint => 'Describe the equipment';
+
+  @override
+  String get demandSurveySubmit => 'Submit';
+
+  @override
+  String get demandSurveyThankYou => 'Thank you. Your response was saved.';
+
+  @override
+  String get demandSurveyLoadError => 'The survey is unavailable right now.';
+
+  @override
+  String get demandSurveySubmitError => 'Check the form and try again.';
+
+  @override
+  String get demandSurveyAlreadySubmitted => 'You have already responded.';
+
+  @override
+  String get demandSurveyInactive => 'This survey is no longer active.';
 }

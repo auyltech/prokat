@@ -871,5 +871,19 @@
   "unknownRenter": "Unknown Renter",
   "pendingDate": "Pending Date",
   "overdue": "Overdue",
-  "details": "Details"
+  "details": "Details",
+  "demandSurveyCardTitle": "Other equipment?",
+  "demandSurveyCardSubtitle": "Tell us what you need",
+  "demandSurveyQuestionTitle": "What equipment do you need?",
+  "demandSurveyQuestionSubtitle": "Select one or more options or describe another type.",
+  "demandSurveyCityLabel": "City",
+  "demandSurveySelectCity": "Select a city",
+  "demandSurveyOtherOption": "Other equipment",
+  "demandSurveyOtherHint": "Describe the equipment",
+  "demandSurveySubmit": "Submit",
+  "demandSurveyThankYou": "Thank you. Your response was saved.",
+  "demandSurveyLoadError": "The survey is unavailable right now.",
+  "demandSurveySubmitError": "Check the form and try again.",
+  "demandSurveyAlreadySubmitted": "You have already responded.",
+  "demandSurveyInactive": "This survey is no longer active."
 }

@@ -868,5 +868,19 @@
   "unknownRenter": "Неизвестный арендатор",
   "pendingDate": "Дата не указана",
   "overdue": "Просрочено",
-  "details": "Подробнее"
+  "details": "Подробнее",
+  "demandSurveyCardTitle": "Другая техника?",
+  "demandSurveyCardSubtitle": "Расскажите, что вам нужно",
+  "demandSurveyQuestionTitle": "Какая техника вам нужна?",
+  "demandSurveyQuestionSubtitle": "Выберите варианты или опишите другую технику.",
+  "demandSurveyCityLabel": "Город",
+  "demandSurveySelectCity": "Выберите город",
+  "demandSurveyOtherOption": "Другая техника",
+  "demandSurveyOtherHint": "Опишите нужную технику",
+  "demandSurveySubmit": "Отправить",
+  "demandSurveyThankYou": "Спасибо. Ваш ответ сохранён.",
+  "demandSurveyLoadError": "Опрос сейчас недоступен.",
+  "demandSurveySubmitError": "Проверьте форму и попробуйте снова.",
+  "demandSurveyAlreadySubmitted": "Вы уже ответили на этот опрос.",
+  "demandSurveyInactive": "Этот опрос больше не активен."
 }
