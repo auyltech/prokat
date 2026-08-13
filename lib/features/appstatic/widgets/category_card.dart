@@ -65,7 +65,11 @@ class DemandCategoryCard extends StatelessWidget {
   final VoidCallback onTap;
   final String title;
 
-  const DemandCategoryCard({super.key, required this.onTap, required this.title});
+  const DemandCategoryCard({
+    super.key,
+    required this.onTap,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +86,36 @@ class DemandCategoryCard extends StatelessWidget {
             width: 140,
             child: Column(
               children: [
-                Expanded(child: Stack(alignment: Alignment.center, children: [Icon(Icons.agriculture_outlined, size: 52, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.25)), Text('?', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800))])),
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.agriculture_outlined,
+                        size: 52,
+                        color: theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.25,
+                        ),
+                      ),
+                      Text(
+                        '?',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(title, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  title,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),

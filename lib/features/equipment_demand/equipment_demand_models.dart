@@ -3,8 +3,15 @@ class DemandConfig {
   final String? campaignId;
   final bool hasResponded;
 
-  const DemandConfig({required this.enabled, this.campaignId, required this.hasResponded});
-  const DemandConfig.disabled() : enabled = false, campaignId = null, hasResponded = false;
+  const DemandConfig({
+    required this.enabled,
+    this.campaignId,
+    required this.hasResponded,
+  });
+  const DemandConfig.disabled()
+    : enabled = false,
+      campaignId = null,
+      hasResponded = false;
 
   factory DemandConfig.fromJson(dynamic json) {
     if (json is! Map) return const DemandConfig.disabled();
@@ -13,12 +20,20 @@ class DemandConfig {
     if (!enabled || campaignId is! String || campaignId.isEmpty) {
       return const DemandConfig.disabled();
     }
-    return DemandConfig(enabled: true, campaignId: campaignId, hasResponded: json['hasResponded'] == true);
+    return DemandConfig(
+      enabled: true,
+      campaignId: campaignId,
+      hasResponded: json['hasResponded'] == true,
+    );
   }
 
   bool get shouldShow => enabled && campaignId != null && !hasResponded;
   DemandConfig markResponded(String id) => campaignId == id
-      ? DemandConfig(enabled: enabled, campaignId: campaignId, hasResponded: true)
+      ? DemandConfig(
+          enabled: enabled,
+          campaignId: campaignId,
+          hasResponded: true,
+        )
       : this;
 }
 

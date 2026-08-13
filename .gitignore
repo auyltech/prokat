@@ -49,6 +49,7 @@ android/app/google-services.json
 
 .env
 .env.local
+.env.ngrok.local
 config.json
 
 android/key.properties

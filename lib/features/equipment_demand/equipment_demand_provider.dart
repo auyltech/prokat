@@ -20,7 +20,9 @@ class DemandConfigNotifier extends AsyncNotifier<DemandConfig> {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = AsyncData(await ref.read(equipmentDemandServiceProvider).getConfig());
+    state = AsyncData(
+      await ref.read(equipmentDemandServiceProvider).getConfig(),
+    );
   }
 
   void markResponded(String campaignId) {
@@ -29,9 +31,15 @@ class DemandConfigNotifier extends AsyncNotifier<DemandConfig> {
   }
 }
 
-final demandConfigProvider = AsyncNotifierProvider<DemandConfigNotifier, DemandConfig>(DemandConfigNotifier.new);
+final demandConfigProvider =
+    AsyncNotifierProvider<DemandConfigNotifier, DemandConfig>(
+      DemandConfigNotifier.new,
+    );
 
-final demandFormProvider = FutureProvider.family<DemandForm, String>((ref, campaignId) {
+final demandFormProvider = FutureProvider.family<DemandForm, String>((
+  ref,
+  campaignId,
+) {
   final locale = ref.watch(localeProvider).languageCode;
   return ref.watch(equipmentDemandServiceProvider).getForm(campaignId, locale);
 });

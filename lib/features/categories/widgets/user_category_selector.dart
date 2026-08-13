@@ -76,7 +76,9 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
                 if (index == categories.length && showSurvey) {
                   return DemandCategoryCard(
                     title: l10n.demandSurveyCardTitle,
-                    onTap: () => context.push(AppRoutes.equipmentDemandPath(demandConfig!.campaignId!)),
+                    onTap: () => context.push(
+                      AppRoutes.equipmentDemandPath(demandConfig!.campaignId!),
+                    ),
                   );
                 }
                 final cat = categories[index];
