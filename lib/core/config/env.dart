@@ -1,45 +1,91 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 
-enum RunMode { remote, local }
-
-//
-//
-// Switch run mode to local to connect to local DB
-//
-//
-const RunMode runMode = RunMode.remote;
+enum AppEnvironment { production, local }
 
 class Env {
-  static String get baseUrl {
-    if (kReleaseMode) {
-      return "https://prokatbackend.onrender.com";
-    }
+  static const _productionBaseUrl = 'https://prokatbackend.onrender.com';
 
-    if (runMode == RunMode.local) {
-      if (kIsWeb) {
-        return "http://localhost:4000";
-      }
-      if (Platform.isAndroid) {
-        return "http://10.0.2.2:4000";
-      }
-      if (Platform.isIOS || Platform.isMacOS) {
-        return "http://localhost:4000";
-      }
-    }
+  static const _environmentName = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'production',
+  );
+  static const _apiBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: _productionBaseUrl,
+  );
+  static const _socketBaseUrl = String.fromEnvironment('SOCKET_BASE_URL');
+  static const _androidApiBaseUrl = String.fromEnvironment(
+    'ANDROID_API_BASE_URL',
+  );
+  static const _androidSocketBaseUrl = String.fromEnvironment(
+    'ANDROID_SOCKET_BASE_URL',
+  );
+  static const _pushNotificationsEnabled = bool.fromEnvironment(
+    'ENABLE_PUSH_NOTIFICATIONS',
+    defaultValue: true,
+  );
+  static const firebaseServicesEnabled = bool.fromEnvironment(
+    'ENABLE_FIREBASE_SERVICES',
+    defaultValue: true,
+  );
 
-    // Default fallback for physical devices or remote selection
-    return "https://prokatbackend.onrender.com";
+  static AppEnvironment get environment => switch (_environmentName) {
+    'production' => AppEnvironment.production,
+    'local' => AppEnvironment.local,
+    _ => throw StateError(
+      'Unsupported APP_ENV "$_environmentName". Use "production" or "local".',
+    ),
+  };
+
+  static bool get isLocal => environment == AppEnvironment.local;
+
+  static String get baseUrl => _resolveEndpoint(
+    name: 'API_BASE_URL',
+    defaultValue: _apiBaseUrl,
+    androidValue: _androidApiBaseUrl,
+  );
+
+  /// Socket.IO accepts an HTTP(S) origin and performs the WebSocket upgrade.
+  static String get socketUrl {
+    final defaultValue = _socketBaseUrl.trim().isEmpty
+        ? baseUrl
+        : _socketBaseUrl;
+
+    return _resolveEndpoint(
+      name: 'SOCKET_BASE_URL',
+      defaultValue: defaultValue,
+      androidValue: _androidSocketBaseUrl,
+    );
   }
 
-  /// Converts the HTTP base URL into a WebSocket counterpart and enforces TLS on remote connections.
-  static String get websocketUrl {
-    final base = baseUrl;
-    if (base.startsWith("https://")) {
-      return base.replaceFirst("https://", "wss://");
-    } else if (base.startsWith("http://")) {
-      return base.replaceFirst("http://", "ws://");
+  static bool get pushNotificationsEnabled {
+    if (!firebaseServicesEnabled || !_pushNotificationsEnabled) return false;
+    if (kIsWeb) return true;
+
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+  }
+
+  static String _resolveEndpoint({
+    required String name,
+    required String defaultValue,
+    required String androidValue,
+  }) {
+    final useAndroidOverride =
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        androidValue.trim().isNotEmpty;
+    final value = (useAndroidOverride ? androidValue : defaultValue).trim();
+    final uri = Uri.tryParse(value);
+
+    if (uri == null ||
+        !uri.hasScheme ||
+        !uri.hasAuthority ||
+        (uri.scheme != 'http' && uri.scheme != 'https')) {
+      throw StateError('$name must be an absolute HTTP(S) URL, got "$value".');
     }
-    return base;
+
+    return value.endsWith('/') ? value.substring(0, value.length - 1) : value;
   }
 }

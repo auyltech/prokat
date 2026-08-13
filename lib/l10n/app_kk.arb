@@ -869,5 +869,19 @@
   "unknownRenter": "Белгісіз жалға алушы",
   "pendingDate": "Күні белгісіз",
   "overdue": "Мерзімі өткен",
-  "details": "Толығырақ"
+  "details": "Толығырақ",
+  "demandSurveyCardTitle": "Басқа техника?",
+  "demandSurveyCardSubtitle": "Қандай техника керегін айтыңыз",
+  "demandSurveyQuestionTitle": "Сізге қандай техника қажет?",
+  "demandSurveyQuestionSubtitle": "Нұсқаларды таңдаңыз немесе басқа техниканы сипаттаңыз.",
+  "demandSurveyCityLabel": "Қала",
+  "demandSurveySelectCity": "Қаланы таңдаңыз",
+  "demandSurveyOtherOption": "Басқа техника",
+  "demandSurveyOtherHint": "Қажетті техниканы сипаттаңыз",
+  "demandSurveySubmit": "Жіберу",
+  "demandSurveyThankYou": "Рақмет. Жауабыңыз сақталды.",
+  "demandSurveyLoadError": "Сауалнама қазір қолжетімсіз.",
+  "demandSurveySubmitError": "Нысанды тексеріп, қайталап көріңіз.",
+  "demandSurveyAlreadySubmitted": "Сіз бұл сауалнамаға жауап бердіңіз.",
+  "demandSurveyInactive": "Бұл сауалнама енді белсенді емес."
 }

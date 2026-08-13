@@ -2445,4 +2445,48 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get details => 'Толығырақ';
+
+  @override
+  String get demandSurveyCardTitle => 'Басқа техника?';
+
+  @override
+  String get demandSurveyCardSubtitle => 'Қандай техника керегін айтыңыз';
+
+  @override
+  String get demandSurveyQuestionTitle => 'Сізге қандай техника қажет?';
+
+  @override
+  String get demandSurveyQuestionSubtitle =>
+      'Нұсқаларды таңдаңыз немесе басқа техниканы сипаттаңыз.';
+
+  @override
+  String get demandSurveyCityLabel => 'Қала';
+
+  @override
+  String get demandSurveySelectCity => 'Қаланы таңдаңыз';
+
+  @override
+  String get demandSurveyOtherOption => 'Басқа техника';
+
+  @override
+  String get demandSurveyOtherHint => 'Қажетті техниканы сипаттаңыз';
+
+  @override
+  String get demandSurveySubmit => 'Жіберу';
+
+  @override
+  String get demandSurveyThankYou => 'Рақмет. Жауабыңыз сақталды.';
+
+  @override
+  String get demandSurveyLoadError => 'Сауалнама қазір қолжетімсіз.';
+
+  @override
+  String get demandSurveySubmitError => 'Нысанды тексеріп, қайталап көріңіз.';
+
+  @override
+  String get demandSurveyAlreadySubmitted =>
+      'Сіз бұл сауалнамаға жауап бердіңіз.';
+
+  @override
+  String get demandSurveyInactive => 'Бұл сауалнама енді белсенді емес.';
 }

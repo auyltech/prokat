@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
 import 'package:prokat/features/user/models/client_notification_preferences.dart';
@@ -67,6 +68,11 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
   }
 
   Future<void> _refreshPermission() async {
+    if (!Env.firebaseServicesEnabled) {
+      _loadingPermission = false;
+      return;
+    }
+
     setState(() {
       _loadingPermission = true;
     });
@@ -82,6 +88,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
   }
 
   Future<void> _manageNotificationPermission() async {
+    if (!Env.firebaseServicesEnabled) return;
+
     final status = _notificationSettings?.authorizationStatus;
 
     if (status == AuthorizationStatus.authorized ||
