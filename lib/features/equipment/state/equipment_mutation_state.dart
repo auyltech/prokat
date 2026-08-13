@@ -2,6 +2,8 @@ import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/features/categories/models/category.dart';
 
 class EquipmentMutationState {
+  static const _notProvided = Object();
+
   final Set<Mutation> activeActions;
 
   /// Equipment currently being edited.
@@ -28,13 +30,27 @@ class EquipmentMutationState {
 
   EquipmentMutationState copyWith({
     Set<Mutation>? activeActions,
-    String? editingEquipmentId,
-    Category? category,
+    Object? editingEquipmentId = _notProvided,
+    Object? category = _notProvided,
   }) {
+    assert(
+      identical(editingEquipmentId, _notProvided) ||
+          editingEquipmentId is String?,
+      'editingEquipmentId must be a String or null',
+    );
+    assert(
+      identical(category, _notProvided) || category is Category?,
+      'category must be a Category or null',
+    );
+
     return EquipmentMutationState(
       activeActions: activeActions ?? this.activeActions,
-      editingEquipmentId: editingEquipmentId,
-      category: category ?? this.category,
+      editingEquipmentId: identical(editingEquipmentId, _notProvided)
+          ? this.editingEquipmentId
+          : editingEquipmentId as String?,
+      category: identical(category, _notProvided)
+          ? this.category
+          : category as Category?,
     );
   }
 }
