@@ -41,5 +41,66 @@ Run against production:
 flutter run --dart-define-from-file=.env
 ```
 
+## Production builds
+
+All production artifacts must be built with `.env` only. Set a new public
+version and an always-increasing build number for every store upload:
+
+```powershell
+$version = "1.0.0"
+$buildNumber = "1"
+```
+
+Build a universal Android APK for direct installation outside a store:
+
+```powershell
+flutter build apk --release --dart-define-from-file=.env --build-name=$version --build-number=$buildNumber
+```
+
+Build smaller APKs split by CPU architecture for direct distribution:
+
+```powershell
+flutter build apk --release --split-per-abi --dart-define-from-file=.env --build-name=$version --build-number=$buildNumber
+```
+
+Build an Android App Bundle (`.aab`) for Google Play:
+
+```powershell
+flutter build appbundle --release --dart-define-from-file=.env --build-name=$version --build-number=$buildNumber
+```
+
+The universal APK is written to
+`build\app\outputs\flutter-apk\app-release.apk`. Split APKs are written to the
+same directory, and the Google Play bundle is written to
+`build\app\outputs\bundle\release\app-release.aab`.
+
+Before uploading to Google Play, `android/key.properties` must reference the
+real release keystore. Without it, this project falls back to a debug signing
+key, and the resulting artifact is not suitable for store publication.
+
+Build an iOS archive and signed `.ipa` for App Store Connect. This command must
+run on macOS with Xcode, an Apple Developer account, a distribution certificate,
+and a valid provisioning profile configured for `com.auyltech.prokat`:
+
+```bash
+version="1.0.0"
+build_number="1"
+flutter build ipa --release --dart-define-from-file=.env --build-name="$version" --build-number="$build_number"
+```
+
+The Xcode archive is written to `build/ios/archive/Runner.xcarchive`, and the
+exported package is written to `build/ios/ipa`. Upload the `.ipa` with Xcode
+Organizer or Apple's Transporter app.
+
+Build a release APK that connects to the ngrok tunnel configured in the
+ignored `.env.ngrok.local` file:
+
+```powershell
+flutter build apk --release --dart-define-from-file=.env.ngrok.local
+```
+
+The APK is created at `build\app\outputs\flutter-apk\app-release.apk`. The
+ngrok tunnel and the local backend must be running while testers use the app.
+
 VS Code exposes the equivalent `prokat (Local)`, `prokat (Production Debug)`,
 and `prokat (Production Release)` launch configurations.
