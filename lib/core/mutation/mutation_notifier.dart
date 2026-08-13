@@ -10,12 +10,11 @@ abstract class MutationNotifier<TState> extends StateNotifier<TState> {
   TState copyState({Set<Mutation>? activeActions});
 
   void startAction(String actionId) {
-    state = copyState(
-      activeActions: {
-        ...activeActions,
-        Mutation(id: actionId, status: MutationStatus.submitting),
-      },
-    );
+    final actions = {...activeActions}
+      ..removeWhere((item) => item.id == actionId)
+      ..add(Mutation(id: actionId, status: MutationStatus.submitting));
+
+    state = copyState(activeActions: actions);
   }
 
   void finishAction(String actionId, {AppError? error, String? message}) {
