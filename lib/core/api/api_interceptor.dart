@@ -49,26 +49,21 @@ class ApiInterceptor extends Interceptor {
   /// Handle successful responses
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if (response.statusCode == 401) {
+      _signalUnauthorized();
+    }
+
     handler.next(response);
   }
 
   /// Global error handler
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     final statusCode = err.response?.statusCode;
 
     /// Session expired
     if (statusCode == 401) {
-      // message = "Dio Error: session expired";
-
-      await secureStorage.clearSession();
-
-      final now = DateTime.now();
-      final last = _lastUnauthorizedAt;
-      if (last == null || now.difference(last) > const Duration(seconds: 1)) {
-        _lastUnauthorizedAt = now;
-        onUnauthorized();
-      }
+      _signalUnauthorized();
     }
 
     handler.next(err);
@@ -80,5 +75,14 @@ class ApiInterceptor extends Interceptor {
     //     error: message,
     //   ),
     // );
+  }
+
+  void _signalUnauthorized() {
+    final now = DateTime.now();
+    final last = _lastUnauthorizedAt;
+    if (last == null || now.difference(last) > const Duration(seconds: 1)) {
+      _lastUnauthorizedAt = now;
+      onUnauthorized();
+    }
   }
 }
