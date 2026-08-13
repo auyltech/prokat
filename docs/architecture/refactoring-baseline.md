@@ -45,6 +45,18 @@ Results on the baseline:
 - the full suite passed twice with 47 tests and no added skips;
 - the working tree remained clean.
 
+## RF-11 lint audit
+
+The first proposed async-safety batch (`unawaited_futures`,
+`discarded_futures`, and `avoid_void_async`) produced 203 existing findings
+across API, provider lifecycle, UI, and state code. Enabling it would either
+break the quality gate or force unrelated behavior domains into one change.
+
+The batch is therefore not enabled. Individual findings may be fixed only in
+their owning regression-first work package. The CI instead enforces
+zero-noise structural checks now: patch whitespace and generated worktree
+drift.
+
 Flutter/Dart analytics cannot update the sandbox user's roaming telemetry file.
 This does not affect formatting results, but CI disables analytics explicitly so
 the check has no dependency on a user profile.
