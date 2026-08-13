@@ -10,7 +10,9 @@ final equipmentDemandServiceProvider = Provider((ref) {
 
 class DemandConfigNotifier extends AsyncNotifier<DemandConfig> {
   @override
-  Future<DemandConfig> build() async {
+  Future<DemandConfig> build() => _loadConfig();
+
+  Future<DemandConfig> _loadConfig() async {
     try {
       return await ref.read(equipmentDemandServiceProvider).getConfig();
     } catch (_) {
@@ -20,9 +22,7 @@ class DemandConfigNotifier extends AsyncNotifier<DemandConfig> {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = AsyncData(
-      await ref.read(equipmentDemandServiceProvider).getConfig(),
-    );
+    state = AsyncData(await _loadConfig());
   }
 
   void markResponded(String campaignId) {

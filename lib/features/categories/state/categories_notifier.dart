@@ -47,7 +47,7 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
   }
 
   Future<void> _refresh() async {
-    final previous = state.value;
+    final previous = state.valueOrNull;
     if (previous == null) {
       if (state.isLoading) {
         try {
@@ -75,7 +75,7 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
       } catch (_) {}
     }
 
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null || current.isStaleAfter(staleAfter)) {
       await refresh();

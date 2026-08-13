@@ -8,8 +8,9 @@ class EquipmentDemandService {
 
   Future<DemandConfig> getConfig() async {
     final response = await apiClient.dio.get('/equipment-demand/config');
-    if ((response.statusCode ?? 500) >= 300)
+    if ((response.statusCode ?? 500) >= 300) {
       return const DemandConfig.disabled();
+    }
     final body = response.data;
     return DemandConfig.fromJson(body is Map ? body['data'] : null);
   }
@@ -24,8 +25,9 @@ class EquipmentDemandService {
     );
     _throwIfFailed(response);
     final data = response.data is Map ? response.data['data'] : null;
-    if (data is! Map || data['options'] is! List)
+    if (data is! Map || data['options'] is! List) {
       throw const FormatException('Invalid demand form');
+    }
     return DemandForm(
       campaignId: campaignId,
       options: (data['options'] as List)

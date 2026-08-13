@@ -54,7 +54,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> _refresh() async {
-    final previous = state.value;
+    final previous = state.valueOrNull;
 
     if (previous == null) {
       if (state.isLoading) {
@@ -77,7 +77,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> loadMore() async {
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -154,7 +154,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> invalidate() async {
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -167,7 +167,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         await future;
       } catch (_) {}
     }
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) {
       await refresh();

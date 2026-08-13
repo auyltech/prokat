@@ -14,7 +14,9 @@ import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -55,27 +57,33 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Future<void> _onRefresh() async {
-    ref.read(categoriesProvider.notifier).refresh();
-    ref.read(guestEquipmentProvider.notifier).refresh();
+    await Future.wait([
+      ref.read(categoriesProvider.notifier).refresh(),
+      ref.read(guestEquipmentProvider.notifier).refresh(),
+      ref.read(demandConfigProvider.notifier).refresh(),
+    ]);
   }
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await _fetchData();
+    _categoriesSub = ref.listenManual(
+      selectedCategoryProvider.select((s) => s?.id),
+      (_, _) => _onFiltersChanged(),
+    );
 
-      _categoriesSub = ref.listenManual(
-        selectedCategoryProvider.select((s) => s?.id),
-        (_, _) => _onFiltersChanged(),
-      );
+    _locationSub = ref.listenManual(
+      locationProvider.select((s) => s.city),
+      (_, _) => _onFiltersChanged(),
+    );
 
-      _locationSub = ref.listenManual(
-        locationProvider.select((s) => s.city),
-        (_, _) => _onFiltersChanged(),
-      );
-    });
+    unawaited(
+      Future.microtask(() async {
+        if (!mounted) return;
+        await _fetchData();
+      }),
+    );
   }
 
   @override
@@ -95,7 +103,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final langDisplay = LocaleNotifier.displayCode(locale);
 
     final equipmentAsync = ref.watch(guestEquipmentProvider);
-    final queryState = equipmentAsync.value;
+    final queryState = equipmentAsync.valueOrNull;
     final items = queryState?.items ?? [];
 
     final locationState = ref.watch(locationProvider);
@@ -194,9 +202,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: EmptyStateTile(
-                    imageName: 'empty_error.png',
-                    title: l10n.loadEquipmentErrorHint,
+                  child: EquipmentErrorTile(
+                    onRetry: () => unawaited(_onRefresh()),
                   ),
                 ),
               )
