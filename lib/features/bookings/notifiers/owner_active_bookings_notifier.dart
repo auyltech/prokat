@@ -3,23 +3,42 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
 class OwnerActiveBookingsNotifier
     extends AsyncNotifier<QueryState<BookingModel>> {
   BookingService get api => ref.read(bookingServiceProvider);
   Future<void>? _refreshing;
+  AuthenticatedSessionScopeKey? _refreshingScope;
+  AuthenticatedSessionScopeKey? _stateScope;
 
   @override
   Future<QueryState<BookingModel>> build() async {
-    return _fetchPage(1);
+    final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    _stateScope = null;
+    if (scope == null) {
+      return const QueryState(itemsPerPage: 10, count: 0);
+    }
+    final next = await _fetchPage(1, scope);
+    if (isAuthenticatedSessionScopeCurrent(ref, scope)) _stateScope = scope;
+    return next;
   }
 
-  Future<QueryState<BookingModel>> _fetchPage(int page) async {
+  Future<QueryState<BookingModel>> _fetchPage(
+    int page,
+    AuthenticatedSessionScopeKey scope,
+  ) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      throw const UnauthenticatedSessionScopeException();
+    }
     final response = await api.getOwnerBookings(
       page: page,
       itemsPerPage: 10,
       status: "ACTIVE",
     );
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      throw const UnauthenticatedSessionScopeException();
+    }
 
     final result = response.data;
     if (!response.success || result == null) {
@@ -36,39 +55,62 @@ class OwnerActiveBookingsNotifier
   }
 
   Future<void> refresh() {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return Future<void>.value();
+
     final active = _refreshing;
+    if (active != null && _refreshingScope == scope) return active;
 
-    if (active != null) return active;
-
-    final operation = _refresh();
+    final operation = _refresh(scope);
 
     _refreshing = operation;
+    _refreshingScope = scope;
 
-    return operation.whenComplete(() => _refreshing = null);
+    return operation.whenComplete(() {
+      if (identical(_refreshing, operation)) {
+        _refreshing = null;
+        _refreshingScope = null;
+      }
+    });
   }
 
-  Future<void> _refresh() async {
-    final previous = state.value;
+  Future<void> _refresh(AuthenticatedSessionScopeKey scope) async {
+    final previous = _stateScope == scope ? state.value : null;
 
     if (previous == null) {
       if (state.isLoading) {
         try {
           await future;
+          if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
           return;
         } catch (_) {}
       }
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
       state = const AsyncLoading();
-      state = await AsyncValue.guard(() => _fetchPage(1));
+      _stateScope = null;
+      final next = await AsyncValue.guard(() => _fetchPage(1, scope));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = next;
+        _stateScope = next is AsyncData<QueryState<BookingModel>>
+            ? scope
+            : null;
+      }
 
       return;
     }
 
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     // state = AsyncData(previous.copyWith(isRefreshing: true));
     state = AsyncLoading<QueryState<BookingModel>>().copyWithPrevious(state);
 
     try {
-      state = AsyncData(await _fetchPage(1));
+      final next = await _fetchPage(1, scope);
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(next);
+        _stateScope = scope;
+      }
     } catch (error, stackTrace) {
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
       // state = AsyncData(previous.withRefreshError(error));
       state = AsyncError<QueryState<BookingModel>>(
         error,
@@ -78,7 +120,11 @@ class OwnerActiveBookingsNotifier
   }
 
   Future<void> loadMore() async {
-    final current = state.value;
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
+    final current = _stateScope == scope ? state.value : null;
+    if (_stateScope != scope) return;
 
     if (current == null) return;
 
@@ -96,6 +142,7 @@ class OwnerActiveBookingsNotifier
         itemsPerPage: current.itemsPerPage,
         status: "ACTIVE",
       );
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
       if (!response.success || response.data == null) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
@@ -116,7 +163,9 @@ class OwnerActiveBookingsNotifier
         ),
       );
     } catch (_) {
-      state = AsyncData(current.copyWith(isLoadingMore: false));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(current.copyWith(isLoadingMore: false));
+      }
     }
   }
 
@@ -129,12 +178,16 @@ class OwnerActiveBookingsNotifier
   }
 
   Future<void> refreshIfStale() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     if (state.isLoading) {
       try {
         await future;
       } catch (_) {}
     }
-    final current = state.value;
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+    final current = _stateScope == scope ? state.value : null;
 
     if (current == null) {
       await refresh();

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
@@ -14,48 +15,87 @@ class ChatMessagesNotifier
     extends FamilyAsyncNotifier<QueryState<ChatMessageModel>, String> {
   ChatService get api => ref.read(chatServiceProvider);
 
-  late final String chatId;
-  late final ChatSocketService socketService;
+  late String chatId;
+  ChatSocketService? _socketService;
 
   void Function()? _removeMessageListener;
   final List<ChatMessageModel> _incomingBuffer = [];
   final Map<String, Timer> _pendingConfirmationTimers = {};
   bool _shouldMaintainSession = true;
   Future<void>? _refreshing;
+  AuthenticatedSessionScopeKey? _refreshingScope;
+  AuthenticatedSessionScopeKey? _socketScope;
+  AuthenticatedSessionScopeKey? _stateScope;
+  bool _isDisposed = false;
 
   @override
   Future<QueryState<ChatMessageModel>> build(String chatId) async {
+    _isDisposed = false;
     this.chatId = chatId;
-    socketService = ref.read(chatSocketServiceProvider);
+
+    final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    if (scope == null) {
+      _shouldMaintainSession = false;
+      _stateScope = null;
+      return const QueryState(itemsPerPage: 50, count: 0);
+    }
+
+    final socketService = ref.read(chatSocketServiceProvider);
+    _socketService = socketService;
 
     ref.onCancel(() {
+      if (_socketScope != scope) return;
       _shouldMaintainSession = false;
-      unawaited(_deactivateChatSession().catchError((_) {}));
+      unawaited(
+        _deactivateChatSession(scope, socketService, chatId).catchError((_) {}),
+      );
     });
 
     ref.onResume(() {
-      _shouldMaintainSession = true;
-      unawaited(_activateChatSession().catchError((_) {}));
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+      unawaited(
+        _activateChatSession(
+          scope,
+          socketService,
+          chatId,
+        ).then<void>((_) {}).catchError((_) {}),
+      );
     });
 
     ref.onDispose(() {
-      _shouldMaintainSession = false;
-      _removeMessageListener?.call();
-      _removeMessageListener = null;
-      for (final timer in _pendingConfirmationTimers.values) {
-        timer.cancel();
+      _isDisposed = true;
+      if (_socketScope == scope) {
+        _shouldMaintainSession = false;
+        _removeMessageListener?.call();
+        _removeMessageListener = null;
+        _socketScope = null;
+        _socketService = null;
+        _incomingBuffer.clear();
+        for (final timer in _pendingConfirmationTimers.values) {
+          timer.cancel();
+        }
+        _pendingConfirmationTimers.clear();
       }
-      _pendingConfirmationTimers.clear();
       unawaited(socketService.leaveChat(chatId).catchError((_) {}));
     });
 
-    await _activateChatSession();
+    final activated = await _activateChatSession(scope, socketService, chatId);
+    if (!activated) {
+      return const QueryState(itemsPerPage: 50, count: 0);
+    }
 
-    final initial = await _fetchPage(1);
+    final initial = await _fetchPage(1, scope);
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      return const QueryState(itemsPerPage: 50, count: 0);
+    }
     final buffered = List<ChatMessageModel>.from(_incomingBuffer);
     _incomingBuffer.clear();
+    _stateScope = scope;
 
-    Timer.run(_flushIncomingBuffer);
+    Timer.run(() {
+      if (_isDisposed) return;
+      _flushIncomingBuffer(scope);
+    });
 
     if (buffered.isEmpty) {
       return initial;
@@ -64,30 +104,85 @@ class ChatMessagesNotifier
     return initial.copyWith(items: mergeMessages(initial.items, buffered));
   }
 
-  Future<void> _activateChatSession() async {
+  Future<bool> _activateChatSession(
+    AuthenticatedSessionScopeKey scope, [
+    ChatSocketService? requestedSocket,
+    String? requestedChatId,
+  ]) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return false;
+
+    final socket =
+        requestedSocket ??
+        _socketService ??
+        ref.read(chatSocketServiceProvider);
+    if (socket == null) return false;
+    final activeChatId = requestedChatId ?? chatId;
+
+    if (_socketScope != scope) {
+      _removeMessageListener?.call();
+      _removeMessageListener = null;
+      _incomingBuffer.clear();
+      for (final timer in _pendingConfirmationTimers.values) {
+        timer.cancel();
+      }
+      _pendingConfirmationTimers.clear();
+    }
+
+    _socketService = socket;
+    _socketScope = scope;
     _shouldMaintainSession = true;
 
-    _removeMessageListener ??= socketService.onNewMessage(
-      _handleIncomingMessage,
+    _removeMessageListener ??= socket.onNewMessage(
+      (message) => _handleIncomingMessage(message, scope),
     );
 
-    await socketService.joinChat(chatId);
+    await socket.joinChat(activeChatId);
+
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      if (_socketScope == scope) {
+        _shouldMaintainSession = false;
+        _removeMessageListener?.call();
+        _removeMessageListener = null;
+        _socketScope = null;
+      }
+      if (readAuthenticatedSessionScope(ref) == null) {
+        await socket.leaveChat(activeChatId);
+      }
+      return false;
+    }
+
+    return true;
   }
 
-  Future<void> _deactivateChatSession() async {
+  Future<void> _deactivateChatSession(
+    AuthenticatedSessionScopeKey scope,
+    ChatSocketService socket,
+    String activeChatId,
+  ) async {
+    if (_socketScope != scope) return;
+
     _removeMessageListener?.call();
     _removeMessageListener = null;
 
-    await socketService.leaveChat(chatId);
+    final currentScope = readAuthenticatedSessionScope(ref);
+    if (currentScope == null || currentScope == scope) {
+      await socket.leaveChat(activeChatId);
+    }
   }
 
-  void _handleIncomingMessage(ChatMessageModel message) {
-    if (message.chatId != chatId || !_shouldMaintainSession) {
+  void _handleIncomingMessage(
+    ChatMessageModel message,
+    AuthenticatedSessionScopeKey scope,
+  ) {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope) ||
+        _socketScope != scope ||
+        message.chatId != chatId ||
+        !_shouldMaintainSession) {
       return;
     }
 
     final current = state.value;
-    if (current == null) {
+    if (_stateScope != scope || current == null) {
       _incomingBuffer.add(message);
       return;
     }
@@ -102,11 +197,13 @@ class ChatMessagesNotifier
       mergeIncoming(message);
     }
 
-    _updateRelatedChatState(message);
+    _updateRelatedChatState(message, scope);
   }
 
-  void _flushIncomingBuffer() {
-    if (!_shouldMaintainSession ||
+  void _flushIncomingBuffer(AuthenticatedSessionScopeKey scope) {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope) ||
+        _socketScope != scope ||
+        !_shouldMaintainSession ||
         state.value == null ||
         _incomingBuffer.isEmpty) {
       return;
@@ -116,11 +213,16 @@ class ChatMessagesNotifier
     _incomingBuffer.clear();
 
     for (final message in buffered) {
-      _handleIncomingMessage(message);
+      _handleIncomingMessage(message, scope);
     }
   }
 
-  void _updateRelatedChatState(ChatMessageModel message) {
+  void _updateRelatedChatState(
+    ChatMessageModel message,
+    AuthenticatedSessionScopeKey scope,
+  ) {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+
     if (ref.exists(currentChatProvider(chatId))) {
       ref.read(currentChatProvider(chatId).notifier).setLastMessage(message);
     }
@@ -138,12 +240,23 @@ class ChatMessagesNotifier
     }
   }
 
-  Future<QueryState<ChatMessageModel>> _fetchPage(int page) async {
+  Future<QueryState<ChatMessageModel>> _fetchPage(
+    int page,
+    AuthenticatedSessionScopeKey scope,
+  ) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      return const QueryState(itemsPerPage: 50, count: 0);
+    }
+
     final response = await api.getMessages(
       chatId: chatId,
       page: page,
       itemsPerPage: 50,
     );
+
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      return const QueryState(itemsPerPage: 50, count: 0);
+    }
 
     if (!response.success || response.data == null) {
       throw Exception(response.message);
@@ -161,6 +274,9 @@ class ChatMessagesNotifier
   }
 
   Future<bool> sendMessage(String text) async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return false;
+
     final trimmed = text.trim();
 
     if (trimmed.isEmpty) {
@@ -191,10 +307,16 @@ class ChatMessagesNotifier
     );
 
     insertPending(optimisticMessage);
-    _updateRelatedChatState(optimisticMessage);
+    _updateRelatedChatState(optimisticMessage, scope);
 
     try {
-      await _activateChatSession();
+      final activated = await _activateChatSession(scope);
+      if (!activated || !isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        return false;
+      }
+
+      final socketService = _socketService;
+      if (socketService == null) return false;
 
       await socketService.sendMessage(
         chatId: chatId,
@@ -203,15 +325,23 @@ class ChatMessagesNotifier
         clientTempId: clientTempId,
       );
 
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return false;
+
       _pendingConfirmationTimers[clientTempId]?.cancel();
       _pendingConfirmationTimers[clientTempId] = Timer(
         const Duration(seconds: 10),
-        () => markFailed(clientTempId),
+        () {
+          if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+            markFailed(clientTempId);
+          }
+        },
       );
 
       return true;
     } catch (error) {
-      markFailed(clientTempId);
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        markFailed(clientTempId);
+      }
       return false;
     }
   }
@@ -223,52 +353,81 @@ class ChatMessagesNotifier
   }
 
   Future<void> refresh() {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return Future<void>.value();
+
     final active = _refreshing;
-    if (active != null) return active;
-    final operation = _refresh();
+    if (active != null && _refreshingScope == scope) return active;
+
+    final operation = _refresh(scope);
     _refreshing = operation;
-    return operation.whenComplete(() => _refreshing = null);
+    _refreshingScope = scope;
+    return operation.whenComplete(() {
+      if (identical(_refreshing, operation)) {
+        _refreshing = null;
+        _refreshingScope = null;
+      }
+    });
   }
 
-  Future<void> _refresh() async {
-    final previous = state.value;
+  Future<void> _refresh(AuthenticatedSessionScopeKey scope) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
+    if (state.isLoading) {
+      try {
+        await future;
+        return;
+      } catch (_) {}
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+    }
+
+    final previous = _stateScope == scope ? state.value : null;
     if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          return;
-        } catch (_) {}
-      }
       state = const AsyncLoading();
-      state = await AsyncValue.guard(() async {
-        await _activateChatSession();
-        return _fetchPage(1);
+      final next = await AsyncValue.guard(() async {
+        final activated = await _activateChatSession(scope);
+        if (!activated) {
+          return const QueryState<ChatMessageModel>(itemsPerPage: 50, count: 0);
+        }
+        return _fetchPage(1, scope);
       });
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        _stateScope = scope;
+        state = next;
+      }
       return;
     }
 
     state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      await _activateChatSession();
-      final fresh = await _fetchPage(1);
-      state = AsyncData(
-        previous.copyWith(
-          items: mergeMessages(previous.items, fresh.items),
-          page: fresh.page,
-          itemsPerPage: fresh.itemsPerPage,
-          count: fresh.count,
-          lastFetchedAt: DateTime.now,
-          isRefreshing: false,
-          refreshError: () => null,
-        ),
-      );
+      final activated = await _activateChatSession(scope);
+      if (!activated) return;
+      final fresh = await _fetchPage(1, scope);
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        _stateScope = scope;
+        state = AsyncData(
+          previous.copyWith(
+            items: mergeMessages(previous.items, fresh.items),
+            page: fresh.page,
+            itemsPerPage: fresh.itemsPerPage,
+            count: fresh.count,
+            lastFetchedAt: DateTime.now,
+            isRefreshing: false,
+            refreshError: () => null,
+          ),
+        );
+      }
     } catch (error) {
-      state = AsyncData(previous.withRefreshError(error));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(previous.withRefreshError(error));
+      }
     }
   }
 
   Future<void> loadMore() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null || _stateScope != scope) return;
+
     final current = state.value;
 
     if (current == null) return;
@@ -280,18 +439,8 @@ class ChatMessagesNotifier
     state = AsyncData(current.copyWith(isLoadingMore: true));
 
     try {
-      final response = await api.getMessages(
-        chatId: chatId,
-        page: current.page + 1,
-        itemsPerPage: current.itemsPerPage,
-      );
-
-      if (!response.success || response.data == null) {
-        state = AsyncData(current.copyWith(isLoadingMore: false));
-        return;
-      }
-
-      final result = response.data!;
+      final result = await _fetchPage(current.page + 1, scope);
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
       state = AsyncData(
         current.copyWith(
@@ -304,11 +453,14 @@ class ChatMessagesNotifier
         ),
       );
     } catch (_) {
-      state = AsyncData(current.copyWith(isLoadingMore: false));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(current.copyWith(isLoadingMore: false));
+      }
     }
   }
 
   void mergeFetchedMessages(List<ChatMessageModel> messages) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
 
     if (current == null) return;
@@ -319,6 +471,7 @@ class ChatMessagesNotifier
   }
 
   void mergeIncoming(ChatMessageModel message) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
 
     if (current == null) return;
@@ -329,6 +482,7 @@ class ChatMessagesNotifier
   }
 
   Future<void> invalidate() async {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
 
     if (current == null) return;
@@ -337,14 +491,18 @@ class ChatMessagesNotifier
   }
 
   Future<void> refreshIfStale() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     if (state.isLoading) {
       try {
         await future;
       } catch (_) {}
     }
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     final current = state.value;
 
-    if (current == null) {
+    if (_stateScope != scope || current == null) {
       await refresh();
       return;
     }
@@ -355,6 +513,7 @@ class ChatMessagesNotifier
   }
 
   void insertPending(ChatMessageModel message) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
 
     if (current == null) return;
@@ -367,6 +526,7 @@ class ChatMessagesNotifier
   }
 
   bool replacePending(ChatMessageModel confirmed) {
+    if (!_canMutateCurrentScope) return false;
     final current = state.value;
 
     if (current == null) {
@@ -397,6 +557,7 @@ class ChatMessagesNotifier
   }
 
   void remove(String messageId) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
 
     if (current == null) return;
@@ -409,6 +570,7 @@ class ChatMessagesNotifier
   }
 
   void markFailed(String clientTempId) {
+    if (!_canMutateCurrentScope) return;
     _pendingConfirmationTimers.remove(clientTempId)?.cancel();
 
     final current = state.value;
@@ -427,6 +589,7 @@ class ChatMessagesNotifier
   }
 
   void clear() {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
 
     if (current == null) return;
@@ -444,6 +607,7 @@ class ChatMessagesNotifier
 
   // useful for reactions, edits, delete, read receipts, etc.
   ChatMessageModel? getMessage(String id) {
+    if (!_canMutateCurrentScope) return null;
     final current = state.value;
 
     if (current == null) return null;
@@ -455,5 +619,10 @@ class ChatMessagesNotifier
     }
 
     return null;
+  }
+
+  bool get _canMutateCurrentScope {
+    final scope = readAuthenticatedSessionScope(ref);
+    return scope != null && _stateScope == scope;
   }
 }

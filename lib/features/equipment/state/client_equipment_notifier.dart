@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
@@ -8,6 +9,9 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
   Future<void>? _refreshing;
   int? _refreshingGeneration;
+  AuthenticatedSessionScopeKey? _refreshingScope;
+  AuthenticatedSessionScopeKey? _stateScope;
+  AuthenticatedSessionScopeKey? _filterScope;
   int _requestGeneration = 0;
 
   String? _query;
@@ -18,10 +22,30 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   @override
   Future<QueryState<Equipment>> build() async {
-    return _fetchPage(1);
+    final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    _stateScope = null;
+    if (_filterScope != scope) {
+      _filterScope = scope;
+      _query = null;
+      _city = null;
+      _categoryId = null;
+      _requestGeneration++;
+    }
+    if (scope == null) {
+      return const QueryState(itemsPerPage: _itemsPerPage, count: 0);
+    }
+    final next = await _fetchPage(1, scope);
+    if (isAuthenticatedSessionScopeCurrent(ref, scope)) _stateScope = scope;
+    return next;
   }
 
-  Future<QueryState<Equipment>> _fetchPage(int page) async {
+  Future<QueryState<Equipment>> _fetchPage(
+    int page,
+    AuthenticatedSessionScopeKey scope,
+  ) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      throw const UnauthenticatedSessionScopeException();
+    }
     final response = await api.getClientEquipment(
       page: page,
       itemsPerPage: _itemsPerPage,
@@ -29,6 +53,9 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       city: _city,
       categoryId: _categoryId,
     );
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      throw const UnauthenticatedSessionScopeException();
+    }
 
     if (!response.success) {
       throw Exception(response.message);
@@ -48,56 +75,82 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> refresh() {
-    return _refreshForGeneration(_requestGeneration);
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return Future<void>.value();
+    return _refreshForGeneration(_requestGeneration, scope);
   }
 
-  Future<void> _refreshForGeneration(int generation) {
+  Future<void> _refreshForGeneration(
+    int generation,
+    AuthenticatedSessionScopeKey scope,
+  ) {
     final active = _refreshing;
-    if (active != null && _refreshingGeneration == generation) return active;
+    if (active != null &&
+        _refreshingGeneration == generation &&
+        _refreshingScope == scope) {
+      return active;
+    }
 
-    final operation = _refresh(generation);
+    final operation = _refresh(generation, scope);
     _refreshing = operation;
     _refreshingGeneration = generation;
+    _refreshingScope = scope;
     return operation.whenComplete(() {
       if (identical(_refreshing, operation)) {
         _refreshing = null;
         _refreshingGeneration = null;
+        _refreshingScope = null;
       }
     });
   }
 
-  Future<void> _refresh(int generation) async {
-    final previous = state.valueOrNull;
+  Future<void> _refresh(
+    int generation,
+    AuthenticatedSessionScopeKey scope,
+  ) async {
+    final previous = _stateScope == scope ? state.valueOrNull : null;
 
     if (previous == null) {
       if (state.isLoading) {
         try {
           await future;
+          if (!_isRequestCurrent(generation, scope)) return;
           return;
         } catch (_) {}
       }
-      if (generation != _requestGeneration) return;
+      if (!_isRequestCurrent(generation, scope)) return;
       state = const AsyncLoading();
-      final next = await AsyncValue.guard(() => _fetchPage(1));
-      if (generation == _requestGeneration) state = next;
+      _stateScope = null;
+      final next = await AsyncValue.guard(() => _fetchPage(1, scope));
+      if (_isRequestCurrent(generation, scope)) {
+        state = next;
+        _stateScope = next is AsyncData<QueryState<Equipment>> ? scope : null;
+      }
       return;
     }
 
-    if (generation != _requestGeneration) return;
+    if (!_isRequestCurrent(generation, scope)) return;
     state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      final next = await _fetchPage(1);
-      if (generation == _requestGeneration) state = AsyncData(next);
+      final next = await _fetchPage(1, scope);
+      if (_isRequestCurrent(generation, scope)) {
+        state = AsyncData(next);
+        _stateScope = scope;
+      }
     } catch (error) {
-      if (generation == _requestGeneration) {
+      if (_isRequestCurrent(generation, scope)) {
         state = AsyncData(previous.withRefreshError(error));
       }
     }
   }
 
   Future<void> loadMore() async {
-    final current = state.valueOrNull;
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
+    final current = _stateScope == scope ? state.valueOrNull : null;
     final generation = _requestGeneration;
+    if (_stateScope != scope) return;
 
     if (current == null) return;
 
@@ -118,7 +171,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         categoryId: _categoryId,
       );
 
-      if (generation != _requestGeneration) return;
+      if (!_isRequestCurrent(generation, scope)) return;
 
       if (!response.success || response.data == null) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
@@ -139,13 +192,16 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         ),
       );
     } catch (_) {
-      if (generation == _requestGeneration) {
+      if (_isRequestCurrent(generation, scope)) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
       }
     }
   }
 
   Future<void> search({String? query, String? city, String? categoryId}) async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     final changed =
         _query != query || _city != city || _categoryId != categoryId;
     _query = query;
@@ -162,10 +218,13 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         await future;
       } catch (_) {}
     }
-    await _refreshForGeneration(generation);
+    await _refreshForGeneration(generation, scope);
   }
 
   Future<void> clearSearch() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     final changed = _query != null || _city != null || _categoryId != null;
     _query = null;
     _city = null;
@@ -173,7 +232,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
     if (changed) {
       final generation = ++_requestGeneration;
-      await _refreshForGeneration(generation);
+      await _refreshForGeneration(generation, scope);
     } else {
       await refreshIfStale();
     }
@@ -188,12 +247,16 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> refreshIfStale() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     if (state.isLoading) {
       try {
         await future;
       } catch (_) {}
     }
-    final current = state.valueOrNull;
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+    final current = _stateScope == scope ? state.valueOrNull : null;
 
     if (current == null) {
       await refresh();
@@ -210,4 +273,9 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? get city => _city;
 
   String? get categoryId => _categoryId;
+
+  bool _isRequestCurrent(int generation, AuthenticatedSessionScopeKey scope) {
+    return generation == _requestGeneration &&
+        isAuthenticatedSessionScopeCurrent(ref, scope);
+  }
 }

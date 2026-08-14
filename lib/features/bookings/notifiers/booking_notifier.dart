@@ -6,11 +6,15 @@ import 'package:prokat/features/bookings/providers/owner_active_bookings_provide
 import 'package:prokat/features/bookings/providers/owner_history_bookings_provider.dart';
 import 'package:prokat/features/bookings/utils/booking_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
 class BookingNotifier
     extends FamilyAsyncNotifier<BookingModel?, BookingLookup> {
   @override
   Future<BookingModel?> build(BookingLookup arg) async {
+    final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    if (scope == null) return null;
+
     //
     // 1. Search Active
     //
@@ -18,7 +22,9 @@ class BookingNotifier
     if (arg.isOwner) {
       final active = ref.read(ownerActiveBookingsProvider);
 
-      final booking = (active.valueOrNull?.items ?? []).findById(arg.bookingId);
+      final booking = (active.asData?.value.items ?? []).findById(
+        arg.bookingId,
+      );
 
       if (booking != null) {
         return booking;
@@ -26,7 +32,9 @@ class BookingNotifier
     } else {
       final active = ref.read(clientActiveBookingsProvider);
 
-      final booking = (active.valueOrNull?.items ?? []).findById(arg.bookingId);
+      final booking = (active.asData?.value.items ?? []).findById(
+        arg.bookingId,
+      );
 
       if (booking != null) {
         return booking;
@@ -40,7 +48,7 @@ class BookingNotifier
     if (arg.isOwner) {
       final history = ref.read(ownerHistoryBookingsProvider);
 
-      final booking = (history.valueOrNull?.items ?? []).findById(
+      final booking = (history.asData?.value.items ?? []).findById(
         arg.bookingId,
       );
 
@@ -50,7 +58,7 @@ class BookingNotifier
     } else {
       final history = ref.read(clientHistoryBookingsProvider);
 
-      final booking = (history.valueOrNull?.items ?? []).findById(
+      final booking = (history.asData?.value.items ?? []).findById(
         arg.bookingId,
       );
 
@@ -64,6 +72,8 @@ class BookingNotifier
     //
 
     // final bookingService = ref.read(bookingServiceProvider);
+
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return null;
 
     return null; // bookingService.getBookingById(arg.bookingId);
   }

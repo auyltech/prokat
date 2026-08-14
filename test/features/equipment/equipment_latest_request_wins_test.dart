@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart'
@@ -54,6 +55,9 @@ Future<void> _verifyClientLatestRequestWins({
   final service = _ControlledEquipmentService();
   final container = ProviderContainer(
     overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
       client_dependencies.equipmentServiceProvider.overrideWithValue(service),
     ],
   );
@@ -134,6 +138,9 @@ Future<void> _verifyClientOldPageIsIgnored() async {
   final service = _ControlledEquipmentService();
   final container = ProviderContainer(
     overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
       client_dependencies.equipmentServiceProvider.overrideWithValue(service),
     ],
   );

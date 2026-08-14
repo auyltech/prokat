@@ -10,6 +10,7 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
 final chatServiceProvider = Provider<ChatService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
@@ -44,43 +45,34 @@ final chatResolverProvider = FutureProvider.family<ChatModel, ChatLookup>((
   ref,
   lookup,
 ) async {
-  final api = ref.read(chatServiceProvider);
+  final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+  if (scope == null) {
+    throw const UnauthenticatedSessionScopeException();
+  }
 
   ChatModel? chat;
-
-  // 1. Search client chats
-  final clientChats = ref.read(clientChatsProvider).valueOrNull?.items;
-
-  if (clientChats != null) {
-    if (lookup.chatId != null) {
-      chat = clientChats.where((c) => c.id == lookup.chatId).firstOrNull;
-    } else {
-      chat = clientChats.where((c) => c.type == lookup.type).firstOrNull;
-    }
+  if (ref.exists(clientChatsProvider)) {
+    chat = _findCachedChat(
+      ref.read(clientChatsProvider.notifier).cachedItemsForScope(scope),
+      lookup,
+    );
   }
-
-  // 2. Search owner chats
-  if (chat == null) {
-    final ownerChats = ref.read(ownerChatsProvider).valueOrNull?.items;
-
-    if (ownerChats != null) {
-      if (lookup.chatId != null) {
-        chat = ownerChats.where((c) => c.id == lookup.chatId).firstOrNull;
-      } else {
-        chat = ownerChats.where((c) => c.type == lookup.type).firstOrNull;
-      }
-    }
+  if (chat == null && ref.exists(ownerChatsProvider)) {
+    chat = _findCachedChat(
+      ref.read(ownerChatsProvider.notifier).cachedItemsForScope(scope),
+      lookup,
+    );
   }
+  if (chat != null) return chat;
 
-  // 3. Already loaded
-  if (chat != null) {
-    return chat;
-  }
-
-  // 4. Fetch
+  final api = ref.read(chatServiceProvider);
   final response = lookup.chatId != null
       ? await api.getChatById(lookup.chatId!)
       : await api.getChatByType(lookup.type!);
+
+  if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+    throw const UnauthenticatedSessionScopeException();
+  }
 
   if (!response.success || response.data == null) {
     throw Exception(response.message);
@@ -88,3 +80,13 @@ final chatResolverProvider = FutureProvider.family<ChatModel, ChatLookup>((
 
   return response.data!;
 });
+
+ChatModel? _findCachedChat(Iterable<ChatModel>? chats, ChatLookup lookup) {
+  if (chats == null) return null;
+
+  for (final chat in chats) {
+    if (lookup.chatId != null && chat.id == lookup.chatId) return chat;
+    if (lookup.chatId == null && chat.type == lookup.type) return chat;
+  }
+  return null;
+}
