@@ -111,6 +111,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
   final AppModeStorage modeStorage;
   AppMode _currentMode = AppMode.clientMode;
   bool _isInitializing = false;
+  Future<void>? _unauthorizedSignOut;
 
   AppStartupController(this.ref, this.modeStorage)
     : super(const AppStartupStatus.loading()) {
@@ -216,8 +217,18 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     }
   }
 
-  Future<void> _handleUnauthorized() async {
-    await forceSignedOut(unauthorized: true);
+  Future<void> _handleUnauthorized() {
+    final active = _unauthorizedSignOut;
+    if (active != null) return active;
+
+    late final Future<void> tracked;
+    tracked = forceSignedOut(unauthorized: true).whenComplete(() {
+      if (identical(_unauthorizedSignOut, tracked)) {
+        _unauthorizedSignOut = null;
+      }
+    });
+    _unauthorizedSignOut = tracked;
+    return tracked;
   }
 
   void _clearUserScopedProviders() {

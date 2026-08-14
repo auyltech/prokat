@@ -34,6 +34,40 @@ void main() {
     signOutRelease.complete();
     await controller.lastSignOutCall;
   });
+
+  test('concurrent unauthorized signals share one forced sign-out', () async {
+    final signOutRelease = Completer<void>();
+    late _RecordingAppStartupController controller;
+    final container = ProviderContainer(
+      overrides: [
+        appStartupProvider.overrideWith((ref) {
+          controller = _RecordingAppStartupController(ref, signOutRelease);
+          return controller;
+        }),
+      ],
+    );
+    addTearDown(() {
+      if (!signOutRelease.isCompleted) signOutRelease.complete();
+      container.dispose();
+    });
+
+    container.read(appStartupProvider);
+    container.read(unauthorizedSignalProvider.notifier).state++;
+    container.read(unauthorizedSignalProvider.notifier).state++;
+
+    await Future<void>.delayed(Duration.zero);
+
+    expect(controller.signOutCalls, 1);
+    expect(controller.unauthorizedArguments, [true]);
+
+    signOutRelease.complete();
+    await controller.lastSignOutCall;
+
+    container.read(unauthorizedSignalProvider.notifier).state++;
+    await _waitForSignOutCalls(controller, 2);
+
+    expect(controller.unauthorizedArguments, [true, true]);
+  });
 }
 
 Future<void> _waitForSignOutCalls(
