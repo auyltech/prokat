@@ -184,6 +184,12 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
   }
 
   Future<void> _handleUnauthorized() {
+    // A delayed 401 from an in-flight request after local logout must not
+    // start another remote logout or turn the guest route into unauthorized.
+    if (ref.read(authProvider).session == null) {
+      return Future<void>.value();
+    }
+
     final active = _unauthorizedSignOut;
     if (active != null) return active;
 
