@@ -228,8 +228,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
           clearOtp: true,
         );
 
-        // DO NOT AWAIT RELOADING TO ALLOW REDIRECT FROM LOGIN
-        ref.read(appStartupProvider.notifier).reloadApp();
+        // Keep the login route mounted while the authenticated profile is
+        // resolved. A full startup reload would route through /launch and
+        // make a successful sign-in look like an application restart.
+        ref.read(appStartupProvider.notifier).reloadAfterAuthChanged();
 
         return true;
       }
