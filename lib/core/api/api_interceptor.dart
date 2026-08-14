@@ -48,9 +48,9 @@ class ApiInterceptor extends Interceptor {
 
   /// Handle successful responses
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
+  void onResponse(Response response, ResponseInterceptorHandler handler) async {
     if (response.statusCode == 401 &&
-        _hasAuthorization(response.requestOptions)) {
+        await _belongsToCurrentSession(response.requestOptions)) {
       _signalUnauthorized();
     }
 
@@ -59,11 +59,12 @@ class ApiInterceptor extends Interceptor {
 
   /// Global error handler
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     final statusCode = err.response?.statusCode;
 
     /// Session expired
-    if (statusCode == 401 && _hasAuthorization(err.requestOptions)) {
+    if (statusCode == 401 &&
+        await _belongsToCurrentSession(err.requestOptions)) {
       _signalUnauthorized();
     }
 
@@ -87,11 +88,26 @@ class ApiInterceptor extends Interceptor {
     }
   }
 
-  bool _hasAuthorization(RequestOptions options) {
+  Future<bool> _belongsToCurrentSession(RequestOptions options) async {
+    String? requestAuthorization;
     for (final entry in options.headers.entries) {
       if (entry.key.toLowerCase() != 'authorization') continue;
-      return entry.value?.toString().trim().isNotEmpty == true;
+      requestAuthorization = entry.value?.toString().trim();
+      break;
     }
-    return false;
+
+    if (requestAuthorization == null || requestAuthorization.isEmpty) {
+      return false;
+    }
+
+    try {
+      final currentSession = await secureStorage.readSession();
+      final currentToken = currentSession?.sessionToken?.trim();
+      if (currentToken == null || currentToken.isEmpty) return false;
+
+      return requestAuthorization == 'Bearer $currentToken';
+    } catch (_) {
+      return false;
+    }
   }
 }

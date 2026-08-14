@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -134,6 +135,42 @@ void main() {
     expect(response.requestOptions.headers['Authorization'], isNull);
     expect(unauthorizedSignals, 0);
   });
+
+  test('late 401 from user A does not invalidate user B session', () async {
+    var unauthorizedSignals = 0;
+    final secureStorage = _TrackingAuthSecureStorage(
+      session: const AuthSession(sessionToken: 'session-a'),
+    );
+    final adapter = _ControlledAdapter();
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://example.test',
+        responseType: ResponseType.json,
+        validateStatus: (status) => status != null && status < 600,
+      ),
+    );
+    dio.httpClientAdapter = adapter;
+    dio.interceptors.add(
+      ApiInterceptor(
+        secureStorage,
+        requestMetadata: _requestMetadata(),
+        onUnauthorized: () => unauthorizedSignals++,
+      ),
+    );
+
+    final responseFuture = dio.get<dynamic>('/protected-as-user-a');
+    await adapter.requestStarted.future;
+    secureStorage.session = const AuthSession(sessionToken: 'session-b');
+    adapter.complete(statusCode: 401, body: const {'message': 'Unauthorized'});
+
+    final response = await responseFuture;
+    expect(
+      response.requestOptions.headers['Authorization'],
+      'Bearer session-a',
+    );
+    expect(response.statusCode, 401);
+    expect(unauthorizedSignals, 0);
+  });
 }
 
 ClientRequestMetadataService _requestMetadata() {
@@ -177,8 +214,38 @@ class _StubAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _ControlledAdapter implements HttpClientAdapter {
+  final requestStarted = Completer<void>();
+  final _response = Completer<ResponseBody>();
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    if (!requestStarted.isCompleted) requestStarted.complete();
+    return _response.future;
+  }
+
+  void complete({required int statusCode, required Map<String, dynamic> body}) {
+    _response.complete(
+      ResponseBody.fromString(
+        jsonEncode(body),
+        statusCode,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      ),
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 class _TrackingAuthSecureStorage extends AuthSecureStorage {
-  final AuthSession? session;
+  AuthSession? session;
   int clearCalls = 0;
 
   _TrackingAuthSecureStorage({
