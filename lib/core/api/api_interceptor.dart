@@ -49,7 +49,8 @@ class ApiInterceptor extends Interceptor {
   /// Handle successful responses
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 &&
+        _hasAuthorization(response.requestOptions)) {
       _signalUnauthorized();
     }
 
@@ -62,7 +63,7 @@ class ApiInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
 
     /// Session expired
-    if (statusCode == 401) {
+    if (statusCode == 401 && _hasAuthorization(err.requestOptions)) {
       _signalUnauthorized();
     }
 
@@ -84,5 +85,13 @@ class ApiInterceptor extends Interceptor {
       _lastUnauthorizedAt = now;
       onUnauthorized();
     }
+  }
+
+  bool _hasAuthorization(RequestOptions options) {
+    for (final entry in options.headers.entries) {
+      if (entry.key.toLowerCase() != 'authorization') continue;
+      return entry.value?.toString().trim().isNotEmpty == true;
+    }
+    return false;
   }
 }

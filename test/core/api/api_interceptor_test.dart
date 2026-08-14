@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/api/api_interceptor.dart';
 import 'package:prokat/core/services/client_request_metadata_service.dart';
 import 'package:prokat/core/services/installation_identity_service.dart';
+import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 
 void main() {
@@ -105,6 +106,34 @@ void main() {
     expect(unauthorizedSignals, 1);
     expect(secureStorage.clearCalls, 0);
   });
+
+  test('anonymous 401 does not emit an unauthorized signal', () async {
+    var unauthorizedSignals = 0;
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://example.test',
+        responseType: ResponseType.json,
+        validateStatus: (status) => status != null && status < 600,
+      ),
+    );
+    dio.httpClientAdapter = _StubAdapter(
+      statusCode: 401,
+      body: const {'message': 'Authentication required'},
+    );
+    dio.interceptors.add(
+      ApiInterceptor(
+        _TrackingAuthSecureStorage(session: null),
+        requestMetadata: _requestMetadata(),
+        onUnauthorized: () => unauthorizedSignals++,
+      ),
+    );
+
+    final response = await dio.get<dynamic>('/protected-without-session');
+
+    expect(response.statusCode, 401);
+    expect(response.requestOptions.headers['Authorization'], isNull);
+    expect(unauthorizedSignals, 0);
+  });
 }
 
 ClientRequestMetadataService _requestMetadata() {
@@ -149,7 +178,15 @@ class _StubAdapter implements HttpClientAdapter {
 }
 
 class _TrackingAuthSecureStorage extends AuthSecureStorage {
+  final AuthSession? session;
   int clearCalls = 0;
+
+  _TrackingAuthSecureStorage({
+    this.session = const AuthSession(sessionToken: 'session-token'),
+  });
+
+  @override
+  Future<AuthSession?> readSession() async => session;
 
   @override
   Future<void> clearSession() async {
