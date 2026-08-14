@@ -34,12 +34,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ProviderSubscription? _locationSub;
 
   Future<void> _fetchData() async {
+    if (!mounted) return;
+
     final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
 
     await ref
         .read(guestEquipmentProvider.notifier)
         .setFilters(categoryId: categoryId, city: city);
+
+    if (!mounted) return;
 
     await ref.read(categoriesProvider.notifier).refreshIfStale();
   }
@@ -52,6 +56,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     _debounce?.cancel();
 
     _debounce = Timer(const Duration(seconds: 1), () {
+      if (!mounted) return;
       _fetchData();
     });
   }
