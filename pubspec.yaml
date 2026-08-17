@@ -86,10 +86,10 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#00489B"
-  image: "assets/icons/app_icon.png"
-  branding: "assets/icons/splash_branding_footer.png"
+  image: "assets/icons/splash_logo.png"
+  branding: "assets/icons/splash_branding_footer_wt.png"
 
   android_12:
     color: "#00489B"
-    image: "assets/icons/app_icon.png"
-    branding: "assets/icons/splash_branding_footer.png"
+    image: "assets/icons/splash_logo.png"
+    branding: "assets/icons/splash_branding_footer_wt.png"
