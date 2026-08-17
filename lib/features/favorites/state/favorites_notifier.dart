@@ -15,6 +15,7 @@ class FavoriteNotifier extends StateNotifier<FavoritesState> {
 
       state = state.copyWith(
         isLoading: false,
+        error: null,
         favoritesIds: result.data?.map((item) => item.id).toSet(),
         favorites: result.data,
       );

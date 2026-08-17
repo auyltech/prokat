@@ -1,6 +1,8 @@
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 class FavoritesState {
+  static const _notProvided = Object();
+
   final bool isLoading;
   final String? error;
 
@@ -16,14 +18,18 @@ class FavoritesState {
 
   FavoritesState copyWith({
     bool? isLoading,
-    String? error,
+    Object? error = _notProvided,
     Set<String>? favoritesIds,
     List<Equipment>? favorites,
   }) {
+    assert(
+      identical(error, _notProvided) || error is String?,
+      'error must be a String or null',
+    );
+
     return FavoritesState(
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-
+      error: identical(error, _notProvided) ? this.error : error as String?,
       favoritesIds: favoritesIds ?? this.favoritesIds,
       favorites: favorites ?? this.favorites,
     );

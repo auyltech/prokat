@@ -114,6 +114,15 @@
 
 ---
 
+## 10. Избранное (RF-03 FavoritesState)
+
+| Шаг | Действие | Ожидание |
+|---|---|---|
+| 10.1 | Войти; открыть избранное в airplane mode (или с оборванной сетью). | Показывается ошибка (`somethingWentWrong`), а не бесконечный спиннер. |
+| 10.2 | Включить сеть; уйти с экрана избранного и открыть его снова. | Список (или empty-state «нет сохранённой техники») **без** leftover error UI. |
+
+---
+
 ## Что запускать после какого PR
 
 | Тип PR | Минимум шагов |
@@ -124,9 +133,10 @@
 | Parser / provider rewiring | Только нужный раздел (7 или 8) + быстрый 1.3, если трогали auth |
 | AuthState nullable session (RF-03) | 1.3–**1.5**, 2 |
 | EquipmentMapState clear selection (RF-03) | **9.2**, если map sheet включён |
+| FavoritesState error clear (RF-03) | **10.1–10.2** |
 | Chat list / messages provider graph (RF-04) | 3.1–3.4, **3.6**, **3.7** |
 | Owner registration/profile provider graph (RF-04) | 7.4 |
-| Полная волна merge | Все разделы 1–8; 9, если меняли Android map |
+| Полная волна merge | Все разделы 1–8 и **10**; 9, если меняли Android map |
 
 ---
 
@@ -139,5 +149,6 @@
 - Экран транзакций пустой/падает, когда бэкенд отдаёт `ADJUSTMENT`.
 - После отправки сообщения список чатов не показывает новый preview, пока не сделать pull-to-refresh / force-kill.
 - После очистки токена / cold start без session приложение остаётся на экране client/owner.
+- После успешной повторной загрузки избранного остаётся error UI (`somethingWentWrong`) вместо списка.
 
 Unit/fake suite (`flutter test`) **не заменяет** шаги 3–5 и 6 — этот чеклист нужен для релизов, затрагивающих realtime или границы session.
