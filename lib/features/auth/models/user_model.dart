@@ -66,7 +66,7 @@ class UserModel {
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
         phoneNumber: json['phoneNumber']?.toString(),
-        rating: parseNullableInt(json['rating']),
+        rating: parseNullableInt(json['rating'] ?? json['ratingAverage']),
         orderCount: parseNullableInt(json['orderCount']),
         role: parseUserRole(json['role']) ?? UserRole.client,
         imageUrl: json['imageUrl']?.toString(),
