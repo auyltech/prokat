@@ -1,132 +1,132 @@
-# Manual smoke checklist (Track A)
+# Ручной smoke-чеклист (Track A)
 
-Use this after high-risk PRs on `feat/prokat-plans-refactoring`: session lifecycle (RF-08), realtime/chat/notifications (RF-09), and adjacent parser/provider fixes.
+Используйте после высокорисковых PR в ветке `feat/prokat-plans-refactoring`: lifecycle сессии (RF-08), realtime/chat/notifications (RF-09) и смежных правок parser/provider.
 
-**Setup**
+**Подготовка**
 
-- Local backend running (`prokatBackend`) with the same API/socket URLs as the app `.env`.
-- Two test accounts ready: **client A** and **owner B** (or client B).
-- Prefer a real device/emulator with network; desktop is fine for session/parser checks, but chat/push behave differently on mobile.
-- Optional: second device or browser tab logged in as the chat counterparty.
+- Локальный бэкенд запущен (`prokatBackend`) с теми же API/socket URL, что в `.env` приложения.
+- Два тестовых аккаунта: **client A** и **owner B** (или client B).
+- Предпочтительно реальное устройство/эмулятор с сетью; desktop подходит для session/parser, но chat/push на mobile ведут себя иначе.
+- По желанию: второе устройство или вкладка браузера под вторым пользователем в чате.
 
-**Pass criteria**
+**Критерии прохождения**
 
-- No crash, no infinite loading spinner, no stale data from the previous user.
-- Each step should finish in under ~1 minute unless noted.
-
----
-
-## 1. Session restore and rating (RF-05 / auth)
-
-| Step | Action | Expected |
-|---|---|---|
-| 1.1 | Log in as any user whose profile shows a rating. | Home/profile loads; rating visible. |
-| 1.2 | Kill the app completely (swipe away / stop process). | — |
-| 1.3 | Cold start the app. | Still logged in; **same rating** still visible (not 0 / empty). |
-| 1.4 | Log out manually. | Login/guest screen; no owner/client data on UI. |
+- Нет краша, бесконечного спиннера, «чужих» данных предыдущего пользователя.
+- Каждый шаг — до ~1 минуты, если не указано иное.
 
 ---
 
-## 2. Account isolation A → logout → B (RF-08)
+## 1. Восстановление сессии и рейтинг (RF-05 / auth)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 2.1 | Log in as **user A** (client). Open equipment list or profile with identifiable data. | Data belongs to A. |
-| 2.2 | Log out. | Guest/unauth state; lists cleared or guest content only. |
-| 2.3 | Log in as **user B** without restarting the app. | **No** equipment/profile/chat data from A. |
-| 2.4 | Repeat 2.1–2.3 with **owner** account if A was client. | Same isolation for owner equipment/bookings. |
+| 1.1 | Войти под пользователем с рейтингом в профиле. | Главная/профиль загрузились; рейтинг виден. |
+| 1.2 | Полностью закрыть приложение (смахнуть / остановить процесс). | — |
+| 1.3 | Холодный старт приложения. | Пользователь всё ещё залогинен; **тот же рейтинг** (не 0 / пусто). |
+| 1.4 | Выйти вручную. | Экран login/guest; на UI нет owner/client данных. |
+
+---
+
+## 2. Изоляция аккаунтов A → logout → B (RF-08)
+
+| Шаг | Действие | Ожидание |
+|---|---|---|
+| 2.1 | Войти как **user A** (client). Открыть список equipment или профиль с узнаваемыми данными. | Данные принадлежат A. |
+| 2.2 | Выйти. | Guest/unauth; списки очищены или только guest-контент. |
+| 2.3 | Войти как **user B** без перезапуска приложения. | **Нет** equipment/profile/chat данных от A. |
+| 2.4 | Повторить 2.1–2.3 с **owner**, если A был client. | Та же изоляция для owner equipment/bookings. |
 
 ---
 
 ## 3. Chat socket (RF-09)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 3.1 | Log in; open an existing chat. | Message history loads. |
-| 3.2 | Send a text message. | Message appears (optimistic + confirmed). |
-| 3.3 | From counterparty (second account/device), send a reply. | Reply appears **without** reopening the chat. |
-| 3.4 | Navigate away from chat, then open the **same** chat again. | History intact; new messages still arrive. |
-| 3.5 | Open chat → put app in background ~10 s → resume. | Still connected; send/receive works (may need one sent message to verify). |
+| 3.1 | Войти; открыть существующий чат. | История сообщений загрузилась. |
+| 3.2 | Отправить текстовое сообщение. | Сообщение появилось (optimistic + подтверждение). |
+| 3.3 | Со стороны собеседника (второй аккаунт/устройство) отправить ответ. | Ответ пришёл **без** повторного открытия чата. |
+| 3.4 | Уйти из чата и снова открыть **тот же** чат. | История на месте; новые сообщения всё ещё приходят. |
+| 3.5 | Открыть чат → background ~10 с → resume. | Соединение живо; send/receive работает (может понадобиться одно отправленное сообщение для проверки). |
 
 ---
 
-## 4. Logout and socket cleanup (RF-08 / RF-09)
+## 4. Logout и очистка socket (RF-08 / RF-09)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 4.1 | While logged in with chat/notifications active, log out once. | Single smooth logout; no error snackbar loop. |
-| 4.2 | Log in again; open chat. | Messages work (socket reconnected). |
-| 4.3 | *(Optional)* Tap overlapping logout triggers quickly (if UI allows). | Still one clean logout; no double-freeze. |
+| 4.1 | При активных chat/notifications выйти один раз. | Один плавный logout; без цикла error snackbar. |
+| 4.2 | Снова войти; открыть чат. | Сообщения работают (socket переподключился). |
+| 4.3 | *(Опционально)* Быстро вызвать logout несколько раз (если UI позволяет). | Всё равно один чистый logout; без двойного зависания. |
 
 ---
 
-## 5. In-app notifications (RF-09)
+## 5. In-app уведомления (RF-09)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 5.1 | Log in as user who receives socket notifications. | Unread badge/count syncs. |
-| 5.2 | Trigger an in-app `notification:new` event (backend action or test notification). | Notification appears in app list/badge updates. |
-| 5.3 | Log out. | Notification list cleared for that session. |
-| 5.4 | Background → resume while logged in. | Notifications still work; **no duplicate** toasts for one event. |
+| 5.1 | Войти под пользователем, получающим socket-уведомления. | Badge/count непрочитанных синхронизирован. |
+| 5.2 | Вызвать in-app событие `notification:new` (действие на бэкенде или тестовое уведомление). | Уведомление в списке приложения / badge обновился. |
+| 5.3 | Выйти. | Список уведомлений для этой сессии очищен. |
+| 5.4 | Background → resume под залогиненным пользователем. | Уведомления работают; **нет дублей** toast на одно событие. |
 
 ---
 
-## 6. Pending route after notification tap (RF-08 / A-11)
+## 6. Pending route после tap по уведомлению (RF-08 / A-11)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 6.1 | While **logged out**, tap a notification that stores a deep link (or simulate saved pending route). | Prompted to log in. |
-| 6.2 | Log in. | App navigates to the intended screen **once**. |
-| 6.3 | Log out before navigation completes (if possible). | Pending route cleared; next user does **not** land on A's route. |
+| 6.1 | **Будучи разлогиненным**, нажать уведомление с deep link (или симулировать сохранённый pending route). | Запрос на вход. |
+| 6.2 | Войти. | Приложение переходит на нужный экран **один раз**. |
+| 6.3 | Выйти до завершения навигации (если возможно). | Pending route очищен; следующий user **не** попадает на route A. |
 
 ---
 
-## 7. Equipment and categories (RF-04 / RF-06)
+## 7. Equipment и categories (RF-04 / RF-06)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 7.1 | Guest or client: open equipment search; change filters twice quickly. | Latest filters win; no flash of stale results. |
-| 7.2 | Open category selector (home, create equipment, or create request). | Categories load; selection applies. |
-| 7.3 | Owner: open equipment list and one equipment detail. | Loads without provider/override errors. |
+| 7.1 | Guest или client: открыть поиск equipment; дважды быстро сменить фильтры. | Побеждают последние фильтры; нет мигания старых результатов. |
+| 7.2 | Открыть выбор категории (главная, создание equipment или request). | Категории загрузились; выбор применился. |
+| 7.3 | Owner: список equipment и одна карточка детали. | Загрузка без ошибок provider/override. |
 
 ---
 
-## 8. Billing / transactions (RF-05)
+## 8. Billing / транзакции (RF-05)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 8.1 | Log in as **owner**; open balance / transaction history. | List loads. |
-| 8.2 | If DB has `ADJUSTMENT` rows, confirm they render (not skipped silently). | Row visible; no parse crash. |
-| 8.3 | If no adjustment exists, note *"ADJUSTMENT not exercised"* — parser covered by unit test only. | TOPUP/CONSUMPTION still display normally. |
+| 8.1 | Войти как **owner**; открыть balance / историю транзакций. | Список загрузился. |
+| 8.2 | Если в БД есть строки `ADJUSTMENT`, убедиться, что они отображаются (не пропали молча). | Строка видна; без parse crash. |
+| 8.3 | Если adjustment нет — зафиксировать *«ADJUSTMENT не проверен»*; parser покрыт только unit-тестом. | TOPUP/CONSUMPTION отображаются нормально. |
 
 ---
 
-## 9. Mapbox (Android only, if build includes `b5f61ee`)
+## 9. Mapbox (только Android, если в сборке есть `b5f61ee`)
 
-| Step | Action | Expected |
+| Шаг | Действие | Ожидание |
 |---|---|---|
-| 9.1 | Open a screen with map (equipment map / location picker). | Map tiles render; no token error in log. |
+| 9.1 | Открыть экран с картой (equipment map / выбор локации). | Тайлы карты рендерятся; в логе нет ошибки token. |
 
 ---
 
-## When to run what
+## Что запускать после какого PR
 
-| After PR type | Minimum steps |
+| Тип PR | Минимум шагов |
 |---|---|
-| Session / logout only | 1, 2, 4 |
-| Chat / socket only | 3, 4 |
+| Только session / logout | 1, 2, 4 |
+| Только chat / socket | 3, 4 |
 | Notification bootstrap | 4, 5 |
-| Parser / provider rewiring | Relevant section only (7 or 8) + quick 1.3 if auth touched |
-| Full wave merge | All sections 1–8; 9 if Android map changed |
+| Parser / provider rewiring | Только нужный раздел (7 или 8) + быстрый 1.3, если трогали auth |
+| Полная волна merge | Все разделы 1–8; 9, если меняли Android map |
 
 ---
 
-## Red flags (stop and file an issue)
+## Красные флаги (остановиться и завести issue)
 
-- Chat messages only work after force-kill app.
-- User B sees chats/bookings/equipment from user A.
-- Duplicate notifications for a single backend event after resume.
-- Logout leaves spinner forever or requires second tap.
-- Transaction screen empty/crash when backend returns `ADJUSTMENT`.
+- Сообщения в чате работают только после force-kill приложения.
+- User B видит chats/bookings/equipment от user A.
+- Дубли уведомлений на одно backend-событие после resume.
+- Logout оставляет спиннер навсегда или требует второго нажатия.
+- Экран транзакций пустой/падает, когда бэкенд отдаёт `ADJUSTMENT`.
 
-Unit/fake suite (`flutter test`) does **not** replace steps 3–5 and 6 — keep this checklist for releases that touch realtime or session boundaries.
+Unit/fake suite (`flutter test`) **не заменяет** шаги 3–5 и 6 — этот чеклист нужен для релизов, затрагивающих realtime или границы session.
