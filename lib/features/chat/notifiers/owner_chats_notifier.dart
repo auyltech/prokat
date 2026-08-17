@@ -1,5 +1,5 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
-import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';

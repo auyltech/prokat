@@ -1,28 +1,16 @@
-import 'package:prokat/core/api/api_provider.dart';
-import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/models/chat_lookup.dart';
+import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/notifiers/chat_messages_notifier.dart';
 import 'package:prokat/features/chat/notifiers/client_chats_notifier.dart';
 import 'package:prokat/features/chat/notifiers/owner_chats_notifier.dart';
-import 'package:prokat/features/chat/models/chat_message_model.dart';
-import 'package:prokat/features/chat/models/chat_model.dart';
-import 'package:prokat/features/chat/service/chat_service.dart';
-import 'package:prokat/features/chat/service/chat_socket_service.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
-final chatServiceProvider = Provider<ChatService>((ref) {
-  final apiClient = ref.watch(apiClientProvider);
-  return ChatService(apiClient);
-});
-
-final chatSocketServiceProvider = Provider<ChatSocketService>((ref) {
-  final appSocket = ref.watch(appSocketProvider);
-  final service = ChatSocketService(appSocket);
-  ref.onDispose(service.dispose);
-  return service;
-});
+export 'chat_dependencies.dart'
+    show chatServiceProvider, chatSocketServiceProvider;
 
 final clientChatsProvider =
     AsyncNotifierProvider<ClientChatsNotifier, QueryState<ChatModel>>(
