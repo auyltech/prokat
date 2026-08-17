@@ -1,6 +1,6 @@
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
 class OwnerEquipmentDetailsNotifier
