@@ -66,6 +66,20 @@ android {
                 .removeSurrounding("\"")
                 .removeSurrounding("'")
         }
+
+        val envLocalFile = project.rootProject.file("../.env.local")
+        if (envLocalFile.exists()) {
+            val envLocalProperties = Properties()
+            FileInputStream(envLocalFile).use(envLocalProperties::load)
+            val localToken = envLocalProperties
+                .getProperty("MAPBOX_TOKEN", "")
+                .trim()
+                .removeSurrounding("\"")
+                .removeSurrounding("'")
+            if (localToken.isNotEmpty()) {
+                mapboxToken = localToken
+            }
+        }
         
         // Backward-compatible fallback for existing developer setups.
         if (mapboxToken.isEmpty()) {
@@ -83,8 +97,15 @@ android {
         if (mapboxToken.isEmpty()) {
             mapboxToken = System.getenv("MAPBOX_TOKEN") ?: ""
         }
-        
+
+        if (mapboxToken.isEmpty()) {
+            throw GradleException(
+                "MAPBOX_TOKEN is missing. Add it to prokat/.env or prokat/.env.local.",
+            )
+        }
+
         manifestPlaceholders["MAPBOX_TOKEN"] = mapboxToken
+        resValue("string", "mapbox_access_token", mapboxToken)
     }
 
     buildTypes {

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/bootstrap/firebase_bootstrap.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/firebase_options.dart';
+import 'package:prokat/setup_mapbox.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -19,6 +20,14 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final supportsMapbox =
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+  if (supportsMapbox) {
+    MapboxConfig.ensureInitialized();
+  }
 
   final supportsBackgroundMessaging =
       !kIsWeb &&
