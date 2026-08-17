@@ -13,6 +13,7 @@ class ChatSocketService {
 
   String? _joinedChatId;
   int? _joinedConnectionGeneration;
+  String? _inFlightJoinChatId;
 
   final List<String> _desiredChatIds = [];
   final List<_ChatMessageListenerRegistration> _messageListeners = [];
@@ -111,26 +112,33 @@ class ChatSocketService {
   }
 
   Future<void> _joinChat(String chatId) async {
-    await appSocket.connect();
+    _inFlightJoinChatId = chatId;
+    try {
+      await appSocket.connect();
 
-    if (_desiredChatId != chatId) {
-      return;
+      if (_desiredChatId != chatId) {
+        return;
+      }
+
+      if (_joinedChatId == chatId &&
+          _joinedConnectionGeneration == appSocket.connectionGeneration) {
+        return;
+      }
+
+      final joinedChatId = _joinedChatId;
+      if ((joinedChatId ?? '').isNotEmpty && joinedChatId != chatId) {
+        await _leaveChat(joinedChatId!);
+      }
+
+      appSocket.emit(joinChatEvent, {'chatId': chatId});
+
+      _joinedChatId = chatId;
+      _joinedConnectionGeneration = appSocket.connectionGeneration;
+    } finally {
+      if (_inFlightJoinChatId == chatId) {
+        _inFlightJoinChatId = null;
+      }
     }
-
-    if (_joinedChatId == chatId &&
-        _joinedConnectionGeneration == appSocket.connectionGeneration) {
-      return;
-    }
-
-    final joinedChatId = _joinedChatId;
-    if ((joinedChatId ?? '').isNotEmpty && joinedChatId != chatId) {
-      await _leaveChat(joinedChatId!);
-    }
-
-    appSocket.emit(joinChatEvent, {'chatId': chatId});
-
-    _joinedChatId = chatId;
-    _joinedConnectionGeneration = appSocket.connectionGeneration;
   }
 
   Future<void> leaveChat(String chatId) async {
@@ -188,6 +196,7 @@ class ChatSocketService {
     _joinedChatId = null;
     _desiredChatIds.clear();
     _joinedConnectionGeneration = null;
+    _inFlightJoinChatId = null;
     _messageListeners.clear();
     _newMessageSocketAttached = false;
     appSocket.off(newMessageEvent);
@@ -196,6 +205,15 @@ class ChatSocketService {
   void _handleSocketConnected() {
     final chatId = _desiredChatId;
     if ((chatId ?? '').isEmpty) {
+      return;
+    }
+
+    if (_joinedChatId == chatId &&
+        _joinedConnectionGeneration == appSocket.connectionGeneration) {
+      return;
+    }
+
+    if (_inFlightJoinChatId == chatId) {
       return;
     }
 
@@ -253,6 +271,7 @@ class ChatSocketService {
 
   void dispose() {
     _desiredChatIds.clear();
+    _inFlightJoinChatId = null;
     _messageListeners.clear();
     _newMessageSocketAttached = false;
     appSocket.removeConnectListener(_connectListenerKey);

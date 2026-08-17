@@ -15,16 +15,14 @@ void main() {
     await env.chat.joinChat('chat-1');
     await _settle();
 
-    // connect() notifies listeners, which enqueue a second _joinChat.
-    // That second call is a no-op join but still invokes connect().
-    expect(env.socket.connectCalls, 2);
+    expect(env.socket.connectCalls, 1);
     expect(env.socket.joinEmits, 1);
     expect(env.socket.leaveEmits, 0);
     expect(env.socket.emitted.single.$2, {'chatId': 'chat-1'});
 
     await env.chat.leaveChat('chat-1');
 
-    expect(env.socket.connectCalls, 2);
+    expect(env.socket.connectCalls, 1);
     expect(env.socket.joinEmits, 1);
     expect(env.socket.leaveEmits, 1);
   });

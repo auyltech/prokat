@@ -33,7 +33,7 @@ These are inventory facts for later RF-09 slices. A-12 does not change them.
 |---|---|---|
 | App socket disconnect on logout | `AppStartupController._clearUserScopedProviders` owns session disconnect; bootstrap auth listener only detaches `notification:new` and push callbacks | One `disconnectSocket` per `forceSignedOut`. Background/dispose still disconnect from bootstrap. |
 | Chat message listeners | `ChatSocketService.onNewMessage` fans out to every registration over one socket handler | Removing a listener leaves others attached; the socket `on` is registered once until the last listener is gone. |
-| Chat connect listener | `connect()` synchronously notifies `ChatSocketService`, which enqueues another `_joinChat` | Join is emitted once; `connect()` is invoked a second time as a no-op. Candidate for a later join-dedup slice. |
+| Chat connect listener | `connect()` completes, then notifies `ChatSocketService` on a microtask | An in-flight or already-joined room at the current generation is not enqueued again. Reconnect still re-joins because generation changes after the previous join finishes. |
 | Notification vs chat handlers | Both use the same `AppSocketService` event map | Distinct event names (`notification:new` vs `chat:message:new`); `on(event)` still replaces any previous handler for that name. |
 | Crashlytics global handlers | `CrashReportingService` assigns `FlutterError.onError` and `PlatformDispatcher.instance.onError` directly | Previous handlers are dropped. No test fake yet; RF-D11 remains unresolved. |
 

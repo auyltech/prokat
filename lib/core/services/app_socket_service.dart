@@ -83,11 +83,7 @@ class AppSocketService {
         completer.complete();
       }
 
-      for (final listener in _connectListeners.values.toList()) {
-        try {
-          listener();
-        } catch (_) {}
-      }
+      scheduleMicrotask(_notifyConnectListeners);
     });
 
     socket.onConnectError((error) {
@@ -121,6 +117,14 @@ class AppSocketService {
 
   void removeConnectListener(Object key) {
     _connectListeners.remove(key);
+  }
+
+  void _notifyConnectListeners() {
+    for (final listener in _connectListeners.values.toList()) {
+      try {
+        listener();
+      } catch (_) {}
+    }
   }
 
   void emit(String event, dynamic data) {

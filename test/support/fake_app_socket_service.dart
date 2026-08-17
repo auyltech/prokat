@@ -38,7 +38,7 @@ class FakeAppSocketService extends AppSocketService {
 
     _connected = true;
     _generation++;
-    _notifyConnected();
+    scheduleMicrotask(_notifyConnected);
   }
 
   @override
