@@ -92,6 +92,7 @@
 | 7.2 | Открыть выбор категории (главная, создание equipment или request). | Категории загрузились; выбор применился. |
 | 7.3 | Owner: список equipment и одна карточка детали. | Загрузка без ошибок provider/override. |
 | 7.4 | Owner: открыть профиль / настройки / статус. | Профиль загрузился; смена статуса или сохранение формы не падает. |
+| 7.5 | Поиск: выбрать категорию → если в UI есть сброс фильтров, сбросить. | Каталог без фильтра категории. Если кнопки сброса нет — отметить *«search clear UI absent; unit-covered»*. |
 
 ---
 
@@ -134,6 +135,7 @@
 | AuthState nullable session (RF-03) | 1.3–**1.5**, 2 |
 | EquipmentMapState clear selection (RF-03) | **9.2**, если map sheet включён |
 | FavoritesState error clear (RF-03) | **10.1–10.2** |
+| EquipmentState clear filters (RF-03) | **7.1**, **7.5** |
 | Chat list / messages provider graph (RF-04) | 3.1–3.4, **3.6**, **3.7** |
 | Owner registration/profile provider graph (RF-04) | 7.4 |
 | Полная волна merge | Все разделы 1–8 и **10**; 9, если меняли Android map |
