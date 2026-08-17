@@ -110,6 +110,7 @@
 | Шаг | Действие | Ожидание |
 |---|---|---|
 | 9.1 | Открыть экран с картой (equipment map / выбор локации). | Тайлы карты рендерятся; в логе нет ошибки token. |
+| 9.2 | Если sheet выбора equipment на карте включён: выбрать объект → закрыть / clear. | Selection сброшен; sheet не держит предыдущий equipment. Если map sheet выключен — пропустить и отметить *«map sheet disabled»*. |
 
 ---
 
@@ -122,6 +123,7 @@
 | Notification bootstrap | 4, 5 |
 | Parser / provider rewiring | Только нужный раздел (7 или 8) + быстрый 1.3, если трогали auth |
 | AuthState nullable session (RF-03) | 1.3–**1.5**, 2 |
+| EquipmentMapState clear selection (RF-03) | **9.2**, если map sheet включён |
 | Chat list / messages provider graph (RF-04) | 3.1–3.4, **3.6**, **3.7** |
 | Owner registration/profile provider graph (RF-04) | 7.4 |
 | Полная волна merge | Все разделы 1–8; 9, если меняли Android map |

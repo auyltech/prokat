@@ -3,6 +3,8 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 // Not used, viewing equipment on map is currently disabled
 class EquipmentMapState {
+  static const _notProvided = Object();
+
   final Equipment? selectedEquipment;
   final bool isSheetExpanded;
 
@@ -12,11 +14,19 @@ class EquipmentMapState {
   });
 
   EquipmentMapState copyWith({
-    Equipment? selectedEquipment,
+    Object? selectedEquipment = _notProvided,
     bool? isSheetExpanded,
   }) {
+    assert(
+      identical(selectedEquipment, _notProvided) ||
+          selectedEquipment is Equipment?,
+      'selectedEquipment must be an Equipment or null',
+    );
+
     return EquipmentMapState(
-      selectedEquipment: selectedEquipment ?? this.selectedEquipment,
+      selectedEquipment: identical(selectedEquipment, _notProvided)
+          ? this.selectedEquipment
+          : selectedEquipment as Equipment?,
       isSheetExpanded: isSheetExpanded ?? this.isSheetExpanded,
     );
   }
