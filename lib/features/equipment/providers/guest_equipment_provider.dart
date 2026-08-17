@@ -3,7 +3,7 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/state/guest_equipment_notifier.dart';
 
-export 'equipment_provider.dart' show equipmentServiceProvider;
+export 'equipment_dependencies.dart' show equipmentServiceProvider;
 
 final guestEquipmentProvider =
     AsyncNotifierProvider<GuestEquipmentNotifier, QueryState<Equipment>>(
