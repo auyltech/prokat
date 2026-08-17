@@ -14,7 +14,7 @@ document's implementation PR.
 
 | Resource | Creator | Owner | Start trigger | Stop trigger | Reconnect owner | Test fake |
 |---|---|---|---|---|---|---|
-| App socket connection | `AppSocketService.connect` | `AppSocketService` | `ChatSocketService.joinChat` / `connect`; `notificationBootstrapProvider.startIfReady` | `disconnectSocket` from `AppStartupController` logout, bootstrap logout/background/dispose | `ChatSocketService._handleSocketConnected`; bootstrap `startIfReady` on resume | `FakeAppSocketService` |
+| App socket connection | `AppSocketService.connect` | `AppSocketService` | `ChatSocketService.joinChat` / `connect`; `notificationBootstrapProvider.startIfReady` | `disconnectSocket` from `AppStartupController` logout; bootstrap background/dispose | `ChatSocketService._handleSocketConnected`; bootstrap `startIfReady` on resume | `FakeAppSocketService` |
 | Chat room membership | `ChatSocketService._joinChat` | `ChatSocketService` | `ChatMessagesNotifier._activateChatSession` | `leaveChat` on cancel/dispose; `disposeChatSession` | desired chat is re-joined on app-socket connect | `FakeAppSocketService` emit counts |
 | `chat:message:new` handler | `ChatSocketService._attachActiveMessageListener` | `ChatSocketService` | `onNewMessage` | `off` when listener list is empty; `dispose` | handler map is re-attached only on new `on()` | `FakeAppSocketService.on/off` |
 | `notification:new` handler | `notificationBootstrapProvider.attachSocketNotificationListener` | `notificationBootstrapProvider` | authenticated `startIfReady` | `off` on logout/background/dispose | `startIfReady` after resume | `FakeAppSocketService` |
@@ -31,7 +31,7 @@ These are inventory facts for later RF-09 slices. A-12 does not change them.
 
 | Resource | Overlap | Current observable effect |
 |---|---|---|
-| App socket disconnect on logout | `AppStartupController._clearUserScopedProviders` and `notificationBootstrapProvider` auth listener both call `disconnectSocket` | Two disconnects if bootstrap is mounted (`lib/app.dart` watches it). A-11 counts one because it does not mount bootstrap. |
+| App socket disconnect on logout | `AppStartupController._clearUserScopedProviders` owns session disconnect; bootstrap auth listener only detaches `notification:new` and push callbacks | One `disconnectSocket` per `forceSignedOut`. Background/dispose still disconnect from bootstrap. |
 | Chat message listeners | `ChatSocketService.onNewMessage` keeps only the last registration | A second listener silently replaces the first. Unused `ChatSocketNotifier` would collide if wired. |
 | Chat connect listener | `connect()` synchronously notifies `ChatSocketService`, which enqueues another `_joinChat` | Join is emitted once; `connect()` is invoked a second time as a no-op. Candidate for a later join-dedup slice. |
 | Notification vs chat handlers | Both use the same `AppSocketService` event map | Distinct event names (`notification:new` vs `chat:message:new`); `on(event)` still replaces any previous handler for that name. |

@@ -149,11 +149,6 @@ final notificationBootstrapProvider = Provider<void>((ref) {
 
     if (prevSession != null && nextSession == null) {
       stopForLogout();
-
-      try {
-        appSocket.disconnectSocket();
-      } catch (_) {}
-
       return;
     }
 
