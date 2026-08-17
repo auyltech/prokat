@@ -15,10 +15,7 @@ void main() {
   });
 
   test('UserModel.fromJson accepts backend rating field', () {
-    final user = UserModel.fromJson(const {
-      'id': 'user-1',
-      'rating': 5,
-    });
+    final user = UserModel.fromJson(const {'id': 'user-1', 'rating': 5});
 
     expect(user.rating, 5);
   });
