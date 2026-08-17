@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/categories/models/category.dart';
-import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/state/category_dependencies.dart';
 import 'package:prokat/features/categories/state/category_service.dart';
 
 class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
@@ -81,22 +81,4 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
       await refresh();
     }
   }
-}
-
-class SelectedCategoryNotifier extends Notifier<Category?> {
-  @override
-  Category? build() => null;
-
-  void select(Category? category) => state = category;
-
-  void selectById(String? id) {
-    if (id == null) {
-      state = null;
-      return;
-    }
-    final items = ref.read(categoriesProvider).valueOrNull?.items ?? const [];
-    state = items.where((item) => item.id == id).firstOrNull;
-  }
-
-  void clear() => state = null;
 }
