@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
-import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/owner/state/owner_registration_dependencies.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 
 class OwnerRegistrationRequestNotifier
