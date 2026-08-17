@@ -204,7 +204,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     return tracked;
   }
 
-  void _clearUserScopedProviders() {
+  Future<void> _clearUserScopedProviders() async {
     // Profile and owner registration
     ref.invalidate(clientProfileProvider);
     ref.invalidate(clientProfileMutationProvider);
@@ -281,7 +281,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.read(notificationProvider.notifier).clearOnLogout();
     ref.read(appSocketProvider).disconnectSocket();
 
-    ref.read(notificationLocalStorageProvider).clearPendingRoute();
+    await ref.read(notificationLocalStorageProvider).clearPendingRoute();
   }
 
   Future<void> forceSignedOut({bool unauthorized = false}) {
@@ -328,7 +328,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
     await WidgetsBinding.instance.endOfFrame;
 
-    _clearUserScopedProviders();
+    await _clearUserScopedProviders();
   }
 
   Future<AppMode> loadSavedMode() async {

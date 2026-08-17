@@ -39,7 +39,7 @@ instances are invalidated through the provider family boundary.
 |---|---:|---|---|
 | `chatSocketServiceProvider` | yes | provider invalidation | after chat-state invalidation |
 | `appSocketProvider` | yes | `disconnectSocket` | after notification-state reset |
-| `notificationLocalStorageProvider` pending route | persisted local state | `clearPendingRoute` | requested after socket disconnect; completion is currently not awaited |
+| `notificationLocalStorageProvider` pending route | persisted local state | `clearPendingRoute` | awaited after socket disconnect |
 | `pushNotificationServiceProvider` device token | backend/device state | `deactivateCurrentDevice` | attempted before auth logout; failure is best-effort |
 
 ## Preserved global state
@@ -75,5 +75,12 @@ forced-sign-out boundary. It proves that one unauthorized signal starts one
 unauthorized sign-out and can hold that operation open for the next
 concurrency slice.
 
-The next RF-08 production change is allowed only after this harness first
-reproduces concurrent unauthorized signals starting duplicate sign-outs.
+`test/features/appstartup/app_startup_session_cleanup_test.dart` drives the
+real `forceSignedOut` path with fake socket and pending-route storage. It
+proves that logout disconnects `appSocketProvider` once, disposes an already
+created `chatSocketServiceProvider`, and that `clearPendingRoute` has finished
+before sign-out completes.
+
+RF-08 tactical session isolation for proven user-scoped caches, single logout,
+and socket/pending-route cleanup is closed. Remaining map/demand scope stays
+unresolved as recorded above.
