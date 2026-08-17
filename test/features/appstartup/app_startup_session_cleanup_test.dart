@@ -2,9 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
-import 'package:prokat/core/services/app_socket_service.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/providers/auth_api_service.dart';
@@ -17,6 +15,8 @@ import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 
+import '../../support/fake_app_socket_service.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -27,14 +27,14 @@ void main() {
   test(
     'logout disconnects the app socket once and clears the pending user route',
     () async {
-      late _CountingAppSocket appSocket;
+      late FakeAppSocketService appSocket;
       late _CountingChatSocket chatSocket;
       final storage = _AsyncPendingRouteStorage();
       final container = ProviderContainer(
         overrides: [
           authProvider.overrideWith(_authenticatedAuthNotifier),
           appSocketProvider.overrideWith((ref) {
-            appSocket = _CountingAppSocket(ref);
+            appSocket = FakeAppSocketService(ref);
             return appSocket;
           }),
           chatSocketServiceProvider.overrideWith((ref) {
@@ -62,13 +62,13 @@ void main() {
   );
 
   test('overlapping sign-out still disconnects the socket once', () async {
-    late _CountingAppSocket appSocket;
+    late FakeAppSocketService appSocket;
     final storage = _AsyncPendingRouteStorage();
     final container = ProviderContainer(
       overrides: [
         authProvider.overrideWith(_authenticatedAuthNotifier),
         appSocketProvider.overrideWith((ref) {
-          appSocket = _CountingAppSocket(ref);
+          appSocket = FakeAppSocketService(ref);
           return appSocket;
         }),
         notificationLocalStorageProvider.overrideWithValue(storage),
@@ -118,17 +118,6 @@ class _LocalLogoutAuthNotifier extends AuthNotifier {
   }
 }
 
-class _CountingAppSocket extends AppSocketService {
-  int disconnectCalls = 0;
-
-  _CountingAppSocket(Ref ref) : super(_UnusedApiClient(), ref);
-
-  @override
-  void disconnectSocket() {
-    disconnectCalls++;
-  }
-}
-
 class _CountingChatSocket extends ChatSocketService {
   int disposeCalls = 0;
 
@@ -156,9 +145,4 @@ class _AsyncPendingRouteStorage extends NotificationLocalStorage {
     await Future<void>.delayed(Duration.zero);
     pendingRoute = null;
   }
-}
-
-class _UnusedApiClient implements ApiClient {
-  @override
-  Dio dio = Dio();
 }
