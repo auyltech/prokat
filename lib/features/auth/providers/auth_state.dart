@@ -2,6 +2,8 @@ import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 
 class AuthState {
+  static const _notProvided = Object();
+
   final AuthSession? session;
 
   final bool isLoading;
@@ -39,7 +41,7 @@ class AuthState {
   }
 
   AuthState copyWith({
-    AuthSession? session,
+    Object? session = _notProvided,
     bool? isLoading,
     String? error,
     String? errorCode,
@@ -49,8 +51,15 @@ class AuthState {
     DateTime? otpRetryAt,
     bool clearOtp = false,
   }) {
+    assert(
+      identical(session, _notProvided) || session is AuthSession?,
+      'session must be an AuthSession or null',
+    );
+
     return AuthState(
-      session: session ?? this.session,
+      session: identical(session, _notProvided)
+          ? this.session
+          : session as AuthSession?,
       isLoading: isLoading ?? this.isLoading,
       error: error,
       errorCode: errorCode,
