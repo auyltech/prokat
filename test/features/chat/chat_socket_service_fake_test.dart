@@ -42,24 +42,41 @@ void main() {
     expect(env.socket.connectionGeneration, 2);
   });
 
-  test('second message listener replaces the first', () async {
-    final env = _ChatSocketHarness();
-    addTearDown(env.dispose);
-    final first = <String>[];
-    final second = <String>[];
+  test(
+    'every registered message listener receives the inbound event',
+    () async {
+      final env = _ChatSocketHarness();
+      addTearDown(env.dispose);
+      final first = <String>[];
+      final second = <String>[];
 
-    await env.chat.joinChat('chat-1');
-    env.chat.onNewMessage((message) => first.add(message.id));
-    env.chat.onNewMessage((message) => second.add(message.id));
-    env.socket.emitIncoming('chat:message:new', _messageJson('message-1'));
+      await env.chat.joinChat('chat-1');
+      final removeFirst = env.chat.onNewMessage(
+        (message) => first.add(message.id),
+      );
+      final removeSecond = env.chat.onNewMessage(
+        (message) => second.add(message.id),
+      );
+      env.socket.emitIncoming('chat:message:new', _messageJson('message-1'));
 
-    expect(first, isEmpty);
-    expect(second, ['message-1']);
-    expect(
-      env.socket.onEvents.where((event) => event == 'chat:message:new'),
-      hasLength(2),
-    );
-  });
+      expect(first, ['message-1']);
+      expect(second, ['message-1']);
+      expect(
+        env.socket.onEvents.where((event) => event == 'chat:message:new'),
+        hasLength(1),
+      );
+
+      removeFirst();
+      env.socket.emitIncoming('chat:message:new', _messageJson('message-2'));
+
+      expect(first, ['message-1']);
+      expect(second, ['message-1', 'message-2']);
+      expect(env.socket.offEvents, isEmpty);
+
+      removeSecond();
+      expect(env.socket.offEvents, ['chat:message:new']);
+    },
+  );
 
   test('duplicate inbound messages are delivered as emitted', () async {
     final env = _ChatSocketHarness();

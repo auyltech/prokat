@@ -16,6 +16,7 @@ class ChatSocketService {
 
   final List<String> _desiredChatIds = [];
   final List<_ChatMessageListenerRegistration> _messageListeners = [];
+  bool _newMessageSocketAttached = false;
 
   Future<void> _roomOperation = Future<void>.value();
 
@@ -66,23 +67,38 @@ class ChatSocketService {
 
   void _attachActiveMessageListener() {
     if (_messageListeners.isEmpty) {
-      appSocket.off(newMessageEvent);
+      if (_newMessageSocketAttached) {
+        appSocket.off(newMessageEvent);
+        _newMessageSocketAttached = false;
+      }
       return;
     }
 
-    final active = _messageListeners.last;
-    appSocket.on(newMessageEvent, (payload) {
-      if (payload is Map<String, dynamic>) {
-        active.handler(ChatMessageModel.fromJson(payload));
-        return;
-      }
+    if (_newMessageSocketAttached) return;
 
-      if (payload is Map) {
-        active.handler(
-          ChatMessageModel.fromJson(Map<String, dynamic>.from(payload)),
-        );
+    _newMessageSocketAttached = true;
+    appSocket.on(newMessageEvent, (payload) {
+      final message = _parseIncomingMessage(payload);
+      if (message == null) return;
+
+      for (final registration in List<_ChatMessageListenerRegistration>.from(
+        _messageListeners,
+      )) {
+        registration.handler(message);
       }
     });
+  }
+
+  ChatMessageModel? _parseIncomingMessage(dynamic payload) {
+    if (payload is Map<String, dynamic>) {
+      return ChatMessageModel.fromJson(payload);
+    }
+
+    if (payload is Map) {
+      return ChatMessageModel.fromJson(Map<String, dynamic>.from(payload));
+    }
+
+    return null;
   }
 
   Future<void> joinChat(String chatId) async {
@@ -172,8 +188,9 @@ class ChatSocketService {
     _joinedChatId = null;
     _desiredChatIds.clear();
     _joinedConnectionGeneration = null;
-    appSocket.off(newMessageEvent);
     _messageListeners.clear();
+    _newMessageSocketAttached = false;
+    appSocket.off(newMessageEvent);
   }
 
   void _handleSocketConnected() {
@@ -237,6 +254,7 @@ class ChatSocketService {
   void dispose() {
     _desiredChatIds.clear();
     _messageListeners.clear();
+    _newMessageSocketAttached = false;
     appSocket.removeConnectListener(_connectListenerKey);
     appSocket.off(newMessageEvent);
   }
