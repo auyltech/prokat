@@ -115,6 +115,7 @@ class ChatModel {
     List<ChatMessageModel>? messages,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? newMessagesCount,
   }) {
     return ChatModel(
       id: id ?? this.id,
@@ -132,6 +133,7 @@ class ChatModel {
       messages: messages ?? this.messages,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      newMessagesCount: newMessagesCount ?? this.newMessagesCount,
     );
   }
 
