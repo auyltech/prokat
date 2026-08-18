@@ -5,7 +5,6 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
@@ -102,6 +101,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         ref.watch(reviewByBookingProvider(booking?.id ?? "")).hasSubmitted;
 
     final chatConfig = getChatConfig(
+      chat: currentChat,
       hasNegotiation: pendingNegotiationId.isNotEmpty,
       pendingFromMe:
           pendingNegotiationId.isNotEmpty &&
@@ -115,24 +115,11 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     return Scaffold(
       body: SafeArea(
         child: chatAsync.when(
-          data: (data) => Column(
-            children: [
-              Expanded(
-                child: ChatMessageList(
-                  chatId: widget.chatId,
-                  currentUserId: currentUserId,
-                  mode: AppMode.clientMode,
-                  currentChat: data,
-                ),
-              ),
-              if (currentChat != null)
-                ChatActionBar(
-                  currentChat: currentChat,
-                  chatStatus: chatConfig.status,
-                  mode: AppMode.clientMode,
-                  actionBarTitle: chatConfig.actionBartitle,
-                ),
-            ],
+          data: (data) => ChatMessageList(
+            chatId: widget.chatId,
+            currentUserId: currentUserId,
+            mode: AppMode.clientMode,
+            currentChat: data,
           ),
           error: (_, _) => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -170,6 +157,8 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
         chatId: widget.chatId,
         chatStatus: chatConfig.status,
         mode: AppMode.clientMode,
+        currentChat: currentChat,
+        actionBarTitle: chatConfig.actionBartitle,
       ),
     );
   }

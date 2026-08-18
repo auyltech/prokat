@@ -19,6 +19,24 @@ class ChatConfig {
   });
 }
 
+bool chatHasVisibleActions({
+  required ChatStatusDetail status,
+  required AppMode mode,
+}) {
+  switch (status) {
+    case ChatStatusDetail.requestcreated:
+    case ChatStatusDetail.requestaccepted:
+    case ChatStatusDetail.leaveReview:
+      return true;
+    case ChatStatusDetail.bookingconfirmed:
+      return mode == AppMode.ownerMode;
+    case ChatStatusDetail.confirmcompleted:
+      return mode == AppMode.clientMode;
+    default:
+      return false;
+  }
+}
+
 ChatConfig getChatConfig({
   ChatModel? chat,
   AppMode? mode,

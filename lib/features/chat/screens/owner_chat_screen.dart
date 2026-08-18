@@ -5,7 +5,6 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -179,20 +178,14 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
                 ),
               ),
             ),
-
-          if (currentChat != null)
-            ChatActionBar(
-              currentChat: currentChat,
-              chatStatus: chatConfig.status,
-              mode: AppMode.ownerMode,
-              actionBarTitle: chatConfig.actionBartitle,
-            ),
         ],
       ),
       bottomNavigationBar: SendMessageForm(
         chatId: widget.chatId,
         chatStatus: chatConfig.status,
         mode: AppMode.ownerMode,
+        currentChat: currentChat,
+        actionBarTitle: chatConfig.actionBartitle,
       ),
     );
   }
