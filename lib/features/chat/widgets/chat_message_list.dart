@@ -147,9 +147,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
         }
 
         final newestId = messagesData.items.first.id;
-        if (_newestMessageId == null) {
-          _newestMessageId = newestId;
-        }
+        _newestMessageId ??= newestId;
 
         if (!_didInitialLoadMoreCheck) {
           _didInitialLoadMoreCheck = true;
