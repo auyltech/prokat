@@ -44,12 +44,29 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 android/app/google-services.json
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase-adminsdk*.json
 
+# Local env files and secrets. Keep only committed *.example templates.
 .env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 config.json
+*.pem
+*.p8
+*.p12
+*.key
+*.mobileprovision
 
 android/key.properties
 android/app/*.jks
+*.jks
+*.keystore
 
 .claude/
 .plans/
+.problems/
