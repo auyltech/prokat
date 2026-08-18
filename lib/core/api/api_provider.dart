@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/services/client_request_metadata_service.dart';
 import 'package:prokat/core/services/installation_identity_service.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
@@ -20,6 +21,7 @@ final clientRequestMetadataProvider = Provider<ClientRequestMetadataService>((
 ) {
   return ClientRequestMetadataService(
     installationIdentity: ref.watch(installationIdentityProvider),
+    loadAppCheckToken: Env.firebaseServicesEnabled ? null : () async => null,
   );
 });
 
