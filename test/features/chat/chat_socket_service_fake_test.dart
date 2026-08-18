@@ -104,6 +104,46 @@ void main() {
 
     expect(env.socket.joinEmits, 1);
   });
+
+  test('sidebar listeners receive chat:sidebar:update without joining', () {
+    final env = _ChatSocketHarness();
+    addTearDown(env.dispose);
+    final chatIds = <String>[];
+
+    final remove = env.chat.onSidebarUpdate(
+      (update) => chatIds.add('${update.chatId}:${update.lastMessage?.id}'),
+    );
+    env.socket.emitIncoming('chat:sidebar:update', {
+      'chatId': 'chat-1',
+      'lastMessage': _messageJson('message-1'),
+    });
+
+    expect(chatIds, ['chat-1:message-1']);
+    expect(env.chat.activeChatId, isNull);
+    expect(
+      env.socket.onEvents.where((event) => event == 'chat:sidebar:update'),
+      hasLength(1),
+    );
+
+    remove();
+    env.socket.emitIncoming('chat:sidebar:update', {
+      'chatId': 'chat-1',
+      'lastMessage': _messageJson('message-2'),
+    });
+    expect(chatIds, ['chat-1:message-1']);
+    expect(env.socket.offEvents, ['chat:sidebar:update']);
+  });
+
+  test('activeChatId follows the desired joined room', () async {
+    final env = _ChatSocketHarness();
+    addTearDown(env.dispose);
+
+    await env.chat.joinChat('chat-1');
+    expect(env.chat.activeChatId, 'chat-1');
+
+    await env.chat.leaveChat('chat-1');
+    expect(env.chat.activeChatId, isNull);
+  });
 }
 
 class _ChatSocketHarness {

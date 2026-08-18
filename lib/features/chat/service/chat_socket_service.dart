@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:prokat/features/chat/models/chat_message_model.dart';
+import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
 import 'package:prokat/core/services/app_socket_service.dart';
 
 class ChatSocketService {
@@ -8,6 +9,7 @@ class ChatSocketService {
   static const String leaveChatEvent = 'chat:leave';
   static const String sendMessageEvent = 'chat:message:send';
   static const String newMessageEvent = 'chat:message:new';
+  static const String sidebarUpdateEvent = 'chat:sidebar:update';
 
   final AppSocketService appSocket;
 
@@ -17,7 +19,11 @@ class ChatSocketService {
 
   final List<String> _desiredChatIds = [];
   final List<_ChatMessageListenerRegistration> _messageListeners = [];
+  final List<_ChatSidebarListenerRegistration> _sidebarListeners = [];
   bool _newMessageSocketAttached = false;
+  bool _sidebarSocketAttached = false;
+
+  String? get activeChatId => _desiredChatId;
 
   Future<void> _roomOperation = Future<void>.value();
 
@@ -66,6 +72,23 @@ class ChatSocketService {
     };
   }
 
+  void Function() onSidebarUpdate(
+    void Function(ChatSidebarUpdate update) handler,
+  ) {
+    final token = Object();
+    _sidebarListeners.add(
+      _ChatSidebarListenerRegistration(token: token, handler: handler),
+    );
+    _attachActiveSidebarListener();
+
+    return () {
+      _sidebarListeners.removeWhere(
+        (registration) => identical(registration.token, token),
+      );
+      _attachActiveSidebarListener();
+    };
+  }
+
   void _attachActiveMessageListener() {
     if (_messageListeners.isEmpty) {
       if (_newMessageSocketAttached) {
@@ -86,6 +109,30 @@ class ChatSocketService {
         _messageListeners,
       )) {
         registration.handler(message);
+      }
+    });
+  }
+
+  void _attachActiveSidebarListener() {
+    if (_sidebarListeners.isEmpty) {
+      if (_sidebarSocketAttached) {
+        appSocket.off(sidebarUpdateEvent);
+        _sidebarSocketAttached = false;
+      }
+      return;
+    }
+
+    if (_sidebarSocketAttached) return;
+
+    _sidebarSocketAttached = true;
+    appSocket.on(sidebarUpdateEvent, (payload) {
+      final update = ChatSidebarUpdate.tryParse(payload);
+      if (update == null) return;
+
+      for (final registration in List<_ChatSidebarListenerRegistration>.from(
+        _sidebarListeners,
+      )) {
+        registration.handler(update);
       }
     });
   }
@@ -273,9 +320,12 @@ class ChatSocketService {
     _desiredChatIds.clear();
     _inFlightJoinChatId = null;
     _messageListeners.clear();
+    _sidebarListeners.clear();
     _newMessageSocketAttached = false;
+    _sidebarSocketAttached = false;
     appSocket.removeConnectListener(_connectListenerKey);
     appSocket.off(newMessageEvent);
+    appSocket.off(sidebarUpdateEvent);
   }
 }
 
@@ -284,6 +334,16 @@ class _ChatMessageListenerRegistration {
   final void Function(ChatMessageModel message) handler;
 
   const _ChatMessageListenerRegistration({
+    required this.token,
+    required this.handler,
+  });
+}
+
+class _ChatSidebarListenerRegistration {
+  final Object token;
+  final void Function(ChatSidebarUpdate update) handler;
+
+  const _ChatSidebarListenerRegistration({
     required this.token,
     required this.handler,
   });

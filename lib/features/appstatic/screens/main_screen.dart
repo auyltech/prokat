@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
+import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
@@ -176,7 +175,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
             SliverAppBar(
               primary: false,
-              expandedHeight: 420,
+              expandedHeight: 340,
               backgroundColor: darkBlueBg,
               automaticallyImplyLeading: false,
               elevation: 0,
@@ -311,43 +310,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         ),
                       ),
                       const SizedBox(height: 36),
-
-                      // 6. Premium full-width brand primary action button
-                      ElevatedButton(
-                        onPressed: () {
-                          context.go(AppRoutes.login);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: theme.colorScheme.onPrimary,
-                          minimumSize: const Size(
-                            double.infinity,
-                            56,
-                          ), // Tall modern button height
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              l10n.getStarted,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 20,
-                              color: theme.colorScheme.onPrimary,
-                            ),
-                          ],
-                        ),
-                      ),
+                      const LoginTile(),
                     ],
                   ),
                 ),

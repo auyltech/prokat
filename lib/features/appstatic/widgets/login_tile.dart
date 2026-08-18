@@ -8,39 +8,22 @@ class LoginTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    const Color brightBlueButton = Color(0xFF2563EB);
-
-    return // Login
-    GestureDetector(
-      onTap: () {
-        context.go(AppRoutes.login);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: brightBlueButton,
-          borderRadius: BorderRadius.circular(16),
+    return FilledButton.icon(
+      onPressed: () => context.go(AppRoutes.login),
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(double.infinity, 56),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              l10n.getStarted,
-              style: TextStyle(
-                color: theme.colorScheme.onPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            SizedBox(width: 10),
-            Icon(Icons.login, size: 24, color: theme.colorScheme.onPrimary),
-          ],
-        ),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        iconAlignment: IconAlignment.end,
+        splashFactory: InkRipple.splashFactory,
       ),
+      icon: const Icon(Icons.arrow_forward_rounded, size: 20),
+      label: Text(l10n.getStarted),
     );
   }
 }

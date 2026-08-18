@@ -2,9 +2,11 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
+import 'package:prokat/features/chat/utils/chat_sidebar_update_utils.dart';
 
 class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   ChatService get api => ref.read(chatServiceProvider);
@@ -243,9 +245,34 @@ class OwnerChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     state = AsyncData(current.copyWith(items: items));
   }
 
+  ChatSidebarApplyStatus applySidebarUpdate({
+    required ChatSidebarUpdate update,
+    String? currentUserId,
+    bool isThreadOpen = false,
+  }) {
+    if (!_canMutateCurrentScope) return ChatSidebarApplyStatus.skipped;
+    final current = state.value;
+    if (current == null) return ChatSidebarApplyStatus.skipped;
+
+    final result = applyChatSidebarUpdateToItems(
+      items: current.items,
+      update: update,
+      currentUserId: currentUserId,
+      isThreadOpen: isThreadOpen,
+    );
+
+    if (result.status != ChatSidebarApplyStatus.applied) {
+      return result.status;
+    }
+
+    state = AsyncData(current.copyWith(items: result.items));
+    return ChatSidebarApplyStatus.applied;
+  }
+
   void markChatRead(String chatId) {
-    // We'll implement this after updating ChatModel.copyWith
-    // to support newMessagesCount.
+    applySidebarUpdate(
+      update: ChatSidebarUpdate(chatId: chatId, unreadCount: 0),
+    );
   }
 
   bool get _canMutateCurrentScope {
