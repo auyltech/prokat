@@ -110,7 +110,12 @@ class ChatMessagesNotifier
       return initial;
     }
 
-    return initial.copyWith(items: mergeMessages(initial.items, buffered));
+    final items = mergeMessages(initial.items, buffered);
+    final added = items.length - initial.items.length;
+    return initial.copyWith(
+      items: items,
+      count: initial.count + (added > 0 ? added : 0),
+    );
   }
 
   void _ensureLifecycleObserver() {
@@ -324,7 +329,7 @@ class ChatMessagesNotifier
     final result = response.data;
 
     return QueryState(
-      items: result?.items ?? const [],
+      items: sortMessages(result?.items ?? const []),
       page: result?.page ?? 1,
       itemsPerPage: result?.itemsPerPage ?? 50,
       count: result?.count ?? 0,
@@ -464,12 +469,16 @@ class ChatMessagesNotifier
       final fresh = await _fetchPage(1, scope);
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
         _stateScope = scope;
+        final latest = state.value ?? previous;
+        final mergedCount = fresh.count > latest.count
+            ? fresh.count
+            : latest.count;
         state = AsyncData(
-          previous.copyWith(
-            items: mergeMessages(previous.items, fresh.items),
-            page: fresh.page,
+          latest.copyWith(
+            items: mergeMessages(latest.items, fresh.items),
+            page: latest.page > fresh.page ? latest.page : fresh.page,
             itemsPerPage: fresh.itemsPerPage,
-            count: fresh.count,
+            count: mergedCount,
             lastFetchedAt: DateTime.now,
             isRefreshing: false,
             refreshError: () => null,
@@ -501,19 +510,24 @@ class ChatMessagesNotifier
       final result = await _fetchPage(current.page + 1, scope);
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
+      final latest = state.value ?? current;
+      final mergedCount = result.count > latest.count
+          ? result.count
+          : latest.count;
       state = AsyncData(
-        current.copyWith(
-          items: mergeMessages(current.items, result.items),
-          page: result.page,
+        latest.copyWith(
+          items: mergeMessages(latest.items, result.items),
+          page: result.page > latest.page ? result.page : latest.page,
           itemsPerPage: result.itemsPerPage,
-          count: result.count,
+          count: mergedCount,
           lastFetchedAt: DateTime.now,
           isLoadingMore: false,
         ),
       );
     } catch (_) {
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
-        state = AsyncData(current.copyWith(isLoadingMore: false));
+        final latest = state.value ?? current;
+        state = AsyncData(latest.copyWith(isLoadingMore: false));
       }
     }
   }
@@ -535,8 +549,14 @@ class ChatMessagesNotifier
 
     if (current == null) return;
 
+    final items = mergeIncomingMessages(current.items, message);
+    final added = items.length - current.items.length;
+
     state = AsyncData(
-      current.copyWith(items: mergeIncomingMessages(current.items, message)),
+      current.copyWith(
+        items: items,
+        count: current.count + (added > 0 ? added : 0),
+      ),
     );
   }
 
