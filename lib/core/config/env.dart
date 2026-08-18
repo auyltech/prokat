@@ -13,7 +13,7 @@ const RunMode runMode = RunMode.remote;
 class Env {
   static String get baseUrl {
     if (kReleaseMode) {
-      return "https://prokatbackend.onrender.com";
+      return "https://prokat-backend.onrender.com";
     }
 
     if (runMode == RunMode.local) {
@@ -29,7 +29,7 @@ class Env {
     }
 
     // Default fallback for physical devices or remote selection
-    return "https://prokatbackend.onrender.com";
+    return "https://prokat-backend.onrender.com";
   }
 
   /// Converts the HTTP base URL into a WebSocket counterpart and enforces TLS on remote connections.
