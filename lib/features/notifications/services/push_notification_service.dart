@@ -11,6 +11,7 @@ import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/notifications/services/notification_api_service.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 import 'package:prokat/features/notifications/services/notification_navigation_service.dart';
+import 'package:prokat/features/notifications/utils/chat_push_tag.dart';
 
 class PushNotificationService {
   static const String _androidChannelId = 'prokat_notifications';
@@ -263,6 +264,9 @@ class PushNotificationService {
   }
 
   Future<void> _showLocalNotification(AppNotification notification) async {
+    final chatId = notification.chatId;
+    final tag = chatId == null ? null : chatPushTag(chatId);
+
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
         _androidChannelId,
@@ -270,17 +274,52 @@ class PushNotificationService {
         channelDescription: 'Prokat notifications',
         importance: Importance.high,
         priority: Priority.high,
+        tag: tag,
       ),
-      iOS: const DarwinNotificationDetails(),
+      iOS: tag == null
+          ? const DarwinNotificationDetails()
+          : DarwinNotificationDetails(threadIdentifier: tag),
     );
 
     await localNotifications.show(
-      id: notification.id.hashCode,
+      id: tag?.hashCode ?? notification.id.hashCode,
       title: notification.title,
       body: notification.body,
       notificationDetails: details,
       payload: jsonEncode(notification.toJson()),
     );
+  }
+
+  Future<void> dismissDisplayedForChat(String chatId) async {
+    if (kIsWeb) return;
+
+    final normalizedChatId = chatId.trim();
+    if (normalizedChatId.isEmpty) return;
+
+    final tag = chatPushTag(normalizedChatId);
+
+    try {
+      await localNotifications.cancel(id: 0, tag: tag);
+      await localNotifications.cancel(id: tag.hashCode, tag: tag);
+    } catch (_) {}
+
+    try {
+      final active = await localNotifications.getActiveNotifications();
+      for (final notification in active) {
+        if (!displayedNotificationMatchesChat(
+          chatId: normalizedChatId,
+          tag: notification.tag,
+          payload: notification.payload,
+        )) {
+          continue;
+        }
+
+        await localNotifications.cancel(
+          id: notification.id ?? 0,
+          tag: notification.tag,
+        );
+      }
+    } catch (_) {}
   }
 
   Future<bool> syncCurrentDevice({required AuthSession session}) async {

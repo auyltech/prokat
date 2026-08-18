@@ -80,13 +80,33 @@ class ChatModel {
   });
 
   String displayTitle(String currentUserId) {
-    return currentUserId == client?.id
-        ? owner?.displayName ?? "Owner"
-        : client?.displayName ?? "Client";
+    return _counterpart(currentUserId)?.displayName ??
+        (currentUserId == client?.id ? "Owner" : "Client");
   }
 
   String? displayImageUrl({String? currentUserId}) {
-    return client?.imageUrl ?? owner?.imageUrl;
+    final counterpart = _counterpart(currentUserId);
+    if (counterpart != null) {
+      return _nonEmpty(counterpart.imageUrl);
+    }
+
+    return _nonEmpty(client?.imageUrl) ?? _nonEmpty(owner?.imageUrl);
+  }
+
+  UserModel? _counterpart(String? currentUserId) {
+    if (currentUserId != null && currentUserId == client?.id) {
+      return owner;
+    }
+    if (currentUserId != null && currentUserId == owner?.id) {
+      return client;
+    }
+    return null;
+  }
+
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
   }
 
   OfferModel? getActiveOffer() {

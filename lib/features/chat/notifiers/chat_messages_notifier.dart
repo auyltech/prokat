@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
@@ -10,6 +11,9 @@ import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
+import 'package:prokat/core/config/env.dart';
+import 'package:prokat/features/chat/utils/chat_resume_sync_observer.dart';
+import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatMessagesNotifier
@@ -28,6 +32,7 @@ class ChatMessagesNotifier
   AuthenticatedSessionScopeKey? _socketScope;
   AuthenticatedSessionScopeKey? _stateScope;
   bool _isDisposed = false;
+  ChatResumeSyncObserver? _lifecycleObserver;
 
   @override
   Future<QueryState<ChatMessageModel>> build(String chatId) async {
@@ -63,8 +68,11 @@ class ChatMessagesNotifier
       );
     });
 
+    _ensureLifecycleObserver();
+
     ref.onDispose(() {
       _isDisposed = true;
+      _removeLifecycleObserver();
       if (_socketScope == scope) {
         _shouldMaintainSession = false;
         _removeMessageListener?.call();
@@ -103,6 +111,56 @@ class ChatMessagesNotifier
     }
 
     return initial.copyWith(items: mergeMessages(initial.items, buffered));
+  }
+
+  void _ensureLifecycleObserver() {
+    if (_lifecycleObserver != null) return;
+
+    late final WidgetsBinding binding;
+    try {
+      binding = WidgetsBinding.instance;
+    } catch (_) {
+      return;
+    }
+
+    final observer = ChatResumeSyncObserver(
+      onResumeFromBackground: _onAppResumeFromBackground,
+    );
+    _lifecycleObserver = observer;
+    binding.addObserver(observer);
+  }
+
+  void _removeLifecycleObserver() {
+    final observer = _lifecycleObserver;
+    if (observer == null) return;
+    _lifecycleObserver = null;
+    try {
+      WidgetsBinding.instance.removeObserver(observer);
+    } catch (_) {}
+  }
+
+  void _onAppResumeFromBackground() {
+    if (_isDisposed || !_shouldMaintainSession) return;
+
+    unawaited(refresh());
+    _dismissDisplayedChatPush();
+
+    final currentChat = currentChatProvider(chatId);
+    if (ref.exists(currentChat)) {
+      unawaited(ref.read(currentChat.notifier).refresh());
+    }
+  }
+
+  void _dismissDisplayedChatPush() {
+    if (!Env.pushNotificationsEnabled) return;
+
+    try {
+      unawaited(
+        ref
+            .read(pushNotificationServiceProvider)
+            .dismissDisplayedForChat(chatId),
+      );
+    } catch (_) {}
   }
 
   Future<bool> _activateChatSession(
