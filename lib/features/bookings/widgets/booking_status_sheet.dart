@@ -15,7 +15,7 @@ class BookingStatusSheet extends ConsumerWidget {
     BuildContext context, {
     required BookingModel booking,
   }) async {
-    return await showModalBottomSheet(
+    final updated = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
@@ -24,6 +24,8 @@ class BookingStatusSheet extends ConsumerWidget {
       ),
       builder: (context) => BookingStatusSheet(booking: booking),
     );
+
+    return updated ?? false;
   }
 
   @override
@@ -88,7 +90,7 @@ class BookingStatusSheet extends ConsumerWidget {
 
                   if (!context.mounted) return;
 
-                  Navigator.pop(context);
+                  Navigator.pop(context, result.success);
 
                   AppSnackBar.show(
                     message: result.success
