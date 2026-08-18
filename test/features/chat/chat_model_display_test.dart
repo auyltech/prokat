@@ -35,17 +35,11 @@ void main() {
 
   group('ChatModel.displayImageUrl', () {
     test('shows the owner avatar when the current user is the client', () {
-      expect(
-        chat.displayImageUrl(currentUserId: client.id),
-        owner.imageUrl,
-      );
+      expect(chat.displayImageUrl(currentUserId: client.id), owner.imageUrl);
     });
 
     test('shows the client avatar when the current user is the owner', () {
-      expect(
-        chat.displayImageUrl(currentUserId: owner.id),
-        client.imageUrl,
-      );
+      expect(chat.displayImageUrl(currentUserId: owner.id), client.imageUrl);
     });
 
     test('does not fall back to the current user photo', () {
