@@ -259,7 +259,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 color: theme.colorScheme.surface,
                 child: Padding(
                   // 2. Tall vertical padding to give the login block its own massive hero presence
-                  padding: const EdgeInsets.fromLTRB(24, 80, 24, 120),
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 80),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
