@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 enum AppEnvironment { production, local }
 
 class Env {
-  static const _productionBaseUrl = 'https://prokatbackend.onrender.com';
+  static const _productionBaseUrl = 'https://prokat-backend.onrender.com';
 
   static const _environmentName = String.fromEnvironment(
     'APP_ENV',
