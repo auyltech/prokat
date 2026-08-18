@@ -354,8 +354,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ),
               ),
             ),
-
-            AboutProkatSection(),
+            // TODO(Vadim): temporarily hide
+            // AboutProkatSection(),
           ],
         ),
       ),

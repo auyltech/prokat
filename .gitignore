@@ -57,3 +57,4 @@ android/app/*.jks
 
 .claude/
 .plans/
+.problems/
