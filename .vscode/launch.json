@@ -2,20 +2,29 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "prokat (Debug)",
+            "name": "prokat (Local)",
             "request": "launch",
             "type": "dart",
             "args": [
-                "--dart-define-from-file=config.json"
+                "--dart-define-from-file=.env",
+                "--dart-define-from-file=.env.local"
             ]
         },
         {
-            "name": "prokat (Release)",
+            "name": "prokat (Production Debug)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env"
+            ]
+        },
+        {
+            "name": "prokat (Production Release)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release",
             "args": [
-                "--dart-define-from-file=config.json"
+                "--dart-define-from-file=.env"
             ]
         }
     ]

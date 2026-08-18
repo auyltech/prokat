@@ -55,15 +55,41 @@ android {
         versionName = flutter.versionName
         
         var mapboxToken = ""
+
+        val envFile = project.rootProject.file("../.env")
+        if (envFile.exists()) {
+            val envProperties = Properties()
+            FileInputStream(envFile).use(envProperties::load)
+            mapboxToken = envProperties
+                .getProperty("MAPBOX_TOKEN", "")
+                .trim()
+                .removeSurrounding("\"")
+                .removeSurrounding("'")
+        }
+
+        val envLocalFile = project.rootProject.file("../.env.local")
+        if (envLocalFile.exists()) {
+            val envLocalProperties = Properties()
+            FileInputStream(envLocalFile).use(envLocalProperties::load)
+            val localToken = envLocalProperties
+                .getProperty("MAPBOX_TOKEN", "")
+                .trim()
+                .removeSurrounding("\"")
+                .removeSurrounding("'")
+            if (localToken.isNotEmpty()) {
+                mapboxToken = localToken
+            }
+        }
         
-        // Automated config.json lookup during compilation pipeline
-        val configFile = project.rootProject.file("../config.json")
-        if (configFile.exists()) {
-            val jsonText = configFile.readText()
-            val match = Regex("\"MAPBOX_TOKEN\"\\s*:\\s*\"([^\"]+)\"").find(jsonText)
-            if (match != null) {
-                // Fixed: Explicitly select index 1 to read the string match group
-                mapboxToken = match.groupValues[1]
+        // Backward-compatible fallback for existing developer setups.
+        if (mapboxToken.isEmpty()) {
+            val configFile = project.rootProject.file("../config.json")
+            if (configFile.exists()) {
+                val jsonText = configFile.readText()
+                val match = Regex("\"MAPBOX_TOKEN\"\\s*:\\s*\"([^\"]+)\"").find(jsonText)
+                if (match != null) {
+                    mapboxToken = match.groupValues[1]
+                }
             }
         }
         
@@ -71,8 +97,15 @@ android {
         if (mapboxToken.isEmpty()) {
             mapboxToken = System.getenv("MAPBOX_TOKEN") ?: ""
         }
-        
+
+        if (mapboxToken.isEmpty()) {
+            throw GradleException(
+                "MAPBOX_TOKEN is missing. Add it to prokat/.env or prokat/.env.local.",
+            )
+        }
+
         manifestPlaceholders["MAPBOX_TOKEN"] = mapboxToken
+        resValue("string", "mapbox_access_token", mapboxToken)
     }
 
     buildTypes {

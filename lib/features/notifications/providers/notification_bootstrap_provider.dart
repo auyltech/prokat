@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -11,7 +12,9 @@ import 'package:flutter/widgets.dart';
 
 final notificationBootstrapProvider = Provider<void>((ref) {
   final appSocket = ref.watch(appSocketProvider);
-  final push = ref.watch(pushNotificationServiceProvider);
+  final push = Env.pushNotificationsEnabled
+      ? ref.watch(pushNotificationServiceProvider)
+      : null;
   final navigation = ref.watch(notificationNavigationServiceProvider);
   final notificationNotifier = ref.watch(notificationProvider.notifier);
 
@@ -68,7 +71,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     }());
 
     // Push notifications.
-    if (!pushStarted) {
+    if (push != null && !pushStarted) {
       pushStarted = true;
 
       unawaited(() async {
@@ -96,7 +99,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     } catch (_) {}
 
     try {
-      push.dispose();
+      push?.dispose();
     } catch (_) {}
 
     notificationNotifier.clearOnLogout();
@@ -146,11 +149,6 @@ final notificationBootstrapProvider = Provider<void>((ref) {
 
     if (prevSession != null && nextSession == null) {
       stopForLogout();
-
-      try {
-        appSocket.disconnectSocket();
-      } catch (_) {}
-
       return;
     }
 
@@ -171,7 +169,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     } catch (_) {}
 
     try {
-      push.dispose();
+      push?.dispose();
     } catch (_) {}
   });
 
