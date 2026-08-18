@@ -156,6 +156,8 @@ class ChatMessagesNotifier
     }
   }
 
+  void dismissDisplayedPush() => _dismissDisplayedChatPush();
+
   void _dismissDisplayedChatPush() {
     if (!Env.pushNotificationsEnabled) return;
 

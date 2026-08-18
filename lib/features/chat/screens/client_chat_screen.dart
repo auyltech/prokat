@@ -35,6 +35,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale();
       ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale();
+      ref
+          .read(chatMessagesProvider(widget.chatId).notifier)
+          .dismissDisplayedPush();
     });
   }
 

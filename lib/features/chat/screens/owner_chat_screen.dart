@@ -33,6 +33,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
+      ref
+          .read(chatMessagesProvider(widget.chatId).notifier)
+          .dismissDisplayedPush();
       await Future.wait([
         ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale(),
         ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale(),

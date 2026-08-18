@@ -40,6 +40,9 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _controller.addListener(_loadMoreIfNeeded);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _dismissDisplayedChatPush();
+    });
   }
 
   @override
@@ -48,6 +51,9 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
     if (oldWidget.chatId != widget.chatId) {
       _newestMessageId = null;
       _didInitialLoadMoreCheck = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _dismissDisplayedChatPush();
+      });
     }
   }
 
@@ -64,6 +70,12 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
       ..removeListener(_loadMoreIfNeeded)
       ..dispose();
     super.dispose();
+  }
+
+  void _dismissDisplayedChatPush() {
+    ref
+        .read(chatMessagesProvider(widget.chatId).notifier)
+        .dismissDisplayedPush();
   }
 
   void _loadMoreIfNeeded() {
