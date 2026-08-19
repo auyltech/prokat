@@ -175,7 +175,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: l10n.price,
-              suffixText: 'KZT',
+              suffixText: l10n.currencyKzt,
             ),
           ),
 

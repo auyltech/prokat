@@ -24,11 +24,11 @@ class ClientSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
-  String _themeLabel(ThemeMode mode) {
+  String _themeLabel(ThemeMode mode, AppLocalizations l10n) {
     return switch (mode) {
-      ThemeMode.system => 'System default',
-      ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark',
+      ThemeMode.system => l10n.themeSystemDefault,
+      ThemeMode.light => l10n.themeLight,
+      ThemeMode.dark => l10n.themeDark,
     };
   }
 
@@ -77,8 +77,8 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
               icon: LucideIcons.palette,
               iconColor: theme.colorScheme.primary,
               iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
-              title: 'Application theme',
-              subtitle: _themeLabel(currentMode),
+              title: l10n.applicationTheme,
+              subtitle: _themeLabel(currentMode, l10n),
               onTap: () async {
                 final selectedMode = await ThemeSelectionSheet.show(
                   context,
@@ -123,8 +123,8 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
               icon: Icons.security_outlined,
               iconBgColor: Colors.black12,
               iconColor: Colors.black,
-              title: 'Service and safety notices',
-              subtitle: 'Account, security and important platform alerts',
+              title: l10n.serviceAndSafetyNotices,
+              subtitle: l10n.serviceAndSafetyNoticesSubtitle,
               onTap: () {},
             ),
 

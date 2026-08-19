@@ -28,7 +28,11 @@ class ClientChatInfoScreen extends ConsumerWidget {
 
       data: (chat) {
         final title = currentUserId != null
-            ? chat?.displayTitle(currentUserId)
+            ? chat?.displayTitle(
+                currentUserId,
+                ownerFallback: l10n.owner,
+                clientFallback: l10n.clientRole,
+              )
             : "";
 
         return Scaffold(
@@ -61,22 +65,22 @@ class ClientChatInfoScreen extends ConsumerWidget {
 
                     const SizedBox(height: 32),
 
-                    _buildInfoSection(theme, 'Context', [
-                      _buildListTile(theme, 'Chat ID', chat?.id ?? ""),
+                    _buildInfoSection(theme, l10n.chatContext, [
+                      _buildListTile(theme, l10n.chatId, chat?.id ?? ""),
                       _buildListTile(
                         theme,
-                        'Booking',
+                        l10n.booking,
                         chat?.bookingId != null &&
                                 (chat?.bookingId ?? "").isNotEmpty
                             ? chat?.bookingId ?? ""
-                            : 'Not linked',
+                            : l10n.notLinked,
                       ),
                       _buildListTile(
                         theme,
-                        'Request',
+                        l10n.requestLabel,
                         (chat?.requestId ?? '').isNotEmpty
                             ? chat?.requestId ?? ""
-                            : 'Not linked',
+                            : l10n.notLinked,
                       ),
                     ]),
                   ]),

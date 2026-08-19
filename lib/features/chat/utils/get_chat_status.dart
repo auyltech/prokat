@@ -104,13 +104,13 @@ ChatConfig getChatConfig({
         return pendingFromMe == true
             ? ChatConfig(
                 status: ChatStatusDetail.counterofferreceived,
-                actionBartitle: "Price Offer Received",
-                statusLabel: "Price Offer",
+                actionBartitle: l10n.priceOfferReceived,
+                statusLabel: l10n.priceOffer,
               )
             : ChatConfig(
                 status: ChatStatusDetail.counteroffersent,
                 actionBartitle: mode == AppMode.ownerMode
-                    ? "Waiting client response"
+                    ? l10n.waitingClientResponse
                     : l10n.waitingOwnerResponse,
                 statusLabel: l10n.waitingOwnerResponse,
               );

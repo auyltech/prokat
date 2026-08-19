@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ThemeSelectionSheet extends StatelessWidget {
   final ThemeMode selectedMode;
@@ -29,24 +30,26 @@ class ThemeSelectionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    final l10n = AppLocalizations.of(context)!;
+
     final options = [
-      const _ThemeOption(
+      _ThemeOption(
         mode: ThemeMode.system,
         icon: LucideIcons.smartphone,
-        title: 'System default',
-        subtitle: 'Match your device appearance',
+        title: l10n.themeSystemDefault,
+        subtitle: l10n.themeSystemDefaultSubtitle,
       ),
-      const _ThemeOption(
+      _ThemeOption(
         mode: ThemeMode.light,
         icon: LucideIcons.sun,
-        title: 'Light',
-        subtitle: 'Always use the light appearance',
+        title: l10n.themeLight,
+        subtitle: l10n.themeLightSubtitle,
       ),
-      const _ThemeOption(
+      _ThemeOption(
         mode: ThemeMode.dark,
         icon: LucideIcons.moon,
-        title: 'Dark',
-        subtitle: 'Always use the dark appearance',
+        title: l10n.themeDark,
+        subtitle: l10n.themeDarkSubtitle,
       ),
     ];
 
@@ -70,7 +73,7 @@ class ThemeSelectionSheet extends StatelessWidget {
           const SizedBox(height: 20),
 
           Text(
-            'Application theme',
+            l10n.applicationTheme,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -78,10 +81,7 @@ class ThemeSelectionSheet extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          Text(
-            'Choose how Prokat should look on this device.',
-            style: theme.textTheme.bodySmall,
-          ),
+          Text(l10n.themeChooseHint, style: theme.textTheme.bodySmall),
 
           const SizedBox(height: 16),
 

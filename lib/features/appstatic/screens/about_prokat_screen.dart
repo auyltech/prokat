@@ -1,42 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class AboutProkatScreen extends StatelessWidget {
   const AboutProkatScreen({super.key});
 
-  static const _features = [
-    _AboutFeature(
-      icon: Icons.search_rounded,
-      title: 'Easy equipment search',
-      description:
-          'Find suitable equipment and trusted local service providers.',
-    ),
-    _AboutFeature(
-      icon: Icons.verified_user_outlined,
-      title: 'Trusted providers',
-      description:
-          'Equipment owners and service providers are reviewed before approval.',
-    ),
-    _AboutFeature(
-      icon: Icons.star_outline_rounded,
-      title: 'Two-way ratings',
-      description:
-          'Clients and owners build trust through transparent reviews.',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final features = [
+      _AboutFeature(
+        icon: Icons.search_rounded,
+        title: l10n.aboutFeatureSearchTitle,
+        description: l10n.aboutFeatureSearchDescription,
+      ),
+      _AboutFeature(
+        icon: Icons.verified_user_outlined,
+        title: l10n.aboutFeatureTrustedTitle,
+        description: l10n.aboutFeatureTrustedDescription,
+      ),
+      _AboutFeature(
+        icon: Icons.star_outline_rounded,
+        title: l10n.aboutFeatureRatingsTitle,
+        description: l10n.aboutFeatureRatingsDescription,
+      ),
+    ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About Prokat'), centerTitle: false),
+      appBar: AppBar(title: Text(l10n.aboutProkat), centerTitle: false),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'EQUIPMENT RENTAL MADE SIMPLE',
+              l10n.aboutProkatEyebrow,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w700,
@@ -45,14 +43,14 @@ class AboutProkatScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Prokat connects people looking for equipment with trusted local owners and service providers. Search, compare and communicate directly in one simple platform.',
+              l10n.aboutProkatIntro,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                 height: 1.6,
               ),
             ),
             const SizedBox(height: 32),
-            ..._features.map(
+            ...features.map(
               (feature) => Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: _FeatureTile(feature: feature),

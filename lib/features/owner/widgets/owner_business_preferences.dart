@@ -10,6 +10,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/widgets/owner_status_tile.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerBusinessPreferencesSection extends ConsumerStatefulWidget {
   const OwnerBusinessPreferencesSection({super.key});
@@ -42,6 +43,7 @@ class _OwnerBusinessPreferencesSectionState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final profile = ref.watch(ownerProfileProvider).valueOrNull;
 
     final equipmentCount =
@@ -51,21 +53,20 @@ class _OwnerBusinessPreferencesSectionState
     final accentBackground = accent.withValues(alpha: 0.15);
 
     final equipmentText = equipmentCount == 0
-        ? 'No equipment added'
-        : '$equipmentCount '
-              '${equipmentCount == 1 ? 'item' : 'items'} in your fleet';
+        ? l10n.noEquipmentAdded
+        : l10n.fleetItemsCount(equipmentCount);
 
     final businessName = (profile?.companyName ?? '').trim().isNotEmpty
         ? profile!.companyName!.trim()
         : profile?.ownerType == OwnerType.organization
-        ? 'Organization'
-        : 'Individual owner';
+        ? l10n.organization
+        : l10n.individualOwner;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Business preferences',
+          l10n.businessPreferences,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -81,7 +82,7 @@ class _OwnerBusinessPreferencesSectionState
           icon: LucideIcons.briefcase,
           iconColor: accent,
           iconBgColor: accentBackground,
-          title: 'Business profile',
+          title: l10n.businessProfile,
           subtitle: businessName,
           onTap: () => context.push(AppRoutes.ownerRegistration),
         ),
@@ -92,7 +93,7 @@ class _OwnerBusinessPreferencesSectionState
           icon: LucideIcons.truck,
           iconColor: accent,
           iconBgColor: accentBackground,
-          title: 'Manage my equipment',
+          title: l10n.manageMyEquipment,
           subtitle: equipmentText,
           onTap: () => context.push(AppRoutes.ownerEquipment),
         ),

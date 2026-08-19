@@ -153,7 +153,7 @@ class SelectAddressSheet extends ConsumerWidget {
                   context.push(AppRoutes.clientAddresses);
                 },
                 icon: const Icon(Icons.edit_location_alt),
-                label: const Text('Manage my addresses'),
+                label: Text(l10n.manageMyAddresses),
               ),
             ),
           ],

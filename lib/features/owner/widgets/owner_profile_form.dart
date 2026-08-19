@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerProfileForm extends ConsumerStatefulWidget {
   final OwnerProfileModel initialProfile;
@@ -71,7 +72,9 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCity == null) {
-      AppSnackBar.show(message: 'Please select your city');
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.pleaseSelectYourCity,
+      );
       return;
     }
 

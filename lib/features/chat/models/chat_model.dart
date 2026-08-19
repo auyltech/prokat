@@ -79,9 +79,13 @@ class ChatModel {
     this.newMessagesCount,
   });
 
-  String displayTitle(String currentUserId) {
+  String displayTitle(
+    String currentUserId, {
+    required String ownerFallback,
+    required String clientFallback,
+  }) {
     return _counterpart(currentUserId)?.displayName ??
-        (currentUserId == client?.id ? "Owner" : "Client");
+        (currentUserId == client?.id ? ownerFallback : clientFallback);
   }
 
   String? displayImageUrl({String? currentUserId}) {

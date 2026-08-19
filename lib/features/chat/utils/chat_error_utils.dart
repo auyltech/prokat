@@ -1,15 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
-String friendlyChatError(Object error) {
+String friendlyChatError(Object error, AppLocalizations l10n) {
   if (error is DioException) {
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
-      return 'Connection timed out. The server may be warming up — please try again.';
+      return l10n.connectionTimedOut;
     }
 
     if (error.type == DioExceptionType.connectionError) {
-      return 'No connection. Check your network and try again.';
+      return l10n.noConnectionCheckNetwork;
     }
 
     final responseMessage = error.response?.data;
@@ -22,8 +23,8 @@ String friendlyChatError(Object error) {
       return responseMessage;
     }
 
-    return 'Network error. Please try again.';
+    return l10n.networkErrorTryAgain;
   }
 
-  return 'Something went wrong. Please try again.';
+  return l10n.somethingWentWrongTryAgain;
 }

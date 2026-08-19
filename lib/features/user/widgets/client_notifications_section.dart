@@ -5,6 +5,7 @@ import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
 import 'package:prokat/features/user/models/client_notification_preferences.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientNotificationsSection extends StatefulWidget {
   final ClientNotificationPreferences initialValue;
@@ -120,15 +121,15 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
     await _refreshAndSyncPermission();
   }
 
-  String get _permissionTitle {
-    if (_loadingPermission) return 'Checking permission';
+  String _permissionTitle(AppLocalizations l10n) {
+    if (_loadingPermission) return l10n.checkingPermission;
 
     return switch (_notificationSettings?.authorizationStatus) {
-      AuthorizationStatus.authorized => 'Enabled',
-      AuthorizationStatus.provisional => 'Enabled quietly',
-      AuthorizationStatus.denied => 'Blocked',
-      AuthorizationStatus.notDetermined => 'Not enabled',
-      null => 'Unavailable',
+      AuthorizationStatus.authorized => l10n.pushEnabled,
+      AuthorizationStatus.provisional => l10n.pushEnabledQuietly,
+      AuthorizationStatus.denied => l10n.pushBlocked,
+      AuthorizationStatus.notDetermined => l10n.pushNotEnabled,
+      null => l10n.pushUnavailable,
     };
   }
 
@@ -159,7 +160,9 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
     if (!saved) {
       AppSnackBar.show(
-        message: 'Failed to save notification preferences.',
+        message: AppLocalizations.of(
+          context,
+        )!.failedToSaveNotificationPreferences,
         isError: true,
       );
     }
@@ -181,12 +184,13 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notifications',
+          l10n.notifications,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -196,8 +200,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         SettingsSwitchTile(
           onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
-          title: 'Push notifications',
-          subtitle: _permissionTitle,
+          title: l10n.pushNotifications,
+          subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           onChanged: (_) {
             _manageNotificationPermission();
@@ -208,8 +212,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         const SizedBox(height: 16),
         SettingsSwitchTile(
           icon: Icons.notifications_outlined,
-          title: 'Rental requests and offers',
-          subtitle: 'New offers, counteroffers and request updates',
+          title: l10n.notifRentalRequestsAndOffers,
+          subtitle: l10n.notifRentalRequestsAndOffersSubtitle,
           value: _preferences.requestsAndOffers,
           onChanged: (value) => _updatePreference(
             key: 'requests',
@@ -221,8 +225,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         const SizedBox(height: 16),
         SettingsSwitchTile(
           icon: Icons.notifications_outlined,
-          title: 'Order updates',
-          subtitle: 'Confirmations, cancellations and status changes',
+          title: l10n.notifOrderUpdates,
+          subtitle: l10n.notifOrderUpdatesSubtitle,
           value: _preferences.orderUpdates,
           isLoading: _savingPreference == 'orders',
           onChanged: (value) => _updatePreference(
@@ -235,8 +239,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
         SettingsSwitchTile(
           icon: Icons.notifications_outlined,
-          title: 'Work progress',
-          subtitle: 'Owner on the way, arrived, started or completed',
+          title: l10n.notifWorkProgress,
+          subtitle: l10n.notifWorkProgressSubtitle,
           value: _preferences.workProgress,
           isLoading: _savingPreference == 'work',
           onChanged: (value) => _updatePreference(
@@ -248,8 +252,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         const SizedBox(height: 16),
         SettingsSwitchTile(
           icon: Icons.notifications_outlined,
-          title: 'Messages',
-          subtitle: 'New chat and negotiation messages',
+          title: l10n.messages,
+          subtitle: l10n.notifMessagesSubtitle,
           value: _preferences.messages,
           isLoading: _savingPreference == 'messages',
           onChanged: (value) => _updatePreference(
@@ -262,8 +266,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
         SettingsSwitchTile(
           icon: Icons.notifications_outlined,
-          title: 'Reminders and reviews',
-          subtitle: 'Upcoming rentals and review reminders',
+          title: l10n.notifRemindersAndReviews,
+          subtitle: l10n.notifRemindersAndReviewsSubtitle,
           value: _preferences.remindersAndReviews,
           isLoading: _savingPreference == 'reminders',
           onChanged: (value) => _updatePreference(

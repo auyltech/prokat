@@ -5,6 +5,7 @@ import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 final offerChatActionControllerProvider = Provider<OfferChatActionController>((
   ref,
@@ -34,7 +35,10 @@ class OfferChatActionController {
             chatId: chatId,
           );
       if (!context.mounted) return;
-      AppSnackBar.show(message: 'Saved', isSuccess: true);
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.saved,
+        isSuccess: true,
+      );
     } catch (e) {
       if (!context.mounted) return;
       AppSnackBar.show(
@@ -59,7 +63,10 @@ class OfferChatActionController {
             chatId: chatId,
           );
       if (!context.mounted) return;
-      AppSnackBar.show(message: 'Saved', isSuccess: true);
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.saved,
+        isSuccess: true,
+      );
     } catch (error) {
       if (!context.mounted) return;
       AppSnackBar.show(
