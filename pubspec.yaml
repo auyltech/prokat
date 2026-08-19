@@ -72,6 +72,7 @@ flutter:
     - assets/icons/app_icon_background.png
     - assets/icons/splash_branding_footer.png
     - assets/icons/splash_icon_android12.png
+    - assets/icons/map_marker.png
     - assets/legal/
     - assets/media/
 

@@ -119,23 +119,23 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
   // -----------------------------
 
   Future<void> _loadMarkerIcon() async {
-    final ByteData bytes = await rootBundle.load(
-      'assets/images/icons/truck_96.png',
+    final ByteData bytes = await rootBundle.load('assets/icons/map_marker.png');
+    final png = bytes.buffer.asUint8List(
+      bytes.offsetInBytes,
+      bytes.lengthInBytes,
     );
-    final Uint8List list = bytes.buffer.asUint8List();
-
-    final ui.Codec codec = await ui.instantiateImageCodec(list);
+    final ui.Codec codec = await ui.instantiateImageCodec(png);
     final ui.FrameInfo frame = await codec.getNextFrame();
 
     final mbxImage = MbxImage(
       width: frame.image.width,
       height: frame.image.height,
-      data: list,
+      data: png,
     );
 
     await _map!.style.addStyleImage(
       'equipment-icon',
-      1.0,
+      2.0,
       mbxImage,
       false,
       [],
@@ -175,6 +175,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
           ),
           iconImage: 'equipment-icon',
           iconSize: iconSizeForZoom(_zoom),
+          iconAnchor: IconAnchor.BOTTOM,
           iconOpacity: equipment.status == EquipmentStatus.available
               ? 1.0
               : 0.5,

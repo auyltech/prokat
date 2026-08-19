@@ -7,16 +7,18 @@ import 'package:prokat/features/equipment/providers/client_equipment_provider.da
 import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 
+const _equipmentMarkerImageId = 'equipment-icon';
+const _equipmentMarkerAsset = 'assets/icons/map_marker.png';
+
 class MapController {
+  MapController(this._ref);
+
+  final Ref _ref;
   MapboxMap? _map;
   PointAnnotationManager? _annotationManager;
   bool markersAdded = false;
-  // CircleAnnotationManager? _circleManager;
-  // bool _markersAdded = false;
   List<Equipment> _equipments = [];
-  // Function(Equipment)? onEquipmentTapped;
-
-  late WidgetRef _ref;
+  bool _styleReady = false;
 
   void attach(
     MapboxMap map, {
@@ -25,18 +27,12 @@ class MapController {
   }) {
     _map = map;
     if (initialItems != null) _equipments = initialItems;
-    // if (onTap != null) onEquipmentTapped = onTap;
   }
 
-  void setRef(WidgetRef ref) {
-    _ref = ref;
-
-    /// Listen to equipment changes
-    ref.listen(clientEquipmentProvider, (prev, next) async {
-      if (_map == null || (next.value?.items ?? []).isEmpty) return;
-
-      await _addEquipmentMarkers(next.value?.items ?? []);
-    });
+  Future<void> syncEquipmentMarkers(List<Equipment> items) async {
+    _equipments = items;
+    if (_map == null || !_styleReady) return;
+    await _addEquipmentMarkers(items);
   }
 
   MapboxMap get _requireMap {
@@ -46,24 +42,35 @@ class MapController {
     return _map!;
   }
 
-  Future<void> enableUserLocation() async {
-    geo.LocationPermission permission = await geo.Geolocator.checkPermission();
-
-    if (permission == geo.LocationPermission.denied) {
-      permission = await geo.Geolocator.requestPermission();
+  Future<bool> _hasLocationPermission() async {
+    try {
+      var permission = await geo.Geolocator.checkPermission();
+      if (permission == geo.LocationPermission.denied) {
+        permission = await geo.Geolocator.requestPermission();
+      }
+      return permission == geo.LocationPermission.whileInUse ||
+          permission == geo.LocationPermission.always;
+    } catch (_) {
+      return false;
     }
+  }
 
-    if (permission == geo.LocationPermission.deniedForever) {
+  Future<void> enableUserLocation() async {
+    final map = _map;
+    if (map == null) return;
+    if (!await _hasLocationPermission()) return;
+
+    try {
+      await map.location.updateSettings(
+        LocationComponentSettings(
+          enabled: true,
+          pulsingEnabled: true,
+          showAccuracyRing: true,
+        ),
+      );
+    } catch (_) {
       return;
     }
-
-    await _requireMap.location.updateSettings(
-      LocationComponentSettings(
-        enabled: true,
-        pulsingEnabled: true,
-        showAccuracyRing: true,
-      ),
-    );
   }
 
   Future<void> moveToUserLocation(double lng, double lat) async {
@@ -74,86 +81,90 @@ class MapController {
   }
 
   Future<void> moveToCurrentLocation() async {
-    final map = _requireMap;
+    final map = _map;
+    if (map == null) return;
+    if (!await _hasLocationPermission()) return;
 
-    bool serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    try {
+      final serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled || _map == null) return;
 
-    geo.LocationPermission permission = await geo.Geolocator.checkPermission();
+      const locationSettings = geo.LocationSettings(
+        accuracy: geo.LocationAccuracy.high,
+      );
 
-    if (permission == geo.LocationPermission.denied) {
-      permission = await geo.Geolocator.requestPermission();
-    }
+      final position = await geo.Geolocator.getCurrentPosition(
+        locationSettings: locationSettings,
+      );
+      if (_map == null) return;
 
-    if (permission == geo.LocationPermission.deniedForever) {
+      await map.flyTo(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(position.longitude, position.latitude),
+          ),
+          zoom: 14,
+        ),
+        MapAnimationOptions(duration: 1200),
+      );
+    } catch (_) {
       return;
     }
-
-    const locationSettings = geo.LocationSettings(
-      accuracy: geo.LocationAccuracy.high,
-    );
-
-    final position = await geo.Geolocator.getCurrentPosition(
-      locationSettings: locationSettings,
-    );
-
-    await map.flyTo(
-      CameraOptions(
-        center: Point(
-          coordinates: Position(position.longitude, position.latitude),
-        ),
-        zoom: 14,
-      ),
-      MapAnimationOptions(duration: 1200),
-    );
   }
 
-  Future<void> onStyleLoaded(StyleLoadedEventData data, WidgetRef ref) async {
+  Future<void> onStyleLoaded(StyleLoadedEventData data) async {
     if (_map == null) return;
 
-    _annotationManager = await _map!.annotations.createPointAnnotationManager();
+    try {
+      _annotationManager = await _map!.annotations
+          .createPointAnnotationManager();
+      if (_map == null) return;
 
-    _annotationManager!.tapEvents(onTap: _onAnnotationTapped);
+      _annotationManager!.tapEvents(onTap: _onAnnotationTapped);
+      _styleReady = true;
 
-    // 🔑 Read equipment data ONCE
-    final clientEquipment =
-        ref.read(clientEquipmentProvider).value?.items ?? [];
-
-    if (clientEquipment.isEmpty) return;
-
-    _equipments = clientEquipment;
-    await _addEquipmentMarkers(clientEquipment);
+      final items =
+          _ref.read(clientEquipmentProvider).value?.items ?? _equipments;
+      await syncEquipmentMarkers(items);
+    } catch (_) {
+      return;
+    }
   }
 
   Future<void> _loadMarkerIcon() async {
-    if (_map == null) return;
+    final map = _map;
+    if (map == null) return;
 
-    // 1. Load image from assets
-    final ByteData bytes = await rootBundle.load(
-      'assets/images/icons/truck_96.png',
-    );
-    final Uint8List list = bytes.buffer.asUint8List();
+    try {
+      if (await map.style.hasStyleImage(_equipmentMarkerImageId)) return;
+      if (_map == null) return;
 
-    // 2. Mapbox requires the exact width/height for the MbxImage object
-    final ui.Codec codec = await ui.instantiateImageCodec(list);
-    final ui.FrameInfo frame = await codec.getNextFrame();
+      // Android BitmapFactory requires encoded PNG/JPEG bytes.
+      final ByteData bytes = await rootBundle.load(_equipmentMarkerAsset);
+      final png = bytes.buffer.asUint8List(
+        bytes.offsetInBytes,
+        bytes.lengthInBytes,
+      );
+      final ui.Codec codec = await ui.instantiateImageCodec(png);
+      final ui.FrameInfo frame = await codec.getNextFrame();
+      if (_map == null) return;
 
-    final mbxImage = MbxImage(
-      width: frame.image.width,
-      height: frame.image.height,
-      data: list,
-    );
-
-    // 3. Add to style with the ID 'equipment-icon'
-    await _map!.style.addStyleImage(
-      'equipment-icon',
-      1.0, // Scale
-      mbxImage,
-      false,
-      [],
-      [],
-      null,
-    );
+      await map.style.addStyleImage(
+        _equipmentMarkerImageId,
+        2.0,
+        MbxImage(
+          width: frame.image.width,
+          height: frame.image.height,
+          data: png,
+        ),
+        false,
+        [],
+        [],
+        null,
+      );
+    } catch (_) {
+      return;
+    }
   }
 
   /// Load equipment pins on the map
@@ -194,11 +205,11 @@ class MapController {
             ),
           ),
           // Provide the iconImage ID registered above
-          iconImage: 'equipment-icon',
+          iconImage: _equipmentMarkerImageId,
           iconSize: iconSizeForZoom(zoom),
-          // Add text labels
+          iconAnchor: IconAnchor.BOTTOM,
           textField: equipment.name,
-          textOffset: [0, 2.0],
+          textOffset: [0, 1.2],
           customData: {'id': equipment.id},
         ),
       );
@@ -268,13 +279,18 @@ class MapController {
   }
 
   void dispose() {
+    _styleReady = false;
     _annotationManager = null;
     _map = null;
   }
 }
 
 final mapControllerProvider = Provider<MapController>((ref) {
-  final controller = MapController();
+  final controller = MapController(ref);
+
+  ref.listen(clientEquipmentProvider, (previous, next) {
+    controller.syncEquipmentMarkers(next.value?.items ?? []);
+  });
 
   ref.onDispose(() {
     controller.dispose();

@@ -41,24 +41,13 @@ class MyMapView extends ConsumerWidget {
           ),
 
           onMapCreated: (mapboxMap) async {
-            controller.attach(mapboxMap);
-
-            controller.setRef(ref);
-
+            controller.attach(mapboxMap, initialItems: equipmentList);
             await controller.enableUserLocation();
             await controller.moveToCurrentLocation();
-
-            // if (mode == MyMapMode.browseEquipment) {
-            //   await controller.loadEquipmentMarkers(ref);
-            // }
-
-            // if (mode == MyMapMode.browseEquipment && equipmentList != null) {
-            //   await controller.renderEquipment(equipmentList!);
-            // }
           },
 
           onStyleLoadedListener: (data) async {
-            await controller.onStyleLoaded(data, ref);
+            await controller.onStyleLoaded(data);
           },
 
           onCameraChangeListener: (event) {
@@ -74,7 +63,11 @@ class MyMapView extends ConsumerWidget {
           },
         ),
 
-        MapControls(onZoomIn: controller.zoomIn, onZoomOut: controller.zoomOut),
+        MapControls(
+          onZoomIn: controller.zoomIn,
+          onZoomOut: controller.zoomOut,
+          onChangeLocation: controller.moveToCurrentLocation,
+        ),
       ],
     );
   }
