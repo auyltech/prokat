@@ -43,30 +43,27 @@ flutter run --dart-define-from-file=.env
 
 ## Production builds
 
-All production artifacts must be built with `.env` only. Set a new public
-version and an always-increasing build number for every store upload:
-
-```powershell
-$version = "1.0.0"
-$buildNumber = "1"
-```
+All production artifacts must be built with `.env` only. Flutter reads
+`version` from `pubspec.yaml` (`1.0.13+5` → name `1.0.13`, number `5`).
+Bump that field before every store upload; the build number must always
+increase.
 
 Build a universal Android APK for direct installation outside a store:
 
 ```powershell
-flutter build apk --release --dart-define-from-file=.env --build-name=$version --build-number=$buildNumber
+flutter build apk --release --dart-define-from-file=.env
 ```
 
 Build smaller APKs split by CPU architecture for direct distribution:
 
 ```powershell
-flutter build apk --release --split-per-abi --dart-define-from-file=.env --build-name=$version --build-number=$buildNumber
+flutter build apk --release --split-per-abi --dart-define-from-file=.env
 ```
 
 Build an Android App Bundle (`.aab`) for Google Play:
 
 ```powershell
-flutter build appbundle --release --dart-define-from-file=.env --build-name=$version --build-number=$buildNumber
+flutter build appbundle --release --dart-define-from-file=.env
 ```
 
 The universal APK is written to
@@ -83,9 +80,7 @@ run on macOS with Xcode, an Apple Developer account, a distribution certificate,
 and a valid provisioning profile configured for `com.auyltech.prokat`:
 
 ```bash
-version="1.0.0"
-build_number="1"
-flutter build ipa --release --dart-define-from-file=.env --build-name="$version" --build-number="$build_number"
+flutter build ipa --release --dart-define-from-file=.env
 ```
 
 The Xcode archive is written to `build/ios/archive/Runner.xcarchive`, and the
