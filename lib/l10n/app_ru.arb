@@ -972,7 +972,6 @@
   "participant": "Участник",
   "chatId": "ID чата",
   "booking": "Заказ",
-  "requestLabel": "Запрос",
   "notLinked": "Не привязан",
   "clientRole": "Клиент",
   "priceOfferReceived": "Получено предложение цены",

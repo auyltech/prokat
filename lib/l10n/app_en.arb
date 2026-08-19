@@ -975,7 +975,6 @@
   "participant": "Participant",
   "chatId": "Chat ID",
   "booking": "Booking",
-  "requestLabel": "Request",
   "notLinked": "Not linked",
   "clientRole": "Client",
   "priceOfferReceived": "Price Offer Received",
