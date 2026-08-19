@@ -902,6 +902,8 @@
   "privacyPolicySubtitle": "Деректеріңізді қалай жинаймыз және қолданамыз",
   "userAgreementSubtitle": "Платформаны пайдалану ережелері",
   "personalDataSharingSubtitle": "Жеке деректерді бөлісу",
+  "legalDocuments": "Заңды құжаттар",
+  "legalDocumentsSubtitle": "Саясаттар, келісімдер, пайдалану шарттары",
 
   "applicationTheme": "Қолданба тақырыбы",
   "themeChooseHint": "Prokat осы құрылғыда қалай көрінетінін таңдаңыз.",

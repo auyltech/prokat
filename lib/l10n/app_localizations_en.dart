@@ -2546,6 +2546,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get personalDataSharingSubtitle => 'Sharing of personal data';
 
   @override
+  String get legalDocuments => 'Legal documents';
+
+  @override
+  String get legalDocumentsSubtitle => 'Policies, agreements, and terms of use';
+
+  @override
   String get applicationTheme => 'Application theme';
 
   @override

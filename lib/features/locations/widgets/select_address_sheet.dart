@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/location_tile.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
@@ -100,6 +101,14 @@ class SelectAddressSheet extends ConsumerWidget {
                 location: address,
                 onTap: () {
                   ref.read(locationProvider.notifier).selectAddress(address);
+
+                  final addressId = address.id;
+                  if (from == 'profile' && (addressId ?? '').isNotEmpty) {
+                    ref
+                        .read(clientProfileMutationProvider.notifier)
+                        .selectAddress(addressId!);
+                  }
+
                   Navigator.pop(context);
                 },
               ),

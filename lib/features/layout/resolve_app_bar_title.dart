@@ -38,6 +38,7 @@ String resolveAppBarTitle(
   if (path == AppRoutes.clientNotifications) return l10n.notifications;
 
   if (path == AppRoutes.clientProfile) return l10n.myProfile;
+  if (path == AppRoutes.clientDocuments) return l10n.documents;
   if (path == AppRoutes.clientSettings) return l10n.navSettings;
 
   if (path == AppRoutes.becomeOwner) return l10n.becomeOwner;

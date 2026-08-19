@@ -4954,6 +4954,18 @@ abstract class AppLocalizations {
   /// **'Sharing of personal data'**
   String get personalDataSharingSubtitle;
 
+  /// No description provided for @legalDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal documents'**
+  String get legalDocuments;
+
+  /// No description provided for @legalDocumentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Policies, agreements, and terms of use'**
+  String get legalDocumentsSubtitle;
+
   /// No description provided for @applicationTheme.
   ///
   /// In en, this message translates to:

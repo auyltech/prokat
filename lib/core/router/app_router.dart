@@ -6,6 +6,7 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/screens/about_prokat_screen.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
+import 'package:prokat/features/appstatic/screens/legal_documents_screen.dart';
 import 'package:prokat/features/appstatic/screens/personal_data_consent_screen.dart';
 import 'package:prokat/features/appstatic/screens/privacy_policy_screen.dart';
 import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
@@ -361,6 +362,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.clientProfile,
                 builder: (_, _) => const ClientProfileScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.clientDocuments,
+                builder: (_, _) => const LegalDocumentsScreen(),
               ),
               GoRoute(
                 path: AppRoutes.clientSettings,
