@@ -27,14 +27,6 @@ Install dependencies:
 flutter pub get
 ```
 
-Run against the local backend:
-
-```powershell
-flutter run -d windows --dart-define-from-file=.env --dart-define-from-file=.env.local
-flutter run -d chrome --dart-define-from-file=.env --dart-define-from-file=.env.local
-flutter run -d emulator-5554 --dart-define-from-file=.env --dart-define-from-file=.env.local
-```
-
 Run against production:
 
 ```powershell
