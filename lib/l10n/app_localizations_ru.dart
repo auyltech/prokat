@@ -2503,4 +2503,316 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get demandSurveyInactive => 'Этот опрос больше не активен.';
+
+  @override
+  String get aboutProkat => 'О Prokat';
+
+  @override
+  String get aboutProkatEyebrow => 'АРЕНДА ТЕХНИКИ — ПРОСТО';
+
+  @override
+  String get aboutProkatIntro =>
+      'Prokat соединяет тех, кому нужна техника, с проверенными владельцами и сервисными компаниями рядом. Ищите, сравнивайте и общайтесь напрямую на одной платформе.';
+
+  @override
+  String get aboutFeatureSearchTitle => 'Простой поиск техники';
+
+  @override
+  String get aboutFeatureSearchDescription =>
+      'Находите подходящую технику и проверенных местных исполнителей.';
+
+  @override
+  String get aboutFeatureTrustedTitle => 'Проверенные исполнители';
+
+  @override
+  String get aboutFeatureTrustedDescription =>
+      'Владельцы техники и сервисные компании проходят проверку перед публикацией.';
+
+  @override
+  String get aboutFeatureRatingsTitle => 'Двусторонние отзывы';
+
+  @override
+  String get aboutFeatureRatingsDescription =>
+      'Клиенты и владельцы укрепляют доверие через прозрачные оценки.';
+
+  @override
+  String get newToProkat => 'ВПЕРВЫЕ В PROKAT?';
+
+  @override
+  String get exploreHowItWorks => 'Как это работает';
+
+  @override
+  String get aboutProkatBannerSubtitle =>
+      'Находите или сдавайте технику и проверенных исполнителей в один шаг.';
+
+  @override
+  String get userConsent => 'Согласие пользователя';
+
+  @override
+  String get privacyPolicySubtitle =>
+      'Как мы собираем и используем ваши данные';
+
+  @override
+  String get userAgreementSubtitle => 'Правила пользования платформой';
+
+  @override
+  String get personalDataSharingSubtitle => 'Передача персональных данных';
+
+  @override
+  String get applicationTheme => 'Тема приложения';
+
+  @override
+  String get themeChooseHint =>
+      'Выберите, как Prokat будет выглядеть на этом устройстве.';
+
+  @override
+  String get themeSystemDefault => 'Как в системе';
+
+  @override
+  String get themeSystemDefaultSubtitle => 'Совпадает с оформлением устройства';
+
+  @override
+  String get themeLight => 'Светлая';
+
+  @override
+  String get themeLightSubtitle => 'Всегда светлое оформление';
+
+  @override
+  String get themeDark => 'Тёмная';
+
+  @override
+  String get themeDarkSubtitle => 'Всегда тёмное оформление';
+
+  @override
+  String get serviceAndSafetyNotices => 'Сервисные и важные уведомления';
+
+  @override
+  String get serviceAndSafetyNoticesSubtitle =>
+      'Аккаунт, безопасность и важные оповещения платформы';
+
+  @override
+  String get ownerServiceAndSafetyNoticesSubtitle =>
+      'Безопасность, ограничения аккаунта и срочные уведомления';
+
+  @override
+  String get requiredNoticesAlwaysAvailable =>
+      'Эти уведомления всегда доступны в приложении.';
+
+  @override
+  String get checkingPermission => 'Проверка разрешения';
+
+  @override
+  String get pushEnabled => 'Включены';
+
+  @override
+  String get pushEnabledQuietly => 'Включены без звука';
+
+  @override
+  String get pushBlocked => 'Заблокированы';
+
+  @override
+  String get pushNotEnabled => 'Не включены';
+
+  @override
+  String get pushUnavailable => 'Недоступны';
+
+  @override
+  String get pushEnabledInDeviceSettings => 'Включены в настройках устройства';
+
+  @override
+  String get pushBlockedInDeviceSettings =>
+      'Заблокированы в настройках устройства';
+
+  @override
+  String get pushPermissionNotRequested => 'Разрешение не запрошено';
+
+  @override
+  String get pushPermissionUnavailable => 'Разрешение недоступно';
+
+  @override
+  String get failedToSaveNotificationPreferences =>
+      'Не удалось сохранить настройки уведомлений.';
+
+  @override
+  String get notifRentalRequestsAndOffers => 'Запросы и предложения';
+
+  @override
+  String get notifRentalRequestsAndOffersSubtitle =>
+      'Новые предложения, встречные цены и обновления запросов';
+
+  @override
+  String get notifOrderUpdates => 'Обновления заказов';
+
+  @override
+  String get notifOrderUpdatesSubtitle =>
+      'Подтверждения, отмены и смена статуса';
+
+  @override
+  String get notifWorkProgress => 'Ход работ';
+
+  @override
+  String get notifWorkProgressSubtitle =>
+      'Владелец в пути, на объекте, начал или завершил работу';
+
+  @override
+  String get notifMessagesSubtitle => 'Новые сообщения в чате и переговорах';
+
+  @override
+  String get notifRemindersAndReviews => 'Напоминания и отзывы';
+
+  @override
+  String get notifRemindersAndReviewsSubtitle =>
+      'Предстоящая аренда и напоминания оставить отзыв';
+
+  @override
+  String get notifRequestsAndOffers => 'Запросы и предложения';
+
+  @override
+  String get notifRequestsAndOffersSubtitle =>
+      'Новые запросы на аренду, решения по предложениям и переговоры';
+
+  @override
+  String get notifOrdersAndWorkProgress => 'Заказы и ход работ';
+
+  @override
+  String get notifOrdersAndWorkProgressSubtitle =>
+      'Подтверждения, отмены и изменения статуса работ';
+
+  @override
+  String get notifOwnerMessagesSubtitle =>
+      'Новые сообщения от клиентов и переговоры';
+
+  @override
+  String get notifEquipmentAndVerification => 'Техника и верификация';
+
+  @override
+  String get notifEquipmentAndVerificationSubtitle =>
+      'Модерация техники, документы и статус профиля';
+
+  @override
+  String get notifBalanceAlerts => 'Баланс';
+
+  @override
+  String get notifBalanceAlertsSubtitle =>
+      'Низкий баланс, пополнение и статус платежей';
+
+  @override
+  String get noAddressSelected => 'Адрес не выбран';
+
+  @override
+  String get selectedAddress => 'Выбранный адрес';
+
+  @override
+  String get youHaveNoSavedAddresses => 'У вас нет сохранённых адресов.';
+
+  @override
+  String get manageMyAddresses => 'Управлять адресами';
+
+  @override
+  String get addressPrivacy => 'Конфиденциальность адреса';
+
+  @override
+  String get addressPrivacyBody =>
+      'Выбранный адрес передаётся владельцу техники только во время активного заказа, когда он нужен для аренды. Он не показывается публично и не передаётся другим пользователям.';
+
+  @override
+  String get morePrivacyOptionsContactSupport =>
+      'Нужны другие настройки приватности? Напишите в поддержку';
+
+  @override
+  String get businessPreferences => 'Бизнес-настройки';
+
+  @override
+  String get businessProfile => 'Бизнес-профиль';
+
+  @override
+  String get manageMyEquipment => 'Управлять техникой';
+
+  @override
+  String get noEquipmentAdded => 'Техника не добавлена';
+
+  @override
+  String fleetItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count единиц в парке',
+      many: '$count единиц в парке',
+      few: '$count единицы в парке',
+      one: '$count единица в парке',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organization => 'Организация';
+
+  @override
+  String get individualOwner => 'Частный владелец';
+
+  @override
+  String get chatSection => 'Чат';
+
+  @override
+  String get chatContext => 'Контекст';
+
+  @override
+  String get participant => 'Участник';
+
+  @override
+  String get chatId => 'ID чата';
+
+  @override
+  String get booking => 'Заказ';
+
+  @override
+  String get notLinked => 'Не привязан';
+
+  @override
+  String get clientRole => 'Клиент';
+
+  @override
+  String get priceOfferReceived => 'Получено предложение цены';
+
+  @override
+  String get waitingClientResponse => 'Ожидание ответа клиента';
+
+  @override
+  String get didntReceiveCodeResend => 'Не получили код? Отправить снова';
+
+  @override
+  String get youHaveNoActiveOrders => 'У вас нет активных заказов';
+
+  @override
+  String get youHaveNoNotifications => 'У вас нет уведомлений';
+
+  @override
+  String get unitCubicMeters => 'м³';
+
+  @override
+  String get currencyKzt => '₸';
+
+  @override
+  String get negotiationIdMissing => 'Не указан идентификатор переговоров';
+
+  @override
+  String get actionFailed => 'Не удалось выполнить действие';
+
+  @override
+  String get pleaseSelectYourCity => 'Выберите город';
+
+  @override
+  String get connectionTimedOut =>
+      'Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.';
+
+  @override
+  String get noConnectionCheckNetwork =>
+      'Нет соединения. Проверьте сеть и попробуйте снова.';
+
+  @override
+  String get networkErrorTryAgain => 'Ошибка сети. Попробуйте ещё раз.';
+
+  @override
+  String get somethingWentWrongTryAgain =>
+      'Что-то пошло не так. Попробуйте ещё раз.';
 }

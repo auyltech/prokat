@@ -132,7 +132,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                         alpha: 0.2,
                       ),
                       title: l10n.privacyPolicy,
-                      subtitle: "Privacy Policy",
+                      subtitle: l10n.privacyPolicySubtitle,
                       onTap: () => context.push(AppRoutes.privacyPolicy),
                     ),
 
@@ -145,7 +145,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                         alpha: 0.2,
                       ),
                       title: l10n.userAgreement,
-                      subtitle: "User Agreement",
+                      subtitle: l10n.userAgreementSubtitle,
                       onTap: () => context.push(AppRoutes.userAgreement),
                     ),
 
@@ -157,8 +157,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
                       ),
-                      title: "User Consent",
-                      subtitle: "Sharing of Personal Data",
+                      title: l10n.userConsent,
+                      subtitle: l10n.personalDataSharingSubtitle,
                       onTap: () => context.push(AppRoutes.personalDataConsent),
                     ),
 

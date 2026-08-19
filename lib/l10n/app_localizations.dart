@@ -4857,6 +4857,558 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This survey is no longer active.'**
   String get demandSurveyInactive;
+
+  /// No description provided for @aboutProkat.
+  ///
+  /// In en, this message translates to:
+  /// **'About Prokat'**
+  String get aboutProkat;
+
+  /// No description provided for @aboutProkatEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'EQUIPMENT RENTAL MADE SIMPLE'**
+  String get aboutProkatEyebrow;
+
+  /// No description provided for @aboutProkatIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Prokat connects people looking for equipment with trusted local owners and service providers. Search, compare and communicate directly in one simple platform.'**
+  String get aboutProkatIntro;
+
+  /// No description provided for @aboutFeatureSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy equipment search'**
+  String get aboutFeatureSearchTitle;
+
+  /// No description provided for @aboutFeatureSearchDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Find suitable equipment and trusted local service providers.'**
+  String get aboutFeatureSearchDescription;
+
+  /// No description provided for @aboutFeatureTrustedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trusted providers'**
+  String get aboutFeatureTrustedTitle;
+
+  /// No description provided for @aboutFeatureTrustedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment owners and service providers are reviewed before approval.'**
+  String get aboutFeatureTrustedDescription;
+
+  /// No description provided for @aboutFeatureRatingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-way ratings'**
+  String get aboutFeatureRatingsTitle;
+
+  /// No description provided for @aboutFeatureRatingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients and owners build trust through transparent reviews.'**
+  String get aboutFeatureRatingsDescription;
+
+  /// No description provided for @newToProkat.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW TO PROKAT?'**
+  String get newToProkat;
+
+  /// No description provided for @exploreHowItWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore How It Works'**
+  String get exploreHowItWorks;
+
+  /// No description provided for @aboutProkatBannerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find or rent heavy equipment and trusted service providers instantly in one tap.'**
+  String get aboutProkatBannerSubtitle;
+
+  /// No description provided for @userConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'User Consent'**
+  String get userConsent;
+
+  /// No description provided for @privacyPolicySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we collect and use your data'**
+  String get privacyPolicySubtitle;
+
+  /// No description provided for @userAgreementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules for using the platform'**
+  String get userAgreementSubtitle;
+
+  /// No description provided for @personalDataSharingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing of personal data'**
+  String get personalDataSharingSubtitle;
+
+  /// No description provided for @applicationTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Application theme'**
+  String get applicationTheme;
+
+  /// No description provided for @themeChooseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how Prokat should look on this device.'**
+  String get themeChooseHint;
+
+  /// No description provided for @themeSystemDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get themeSystemDefault;
+
+  /// No description provided for @themeSystemDefaultSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Match your device appearance'**
+  String get themeSystemDefaultSubtitle;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeLightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Always use the light appearance'**
+  String get themeLightSubtitle;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @themeDarkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Always use the dark appearance'**
+  String get themeDarkSubtitle;
+
+  /// No description provided for @serviceAndSafetyNotices.
+  ///
+  /// In en, this message translates to:
+  /// **'Service and safety notices'**
+  String get serviceAndSafetyNotices;
+
+  /// No description provided for @serviceAndSafetyNoticesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account, security and important platform alerts'**
+  String get serviceAndSafetyNoticesSubtitle;
+
+  /// No description provided for @ownerServiceAndSafetyNoticesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security, account restrictions and urgent platform notices'**
+  String get ownerServiceAndSafetyNoticesSubtitle;
+
+  /// No description provided for @requiredNoticesAlwaysAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'These notices are always available in the app.'**
+  String get requiredNoticesAlwaysAvailable;
+
+  /// No description provided for @checkingPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking permission'**
+  String get checkingPermission;
+
+  /// No description provided for @pushEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get pushEnabled;
+
+  /// No description provided for @pushEnabledQuietly.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled quietly'**
+  String get pushEnabledQuietly;
+
+  /// No description provided for @pushBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get pushBlocked;
+
+  /// No description provided for @pushNotEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enabled'**
+  String get pushNotEnabled;
+
+  /// No description provided for @pushUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get pushUnavailable;
+
+  /// No description provided for @pushEnabledInDeviceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled in device settings'**
+  String get pushEnabledInDeviceSettings;
+
+  /// No description provided for @pushBlockedInDeviceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked in device settings'**
+  String get pushBlockedInDeviceSettings;
+
+  /// No description provided for @pushPermissionNotRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission not requested'**
+  String get pushPermissionNotRequested;
+
+  /// No description provided for @pushPermissionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission unavailable'**
+  String get pushPermissionUnavailable;
+
+  /// No description provided for @failedToSaveNotificationPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save notification preferences.'**
+  String get failedToSaveNotificationPreferences;
+
+  /// No description provided for @notifRentalRequestsAndOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Rental requests and offers'**
+  String get notifRentalRequestsAndOffers;
+
+  /// No description provided for @notifRentalRequestsAndOffersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New offers, counteroffers and request updates'**
+  String get notifRentalRequestsAndOffersSubtitle;
+
+  /// No description provided for @notifOrderUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Order updates'**
+  String get notifOrderUpdates;
+
+  /// No description provided for @notifOrderUpdatesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations, cancellations and status changes'**
+  String get notifOrderUpdatesSubtitle;
+
+  /// No description provided for @notifWorkProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Work progress'**
+  String get notifWorkProgress;
+
+  /// No description provided for @notifWorkProgressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner on the way, arrived, started or completed'**
+  String get notifWorkProgressSubtitle;
+
+  /// No description provided for @notifMessagesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat and negotiation messages'**
+  String get notifMessagesSubtitle;
+
+  /// No description provided for @notifRemindersAndReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders and reviews'**
+  String get notifRemindersAndReviews;
+
+  /// No description provided for @notifRemindersAndReviewsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming rentals and review reminders'**
+  String get notifRemindersAndReviewsSubtitle;
+
+  /// No description provided for @notifRequestsAndOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests and offers'**
+  String get notifRequestsAndOffers;
+
+  /// No description provided for @notifRequestsAndOffersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New rental requests, offer decisions and negotiations'**
+  String get notifRequestsAndOffersSubtitle;
+
+  /// No description provided for @notifOrdersAndWorkProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders and work progress'**
+  String get notifOrdersAndWorkProgress;
+
+  /// No description provided for @notifOrdersAndWorkProgressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations, cancellations and work-status changes'**
+  String get notifOrdersAndWorkProgressSubtitle;
+
+  /// No description provided for @notifOwnerMessagesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New client and negotiation messages'**
+  String get notifOwnerMessagesSubtitle;
+
+  /// No description provided for @notifEquipmentAndVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment and verification'**
+  String get notifEquipmentAndVerification;
+
+  /// No description provided for @notifEquipmentAndVerificationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment moderation, documents and profile status'**
+  String get notifEquipmentAndVerificationSubtitle;
+
+  /// No description provided for @notifBalanceAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance alerts'**
+  String get notifBalanceAlerts;
+
+  /// No description provided for @notifBalanceAlertsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Low balance, top-up and payment-status alerts'**
+  String get notifBalanceAlertsSubtitle;
+
+  /// No description provided for @noAddressSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No address selected'**
+  String get noAddressSelected;
+
+  /// No description provided for @selectedAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected address'**
+  String get selectedAddress;
+
+  /// No description provided for @youHaveNoSavedAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no saved addresses.'**
+  String get youHaveNoSavedAddresses;
+
+  /// No description provided for @manageMyAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage my addresses'**
+  String get manageMyAddresses;
+
+  /// No description provided for @addressPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Address privacy'**
+  String get addressPrivacy;
+
+  /// No description provided for @addressPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your selected address is shared only with the equipment owner during an active order when it is needed to fulfil the rental. It is not displayed publicly or shared with other users.'**
+  String get addressPrivacyBody;
+
+  /// No description provided for @morePrivacyOptionsContactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'More privacy options? Contact support'**
+  String get morePrivacyOptionsContactSupport;
+
+  /// No description provided for @businessPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Business preferences'**
+  String get businessPreferences;
+
+  /// No description provided for @businessProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Business profile'**
+  String get businessProfile;
+
+  /// No description provided for @manageMyEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage my equipment'**
+  String get manageMyEquipment;
+
+  /// No description provided for @noEquipmentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'No equipment added'**
+  String get noEquipmentAdded;
+
+  /// No description provided for @fleetItemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} item in your fleet} other{{count} items in your fleet}}'**
+  String fleetItemsCount(int count);
+
+  /// No description provided for @organization.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization'**
+  String get organization;
+
+  /// No description provided for @individualOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual owner'**
+  String get individualOwner;
+
+  /// No description provided for @chatSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chatSection;
+
+  /// No description provided for @chatContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Context'**
+  String get chatContext;
+
+  /// No description provided for @participant.
+  ///
+  /// In en, this message translates to:
+  /// **'Participant'**
+  String get participant;
+
+  /// No description provided for @chatId.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat ID'**
+  String get chatId;
+
+  /// No description provided for @booking.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking'**
+  String get booking;
+
+  /// No description provided for @notLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not linked'**
+  String get notLinked;
+
+  /// No description provided for @clientRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Client'**
+  String get clientRole;
+
+  /// No description provided for @priceOfferReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Offer Received'**
+  String get priceOfferReceived;
+
+  /// No description provided for @waitingClientResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting client response'**
+  String get waitingClientResponse;
+
+  /// No description provided for @didntReceiveCodeResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t receive the code? Resend Now'**
+  String get didntReceiveCodeResend;
+
+  /// No description provided for @youHaveNoActiveOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any active orders'**
+  String get youHaveNoActiveOrders;
+
+  /// No description provided for @youHaveNoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any notifications'**
+  String get youHaveNoNotifications;
+
+  /// No description provided for @unitCubicMeters.
+  ///
+  /// In en, this message translates to:
+  /// **'M3'**
+  String get unitCubicMeters;
+
+  /// No description provided for @currencyKzt.
+  ///
+  /// In en, this message translates to:
+  /// **'KZT'**
+  String get currencyKzt;
+
+  /// No description provided for @negotiationIdMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Negotiation id is missing'**
+  String get negotiationIdMissing;
+
+  /// No description provided for @actionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Action failed'**
+  String get actionFailed;
+
+  /// No description provided for @pleaseSelectYourCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your city'**
+  String get pleaseSelectYourCity;
+
+  /// No description provided for @connectionTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection timed out. The server may be warming up — please try again.'**
+  String get connectionTimedOut;
+
+  /// No description provided for @noConnectionCheckNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Check your network and try again.'**
+  String get noConnectionCheckNetwork;
+
+  /// No description provided for @networkErrorTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please try again.'**
+  String get networkErrorTryAgain;
+
+  /// No description provided for @somethingWentWrongTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get somethingWentWrongTryAgain;
 }
 
 class _AppLocalizationsDelegate

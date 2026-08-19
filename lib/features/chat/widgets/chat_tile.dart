@@ -45,7 +45,11 @@ class ChatTile extends StatelessWidget {
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
 
     final title = chat.type == ChatType.direct
-        ? chat.displayTitle(currentUserId)
+        ? chat.displayTitle(
+            currentUserId,
+            ownerFallback: l10n.owner,
+            clientFallback: l10n.clientRole,
+          )
         : chat.type == ChatType.support
         ? l10n.support
         : chat.type == ChatType.workflow

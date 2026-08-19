@@ -26,7 +26,11 @@ class OwnerChatInfoScreen extends ConsumerWidget {
       ),
 
       data: (chat) {
-        final title = chat?.displayTitle(currentUserId);
+        final title = chat?.displayTitle(
+          currentUserId,
+          ownerFallback: l10n.owner,
+          clientFallback: l10n.clientRole,
+        );
 
         return Scaffold(
           backgroundColor: theme.scaffoldBackgroundColor,
@@ -36,22 +40,22 @@ class OwnerChatInfoScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(24),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    _buildInfoSection(theme, 'Chat', [
-                      _buildListTile(theme, 'Participant', title ?? ""),
-                      _buildListTile(theme, 'Chat ID', chat?.id ?? ""),
+                    _buildInfoSection(theme, l10n.chatSection, [
+                      _buildListTile(theme, l10n.participant, title ?? ""),
+                      _buildListTile(theme, l10n.chatId, chat?.id ?? ""),
                       _buildListTile(
                         theme,
-                        'Booking',
+                        l10n.booking,
                         (chat?.bookingId ?? '').isNotEmpty
                             ? chat?.bookingId ?? ""
-                            : 'Not linked',
+                            : l10n.notLinked,
                       ),
                       _buildListTile(
                         theme,
-                        'Request',
+                        l10n.requestLabel,
                         (chat?.requestId ?? '').isNotEmpty
                             ? chat?.requestId ?? ""
-                            : 'Not linked',
+                            : l10n.notLinked,
                       ),
                     ]),
                   ]),

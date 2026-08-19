@@ -6,6 +6,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientAddressesScreen extends ConsumerStatefulWidget {
   const ClientAddressesScreen({super.key});
@@ -29,8 +30,8 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
     }
   }
 
-  String _formatAddress(LocationModel? address) {
-    if (address == null) return 'No address selected';
+  String _formatAddress(LocationModel? address, AppLocalizations l10n) {
+    if (address == null) return l10n.noAddressSelected;
 
     return [
       address.street,
@@ -48,6 +49,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
     final addresses = locationState.clientLocations;
@@ -76,7 +78,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 12),
-                      const Text('You have no saved addresses.'),
+                      Text(l10n.youHaveNoSavedAddresses),
                       const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: () {
@@ -84,7 +86,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                           context.push(AppRoutes.clientAddresses);
                         },
                         icon: const Icon(Icons.add_location_alt),
-                        label: const Text('Add address'),
+                        label: Text(l10n.addAddress),
                       ),
                     ],
                   ),
@@ -114,7 +116,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                             ? theme.colorScheme.primary
                             : theme.colorScheme.onSurfaceVariant,
                       ),
-                      title: Text(_formatAddress(address)),
+                      title: Text(_formatAddress(address, l10n)),
                       subtitle: (address.instructions ?? '').trim().isNotEmpty
                           ? Text(address.instructions!)
                           : null,
@@ -141,8 +143,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                                 Navigator.pop(context);
                               } else {
                                 AppSnackBar.show(
-                                  message:
-                                      'Failed to save the selected address.',
+                                  message: l10n.failedSaveAddress,
                                   isError: true,
                                 );
                               }
@@ -165,6 +166,7 @@ class AddressPrivacy extends StatelessWidget {
   Widget build(BuildContext context) {
     // 1. Extract the theme directly inside the build method
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -188,7 +190,7 @@ class AddressPrivacy extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Address privacy',
+                l10n.addressPrivacy,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -197,10 +199,7 @@ class AddressPrivacy extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Your selected address is shared only with the equipment '
-            'owner during an active order when it is needed to fulfil '
-            'the rental. It is not displayed publicly or shared with '
-            'other users.',
+            l10n.addressPrivacyBody,
             style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
           ),
           const SizedBox(height: 10),
@@ -210,7 +209,7 @@ class AddressPrivacy extends StatelessWidget {
               visualDensity: VisualDensity.compact,
             ),
             onPressed: () => context.push(AppRoutes.contactSupport),
-            child: const Text('More privacy options? Contact support'),
+            child: Text(l10n.morePrivacyOptionsContactSupport),
           ),
         ],
       ),

@@ -45,7 +45,7 @@ class _PersonalDataConsentScreenState
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text("Data Processing"),
+        title: Text(AppLocalizations.of(context)!.userConsent),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () async {

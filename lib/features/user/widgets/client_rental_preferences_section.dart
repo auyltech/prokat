@@ -9,6 +9,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientRentalPreferencesSection extends ConsumerStatefulWidget {
   const ClientRentalPreferencesSection({super.key});
@@ -40,8 +41,8 @@ class _ClientRentalPreferencesSectionState
     }
   }
 
-  String _formatAddress(LocationModel? address) {
-    if (address == null) return 'No address selected';
+  String _formatAddress(LocationModel? address, AppLocalizations l10n) {
+    if (address == null) return l10n.noAddressSelected;
 
     return [
       address.street,
@@ -52,6 +53,7 @@ class _ClientRentalPreferencesSectionState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final locationState = ref.watch(locationProvider);
     final selectedAddress = locationState.selectedAddress;
     final selectedCategoryId = ref
@@ -78,10 +80,10 @@ class _ClientRentalPreferencesSectionState
           icon: LucideIcons.building,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          title: 'City',
+          title: l10n.city,
           subtitle:
               ref.watch(clientProfileProvider).userProfile?.city ??
-              "Select City",
+              l10n.selectCity,
           onTap: () => CityPickerSheet.show(
             context: context,
             service: CitySelectorService.clientcity,
@@ -94,8 +96,8 @@ class _ClientRentalPreferencesSectionState
           icon: LucideIcons.hammer,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          title: 'Service',
-          subtitle: selectedCategory?.name ?? "Select Service",
+          title: l10n.service,
+          subtitle: selectedCategory?.name ?? l10n.selectService,
           onTap: () async {
             final category = await CategorySelectionSheet.show(
               context,
@@ -115,8 +117,8 @@ class _ClientRentalPreferencesSectionState
           icon: LucideIcons.mapPin,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          title: 'Selected address',
-          subtitle: _formatAddress(selectedAddress),
+          title: l10n.selectedAddress,
+          subtitle: _formatAddress(selectedAddress, l10n),
           onTap: () => SelectAddressSheet.show(
             context,
             service: "select_primary",
