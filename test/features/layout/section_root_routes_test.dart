@@ -37,10 +37,7 @@ void main() {
       AppRoutes.clientRequests,
     );
     expect(sectionRootFor(AppRoutes.searchMap), AppRoutes.searchList);
-    expect(
-      sectionRootFor('/client/equipment/abc/book'),
-      AppRoutes.searchList,
-    );
+    expect(sectionRootFor('/client/equipment/abc/book'), AppRoutes.searchList);
     expect(
       sectionRootFor(AppRoutes.ownerEquipmentCreate),
       AppRoutes.ownerEquipment,
@@ -51,11 +48,7 @@ void main() {
 
   test('logged-in users leave guest overlays toward their profile', () {
     expect(
-      backFallbackPath(
-        AppRoutes.helpSupport,
-        isLoggedIn: true,
-        isOwner: false,
-      ),
+      backFallbackPath(AppRoutes.helpSupport, isLoggedIn: true, isOwner: false),
       AppRoutes.clientProfile,
     );
     expect(
@@ -63,7 +56,11 @@ void main() {
       AppRoutes.ownerProfile,
     );
     expect(
-      backFallbackPath(AppRoutes.helpSupport, isLoggedIn: false, isOwner: false),
+      backFallbackPath(
+        AppRoutes.helpSupport,
+        isLoggedIn: false,
+        isOwner: false,
+      ),
       AppRoutes.main,
     );
   });

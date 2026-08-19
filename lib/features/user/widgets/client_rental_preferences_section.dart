@@ -107,7 +107,6 @@ class _ClientRentalPreferencesSectionState
         // ),
         //
         // const SizedBox(height: 12),
-
         ProkatListTile.secondary(
           icon: LucideIcons.mapPin,
           iconColor: theme.colorScheme.onSurface,
