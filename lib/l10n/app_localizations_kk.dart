@@ -2545,6 +2545,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get personalDataSharingSubtitle => 'Жеке деректерді бөлісу';
 
   @override
+  String get legalDocuments => 'Заңды құжаттар';
+
+  @override
+  String get legalDocumentsSubtitle =>
+      'Саясаттар, келісімдер, пайдалану шарттары';
+
+  @override
   String get applicationTheme => 'Қолданба тақырыбы';
 
   @override

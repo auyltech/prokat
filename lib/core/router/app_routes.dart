@@ -61,6 +61,7 @@ class AppRoutes {
   static const String clientChatSupport = '$clientMain/chat/support';
 
   static const String clientProfile = '$clientMain/profile';
+  static const String clientDocuments = '$clientMain/documents';
   static const String clientSettings = '$clientMain/settings';
   // Notifications
   static const String clientNotifications = '$clientMain/notifications';

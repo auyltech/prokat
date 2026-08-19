@@ -901,6 +901,8 @@
   "privacyPolicySubtitle": "Как мы собираем и используем ваши данные",
   "userAgreementSubtitle": "Правила пользования платформой",
   "personalDataSharingSubtitle": "Передача персональных данных",
+  "legalDocuments": "Юридические документы",
+  "legalDocumentsSubtitle": "Политики, соглашения, условия использования",
 
   "applicationTheme": "Тема приложения",
   "themeChooseHint": "Выберите, как Prokat будет выглядеть на этом устройстве.",

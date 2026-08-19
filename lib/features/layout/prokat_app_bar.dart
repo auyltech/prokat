@@ -75,6 +75,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
           AppRoutes.privacyPolicy,
           AppRoutes.personalDataConsent,
           AppRoutes.helpSupport,
+          AppRoutes.clientDocuments,
         ].contains(currentPath) ||
         isChatByIdScreen;
 

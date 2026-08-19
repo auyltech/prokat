@@ -2559,6 +2559,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get personalDataSharingSubtitle => 'Передача персональных данных';
 
   @override
+  String get legalDocuments => 'Юридические документы';
+
+  @override
+  String get legalDocumentsSubtitle =>
+      'Политики, соглашения, условия использования';
+
+  @override
   String get applicationTheme => 'Тема приложения';
 
   @override

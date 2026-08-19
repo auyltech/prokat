@@ -126,40 +126,14 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     const SizedBox(height: 20),
 
                     ProkatListTile(
-                      icon: LucideIcons.shieldCheck,
+                      icon: LucideIcons.scrollText,
                       iconColor: theme.colorScheme.primary,
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
                       ),
-                      title: l10n.privacyPolicy,
-                      subtitle: l10n.privacyPolicySubtitle,
-                      onTap: () => context.push(AppRoutes.privacyPolicy),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    ProkatListTile(
-                      icon: LucideIcons.fileSignature,
-                      iconColor: theme.colorScheme.primary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
-                      title: l10n.userAgreement,
-                      subtitle: l10n.userAgreementSubtitle,
-                      onTap: () => context.push(AppRoutes.userAgreement),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    ProkatListTile(
-                      icon: LucideIcons.text,
-                      iconColor: theme.colorScheme.primary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
-                      title: l10n.userConsent,
-                      subtitle: l10n.personalDataSharingSubtitle,
-                      onTap: () => context.push(AppRoutes.personalDataConsent),
+                      title: l10n.legalDocuments,
+                      subtitle: l10n.legalDocumentsSubtitle,
+                      onTap: () => context.push(AppRoutes.clientDocuments),
                     ),
 
                     const SizedBox(height: 20),

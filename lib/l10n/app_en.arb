@@ -904,6 +904,8 @@
   "privacyPolicySubtitle": "How we collect and use your data",
   "userAgreementSubtitle": "Rules for using the platform",
   "personalDataSharingSubtitle": "Sharing of personal data",
+  "legalDocuments": "Legal documents",
+  "legalDocumentsSubtitle": "Policies, agreements, and terms of use",
 
   "applicationTheme": "Application theme",
   "themeChooseHint": "Choose how Prokat should look on this device.",
