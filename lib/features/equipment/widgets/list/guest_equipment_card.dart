@@ -28,7 +28,7 @@ class GuestEquipmentCard extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
 
-                context.push(AppRoutes.login); // Go to auth screen
+                context.go(AppRoutes.login);
               },
             ),
           ],

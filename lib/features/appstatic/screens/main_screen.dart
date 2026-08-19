@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/features/appstatic/widgets/about_prokat.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
+import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/guest_equipment_card.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -32,12 +32,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ProviderSubscription? _locationSub;
 
   Future<void> _fetchData() async {
+    if (!mounted) return;
+
     final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
 
     await ref
         .read(guestEquipmentProvider.notifier)
         .setFilters(categoryId: categoryId, city: city);
+
+    if (!mounted) return;
 
     await ref.read(categoriesProvider.notifier).refreshIfStale();
   }
@@ -50,32 +54,39 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     _debounce?.cancel();
 
     _debounce = Timer(const Duration(seconds: 1), () {
+      if (!mounted) return;
       _fetchData();
     });
   }
 
   Future<void> _onRefresh() async {
-    ref.read(categoriesProvider.notifier).refresh();
-    ref.read(guestEquipmentProvider.notifier).refresh();
+    await Future.wait([
+      ref.read(categoriesProvider.notifier).refresh(),
+      ref.read(guestEquipmentProvider.notifier).refresh(),
+      ref.read(demandConfigProvider.notifier).refresh(),
+    ]);
   }
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await _fetchData();
+    _categoriesSub = ref.listenManual(
+      selectedCategoryProvider.select((s) => s?.id),
+      (_, _) => _onFiltersChanged(),
+    );
 
-      _categoriesSub = ref.listenManual(
-        selectedCategoryProvider.select((s) => s?.id),
-        (_, _) => _onFiltersChanged(),
-      );
+    _locationSub = ref.listenManual(
+      locationProvider.select((s) => s.city),
+      (_, _) => _onFiltersChanged(),
+    );
 
-      _locationSub = ref.listenManual(
-        locationProvider.select((s) => s.city),
-        (_, _) => _onFiltersChanged(),
-      );
-    });
+    unawaited(
+      Future.microtask(() async {
+        if (!mounted) return;
+        await _fetchData();
+      }),
+    );
   }
 
   @override
@@ -95,7 +106,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final langDisplay = LocaleNotifier.displayCode(locale);
 
     final equipmentAsync = ref.watch(guestEquipmentProvider);
-    final queryState = equipmentAsync.value;
+    final queryState = equipmentAsync.valueOrNull;
     final items = queryState?.items ?? [];
 
     final locationState = ref.watch(locationProvider);
@@ -164,7 +175,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
             SliverAppBar(
               primary: false,
-              expandedHeight: 420,
+              expandedHeight: 340,
               backgroundColor: darkBlueBg,
               automaticallyImplyLeading: false,
               elevation: 0,
@@ -194,9 +205,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: EmptyStateTile(
-                    imageName: 'empty_error.png',
-                    title: l10n.loadEquipmentErrorHint,
+                  child: EquipmentErrorTile(
+                    onRetry: () => unawaited(_onRefresh()),
                   ),
                 ),
               )
@@ -249,7 +259,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 color: theme.colorScheme.surface,
                 child: Padding(
                   // 2. Tall vertical padding to give the login block its own massive hero presence
-                  padding: const EdgeInsets.fromLTRB(24, 80, 24, 120),
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 80),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -300,50 +310,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                         ),
                       ),
                       const SizedBox(height: 36),
-
-                      // 6. Premium full-width brand primary action button
-                      ElevatedButton(
-                        onPressed: () {
-                          context.push(AppRoutes.login);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: theme.colorScheme.onPrimary,
-                          minimumSize: const Size(
-                            double.infinity,
-                            56,
-                          ), // Tall modern button height
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              l10n.getStarted,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 20,
-                              color: theme.colorScheme.onPrimary,
-                            ),
-                          ],
-                        ),
-                      ),
+                      const LoginTile(),
                     ],
                   ),
                 ),
               ),
             ),
-
-            AboutProkatSection(),
+            // TODO(Vadim): temporarily hide
+            // AboutProkatSection(),
           ],
         ),
       ),

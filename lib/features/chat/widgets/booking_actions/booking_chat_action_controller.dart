@@ -8,6 +8,7 @@ import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 final bookingChatActionControllerProvider =
     StateNotifierProvider.family<
@@ -229,7 +230,10 @@ class BookingChatActionController
     final id = negotiationId.trim();
 
     if (id.isEmpty) {
-      AppSnackBar.show(message: 'Negotiation id is missing', isError: true);
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.negotiationIdMissing,
+        isError: true,
+      );
       return;
     }
 
@@ -260,7 +264,10 @@ class BookingChatActionController
     final id = negotiationId.trim();
 
     if (id.isEmpty) {
-      AppSnackBar.show(message: 'Negotiation id is missing', isError: true);
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.negotiationIdMissing,
+        isError: true,
+      );
       return;
     }
 
@@ -290,10 +297,12 @@ class BookingChatActionController
     required Future<bool> Function() action,
     required Future<void> Function() onSuccess,
     String? submitId,
-    String successMessage = 'Saved',
-    String failureMessage = 'Action failed',
+    String? successMessage,
+    String? failureMessage,
   }) async {
     if (state.isSubmitting) return;
+
+    final l10n = AppLocalizations.of(context)!;
 
     try {
       state = state.copyWith(
@@ -307,7 +316,10 @@ class BookingChatActionController
         state = state.copyWith(isSubmitting: false);
         if (!context.mounted) return;
 
-        AppSnackBar.show(message: failureMessage, isError: true);
+        AppSnackBar.show(
+          message: failureMessage ?? l10n.actionFailed,
+          isError: true,
+        );
         return;
       }
 
@@ -317,7 +329,7 @@ class BookingChatActionController
 
       if (!context.mounted) return;
 
-      AppSnackBar.show(message: successMessage, isSuccess: true);
+      AppSnackBar.show(message: successMessage ?? l10n.saved, isSuccess: true);
     } catch (error) {
       // TODO: remove error message
       final message = error.toString().replaceFirst('Exception: ', '');

@@ -76,7 +76,11 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
               UserAvatar(
                 radius: 22,
                 avatarUrl: avatarUrl,
-                fullName: chat.displayTitle(widget.currentUserId),
+                fullName: chat.displayTitle(
+                  widget.currentUserId,
+                  ownerFallback: l10n.owner,
+                  clientFallback: l10n.clientRole,
+                ),
               ),
 
               const SizedBox(width: 12),
@@ -87,6 +91,8 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
                     Text(
                       chat.displayTitle(
                         widget.currentUserId,
+                        ownerFallback: l10n.owner,
+                        clientFallback: l10n.clientRole,
                       ), // No longer nullable
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

@@ -26,7 +26,7 @@ class ReviewSheet extends ConsumerStatefulWidget {
     required AppMode mode,
   }) async {
     final l10n = AppLocalizations.of(context)!;
-    return await showModalBottomSheet(
+    final submitted = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
@@ -41,6 +41,8 @@ class ReviewSheet extends ConsumerStatefulWidget {
             : l10n.reviewClient,
       ),
     );
+
+    return submitted ?? false;
   }
 
   @override

@@ -31,7 +31,15 @@ class _MapClientPinAddressContainerState
 
   Timer? idleDebounce;
 
+  @override
+  void dispose() {
+    idleDebounce?.cancel();
+    super.dispose();
+  }
+
   Future<void> reverseGeocode() async {
+    if (!mounted) return;
+
     setState(() {
       loadingAddress = true;
       selectedAddress = null;
@@ -42,6 +50,8 @@ class _MapClientPinAddressContainerState
           .read(locationApiProvider)
           .reverseGeocode(longitude, latitude);
 
+      if (!mounted) return;
+
       if (result != null) {
         setState(() {
           selectedAddress = result;
@@ -50,20 +60,24 @@ class _MapClientPinAddressContainerState
     } catch (e) {
       debugPrint("Geocoding failed: $e");
     } finally {
-      setState(() {
-        loadingAddress = false;
-      });
+      if (mounted) {
+        setState(() {
+          loadingAddress = false;
+        });
+      }
     }
   }
 
   void onCameraIdle(CameraChangedEventData data) {
     idleDebounce?.cancel();
+    if (!mounted) return;
 
     setState(() {
       selectedAddress = null;
     });
 
     idleDebounce = Timer(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
       latitude = data.cameraState.center.coordinates.lat.toDouble();
       longitude = data.cameraState.center.coordinates.lng.toDouble();
 

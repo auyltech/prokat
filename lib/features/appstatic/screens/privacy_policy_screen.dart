@@ -43,7 +43,7 @@ class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Data Processing"),
+        title: Text(AppLocalizations.of(context)!.privacyPolicy),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () async {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
+import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'dart:ui';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -13,6 +15,8 @@ class SendMessageForm extends ConsumerStatefulWidget {
   final ChatStatusDetail chatStatus;
   final AppMode mode;
   final ChatType type;
+  final ChatModel? currentChat;
+  final String actionBarTitle;
 
   const SendMessageForm({
     super.key,
@@ -20,6 +24,8 @@ class SendMessageForm extends ConsumerStatefulWidget {
     required this.mode,
     required this.chatStatus,
     this.type = ChatType.direct,
+    this.currentChat,
+    this.actionBarTitle = '',
   });
 
   @override
@@ -76,6 +82,10 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       );
     }
 
+    final showActions =
+        widget.currentChat != null &&
+        chatHasVisibleActions(status: widget.chatStatus, mode: widget.mode);
+
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -104,95 +114,114 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
             top: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 5,
-                      textCapitalization: TextCapitalization.sentences,
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 0, 70, 128),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: l10n.typeMessageHint,
-                        hintStyle: const TextStyle(
-                          color: Color.fromARGB(255, 126, 126, 126),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        filled: true,
-                        fillColor: theme.scaffoldBackgroundColor.withValues(
-                          alpha: 0.85,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.4,
-                            ),
-                            width: 1.5,
-                          ),
-                        ),
+                  if (showActions) ...[
+                    ChatActionBar(
+                      currentChat: widget.currentChat!,
+                      chatStatus: widget.chatStatus,
+                      mode: widget.mode,
+                      actionBarTitle: widget.actionBarTitle,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Material(
-                    color: theme.colorScheme.primary,
-                    shape: const CircleBorder(),
-                    elevation: 2,
-                    child: IconButton(
-                      onPressed: isWorkCompleted || isOrderCanceled
-                          ? null
-                          : _sendMessage,
-                      icon: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          const Icon(
-                            Icons.send_rounded,
-                            color: Colors.white,
-                            size: 20,
+                  ],
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          minLines: 1,
+                          maxLines: 5,
+                          textCapitalization: TextCapitalization.sentences,
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 0, 70, 128),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                           ),
-
-                          if (isSendingAny)
-                            Positioned(
-                              right: -4,
-                              top: -4,
-                              child: SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                ),
+                          decoration: InputDecoration(
+                            hintText: l10n.typeMessageHint,
+                            hintStyle: const TextStyle(
+                              color: Color.fromARGB(255, 126, 126, 126),
+                              fontWeight: FontWeight.w400,
+                            ),
+                            filled: true,
+                            fillColor: theme.scaffoldBackgroundColor.withValues(
+                              alpha: 0.85,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.4),
                               ),
                             ),
-                        ],
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.4,
+                                ),
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Material(
+                        color: theme.colorScheme.primary,
+                        shape: const CircleBorder(),
+                        elevation: 2,
+                        child: IconButton(
+                          onPressed: isWorkCompleted || isOrderCanceled
+                              ? null
+                              : _sendMessage,
+                          icon: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              const Icon(
+                                Icons.send_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              if (isSendingAny)
+                                Positioned(
+                                  right: -4,
+                                  top: -4,
+                                  child: SizedBox(
+                                    width: 12,
+                                    height: 12,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -4,7 +4,7 @@ description: "Equipment renting platform in Kazakhstan"
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.12+4
+version: 1.0.13+5
 
 environment:
   sdk: ^3.11.0
@@ -71,7 +71,10 @@ flutter:
     - assets/icons/app_icon_foreground.png
     - assets/icons/app_icon_background.png
     - assets/icons/splash_branding_footer.png
+    - assets/icons/splash_branding_footer_wt.png
+    - assets/icons/splash_logo.png
     - assets/icons/splash_icon_android12.png
+    - assets/icons/map_marker.png
     - assets/legal/
     - assets/media/
 
@@ -86,10 +89,10 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#00489B"
-  image: "assets/icons/app_icon.png"
-  branding: "assets/icons/splash_branding_footer.png"
+  image: "assets/icons/splash_logo.png"
+  branding: "assets/icons/splash_branding_footer_wt.png"
 
   android_12:
     color: "#00489B"
-    image: "assets/icons/app_icon.png"
-    branding: "assets/icons/splash_branding_footer.png"
+    image: "assets/icons/splash_logo.png"
+    branding: "assets/icons/splash_branding_footer_wt.png"

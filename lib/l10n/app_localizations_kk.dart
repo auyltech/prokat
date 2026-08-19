@@ -2445,4 +2445,366 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get details => 'Толығырақ';
+
+  @override
+  String get demandSurveyCardTitle => 'Басқа техника?';
+
+  @override
+  String get demandSurveyCardSubtitle => 'Қандай техника керегін айтыңыз';
+
+  @override
+  String get demandSurveyQuestionTitle => 'Сізге қандай техника қажет?';
+
+  @override
+  String get demandSurveyQuestionSubtitle =>
+      'Нұсқаларды таңдаңыз немесе басқа техниканы сипаттаңыз.';
+
+  @override
+  String get demandSurveyCityLabel => 'Қала';
+
+  @override
+  String get demandSurveySelectCity => 'Қаланы таңдаңыз';
+
+  @override
+  String get demandSurveyOtherOption => 'Басқа техника';
+
+  @override
+  String get demandSurveyOtherHint => 'Қажетті техниканы сипаттаңыз';
+
+  @override
+  String get demandSurveySubmit => 'Жіберу';
+
+  @override
+  String get demandSurveyThankYou => 'Рақмет. Жауабыңыз сақталды.';
+
+  @override
+  String get demandSurveyLoadError => 'Сауалнама қазір қолжетімсіз.';
+
+  @override
+  String get demandSurveySubmitError => 'Нысанды тексеріп, қайталап көріңіз.';
+
+  @override
+  String get demandSurveyAlreadySubmitted =>
+      'Сіз бұл сауалнамаға жауап бердіңіз.';
+
+  @override
+  String get demandSurveyInactive => 'Бұл сауалнама енді белсенді емес.';
+
+  @override
+  String get aboutProkat => 'Prokat туралы';
+
+  @override
+  String get aboutProkatEyebrow => 'ТЕХНИКАНЫ ЖАЛҒА АЛУ — ОҢАЙ';
+
+  @override
+  String get aboutProkatIntro =>
+      'Prokat техника іздеген адамдарды сенімді жергілікті иелермен және сервистік компаниялармен байланыстырады. Бір платформада іздеңіз, салыстырыңыз және тікелей сөйлесіңіз.';
+
+  @override
+  String get aboutFeatureSearchTitle => 'Техниканы оңай іздеу';
+
+  @override
+  String get aboutFeatureSearchDescription =>
+      'Қажетті техника мен сенімді жергілікті орындаушыларды табыңыз.';
+
+  @override
+  String get aboutFeatureTrustedTitle => 'Сенімді орындаушылар';
+
+  @override
+  String get aboutFeatureTrustedDescription =>
+      'Техника иелері мен сервистік компаниялар жарияланбай тұрып тексеріледі.';
+
+  @override
+  String get aboutFeatureRatingsTitle => 'Екі жақты бағалау';
+
+  @override
+  String get aboutFeatureRatingsDescription =>
+      'Клиенттер мен иелер ашық пікірлер арқылы сенім орнатады.';
+
+  @override
+  String get newToProkat => 'PROKAT-ТА ЖАҢАСЫЗ БА?';
+
+  @override
+  String get exploreHowItWorks => 'Қалай жұмыс істейді';
+
+  @override
+  String get aboutProkatBannerSubtitle =>
+      'Ауыр техника мен сенімді орындаушыларды бір қадамда табыңыз немесе жалға беріңіз.';
+
+  @override
+  String get userConsent => 'Пайдаланушы келісімі';
+
+  @override
+  String get privacyPolicySubtitle =>
+      'Деректеріңізді қалай жинаймыз және қолданамыз';
+
+  @override
+  String get userAgreementSubtitle => 'Платформаны пайдалану ережелері';
+
+  @override
+  String get personalDataSharingSubtitle => 'Жеке деректерді бөлісу';
+
+  @override
+  String get legalDocuments => 'Заңды құжаттар';
+
+  @override
+  String get legalDocumentsSubtitle =>
+      'Саясаттар, келісімдер, пайдалану шарттары';
+
+  @override
+  String get applicationTheme => 'Қолданба тақырыбы';
+
+  @override
+  String get themeChooseHint =>
+      'Prokat осы құрылғыда қалай көрінетінін таңдаңыз.';
+
+  @override
+  String get themeSystemDefault => 'Жүйе бойынша';
+
+  @override
+  String get themeSystemDefaultSubtitle => 'Құрылғының сыртқы түріне сәйкес';
+
+  @override
+  String get themeLight => 'Жарық';
+
+  @override
+  String get themeLightSubtitle => 'Әрқашан жарық безендіру';
+
+  @override
+  String get themeDark => 'Қараңғы';
+
+  @override
+  String get themeDarkSubtitle => 'Әрқашан қараңғы безендіру';
+
+  @override
+  String get serviceAndSafetyNotices => 'Сервистік және маңызды хабарламалар';
+
+  @override
+  String get serviceAndSafetyNoticesSubtitle =>
+      'Аккаунт, қауіпсіздік және платформаның маңызды ескертулері';
+
+  @override
+  String get ownerServiceAndSafetyNoticesSubtitle =>
+      'Қауіпсіздік, аккаунт шектеулері және шұғыл хабарламалар';
+
+  @override
+  String get requiredNoticesAlwaysAvailable =>
+      'Бұл хабарламалар қолданбада әрқашан қолжетімді.';
+
+  @override
+  String get checkingPermission => 'Рұқсат тексерілуде';
+
+  @override
+  String get pushEnabled => 'Қосулы';
+
+  @override
+  String get pushEnabledQuietly => 'Дыбыссыз қосулы';
+
+  @override
+  String get pushBlocked => 'Бұғатталған';
+
+  @override
+  String get pushNotEnabled => 'Қосылмаған';
+
+  @override
+  String get pushUnavailable => 'Қолжетімсіз';
+
+  @override
+  String get pushEnabledInDeviceSettings => 'Құрылғы параметрлерінде қосулы';
+
+  @override
+  String get pushBlockedInDeviceSettings =>
+      'Құрылғы параметрлерінде бұғатталған';
+
+  @override
+  String get pushPermissionNotRequested => 'Рұқсат сұралмаған';
+
+  @override
+  String get pushPermissionUnavailable => 'Рұқсат қолжетімсіз';
+
+  @override
+  String get failedToSaveNotificationPreferences =>
+      'Хабарландыру параметрлерін сақтау мүмкін болмады.';
+
+  @override
+  String get notifRentalRequestsAndOffers => 'Сұраныстар мен ұсыныстар';
+
+  @override
+  String get notifRentalRequestsAndOffersSubtitle =>
+      'Жаңа ұсыныстар, қарсы бағалар және сұраныс жаңартулары';
+
+  @override
+  String get notifOrderUpdates => 'Тапсырыс жаңартулары';
+
+  @override
+  String get notifOrderUpdatesSubtitle =>
+      'Растаулар, бас тартулар және мәртебе өзгерістері';
+
+  @override
+  String get notifWorkProgress => 'Жұмыс барысы';
+
+  @override
+  String get notifWorkProgressSubtitle =>
+      'Иесі жолда, нысанда, жұмысты бастады немесе аяқтады';
+
+  @override
+  String get notifMessagesSubtitle =>
+      'Чаттағы және келіссөздердегі жаңа хабарлар';
+
+  @override
+  String get notifRemindersAndReviews => 'Еске салғыштар мен пікірлер';
+
+  @override
+  String get notifRemindersAndReviewsSubtitle =>
+      'Алдағы жалға алу және пікір қалдыру туралы еске салғыштар';
+
+  @override
+  String get notifRequestsAndOffers => 'Сұраныстар мен ұсыныстар';
+
+  @override
+  String get notifRequestsAndOffersSubtitle =>
+      'Жаңа жалға алу сұраныстары, ұсыныс шешімдері және келіссөздер';
+
+  @override
+  String get notifOrdersAndWorkProgress => 'Тапсырыстар мен жұмыс барысы';
+
+  @override
+  String get notifOrdersAndWorkProgressSubtitle =>
+      'Растаулар, бас тартулар және жұмыс мәртебесінің өзгерістері';
+
+  @override
+  String get notifOwnerMessagesSubtitle =>
+      'Клиенттерден және келіссөздерден жаңа хабарлар';
+
+  @override
+  String get notifEquipmentAndVerification => 'Техника және верификация';
+
+  @override
+  String get notifEquipmentAndVerificationSubtitle =>
+      'Техника модерациясы, құжаттар және профиль мәртебесі';
+
+  @override
+  String get notifBalanceAlerts => 'Баланс ескертулері';
+
+  @override
+  String get notifBalanceAlertsSubtitle =>
+      'Төмен баланс, толықтыру және төлем мәртебесі';
+
+  @override
+  String get noAddressSelected => 'Мекенжай таңдалмаған';
+
+  @override
+  String get selectedAddress => 'Таңдалған мекенжай';
+
+  @override
+  String get youHaveNoSavedAddresses => 'Сақталған мекенжайларыңыз жоқ.';
+
+  @override
+  String get manageMyAddresses => 'Мекенжайларды басқару';
+
+  @override
+  String get addressPrivacy => 'Мекенжай құпиялылығы';
+
+  @override
+  String get addressPrivacyBody =>
+      'Таңдалған мекенжай техника иесіне тек белсенді тапсырыс кезінде, жалға алу үшін қажет болғанда беріледі. Ол көпшілікке көрсетілмейді және басқа пайдаланушыларға берілмейді.';
+
+  @override
+  String get morePrivacyOptionsContactSupport =>
+      'Басқа құпиялылық параметрлері керек пе? Қолдауға жазыңыз';
+
+  @override
+  String get businessPreferences => 'Бизнес параметрлері';
+
+  @override
+  String get businessProfile => 'Бизнес профилі';
+
+  @override
+  String get manageMyEquipment => 'Техниканы басқару';
+
+  @override
+  String get noEquipmentAdded => 'Техника қосылмаған';
+
+  @override
+  String fleetItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count бірлік паркте',
+      one: '$count бірлік паркте',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organization => 'Ұйым';
+
+  @override
+  String get individualOwner => 'Жеке иесі';
+
+  @override
+  String get chatSection => 'Чат';
+
+  @override
+  String get chatContext => 'Мәтінмән';
+
+  @override
+  String get participant => 'Қатысушы';
+
+  @override
+  String get chatId => 'Чат ID';
+
+  @override
+  String get booking => 'Тапсырыс';
+
+  @override
+  String get notLinked => 'Байланыстырылмаған';
+
+  @override
+  String get clientRole => 'Клиент';
+
+  @override
+  String get priceOfferReceived => 'Баға ұсынысы келді';
+
+  @override
+  String get waitingClientResponse => 'Клиенттің жауабы күтілуде';
+
+  @override
+  String get didntReceiveCodeResend => 'Код келмеді ме? Қайта жіберу';
+
+  @override
+  String get youHaveNoActiveOrders => 'Белсенді тапсырыстарыңыз жоқ';
+
+  @override
+  String get youHaveNoNotifications => 'Хабарландыруларыңыз жоқ';
+
+  @override
+  String get unitCubicMeters => 'м³';
+
+  @override
+  String get currencyKzt => '₸';
+
+  @override
+  String get negotiationIdMissing => 'Келіссөз идентификаторы жоқ';
+
+  @override
+  String get actionFailed => 'Әрекет орындалмады';
+
+  @override
+  String get pleaseSelectYourCity => 'Қаланы таңдаңыз';
+
+  @override
+  String get connectionTimedOut =>
+      'Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.';
+
+  @override
+  String get noConnectionCheckNetwork =>
+      'Байланыс жоқ. Желіні тексеріп, қайталап көріңіз.';
+
+  @override
+  String get networkErrorTryAgain => 'Желі қатесі. Қайталап көріңіз.';
+
+  @override
+  String get somethingWentWrongTryAgain =>
+      'Бірдеңе дұрыс болмады. Қайталап көріңіз.';
 }

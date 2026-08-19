@@ -19,6 +19,24 @@ class ChatConfig {
   });
 }
 
+bool chatHasVisibleActions({
+  required ChatStatusDetail status,
+  required AppMode mode,
+}) {
+  switch (status) {
+    case ChatStatusDetail.requestcreated:
+    case ChatStatusDetail.requestaccepted:
+    case ChatStatusDetail.leaveReview:
+      return true;
+    case ChatStatusDetail.bookingconfirmed:
+      return mode == AppMode.ownerMode;
+    case ChatStatusDetail.confirmcompleted:
+      return mode == AppMode.clientMode;
+    default:
+      return false;
+  }
+}
+
 ChatConfig getChatConfig({
   ChatModel? chat,
   AppMode? mode,
@@ -86,13 +104,13 @@ ChatConfig getChatConfig({
         return pendingFromMe == true
             ? ChatConfig(
                 status: ChatStatusDetail.counterofferreceived,
-                actionBartitle: "Price Offer Received",
-                statusLabel: "Price Offer",
+                actionBartitle: l10n.priceOfferReceived,
+                statusLabel: l10n.priceOffer,
               )
             : ChatConfig(
                 status: ChatStatusDetail.counteroffersent,
                 actionBartitle: mode == AppMode.ownerMode
-                    ? "Waiting client response"
+                    ? l10n.waitingClientResponse
                     : l10n.waitingOwnerResponse,
                 statusLabel: l10n.waitingOwnerResponse,
               );

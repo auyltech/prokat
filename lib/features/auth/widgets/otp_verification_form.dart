@@ -180,7 +180,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         if (isTimerActive) ...[
           // State A: Timer is ticking down
           Text(
-            "You can request a new code in ${_secondsRemaining}s",
+            _l10n.otpRetryIn(_secondsRemaining),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: onSurface.withValues(alpha: 0.6),
@@ -197,7 +197,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              "Didn't receive the code? Resend Now",
+              _l10n.didntReceiveCodeResend,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: primary,
                 fontWeight: FontWeight.bold,
@@ -223,7 +223,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              "Change phone number",
+              _l10n.changePhoneNumber,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: primary,
                 fontWeight: FontWeight.w500,

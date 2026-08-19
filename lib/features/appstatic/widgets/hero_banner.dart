@@ -80,30 +80,8 @@ class HeroBanner extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 24),
-
-          LoginTile(),
-
-          // "Get Started" Call to Action Button
-          const SizedBox(height: 24),
-          // Bottom Section: Decorative Icons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.construction,
-                size: 40,
-                color: Colors.white.withAlpha(40),
-              ),
-              const SizedBox(width: 40),
-              Icon(
-                Icons.local_shipping,
-                size: 40,
-                color: Colors.white.withAlpha(40),
-              ),
-            ],
-          ),
+          const LoginTile(),
         ],
       ),
     );

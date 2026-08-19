@@ -19,11 +19,18 @@ class UserInfoTile extends StatelessWidget {
           backgroundImage: (user?.imageUrl ?? '').isNotEmpty
               ? NetworkImage(user?.imageUrl ?? "")
               : null,
-          child: Icon(
-            Icons.person_rounded,
-            color: theme.colorScheme.primary,
-            size: 22,
-          ),
+          child: (user?.imageUrl ?? '').isNotEmpty
+              ? null
+              : ClipOval(
+                  child: Transform.translate(
+                    offset: Offset(-6, -2),
+                    child: Icon(
+                      Icons.person_rounded,
+                      color: theme.colorScheme.primary,
+                      size: 60,
+                    ),
+                  ),
+                ),
         ),
 
         const SizedBox(width: 10),

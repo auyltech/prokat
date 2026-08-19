@@ -5,8 +5,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
-import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
-import 'package:prokat/features/chat/widgets/message_bubble.dart';
+import 'package:prokat/features/chat/widgets/chat_message_list.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
@@ -33,6 +32,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
+      ref
+          .read(chatMessagesProvider(widget.chatId).notifier)
+          .dismissDisplayedPush();
       await Future.wait([
         ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale(),
         ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale(),
@@ -114,159 +116,76 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.wait([
-            ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
-            ref.read(chatMessagesProvider(widget.chatId).notifier).refresh(),
-            if (negotiationQuery != null)
-              ref
-                  .read(priceNegotiationsProvider(negotiationQuery).notifier)
-                  .refresh(),
-            if (offerQuery != null)
-              ref.read(ownerOffersProvider(offerQuery).notifier).refresh(),
-          ]);
-        },
-        child: Stack(
-          children: [
-            // Main Content
-            Column(
-              children: [
-                // Loading Error Indicator
-                if ((chatAsync.hasError || messagesAsync.hasError) &&
-                    messages.isEmpty)
-                  Expanded(
-                    child: Center(
-                      // Centers the entire error block vertically
-                      child: SingleChildScrollView(
-                        // Prevents overflow on small screens
-                        physics:
-                            const AlwaysScrollableScrollPhysics(), // Ensures pull-to-refresh still works
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.wifi_off_rounded,
-                                size: 48,
-                                color: theme.colorScheme.error.withValues(
-                                  alpha: 0.6,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                (chatAsync.error ?? messagesAsync.error)
-                                    .toString(),
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  await ref
-                                      .read(
-                                        currentChatProvider(
-                                          widget.chatId,
-                                        ).notifier,
-                                      )
-                                      .refresh();
-
-                                  await ref
-                                      .read(
-                                        chatMessagesProvider(
-                                          widget.chatId,
-                                        ).notifier,
-                                      )
-                                      .refresh();
-                                },
-                                icon: const Icon(Icons.refresh_rounded),
-                                label: Text(l10n.retry),
-                              ),
-                            ],
+      body: Column(
+        children: [
+          if ((chatAsync.hasError || messagesAsync.hasError) &&
+              messages.isEmpty)
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.wifi_off_rounded,
+                          size: 48,
+                          color: theme.colorScheme.error.withValues(alpha: 0.6),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          (chatAsync.error ?? messagesAsync.error).toString(),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey,
                           ),
                         ),
-                      ),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: Container(
-                      color: theme.colorScheme.surface,
-                      child: ListView.separated(
-                        reverse:
-                            false, // Newest messages at bottom, oldest + booking tiles at top
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await ref
+                                .read(
+                                  currentChatProvider(widget.chatId).notifier,
+                                )
+                                .refresh();
+
+                            await ref
+                                .read(
+                                  chatMessagesProvider(widget.chatId).notifier,
+                                )
+                                .refresh();
+                          },
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: Text(l10n.retry),
                         ),
-                        separatorBuilder: (context, index) =>
-                            SizedBox(height: 4),
-                        // Increase item count by 2 if booking/request tiles exist
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          // Invert the index so oldest messages (index 0 in data) render at the top
-                          final invertedIndex = messages.length - 1 - index;
-
-                          final message = messages[invertedIndex];
-
-                          final isMe =
-                              message.senderId == currentUserId ||
-                              message.senderId == 'me';
-                          return MessageBubble(
-                            message: message,
-                            isMe: isMe,
-                            mode: AppMode.ownerMode,
-                            currentChat: chatAsync.value,
-                          );
-                        },
-                      ),
+                      ],
                     ),
                   ),
-
-                if (currentChat != null)
-                  ChatActionBar(
-                    currentChat: currentChat,
-                    chatStatus: chatConfig.status,
-                    mode: AppMode.ownerMode,
-                    actionBarTitle: chatConfig.actionBartitle,
-                  ),
-              ],
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: Container(
+                color: theme.colorScheme.surface,
+                child: ChatMessageList(
+                  chatId: widget.chatId,
+                  currentUserId: currentUserId,
+                  mode: AppMode.ownerMode,
+                  currentChat: currentChat,
+                ),
+              ),
             ),
-
-            // Floating Loading Indicator Overlay
-            // if (messagesAsync.valueOrNull?.isRefreshing == true)
-            //   Positioned(
-            //     top: 16, // Adjust position (e.g., below the app bar)
-            //     left: 0,
-            //     right: 0,
-            //     child: Center(
-            //       child: Card(
-            //         elevation: 4,
-            //         shape: RoundedRectangleBorder(
-            //           borderRadius: BorderRadius.circular(100),
-            //         ),
-            //         color: theme.colorScheme.surface,
-            //         child: const Padding(
-            //           padding: EdgeInsets.all(10.0),
-            //           child: SizedBox(
-            //             width: 20,
-            //             height: 20,
-            //             child: CircularProgressIndicator(strokeWidth: 2.5),
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-          ],
-        ),
+        ],
       ),
       bottomNavigationBar: SendMessageForm(
         chatId: widget.chatId,
         chatStatus: chatConfig.status,
         mode: AppMode.ownerMode,
+        currentChat: currentChat,
+        actionBarTitle: chatConfig.actionBartitle,
       ),
     );
   }

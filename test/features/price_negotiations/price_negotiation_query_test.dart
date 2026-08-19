@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_service.dart';
@@ -77,6 +78,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        authenticatedSessionScopeKeyProvider.overrideWithValue(
+          const AuthenticatedSessionScopeKey.forUser('test-user'),
+        ),
         priceNegotiationServiceProvider.overrideWithValue(
           PriceNegotiationService(_TestApiClient(dio)),
         ),

@@ -75,7 +75,7 @@ class _PricingSectionState extends ConsumerState<PricingSection> {
     final l10n = AppLocalizations.of(context)!;
 
     final bool canAddMore =
-        (widget.prices.length < widget.maxRates) && !widget.isDraft;
+        (widget.prices.length < widget.maxRates) && widget.isDraft;
 
     final isSubmitting = ref
         .watch(equipmentMutationProvider)

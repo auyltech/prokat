@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'dart:math' as math;
 
 class AboutProkatSection extends StatelessWidget {
@@ -7,6 +8,7 @@ class AboutProkatSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Using your exact header brand color as the base anchors
     const brandDarkBlue = Color(0xFF002C63);
     const brandElectricBlue = Color(0xFF0056C6);
@@ -91,9 +93,9 @@ class AboutProkatSection extends StatelessWidget {
                                     color: Colors.white.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Text(
-                                    'NEW TO PROKAT?',
-                                    style: TextStyle(
+                                  child: Text(
+                                    l10n.newToProkat,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w800,
@@ -102,9 +104,9 @@ class AboutProkatSection extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                const Text(
-                                  'Explore How It Works',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.exploreHowItWorks,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 22,
                                     fontWeight: FontWeight.w800,
@@ -113,7 +115,7 @@ class AboutProkatSection extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Find or rent heavy equipment and trusted service providers instantly in one tap.',
+                                  l10n.aboutProkatBannerSubtitle,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.75),
                                     fontSize: 13,

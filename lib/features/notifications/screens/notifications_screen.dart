@@ -62,7 +62,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       icon: Icons.notifications_none,
                       imageName: "empty_notifications.png",
                       title: l10n.noNotificationsYet,
-                      subtitle: "You don't have any notifications",
+                      subtitle: l10n.youHaveNoNotifications,
                     ),
                   ],
                 );

@@ -1,6 +1,6 @@
 import 'package:prokat/core/utils/parse.dart';
 
-enum TransactionType { topup, consumption, freecredit, refund, adjsutment }
+enum TransactionType { topup, consumption, freecredit, refund, adjustment }
 
 TransactionType parseTransactionType(dynamic value) {
   if (value == null) {

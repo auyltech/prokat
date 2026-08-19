@@ -173,7 +173,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               controller: capacityController,
               hint: l10n.capacityHint,
               icon: Icons.propane_outlined,
-              suffixText: "M3",
+              suffixText: l10n.unitCubicMeters,
               isRequired: !hasOfferedRate,
               iconBgColor: Colors.black12,
             );

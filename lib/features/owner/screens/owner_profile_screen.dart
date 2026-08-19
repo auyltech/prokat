@@ -11,7 +11,7 @@ import 'package:prokat/features/equipment/providers/owner_equipment_provider.dar
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/widgets/balance_tile.dart';
-import 'package:prokat/features/owner/widgets/owner_buisness_preferences.dart';
+import 'package:prokat/features/owner/widgets/owner_business_preferences.dart';
 import 'package:prokat/features/owner/widgets/owner_profile_header.dart';
 import 'package:prokat/features/owner/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/owner_stat_card.dart';

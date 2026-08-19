@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
-import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientRentalPreferencesSection extends ConsumerStatefulWidget {
   const ClientRentalPreferencesSection({super.key});
@@ -28,7 +27,14 @@ class _ClientRentalPreferencesSectionState
   }
 
   Future<void> _loadAddresses() async {
+    final addressIdBeforeLoad = ref.read(locationProvider).selectedAddress?.id;
+
     await ref.read(locationProvider.notifier).getClientLocations();
+
+    if (!mounted) return;
+
+    final addressIdAfterLoad = ref.read(locationProvider).selectedAddress?.id;
+    if (addressIdAfterLoad != addressIdBeforeLoad) return;
 
     final selectedAddressId = ref
         .read(clientProfileProvider)
@@ -40,8 +46,8 @@ class _ClientRentalPreferencesSectionState
     }
   }
 
-  String _formatAddress(LocationModel? address) {
-    if (address == null) return 'No address selected';
+  String _formatAddress(LocationModel? address, AppLocalizations l10n) {
+    if (address == null) return l10n.noAddressSelected;
 
     return [
       address.street,
@@ -52,20 +58,13 @@ class _ClientRentalPreferencesSectionState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final locationState = ref.watch(locationProvider);
     final selectedAddress = locationState.selectedAddress;
-    final selectedCategoryId = ref
-        .watch(clientProfileProvider)
-        .userProfile
-        ?.selectedCategoryId;
-    final categories =
-        ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
-    final selectedCategories = categories.where(
-      (category) => category.id == selectedCategoryId,
-    );
-    final selectedCategory = selectedCategories.isEmpty
-        ? null
-        : selectedCategories.first;
+    final profileCity =
+        ref.watch(clientProfileProvider).userProfile?.city?.trim() ?? '';
+    final sessionCity = (locationState.city ?? '').trim();
+    final city = sessionCity.isNotEmpty ? sessionCity : profileCity;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,10 +77,8 @@ class _ClientRentalPreferencesSectionState
           icon: LucideIcons.building,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          title: 'City',
-          subtitle:
-              ref.watch(clientProfileProvider).userProfile?.city ??
-              "Select City",
+          title: l10n.city,
+          subtitle: city.isEmpty ? l10n.selectCity : city,
           onTap: () => CityPickerSheet.show(
             context: context,
             service: CitySelectorService.clientcity,
@@ -90,33 +87,32 @@ class _ClientRentalPreferencesSectionState
 
         const SizedBox(height: 12),
 
-        ProkatListTile.secondary(
-          icon: LucideIcons.hammer,
-          iconColor: theme.colorScheme.onSurface,
-          iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          title: 'Service',
-          subtitle: selectedCategory?.name ?? "Select Service",
-          onTap: () async {
-            final category = await CategorySelectionSheet.show(
-              context,
-              service: CategorySheetMode.selectCategory,
-            );
-            if (category != null) {
-              await ref
-                  .read(clientProfileMutationProvider.notifier)
-                  .selectCategory(category.id);
-            }
-          },
-        ),
-
-        const SizedBox(height: 12),
-
+        // ProkatListTile.secondary(
+        //   icon: LucideIcons.hammer,
+        //   iconColor: theme.colorScheme.onSurface,
+        //   iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
+        //   title: l10n.service,
+        //   subtitle: selectedCategory?.name ?? l10n.selectService,
+        //   onTap: () async {
+        //     final category = await CategorySelectionSheet.show(
+        //       context,
+        //       service: CategorySheetMode.selectCategory,
+        //     );
+        //     if (category != null) {
+        //       await ref
+        //           .read(clientProfileMutationProvider.notifier)
+        //           .selectCategory(category.id);
+        //     }
+        //   },
+        // ),
+        //
+        // const SizedBox(height: 12),
         ProkatListTile.secondary(
           icon: LucideIcons.mapPin,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
-          title: 'Selected address',
-          subtitle: _formatAddress(selectedAddress),
+          title: l10n.selectedAddress,
+          subtitle: _formatAddress(selectedAddress, l10n),
           onTap: () => SelectAddressSheet.show(
             context,
             service: "select_primary",

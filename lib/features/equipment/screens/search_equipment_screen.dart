@@ -15,6 +15,7 @@ import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -68,6 +69,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     await Future.wait([
       ref.read(clientEquipmentProvider.notifier).refresh(),
       ref.read(categoriesProvider.notifier).refresh(),
+      ref.read(demandConfigProvider.notifier).refresh(),
     ]);
   }
 
@@ -75,27 +77,27 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      if (!mounted) return;
+    _categoriesSub = ref.listenManual(
+      selectedCategoryProvider.select((s) => s?.id),
+      (_, _) => _onFiltersChanged(),
+    );
 
-      await _fetchData();
+    _locationSub = ref.listenManual(
+      locationProvider.select((s) => s.city),
+      (_, _) => _onFiltersChanged(),
+    );
 
-      if (!mounted) return;
-      _categoriesSub = ref.listenManual(
-        selectedCategoryProvider.select((s) => s?.id),
-        (_, _) => _onFiltersChanged(),
-      );
+    _equipmentSub = ref.listenManual(
+      searchEquipmentProvider.select((s) => s.query),
+      (_, _) => _fetchData(),
+    );
 
-      _locationSub = ref.listenManual(
-        locationProvider.select((s) => s.city),
-        (_, _) => _onFiltersChanged(),
-      );
-
-      _equipmentSub = ref.listenManual(
-        searchEquipmentProvider.select((s) => s.query),
-        (_, _) => _fetchData(),
-      );
-    });
+    unawaited(
+      Future.microtask(() async {
+        if (!mounted) return;
+        await _fetchData();
+      }),
+    );
   }
 
   @override
@@ -112,7 +114,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final equipmentAsync = ref.watch(clientEquipmentProvider);
-    final queryState = equipmentAsync.value;
+    final queryState = equipmentAsync.valueOrNull;
 
     final items = queryState?.items ?? [];
 
@@ -148,10 +150,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
               if (equipmentAsync.isLoading && items.isEmpty)
                 const EquipmentListSkeleton()
               else if (equipmentAsync.hasError)
-                EquipmentErrorTile(
-                  onRetry: () =>
-                      ref.read(clientEquipmentProvider.notifier).refresh(),
-                )
+                EquipmentErrorTile(onRetry: () => unawaited(_onRefresh()))
               else if (items.isEmpty)
                 const EquipmentEmptyTile()
               else

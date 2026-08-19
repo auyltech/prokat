@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
@@ -13,17 +14,35 @@ class PriceNegotiationsNotifier
         > {
   PriceNegotiationService get api => ref.read(priceNegotiationServiceProvider);
 
-  late final PriceNegotiationQuery query;
+  late PriceNegotiationQuery query;
   Future<void>? _refreshing;
+  AuthenticatedSessionScopeKey? _refreshingScope;
+  AuthenticatedSessionScopeKey? _stateScope;
 
   @override
   Future<QueryState<PriceNegotiation>> build(PriceNegotiationQuery arg) async {
     query = arg;
-    return _fetchPage(1);
+    final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    if (scope == null) {
+      _stateScope = null;
+      return _emptyState;
+    }
+
+    final next = await _fetchPage(1, scope);
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return _emptyState;
+    _stateScope = scope;
+    return next;
   }
 
-  Future<QueryState<PriceNegotiation>> _fetchPage(int page) async {
+  Future<QueryState<PriceNegotiation>> _fetchPage(
+    int page,
+    AuthenticatedSessionScopeKey scope,
+  ) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return _emptyState;
+
     final response = await api.getPriceNegotiations(query: query, page: page);
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return _emptyState;
+
     final result = response.data;
     if (!response.success || result == null) throw Exception(response.message);
     return QueryState(
@@ -36,45 +55,77 @@ class PriceNegotiationsNotifier
   }
 
   Future<void> refresh() {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return Future<void>.value();
+
     final active = _refreshing;
-    if (active != null) return active;
-    final operation = _refresh();
+    if (active != null && _refreshingScope == scope) return active;
+
+    final operation = _refresh(scope);
     _refreshing = operation;
-    return operation.whenComplete(() => _refreshing = null);
+    _refreshingScope = scope;
+    return operation.whenComplete(() {
+      if (identical(_refreshing, operation)) {
+        _refreshing = null;
+        _refreshingScope = null;
+      }
+    });
   }
 
-  Future<void> _refresh() async {
-    final previous = state.value;
+  Future<void> _refresh(AuthenticatedSessionScopeKey scope) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+
+    if (state.isLoading) {
+      try {
+        await future;
+        return;
+      } catch (_) {}
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+    }
+
+    final previous = _stateScope == scope ? state.value : null;
     if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          return;
-        } catch (_) {}
-      }
       state = const AsyncLoading();
-      state = await AsyncValue.guard(() => _fetchPage(1));
+      final next = await AsyncValue.guard(() => _fetchPage(1, scope));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        _stateScope = scope;
+        state = next;
+      }
       return;
     }
     state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      state = AsyncData(await _fetchPage(1));
+      final next = await _fetchPage(1, scope);
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        _stateScope = scope;
+        state = AsyncData(next);
+      }
     } catch (error) {
-      state = AsyncData(previous.withRefreshError(error));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(previous.withRefreshError(error));
+      }
     }
   }
 
   Future<void> refreshIfStale() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     if (state.isLoading) {
       try {
         await future;
       } catch (_) {}
     }
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     final current = state.value;
-    if (current == null || current.isStale) await refresh();
+    if (_stateScope != scope || current == null || current.isStale) {
+      await refresh();
+    }
   }
 
   Future<void> invalidate() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null || _stateScope != scope) return;
     final current = state.value;
     if (current != null) {
       state = AsyncData(current.copyWith(lastFetchedAt: () => null));
@@ -82,11 +133,15 @@ class PriceNegotiationsNotifier
   }
 
   Future<void> loadMore() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null || _stateScope != scope) return;
+
     final current = state.value;
     if (current == null || !current.hasMore || current.isLoadingMore) return;
     state = AsyncData(current.copyWith(isLoadingMore: true));
     try {
-      final next = await _fetchPage(current.page + 1);
+      final next = await _fetchPage(current.page + 1, scope);
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
       state = AsyncData(
         current.copyWith(
           items: _sortAndDedupe([...current.items, ...next.items]),
@@ -99,11 +154,16 @@ class PriceNegotiationsNotifier
         ),
       );
     } catch (error) {
-      state = AsyncData(
-        current.copyWith(isLoadingMore: false).withRefreshError(error),
-      );
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(
+          current.copyWith(isLoadingMore: false).withRefreshError(error),
+        );
+      }
     }
   }
+
+  QueryState<PriceNegotiation> get _emptyState =>
+      QueryState(itemsPerPage: query.itemsPerPage, count: 0);
 
   List<PriceNegotiation> _sortAndDedupe(List<PriceNegotiation> values) {
     final byId = {for (final value in values) value.id: value};

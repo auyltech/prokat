@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/widgets/chat_header_tile.dart';
 import 'package:prokat/features/layout/resolve_app_bar_title.dart';
+import 'package:prokat/features/layout/section_root_routes.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/user/widgets/city_picker_trigger.dart';
@@ -60,23 +62,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     Widget? titleWidget;
     String? titleString;
 
-    // Replaced relative string evaluation against segments with full currentPath matching
-    final showBackButton =
-        currentPath == AppRoutes.clientOrdersHistory ||
-        currentPath == AppRoutes.clientRequestsHistory ||
-        currentPath == AppRoutes.ownerBookingsHistory ||
-        currentPath == AppRoutes.ownerEquipmentCreate ||
-        currentPath == AppRoutes.ownerCreateOffer ||
-        currentPath == AppRoutes.clientChatSupport ||
-        [
-          AppRoutes.ownerPayment,
-          AppRoutes.ownerPaymentTopUp,
-          AppRoutes.userAgreement,
-          AppRoutes.privacyPolicy,
-          AppRoutes.personalDataConsent,
-          AppRoutes.helpSupport,
-        ].contains(currentPath) ||
-        isChatByIdScreen;
+    final showBackButton = !isSectionRootPath(currentPath);
 
     if (isChatByIdScreen) {
       // Safely extract chat ID now that length boundary >= 4 is guaranteed
@@ -174,7 +160,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       elevation: 5,
       backgroundColor: theme.cardColor,
-      automaticallyImplyLeading: showBackButton,
+      automaticallyImplyLeading: false,
       iconTheme: IconThemeData(
         color: isOwnerScreen ? AppColors.teal700 : theme.colorScheme.primary,
       ),
@@ -188,11 +174,19 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
               onPressed: () async {
                 if (GoRouter.of(context).canPop()) {
                   context.pop();
-                } else if (currentPath == AppRoutes.login) {
-                  context.go(AppRoutes.main);
+                } else {
+                  final startup = ref.read(appStartupProvider).routeState;
+                  context.go(
+                    backFallbackPath(
+                      currentPath,
+                      isLoggedIn:
+                          startup == AppStartupRouteState.client ||
+                          startup == AppStartupRouteState.owner,
+                      isOwner: startup == AppStartupRouteState.owner,
+                    ),
+                  );
                 }
 
-                // Fixed identical branch logic and index range exception
                 if (isChatByIdScreen) {
                   final chatId = segments[3];
                   ref.read(chatSocketServiceProvider).leaveChat(chatId);

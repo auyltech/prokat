@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
@@ -45,6 +46,9 @@ void main() {
 
       final container = ProviderContainer(
         overrides: [
+          authenticatedSessionScopeKeyProvider.overrideWithValue(
+            const AuthenticatedSessionScopeKey.forUser('test-user'),
+          ),
           bookingServiceProvider.overrideWithValue(
             BookingService(_TestApiClient(dio)),
           ),
@@ -101,6 +105,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        authenticatedSessionScopeKeyProvider.overrideWithValue(
+          const AuthenticatedSessionScopeKey.forUser('test-user'),
+        ),
         bookingServiceProvider.overrideWithValue(
           BookingService(_TestApiClient(dio)),
         ),

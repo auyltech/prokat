@@ -2448,4 +2448,360 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get details => 'Details';
+
+  @override
+  String get demandSurveyCardTitle => 'Other equipment?';
+
+  @override
+  String get demandSurveyCardSubtitle => 'Tell us what you need';
+
+  @override
+  String get demandSurveyQuestionTitle => 'What equipment do you need?';
+
+  @override
+  String get demandSurveyQuestionSubtitle =>
+      'Select one or more options or describe another type.';
+
+  @override
+  String get demandSurveyCityLabel => 'City';
+
+  @override
+  String get demandSurveySelectCity => 'Select a city';
+
+  @override
+  String get demandSurveyOtherOption => 'Other equipment';
+
+  @override
+  String get demandSurveyOtherHint => 'Describe the equipment';
+
+  @override
+  String get demandSurveySubmit => 'Submit';
+
+  @override
+  String get demandSurveyThankYou => 'Thank you. Your response was saved.';
+
+  @override
+  String get demandSurveyLoadError => 'The survey is unavailable right now.';
+
+  @override
+  String get demandSurveySubmitError => 'Check the form and try again.';
+
+  @override
+  String get demandSurveyAlreadySubmitted => 'You have already responded.';
+
+  @override
+  String get demandSurveyInactive => 'This survey is no longer active.';
+
+  @override
+  String get aboutProkat => 'About Prokat';
+
+  @override
+  String get aboutProkatEyebrow => 'EQUIPMENT RENTAL MADE SIMPLE';
+
+  @override
+  String get aboutProkatIntro =>
+      'Prokat connects people looking for equipment with trusted local owners and service providers. Search, compare and communicate directly in one simple platform.';
+
+  @override
+  String get aboutFeatureSearchTitle => 'Easy equipment search';
+
+  @override
+  String get aboutFeatureSearchDescription =>
+      'Find suitable equipment and trusted local service providers.';
+
+  @override
+  String get aboutFeatureTrustedTitle => 'Trusted providers';
+
+  @override
+  String get aboutFeatureTrustedDescription =>
+      'Equipment owners and service providers are reviewed before approval.';
+
+  @override
+  String get aboutFeatureRatingsTitle => 'Two-way ratings';
+
+  @override
+  String get aboutFeatureRatingsDescription =>
+      'Clients and owners build trust through transparent reviews.';
+
+  @override
+  String get newToProkat => 'NEW TO PROKAT?';
+
+  @override
+  String get exploreHowItWorks => 'Explore How It Works';
+
+  @override
+  String get aboutProkatBannerSubtitle =>
+      'Find or rent heavy equipment and trusted service providers instantly in one tap.';
+
+  @override
+  String get userConsent => 'User Consent';
+
+  @override
+  String get privacyPolicySubtitle => 'How we collect and use your data';
+
+  @override
+  String get userAgreementSubtitle => 'Rules for using the platform';
+
+  @override
+  String get personalDataSharingSubtitle => 'Sharing of personal data';
+
+  @override
+  String get legalDocuments => 'Legal documents';
+
+  @override
+  String get legalDocumentsSubtitle => 'Policies, agreements, and terms of use';
+
+  @override
+  String get applicationTheme => 'Application theme';
+
+  @override
+  String get themeChooseHint => 'Choose how Prokat should look on this device.';
+
+  @override
+  String get themeSystemDefault => 'System default';
+
+  @override
+  String get themeSystemDefaultSubtitle => 'Match your device appearance';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeLightSubtitle => 'Always use the light appearance';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeDarkSubtitle => 'Always use the dark appearance';
+
+  @override
+  String get serviceAndSafetyNotices => 'Service and safety notices';
+
+  @override
+  String get serviceAndSafetyNoticesSubtitle =>
+      'Account, security and important platform alerts';
+
+  @override
+  String get ownerServiceAndSafetyNoticesSubtitle =>
+      'Security, account restrictions and urgent platform notices';
+
+  @override
+  String get requiredNoticesAlwaysAvailable =>
+      'These notices are always available in the app.';
+
+  @override
+  String get checkingPermission => 'Checking permission';
+
+  @override
+  String get pushEnabled => 'Enabled';
+
+  @override
+  String get pushEnabledQuietly => 'Enabled quietly';
+
+  @override
+  String get pushBlocked => 'Blocked';
+
+  @override
+  String get pushNotEnabled => 'Not enabled';
+
+  @override
+  String get pushUnavailable => 'Unavailable';
+
+  @override
+  String get pushEnabledInDeviceSettings => 'Enabled in device settings';
+
+  @override
+  String get pushBlockedInDeviceSettings => 'Blocked in device settings';
+
+  @override
+  String get pushPermissionNotRequested => 'Permission not requested';
+
+  @override
+  String get pushPermissionUnavailable => 'Permission unavailable';
+
+  @override
+  String get failedToSaveNotificationPreferences =>
+      'Failed to save notification preferences.';
+
+  @override
+  String get notifRentalRequestsAndOffers => 'Rental requests and offers';
+
+  @override
+  String get notifRentalRequestsAndOffersSubtitle =>
+      'New offers, counteroffers and request updates';
+
+  @override
+  String get notifOrderUpdates => 'Order updates';
+
+  @override
+  String get notifOrderUpdatesSubtitle =>
+      'Confirmations, cancellations and status changes';
+
+  @override
+  String get notifWorkProgress => 'Work progress';
+
+  @override
+  String get notifWorkProgressSubtitle =>
+      'Owner on the way, arrived, started or completed';
+
+  @override
+  String get notifMessagesSubtitle => 'New chat and negotiation messages';
+
+  @override
+  String get notifRemindersAndReviews => 'Reminders and reviews';
+
+  @override
+  String get notifRemindersAndReviewsSubtitle =>
+      'Upcoming rentals and review reminders';
+
+  @override
+  String get notifRequestsAndOffers => 'Requests and offers';
+
+  @override
+  String get notifRequestsAndOffersSubtitle =>
+      'New rental requests, offer decisions and negotiations';
+
+  @override
+  String get notifOrdersAndWorkProgress => 'Orders and work progress';
+
+  @override
+  String get notifOrdersAndWorkProgressSubtitle =>
+      'Confirmations, cancellations and work-status changes';
+
+  @override
+  String get notifOwnerMessagesSubtitle =>
+      'New client and negotiation messages';
+
+  @override
+  String get notifEquipmentAndVerification => 'Equipment and verification';
+
+  @override
+  String get notifEquipmentAndVerificationSubtitle =>
+      'Equipment moderation, documents and profile status';
+
+  @override
+  String get notifBalanceAlerts => 'Balance alerts';
+
+  @override
+  String get notifBalanceAlertsSubtitle =>
+      'Low balance, top-up and payment-status alerts';
+
+  @override
+  String get noAddressSelected => 'No address selected';
+
+  @override
+  String get selectedAddress => 'Selected address';
+
+  @override
+  String get youHaveNoSavedAddresses => 'You have no saved addresses.';
+
+  @override
+  String get manageMyAddresses => 'Manage my addresses';
+
+  @override
+  String get addressPrivacy => 'Address privacy';
+
+  @override
+  String get addressPrivacyBody =>
+      'Your selected address is shared only with the equipment owner during an active order when it is needed to fulfil the rental. It is not displayed publicly or shared with other users.';
+
+  @override
+  String get morePrivacyOptionsContactSupport =>
+      'More privacy options? Contact support';
+
+  @override
+  String get businessPreferences => 'Business preferences';
+
+  @override
+  String get businessProfile => 'Business profile';
+
+  @override
+  String get manageMyEquipment => 'Manage my equipment';
+
+  @override
+  String get noEquipmentAdded => 'No equipment added';
+
+  @override
+  String fleetItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items in your fleet',
+      one: '$count item in your fleet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organization => 'Organization';
+
+  @override
+  String get individualOwner => 'Individual owner';
+
+  @override
+  String get chatSection => 'Chat';
+
+  @override
+  String get chatContext => 'Context';
+
+  @override
+  String get participant => 'Participant';
+
+  @override
+  String get chatId => 'Chat ID';
+
+  @override
+  String get booking => 'Booking';
+
+  @override
+  String get notLinked => 'Not linked';
+
+  @override
+  String get clientRole => 'Client';
+
+  @override
+  String get priceOfferReceived => 'Price Offer Received';
+
+  @override
+  String get waitingClientResponse => 'Waiting client response';
+
+  @override
+  String get didntReceiveCodeResend => 'Didn\'t receive the code? Resend Now';
+
+  @override
+  String get youHaveNoActiveOrders => 'You don\'t have any active orders';
+
+  @override
+  String get youHaveNoNotifications => 'You don\'t have any notifications';
+
+  @override
+  String get unitCubicMeters => 'M3';
+
+  @override
+  String get currencyKzt => 'KZT';
+
+  @override
+  String get negotiationIdMissing => 'Negotiation id is missing';
+
+  @override
+  String get actionFailed => 'Action failed';
+
+  @override
+  String get pleaseSelectYourCity => 'Please select your city';
+
+  @override
+  String get connectionTimedOut =>
+      'Connection timed out. The server may be warming up — please try again.';
+
+  @override
+  String get noConnectionCheckNetwork =>
+      'No connection. Check your network and try again.';
+
+  @override
+  String get networkErrorTryAgain => 'Network error. Please try again.';
+
+  @override
+  String get somethingWentWrongTryAgain =>
+      'Something went wrong. Please try again.';
 }

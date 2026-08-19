@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -44,6 +45,9 @@ void main() {
       final apiClient = _TestApiClient(dio);
       final container = ProviderContainer(
         overrides: [
+          authenticatedSessionScopeKeyProvider.overrideWithValue(
+            const AuthenticatedSessionScopeKey.forUser('test-user'),
+          ),
           clientProfileServiceProvider.overrideWithValue(
             ClientProfileService(apiClient),
           ),

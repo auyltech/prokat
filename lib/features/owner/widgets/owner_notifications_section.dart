@@ -8,6 +8,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerNotificationsSection extends ConsumerStatefulWidget {
   final OwnerNotificationPreferences initialValue;
@@ -139,17 +140,17 @@ class _OwnerNotificationsSectionState
     }
   }
 
-  String get _permissionTitle {
+  String _permissionTitle(AppLocalizations l10n) {
     if (_loadingPermission) {
-      return 'Checking permission';
+      return l10n.checkingPermission;
     }
 
     return switch (_notificationSettings?.authorizationStatus) {
-      AuthorizationStatus.authorized => 'Enabled in device settings',
-      AuthorizationStatus.provisional => 'Enabled quietly',
-      AuthorizationStatus.denied => 'Blocked in device settings',
-      AuthorizationStatus.notDetermined => 'Permission not requested',
-      null => 'Permission unavailable',
+      AuthorizationStatus.authorized => l10n.pushEnabledInDeviceSettings,
+      AuthorizationStatus.provisional => l10n.pushEnabledQuietly,
+      AuthorizationStatus.denied => l10n.pushBlockedInDeviceSettings,
+      AuthorizationStatus.notDetermined => l10n.pushPermissionNotRequested,
+      null => l10n.pushPermissionUnavailable,
     };
   }
 
@@ -182,7 +183,9 @@ class _OwnerNotificationsSectionState
 
     if (!saved) {
       AppSnackBar.show(
-        message: 'Failed to save notification preferences.',
+        message: AppLocalizations.of(
+          context,
+        )!.failedToSaveNotificationPreferences,
         isError: true,
       );
     }
@@ -197,12 +200,13 @@ class _OwnerNotificationsSectionState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notifications',
+          l10n.notifications,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -214,8 +218,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.notifications_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Push notifications',
-          subtitle: _permissionTitle,
+          title: l10n.pushNotifications,
+          subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           isLoading: _loadingPermission,
           onTap: _loadingPermission ? null : _managePushPermission,
@@ -230,8 +234,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.campaign_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Requests and offers',
-          subtitle: 'New rental requests, offer decisions and negotiations',
+          title: l10n.notifRequestsAndOffers,
+          subtitle: l10n.notifRequestsAndOffersSubtitle,
           value: _preferences.requestsAndOffers,
           isLoading: _savingPreference == 'requestsAndOffers',
           onChanged: (value) {
@@ -248,8 +252,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.assignment_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Orders and work progress',
-          subtitle: 'Confirmations, cancellations and work-status changes',
+          title: l10n.notifOrdersAndWorkProgress,
+          subtitle: l10n.notifOrdersAndWorkProgressSubtitle,
           value: _preferences.ordersAndWork,
           isLoading: _savingPreference == 'ordersAndWork',
           onChanged: (value) {
@@ -266,8 +270,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.chat_bubble_outline,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Messages',
-          subtitle: 'New client and negotiation messages',
+          title: l10n.messages,
+          subtitle: l10n.notifOwnerMessagesSubtitle,
           value: _preferences.messages,
           isLoading: _savingPreference == 'messages',
           onChanged: (value) {
@@ -284,8 +288,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.verified_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Equipment and verification',
-          subtitle: 'Equipment moderation, documents and profile status',
+          title: l10n.notifEquipmentAndVerification,
+          subtitle: l10n.notifEquipmentAndVerificationSubtitle,
           value: _preferences.equipmentAndVerification,
           isLoading: _savingPreference == 'equipmentAndVerification',
           onChanged: (value) {
@@ -302,8 +306,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.account_balance_wallet_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Balance alerts',
-          subtitle: 'Low balance, top-up and payment-status alerts',
+          title: l10n.notifBalanceAlerts,
+          subtitle: l10n.notifBalanceAlertsSubtitle,
           value: _preferences.balanceAlerts,
           isLoading: _savingPreference == 'balanceAlerts',
           onChanged: (value) {
@@ -320,8 +324,8 @@ class _OwnerNotificationsSectionState
           icon: Icons.event_available_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: 'Reminders and reviews',
-          subtitle: 'Upcoming rentals and review reminders',
+          title: l10n.notifRemindersAndReviews,
+          subtitle: l10n.notifRemindersAndReviewsSubtitle,
           value: _preferences.remindersAndReviews,
           isLoading: _savingPreference == 'remindersAndReviews',
           onChanged: (value) {
@@ -355,6 +359,7 @@ class _RequiredOwnerNoticesTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
@@ -375,13 +380,13 @@ class _RequiredOwnerNoticesTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Service and safety notices',
+                l10n.serviceAndSafetyNotices,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
-                'Security, account restrictions and urgent platform notices',
+                l10n.ownerServiceAndSafetyNoticesSubtitle,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
@@ -393,7 +398,7 @@ class _RequiredOwnerNoticesTile extends StatelessWidget {
         const SizedBox(width: 12),
 
         Tooltip(
-          message: 'These notices are always available in the app.',
+          message: l10n.requiredNoticesAlwaysAvailable,
           child: Icon(
             Icons.lock_outline_rounded,
             color: theme.colorScheme.onSurfaceVariant,

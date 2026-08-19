@@ -79,14 +79,38 @@ class ChatModel {
     this.newMessagesCount,
   });
 
-  String displayTitle(String currentUserId) {
-    return currentUserId == client?.id
-        ? owner?.displayName ?? "Owner"
-        : client?.displayName ?? "Client";
+  String displayTitle(
+    String currentUserId, {
+    required String ownerFallback,
+    required String clientFallback,
+  }) {
+    return _counterpart(currentUserId)?.displayName ??
+        (currentUserId == client?.id ? ownerFallback : clientFallback);
   }
 
   String? displayImageUrl({String? currentUserId}) {
-    return client?.imageUrl ?? owner?.imageUrl;
+    final counterpart = _counterpart(currentUserId);
+    if (counterpart != null) {
+      return _nonEmpty(counterpart.imageUrl);
+    }
+
+    return _nonEmpty(client?.imageUrl) ?? _nonEmpty(owner?.imageUrl);
+  }
+
+  UserModel? _counterpart(String? currentUserId) {
+    if (currentUserId != null && currentUserId == client?.id) {
+      return owner;
+    }
+    if (currentUserId != null && currentUserId == owner?.id) {
+      return client;
+    }
+    return null;
+  }
+
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
   }
 
   OfferModel? getActiveOffer() {
@@ -115,6 +139,7 @@ class ChatModel {
     List<ChatMessageModel>? messages,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? newMessagesCount,
   }) {
     return ChatModel(
       id: id ?? this.id,
@@ -132,6 +157,7 @@ class ChatModel {
       messages: messages ?? this.messages,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      newMessagesCount: newMessagesCount ?? this.newMessagesCount,
     );
   }
 

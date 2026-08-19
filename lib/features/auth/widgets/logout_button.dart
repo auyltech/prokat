@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -12,6 +13,7 @@ class LogoutButton extends ConsumerWidget {
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final router = GoRouter.of(context);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -51,7 +53,12 @@ class LogoutButton extends ConsumerWidget {
 
     if (confirm != true) return;
 
-    await ref.read(appStartupProvider.notifier).forceSignedOut();
+    final signOut = ref.read(appStartupProvider.notifier).forceSignedOut();
+
+    // Leave the authenticated shell immediately. The profile context may be
+    // disposed while the remote/local logout sequence is still completing.
+    router.go(AppRoutes.main);
+    await signOut;
   }
 
   @override

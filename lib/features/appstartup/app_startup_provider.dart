@@ -111,6 +111,8 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
   final AppModeStorage modeStorage;
   AppMode _currentMode = AppMode.clientMode;
   bool _isInitializing = false;
+  Future<void>? _signOut;
+  Future<void>? _unauthorizedSignOut;
 
   AppStartupController(this.ref, this.modeStorage)
     : super(const AppStartupStatus.loading()) {
@@ -138,54 +140,20 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     _isInitializing = true;
 
     try {
-      state = _statusForStep(
-        AppStartupStep.loadSavedMode,
-        routeState: AppStartupRouteState.loading,
-      );
-
       await loadSavedMode();
 
-      final auth = ref.read(authProvider.notifier);
-
-      state = _statusForStep(AppStartupStep.restoreSession);
-
-      var session = ref.read(authProvider).session;
-      session ??= await auth.restoreSession();
-
-      // 1. If an unexpired session is missing but token details exist, restoreSession handles it internally.
-      // 2. Double-check token expiration here in the state machine to trigger explicit refresh step if needed.
-      if (session != null &&
-          session.sessionToken != null &&
-          session.sessionToken!.isNotEmpty) {
-        if (!session.isExpired) {
-          state = _statusForStep(AppStartupStep.refreshSession);
-
-          final refreshSuccess = await auth.refreshSession();
-          if (refreshSuccess) {
-            session = ref
-                .read(authProvider)
-                .session; // Get updated session reference
-          } else {
-            session = null; // Mark invalid to drop down to OTP/Guest flows
-          }
-        }
-      }
-
-      if (session == null) {
-        state = _statusForStep(AppStartupStep.restoreOtpSession);
-
-        final otpSession = await auth.restoreOtpSession();
-
+      // OTP verification has already persisted and published this session.
+      // Do not run the cold-start restore/refresh pipeline a second time.
+      if (ref.read(authProvider).session == null) {
         state = _statusForStep(
           AppStartupStep.done,
-          routeState: otpSession == true
-              ? AppStartupRouteState.otp
-              : AppStartupRouteState.guest,
+          routeState: AppStartupRouteState.guest,
         );
-
         return;
       }
 
+      // Preserve the current OTP/login route while the minimum profile is
+      // loaded. The final state change lets GoRouter perform one transition.
       state = _statusForStep(AppStartupStep.fetchProfileMinimal);
 
       await ref.read(clientProfileProvider.notifier).refresh();
@@ -216,11 +184,27 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     }
   }
 
-  Future<void> _handleUnauthorized() async {
-    await forceSignedOut(unauthorized: true);
+  Future<void> _handleUnauthorized() {
+    // A delayed 401 from an in-flight request after local logout must not
+    // start another remote logout or turn the guest route into unauthorized.
+    if (ref.read(authProvider).session == null) {
+      return Future<void>.value();
+    }
+
+    final active = _unauthorizedSignOut;
+    if (active != null) return active;
+
+    late final Future<void> tracked;
+    tracked = forceSignedOut(unauthorized: true).whenComplete(() {
+      if (identical(_unauthorizedSignOut, tracked)) {
+        _unauthorizedSignOut = null;
+      }
+    });
+    _unauthorizedSignOut = tracked;
+    return tracked;
   }
 
-  void _clearUserScopedProviders() {
+  Future<void> _clearUserScopedProviders() async {
     // Profile and owner registration
     ref.invalidate(clientProfileProvider);
     ref.invalidate(clientProfileMutationProvider);
@@ -297,10 +281,24 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.read(notificationProvider.notifier).clearOnLogout();
     ref.read(appSocketProvider).disconnectSocket();
 
-    ref.read(notificationLocalStorageProvider).clearPendingRoute();
+    await ref.read(notificationLocalStorageProvider).clearPendingRoute();
   }
 
-  Future<void> forceSignedOut({bool unauthorized = false}) async {
+  Future<void> forceSignedOut({bool unauthorized = false}) {
+    final active = _signOut;
+    if (active != null) return active;
+
+    late final Future<void> tracked;
+    tracked = _forceSignedOut(unauthorized: unauthorized).whenComplete(() {
+      if (identical(_signOut, tracked)) {
+        _signOut = null;
+      }
+    });
+    _signOut = tracked;
+    return tracked;
+  }
+
+  Future<void> _forceSignedOut({required bool unauthorized}) async {
     final authNotifier = ref.read(authProvider.notifier);
 
     try {
@@ -330,7 +328,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
     await WidgetsBinding.instance.endOfFrame;
 
-    _clearUserScopedProviders();
+    await _clearUserScopedProviders();
   }
 
   Future<AppMode> loadSavedMode() async {

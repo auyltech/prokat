@@ -92,7 +92,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
                     child: EmptyStateTile(
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
-                      subtitle: "You don't have any active orders",
+                      subtitle: l10n.youHaveNoActiveOrders,
                     ),
                   )
                 else

@@ -30,6 +30,8 @@ class _MapOwnerPinLocationContainerState
   Timer? idleDebounce;
 
   Future<void> reverseGeocode() async {
+    if (!mounted) return;
+
     setState(() {
       loadingAddress = true;
       selectedAddress = null;
@@ -40,26 +42,32 @@ class _MapOwnerPinLocationContainerState
           .read(locationApiProvider)
           .reverseGeocode(longitude, latitude);
 
+      if (!mounted) return;
+
       if (result != null) {
         setState(() {
           selectedAddress = result;
         });
       }
     } finally {
-      setState(() {
-        loadingAddress = false;
-      });
+      if (mounted) {
+        setState(() {
+          loadingAddress = false;
+        });
+      }
     }
   }
 
   void onCameraIdle(CameraChangedEventData data) {
     idleDebounce?.cancel();
+    if (!mounted) return;
 
     setState(() {
       selectedAddress = null;
     });
 
     idleDebounce = Timer(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
       latitude = data.cameraState.center.coordinates.lat.toDouble();
       longitude = data.cameraState.center.coordinates.lng.toDouble();
 

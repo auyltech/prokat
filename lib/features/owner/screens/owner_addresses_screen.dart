@@ -16,7 +16,10 @@ class OwnerAddressesScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.equipmentLocations)),
+      appBar: AppBar(
+        title: Text(l10n.equipmentLocations),
+        automaticallyImplyLeading: false,
+      ),
       body: ListView.builder(
         itemCount: state.ownerLocations.length,
         itemBuilder: (context, index) {

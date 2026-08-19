@@ -7,6 +7,7 @@ import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
+import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_bootstrap_provider.dart';
 
 class MyApp extends ConsumerStatefulWidget {
@@ -29,6 +30,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     ref.watch(notificationBootstrapProvider);
+    ref.watch(chatSidebarBootstrapProvider);
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);

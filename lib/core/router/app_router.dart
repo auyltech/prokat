@@ -6,6 +6,7 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/screens/about_prokat_screen.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
+import 'package:prokat/features/appstatic/screens/legal_documents_screen.dart';
 import 'package:prokat/features/appstatic/screens/personal_data_consent_screen.dart';
 import 'package:prokat/features/appstatic/screens/privacy_policy_screen.dart';
 import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
@@ -53,6 +54,7 @@ import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 import 'package:prokat/features/notifications/screens/notifications_screen.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = GoRouterRefreshNotifier<AppStartupStatus>(
@@ -172,6 +174,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: AppRoutes.equipmentDemand,
+        builder: (_, state) => EquipmentDemandScreen(
+          campaignId: state.pathParameters['campaignId']!,
+        ),
+      ),
 
       // Privacy Policy
       GoRoute(
@@ -191,8 +199,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       /// 🧱 MAIN APP
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return MainScaffold(navigationShell: navigationShell);
+        pageBuilder: (context, state, navigationShell) {
+          return NoTransitionPage<void>(
+            key: state.pageKey,
+            child: MainScaffold(navigationShell: navigationShell),
+          );
         },
         branches: [
           /// Guest
@@ -351,6 +362,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.clientProfile,
                 builder: (_, _) => const ClientProfileScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.clientDocuments,
+                builder: (_, _) => const LegalDocumentsScreen(),
               ),
               GoRoute(
                 path: AppRoutes.clientSettings,

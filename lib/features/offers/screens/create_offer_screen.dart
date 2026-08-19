@@ -6,7 +6,7 @@ import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/date_picker_component.dart';
-import 'package:prokat/core/widgets/drowp_down_field.dart';
+import 'package:prokat/core/widgets/drop_down_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';

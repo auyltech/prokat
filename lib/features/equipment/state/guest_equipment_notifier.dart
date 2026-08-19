@@ -2,13 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 
 class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
 
   Future<void>? _refreshing;
+  int? _refreshingGeneration;
+  int _requestGeneration = 0;
 
   String? _query;
   String? _city;
@@ -49,15 +51,26 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> refresh() {
-    final active = _refreshing;
-    if (active != null) return active;
-    final operation = _refresh();
-    _refreshing = operation;
-    return operation.whenComplete(() => _refreshing = null);
+    return _refreshForGeneration(_requestGeneration);
   }
 
-  Future<void> _refresh() async {
-    final previous = state.value;
+  Future<void> _refreshForGeneration(int generation) {
+    final active = _refreshing;
+    if (active != null && _refreshingGeneration == generation) return active;
+
+    final operation = _refresh(generation);
+    _refreshing = operation;
+    _refreshingGeneration = generation;
+    return operation.whenComplete(() {
+      if (identical(_refreshing, operation)) {
+        _refreshing = null;
+        _refreshingGeneration = null;
+      }
+    });
+  }
+
+  Future<void> _refresh(int generation) async {
+    final previous = state.valueOrNull;
 
     if (previous == null) {
       if (state.isLoading) {
@@ -66,21 +79,28 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
           return;
         } catch (_) {}
       }
+      if (generation != _requestGeneration) return;
       state = const AsyncLoading();
-      state = await AsyncValue.guard(() => _fetchPage(1));
+      final next = await AsyncValue.guard(() => _fetchPage(1));
+      if (generation == _requestGeneration) state = next;
       return;
     }
 
+    if (generation != _requestGeneration) return;
     state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      state = AsyncData(await _fetchPage(1));
+      final next = await _fetchPage(1);
+      if (generation == _requestGeneration) state = AsyncData(next);
     } catch (error) {
-      state = AsyncData(previous.withRefreshError(error));
+      if (generation == _requestGeneration) {
+        state = AsyncData(previous.withRefreshError(error));
+      }
     }
   }
 
   Future<void> loadMore() async {
-    final current = state.value;
+    final current = state.valueOrNull;
+    final generation = _requestGeneration;
 
     if (current == null) return;
 
@@ -104,6 +124,8 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         categoryId: _categoryId,
       );
 
+      if (generation != _requestGeneration) return;
+
       if (!response.success || response.data == null) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
         return;
@@ -123,7 +145,9 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         ),
       );
     } catch (_) {
-      state = AsyncData(current.copyWith(isLoadingMore: false));
+      if (generation == _requestGeneration) {
+        state = AsyncData(current.copyWith(isLoadingMore: false));
+      }
     }
   }
 
@@ -142,12 +166,13 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       await refreshIfStale();
       return;
     }
+    final generation = ++_requestGeneration;
     if (state.isLoading) {
       try {
         await future;
       } catch (_) {}
     }
-    await refresh();
+    await _refreshForGeneration(generation);
   }
 
   Future<void> clearFilters() async {
@@ -157,14 +182,15 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     _categoryId = null;
 
     if (changed) {
-      await refresh();
+      final generation = ++_requestGeneration;
+      await _refreshForGeneration(generation);
     } else {
       await refreshIfStale();
     }
   }
 
   Future<void> invalidate() async {
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -177,7 +203,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         await future;
       } catch (_) {}
     }
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) {
       await refresh();

@@ -1,21 +1,47 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
-import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
+import 'package:prokat/features/chat/utils/chat_sidebar_update_utils.dart';
 
 class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   ChatService get api => ref.read(chatServiceProvider);
   Future<void>? _refreshing;
+  AuthenticatedSessionScopeKey? _refreshingScope;
+  AuthenticatedSessionScopeKey? _stateScope;
 
   @override
   Future<QueryState<ChatModel>> build() async {
-    return _fetchPage(1);
+    final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    if (scope == null) {
+      _stateScope = null;
+      return const QueryState(itemsPerPage: 20, count: 0);
+    }
+
+    final next = await _fetchPage(1, scope);
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      return const QueryState(itemsPerPage: 20, count: 0);
+    }
+    _stateScope = scope;
+    return next;
   }
 
-  Future<QueryState<ChatModel>> _fetchPage(int page) async {
+  Future<QueryState<ChatModel>> _fetchPage(
+    int page,
+    AuthenticatedSessionScopeKey scope,
+  ) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      return const QueryState(itemsPerPage: 20, count: 0);
+    }
+
     final response = await api.getClientChats(page: page, itemsPerPage: 20);
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
+      return const QueryState(itemsPerPage: 20, count: 0);
+    }
     final result = response.data;
 
     if (!response.success || result == null) {
@@ -32,38 +58,63 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   }
 
   Future<void> refresh() {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return Future<void>.value();
+
     final active = _refreshing;
-    if (active != null) return active;
-    final operation = _refresh();
+    if (active != null && _refreshingScope == scope) return active;
+
+    final operation = _refresh(scope);
     _refreshing = operation;
-    return operation.whenComplete(() => _refreshing = null);
+    _refreshingScope = scope;
+    return operation.whenComplete(() {
+      if (identical(_refreshing, operation)) {
+        _refreshing = null;
+        _refreshingScope = null;
+      }
+    });
   }
 
-  Future<void> _refresh() async {
-    final previous = state.value;
+  Future<void> _refresh(AuthenticatedSessionScopeKey scope) async {
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
+    if (state.isLoading) {
+      try {
+        await future;
+        return;
+      } catch (_) {}
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+    }
+
+    final previous = _stateScope == scope ? state.value : null;
     if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          return;
-        } catch (_) {}
-      }
       state = const AsyncLoading();
-      state = await AsyncValue.guard(() => _fetchPage(1));
+      final next = await AsyncValue.guard(() => _fetchPage(1, scope));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        _stateScope = scope;
+        state = next;
+      }
       return;
     }
 
     state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      final data = await _fetchPage(1);
-      state = AsyncData(data);
+      final data = await _fetchPage(1, scope);
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        _stateScope = scope;
+        state = AsyncData(data);
+      }
     } catch (error) {
-      state = AsyncData(previous.withRefreshError(error));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(previous.withRefreshError(error));
+      }
     }
   }
 
   Future<void> loadMore() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null || _stateScope != scope) return;
+
     final current = state.value;
 
     if (current == null || !current.hasMore || current.isLoadingMore) {
@@ -79,6 +130,8 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
       );
 
       final result = response.data;
+
+      if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
       if (!response.success || result == null) {
         state = AsyncData(current.copyWith(isLoadingMore: false));
@@ -96,7 +149,9 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
         ),
       );
     } catch (_) {
-      state = AsyncData(current.copyWith(isLoadingMore: false));
+      if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        state = AsyncData(current.copyWith(isLoadingMore: false));
+      }
     }
   }
 
@@ -108,19 +163,24 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   }
 
   Future<void> refreshIfStale() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+
     if (state.isLoading) {
       try {
         await future;
       } catch (_) {}
     }
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     final current = state.value;
 
-    if (current == null || current.isStale) {
+    if (_stateScope != scope || current == null || current.isStale) {
       await refresh();
     }
   }
 
   void upsert(ChatModel chat) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
     if (current == null) return;
 
@@ -145,6 +205,7 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
   }
 
   void remove(String chatId) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
     if (current == null) return;
 
@@ -159,6 +220,7 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     required String chatId,
     required ChatMessageModel message,
   }) {
+    if (!_canMutateCurrentScope) return;
     final current = state.value;
     if (current == null) return;
 
@@ -180,9 +242,44 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
     state = AsyncData(current.copyWith(items: items));
   }
 
+  ChatSidebarApplyStatus applySidebarUpdate({
+    required ChatSidebarUpdate update,
+    String? currentUserId,
+    bool isThreadOpen = false,
+  }) {
+    if (!_canMutateCurrentScope) return ChatSidebarApplyStatus.skipped;
+    final current = state.value;
+    if (current == null) return ChatSidebarApplyStatus.skipped;
+
+    final result = applyChatSidebarUpdateToItems(
+      items: current.items,
+      update: update,
+      currentUserId: currentUserId,
+      isThreadOpen: isThreadOpen,
+    );
+
+    if (result.status != ChatSidebarApplyStatus.applied) {
+      return result.status;
+    }
+
+    state = AsyncData(current.copyWith(items: result.items));
+    return ChatSidebarApplyStatus.applied;
+  }
+
   void markChatRead(String chatId) {
-    // We'll implement this after updating ChatModel.copyWith
-    // to support newMessagesCount.
+    applySidebarUpdate(
+      update: ChatSidebarUpdate(chatId: chatId, unreadCount: 0),
+    );
+  }
+
+  bool get _canMutateCurrentScope {
+    final scope = readAuthenticatedSessionScope(ref);
+    return scope != null && _stateScope == scope;
+  }
+
+  List<ChatModel>? cachedItemsForScope(AuthenticatedSessionScopeKey scope) {
+    if (_stateScope != scope) return null;
+    return state.asData?.value.items;
   }
 
   List<ChatModel> _mergeChats(
