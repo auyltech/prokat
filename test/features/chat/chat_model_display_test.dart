@@ -25,11 +25,25 @@ void main() {
 
   group('ChatModel.displayTitle', () {
     test('shows the owner when the current user is the client', () {
-      expect(chat.displayTitle(client.id!), 'Ерлан Садыков');
+      expect(
+        chat.displayTitle(
+          client.id!,
+          ownerFallback: 'Owner',
+          clientFallback: 'Client',
+        ),
+        'Ерлан Садыков',
+      );
     });
 
     test('shows the client when the current user is the owner', () {
-      expect(chat.displayTitle(owner.id!), 'Алия Нурланова');
+      expect(
+        chat.displayTitle(
+          owner.id!,
+          ownerFallback: 'Owner',
+          clientFallback: 'Client',
+        ),
+        'Алия Нурланова',
+      );
     });
   });
 
