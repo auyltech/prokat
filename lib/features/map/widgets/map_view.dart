@@ -57,12 +57,16 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
             if (!mounted) return;
             _map = mapboxMap;
             controller.attach(mapboxMap, initialItems: widget.equipmentList);
-            await controller.enableUserLocation();
-            if (!mounted) {
-              controller.detach(mapboxMap);
-              return;
+            try {
+              await controller.enableUserLocation();
+              if (!mounted) {
+                controller.detach(mapboxMap);
+                return;
+              }
+              await controller.moveToCurrentLocation();
+            } catch (_) {
+              // Keep the map usable if location setup fails.
             }
-            await controller.moveToCurrentLocation();
             if (!mounted) {
               controller.detach(mapboxMap);
             }

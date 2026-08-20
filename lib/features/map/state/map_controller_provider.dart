@@ -79,6 +79,8 @@ class MapController {
       }
       return permission == geo.LocationPermission.whileInUse ||
           permission == geo.LocationPermission.always;
+    } on geo.PermissionDefinitionsNotFoundException {
+      return false;
     } catch (_) {
       return false;
     }
@@ -88,10 +90,11 @@ class MapController {
     final map = _map;
     final attachGeneration = _attachGeneration;
     if (map == null) return;
-    if (!await _hasLocationPermission()) return;
-    if (!_isCurrent(attachGeneration)) return;
 
     try {
+      if (!await _hasLocationPermission()) return;
+      if (!_isCurrent(attachGeneration)) return;
+
       await map.location.updateSettings(
         LocationComponentSettings(
           enabled: true,
@@ -101,7 +104,6 @@ class MapController {
       );
     } catch (error) {
       if (_isDisposedChannel(error)) _clearAttachedMap();
-      return;
     }
   }
 
@@ -122,10 +124,11 @@ class MapController {
     final map = _map;
     final attachGeneration = _attachGeneration;
     if (map == null) return;
-    if (!await _hasLocationPermission()) return;
-    if (!_isCurrent(attachGeneration)) return;
 
     try {
+      if (!await _hasLocationPermission()) return;
+      if (!_isCurrent(attachGeneration)) return;
+
       final serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled || !_isCurrent(attachGeneration)) return;
 
