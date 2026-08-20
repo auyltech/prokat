@@ -2662,6 +2662,30 @@ abstract class AppLocalizations {
   /// **'No Chats'**
   String get noChats;
 
+  /// No description provided for @chatsActiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get chatsActiveTab;
+
+  /// No description provided for @chatsArchiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get chatsArchiveTab;
+
+  /// No description provided for @noArchivedChats.
+  ///
+  /// In en, this message translates to:
+  /// **'No archived chats'**
+  String get noArchivedChats;
+
+  /// No description provided for @youHaveNoArchivedChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed and cancelled chats will appear here.'**
+  String get youHaveNoArchivedChats;
+
   /// No description provided for @deliverTo.
   ///
   /// In en, this message translates to:

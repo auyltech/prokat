@@ -505,6 +505,10 @@
   "requestCancelled": "Заявка отменена",
 
   "noChats": "Нет чатов",
+  "chatsActiveTab": "Активные",
+  "chatsArchiveTab": "Архив",
+  "noArchivedChats": "Нет архивных чатов",
+  "youHaveNoArchivedChats": "Здесь появятся завершённые и отменённые чаты.",
 
   "deliverTo": "ДОСТАВИТЬ К",
   "houseBuilding": "Дом / Корпус / Подъезд",

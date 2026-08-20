@@ -1349,6 +1349,19 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noChats => 'Чаттар жоқ';
 
   @override
+  String get chatsActiveTab => 'Белсенді';
+
+  @override
+  String get chatsArchiveTab => 'Мұрағат';
+
+  @override
+  String get noArchivedChats => 'Мұрағатталған чаттар жоқ';
+
+  @override
+  String get youHaveNoArchivedChats =>
+      'Аяқталған және болдырылмаған чаттар осында пайда болады.';
+
+  @override
   String get deliverTo => 'ЖЕТКІЗУ ОРНЫ';
 
   @override

@@ -506,6 +506,10 @@
   "requestCancelled": "Сұраныс жойылды",
 
   "noChats": "Чаттар жоқ",
+  "chatsActiveTab": "Белсенді",
+  "chatsArchiveTab": "Мұрағат",
+  "noArchivedChats": "Мұрағатталған чаттар жоқ",
+  "youHaveNoArchivedChats": "Аяқталған және болдырылмаған чаттар осында пайда болады.",
 
   "deliverTo": "ЖЕТКІЗУ ОРНЫ",
   "houseBuilding": "Үй / Корпус / Кіреберіс",

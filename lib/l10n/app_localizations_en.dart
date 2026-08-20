@@ -1360,6 +1360,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noChats => 'No Chats';
 
   @override
+  String get chatsActiveTab => 'Active';
+
+  @override
+  String get chatsArchiveTab => 'Archive';
+
+  @override
+  String get noArchivedChats => 'No archived chats';
+
+  @override
+  String get youHaveNoArchivedChats =>
+      'Completed and cancelled chats will appear here.';
+
+  @override
   String get deliverTo => 'DELIVER TO';
 
   @override

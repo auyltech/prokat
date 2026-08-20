@@ -1363,6 +1363,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noChats => 'Нет чатов';
 
   @override
+  String get chatsActiveTab => 'Активные';
+
+  @override
+  String get chatsArchiveTab => 'Архив';
+
+  @override
+  String get noArchivedChats => 'Нет архивных чатов';
+
+  @override
+  String get youHaveNoArchivedChats =>
+      'Здесь появятся завершённые и отменённые чаты.';
+
+  @override
   String get deliverTo => 'ДОСТАВИТЬ К';
 
   @override

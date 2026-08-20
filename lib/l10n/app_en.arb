@@ -507,6 +507,10 @@
   "requestCancelled": "Request cancelled",
 
   "noChats": "No Chats",
+  "chatsActiveTab": "Active",
+  "chatsArchiveTab": "Archive",
+  "noArchivedChats": "No archived chats",
+  "youHaveNoArchivedChats": "Completed and cancelled chats will appear here.",
 
   "deliverTo": "DELIVER TO",
   "houseBuilding": "House / Building / Staircase",
