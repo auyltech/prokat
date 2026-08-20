@@ -47,6 +47,13 @@ void main() {
   test('guest equipment ignores an old page after filters change', () {
     return _verifyGuestOldPageIsIgnored();
   });
+
+  test(
+    'guest setFilters does not rethrow when the in-flight catalog load fails',
+    () {
+      return _verifyGuestSetFiltersDoesNotRethrowFailedLoad();
+    },
+  );
 }
 
 Future<void> _verifyClientLatestRequestWins({
@@ -209,6 +216,41 @@ Future<void> _verifyGuestOldPageIsIgnored() async {
   expect(result.isLoadingMore, isFalse);
 }
 
+Future<void> _verifyGuestSetFiltersDoesNotRethrowFailedLoad() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      guest_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  final initial = container.read(
+    guest_dependencies.guestEquipmentProvider.future,
+  );
+  final notifier = container.read(
+    guest_dependencies.guestEquipmentProvider.notifier,
+  );
+
+  // Same path as MainScreen.initState: filters are unchanged, so setFilters
+  // awaits refreshIfStale while the first catalog request is still in flight.
+  final setFiltersFuture = notifier.setFilters();
+  await _waitForRequestCount(service, 1);
+  service.fail(0, 'Unknown network error');
+  await _waitForRequestCount(service, 2);
+  service.fail(1, 'Unknown network error');
+
+  await expectLater(setFiltersFuture, completes);
+  await expectLater(initial, throwsA(isA<Exception>()));
+  expect(
+    container.read(guest_dependencies.guestEquipmentProvider).hasError,
+    isTrue,
+  );
+}
+
 Future<void> _completeInSelectedOrder({
   required _ControlledEquipmentService service,
   required Future<void> olderSearch,
@@ -275,6 +317,12 @@ class _ControlledEquipmentService extends EquipmentService {
     final request = _PendingEquipmentRequest(query, page);
     requests.add(request);
     return request.completer.future;
+  }
+
+  void fail(int index, String message) {
+    final request = requests[index];
+    if (request.completer.isCompleted) return;
+    request.completer.complete(ApiResponse.failure(message: message));
   }
 
   void complete(int index, String equipmentId, {int itemCount = 1}) {
