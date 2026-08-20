@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,27 +20,55 @@ class MapController {
   bool markersAdded = false;
   List<Equipment> _equipments = [];
   bool _styleReady = false;
+  int _attachGeneration = 0;
+  int _markerSyncGeneration = 0;
+
+  bool _isCurrent(int attachGeneration) =>
+      attachGeneration == _attachGeneration && _map != null;
+
+  bool _isMarkerSyncCurrent(int attachGeneration, int syncGeneration) =>
+      _isCurrent(attachGeneration) &&
+      syncGeneration == _markerSyncGeneration &&
+      _styleReady;
+
+  bool _isDisposedChannel(Object error) {
+    return error is PlatformException && error.code == 'channel-error';
+  }
+
+  void _clearAttachedMap() {
+    _attachGeneration++;
+    _markerSyncGeneration++;
+    _styleReady = false;
+    _annotationManager = null;
+    _map = null;
+  }
 
   void attach(
     MapboxMap map, {
     List<Equipment>? initialItems,
     Function(Equipment)? onTap,
   }) {
+    _attachGeneration++;
+    _markerSyncGeneration++;
+    _annotationManager = null;
+    _styleReady = false;
     _map = map;
     if (initialItems != null) _equipments = initialItems;
+  }
+
+  /// Drops Dart references to a native map that [MapWidget] already disposed.
+  /// Pass [map] so an older view cannot detach a newer one.
+  void detach([MapboxMap? map]) {
+    if (map != null && _map != null && !identical(_map, map)) return;
+    _clearAttachedMap();
   }
 
   Future<void> syncEquipmentMarkers(List<Equipment> items) async {
     _equipments = items;
     if (_map == null || !_styleReady) return;
-    await _addEquipmentMarkers(items);
-  }
-
-  MapboxMap get _requireMap {
-    if (_map == null) {
-      throw Exception("MapController not attached");
-    }
-    return _map!;
+    final attachGeneration = _attachGeneration;
+    final syncGeneration = ++_markerSyncGeneration;
+    await _addEquipmentMarkers(items, attachGeneration, syncGeneration);
   }
 
   Future<bool> _hasLocationPermission() async {
@@ -57,8 +86,10 @@ class MapController {
 
   Future<void> enableUserLocation() async {
     final map = _map;
+    final attachGeneration = _attachGeneration;
     if (map == null) return;
     if (!await _hasLocationPermission()) return;
+    if (!_isCurrent(attachGeneration)) return;
 
     try {
       await map.location.updateSettings(
@@ -68,26 +99,35 @@ class MapController {
           showAccuracyRing: true,
         ),
       );
-    } catch (_) {
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
       return;
     }
   }
 
   Future<void> moveToUserLocation(double lng, double lat) async {
-    await _requireMap.flyTo(
-      CameraOptions(center: Point(coordinates: Position(lng, lat)), zoom: 14),
-      MapAnimationOptions(duration: 800),
-    );
+    final map = _map;
+    if (map == null) return;
+    try {
+      await map.flyTo(
+        CameraOptions(center: Point(coordinates: Position(lng, lat)), zoom: 14),
+        MapAnimationOptions(duration: 800),
+      );
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+    }
   }
 
   Future<void> moveToCurrentLocation() async {
     final map = _map;
+    final attachGeneration = _attachGeneration;
     if (map == null) return;
     if (!await _hasLocationPermission()) return;
+    if (!_isCurrent(attachGeneration)) return;
 
     try {
       final serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled || _map == null) return;
+      if (!serviceEnabled || !_isCurrent(attachGeneration)) return;
 
       const locationSettings = geo.LocationSettings(
         accuracy: geo.LocationAccuracy.high,
@@ -96,7 +136,7 @@ class MapController {
       final position = await geo.Geolocator.getCurrentPosition(
         locationSettings: locationSettings,
       );
-      if (_map == null) return;
+      if (!_isCurrent(attachGeneration)) return;
 
       await map.flyTo(
         CameraOptions(
@@ -107,37 +147,42 @@ class MapController {
         ),
         MapAnimationOptions(duration: 1200),
       );
-    } catch (_) {
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
       return;
     }
   }
 
   Future<void> onStyleLoaded(StyleLoadedEventData data) async {
-    if (_map == null) return;
+    final map = _map;
+    final attachGeneration = _attachGeneration;
+    if (map == null) return;
 
     try {
-      _annotationManager = await _map!.annotations
-          .createPointAnnotationManager();
-      if (_map == null) return;
+      _markerSyncGeneration++;
+      final manager = await map.annotations.createPointAnnotationManager();
+      if (!_isCurrent(attachGeneration)) return;
 
+      _annotationManager = manager;
       _annotationManager!.tapEvents(onTap: _onAnnotationTapped);
       _styleReady = true;
 
       final items =
           _ref.read(clientEquipmentProvider).value?.items ?? _equipments;
       await syncEquipmentMarkers(items);
-    } catch (_) {
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
       return;
     }
   }
 
-  Future<void> _loadMarkerIcon() async {
+  Future<void> _loadMarkerIcon(int attachGeneration) async {
     final map = _map;
     if (map == null) return;
 
     try {
       if (await map.style.hasStyleImage(_equipmentMarkerImageId)) return;
-      if (_map == null) return;
+      if (!_isCurrent(attachGeneration)) return;
 
       // Android BitmapFactory requires encoded PNG/JPEG bytes.
       final ByteData bytes = await rootBundle.load(_equipmentMarkerAsset);
@@ -147,7 +192,7 @@ class MapController {
       );
       final ui.Codec codec = await ui.instantiateImageCodec(png);
       final ui.FrameInfo frame = await codec.getNextFrame();
-      if (_map == null) return;
+      if (!_isCurrent(attachGeneration)) return;
 
       await map.style.addStyleImage(
         _equipmentMarkerImageId,
@@ -162,88 +207,106 @@ class MapController {
         [],
         null,
       );
-    } catch (_) {
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
       return;
     }
   }
 
   /// Load equipment pins on the map
-  Future<void> _addEquipmentMarkers(List<Equipment> equipments) async {
-    if (_map == null) return;
+  Future<void> _addEquipmentMarkers(
+    List<Equipment> equipments,
+    int attachGeneration,
+    int syncGeneration,
+  ) async {
+    if (!_isMarkerSyncCurrent(attachGeneration, syncGeneration)) return;
 
-    // Ensure manager is initialized
-    _annotationManager ??= await _map!.annotations
-        .createPointAnnotationManager();
-    await _annotationManager!.deleteAll();
+    try {
+      var manager = _annotationManager;
+      if (manager == null) {
+        final map = _map;
+        if (map == null) return;
+        manager = await map.annotations.createPointAnnotationManager();
+        if (!_isMarkerSyncCurrent(attachGeneration, syncGeneration)) return;
+        _annotationManager = manager;
+      }
 
-    // Load/Register the icon into the map style
-    await _loadMarkerIcon();
+      await manager.deleteAll();
+      if (!_isMarkerSyncCurrent(attachGeneration, syncGeneration)) return;
 
-    final camera = await getCameraState();
-    final zoom = camera.zoom;
+      await _loadMarkerIcon(attachGeneration);
+      if (!_isMarkerSyncCurrent(attachGeneration, syncGeneration)) return;
 
-    double iconSizeForZoom(double zoom) {
-      if (zoom < 11) return 0.6;
-      if (zoom < 13) return 0.8;
-      if (zoom < 15) return 0.9;
-      return 1;
-    }
+      final camera = await _map?.getCameraState();
+      if (camera == null ||
+          !_isMarkerSyncCurrent(attachGeneration, syncGeneration)) {
+        return;
+      }
+      final zoom = camera.zoom;
 
-    final List<PointAnnotationOptions> optionsList = [];
+      double iconSizeForZoom(double zoom) {
+        if (zoom < 11) return 0.6;
+        if (zoom < 13) return 0.8;
+        if (zoom < 15) return 0.9;
+        return 1;
+      }
 
-    for (final equipment in equipments) {
-      if (equipment.location == null) continue;
+      final List<PointAnnotationOptions> optionsList = [];
 
-      final location = equipment.location;
+      for (final equipment in equipments) {
+        if (equipment.location == null) continue;
 
-      optionsList.add(
-        PointAnnotationOptions(
-          geometry: Point(
-            coordinates: Position(
-              location?.longitude ?? 0,
-              location?.latitude ?? 0,
+        final location = equipment.location;
+
+        optionsList.add(
+          PointAnnotationOptions(
+            geometry: Point(
+              coordinates: Position(
+                location?.longitude ?? 0,
+                location?.latitude ?? 0,
+              ),
             ),
+            iconImage: _equipmentMarkerImageId,
+            iconSize: iconSizeForZoom(zoom),
+            iconAnchor: IconAnchor.BOTTOM,
+            textField: equipment.name,
+            textOffset: [0, 1.2],
+            customData: {'id': equipment.id},
           ),
-          // Provide the iconImage ID registered above
-          iconImage: _equipmentMarkerImageId,
-          iconSize: iconSizeForZoom(zoom),
-          iconAnchor: IconAnchor.BOTTOM,
-          textField: equipment.name,
-          textOffset: [0, 1.2],
-          customData: {'id': equipment.id},
-        ),
-      );
-    }
+        );
+      }
 
-    if (optionsList.isNotEmpty) {
-      // Use createMulti for better performance
-      await _annotationManager!.createMulti(optionsList);
+      if (optionsList.isNotEmpty) {
+        await manager.createMulti(optionsList);
+      }
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+      return;
     }
   }
 
   void _onAnnotationTapped(PointAnnotation annotation) async {
+    if (_map == null) return;
     final id = annotation.customData?['id'];
     if (id == null) return;
 
     try {
-      // Look up the equipment from our local stored list
       final equipment = _equipments.firstWhere((e) => e.id == id);
-
-      /// 🔥 Update global map state
       _ref.read(equipmentMapProvider.notifier).selectEquipment(equipment);
-
-      // await _map!.flyTo(
-      //   CameraOptions(center: annotation.geometry, zoom: 14),
-      //   MapAnimationOptions(duration: 800),
-      // );
     } catch (e) {
       return;
     }
   }
 
-  /// Camera helpers
-  Future<CameraState> getCameraState() async {
-    return await _requireMap.getCameraState();
+  Future<CameraState?> getCameraState() async {
+    final map = _map;
+    if (map == null) return null;
+    try {
+      return await map.getCameraState();
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+      return null;
+    }
   }
 
   Future<void> flyTo(
@@ -251,37 +314,53 @@ class MapController {
     double latitude, {
     double zoom = 14,
   }) async {
-    await _requireMap.flyTo(
-      CameraOptions(
-        center: Point(coordinates: Position(longitude, latitude)),
-        zoom: zoom,
-      ),
-      MapAnimationOptions(duration: 1000),
-    );
+    final map = _map;
+    if (map == null) return;
+    try {
+      await map.flyTo(
+        CameraOptions(
+          center: Point(coordinates: Position(longitude, latitude)),
+          zoom: zoom,
+        ),
+        MapAnimationOptions(duration: 1000),
+      );
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+    }
   }
 
   Future<void> zoomIn() async {
-    final camera = await getCameraState();
-
-    await _requireMap.flyTo(
-      CameraOptions(zoom: camera.zoom + 1),
-      MapAnimationOptions(duration: 300),
-    );
+    final map = _map;
+    if (map == null) return;
+    try {
+      final camera = await map.getCameraState();
+      if (_map == null) return;
+      await map.flyTo(
+        CameraOptions(zoom: camera.zoom + 1),
+        MapAnimationOptions(duration: 300),
+      );
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+    }
   }
 
   Future<void> zoomOut() async {
-    final camera = await getCameraState();
-
-    await _requireMap.flyTo(
-      CameraOptions(zoom: camera.zoom - 1),
-      MapAnimationOptions(duration: 300),
-    );
+    final map = _map;
+    if (map == null) return;
+    try {
+      final camera = await map.getCameraState();
+      if (_map == null) return;
+      await map.flyTo(
+        CameraOptions(zoom: camera.zoom - 1),
+        MapAnimationOptions(duration: 300),
+      );
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+    }
   }
 
   void dispose() {
-    _styleReady = false;
-    _annotationManager = null;
-    _map = null;
+    _clearAttachedMap();
   }
 }
 
@@ -289,7 +368,7 @@ final mapControllerProvider = Provider<MapController>((ref) {
   final controller = MapController(ref);
 
   ref.listen(clientEquipmentProvider, (previous, next) {
-    controller.syncEquipmentMarkers(next.value?.items ?? []);
+    unawaited(controller.syncEquipmentMarkers(next.value?.items ?? []));
   });
 
   ref.onDispose(() {

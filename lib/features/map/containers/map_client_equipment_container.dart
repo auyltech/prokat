@@ -22,19 +22,13 @@ class MapClientEquipmentContainer extends ConsumerWidget {
     return Scaffold(
       body: Stack(
         children: [
+          MyMapView(mode: MyMapMode.browseEquipment, equipmentList: equipment),
           if (equipmentAsync.isLoading && equipment.isEmpty)
-            const Center(child: CircularProgressIndicator())
-          else if (equipmentAsync.hasError)
-            Center(child: Text(l10n.somethingWentWrong))
-          else
-            MyMapView(
-              mode: MyMapMode.browseEquipment,
-              equipmentList: equipment,
-            ),
-
+            const Center(child: CircularProgressIndicator()),
+          if (equipmentAsync.hasError && equipment.isEmpty)
+            Center(child: Text(l10n.somethingWentWrong)),
           if (mapState.selectedEquipment != null)
             EquipmentDetailsDrawer(equipment: mapState.selectedEquipment!),
-
           if (mapState.selectedEquipment == null) const EquipmentBrowseSheet(),
         ],
       ),
