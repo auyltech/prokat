@@ -11,6 +11,7 @@ import 'package:prokat/features/chat/providers/chat_list_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
 import 'package:prokat/features/requests/providers/client_history_requests_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
@@ -34,6 +35,7 @@ class WorkflowCacheCoordinator {
 
     _applyChatLists(update);
     _applyBookings(update);
+    _applyRequests(update);
 
     if (update.offers != null && update.offers!.isNotEmpty) {
       ref.invalidate(clientOffersProvider);
@@ -206,6 +208,43 @@ class WorkflowCacheCoordinator {
             ref.read(ownerHistoryBookingsProvider.notifier).invalidate(),
           );
         }
+      }
+    }
+  }
+
+  void _applyRequests(WorkflowUpdate update) {
+    final request = update.request;
+    if (request == null) return;
+
+    final isHistory = isArchivedRequestStatus(request.status);
+
+    if (ref.exists(ownerActiveRequestsProvider)) {
+      ref.read(ownerActiveRequestsProvider.notifier).applyRequestDelta(request);
+    }
+
+    if (ref.exists(clientActiveRequestsProvider)) {
+      final status = ref
+          .read(clientActiveRequestsProvider.notifier)
+          .applyRequestDelta(request);
+      if (status == RequestQueryApplyStatus.removed) {
+        if (ref.exists(clientHistoryRequestsProvider)) {
+          unawaited(
+            ref.read(clientHistoryRequestsProvider.notifier).invalidate(),
+          );
+        }
+      }
+    }
+
+    if (!isHistory) return;
+
+    if (ref.exists(clientHistoryRequestsProvider)) {
+      final status = ref
+          .read(clientHistoryRequestsProvider.notifier)
+          .applyRequestDelta(request);
+      if (status == RequestQueryApplyStatus.notFound) {
+        unawaited(
+          ref.read(clientHistoryRequestsProvider.notifier).invalidate(),
+        );
       }
     }
   }

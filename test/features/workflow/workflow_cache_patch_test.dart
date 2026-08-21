@@ -6,6 +6,9 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/event_id_lru.dart';
 import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
@@ -121,5 +124,43 @@ void main() {
     expect(lru.remember('c'), isTrue);
     expect(lru.contains('a'), isFalse);
     expect(lru.contains('c'), isTrue);
+  });
+
+  test('removes cancelled requests from the owner active list', () {
+    final current = QueryState<RequestModel>(
+      items: [
+        RequestModel(
+          id: 'request-1',
+          status: RequestStatus.created,
+          capacity: '2',
+          offeredPrice: 1000,
+          location: LocationModel(
+            service: 'ADDRESS',
+            street: 'st',
+            city: 'city',
+            country: 'kz',
+            longitude: 0,
+            latitude: 0,
+          ),
+          updatedAt: DateTime.parse('2026-08-20T11:00:00.000Z'),
+        ),
+      ],
+      itemsPerPage: 10,
+      count: 1,
+    );
+
+    final result = applyRequestDeltaToQuery(
+      current: current,
+      delta: WorkflowRequestDelta(
+        id: 'request-1',
+        status: RequestStatus.cancelled,
+        updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      ),
+      kind: RequestQueryPatchKind.active,
+    );
+
+    expect(result.status, RequestQueryApplyStatus.removed);
+    expect(result.state?.items, isEmpty);
+    expect(result.state?.count, 0);
   });
 }

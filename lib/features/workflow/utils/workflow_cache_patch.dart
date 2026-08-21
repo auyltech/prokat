@@ -5,6 +5,7 @@ import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/workflow_updated_at.dart';
@@ -21,10 +22,6 @@ class WorkflowChatApplyResult {
   final WorkflowChatApplyStatus status;
   final List<ChatModel> items;
   final int count;
-}
-
-bool isArchivedRequestStatus(RequestStatus status) {
-  return status == RequestStatus.cancelled || status == RequestStatus.expired;
 }
 
 bool isChatArchived(ChatModel chat) {
@@ -278,6 +275,70 @@ BookingQueryApplyResult applyBookingDeltaToQuery({
 
   return BookingQueryApplyResult(
     status: BookingQueryApplyStatus.patched,
+    state: current.copyWith(items: items),
+  );
+}
+
+enum RequestQueryPatchKind { active, history }
+
+enum RequestQueryApplyStatus {
+  patched,
+  removed,
+  notFound,
+  skippedStale,
+  skipped,
+}
+
+class RequestQueryApplyResult {
+  const RequestQueryApplyResult({required this.status, this.state});
+
+  final RequestQueryApplyStatus status;
+  final QueryState<RequestModel>? state;
+}
+
+RequestQueryApplyResult applyRequestDeltaToQuery({
+  required QueryState<RequestModel> current,
+  required WorkflowRequestDelta delta,
+  required RequestQueryPatchKind kind,
+}) {
+  final index = current.items.indexWhere((item) => item.id == delta.id);
+  if (index < 0) {
+    return const RequestQueryApplyResult(
+      status: RequestQueryApplyStatus.notFound,
+    );
+  }
+
+  final existing = current.items[index];
+  if (isIncomingWorkflowStale(existing.updatedAt, delta.updatedAt)) {
+    return const RequestQueryApplyResult(
+      status: RequestQueryApplyStatus.skippedStale,
+    );
+  }
+
+  final belongsInHistory = isArchivedRequestStatus(delta.status);
+  final keepInThisList = kind == RequestQueryPatchKind.history
+      ? belongsInHistory
+      : !belongsInHistory;
+
+  if (!keepInThisList) {
+    final items = [...current.items]..removeAt(index);
+    return RequestQueryApplyResult(
+      status: RequestQueryApplyStatus.removed,
+      state: current.copyWith(
+        items: items,
+        count: current.count > 0 ? current.count - 1 : 0,
+      ),
+    );
+  }
+
+  final items = [...current.items];
+  items[index] = existing.copyWith(
+    status: delta.status,
+    updatedAt: delta.updatedAt,
+  );
+
+  return RequestQueryApplyResult(
+    status: RequestQueryApplyStatus.patched,
     state: current.copyWith(items: items),
   );
 }

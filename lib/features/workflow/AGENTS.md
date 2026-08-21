@@ -2,6 +2,8 @@
 
 Живые статусы заказа/заявки без новых REST-поллингов. Канал: `workflow:update`.
 
+Решения (рефреш, заявка vs заказ, live списков заявок): `docs/architecture/workflow-refresh-and-requests.md`.
+
 ## Поток
 
 1. Bootstrap: `workflowBootstrapProvider` в `lib/app.dart` (рядом с notification/chat sidebar).
@@ -15,6 +17,7 @@
 - Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`).
 - Списки чатов: `clientChatsByFilterProvider` / `ownerChatsByFilterProvider` (`ACTIVE` / `ARCHIVED`). Терминальный заказ/заявка → убрать из Active, инвалидировать Archive.
 - Заказы: active — патч или remove + decrement; history — патч или `invalidate()`. Guard по `updatedAt`; HTTP-рефреш не затирает более новый сокет.
+- Заявки участников: тот же канал и coordinator; terminal → убрать из active, history клиента — патч или `invalidate()`. Лента чужих тендеров у владельца — HTTP, не broadcast.
 - Офферы / торг: при наличии в payload — `invalidate` family-провайдеров.
 
 ## Список vs тред
