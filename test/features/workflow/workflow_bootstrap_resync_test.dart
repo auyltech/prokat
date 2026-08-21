@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +53,33 @@ void main() {
     expect(callsAfterStart, 1);
 
     socket.simulateReconnect();
+    await _settle();
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    expect(chatService.getClientChatsCalls, greaterThan(callsAfterStart));
+  });
+
+  test('resume from background resyncs chat lists without reconnect', () async {
+    final chatService = _FakeChatService([const ChatModel(id: 'chat-1')]);
+    final container = ProviderContainer(
+      overrides: [
+        authProvider.overrideWith(_authenticatedAuthNotifier),
+        chatServiceProvider.overrideWithValue(chatService),
+        appSocketProvider.overrideWith((ref) => FakeAppSocketService(ref)),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    container.read(workflowBootstrapProvider);
+    await container.read(clientChatsProvider.future);
+    await _settle();
+
+    final callsAfterStart = chatService.getClientChatsCalls;
+    expect(callsAfterStart, 1);
+
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await _settle();
     await Future<void>.delayed(const Duration(milliseconds: 500));
 

@@ -70,6 +70,9 @@ final workflowBootstrapProvider = Provider<void>((ref) {
   final lifecycleObserver = ChatResumeSyncObserver(
     onResumeFromBackground: () {
       unawaited(startIfReady());
+      // Socket is down while paused; events can be missed even if
+      // reconnect is skipped (already connected). Always resync loaded lists.
+      scheduleReconnectResync();
     },
   );
 

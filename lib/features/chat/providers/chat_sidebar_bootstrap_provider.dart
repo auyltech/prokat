@@ -91,25 +91,9 @@ final chatSidebarBootstrapProvider = Provider<void>((ref) {
     } catch (_) {}
   }
 
-  void refreshListsAfterBackground() {
-    if (ref.read(authProvider).session == null) return;
-
-    for (final filter in ChatListFilter.values) {
-      final client = clientChatsByFilterProvider(filter);
-      if (ref.exists(client)) {
-        unawaited(ref.read(client.notifier).refresh());
-      }
-      final owner = ownerChatsByFilterProvider(filter);
-      if (ref.exists(owner)) {
-        unawaited(ref.read(owner.notifier).refresh());
-      }
-    }
-  }
-
   final lifecycleObserver = ChatResumeSyncObserver(
     onResumeFromBackground: () {
       unawaited(startIfReady());
-      refreshListsAfterBackground();
     },
   );
 

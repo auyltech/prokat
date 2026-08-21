@@ -11,6 +11,9 @@ import 'package:prokat/features/chat/providers/chat_list_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/client_history_requests_provider.dart';
+import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/event_id_lru.dart';
 import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
@@ -67,6 +70,16 @@ class WorkflowCacheCoordinator {
     }
     if (ref.exists(ownerHistoryBookingsProvider)) {
       refreshes.add(ref.read(ownerHistoryBookingsProvider.notifier).refresh());
+    }
+
+    if (ref.exists(clientActiveRequestsProvider)) {
+      refreshes.add(ref.read(clientActiveRequestsProvider.notifier).refresh());
+    }
+    if (ref.exists(ownerActiveRequestsProvider)) {
+      refreshes.add(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+    }
+    if (ref.exists(clientHistoryRequestsProvider)) {
+      refreshes.add(ref.read(clientHistoryRequestsProvider.notifier).refresh());
     }
 
     await Future.wait(refreshes);
