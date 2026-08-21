@@ -220,6 +220,12 @@ abstract class AppLocalizations {
   /// **'Offer Created'**
   String get offerCreated;
 
+  /// No description provided for @offerCreateRequestNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not found or already deleted'**
+  String get offerCreateRequestNotFound;
+
   /// No description provided for @offerReceived.
   ///
   /// In en, this message translates to:
@@ -1431,6 +1437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 
   /// No description provided for @close.
   ///
@@ -3309,6 +3321,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Time'**
   String get selectTime;
+
+  /// No description provided for @requiredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'* Required'**
+  String get requiredHint;
 
   /// No description provided for @requestCreated.
   ///

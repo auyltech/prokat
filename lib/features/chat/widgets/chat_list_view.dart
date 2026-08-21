@@ -202,7 +202,7 @@ class _ChatListPane extends ConsumerWidget {
                       : l10n.youHaveNoChats,
                   imageName: 'empty_chats.png',
                   actionButton: PrimaryButton(
-                    label: 'Refresh',
+                    label: l10n.refresh,
                     isLoading: chatsAsync.isRefreshing,
                     icon: LucideIcons.refreshCw,
                     onPressed: refresh,

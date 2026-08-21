@@ -80,6 +80,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get offerCreated => 'Предложение создано';
 
   @override
+  String get offerCreateRequestNotFound => 'Заявка не найдена или уже удалена';
+
+  @override
   String get offerReceived => 'Предложение получено';
 
   @override
@@ -736,6 +739,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get retry => 'Повторить';
+
+  @override
+  String get refresh => 'Обновить';
 
   @override
   String get close => 'Закрыть';
@@ -1691,6 +1697,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get selectTime => 'Выбрать время';
+
+  @override
+  String get requiredHint => '* Обязательно';
 
   @override
   String get requestCreated => 'Запрос создан';

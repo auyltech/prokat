@@ -78,6 +78,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerCreated => 'Offer Created';
 
   @override
+  String get offerCreateRequestNotFound =>
+      'Request not found or already deleted';
+
+  @override
   String get offerReceived => 'Offer Received';
 
   @override
@@ -732,6 +736,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get refresh => 'Refresh';
 
   @override
   String get close => 'Close';
@@ -1687,6 +1694,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectTime => 'Select Time';
+
+  @override
+  String get requiredHint => '* Required';
 
   @override
   String get requestCreated => 'Request created';

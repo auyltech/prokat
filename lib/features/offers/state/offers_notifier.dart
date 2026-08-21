@@ -173,7 +173,11 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
         ]);
         state = OffersState();
       }
-      return MutationResponse(success: result.success, message: result.message);
+      return MutationResponse(
+        success: result.success,
+        message: result.message,
+        errorCode: result.errorCode ?? result.error,
+      );
     } catch (error) {
       finishAction(actionId, error: _error(false, error.toString()));
       return MutationResponse(

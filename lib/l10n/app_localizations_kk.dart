@@ -78,6 +78,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get offerCreated => 'Ұсыныс жасалды';
 
   @override
+  String get offerCreateRequestNotFound => 'Өтінім табылмады немесе жойылған';
+
+  @override
   String get offerReceived => 'Ұсыныс алынды';
 
   @override
@@ -722,6 +725,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get retry => 'Қайталау';
+
+  @override
+  String get refresh => 'Жаңарту';
 
   @override
   String get close => 'Жабу';
@@ -1676,6 +1682,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get selectTime => 'Уақытты таңдаңыз';
+
+  @override
+  String get requiredHint => '* Міндетті';
 
   @override
   String get requestCreated => 'Сұраныс жасалды';
