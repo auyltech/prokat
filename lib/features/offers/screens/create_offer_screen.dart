@@ -248,7 +248,8 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               const SizedBox(height: 24),
 
-              if (_submitError != null) ErrorBoxTile(errorMessage: _submitError),
+              if (_submitError != null)
+                ErrorBoxTile(errorMessage: _submitError),
 
               Row(
                 children: [

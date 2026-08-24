@@ -214,7 +214,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       /// Pricing
                       SectionTitle(
                         title: l10n.servicePlan,
-                        trailing: isPriceEntrySelected ? null : l10n.requiredHint,
+                        trailing: isPriceEntrySelected
+                            ? null
+                            : l10n.requiredHint,
                       ),
 
                       const SizedBox(height: 12),
