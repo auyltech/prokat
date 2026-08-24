@@ -184,7 +184,7 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           InputField(
             label: l10n.priceKZT,
             controller: _priceController,
-            hint: "10,000 KZT",
+            hint: l10n.priceKztHint,
             isNumeric: true,
           ),
           const SizedBox(height: 16),
@@ -204,7 +204,7 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
             width: double.infinity,
             child: PrimaryButton(
               label: _isSubmitting
-                  ? "Saving..."
+                  ? l10n.saving
                   : (isEditing ? l10n.save : l10n.add),
               // FIXED: Added submission pipeline execution
               onPressed: _isSubmitting ? null : () => submitPriceEntry(l10n),

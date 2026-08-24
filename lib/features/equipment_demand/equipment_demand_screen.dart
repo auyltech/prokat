@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/cities.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
@@ -29,7 +30,7 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
   void initState() {
     super.initState();
     final currentCity = ref.read(locationProvider).city;
-    if (cities.contains(currentCity)) _city = currentCity;
+    _city = canonicalCity(currentCity, cities);
   }
 
   @override
@@ -41,7 +42,8 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context)!;
     final other = _otherController.text.trim();
-    if (!cities.contains(_city) || (_selected.isEmpty && other.isEmpty)) {
+    if (canonicalCity(_city, cities) == null ||
+        (_selected.isEmpty && other.isEmpty)) {
       setState(() => _error = l10n.demandSurveySubmitError);
       return;
     }
@@ -132,7 +134,10 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
               hint: Text(l10n.demandSurveySelectCity),
               items: cities
                   .map(
-                    (city) => DropdownMenuItem(value: city, child: Text(city)),
+                    (city) => DropdownMenuItem(
+                      value: city,
+                      child: Text(localizedCityName(city, l10n)),
+                    ),
                   )
                   .toList(),
               onChanged: (value) => setState(() => _city = value),

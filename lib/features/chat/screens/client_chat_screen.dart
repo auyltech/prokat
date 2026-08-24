@@ -43,6 +43,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
@@ -112,53 +113,65 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       mode: AppMode.clientMode,
     );
 
-    return Scaffold(
-      body: SafeArea(
-        child: chatAsync.when(
-          data: (data) => ChatMessageList(
-            chatId: widget.chatId,
-            currentUserId: currentUserId,
-            mode: AppMode.clientMode,
-            currentChat: data,
-          ),
-          error: (_, _) => ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              const SizedBox(height: 160),
-              const Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey),
-              const SizedBox(height: 16),
-              Text(
-                loadError.toString(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await ref
-                        .read(currentChatProvider(widget.chatId).notifier)
-                        .refresh();
-                    await ref
-                        .read(chatMessagesProvider(widget.chatId).notifier)
-                        .refresh();
-                  },
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(l10n.retry),
-                ),
-              ),
-            ],
-          ),
-          loading: () =>
-              const Center(child: CircularProgressIndicator.adaptive()),
+    return Theme(
+      data: theme.copyWith(
+        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+          backgroundColor: theme.colorScheme.surface,
         ),
       ),
-      bottomNavigationBar: SendMessageForm(
-        chatId: widget.chatId,
-        chatStatus: chatConfig.status,
-        mode: AppMode.clientMode,
-        currentChat: currentChat,
-        actionBarTitle: chatConfig.actionBartitle,
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: SafeArea(
+          child: chatAsync.when(
+            data: (data) => ChatMessageList(
+              chatId: widget.chatId,
+              currentUserId: currentUserId,
+              mode: AppMode.clientMode,
+              currentChat: data,
+            ),
+            error: (_, _) => ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                const SizedBox(height: 160),
+                const Icon(
+                  Icons.wifi_off_rounded,
+                  size: 48,
+                  color: Colors.grey,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  loadError.toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await ref
+                          .read(currentChatProvider(widget.chatId).notifier)
+                          .refresh();
+                      await ref
+                          .read(chatMessagesProvider(widget.chatId).notifier)
+                          .refresh();
+                    },
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(l10n.retry),
+                  ),
+                ),
+              ],
+            ),
+            loading: () =>
+                const Center(child: CircularProgressIndicator.adaptive()),
+          ),
+        ),
+        bottomNavigationBar: SendMessageForm(
+          chatId: widget.chatId,
+          chatStatus: chatConfig.status,
+          mode: AppMode.clientMode,
+          currentChat: currentChat,
+          actionBarTitle: chatConfig.actionBartitle,
+        ),
       ),
     );
   }

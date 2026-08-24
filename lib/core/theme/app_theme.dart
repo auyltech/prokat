@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // A professional, deep and vibrant orange accent color
-  static const Color accent = Color.fromARGB(255, 0, 72, 155);
+  static const Color accent = Color(0xFF00489B);
   static const Color white = Color.fromARGB(255, 255, 255, 255);
 
   // Dark mode colors extracted from the current app
   static const Color darkBackground = Color(0xFF121417);
   static const Color darkCard = Color(0xFF1E2125);
+  static const Color darkBubbleMe = Color(0xFF163761);
+  static const Color darkBubbleHim = Color(0xFF3A3D43);
 
   // Light mode subtle colors
   static const Color lightBackground = white;
   static const Color lightCard = Colors.white;
+  static const Color lightBubbleMe = Color(0xFFC0DEF6);
+  static const Color lightBubbleHim = Color(0xFFE0E0E1);
 
   // ---------- Text Colors ----------
 
@@ -32,17 +36,16 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme:
-          ColorScheme.fromSeed(
-            seedColor: accent,
-            primary: accent,
-            brightness: Brightness.light,
-            surface: lightCard,
-          ).copyWith(
-            surface: lightCard, // or darkCard
-            onSurface: lightTextPrimary, // or darkTextPrimary
-            onPrimary: white,
-          ),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: accent,
+        primary: accent,
+        brightness: Brightness.light,
+        surface: lightCard,
+        surfaceContainerHigh: lightBubbleMe,
+        surfaceContainerLow: lightBubbleHim,
+        onSurface: lightTextPrimary, // or darkTextPrimary
+        onPrimary: accent,
+      ),
       scaffoldBackgroundColor: lightBackground,
       cardColor: lightCard,
       appBarTheme: const AppBarTheme(
@@ -122,17 +125,16 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme:
-          ColorScheme.fromSeed(
-            seedColor: accent,
-            primary: accent,
-            brightness: Brightness.dark,
-            surface: darkCard,
-          ).copyWith(
-            surface: darkCard,
-            onSurface: darkTextPrimary,
-            onPrimary: white,
-          ),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: accent,
+        primary: accent,
+        brightness: Brightness.dark,
+        surface: darkCard,
+        surfaceContainerHigh: darkBubbleMe,
+        surfaceContainerLow: darkBubbleHim,
+        onSurface: darkTextPrimary,
+        onPrimary: white,
+      ),
       scaffoldBackgroundColor: darkBackground,
       cardColor: darkCard,
       appBarTheme: const AppBarTheme(

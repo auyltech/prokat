@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class InputField extends StatelessWidget {
   final String label;
@@ -15,7 +16,7 @@ class InputField extends StatelessWidget {
   final VoidCallback? onChanged;
   final TextInputType? keyboardType;
   final String? errorText;
-  final String requiredMessage;
+  final String? requiredMessage;
 
   const InputField({
     super.key,
@@ -25,7 +26,7 @@ class InputField extends StatelessWidget {
     this.isNumeric = false,
     this.isLast = false,
     this.isRequired = false, // Defaulted to false
-    this.requiredMessage = 'Field is required',
+    this.requiredMessage,
     this.validator,
     this.suffixText,
     this.icon,
@@ -91,7 +92,8 @@ class InputField extends StatelessWidget {
                         final text = value?.trim() ?? '';
 
                         if (isRequired && text.isEmpty) {
-                          return requiredMessage;
+                          return requiredMessage ??
+                              AppLocalizations.of(context)?.fieldRequired;
                         }
 
                         return validator?.call(value);

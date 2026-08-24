@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-String formatRequestTime(String date) {
+String formatRequestTime(String date, AppLocalizations l10n) {
   final dt = DateTime.parse(date).toLocal();
   final now = DateTime.now();
 
   final diff = now.difference(dt);
 
-  if (diff.inMinutes < 1) return "Just now";
-  if (diff.inMinutes < 60) return "${diff.inMinutes} min ago";
-  if (diff.inHours < 24) return "${diff.inHours} h ago";
+  if (diff.inMinutes < 1) return l10n.justNow;
+  if (diff.inMinutes < 60) return l10n.minutesAgo(diff.inMinutes);
+  if (diff.inHours < 24) return l10n.hoursAgo(diff.inHours);
 
-  return DateFormat("d MMM, HH:mm").format(dt);
+  return DateFormat("d MMM, HH:mm", l10n.localeName).format(dt);
 }
 
 String formatDate({
@@ -107,6 +108,40 @@ String getPriceRate(PriceRateOption? priceRate, {AppLocalizations? l10n}) {
   if (temp == "PER_DAY") return l10n?.perDay ?? "/ Day";
 
   return temp;
+}
+
+String getPriceRateLabel(PriceRateOption rate, AppLocalizations l10n) {
+  switch (rate.value) {
+    case 'PER_TRIP':
+      return l10n.ratePerTrip;
+    case 'PER_CUBIC_METER':
+      return l10n.ratePerCubicMeter;
+    case 'PER_DAY':
+      return l10n.ratePerDay;
+    case 'PER_HOUR':
+      return l10n.ratePerHour;
+    default:
+      return rate.label;
+  }
+}
+
+String getOfferStatus(OfferStatus status, {AppLocalizations? l10n}) {
+  switch (status) {
+    case OfferStatus.created:
+      return l10n?.newOffer ?? "New Offer";
+    case OfferStatus.viewed:
+      return l10n?.offerStatusViewed ?? "Viewed";
+    case OfferStatus.cancelled:
+      return l10n?.offerStatusCancelled ?? "Cancelled";
+    case OfferStatus.accepted:
+      return l10n?.offerStatusAccepted ?? "Accepted";
+    case OfferStatus.rejected:
+      return l10n?.offerStatusRejected ?? "Rejected";
+    case OfferStatus.expired:
+      return l10n?.offerStatusExpired ?? "Expired";
+    case OfferStatus.closed:
+      return l10n?.offerStatusClosed ?? "Closed";
+  }
 }
 
 String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {

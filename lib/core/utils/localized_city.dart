@@ -1,0 +1,61 @@
+import 'package:prokat/l10n/app_localizations.dart';
+
+bool isSameCity(String? a, String? b) {
+  return (a?.trim().toLowerCase() ?? '') == (b?.trim().toLowerCase() ?? '');
+}
+
+String? canonicalCity(String? city, Iterable<String> knownCities) {
+  if (city == null || city.trim().isEmpty) return null;
+
+  for (final known in knownCities) {
+    if (isSameCity(known, city)) return known;
+  }
+
+  return null;
+}
+
+String localizedCityName(String? city, AppLocalizations l10n) {
+  final trimmed = city?.trim() ?? '';
+  if (trimmed.isEmpty) return '';
+
+  return switch (trimmed.toLowerCase()) {
+    'atyrau' => l10n.cityNameAtyrau,
+    'almaty' => l10n.cityNameAlmaty,
+    'astana' => l10n.cityNameAstana,
+    'shymkent' => l10n.cityNameShymkent,
+    'aktobe' => l10n.cityNameAktobe,
+    'karaganda' => l10n.cityNameKaraganda,
+    'taraz' => l10n.cityNameTaraz,
+    'pavlodar' => l10n.cityNamePavlodar,
+    'ust-kamenogorsk' => l10n.cityNameUstKamenogorsk,
+    'semey' => l10n.cityNameSemey,
+    'kostanay' => l10n.cityNameKostanay,
+    'kyzylorda' => l10n.cityNameKyzylorda,
+    'uralsk' => l10n.cityNameUralsk,
+    'petropavl' => l10n.cityNamePetropavl,
+    'turkistan' => l10n.cityNameTurkistan,
+    _ => trimmed,
+  };
+}
+
+String formatStreetCity({
+  required AppLocalizations l10n,
+  String? street,
+  String? city,
+}) {
+  return [
+    street?.trim() ?? '',
+    localizedCityName(city, l10n),
+  ].where((part) => part.isNotEmpty).join(', ');
+}
+
+String formatCityCountry({
+  required AppLocalizations l10n,
+  String? city,
+  String? country,
+}) {
+  return [
+    localizedCityName(city, l10n),
+    country?.trim() ?? '',
+  ].where((part) => part.isNotEmpty).join(', ');
+}

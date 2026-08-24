@@ -2814,6 +2814,217 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseSelectYourCity => 'Please select your city';
 
   @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get fieldRequired => 'This field is required';
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String get newOffer => 'New Offer';
+
+  @override
+  String get offerStatusViewed => 'Viewed';
+
+  @override
+  String get offerStatusCancelled => 'Cancelled';
+
+  @override
+  String get offerStatusAccepted => 'Accepted';
+
+  @override
+  String get offerStatusRejected => 'Rejected';
+
+  @override
+  String get offerStatusExpired => 'Expired';
+
+  @override
+  String get offerStatusClosed => 'Closed';
+
+  @override
+  String get dataProcessingTitle => 'Data Processing';
+
+  @override
+  String get pleaseCompleteRequiredFields =>
+      'Please fill in the required information before submitting for review';
+
+  @override
+  String get youAreOnline => 'You are online';
+
+  @override
+  String get youAreOffline => 'You are offline';
+
+  @override
+  String get readyToAcceptOrders => 'Ready to accept orders';
+
+  @override
+  String get notAcceptingOrders => 'Not accepting orders';
+
+  @override
+  String get youAreNowOnline => 'You are now online';
+
+  @override
+  String get youAreNowOffline => 'You are now offline';
+
+  @override
+  String get failedToggleStatus => 'Failed to update status';
+
+  @override
+  String get countryKazakhstan => 'Kazakhstan';
+
+  @override
+  String get modelStandard => 'Standard';
+
+  @override
+  String get modelHeavyDuty => 'Heavy Duty';
+
+  @override
+  String get modelIndustrial => 'Industrial';
+
+  @override
+  String capacityKub(String capacity) {
+    return '$capacity m³';
+  }
+
+  @override
+  String get unitMeters => 'm';
+
+  @override
+  String get hoseLengthHint => '15 m hose';
+
+  @override
+  String get priceKztHint => '10,000 ₸';
+
+  @override
+  String get ownerType => 'Owner type';
+
+  @override
+  String get companyInformation => 'Company information';
+
+  @override
+  String get companyName => 'Company name';
+
+  @override
+  String get enterCompanyName => 'Enter company name';
+
+  @override
+  String get legalEntityName => 'Legal entity name';
+
+  @override
+  String get legalEntityNameHint => 'As written in official documents';
+
+  @override
+  String get personalContactDetails => 'Personal contact details';
+
+  @override
+  String get enterFirstName => 'Enter first name';
+
+  @override
+  String get enterLastName => 'Enter last name';
+
+  @override
+  String get enterValidPhoneNumber => 'Enter a valid phone number';
+
+  @override
+  String get serviceDetails => 'Service details';
+
+  @override
+  String get serviceDetailsHint =>
+      'Describe the goods, rentals or machinery you provide...';
+
+  @override
+  String get updateProfile => 'Update profile';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+
+  @override
+  String get failedToUpdateProfile => 'Failed to update profile';
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '$count order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratePerTrip => 'Per trip';
+
+  @override
+  String get ratePerCubicMeter => 'Per cubic meter';
+
+  @override
+  String get ratePerDay => 'Per day';
+
+  @override
+  String get ratePerHour => 'Per hour';
+
+  @override
+  String get cityNameAtyrau => 'Atyrau';
+
+  @override
+  String get cityNameAlmaty => 'Almaty';
+
+  @override
+  String get cityNameAstana => 'Astana';
+
+  @override
+  String get cityNameShymkent => 'Shymkent';
+
+  @override
+  String get cityNameAktobe => 'Aktobe';
+
+  @override
+  String get cityNameKaraganda => 'Karaganda';
+
+  @override
+  String get cityNameTaraz => 'Taraz';
+
+  @override
+  String get cityNamePavlodar => 'Pavlodar';
+
+  @override
+  String get cityNameUstKamenogorsk => 'Ust-Kamenogorsk';
+
+  @override
+  String get cityNameSemey => 'Semey';
+
+  @override
+  String get cityNameKostanay => 'Kostanay';
+
+  @override
+  String get cityNameKyzylorda => 'Kyzylorda';
+
+  @override
+  String get cityNameUralsk => 'Uralsk';
+
+  @override
+  String get cityNamePetropavl => 'Petropavl';
+
+  @override
+  String get cityNameTurkistan => 'Turkistan';
+
+  @override
   String get connectionTimedOut =>
       'Connection timed out. The server may be warming up — please try again.';
 

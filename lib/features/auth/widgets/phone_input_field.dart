@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class PhoneInputField extends StatefulWidget {
   final TextEditingController controller;
-  final String label;
+  final String? label;
 
-  const PhoneInputField({
-    super.key,
-    required this.controller,
-    this.label = "Phone Number",
-  });
+  const PhoneInputField({super.key, required this.controller, this.label});
 
   @override
   State<PhoneInputField> createState() => _PhoneInputFieldState();
@@ -43,7 +40,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
         fontSize: 16,
       ),
       decoration: InputDecoration(
-        labelText: widget.label,
+        labelText: widget.label ?? AppLocalizations.of(context)?.phoneNumber,
         prefixIconConstraints: const BoxConstraints(minWidth: 105),
         labelStyle: theme.textTheme.bodyMedium?.copyWith(
           color: onSurface.withValues(alpha: 0.6),

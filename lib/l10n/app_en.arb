@@ -997,6 +997,92 @@
   "negotiationIdMissing": "Negotiation id is missing",
   "actionFailed": "Action failed",
   "pleaseSelectYourCity": "Please select your city",
+  "saveChanges": "Save Changes",
+  "saving": "Saving...",
+  "fieldRequired": "This field is required",
+  "justNow": "Just now",
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} h ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "newOffer": "New Offer",
+  "offerStatusViewed": "Viewed",
+  "offerStatusCancelled": "Cancelled",
+  "offerStatusAccepted": "Accepted",
+  "offerStatusRejected": "Rejected",
+  "offerStatusExpired": "Expired",
+  "offerStatusClosed": "Closed",
+  "dataProcessingTitle": "Data Processing",
+  "pleaseCompleteRequiredFields": "Please fill in the required information before submitting for review",
+  "youAreOnline": "You are online",
+  "youAreOffline": "You are offline",
+  "readyToAcceptOrders": "Ready to accept orders",
+  "notAcceptingOrders": "Not accepting orders",
+  "youAreNowOnline": "You are now online",
+  "youAreNowOffline": "You are now offline",
+  "failedToggleStatus": "Failed to update status",
+  "countryKazakhstan": "Kazakhstan",
+  "modelStandard": "Standard",
+  "modelHeavyDuty": "Heavy Duty",
+  "modelIndustrial": "Industrial",
+  "capacityKub": "{capacity} m³",
+  "@capacityKub": {
+    "placeholders": {
+      "capacity": { "type": "String" }
+    }
+  },
+  "unitMeters": "m",
+  "hoseLengthHint": "15 m hose",
+  "priceKztHint": "10,000 ₸",
+  "ownerType": "Owner type",
+  "companyInformation": "Company information",
+  "companyName": "Company name",
+  "enterCompanyName": "Enter company name",
+  "legalEntityName": "Legal entity name",
+  "legalEntityNameHint": "As written in official documents",
+  "personalContactDetails": "Personal contact details",
+  "enterFirstName": "Enter first name",
+  "enterLastName": "Enter last name",
+  "enterValidPhoneNumber": "Enter a valid phone number",
+  "serviceDetails": "Service details",
+  "serviceDetailsHint": "Describe the goods, rentals or machinery you provide...",
+  "updateProfile": "Update profile",
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "failedToUpdateProfile": "Failed to update profile",
+  "ordersCount": "{count, plural, =1{{count} order} other{{count} orders}}",
+  "@ordersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "ratePerTrip": "Per trip",
+  "ratePerCubicMeter": "Per cubic meter",
+  "ratePerDay": "Per day",
+  "ratePerHour": "Per hour",
+
+  "cityNameAtyrau": "Atyrau",
+  "cityNameAlmaty": "Almaty",
+  "cityNameAstana": "Astana",
+  "cityNameShymkent": "Shymkent",
+  "cityNameAktobe": "Aktobe",
+  "cityNameKaraganda": "Karaganda",
+  "cityNameTaraz": "Taraz",
+  "cityNamePavlodar": "Pavlodar",
+  "cityNameUstKamenogorsk": "Ust-Kamenogorsk",
+  "cityNameSemey": "Semey",
+  "cityNameKostanay": "Kostanay",
+  "cityNameKyzylorda": "Kyzylorda",
+  "cityNameUralsk": "Uralsk",
+  "cityNamePetropavl": "Petropavl",
+  "cityNameTurkistan": "Turkistan",
 
   "connectionTimedOut": "Connection timed out. The server may be warming up — please try again.",
   "noConnectionCheckNetwork": "No connection. Check your network and try again.",

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LocationTile extends StatelessWidget {
   final LocationModel location;
@@ -10,6 +12,7 @@ class LocationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -26,7 +29,11 @@ class LocationTile extends StatelessWidget {
           size: 24,
         ),
         title: Text(
-          "${location.street}, ${location.city}",
+          formatStreetCity(
+            l10n: l10n,
+            street: location.street,
+            city: location.city,
+          ),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface,
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -49,10 +50,11 @@ class _ClientRentalPreferencesSectionState
   String _formatAddress(LocationModel? address, AppLocalizations l10n) {
     if (address == null) return l10n.noAddressSelected;
 
-    return [
-      address.street,
-      address.city,
-    ].where((part) => part.trim().isNotEmpty).join(', ');
+    return formatStreetCity(
+      l10n: l10n,
+      street: address.street,
+      city: address.city,
+    );
   }
 
   @override
@@ -69,16 +71,14 @@ class _ClientRentalPreferencesSectionState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(selectedAddress?.city ?? ""),
-
-        const SizedBox(height: 16),
-
         ProkatListTile.secondary(
           icon: LucideIcons.building,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           title: l10n.city,
-          subtitle: city.isEmpty ? l10n.selectCity : city,
+          subtitle: city.isEmpty
+              ? l10n.selectCity
+              : localizedCityName(city, l10n),
           onTap: () => CityPickerSheet.show(
             context: context,
             service: CitySelectorService.clientcity,

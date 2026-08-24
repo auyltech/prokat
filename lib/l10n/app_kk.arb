@@ -995,6 +995,92 @@
   "negotiationIdMissing": "Келіссөз идентификаторы жоқ",
   "actionFailed": "Әрекет орындалмады",
   "pleaseSelectYourCity": "Қаланы таңдаңыз",
+  "saveChanges": "Сақтау",
+  "saving": "Сақталуда...",
+  "fieldRequired": "Міндетті өріс",
+  "justNow": "Жаңа ғана",
+  "minutesAgo": "{count} мин бұрын",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} сағ бұрын",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "newOffer": "Жаңа ұсыныс",
+  "offerStatusViewed": "Қаралды",
+  "offerStatusCancelled": "Бас тартылды",
+  "offerStatusAccepted": "Қабылданды",
+  "offerStatusRejected": "Қабылданбады",
+  "offerStatusExpired": "Мерзімі өтті",
+  "offerStatusClosed": "Жабық",
+  "dataProcessingTitle": "Деректерді өңдеу",
+  "pleaseCompleteRequiredFields": "Тексеруге жібермес бұрын міндетті деректерді толтырыңыз",
+  "youAreOnline": "Сіз онлайнсыз",
+  "youAreOffline": "Сіз офлайнсыз",
+  "readyToAcceptOrders": "Тапсырыстарды қабылдауға дайынсыз",
+  "notAcceptingOrders": "Тапсырыстар қабылданбайды",
+  "youAreNowOnline": "Енді сіз онлайнсыз",
+  "youAreNowOffline": "Енді сіз офлайнсыз",
+  "failedToggleStatus": "Мәртебені жаңарту мүмкін болмады",
+  "countryKazakhstan": "Қазақстан",
+  "modelStandard": "Стандарт",
+  "modelHeavyDuty": "Ауыр",
+  "modelIndustrial": "Өнеркәсіптік",
+  "capacityKub": "{capacity} м³",
+  "@capacityKub": {
+    "placeholders": {
+      "capacity": { "type": "String" }
+    }
+  },
+  "unitMeters": "м",
+  "hoseLengthHint": "15 м шланг",
+  "priceKztHint": "10 000 ₸",
+  "ownerType": "Иесінің түрі",
+  "companyInformation": "Компания деректері",
+  "companyName": "Компания атауы",
+  "enterCompanyName": "Компания атауын енгізіңіз",
+  "legalEntityName": "Заңды атауы",
+  "legalEntityNameHint": "Ресми құжаттардағыдай",
+  "personalContactDetails": "Байланыс деректері",
+  "enterFirstName": "Атын енгізіңіз",
+  "enterLastName": "Тегін енгізіңіз",
+  "enterValidPhoneNumber": "Жарамды телефон нөмірін енгізіңіз",
+  "serviceDetails": "Қызмет сипаттамасы",
+  "serviceDetailsHint": "Ұсынатын тауарлар, жалдау немесе техниканы сипаттаңыз...",
+  "updateProfile": "Профильді жаңарту",
+  "profileUpdatedSuccessfully": "Профиль сәтті жаңартылды",
+  "failedToUpdateProfile": "Профильді жаңарту мүмкін болмады",
+  "ordersCount": "{count, plural, one{{count} тапсырыс} other{{count} тапсырыс}}",
+  "@ordersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "ratePerTrip": "Рейске",
+  "ratePerCubicMeter": "М³-ге",
+  "ratePerDay": "Күніне",
+  "ratePerHour": "Сағатына",
+
+  "cityNameAtyrau": "Атырау",
+  "cityNameAlmaty": "Алматы",
+  "cityNameAstana": "Астана",
+  "cityNameShymkent": "Шымкент",
+  "cityNameAktobe": "Ақтөбе",
+  "cityNameKaraganda": "Қарағанды",
+  "cityNameTaraz": "Тараз",
+  "cityNamePavlodar": "Павлодар",
+  "cityNameUstKamenogorsk": "Өскемен",
+  "cityNameSemey": "Семей",
+  "cityNameKostanay": "Қостанай",
+  "cityNameKyzylorda": "Қызылорда",
+  "cityNameUralsk": "Орал",
+  "cityNamePetropavl": "Петропавл",
+  "cityNameTurkistan": "Түркістан",
 
   "connectionTimedOut": "Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.",
   "noConnectionCheckNetwork": "Байланыс жоқ. Желіні тексеріп, қайталап көріңіз.",

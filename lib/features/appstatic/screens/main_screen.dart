@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
@@ -230,7 +231,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     title: selectedCity.isNotEmpty
                         ? l10n.noEquipmentListedInCity(
                             selectedCategory?.name ?? l10n.navEquipment,
-                            selectedCity,
+                            localizedCityName(selectedCity, l10n),
                           )
                         : l10n.noEquipmentForCategory(
                             selectedCategory?.name ?? l10n.navEquipment,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -21,7 +22,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
-    final locationText = equipment.city ?? l10n.noLocationSet;
+    final locationText = (equipment.city == null || equipment.city!.isEmpty)
+        ? l10n.noLocationSet
+        : localizedCityName(equipment.city, l10n);
     final priceEntry = equipment.prices.firstOrNull;
 
     final hasPrice = priceEntry != null;

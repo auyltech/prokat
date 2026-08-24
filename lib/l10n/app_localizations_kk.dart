@@ -2816,6 +2816,217 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pleaseSelectYourCity => 'Қаланы таңдаңыз';
 
   @override
+  String get saveChanges => 'Сақтау';
+
+  @override
+  String get saving => 'Сақталуда...';
+
+  @override
+  String get fieldRequired => 'Міндетті өріс';
+
+  @override
+  String get justNow => 'Жаңа ғана';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count мин бұрын';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count сағ бұрын';
+  }
+
+  @override
+  String get newOffer => 'Жаңа ұсыныс';
+
+  @override
+  String get offerStatusViewed => 'Қаралды';
+
+  @override
+  String get offerStatusCancelled => 'Бас тартылды';
+
+  @override
+  String get offerStatusAccepted => 'Қабылданды';
+
+  @override
+  String get offerStatusRejected => 'Қабылданбады';
+
+  @override
+  String get offerStatusExpired => 'Мерзімі өтті';
+
+  @override
+  String get offerStatusClosed => 'Жабық';
+
+  @override
+  String get dataProcessingTitle => 'Деректерді өңдеу';
+
+  @override
+  String get pleaseCompleteRequiredFields =>
+      'Тексеруге жібермес бұрын міндетті деректерді толтырыңыз';
+
+  @override
+  String get youAreOnline => 'Сіз онлайнсыз';
+
+  @override
+  String get youAreOffline => 'Сіз офлайнсыз';
+
+  @override
+  String get readyToAcceptOrders => 'Тапсырыстарды қабылдауға дайынсыз';
+
+  @override
+  String get notAcceptingOrders => 'Тапсырыстар қабылданбайды';
+
+  @override
+  String get youAreNowOnline => 'Енді сіз онлайнсыз';
+
+  @override
+  String get youAreNowOffline => 'Енді сіз офлайнсыз';
+
+  @override
+  String get failedToggleStatus => 'Мәртебені жаңарту мүмкін болмады';
+
+  @override
+  String get countryKazakhstan => 'Қазақстан';
+
+  @override
+  String get modelStandard => 'Стандарт';
+
+  @override
+  String get modelHeavyDuty => 'Ауыр';
+
+  @override
+  String get modelIndustrial => 'Өнеркәсіптік';
+
+  @override
+  String capacityKub(String capacity) {
+    return '$capacity м³';
+  }
+
+  @override
+  String get unitMeters => 'м';
+
+  @override
+  String get hoseLengthHint => '15 м шланг';
+
+  @override
+  String get priceKztHint => '10 000 ₸';
+
+  @override
+  String get ownerType => 'Иесінің түрі';
+
+  @override
+  String get companyInformation => 'Компания деректері';
+
+  @override
+  String get companyName => 'Компания атауы';
+
+  @override
+  String get enterCompanyName => 'Компания атауын енгізіңіз';
+
+  @override
+  String get legalEntityName => 'Заңды атауы';
+
+  @override
+  String get legalEntityNameHint => 'Ресми құжаттардағыдай';
+
+  @override
+  String get personalContactDetails => 'Байланыс деректері';
+
+  @override
+  String get enterFirstName => 'Атын енгізіңіз';
+
+  @override
+  String get enterLastName => 'Тегін енгізіңіз';
+
+  @override
+  String get enterValidPhoneNumber => 'Жарамды телефон нөмірін енгізіңіз';
+
+  @override
+  String get serviceDetails => 'Қызмет сипаттамасы';
+
+  @override
+  String get serviceDetailsHint =>
+      'Ұсынатын тауарлар, жалдау немесе техниканы сипаттаңыз...';
+
+  @override
+  String get updateProfile => 'Профильді жаңарту';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Профиль сәтті жаңартылды';
+
+  @override
+  String get failedToUpdateProfile => 'Профильді жаңарту мүмкін болмады';
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count тапсырыс',
+      one: '$count тапсырыс',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratePerTrip => 'Рейске';
+
+  @override
+  String get ratePerCubicMeter => 'М³-ге';
+
+  @override
+  String get ratePerDay => 'Күніне';
+
+  @override
+  String get ratePerHour => 'Сағатына';
+
+  @override
+  String get cityNameAtyrau => 'Атырау';
+
+  @override
+  String get cityNameAlmaty => 'Алматы';
+
+  @override
+  String get cityNameAstana => 'Астана';
+
+  @override
+  String get cityNameShymkent => 'Шымкент';
+
+  @override
+  String get cityNameAktobe => 'Ақтөбе';
+
+  @override
+  String get cityNameKaraganda => 'Қарағанды';
+
+  @override
+  String get cityNameTaraz => 'Тараз';
+
+  @override
+  String get cityNamePavlodar => 'Павлодар';
+
+  @override
+  String get cityNameUstKamenogorsk => 'Өскемен';
+
+  @override
+  String get cityNameSemey => 'Семей';
+
+  @override
+  String get cityNameKostanay => 'Қостанай';
+
+  @override
+  String get cityNameKyzylorda => 'Қызылорда';
+
+  @override
+  String get cityNameUralsk => 'Орал';
+
+  @override
+  String get cityNamePetropavl => 'Петропавл';
+
+  @override
+  String get cityNameTurkistan => 'Түркістан';
+
+  @override
   String get connectionTimedOut =>
       'Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.';
 

@@ -258,7 +258,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 ),
                               ),
                               child: Text(
-                                "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate)}",
+                                "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate, l10n: l10n)}",
                                 style: theme.textTheme.labelLarge?.copyWith(
                                   color: isSelected
                                       ? theme.colorScheme.onPrimary

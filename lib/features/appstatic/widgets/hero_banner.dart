@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -66,7 +67,9 @@ class HeroBanner extends StatelessWidget {
                   const SizedBox(width: 6),
 
                   Text(
-                    selectedCity.isNotEmpty ? selectedCity : l10n.allLocations,
+                    selectedCity.isNotEmpty
+                        ? localizedCityName(selectedCity, l10n)
+                        : l10n.allLocations,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
 

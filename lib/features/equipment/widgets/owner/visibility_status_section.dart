@@ -233,7 +233,7 @@ class _VisibilityStatusSectionState
 
         if (!hasData) ...[
           Text(
-            "*Please provide required information before submitting for review",
+            l10n.pleaseCompleteRequiredFields,
             style: TextStyle(color: theme.colorScheme.error, fontSize: 14),
           ),
           SizedBox(height: 8),
@@ -244,8 +244,8 @@ class _VisibilityStatusSectionState
           label: equipment?.status == EquipmentStatus.draft
               ? l10n.submitForReview
               : equipment?.status == EquipmentStatus.created
-              ? "Re-Submit"
-              : "Edit Equipment",
+              ? l10n.resubmit
+              : l10n.editEquipment,
           onPressed: hasData ? onSubmit : null,
           isLoading: equipment == null
               ? false

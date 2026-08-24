@@ -118,7 +118,11 @@ class InfoTile extends StatelessWidget {
                   Row(
                     children: [
                       if (icon != null) ...[
-                        Icon(icon, color: theme.colorScheme.primary, size: 20),
+                        Icon(
+                          icon,
+                          color: theme.colorScheme.onPrimary,
+                          size: 20,
+                        ),
                         SizedBox(width: 6),
                       ],
 
@@ -142,7 +146,7 @@ class InfoTile extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       color: variant == InfoTileVariant.destructive
                           ? Colors.red[700]
-                          : Colors.black87,
+                          : theme.colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

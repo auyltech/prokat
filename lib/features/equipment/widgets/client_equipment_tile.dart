@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -85,7 +86,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     if (equipment.city!.isNotEmpty) ...[
                       const SizedBox(width: 8),
                       _badge(
-                        text: equipment.city ?? "",
+                        text: localizedCityName(equipment.city, l10n),
                         color: Colors.black.withValues(alpha: 0.6),
                       ),
                     ],
@@ -128,7 +129,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     children: [
                       Text(
                         priceEntry == null
-                            ? "POA"
+                            ? l10n.poa
                             : formatPrice(priceEntry.price),
                         style: TextStyle(
                           fontSize: 18,

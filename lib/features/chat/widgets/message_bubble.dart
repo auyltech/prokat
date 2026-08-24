@@ -108,19 +108,9 @@ class _MessageBubbleState extends State<MessageBubble> {
               ),
               padding: EdgeInsets.fromLTRB(16, 12, 16, widget.isMe ? 12 : 12),
               decoration: BoxDecoration(
-                gradient: widget.isMe
-                    ? LinearGradient(
-                        colors: [
-                          const Color.fromARGB(255, 222, 246, 255),
-                          const Color.fromARGB(255, 222, 246, 255),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
                 color: widget.isMe
-                    ? theme.cardColor
-                    : theme.dividerColor.withValues(alpha: 0.1),
+                    ? theme.colorScheme.surfaceContainerHigh
+                    : theme.colorScheme.surfaceContainerLow,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -135,21 +125,21 @@ class _MessageBubbleState extends State<MessageBubble> {
                     child: Text(
                       widget.message.content,
                       style: theme.textTheme.bodyMedium?.copyWith(
+                        height: 1.3,
                         color: widget.isMe
                             ? theme.colorScheme.onSurfaceVariant
                             : theme.colorScheme.onSurfaceVariant,
-                        height: 1.3,
                       ),
                     ),
                   ),
                   if (widget.isMe)
                     Positioned(
-                      right: 0,
+                      right: -4,
                       bottom: 0,
                       child: _SendStatusIndicator(
                         isPending: widget.message.isPending,
                         isFailed: widget.message.isFailed,
-                        color: Colors.black,
+                        color: Colors.blueGrey,
                       ),
                     ),
                 ],

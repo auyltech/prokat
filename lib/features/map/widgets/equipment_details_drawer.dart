@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -156,7 +157,11 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      "${equipment.location?.street}, ${equipment.location?.city}",
+                                      formatStreetCity(
+                                        l10n: l10n,
+                                        street: equipment.location?.street,
+                                        city: equipment.location?.city,
+                                      ),
                                       style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,

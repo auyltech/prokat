@@ -158,7 +158,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.name,
             controller: _nameController,
             onChanged: _onChanged,
-            hint: "Name",
+            hint: l10n.equipmentNameHint,
           ),
 
           SizedBox(height: 12),
@@ -167,7 +167,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.model,
             controller: _modelController,
             onChanged: _onChanged,
-            hint: "Model",
+            hint: l10n.modelHint,
           ),
 
           SizedBox(height: 12),
@@ -176,7 +176,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.plateNumberLabel,
             controller: _plateNumberController,
             onChanged: _onChanged,
-            hint: "Plate Number",
+            hint: l10n.plateNumberHint,
           ),
 
           SizedBox(height: 12),
@@ -193,7 +193,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             label: l10n.commentNotes,
             controller: _commentController,
             onChanged: _onChanged,
-            hint: "15M Hose",
+            hint: l10n.hoseLengthHint,
           ),
           const SizedBox(height: 16),
         ],

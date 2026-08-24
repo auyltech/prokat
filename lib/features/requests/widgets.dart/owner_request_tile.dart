@@ -132,8 +132,8 @@ class OwnerRequestTile extends ConsumerWidget {
 
                   Text(
                     minutesLeft > 0
-                        ? "$minutesLeft m left"
-                        : formatRequestTime(request.createdAt.toString()),
+                        ? l10n.minutesLeft(minutesLeft)
+                        : formatRequestTime(request.createdAt.toString(), l10n),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: minutesLeft > 0
                           ? theme.colorScheme.primary

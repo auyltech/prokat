@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class AddressSearchSuggestions extends ConsumerWidget {
   final Function(LocationSearchResult) onSelected;
@@ -11,6 +13,7 @@ class AddressSearchSuggestions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final suggestions = ref.watch(locationProvider).suggestions;
+    final l10n = AppLocalizations.of(context)!;
 
     if (suggestions.isEmpty) return const SizedBox();
 
@@ -30,7 +33,13 @@ class AddressSearchSuggestions extends ConsumerWidget {
           return ListTile(
             leading: const Icon(Icons.location_on_outlined),
             title: Text(result.street),
-            subtitle: Text("${result.city}, ${result.country}"),
+            subtitle: Text(
+              formatCityCountry(
+                l10n: l10n,
+                city: result.city,
+                country: result.country,
+              ),
+            ),
             onTap: () {
               ref.read(locationProvider.notifier).clearSuggestions();
               onSelected(result);

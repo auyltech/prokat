@@ -52,7 +52,7 @@ class EquipmentInfoTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF212121),
+                    color: theme.colorScheme.onSurface,
                     letterSpacing: 0.2,
                   ),
                 ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class PriceRateSelector extends StatelessWidget {
   final PriceRateOption? initialValue;
@@ -14,6 +16,7 @@ class PriceRateSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Wrap(
       spacing: 8.0, // Horizontal space between boxes
@@ -22,7 +25,7 @@ class PriceRateSelector extends StatelessWidget {
         final isSelected = rate == initialValue;
 
         return ChoiceChip(
-          label: Text(rate.label),
+          label: Text(getPriceRateLabel(rate, l10n)),
           selected: isSelected,
           onSelected: (selected) {
             if (selected) {
