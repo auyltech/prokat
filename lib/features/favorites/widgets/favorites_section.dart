@@ -64,7 +64,6 @@ class FavoritesSection extends ConsumerWidget {
 
   Widget _buildEmptyFavorites(ThemeData theme, AppLocalizations l10n) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,

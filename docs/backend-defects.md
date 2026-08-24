@@ -116,6 +116,86 @@
 
 ---
 
+## BE-002 — В `GET /offers` у `owner` пустые имя, аватар, рейтинг и счётчики
+
+**Статус:** `open`  
+**Где замечено:** Flutter, клиент «Мои заявки», карточки откликов (`OfferTile` / `UserInfoTile`). На карточке телефон (`+7705…`), плейсхолдер аватара, `★ 0 · 0 orders`.  
+**Дата:** 2026-08-24.
+
+### Симптом
+
+Клиент видит номер телефона вместо имени откликнувшегося владельца. Аватар, рейтинг и количество заказов/отзывов не приходят как заполненные поля — UI рисует fallback.
+
+Виджеты **не** отбрасывают данные: `OfferTile` передаёт `offer.owner` в `UserInfoTile`; `UserModel.displayName` показывает телефон только если `firstName`/`lastName` пустые; пустой `imageUrl` → иконка-плейсхолдер; `rating`/`orderCount` null → `0`.
+
+### Почему бэкенд
+
+`GET /offers` (клиентский список) грузит технику через `equipmentListItemSelect`:
+
+```ts
+owner: { include: { ownerProfile: true } }
+```
+
+Имя, фото, рейтинг владельца живут в `OwnerProfile` (`firstName`, `lastName`, `profileImageUrl`, `ratingAverage`, `ratingCount`, `completedOrderCount`).
+
+Сериализация оффера берёт **не тот** маппер:
+
+- `src/modules/offers/offers.dto.ts` → `getOfferDTO` → `owner: getUserPublicDTO(data.equipment?.owner)`
+- `getUserPublicDTO` (`src/modules/auth/auth.dto.ts`) читает **`user.profile`** (`UserProfile`), а не `ownerProfile`
+- `profile` в этом include **нет** → в JSON уходят пустые `firstName`, `lastName`, `imageUrl`, нули в `ratingAverage` / `ratingCount` / `orderCount`
+- с `User` остаётся в основном `phoneNumber` (и id/role)
+
+Тот же `equipmentListItemSelect` в **бронировании** маппится правильно:
+
+- `src/modules/booking/booking.dto.ts` → `owner: getOwnerPublicDTO(data.equipment.owner)`
+- `getOwnerPublicDTO` читает `ownerProfile.*`
+
+### Текущий контракт, который клиент уже парсит
+
+`OfferModel.owner` → `UserModel.fromJson` (`lib/features/auth/models/user_model.dart`):
+
+| JSON поле | Куда на клиенте |
+|---|---|
+| `firstName`, `lastName` | имя; иначе fallback на `phoneNumber` |
+| `imageUrl` | аватар |
+| `rating` **или** `ratingAverage` | звезда |
+| `orderCount` | «N orders» |
+| `phoneNumber` | fallback имени |
+
+`UserPublicDTO` уже отдаёт `imageUrl` (не `profileImageUrl`) и `ratingAverage`. Клиент это читает. Проблема не в именах ключей на оффере, а в том, что значения всегда пустые/нулевые из‑за маппера.
+
+`OwnerPublicDTO` (как у booking.owner) тоже совместим: `firstName`/`lastName`/`imageUrl`/`rating`/`orderCount`/`phoneNumber`.
+
+### Ожидаемое поведение
+
+В каждом элементе `GET /offers` и `GET /offers/owner` объект `owner` должен содержать публичные данные **владельца техники**, как в `GET` бронирования:
+
+- имя: `OwnerProfile.firstName` + `lastName` (для `BUSINESS` — ещё `companyName`, чтобы клиент мог показать его, если имени нет)
+- `imageUrl` ← `OwnerProfile.profileImageUrl`
+- `rating` / `ratingAverage` ← `OwnerProfile.ratingAverage`
+- `ratingCount` ← `OwnerProfile.ratingCount`
+- `orderCount` ← `OwnerProfile.completedOrderCount` (в текущем `getOwnerPublicDTO` в `orderCount` ошибочно кладётся `ratingCount` — поправить и здесь)
+
+Не отдавать сырой Prisma-объект. Не требовать отдельного `GET /users/:id` с клиента.
+
+### Реализация
+
+В `getOfferDTO` использовать `getOwnerPublicDTO(data.equipment?.owner)` (как booking), либо расширить include до `userSelect` **и** `ownerProfile` и явно смержить поля владельца.
+
+Не подставлять клиентский `UserProfile`: у владельца имя/фото/рейтинг заполняются в `OwnerProfile`.
+
+Выровнять `getOwnerPublicDTO.orderCount` на `completedOrderCount`, а отзывы оставить в `ratingCount`.
+
+### Проверка
+
+1. У тестового владельца заполнить `OwnerProfile`: имя, `profileImageUrl`, ненулевые `ratingAverage` / `ratingCount` / `completedOrderCount`. `UserProfile` можно оставить пустым.
+2. Создать отклик на заявку клиента.
+3. `GET /offers` под клиентом: у `owner` не пустые `firstName`/`imageUrl`, рейтинг и счётчики не нули при ненулевых данных в БД.
+4. Тот же владелец на карточке заказа (`booking.owner`) и на карточке отклика выглядят одинаково.
+5. Регрессия: список техники / поиск по-прежнему отдаёт `owner` через `getUserPublicDTO`+`userSelect` — не ломать, если это отдельный контракт.
+
+---
+
 ## Шаблон нового пункта
 
 ```md

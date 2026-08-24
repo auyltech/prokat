@@ -39,18 +39,8 @@ class ClientEquipmentTile extends ConsumerWidget {
     final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
 
     return BaseTile(
+      borderRadius: 16,
       padding: EdgeInsets.all(0),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(24), // Softer corners
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.black.withValues(alpha: 0.4), // Much softer shadow
-      //       blurRadius: 2,
-      //       offset: const Offset(0, 2),
-      //     ),
-      //   ],
-      // ),
       child: Column(
         children: [
           /// 1. IMAGE SECTION (Clean & Floating Elements)
@@ -62,7 +52,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                 ),
                 child: OptimizedNetworkImage(
                   imageUrl: equipment.imageUrl ?? "",
-                  height: 200, // Slightly taller for better presence
+                  height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   fallbackIcon: Icons.precision_manufacturing_outlined,

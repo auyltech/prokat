@@ -7,7 +7,12 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-enum CitySelectorService { guestcategory, createequipment, clientcity }
+enum CitySelectorService {
+  guestcategory,
+  createequipment,
+  clientcity,
+  demandsurvey,
+}
 
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
@@ -44,9 +49,9 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
       context.pop(city);
     }
 
-    if (widget.service == CitySelectorService.guestcategory) {
-      return city;
-    } else if (widget.service == CitySelectorService.createequipment) {
+    if (widget.service == CitySelectorService.guestcategory ||
+        widget.service == CitySelectorService.createequipment ||
+        widget.service == CitySelectorService.demandsurvey) {
       return city;
     }
 

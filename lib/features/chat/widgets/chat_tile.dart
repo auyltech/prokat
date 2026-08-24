@@ -214,13 +214,12 @@ class ChatTile extends StatelessWidget {
               ),
             ),
             // Clean separator line matching standard chat lists
-            Padding(
-              padding: const EdgeInsets.only(left: 78, right: 16),
-              child: Divider(
-                height: 1,
-                thickness: 0.5,
-                color: theme.dividerColor.withValues(alpha: 0.4),
-              ),
+            Divider(
+              height: 1,
+              thickness: 0.5,
+              indent: 16,
+              endIndent: 16,
+              color: theme.dividerColor.withValues(alpha: 0.4),
             ),
           ],
         ),

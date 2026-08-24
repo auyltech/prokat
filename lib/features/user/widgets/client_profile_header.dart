@@ -60,7 +60,7 @@ class ClientProfileHeader extends StatelessWidget {
                 Text(
                   (userProfile?.ratingAverage ?? 0).toStringAsFixed(1),
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
 
@@ -70,7 +70,7 @@ class ClientProfileHeader extends StatelessWidget {
                   "- ${l10n.ordersCount(userProfile?.orderCount ?? 0)}",
                   style: theme.textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w400,
-                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
