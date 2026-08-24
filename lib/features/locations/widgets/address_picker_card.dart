@@ -64,7 +64,7 @@ class AddressPickerCard extends StatelessWidget {
                       ),
                       if (isRequired == true)
                         Text(
-                          "* Required",
+                          l10n.requiredHint,
                           style: TextStyle(
                             color: colorScheme.error,
                             fontSize: 12,

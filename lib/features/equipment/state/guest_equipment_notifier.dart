@@ -70,31 +70,35 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> _refresh(int generation) async {
-    final previous = state.valueOrNull;
-
-    if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          return;
-        } catch (_) {}
-      }
-      if (generation != _requestGeneration) return;
-      state = const AsyncLoading();
-      final next = await AsyncValue.guard(() => _fetchPage(1));
-      if (generation == _requestGeneration) state = next;
-      return;
-    }
-
-    if (generation != _requestGeneration) return;
-    state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      final next = await _fetchPage(1);
-      if (generation == _requestGeneration) state = AsyncData(next);
-    } catch (error) {
-      if (generation == _requestGeneration) {
-        state = AsyncData(previous.withRefreshError(error));
+      final previous = state.valueOrNull;
+
+      if (previous == null) {
+        if (state.isLoading) {
+          try {
+            await future;
+            return;
+          } catch (_) {}
+        }
+        if (generation != _requestGeneration) return;
+        state = const AsyncLoading();
+        final next = await AsyncValue.guard(() => _fetchPage(1));
+        if (generation == _requestGeneration) state = next;
+        return;
       }
+
+      if (generation != _requestGeneration) return;
+      state = AsyncData(previous.copyWith(isRefreshing: true));
+      try {
+        final next = await _fetchPage(1);
+        if (generation == _requestGeneration) state = AsyncData(next);
+      } catch (error) {
+        if (generation == _requestGeneration) {
+          state = AsyncData(previous.withRefreshError(error));
+        }
+      }
+    } catch (_) {
+      // Keep failures inside AsyncValue so unawaited UI callers cannot crash.
     }
   }
 
@@ -156,36 +160,44 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     String? city,
     String? categoryId,
   }) async {
-    final changed =
-        _query != query || _city != city || _categoryId != categoryId;
-    _query = query;
-    _city = city;
-    _categoryId = categoryId;
+    try {
+      final changed =
+          _query != query || _city != city || _categoryId != categoryId;
+      _query = query;
+      _city = city;
+      _categoryId = categoryId;
 
-    if (!changed) {
-      await refreshIfStale();
-      return;
+      if (!changed) {
+        await refreshIfStale();
+        return;
+      }
+      final generation = ++_requestGeneration;
+      if (state.isLoading) {
+        try {
+          await future;
+        } catch (_) {}
+      }
+      await _refreshForGeneration(generation);
+    } catch (_) {
+      // Network errors stay in provider state for the catalog error UI.
     }
-    final generation = ++_requestGeneration;
-    if (state.isLoading) {
-      try {
-        await future;
-      } catch (_) {}
-    }
-    await _refreshForGeneration(generation);
   }
 
   Future<void> clearFilters() async {
-    final changed = _query != null || _city != null || _categoryId != null;
-    _query = null;
-    _city = null;
-    _categoryId = null;
+    try {
+      final changed = _query != null || _city != null || _categoryId != null;
+      _query = null;
+      _city = null;
+      _categoryId = null;
 
-    if (changed) {
-      final generation = ++_requestGeneration;
-      await _refreshForGeneration(generation);
-    } else {
-      await refreshIfStale();
+      if (changed) {
+        final generation = ++_requestGeneration;
+        await _refreshForGeneration(generation);
+      } else {
+        await refreshIfStale();
+      }
+    } catch (_) {
+      // Network errors stay in provider state for the catalog error UI.
     }
   }
 
@@ -198,20 +210,24 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> refreshIfStale() async {
-    if (state.isLoading) {
-      try {
-        await future;
-      } catch (_) {}
-    }
-    final current = state.valueOrNull;
+    try {
+      if (state.isLoading) {
+        try {
+          await future;
+        } catch (_) {}
+      }
+      final current = state.valueOrNull;
 
-    if (current == null) {
-      await refresh();
-      return;
-    }
+      if (current == null) {
+        await refresh();
+        return;
+      }
 
-    if (current.isStale) {
-      await refresh();
+      if (current.isStale) {
+        await refresh();
+      }
+    } catch (_) {
+      // AsyncError.value must not escape to unawaited MainScreen callers.
     }
   }
 

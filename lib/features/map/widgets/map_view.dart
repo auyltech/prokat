@@ -8,7 +8,7 @@ import 'package:prokat/features/map/widgets/map_controls.dart';
 
 enum MyMapMode { browseEquipment, renterPickAddress, ownerPlaceEquipment }
 
-class MyMapView extends ConsumerWidget {
+class MyMapView extends ConsumerStatefulWidget {
   final MyMapMode mode;
   final Function(CameraChangedEventData data)? onCameraIdle;
   final Function(Point point)? onMapTap;
@@ -23,12 +23,26 @@ class MyMapView extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyMapView> createState() => _MyMapViewState();
+}
+
+class _MyMapViewState extends ConsumerState<MyMapView> {
+  MapboxMap? _map;
+
+  @override
+  void dispose() {
+    ref.read(mapControllerProvider).detach(_map);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final controller = ref.read(mapControllerProvider);
 
     return Stack(
       children: [
         MapWidget(
+          key: const ValueKey('prokat-map'),
           styleUri: MapboxStyles.MAPBOX_STREETS,
           cameraOptions: CameraOptions(
             center: Point(
@@ -39,30 +53,35 @@ class MyMapView extends ConsumerWidget {
             ),
             zoom: MapConstants.defaultZoom,
           ),
-
           onMapCreated: (mapboxMap) async {
-            controller.attach(mapboxMap, initialItems: equipmentList);
-            await controller.enableUserLocation();
-            await controller.moveToCurrentLocation();
+            if (!mounted) return;
+            _map = mapboxMap;
+            controller.attach(mapboxMap, initialItems: widget.equipmentList);
+            try {
+              await controller.enableUserLocation();
+              if (!mounted) {
+                controller.detach(mapboxMap);
+                return;
+              }
+              await controller.moveToCurrentLocation();
+            } catch (_) {
+              // Keep the map usable if location setup fails.
+            }
+            if (!mounted) {
+              controller.detach(mapboxMap);
+            }
           },
-
           onStyleLoadedListener: (data) async {
+            if (!mounted) return;
             await controller.onStyleLoaded(data);
           },
-
           onCameraChangeListener: (event) {
-            if (onCameraIdle != null) {
-              onCameraIdle!(event);
-            }
+            widget.onCameraIdle?.call(event);
           },
-
           onTapListener: (context) {
-            if (onMapTap != null) {
-              onMapTap!(context.point);
-            }
+            widget.onMapTap?.call(context.point);
           },
         ),
-
         MapControls(
           onZoomIn: controller.zoomIn,
           onZoomOut: controller.zoomOut,

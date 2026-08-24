@@ -52,6 +52,20 @@ class PushNotificationService {
       // Best-effort: local notifications shouldn't crash startup.
     }
 
+    try {
+      await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        announcement: false,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+      );
+    } catch (_) {
+      // Best-effort: missing OS permission should not crash startup.
+    }
+
     // Register this device only when OS permission is granted.
     try {
       await syncCurrentDevice(session: session);

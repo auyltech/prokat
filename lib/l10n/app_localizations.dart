@@ -220,6 +220,12 @@ abstract class AppLocalizations {
   /// **'Offer Created'**
   String get offerCreated;
 
+  /// No description provided for @offerCreateRequestNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not found or already deleted'**
+  String get offerCreateRequestNotFound;
+
   /// No description provided for @offerReceived.
   ///
   /// In en, this message translates to:
@@ -1431,6 +1437,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 
   /// No description provided for @close.
   ///
@@ -2662,6 +2674,30 @@ abstract class AppLocalizations {
   /// **'No Chats'**
   String get noChats;
 
+  /// No description provided for @chatsActiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get chatsActiveTab;
+
+  /// No description provided for @chatsArchiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get chatsArchiveTab;
+
+  /// No description provided for @noArchivedChats.
+  ///
+  /// In en, this message translates to:
+  /// **'No archived chats'**
+  String get noArchivedChats;
+
+  /// No description provided for @youHaveNoArchivedChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed and cancelled chats will appear here.'**
+  String get youHaveNoArchivedChats;
+
   /// No description provided for @deliverTo.
   ///
   /// In en, this message translates to:
@@ -3285,6 +3321,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Time'**
   String get selectTime;
+
+  /// No description provided for @requiredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'* Required'**
+  String get requiredHint;
 
   /// No description provided for @requestCreated.
   ///

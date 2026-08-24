@@ -1,5 +1,6 @@
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
@@ -53,7 +54,12 @@ ChatConfig getChatConfig({
   final isOfferPendingFromMe =
       mode == AppMode.clientMode && activeOffer != null;
 
-  switch (chat?.booking?.status) {
+  final bookingStatus =
+      chat?.booking?.status ?? _bookingStatusFromSummary(chat?.bookingSummary);
+  final workStatus =
+      chat?.booking?.workStatus ?? chat?.bookingSummary?.workStatus;
+
+  switch (bookingStatus) {
     case BookingStatus.reviewed:
       {
         return ChatConfig(
@@ -79,7 +85,7 @@ ChatConfig getChatConfig({
       }
 
     case BookingStatus.confirmed:
-      if (chat?.booking?.workStatus == WorkStatus.completed) {
+      if (workStatus == WorkStatus.completed) {
         return mode == AppMode.ownerMode
             ? ChatConfig(
                 status: ChatStatusDetail.workcompleted,
@@ -206,4 +212,10 @@ ChatConfig getChatConfig({
     actionBartitle: "",
     statusLabel: "",
   );
+}
+
+BookingStatus? _bookingStatusFromSummary(BookingSummaryModel? summary) {
+  final raw = summary?.status.trim() ?? '';
+  if (raw.isEmpty) return null;
+  return parseBookingStatus(raw);
 }

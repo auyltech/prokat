@@ -18,7 +18,11 @@ class ClientAddressesScreen extends ConsumerStatefulWidget {
 
 class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
   Future<void> _loadAddresses() async {
+    if (!mounted) return;
+
     await ref.read(locationProvider.notifier).getClientLocations();
+
+    if (!mounted) return;
 
     final selectedAddressId = ref
         .read(clientProfileProvider)

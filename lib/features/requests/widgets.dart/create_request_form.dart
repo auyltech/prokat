@@ -140,7 +140,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       children: [
         SectionTitle(
           title: l10n.services,
-          trailing: hasCategory ? null : "* Required",
+          trailing: hasCategory ? null : l10n.requiredHint,
         ),
 
         SizedBox(height: 8),
@@ -211,7 +211,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         SectionTitle(
           title: l10n.selectDate,
-          trailing: requestState.selectedDate == null ? "* Required" : null,
+          trailing: requestState.selectedDate == null
+              ? l10n.requiredHint
+              : null,
         ),
 
         DatePickerComponent(
@@ -227,7 +229,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         SectionTitle(
           title: l10n.selectTime,
-          trailing: requestState.selectedTime == null ? "* Required" : null,
+          trailing: requestState.selectedTime == null
+              ? l10n.requiredHint
+              : null,
         ),
 
         TimePickerComponent(

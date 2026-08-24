@@ -9,6 +9,7 @@ import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_bootstrap_provider.dart';
+import 'package:prokat/features/workflow/providers/workflow_bootstrap_provider.dart';
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -31,6 +32,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     ref.watch(notificationBootstrapProvider);
     ref.watch(chatSidebarBootstrapProvider);
+    ref.watch(workflowBootstrapProvider);
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);

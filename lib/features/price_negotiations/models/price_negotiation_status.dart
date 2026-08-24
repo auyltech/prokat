@@ -3,6 +3,7 @@ enum PriceNegotiationStatus {
   accepted,
   rejected,
   cancelled,
+  closed,
   expired,
   unknown,
 }
@@ -18,6 +19,8 @@ PriceNegotiationStatus parsePriceNegotiationStatus(String? raw) {
       return PriceNegotiationStatus.rejected;
     case 'CANCELLED':
       return PriceNegotiationStatus.cancelled;
+    case 'CLOSED':
+      return PriceNegotiationStatus.closed;
     case 'EXPIRED':
       return PriceNegotiationStatus.expired;
     default:

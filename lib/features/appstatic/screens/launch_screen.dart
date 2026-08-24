@@ -3,9 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/widgets/background_glow.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+
+String _formatLaunchVersion(PackageInfo packageInfo) {
+  final version = packageInfo.version.trim();
+  final buildNumber = packageInfo.buildNumber.trim();
+
+  if (version.isEmpty) return '';
+  if (buildNumber.isEmpty) return 'v$version';
+  return 'v$version+$buildNumber';
+}
 
 String _startupStepLabel(AppStartupStep step, AppLocalizations l10n) {
   return switch (step) {
@@ -32,10 +42,12 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
   late final Animation<double> _fadeAnimation;
   bool _showWarmupMessage = false;
   Timer? _warmupTimer;
+  String _appVersionLabel = '';
 
   @override
   void initState() {
     super.initState();
+    unawaited(_loadAppVersion());
     _warmupTimer = Timer(const Duration(seconds: 6), () {
       if (mounted) setState(() => _showWarmupMessage = true);
     });
@@ -62,6 +74,16 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
     );
 
     _controller.forward();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() => _appVersionLabel = _formatLaunchVersion(packageInfo));
+    } catch (_) {
+      // Version is informational; keep the splash usable if lookup fails.
+    }
   }
 
   @override
@@ -206,7 +228,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                       ),
                     ),
                     Text(
-                      showDetails ? percentText : 'v1.0.4',
+                      showDetails ? percentText : _appVersionLabel,
                       style: textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.4,

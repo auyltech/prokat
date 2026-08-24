@@ -78,6 +78,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get offerCreated => 'Ұсыныс жасалды';
 
   @override
+  String get offerCreateRequestNotFound => 'Өтінім табылмады немесе жойылған';
+
+  @override
   String get offerReceived => 'Ұсыныс алынды';
 
   @override
@@ -724,6 +727,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get retry => 'Қайталау';
 
   @override
+  String get refresh => 'Жаңарту';
+
+  @override
   String get close => 'Жабу';
 
   @override
@@ -1349,6 +1355,19 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noChats => 'Чаттар жоқ';
 
   @override
+  String get chatsActiveTab => 'Белсенді';
+
+  @override
+  String get chatsArchiveTab => 'Мұрағат';
+
+  @override
+  String get noArchivedChats => 'Мұрағатталған чаттар жоқ';
+
+  @override
+  String get youHaveNoArchivedChats =>
+      'Аяқталған және болдырылмаған чаттар осында пайда болады.';
+
+  @override
   String get deliverTo => 'ЖЕТКІЗУ ОРНЫ';
 
   @override
@@ -1663,6 +1682,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get selectTime => 'Уақытты таңдаңыз';
+
+  @override
+  String get requiredHint => '* Міндетті';
 
   @override
   String get requestCreated => 'Сұраныс жасалды';
