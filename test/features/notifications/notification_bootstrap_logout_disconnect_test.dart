@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,32 +55,6 @@ void main() {
       expect(container.read(authProvider).session, isNull);
     },
   );
-
-  test('inactive lifecycle does not disconnect the socket', () async {
-    late FakeAppSocketService appSocket;
-    final storage = NotificationLocalStorage();
-    final container = ProviderContainer(
-      overrides: [
-        authProvider.overrideWith(_authenticatedAuthNotifier),
-        appSocketProvider.overrideWith((ref) {
-          appSocket = FakeAppSocketService(ref);
-          return appSocket;
-        }),
-        notificationLocalStorageProvider.overrideWithValue(storage),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    container.read(appStartupProvider);
-    container.read(notificationBootstrapProvider);
-    await _pumpScheduledFrame();
-
-    final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    await _pumpScheduledFrame();
-
-    expect(appSocket.disconnectCalls, 0);
-  });
 }
 
 Future<void> _forceSignedOut(ProviderContainer container) {

@@ -4,8 +4,6 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
-import 'package:prokat/features/workflow/models/workflow_update.dart';
-import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
 
 class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
   ChatService get api => ref.read(chatServiceProvider);
@@ -44,13 +42,6 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
 
     _lastFetchedAt = DateTime.now();
     return response.data;
-  }
-
-  void applyWorkflowDelta(WorkflowUpdate update) {
-    if (!_canMutateCurrentScope) return;
-    final chat = state.value;
-    if (chat == null) return;
-    state = AsyncData(applyWorkflowDeltaToChat(chat, update));
   }
 
   Future<void> refresh() {
@@ -98,12 +89,7 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
       final next = await _fetch(scope);
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
         _stateScope = scope;
-        final latest = state.value;
-        state = AsyncData(
-          next == null || latest == null
-              ? next
-              : mergeChatPreferringNewerWorkflow(next, latest),
-        );
+        state = AsyncData(next);
       }
     } catch (_) {
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {

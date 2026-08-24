@@ -14,7 +14,6 @@ import 'package:prokat/features/bookings/providers/owner_history_bookings_provid
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_mutation_state.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
-import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -136,15 +135,6 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         _refreshActiveCaches();
         if (ref.exists(clientChatsProvider)) {
           unawaited(ref.read(clientChatsProvider.notifier).refresh());
-        }
-        if (ref.exists(clientChatsByFilterProvider(ChatListFilter.archived))) {
-          unawaited(
-            ref
-                .read(
-                  clientChatsByFilterProvider(ChatListFilter.archived).notifier,
-                )
-                .refresh(),
-          );
         }
       }
 

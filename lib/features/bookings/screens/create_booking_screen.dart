@@ -214,9 +214,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       /// Pricing
                       SectionTitle(
                         title: l10n.servicePlan,
-                        trailing: isPriceEntrySelected
-                            ? null
-                            : l10n.requiredHint,
+                        trailing: isPriceEntrySelected ? null : "* Required",
                       ),
 
                       const SizedBox(height: 12),
@@ -280,7 +278,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       SectionTitle(
                         title: l10n.address,
                         trailing: bookingState.selectedLocation == null
-                            ? l10n.requiredHint
+                            ? "* Required"
                             : null,
                       ),
 
@@ -306,7 +304,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       SectionTitle(
                         title: l10n.selectDate,
                         trailing: bookingState.selectedDate == null
-                            ? l10n.requiredHint
+                            ? "* Required"
                             : null,
                       ),
 
@@ -322,7 +320,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       SectionTitle(
                         title: l10n.selectTime,
                         trailing: bookingState.selectedTime == null
-                            ? l10n.requiredHint
+                            ? "* Required"
                             : null,
                       ),
 

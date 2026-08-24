@@ -6,20 +6,8 @@ String? extractBackendCode(dynamic data) {
   if (data is! Map) return null;
 
   final code = data['code'];
-  if (code is String && code.trim().isNotEmpty) {
-    return code.trim();
-  }
-
-  // Backend `fail()` puts the stable code in `error` (e.g. NOT_FOUND:OFFERS:CREATE).
-  final error = data['error'];
-  if (error is String) {
-    final trimmed = error.trim();
-    if (trimmed.isNotEmpty && !trimmed.contains(' ')) {
-      return trimmed;
-    }
-  }
-
-  return null;
+  if (code is! String || code.trim().isEmpty) return null;
+  return code.trim();
 }
 
 DateTime? parseRetryAfter(String? value, {DateTime? now}) {

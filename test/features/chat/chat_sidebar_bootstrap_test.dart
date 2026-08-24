@@ -13,7 +13,6 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/auth/providers/auth_state.dart';
 import 'package:prokat/features/bookings/models/query_result.dart';
-import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/providers/chat_list_providers.dart';
@@ -144,7 +143,6 @@ class _FakeChatService extends ChatService {
   Future<ApiResponse<QueryResult<ChatModel>>> getClientChats({
     int page = 1,
     int itemsPerPage = 20,
-    ChatListFilter filter = ChatListFilter.active,
   }) async {
     getClientChatsCalls++;
     return ApiResponse.success(

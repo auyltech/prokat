@@ -52,11 +52,6 @@ class Mutation {
 class MutationResponse {
   final bool success;
   final String message;
-  final String? errorCode;
 
-  MutationResponse({
-    required this.success,
-    required this.message,
-    this.errorCode,
-  });
+  MutationResponse({required this.success, required this.message});
 }

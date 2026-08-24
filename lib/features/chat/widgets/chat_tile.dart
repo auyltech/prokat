@@ -167,9 +167,7 @@ class ChatTile extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (summary != null &&
-                          summary.status.isNotEmpty &&
-                          chatStatus.statusLabel.trim().isNotEmpty)
+                      if (summary != null && summary.status.isNotEmpty)
                         Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.symmetric(

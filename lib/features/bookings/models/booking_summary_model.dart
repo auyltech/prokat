@@ -11,18 +11,6 @@ class BookingSummaryModel {
     this.workStatus = WorkStatus.pending,
   });
 
-  BookingSummaryModel copyWith({
-    String? id,
-    String? status,
-    WorkStatus? workStatus,
-  }) {
-    return BookingSummaryModel(
-      id: id ?? this.id,
-      status: status ?? this.status,
-      workStatus: workStatus ?? this.workStatus,
-    );
-  }
-
   factory BookingSummaryModel.fromJson(Map<String, dynamic> json) {
     WorkStatus parseWorkStatus(dynamic value) {
       if (value == null) return WorkStatus.pending;

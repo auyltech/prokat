@@ -4,7 +4,6 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/query_result.dart';
-import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 
@@ -21,16 +20,11 @@ class ChatService {
   Future<ApiResponse<QueryResult<ChatModel>>> getClientChats({
     int page = 1,
     int itemsPerPage = 20,
-    ChatListFilter filter = ChatListFilter.active,
   }) async {
     try {
       final response = await _dio.get(
         "/chats/client",
-        queryParameters: {
-          "page": page,
-          "itemsPerPage": itemsPerPage,
-          "filter": filter.apiValue,
-        },
+        queryParameters: {"page": page, "itemsPerPage": itemsPerPage},
       );
 
       return handleApiResponse<QueryResult<ChatModel>>(
@@ -85,16 +79,11 @@ class ChatService {
   Future<ApiResponse<QueryResult<ChatModel>>> getOwnerChats({
     int page = 1,
     int itemsPerPage = 20,
-    ChatListFilter filter = ChatListFilter.active,
   }) async {
     try {
       final response = await _dio.get(
         "/chats/owner",
-        queryParameters: {
-          "page": page,
-          "itemsPerPage": itemsPerPage,
-          "filter": filter.apiValue,
-        },
+        queryParameters: {"page": page, "itemsPerPage": itemsPerPage},
       );
       return handleApiResponse<QueryResult<ChatModel>>(
         response: response,

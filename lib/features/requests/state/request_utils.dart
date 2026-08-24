@@ -7,10 +7,6 @@ OwnerRequestState getOwnerRequestState(
   RequestModel request,
   List<OfferModel> offers,
 ) {
-  if (isArchivedRequestStatus(request.status)) {
-    return OwnerRequestState.hidden;
-  }
-
   // 1. Immediately handle the empty list case safely
   if (offers.isEmpty) {
     if (request.status == RequestStatus.created) {

@@ -21,8 +21,6 @@ class OfferModel {
   final PriceRateOption? priceRate;
 
   final DateTime? createdAt;
-  final DateTime? updatedAt;
-
   OfferModel({
     required this.id,
     required this.status,
@@ -40,40 +38,7 @@ class OfferModel {
     required this.price,
     this.priceRate,
     this.createdAt,
-    this.updatedAt,
   });
-
-  OfferModel copyWith({
-    String? id,
-    OfferStatus? status,
-    String? comment,
-    String? requestId,
-    String? chatId,
-    String? bookingId,
-    String? equipmentId,
-    EquipmentSummaryModel? equipment,
-    UserModel? owner,
-    int? price,
-    PriceRateOption? priceRate,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return OfferModel(
-      id: id ?? this.id,
-      status: status ?? this.status,
-      comment: comment ?? this.comment,
-      requestId: requestId ?? this.requestId,
-      chatId: chatId ?? this.chatId,
-      bookingId: bookingId ?? this.bookingId,
-      equipmentId: equipmentId ?? this.equipmentId,
-      equipment: equipment ?? this.equipment,
-      owner: owner ?? this.owner,
-      price: price ?? this.price,
-      priceRate: priceRate ?? this.priceRate,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
     try {
@@ -102,9 +67,6 @@ class OfferModel {
 
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])
-            : null,
-        updatedAt: json['updatedAt'] != null
-            ? DateTime.parse(json['updatedAt'])
             : null,
       );
     } catch (error) {

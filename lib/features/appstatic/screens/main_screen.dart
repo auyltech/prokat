@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
@@ -35,26 +34,20 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Future<void> _fetchData() async {
     if (!mounted) return;
 
-    try {
-      final categoryId = ref.read(selectedCategoryProvider)?.id;
-      final city = ref.read(locationProvider).city;
+    final categoryId = ref.read(selectedCategoryProvider)?.id;
+    final city = ref.read(locationProvider).city;
 
-      await ref
-          .read(guestEquipmentProvider.notifier)
-          .setFilters(categoryId: categoryId, city: city);
+    await ref
+        .read(guestEquipmentProvider.notifier)
+        .setFilters(categoryId: categoryId, city: city);
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      await ref.read(categoriesProvider.notifier).refreshIfStale();
-    } catch (error, stackTrace) {
-      // Catalog failures already live in AsyncValue. Swallow them here so the
-      // unawaited initState/timer task is not reported as a Crashlytics fatal.
-      Logger.log('MainScreen._fetchData failed: $error\n$stackTrace');
-    }
+    await ref.read(categoriesProvider.notifier).refreshIfStale();
   }
 
   void _loadMore() {
-    unawaited(ref.read(guestEquipmentProvider.notifier).loadMore());
+    ref.read(guestEquipmentProvider.notifier).loadMore();
   }
 
   void _onFiltersChanged() {
@@ -62,20 +55,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     _debounce = Timer(const Duration(seconds: 1), () {
       if (!mounted) return;
-      unawaited(_fetchData());
+      _fetchData();
     });
   }
 
   Future<void> _onRefresh() async {
-    try {
-      await Future.wait([
-        ref.read(categoriesProvider.notifier).refresh(),
-        ref.read(guestEquipmentProvider.notifier).refresh(),
-        ref.read(demandConfigProvider.notifier).refresh(),
-      ]);
-    } catch (error, stackTrace) {
-      Logger.log('MainScreen._onRefresh failed: $error\n$stackTrace');
-    }
+    await Future.wait([
+      ref.read(categoriesProvider.notifier).refresh(),
+      ref.read(guestEquipmentProvider.notifier).refresh(),
+      ref.read(demandConfigProvider.notifier).refresh(),
+    ]);
   }
 
   @override

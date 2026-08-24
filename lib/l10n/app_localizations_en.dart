@@ -78,10 +78,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerCreated => 'Offer Created';
 
   @override
-  String get offerCreateRequestNotFound =>
-      'Request not found or already deleted';
-
-  @override
   String get offerReceived => 'Offer Received';
 
   @override
@@ -738,9 +734,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retry => 'Retry';
 
   @override
-  String get refresh => 'Refresh';
-
-  @override
   String get close => 'Close';
 
   @override
@@ -1367,19 +1360,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noChats => 'No Chats';
 
   @override
-  String get chatsActiveTab => 'Active';
-
-  @override
-  String get chatsArchiveTab => 'Archive';
-
-  @override
-  String get noArchivedChats => 'No archived chats';
-
-  @override
-  String get youHaveNoArchivedChats =>
-      'Completed and cancelled chats will appear here.';
-
-  @override
   String get deliverTo => 'DELIVER TO';
 
   @override
@@ -1694,9 +1674,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectTime => 'Select Time';
-
-  @override
-  String get requiredHint => '* Required';
 
   @override
   String get requestCreated => 'Request created';

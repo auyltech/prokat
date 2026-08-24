@@ -263,8 +263,8 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.invalidate(priceNegotiationMutationProvider);
 
     // Chat lists and all family instances
-    ref.invalidate(clientChatsByFilterProvider);
-    ref.invalidate(ownerChatsByFilterProvider);
+    ref.invalidate(clientChatsProvider);
+    ref.invalidate(ownerChatsProvider);
     ref.invalidate(currentChatProvider);
     ref.invalidate(chatMessagesProvider);
     ref.invalidate(chatResolverProvider);

@@ -4,8 +4,6 @@ import 'package:prokat/features/bookings/providers/booking_mutation_provider.dar
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
-import 'package:prokat/features/workflow/models/workflow_update.dart';
-import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
 
 class OwnerHistoryBookingsNotifier
     extends AsyncNotifier<QueryState<BookingModel>> {
@@ -47,42 +45,13 @@ class OwnerHistoryBookingsNotifier
       throw Exception(response.message);
     }
 
-    var items = result.items;
-    final previous = _stateScope == scope ? state.value : null;
-    if (page == 1 && previous != null) {
-      items = mergeBookingsPreferringNewer(
-        incoming: items,
-        previous: previous.items,
-      );
-    }
-
     return QueryState(
-      items: items,
+      items: result.items,
       page: result.page,
       itemsPerPage: result.itemsPerPage,
       count: result.count,
       lastFetchedAt: DateTime.now(),
     );
-  }
-
-  BookingQueryApplyStatus applyBookingDelta(WorkflowBookingDelta delta) {
-    final scope = readAuthenticatedSessionScope(ref);
-    if (scope == null || _stateScope != scope) {
-      return BookingQueryApplyStatus.skipped;
-    }
-    final current = state.value;
-    if (current == null) return BookingQueryApplyStatus.skipped;
-
-    final result = applyBookingDeltaToQuery(
-      current: current,
-      delta: delta,
-      kind: BookingQueryPatchKind.history,
-    );
-    final next = result.state;
-    if (next != null) {
-      state = AsyncData(next);
-    }
-    return result.status;
   }
 
   Future<void> refresh() {

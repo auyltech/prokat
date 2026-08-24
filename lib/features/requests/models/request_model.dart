@@ -47,40 +47,6 @@ class RequestModel {
     this.updatedAt,
   });
 
-  RequestModel copyWith({
-    String? id,
-    RequestStatus? status,
-    String? capacity,
-    int? offeredPrice,
-    PriceRateOption? offeredPriceRate,
-    String? comment,
-    DateTime? requiredOn,
-    DateTime? requiredAt,
-    LocationModel? location,
-    UserModel? client,
-    Category? category,
-    String? categoryId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) {
-    return RequestModel(
-      id: id ?? this.id,
-      status: status ?? this.status,
-      capacity: capacity ?? this.capacity,
-      offeredPrice: offeredPrice ?? this.offeredPrice,
-      offeredPriceRate: offeredPriceRate ?? this.offeredPriceRate,
-      comment: comment ?? this.comment,
-      requiredOn: requiredOn ?? this.requiredOn,
-      requiredAt: requiredAt ?? this.requiredAt,
-      location: location ?? this.location,
-      client: client ?? this.client,
-      category: category ?? this.category,
-      categoryId: categoryId ?? this.categoryId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
   factory RequestModel.fromJson(Map<String, dynamic> json) {
     return RequestModel(
       id: json['id']?.toString() ?? '',

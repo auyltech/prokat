@@ -95,7 +95,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
                       title: l10n.noBookingsFound,
                       subtitle: l10n.noActiveOrders,
                       actionButton: PrimaryButton(
-                        label: l10n.refresh,
+                        label: "Refresh",
                         isLoading: bookingsAsync.isRefreshing,
                         icon: LucideIcons.refreshCw,
                         onPressed: () async {

@@ -111,7 +111,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
     final providerState = ref.watch(ownerRegistrationMutationProvider);
     final isLoading = providerState.isLoading;
 
@@ -223,8 +222,8 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Text(
-                l10n.requiredHint,
+              const Text(
+                "* Required",
                 style: TextStyle(
                   color: Colors.red,
                   fontSize: 12,

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
-import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/providers/chat_list_providers.dart';
@@ -29,34 +28,26 @@ final chatSidebarBootstrapProvider = Provider<void>((ref) {
     var refreshClient = false;
     var refreshOwner = false;
 
-    for (final filter in ChatListFilter.values) {
-      final client = clientChatsByFilterProvider(filter);
-      if (ref.exists(client)) {
-        final status = ref
-            .read(client.notifier)
-            .applySidebarUpdate(
-              update: update,
-              currentUserId: currentUserId,
-              isThreadOpen: isThreadOpen,
-            );
-        if (status == ChatSidebarApplyStatus.notFound) {
-          refreshClient = true;
-        }
-      }
+    if (ref.exists(clientChatsProvider)) {
+      final status = ref
+          .read(clientChatsProvider.notifier)
+          .applySidebarUpdate(
+            update: update,
+            currentUserId: currentUserId,
+            isThreadOpen: isThreadOpen,
+          );
+      refreshClient = status == ChatSidebarApplyStatus.notFound;
+    }
 
-      final owner = ownerChatsByFilterProvider(filter);
-      if (ref.exists(owner)) {
-        final status = ref
-            .read(owner.notifier)
-            .applySidebarUpdate(
-              update: update,
-              currentUserId: currentUserId,
-              isThreadOpen: isThreadOpen,
-            );
-        if (status == ChatSidebarApplyStatus.notFound) {
-          refreshOwner = true;
-        }
-      }
+    if (ref.exists(ownerChatsProvider)) {
+      final status = ref
+          .read(ownerChatsProvider.notifier)
+          .applySidebarUpdate(
+            update: update,
+            currentUserId: currentUserId,
+            isThreadOpen: isThreadOpen,
+          );
+      refreshOwner = status == ChatSidebarApplyStatus.notFound;
     }
 
     final lastMessage = update.lastMessage;
@@ -91,9 +82,21 @@ final chatSidebarBootstrapProvider = Provider<void>((ref) {
     } catch (_) {}
   }
 
+  void refreshListsAfterBackground() {
+    if (ref.read(authProvider).session == null) return;
+
+    if (ref.exists(clientChatsProvider)) {
+      unawaited(ref.read(clientChatsProvider.notifier).refresh());
+    }
+    if (ref.exists(ownerChatsProvider)) {
+      unawaited(ref.read(ownerChatsProvider.notifier).refresh());
+    }
+  }
+
   final lifecycleObserver = ChatResumeSyncObserver(
     onResumeFromBackground: () {
       unawaited(startIfReady());
+      refreshListsAfterBackground();
     },
   );
 

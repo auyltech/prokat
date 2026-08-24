@@ -80,9 +80,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get offerCreated => 'Предложение создано';
 
   @override
-  String get offerCreateRequestNotFound => 'Заявка не найдена или уже удалена';
-
-  @override
   String get offerReceived => 'Предложение получено';
 
   @override
@@ -741,9 +738,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get retry => 'Повторить';
 
   @override
-  String get refresh => 'Обновить';
-
-  @override
   String get close => 'Закрыть';
 
   @override
@@ -1369,19 +1363,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noChats => 'Нет чатов';
 
   @override
-  String get chatsActiveTab => 'Активные';
-
-  @override
-  String get chatsArchiveTab => 'Архив';
-
-  @override
-  String get noArchivedChats => 'Нет архивных чатов';
-
-  @override
-  String get youHaveNoArchivedChats =>
-      'Здесь появятся завершённые и отменённые чаты.';
-
-  @override
   String get deliverTo => 'ДОСТАВИТЬ К';
 
   @override
@@ -1697,9 +1678,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get selectTime => 'Выбрать время';
-
-  @override
-  String get requiredHint => '* Обязательно';
 
   @override
   String get requestCreated => 'Запрос создан';

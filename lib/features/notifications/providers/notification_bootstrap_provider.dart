@@ -193,8 +193,6 @@ class _NotificationSocketLifecycleObserver extends WidgetsBindingObserver {
         break;
 
       case AppLifecycleState.inactive:
-        break;
-
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:

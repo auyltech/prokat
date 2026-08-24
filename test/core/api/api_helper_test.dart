@@ -104,44 +104,4 @@ void main() {
       inInclusiveRange(59, 60),
     );
   });
-
-  test('extractBackendCode reads fail() error codes', () {
-    expect(
-      extractBackendCode({
-        'success': false,
-        'error': 'NOT_FOUND:OFFERS:CREATE',
-        'message': 'Request not found',
-      }),
-      'NOT_FOUND:OFFERS:CREATE',
-    );
-  });
-
-  test('extractBackendCode prefers code over error', () {
-    expect(
-      extractBackendCode({
-        'code': 'RATE_LIMITED',
-        'error': 'NOT_FOUND:OFFERS:CREATE',
-      }),
-      'RATE_LIMITED',
-    );
-  });
-
-  test('handleEmptyApiResponse extracts fail() envelope error code', () {
-    final response = Response<dynamic>(
-      requestOptions: RequestOptions(path: '/offers'),
-      statusCode: 404,
-      data: {
-        'success': false,
-        'count': 0,
-        'error': 'NOT_FOUND:OFFERS:CREATE',
-        'message': 'Request not found',
-      },
-    );
-
-    final result = handleEmptyApiResponse(response: response);
-
-    expect(result.success, isFalse);
-    expect(result.errorCode, 'NOT_FOUND:OFFERS:CREATE');
-    expect(result.message, 'Request not found');
-  });
 }
