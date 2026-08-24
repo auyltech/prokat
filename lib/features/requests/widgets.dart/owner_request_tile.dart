@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -132,8 +132,8 @@ class OwnerRequestTile extends ConsumerWidget {
 
                   Text(
                     minutesLeft > 0
-                        ? "$minutesLeft m left"
-                        : formatRequestTime(request.createdAt.toString()),
+                        ? l10n.minutesLeft(minutesLeft)
+                        : formatRequestTime(request.createdAt.toString(), l10n),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: minutesLeft > 0
                           ? theme.colorScheme.primary

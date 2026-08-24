@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -139,7 +140,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              hasLocation ? location : l10n.selectCity,
+                              hasLocation
+                                  ? localizedCityName(location, l10n)
+                                  : l10n.selectCity,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: hasLocation
                                     ? colorScheme.primary

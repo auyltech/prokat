@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -82,7 +83,11 @@ class AddressPickerCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           selectedAddress != null
-                              ? "${selectedAddress?.street}, ${selectedAddress?.city}"
+                              ? formatStreetCity(
+                                  l10n: l10n,
+                                  street: selectedAddress?.street,
+                                  city: selectedAddress?.city,
+                                )
                               : l10n.selectValue,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: selectedAddress != null

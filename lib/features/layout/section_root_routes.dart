@@ -8,8 +8,8 @@ const sectionRootPaths = <String>{
   AppRoutes.clientChatList,
   AppRoutes.clientProfile,
   AppRoutes.ownerProfile,
-  AppRoutes.ownerRequests,
   AppRoutes.ownerEquipment,
+  AppRoutes.ownerRequests,
   AppRoutes.ownerBookings,
   AppRoutes.ownerChatList,
 };

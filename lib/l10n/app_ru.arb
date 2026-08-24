@@ -994,6 +994,92 @@
   "negotiationIdMissing": "Не указан идентификатор переговоров",
   "actionFailed": "Не удалось выполнить действие",
   "pleaseSelectYourCity": "Выберите город",
+  "saveChanges": "Сохранить",
+  "saving": "Сохранение...",
+  "fieldRequired": "Обязательное поле",
+  "justNow": "Только что",
+  "minutesAgo": "{count} мин назад",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} ч назад",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "newOffer": "Новое предложение",
+  "offerStatusViewed": "Просмотрено",
+  "offerStatusCancelled": "Отменено",
+  "offerStatusAccepted": "Принято",
+  "offerStatusRejected": "Отклонено",
+  "offerStatusExpired": "Истекло",
+  "offerStatusClosed": "Закрыто",
+  "dataProcessingTitle": "Обработка данных",
+  "pleaseCompleteRequiredFields": "Заполните обязательные данные перед отправкой на проверку",
+  "youAreOnline": "Вы онлайн",
+  "youAreOffline": "Вы офлайн",
+  "readyToAcceptOrders": "Готовы принимать заказы",
+  "notAcceptingOrders": "Не принимаете заказы",
+  "youAreNowOnline": "Вы теперь онлайн",
+  "youAreNowOffline": "Вы теперь офлайн",
+  "failedToggleStatus": "Не удалось обновить статус",
+  "countryKazakhstan": "Казахстан",
+  "modelStandard": "Стандарт",
+  "modelHeavyDuty": "Тяжёлый",
+  "modelIndustrial": "Промышленный",
+  "capacityKub": "{capacity} м³",
+  "@capacityKub": {
+    "placeholders": {
+      "capacity": { "type": "String" }
+    }
+  },
+  "unitMeters": "м",
+  "hoseLengthHint": "шланг 15 м",
+  "priceKztHint": "10 000 ₸",
+  "ownerType": "Тип владельца",
+  "companyInformation": "Данные компании",
+  "companyName": "Название компании",
+  "enterCompanyName": "Введите название компании",
+  "legalEntityName": "Юридическое название",
+  "legalEntityNameHint": "Как в официальных документах",
+  "personalContactDetails": "Контактные данные",
+  "enterFirstName": "Введите имя",
+  "enterLastName": "Введите фамилию",
+  "enterValidPhoneNumber": "Введите корректный номер телефона",
+  "serviceDetails": "Описание услуг",
+  "serviceDetailsHint": "Опишите товары, аренду или технику, которую вы предоставляете...",
+  "updateProfile": "Обновить профиль",
+  "profileUpdatedSuccessfully": "Профиль успешно обновлён",
+  "failedToUpdateProfile": "Не удалось обновить профиль",
+  "ordersCount": "{count, plural, one{{count} заказ} few{{count} заказа} many{{count} заказов} other{{count} заказа}}",
+  "@ordersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "ratePerTrip": "За рейс",
+  "ratePerCubicMeter": "За м³",
+  "ratePerDay": "За сутки",
+  "ratePerHour": "За час",
+
+  "cityNameAtyrau": "Атырау",
+  "cityNameAlmaty": "Алматы",
+  "cityNameAstana": "Астана",
+  "cityNameShymkent": "Шымкент",
+  "cityNameAktobe": "Актобе",
+  "cityNameKaraganda": "Караганда",
+  "cityNameTaraz": "Тараз",
+  "cityNamePavlodar": "Павлодар",
+  "cityNameUstKamenogorsk": "Усть-Каменогорск",
+  "cityNameSemey": "Семей",
+  "cityNameKostanay": "Костанай",
+  "cityNameKyzylorda": "Кызылорда",
+  "cityNameUralsk": "Уральск",
+  "cityNamePetropavl": "Петропавловск",
+  "cityNameTurkistan": "Туркестан",
 
   "connectionTimedOut": "Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.",
   "noConnectionCheckNetwork": "Нет соединения. Проверьте сеть и попробуйте снова.",

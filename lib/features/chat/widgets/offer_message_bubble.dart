@@ -89,7 +89,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                 ],
               ),
 
-              SizedBox(height: 4),
+              SizedBox(height: 8),
 
               if (offer.equipment != null)
                 EquipmentInfoTile(equipment: offer.equipment),

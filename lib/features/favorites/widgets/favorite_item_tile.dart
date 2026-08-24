@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class FavoriteItemTile extends ConsumerWidget {
   final Equipment equipment;
@@ -14,6 +15,7 @@ class FavoriteItemTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     // Watch the favorite status to ensure UI updates immediately
     final isFavorite =
         ref.watch(
@@ -112,7 +114,7 @@ class FavoriteItemTile extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        priceEntry != null ? "${priceEntry.price} ₸" : "POA",
+                        priceEntry != null ? "${priceEntry.price} ₸" : l10n.poa,
                         style: TextStyle(
                           color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w900,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/equipment/models/equipment_location.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -33,7 +34,7 @@ class LocationPickerSheet extends StatelessWidget {
               ...previewLocations.map(
                 (loc) => ListTile(
                   leading: const Icon(Icons.location_on_rounded),
-                  title: Text(loc.city ?? ""),
+                  title: Text(localizedCityName(loc.city, l10n)),
                   subtitle: Text(loc.street),
                   onTap: () {
                     Navigator.pop(context, loc);

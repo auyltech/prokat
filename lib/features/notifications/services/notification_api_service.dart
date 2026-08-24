@@ -22,11 +22,7 @@ class NotificationApiService {
     try {
       await dio.post(
         _registerTokenPath,
-        data: {
-          'token': token,
-          'platform': platform,
-          if (metadata != null) ...metadata,
-        },
+        data: {'token': token, 'platform': platform, ...?metadata},
       );
     } on DioException catch (error) {
       throw Exception(extractBackendMessage(error));

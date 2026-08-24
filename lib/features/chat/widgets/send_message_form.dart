@@ -6,7 +6,6 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
-import 'dart:ui';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SendMessageForm extends ConsumerStatefulWidget {
@@ -86,146 +85,143 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
         widget.currentChat != null &&
         chatHasVisibleActions(status: widget.chatStatus, mode: widget.mode);
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.cardColor.withValues(alpha: 0.80),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            border: Border(
-              top: BorderSide(
-                color: Colors.white.withValues(alpha: 0.5),
-                width: 1,
-              ),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, -4),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardColor.withValues(alpha: 0.80),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+        border: Border(
+          top: BorderSide(
+            color: theme.dividerColor.withValues(alpha: 0.4),
+            width: 1,
           ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (showActions) ...[
+                ChatActionBar(
+                  currentChat: widget.currentChat!,
+                  chatStatus: widget.chatStatus,
+                  mode: widget.mode,
+                  actionBarTitle: widget.actionBarTitle,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  ),
+                ),
+              ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  if (showActions) ...[
-                    ChatActionBar(
-                      currentChat: widget.currentChat!,
-                      chatStatus: widget.chatStatus,
-                      mode: widget.mode,
-                      actionBarTitle: widget.actionBarTitle,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      minLines: 1,
+                      maxLines: 5,
+                      textCapitalization: TextCapitalization.sentences,
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
-                    ),
-                  ],
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _controller,
-                          minLines: 1,
-                          maxLines: 5,
-                          textCapitalization: TextCapitalization.sentences,
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 0, 70, 128),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                      decoration: InputDecoration(
+                        hintText: l10n.typeMessageHint,
+                        hintStyle: const TextStyle(
+                          color: Color.fromARGB(255, 126, 126, 126),
+                          fontWeight: FontWeight.w400,
+                        ),
+                        filled: true,
+                        fillColor: theme.scaffoldBackgroundColor.withValues(
+                          alpha: 0.85,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: theme.dividerColor.withValues(alpha: 0.4),
                           ),
-                          decoration: InputDecoration(
-                            hintText: l10n.typeMessageHint,
-                            hintStyle: const TextStyle(
-                              color: Color.fromARGB(255, 126, 126, 126),
-                              fontWeight: FontWeight.w400,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: theme.dividerColor.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.4,
                             ),
-                            filled: true,
-                            fillColor: theme.scaffoldBackgroundColor.withValues(
-                              alpha: 0.85,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              borderSide: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.4),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              borderSide: BorderSide(
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.4,
-                                ),
-                                width: 1.5,
-                              ),
-                            ),
+                            width: 1.5,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Material(
-                        color: theme.colorScheme.primary,
-                        shape: const CircleBorder(),
-                        elevation: 2,
-                        child: IconButton(
-                          onPressed: isWorkCompleted || isOrderCanceled
-                              ? null
-                              : _sendMessage,
-                          icon: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              const Icon(
-                                Icons.send_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              if (isSendingAny)
-                                Positioned(
-                                  right: -4,
-                                  top: -4,
-                                  child: SizedBox(
-                                    width: 12,
-                                    height: 12,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor:
-                                          const AlwaysStoppedAnimation<Color>(
-                                            Colors.white,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                            ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Material(
+                    color: theme.colorScheme.primary,
+                    shape: const CircleBorder(),
+                    elevation: 2,
+                    child: IconButton(
+                      onPressed: isWorkCompleted || isOrderCanceled
+                          ? null
+                          : _sendMessage,
+                      icon: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 20,
                           ),
-                        ),
+                          if (isSendingAny)
+                            Positioned(
+                              right: -4,
+                              top: -4,
+                              child: SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),

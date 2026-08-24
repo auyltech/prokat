@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,7 +24,11 @@ void showLocationSheet(BuildContext context, LocationModel location) {
           Text(l10n.deliveryAddress, style: theme.textTheme.titleLarge),
           const SizedBox(height: 8),
           Text(
-            "${location.street}, ${location.city}",
+            formatStreetCity(
+              l10n: l10n,
+              street: location.street,
+              city: location.city,
+            ),
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),

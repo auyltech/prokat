@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/widgets/profile_image_picker.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientProfileHeader extends StatelessWidget {
   final UserProfileModel? userProfile;
@@ -13,6 +14,7 @@ class ClientProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -58,17 +60,17 @@ class ClientProfileHeader extends StatelessWidget {
                 Text(
                   (userProfile?.ratingAverage ?? 0).toStringAsFixed(1),
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
 
                 const SizedBox(width: 8),
 
                 Text(
-                  "- ${userProfile?.orderCount ?? 0} orders",
+                  "- ${l10n.ordersCount(userProfile?.orderCount ?? 0)}",
                   style: theme.textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w400,
-                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],

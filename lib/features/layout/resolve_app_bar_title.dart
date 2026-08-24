@@ -12,7 +12,7 @@ String resolveAppBarTitle(
   // Legal
   if (path == AppRoutes.privacyPolicy) return l10n.privacyPolicy;
   if (path == AppRoutes.userAgreement) return l10n.userAgreement;
-  if (path == AppRoutes.personalDataConsent) return "Data Processing";
+  if (path == AppRoutes.personalDataConsent) return l10n.dataProcessingTitle;
 
   // Exact Client Route Matches
   // Search Equipment Screen

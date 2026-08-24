@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -96,11 +97,12 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
       AppSnackBar.show(
         message: success
-            ? 'Profile updated successfully'
+            ? l10n.profileUpdatedSuccessfully
             : ref.read(ownerRegistrationMutationProvider).error ??
-                  'Failed to update profile',
+                  l10n.failedToUpdateProfile,
         isSuccess: success,
         isError: !success,
       );
@@ -125,7 +127,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           SizedBox(height: 20),
           // Owner Type Selector
           Text(
-            "Owner Type",
+            l10n.ownerType,
             style: theme.textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -134,15 +136,23 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
           Row(
             children: [
-              _buildTypeButton("Individual", OwnerType.individual, theme),
+              _buildTypeButton(
+                l10n.individualOwner,
+                OwnerType.individual,
+                theme,
+              ),
               const SizedBox(width: 12),
-              _buildTypeButton("Organization", OwnerType.organization, theme),
+              _buildTypeButton(
+                l10n.organization,
+                OwnerType.organization,
+                theme,
+              ),
             ],
           ),
           const SizedBox(height: 16),
 
           Text(
-            "Company Information",
+            l10n.companyInformation,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -150,8 +160,8 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 12),
 
           InputField(
-            label: "Company Name",
-            hint: "Enter company name",
+            label: l10n.companyName,
+            hint: l10n.enterCompanyName,
             controller: _companyNameController,
             isRequired: isOrganization,
           ),
@@ -159,8 +169,8 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 12),
 
           InputField(
-            label: "Legal entity name",
-            hint: "As written in official documents",
+            label: l10n.legalEntityName,
+            hint: l10n.legalEntityNameHint,
             controller: _legalNameController,
             isRequired: isOrganization,
           ),
@@ -168,7 +178,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 24),
 
           Text(
-            "Personal Contact Details",
+            l10n.personalContactDetails,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -177,8 +187,8 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 12),
 
           InputField(
-            label: "First Name",
-            hint: "Enter first name",
+            label: l10n.firstName,
+            hint: l10n.enterFirstName,
             controller: _firstNameController,
             isRequired: true,
           ),
@@ -186,8 +196,8 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 12),
 
           InputField(
-            label: "Last Name",
-            hint: "Enter last name",
+            label: l10n.lastName,
+            hint: l10n.enterLastName,
             controller: _lastNameController,
             isRequired: true,
           ),
@@ -195,7 +205,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 12),
 
           InputField(
-            label: "Phone Number",
+            label: l10n.phoneNumber,
             hint: "+7 (700) 000-00-00",
             controller: _phoneController,
             keyboardType: TextInputType.phone,
@@ -204,7 +214,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
               final phone = value?.trim() ?? '';
 
               if (phone.isNotEmpty && phone.length < 10) {
-                return 'Enter a valid phone number';
+                return l10n.enterValidPhoneNumber;
               }
 
               return null;
@@ -218,7 +228,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "City",
+                l10n.city,
                 style: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -240,11 +250,12 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             spacing: 8.0, // Horizontal space between buttons
             runSpacing: 8.0, // Vertical space between wrapped lines
             children: _citiesList.map((city) {
-              final isSelected = _selectedCity == city['value'];
+              final cityKey = city['value']!;
+              final isSelected = isSameCity(_selectedCity, cityKey);
               final primaryColor = const Color(0xFF0F5A56);
 
               return ChoiceChip(
-                label: Text(city['label']!),
+                label: Text(localizedCityName(cityKey, l10n)),
                 selected: isSelected,
                 onSelected: (bool selected) {
                   setState(() {
@@ -277,15 +288,15 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           const SizedBox(height: 12),
 
           InputField(
-            label: "Service Details",
-            hint: "Describe the goods, rentals or machinery you provide...",
+            label: l10n.serviceDetails,
+            hint: l10n.serviceDetailsHint,
             controller: _descriptionController,
             isLast: true,
           ),
           const SizedBox(height: 32),
 
           PrimaryButton(
-            label: "Update Profile",
+            label: l10n.updateProfile,
             isLoading: isLoading,
             onPressed: isLoading ? null : _submitForm,
           ),

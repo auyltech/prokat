@@ -53,6 +53,7 @@ class CategoryCard extends StatelessWidget {
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -90,17 +91,26 @@ class DemandCategoryCard extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      Icon(
-                        Icons.agriculture_outlined,
-                        size: 52,
-                        color: theme.colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.25,
+                      SizedBox.expand(),
+                      Positioned(
+                        top: -6,
+                        child: Icon(
+                          Icons.agriculture_outlined,
+                          size: 110,
+                          color: theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.1,
+                          ),
                         ),
                       ),
                       Text(
                         '?',
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w800,
+                          fontSize: 60,
+                          height: 1,
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.45,
+                          ),
                         ),
                       ),
                     ],

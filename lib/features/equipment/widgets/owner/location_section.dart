@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/cities.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/section_title.dart';
@@ -157,9 +158,10 @@ class _LocationSectionState extends State<LocationSection> {
                                 const SizedBox(height: 10),
                                 ...cities.map(
                                   (city) => ListTile(
-                                    title: Text(city),
+                                    title: Text(localizedCityName(city, l10n)),
                                     leading: const Icon(Icons.location_city),
-                                    trailing: _cityController.text == city
+                                    trailing:
+                                        isSameCity(_cityController.text, city)
                                         ? Icon(
                                             Icons.check_circle,
                                             color: accent,
@@ -208,7 +210,9 @@ class _LocationSectionState extends State<LocationSection> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              hasLocation ? value.text : l10n.selectCity,
+                              hasLocation
+                                  ? localizedCityName(value.text, l10n)
+                                  : l10n.selectCity,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: hasLocation
                                     ? colorScheme.onSurface

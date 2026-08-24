@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientEquipmentTile extends ConsumerWidget {
@@ -38,18 +39,8 @@ class ClientEquipmentTile extends ConsumerWidget {
     final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
 
     return BaseTile(
+      borderRadius: 16,
       padding: EdgeInsets.all(0),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(24), // Softer corners
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.black.withValues(alpha: 0.4), // Much softer shadow
-      //       blurRadius: 2,
-      //       offset: const Offset(0, 2),
-      //     ),
-      //   ],
-      // ),
       child: Column(
         children: [
           /// 1. IMAGE SECTION (Clean & Floating Elements)
@@ -61,7 +52,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                 ),
                 child: OptimizedNetworkImage(
                   imageUrl: equipment.imageUrl ?? "",
-                  height: 200, // Slightly taller for better presence
+                  height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   fallbackIcon: Icons.precision_manufacturing_outlined,
@@ -85,7 +76,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     if (equipment.city!.isNotEmpty) ...[
                       const SizedBox(width: 8),
                       _badge(
-                        text: equipment.city ?? "",
+                        text: localizedCityName(equipment.city, l10n),
                         color: Colors.black.withValues(alpha: 0.6),
                       ),
                     ],
@@ -128,7 +119,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     children: [
                       Text(
                         priceEntry == null
-                            ? "POA"
+                            ? l10n.poa
                             : formatPrice(priceEntry.price),
                         style: TextStyle(
                           fontSize: 18,

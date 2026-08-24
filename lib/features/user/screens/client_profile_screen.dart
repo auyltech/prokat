@@ -11,7 +11,7 @@ import 'package:prokat/features/user/widgets/become_owner_cta.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/widgets/client_profile_header.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/features/user/widgets/client_rental_preferences_section.dart';
 
 class ClientProfileScreen extends ConsumerStatefulWidget {

@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/cities.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-enum CitySelectorService { guestcategory, createequipment, clientcity }
+enum CitySelectorService {
+  guestcategory,
+  createequipment,
+  clientcity,
+  demandsurvey,
+}
 
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
@@ -43,9 +49,9 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
       context.pop(city);
     }
 
-    if (widget.service == CitySelectorService.guestcategory) {
-      return city;
-    } else if (widget.service == CitySelectorService.createequipment) {
+    if (widget.service == CitySelectorService.guestcategory ||
+        widget.service == CitySelectorService.createequipment ||
+        widget.service == CitySelectorService.demandsurvey) {
       return city;
     }
 
@@ -63,10 +69,11 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final selectedCity = ref.watch(locationProvider).city;
-    final title = l10n?.selectCity ?? "Select City";
+    final title = l10n.selectCity;
+    final allLocationsLabel = l10n.allLocations;
 
     final cityOptions = widget.service == CitySelectorService.guestcategory
         ? ["", ...cities]
@@ -108,14 +115,17 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
                   itemCount: cityOptions.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final isSelected = cityOptions[index] == selectedCity;
+                    final option = cityOptions[index];
+                    final isSelected = option.isEmpty
+                        ? (selectedCity == null || selectedCity.isEmpty)
+                        : isSameCity(option, selectedCity);
 
                     return ListTile(
                       leading: const Icon(Icons.location_city),
                       title: Text(
-                        cityOptions[index].isEmpty
-                            ? "All Locations"
-                            : cityOptions[index],
+                        option.isEmpty
+                            ? allLocationsLabel
+                            : localizedCityName(option, l10n),
                       ),
                       trailing: isSelected
                           ? Icon(
@@ -123,8 +133,7 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
                               color: theme.colorScheme.primary,
                             )
                           : null,
-                      onTap: () async =>
-                          await _onCitySelected(cityOptions[index]),
+                      onTap: () async => await _onCitySelected(option),
                     );
                   },
                 ),

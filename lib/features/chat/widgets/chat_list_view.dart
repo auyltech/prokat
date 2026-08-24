@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -91,12 +91,28 @@ class _ChatListViewState extends ConsumerState<ChatListView>
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
-          TabBar(
-            controller: _tabController,
-            tabs: [
-              Tab(text: l10n.chatsActiveTab),
-              Tab(text: l10n.chatsArchiveTab),
-            ],
+          ColoredBox(
+            color: theme.cardColor,
+            child: TabBar(
+              controller: _tabController,
+              indicatorWeight: 4,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorColor: theme.colorScheme.onPrimary,
+              labelColor: theme.colorScheme.onPrimary,
+              unselectedLabelColor: theme.hintColor,
+              labelStyle: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              unselectedLabelStyle: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.normal,
+                fontSize: 16,
+              ),
+              tabs: [
+                Tab(text: l10n.chatsActiveTab),
+                Tab(text: l10n.chatsArchiveTab),
+              ],
+            ),
           ),
           Expanded(
             child: TabBarView(
@@ -212,16 +228,10 @@ class _ChatListPane extends ConsumerWidget {
             );
           }
 
-          return ListView.separated(
+          return ListView.builder(
             controller: scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             itemCount: chats.length + (state.isLoadingMore ? 1 : 0),
-            separatorBuilder: (_, _) => const Divider(
-              height: 1,
-              thickness: 1,
-              indent: 16,
-              endIndent: 16,
-            ),
             itemBuilder: (context, index) {
               if (index == chats.length) {
                 return const Padding(

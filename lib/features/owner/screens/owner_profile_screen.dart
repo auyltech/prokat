@@ -16,7 +16,7 @@ import 'package:prokat/features/owner/widgets/owner_profile_header.dart';
 import 'package:prokat/features/owner/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/owner_stat_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class OwnerProfileScreen extends ConsumerStatefulWidget {
   const OwnerProfileScreen({super.key});

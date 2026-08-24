@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/cities.dart';
+import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/equipment_demand/widgets/demand_survey_app_bar.dart';
+import 'package:prokat/features/equipment_demand/widgets/demand_survey_city_field.dart';
+import 'package:prokat/features/equipment_demand/widgets/demand_survey_comment_field.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
+import '../../core/widgets/action_button.dart';
 import 'equipment_demand_models.dart';
 import 'equipment_demand_provider.dart';
 
 class EquipmentDemandScreen extends ConsumerStatefulWidget {
   final String campaignId;
+
   const EquipmentDemandScreen({super.key, required this.campaignId});
 
   @override
@@ -29,7 +36,7 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
   void initState() {
     super.initState();
     final currentCity = ref.read(locationProvider).city;
-    if (cities.contains(currentCity)) _city = currentCity;
+    _city = canonicalCity(currentCity, cities);
   }
 
   @override
@@ -41,7 +48,8 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context)!;
     final other = _otherController.text.trim();
-    if (!cities.contains(_city) || (_selected.isEmpty && other.isEmpty)) {
+    if (canonicalCity(_city, cities) == null ||
+        (_selected.isEmpty && other.isEmpty)) {
       setState(() => _error = l10n.demandSurveySubmitError);
       return;
     }
@@ -86,12 +94,22 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
     }
   }
 
+  Future<void> _pickCity() async {
+    final selected = await CityPickerSheet.show(
+      context: context,
+      service: CitySelectorService.demandsurvey,
+    );
+    if (!mounted || selected == null || selected.isEmpty) return;
+    setState(() => _city = canonicalCity(selected, cities) ?? selected);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final form = ref.watch(demandFormProvider(widget.campaignId));
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.demandSurveyCardTitle)),
+      appBar: DemandSurveyAppBar(title: l10n.demandSurveyCardTitle),
       body: form.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => Center(
@@ -100,7 +118,11 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(l10n.demandSurveyLoadError),
+                Text(
+                  l10n.demandSurveyLoadError,
+                  style: theme.textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: () =>
@@ -116,33 +138,30 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
           children: [
             Text(
               l10n.demandSurveyQuestionTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                height: 1.2,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
-            Text(l10n.demandSurveyQuestionSubtitle),
-            const SizedBox(height: 24),
-            DropdownButtonFormField<String>(
-              initialValue: _city,
-              decoration: InputDecoration(
-                labelText: l10n.demandSurveyCityLabel,
-                border: const OutlineInputBorder(),
+            Text(
+              l10n.demandSurveyQuestionSubtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w400,
+                height: 1.35,
               ),
-              hint: Text(l10n.demandSurveySelectCity),
-              items: cities
-                  .map(
-                    (city) => DropdownMenuItem(value: city, child: Text(city)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _city = value),
             ),
+            const SizedBox(height: 24),
+            DemandSurveyCityField(city: _city, onTap: _pickCity),
             const SizedBox(height: 20),
             ...data.options.map(
               (option) => CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: _selected.contains(option.id),
-                title: Text(option.name),
+                checkColor: Colors.white,
+                title: Text(option.name, style: theme.textTheme.bodyMedium),
                 onChanged: (checked) => setState(() {
                   checked == true
                       ? _selected.add(option.id)
@@ -151,32 +170,23 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _otherController,
-              maxLength: 500,
-              maxLines: 4,
-              decoration: InputDecoration(
-                labelText: l10n.demandSurveyOtherOption,
-                hintText: l10n.demandSurveyOtherHint,
-                border: const OutlineInputBorder(),
-              ),
-            ),
+            DemandSurveyCommentField(controller: _otherController),
+
+            const SizedBox(height: 24),
+
             if (_error != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+              Text(
+                _error!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            FilledButton(
+            const SizedBox(height: 24),
+            ActionButton(
+              label: l10n.demandSurveySubmit,
               onPressed: _submitting ? null : _submit,
-              child: _submitting
-                  ? const SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.demandSurveySubmit),
+              isLoading: _submitting,
             ),
           ],
         ),

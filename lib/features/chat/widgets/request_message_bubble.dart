@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -60,15 +60,15 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
             children: [
               Icon(
                 Icons.request_page_outlined,
-                color: theme.colorScheme.primary,
+                color: theme.colorScheme.onPrimary,
                 size: 26,
               ),
               const SizedBox(width: 8),
               Text(
-                'New Request',
+                l10n.newRequest,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               Spacer(),
@@ -106,25 +106,31 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
-                        color: Colors.black,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     Row(
                       children: [
-                        Icon(Icons.propane_outlined, color: Colors.grey[900]),
+                        Icon(
+                          Icons.propane_outlined,
+                          color: theme.colorScheme.onPrimary,
+                        ),
                         SizedBox(width: 4),
                         Text(
-                          '${request.capacity} M3',
+                          '${request.capacity} ${l10n.unitCubicMeters}',
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5,
                           ),
                         ),
                         SizedBox(width: 8),
-                        Icon(Icons.cable_outlined, color: Colors.grey[900]),
+                        Icon(
+                          Icons.cable_outlined,
+                          color: theme.colorScheme.onPrimary,
+                        ),
                         SizedBox(width: 4),
                         Text(
-                          '${10} M',
+                          '${10} ${l10n.unitMeters}',
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5,
@@ -159,7 +165,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   icon: Icons.event_outlined,
                   label: l10n.date,
                   value: () {
-                    if (request.requiredOn == null) return "PENDING";
+                    if (request.requiredOn == null) return l10n.pending;
 
                     // 1. Format the date part cleanly (e.g., "02 Jun 2026")
                     final dateStr = DateFormat(
@@ -219,7 +225,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   Text(
                     "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: const Color(0xFF0D47A1),
+                      color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w800,
                     ),
                   ),

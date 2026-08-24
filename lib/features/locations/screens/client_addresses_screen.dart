@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -37,10 +38,11 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
   String _formatAddress(LocationModel? address, AppLocalizations l10n) {
     if (address == null) return l10n.noAddressSelected;
 
-    return [
-      address.street,
-      address.city,
-    ].where((part) => part.trim().isNotEmpty).join(', ');
+    return formatStreetCity(
+      l10n: l10n,
+      street: address.street,
+      city: address.city,
+    );
   }
 
   @override

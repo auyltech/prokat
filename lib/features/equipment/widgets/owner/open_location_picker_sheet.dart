@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -77,7 +78,7 @@ void openLocationPickerSheet(
                 (loc) => _LocationTile(
                   icon: Icons.location_on_outlined,
                   title: loc.street,
-                  subtitle: loc.city,
+                  subtitle: localizedCityName(loc.city, l10n),
                   onTap: () async {
                     final res = await ref
                         .read(equipmentMutationProvider.notifier)

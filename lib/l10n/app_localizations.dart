@@ -5440,6 +5440,396 @@ abstract class AppLocalizations {
   /// **'Please select your city'**
   String get pleaseSelectYourCity;
 
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get fieldRequired;
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String minutesAgo(int count);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String hoursAgo(int count);
+
+  /// No description provided for @newOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'New Offer'**
+  String get newOffer;
+
+  /// No description provided for @offerStatusViewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewed'**
+  String get offerStatusViewed;
+
+  /// No description provided for @offerStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get offerStatusCancelled;
+
+  /// No description provided for @offerStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get offerStatusAccepted;
+
+  /// No description provided for @offerStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get offerStatusRejected;
+
+  /// No description provided for @offerStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get offerStatusExpired;
+
+  /// No description provided for @offerStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get offerStatusClosed;
+
+  /// No description provided for @dataProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Processing'**
+  String get dataProcessingTitle;
+
+  /// No description provided for @pleaseCompleteRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in the required information before submitting for review'**
+  String get pleaseCompleteRequiredFields;
+
+  /// No description provided for @youAreOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are online'**
+  String get youAreOnline;
+
+  /// No description provided for @youAreOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get youAreOffline;
+
+  /// No description provided for @readyToAcceptOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to accept orders'**
+  String get readyToAcceptOrders;
+
+  /// No description provided for @notAcceptingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepting orders'**
+  String get notAcceptingOrders;
+
+  /// No description provided for @youAreNowOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are now online'**
+  String get youAreNowOnline;
+
+  /// No description provided for @youAreNowOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are now offline'**
+  String get youAreNowOffline;
+
+  /// No description provided for @failedToggleStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update status'**
+  String get failedToggleStatus;
+
+  /// No description provided for @countryKazakhstan.
+  ///
+  /// In en, this message translates to:
+  /// **'Kazakhstan'**
+  String get countryKazakhstan;
+
+  /// No description provided for @modelStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get modelStandard;
+
+  /// No description provided for @modelHeavyDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Duty'**
+  String get modelHeavyDuty;
+
+  /// No description provided for @modelIndustrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Industrial'**
+  String get modelIndustrial;
+
+  /// No description provided for @capacityKub.
+  ///
+  /// In en, this message translates to:
+  /// **'{capacity} m³'**
+  String capacityKub(String capacity);
+
+  /// No description provided for @unitMeters.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get unitMeters;
+
+  /// No description provided for @hoseLengthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'15 m hose'**
+  String get hoseLengthHint;
+
+  /// No description provided for @priceKztHint.
+  ///
+  /// In en, this message translates to:
+  /// **'10,000 ₸'**
+  String get priceKztHint;
+
+  /// No description provided for @ownerType.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner type'**
+  String get ownerType;
+
+  /// No description provided for @companyInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Company information'**
+  String get companyInformation;
+
+  /// No description provided for @companyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company name'**
+  String get companyName;
+
+  /// No description provided for @enterCompanyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter company name'**
+  String get enterCompanyName;
+
+  /// No description provided for @legalEntityName.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal entity name'**
+  String get legalEntityName;
+
+  /// No description provided for @legalEntityNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As written in official documents'**
+  String get legalEntityNameHint;
+
+  /// No description provided for @personalContactDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal contact details'**
+  String get personalContactDetails;
+
+  /// No description provided for @enterFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter first name'**
+  String get enterFirstName;
+
+  /// No description provided for @enterLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter last name'**
+  String get enterLastName;
+
+  /// No description provided for @enterValidPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get enterValidPhoneNumber;
+
+  /// No description provided for @serviceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Service details'**
+  String get serviceDetails;
+
+  /// No description provided for @serviceDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the goods, rentals or machinery you provide...'**
+  String get serviceDetailsHint;
+
+  /// No description provided for @updateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Update profile'**
+  String get updateProfile;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @failedToUpdateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile'**
+  String get failedToUpdateProfile;
+
+  /// No description provided for @ordersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} order} other{{count} orders}}'**
+  String ordersCount(int count);
+
+  /// No description provided for @ratePerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Per trip'**
+  String get ratePerTrip;
+
+  /// No description provided for @ratePerCubicMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'Per cubic meter'**
+  String get ratePerCubicMeter;
+
+  /// No description provided for @ratePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Per day'**
+  String get ratePerDay;
+
+  /// No description provided for @ratePerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Per hour'**
+  String get ratePerHour;
+
+  /// No description provided for @cityNameAtyrau.
+  ///
+  /// In en, this message translates to:
+  /// **'Atyrau'**
+  String get cityNameAtyrau;
+
+  /// No description provided for @cityNameAlmaty.
+  ///
+  /// In en, this message translates to:
+  /// **'Almaty'**
+  String get cityNameAlmaty;
+
+  /// No description provided for @cityNameAstana.
+  ///
+  /// In en, this message translates to:
+  /// **'Astana'**
+  String get cityNameAstana;
+
+  /// No description provided for @cityNameShymkent.
+  ///
+  /// In en, this message translates to:
+  /// **'Shymkent'**
+  String get cityNameShymkent;
+
+  /// No description provided for @cityNameAktobe.
+  ///
+  /// In en, this message translates to:
+  /// **'Aktobe'**
+  String get cityNameAktobe;
+
+  /// No description provided for @cityNameKaraganda.
+  ///
+  /// In en, this message translates to:
+  /// **'Karaganda'**
+  String get cityNameKaraganda;
+
+  /// No description provided for @cityNameTaraz.
+  ///
+  /// In en, this message translates to:
+  /// **'Taraz'**
+  String get cityNameTaraz;
+
+  /// No description provided for @cityNamePavlodar.
+  ///
+  /// In en, this message translates to:
+  /// **'Pavlodar'**
+  String get cityNamePavlodar;
+
+  /// No description provided for @cityNameUstKamenogorsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ust-Kamenogorsk'**
+  String get cityNameUstKamenogorsk;
+
+  /// No description provided for @cityNameSemey.
+  ///
+  /// In en, this message translates to:
+  /// **'Semey'**
+  String get cityNameSemey;
+
+  /// No description provided for @cityNameKostanay.
+  ///
+  /// In en, this message translates to:
+  /// **'Kostanay'**
+  String get cityNameKostanay;
+
+  /// No description provided for @cityNameKyzylorda.
+  ///
+  /// In en, this message translates to:
+  /// **'Kyzylorda'**
+  String get cityNameKyzylorda;
+
+  /// No description provided for @cityNameUralsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Uralsk'**
+  String get cityNameUralsk;
+
+  /// No description provided for @cityNamePetropavl.
+  ///
+  /// In en, this message translates to:
+  /// **'Petropavl'**
+  String get cityNamePetropavl;
+
+  /// No description provided for @cityNameTurkistan.
+  ///
+  /// In en, this message translates to:
+  /// **'Turkistan'**
+  String get cityNameTurkistan;
+
   /// No description provided for @connectionTimedOut.
   ///
   /// In en, this message translates to:

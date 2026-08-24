@@ -114,78 +114,89 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       mode: AppMode.ownerMode,
     );
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Column(
-        children: [
-          if ((chatAsync.hasError || messagesAsync.hasError) &&
-              messages.isEmpty)
-            Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.wifi_off_rounded,
-                          size: 48,
-                          color: theme.colorScheme.error.withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          (chatAsync.error ?? messagesAsync.error).toString(),
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey,
+    return Theme(
+      data: theme.copyWith(
+        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+          backgroundColor: theme.colorScheme.surface,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: Column(
+          children: [
+            if ((chatAsync.hasError || messagesAsync.hasError) &&
+                messages.isEmpty)
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.wifi_off_rounded,
+                            size: 48,
+                            color: theme.colorScheme.error.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            await ref
-                                .read(
-                                  currentChatProvider(widget.chatId).notifier,
-                                )
-                                .refresh();
+                          const SizedBox(height: 16),
+                          Text(
+                            (chatAsync.error ?? messagesAsync.error).toString(),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await ref
+                                  .read(
+                                    currentChatProvider(widget.chatId).notifier,
+                                  )
+                                  .refresh();
 
-                            await ref
-                                .read(
-                                  chatMessagesProvider(widget.chatId).notifier,
-                                )
-                                .refresh();
-                          },
-                          icon: const Icon(Icons.refresh_rounded),
-                          label: Text(l10n.retry),
-                        ),
-                      ],
+                              await ref
+                                  .read(
+                                    chatMessagesProvider(
+                                      widget.chatId,
+                                    ).notifier,
+                                  )
+                                  .refresh();
+                            },
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: Text(l10n.retry),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            )
-          else
-            Expanded(
-              child: Container(
-                color: theme.colorScheme.surface,
-                child: ChatMessageList(
-                  chatId: widget.chatId,
-                  currentUserId: currentUserId,
-                  mode: AppMode.ownerMode,
-                  currentChat: currentChat,
+              )
+            else
+              Expanded(
+                child: Container(
+                  color: theme.colorScheme.surface,
+                  child: ChatMessageList(
+                    chatId: widget.chatId,
+                    currentUserId: currentUserId,
+                    mode: AppMode.ownerMode,
+                    currentChat: currentChat,
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-      bottomNavigationBar: SendMessageForm(
-        chatId: widget.chatId,
-        chatStatus: chatConfig.status,
-        mode: AppMode.ownerMode,
-        currentChat: currentChat,
-        actionBarTitle: chatConfig.actionBartitle,
+          ],
+        ),
+        bottomNavigationBar: SendMessageForm(
+          chatId: widget.chatId,
+          chatStatus: chatConfig.status,
+          mode: AppMode.ownerMode,
+          currentChat: currentChat,
+          actionBarTitle: chatConfig.actionBartitle,
+        ),
       ),
     );
   }

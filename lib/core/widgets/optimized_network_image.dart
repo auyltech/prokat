@@ -66,19 +66,31 @@ class OptimizedNetworkImage extends StatelessWidget {
   ) {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
 
-    final logicalWidth = _logicalSize(
-      explicitSize: width,
-      constrainedSize: constraints.maxWidth,
+    final widthPx = _toCachePixels(
+      _logicalSize(explicitSize: width, constrainedSize: constraints.maxWidth),
+      pixelRatio,
+      maxCacheWidth,
     );
-    final logicalHeight = _logicalSize(
-      explicitSize: height,
-      constrainedSize: constraints.maxHeight,
+    final heightPx = _toCachePixels(
+      _logicalSize(
+        explicitSize: height,
+        constrainedSize: constraints.maxHeight,
+      ),
+      pixelRatio,
+      maxCacheHeight,
     );
 
-    return (
-      width: _toCachePixels(logicalWidth, pixelRatio, maxCacheWidth),
-      height: _toCachePixels(logicalHeight, pixelRatio, maxCacheHeight),
-    );
+    // ResizeImage (memCacheWidth/Height) defaults to ResizeImagePolicy.exact.
+    // Both dimensions decode like BoxFit.fill and stretch the bitmap before
+    // [fit] is applied, so cover/contain cannot restore the aspect ratio.
+    if (widthPx != null && heightPx != null) {
+      if (widthPx >= heightPx) {
+        return (width: widthPx, height: null);
+      }
+      return (width: null, height: heightPx);
+    }
+
+    return (width: widthPx, height: heightPx);
   }
 
   double? _logicalSize({
@@ -137,8 +149,8 @@ class _ErrorImage extends StatelessWidget {
       alignment: Alignment.center,
       child: Icon(
         icon,
-        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
-        size: 40,
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
+        size: 100,
       ),
     );
   }
