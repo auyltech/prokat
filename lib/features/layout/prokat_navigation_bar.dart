@@ -42,16 +42,16 @@ final ownerNavItems = [
   //   path: AppRoutes.ownerNotifications,
   // ),
   _NavItem(
-    icon: LucideIcons.send,
-    label: (l) => l.navRequests,
-    path: AppRoutes.ownerRequests,
-    base: AppRoutes.ownerRequests,
-  ),
-  _NavItem(
     icon: LucideIcons.truck,
     label: (l) => l.navMyFleet,
     path: AppRoutes.ownerEquipment,
     base: AppRoutes.ownerEquipment,
+  ),
+  _NavItem(
+    icon: LucideIcons.send,
+    label: (l) => l.navRequests,
+    path: AppRoutes.ownerRequests,
+    base: AppRoutes.ownerRequests,
   ),
   _NavItem(
     icon: LucideIcons.scrollText,
