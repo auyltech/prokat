@@ -4,7 +4,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:prokat/features/user/widgets/profile_image_picker.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class OwnerProfileHeader extends StatelessWidget {
   final OwnerProfileModel? ownerProfile;

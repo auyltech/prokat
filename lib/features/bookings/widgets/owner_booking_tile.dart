@@ -18,7 +18,7 @@ import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class OwnerBookingTile extends ConsumerWidget {
   final BookingModel booking;

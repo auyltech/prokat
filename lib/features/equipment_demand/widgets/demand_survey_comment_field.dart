@@ -10,10 +10,6 @@ class DemandSurveyCommentField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final hintStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-      fontWeight: FontWeight.w400,
-    );
 
     return TextField(
       maxLines: 3,

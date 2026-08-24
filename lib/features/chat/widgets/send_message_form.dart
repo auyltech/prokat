@@ -6,7 +6,6 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
-import 'dart:ui';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SendMessageForm extends ConsumerStatefulWidget {
