@@ -6,6 +6,7 @@ import 'package:prokat/features/auth/providers/authenticated_session_scope.dart'
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/providers/chat_list_providers.dart';
+import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
@@ -293,16 +294,19 @@ class ChatMessagesNotifier
       ref.read(currentChatProvider(chatId).notifier).setLastMessage(message);
     }
 
-    if (ref.exists(clientChatsProvider)) {
-      ref
-          .read(clientChatsProvider.notifier)
-          .updatePreview(chatId: chatId, message: message);
-    }
-
-    if (ref.exists(ownerChatsProvider)) {
-      ref
-          .read(ownerChatsProvider.notifier)
-          .updatePreview(chatId: chatId, message: message);
+    for (final filter in ChatListFilter.values) {
+      final client = clientChatsByFilterProvider(filter);
+      if (ref.exists(client)) {
+        ref
+            .read(client.notifier)
+            .updatePreview(chatId: chatId, message: message);
+      }
+      final owner = ownerChatsByFilterProvider(filter);
+      if (ref.exists(owner)) {
+        ref
+            .read(owner.notifier)
+            .updatePreview(chatId: chatId, message: message);
+      }
     }
   }
 

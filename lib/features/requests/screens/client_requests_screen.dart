@@ -123,7 +123,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                       title: l10n.noRequestsAtMoment,
                       subtitle: l10n.noActiveRequests,
                       actionButton: PrimaryButton(
-                        label: "Create a request",
+                        label: l10n.createRequest,
                         onPressed: () =>
                             context.push(AppRoutes.clientRequestsCreate),
                       ),

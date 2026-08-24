@@ -4,6 +4,8 @@ import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
+import 'package:prokat/features/workflow/models/workflow_update.dart';
+import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
 
 class ClientHistoryRequestsNotifier
     extends AsyncNotifier<QueryState<RequestModel>> {
@@ -52,6 +54,26 @@ class ClientHistoryRequestsNotifier
       count: result.count,
       lastFetchedAt: DateTime.now(),
     );
+  }
+
+  RequestQueryApplyStatus applyRequestDelta(WorkflowRequestDelta delta) {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null || _stateScope != scope) {
+      return RequestQueryApplyStatus.skipped;
+    }
+    final current = state.value;
+    if (current == null) return RequestQueryApplyStatus.skipped;
+
+    final result = applyRequestDeltaToQuery(
+      current: current,
+      delta: delta,
+      kind: RequestQueryPatchKind.history,
+    );
+    final next = result.state;
+    if (next != null) {
+      state = AsyncData(next);
+    }
+    return result.status;
   }
 
   Future<void> refresh() {
