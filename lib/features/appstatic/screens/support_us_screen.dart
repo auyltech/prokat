@@ -21,7 +21,9 @@ class SupportUsScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(0)),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(0),
+                ),
               ),
               child: Column(
                 children: [
@@ -40,7 +42,10 @@ class SupportUsScreen extends StatelessWidget {
                   Text(
                     l10n.missionStatement,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
@@ -113,7 +118,11 @@ class SupportUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, {required String title, required List<Widget> items}) {
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> items,
+  }) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       child: Column(
@@ -186,8 +195,17 @@ class _SupportItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text(subtitle, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
                   Align(
                     alignment: Alignment.bottomLeft,
                     child: Transform.translate(
@@ -196,9 +214,7 @@ class _SupportItem extends StatelessWidget {
                         onPressed: onTap,
                         child: Text(
                           actionText,
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
-                          ),
+                          style: TextStyle(color: theme.colorScheme.onPrimary),
                         ),
                       ),
                     ),

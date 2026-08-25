@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/widgets.dart/client_request_tile.dart';
-import 'package:prokat/features/requests/widgets.dart/request_offers_expandable.dart'
-    hide Divider;
+import 'package:prokat/features/requests/widgets.dart/request_offers_expandable.dart';
 import 'package:prokat/features/requests/widgets.dart/request_offers_header.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 

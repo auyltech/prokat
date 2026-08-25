@@ -28,7 +28,7 @@ class RequestOffersExpandable extends StatelessWidget {
           children: [
             SizeTransition(
               sizeFactor: animation,
-              axisAlignment: -1,
+              alignment: Alignment.topLeft,
               child: RepaintBoundary(
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8),

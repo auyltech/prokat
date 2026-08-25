@@ -233,15 +233,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             children: [
               const SizedBox(height: 12),
-              Text(
-                l10n.joinTeamHint,
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text(l10n.joinTeamHint, style: theme.textTheme.bodyMedium),
               const SizedBox(height: 8),
-              Text(
-                l10n.requestReviewedHint,
-                style: theme.textTheme.bodySmall,
-              ),
+              Text(l10n.requestReviewedHint, style: theme.textTheme.bodySmall),
               const SizedBox(height: 12),
 
               if (request != null) _StatusCard(request: request),

@@ -104,7 +104,6 @@ class _GuideHeader extends StatelessWidget {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -114,15 +113,10 @@ class _GuideHeader extends StatelessWidget {
             children: [
               _GuideChip(
                 icon: Icons.schedule_outlined,
-                label: l10n.minutesRead(
-                  _readingTime(translation.content),
-                ),
+                label: l10n.minutesRead(_readingTime(translation.content)),
               ),
               const SizedBox(width: 8),
-              _GuideChip(
-                icon: Icons.menu_book_outlined,
-                label: guide.category,
-              ),
+              _GuideChip(icon: Icons.menu_book_outlined, label: guide.category),
             ],
           ),
         ],

@@ -170,7 +170,11 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       leading: showBackButton
           ? IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 26, color: theme.colorScheme.onPrimary,),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 26,
+                color: theme.colorScheme.onPrimary,
+              ),
               onPressed: () async {
                 if (GoRouter.of(context).canPop()) {
                   context.pop();
