@@ -83,39 +83,18 @@ class OfferTile extends ConsumerWidget {
         offer.status == OfferStatus.expired;
 
     return Container(
-      color: theme.cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16),
+
           /// OWNER HEADER
           Row(
             children: [
-              UserInfoTile(user: offer.owner),
-
-              Spacer(),
+              Expanded(child: UserInfoTile(user: offer.owner)),
 
               OfferStatusBadge(status: offer.status),
-
-              // Container(
-              //   padding: const EdgeInsets.symmetric(
-              //     horizontal: 12,
-              //     vertical: 6,
-              //   ),
-              //   decoration: BoxDecoration(
-              //     color: const Color(0xFFE8F5E9),
-              //     borderRadius: BorderRadius.circular(6),
-              //   ),
-              //   child: Text(
-              //     "NEW OFFER",
-              //     style: const TextStyle(
-              //       color: Color(0xFF2E7D32),
-              //       fontSize: 11,
-              //       fontWeight: FontWeight.w800,
-              //       letterSpacing: 0.3,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
 

@@ -187,6 +187,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
         // Compliance Info Card
         Card(
           elevation: 0,
+          margin: EdgeInsets.zero,
           color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
           shape: RoundedRectangleBorder(
             side: BorderSide(

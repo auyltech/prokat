@@ -187,9 +187,7 @@ class OwnerBookingTile extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              UserInfoTile(user: booking.client),
-
-              Spacer(),
+              Expanded(child: UserInfoTile(user: booking.client)),
 
               BookingStatusBadge(status: booking.status),
             ],

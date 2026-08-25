@@ -63,64 +63,61 @@ class _GuideHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      child: Column(
+        spacing: 16,
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(
-              guideIcon(guide.icon),
-              color: theme.colorScheme.primary,
-            ),
-          ),
-
-          const SizedBox(width: 16),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  translation.title,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  translation.summary,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                child: Icon(
+                  guideIcon(guide.icon),
+                  color: theme.colorScheme.onPrimary,
                 ),
+              ),
 
-                const SizedBox(height: 12),
+              const SizedBox(width: 16),
 
-                Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _GuideChip(
-                      icon: Icons.schedule_outlined,
-                      label: l10n.minutesRead(
-                        _readingTime(translation.content),
+                    Text(
+                      translation.title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    _GuideChip(
-                      icon: Icons.menu_book_outlined,
-                      label: guide.category,
+
+                    const SizedBox(height: 6),
+
+                    Text(
+                      translation.summary,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              _GuideChip(
+                icon: Icons.schedule_outlined,
+                label: l10n.minutesRead(_readingTime(translation.content)),
+              ),
+              const SizedBox(width: 8),
+              _GuideChip(icon: Icons.menu_book_outlined, label: guide.category),
+            ],
           ),
         ],
       ),

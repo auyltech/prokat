@@ -64,7 +64,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
           children: [
             ProkatListTile(
               icon: LucideIcons.globe,
-              iconColor: theme.colorScheme.primary,
+              iconColor: theme.colorScheme.onPrimary,
               iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
               title: l10n.appLanguage,
               subtitle: langDisplay,
@@ -75,7 +75,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             ProkatListTile(
               icon: LucideIcons.palette,
-              iconColor: theme.colorScheme.primary,
+              iconColor: theme.colorScheme.onPrimary,
               iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
               title: l10n.applicationTheme,
               subtitle: _themeLabel(currentMode, l10n),
@@ -121,8 +121,8 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             ProkatListTile(
               icon: Icons.security_outlined,
-              iconBgColor: Colors.black12,
-              iconColor: Colors.black,
+              iconBgColor: Colors.grey.withValues(alpha: 0.1),
+              iconColor: theme.colorScheme.onPrimary,
               title: l10n.serviceAndSafetyNotices,
               subtitle: l10n.serviceAndSafetyNoticesSubtitle,
               onTap: () {},

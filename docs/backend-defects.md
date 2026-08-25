@@ -124,13 +124,15 @@
 
 ### Симптом
 
-Клиент видит номер телефона вместо имени откликнувшегося владельца. Аватар, рейтинг и количество заказов/отзывов не приходят как заполненные поля — UI рисует fallback.
+Клиент видит номер телефона вместо имени откликнувшегося владельца. Аватар, рейтинг и количество заказов/отзывов часто нулевые/плейсхолдеры.
 
-Виджеты **не** отбрасывают данные: `OfferTile` передаёт `offer.owner` в `UserInfoTile`; `UserModel.displayName` показывает телефон только если `firstName`/`lastName` пустые; пустой `imageUrl` → иконка-плейсхолдер; `rating`/`orderCount` null → `0`.
+Регистрация в приложении — по телефону; **имя и псевдоним не обязательны**. В JSON `firstName`/`lastName`/`username` часто пустые, `phoneNumber` есть всегда. Старый клиент в `UserModel.displayName` подставлял телефон как публичное имя.
 
-### Почему бэкенд
+### Почему бэкенд (дополнительно)
 
-`GET /offers` (клиентский список) грузит технику через `equipmentListItemSelect`:
+Пустое имя — ожидаемые данные, пока нет обязательного публичного имени. Отдельно: `GET /offers` может **не отдать** имя даже если оно есть в `OwnerProfile`.
+
+`GET /offers` грузит технику через `equipmentListItemSelect`:
 
 ```ts
 owner: { include: { ownerProfile: true } }
@@ -156,15 +158,16 @@ owner: { include: { ownerProfile: true } }
 
 | JSON поле | Куда на клиенте |
 |---|---|
-| `firstName`, `lastName` | имя; иначе fallback на `phoneNumber` |
+| `firstName`, `lastName` | публичное имя |
+| `username` | псевдоним, если имени нет |
 | `imageUrl` | аватар |
 | `rating` **или** `ratingAverage` | звезда |
 | `orderCount` | «N orders» |
-| `phoneNumber` | fallback имени |
+| `phoneNumber` | контакт, **не** подпись карточки |
 
-`UserPublicDTO` уже отдаёт `imageUrl` (не `profileImageUrl`) и `ratingAverage`. Клиент это читает. Проблема не в именах ключей на оффере, а в том, что значения всегда пустые/нулевые из‑за маппера.
+`UserPublicDTO` отдаёт `imageUrl` и `ratingAverage`. Если публичное имя в профиле не задано, клиент больше не подставляет телефон — показывает локализованный fallback («Владелец» / «Клиент»).
 
-`OwnerPublicDTO` (как у booking.owner) тоже совместим: `firstName`/`lastName`/`imageUrl`/`rating`/`orderCount`/`phoneNumber`.
+Если имя **заполнено в `OwnerProfile`**, его всё равно нужно отдавать в `owner` оффера (см. маппер ниже). `OwnerPublicDTO` совместим: `firstName`/`lastName`/`imageUrl`/`rating`/`orderCount`.
 
 ### Ожидаемое поведение
 

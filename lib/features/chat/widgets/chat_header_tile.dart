@@ -56,6 +56,11 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
         final avatarUrl = chat.displayImageUrl(
           currentUserId: widget.currentUserId,
         );
+        final title = chat.displayTitle(
+          widget.currentUserId,
+          ownerFallback: l10n.nameNotSpecified,
+          clientFallback: l10n.nameNotSpecified,
+        );
         final lastMessageAt = chat.lastMessage?.createdAt;
 
         if (chat.type == ChatType.support) {
@@ -73,15 +78,7 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
           },
           child: Row(
             children: [
-              UserAvatar(
-                radius: 22,
-                avatarUrl: avatarUrl,
-                fullName: chat.displayTitle(
-                  widget.currentUserId,
-                  ownerFallback: l10n.owner,
-                  clientFallback: l10n.clientRole,
-                ),
-              ),
+              UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
 
               const SizedBox(width: 12),
               Expanded(
@@ -89,15 +86,18 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chat.displayTitle(
-                        widget.currentUserId,
-                        ownerFallback: l10n.owner,
-                        clientFallback: l10n.clientRole,
-                      ), // No longer nullable
+                      title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: title == l10n.nameNotSpecified
+                            ? FontWeight.w400
+                            : FontWeight.bold,
+                        color: title == l10n.nameNotSpecified
+                            ? theme.colorScheme.onSurface.withValues(
+                                alpha: 0.55,
+                              )
+                            : null,
                       ),
                     ),
                     if (lastMessageAt != null)

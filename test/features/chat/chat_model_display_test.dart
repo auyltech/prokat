@@ -45,6 +45,24 @@ void main() {
         'Алия Нурланова',
       );
     });
+
+    test('uses fallback when counterpart has only a phone number', () {
+      const chatWithoutName = ChatModel(
+        id: 'chat-3',
+        type: ChatType.direct,
+        client: client,
+        owner: UserModel(id: 'owner-1', phoneNumber: '+77052222222'),
+      );
+
+      expect(
+        chatWithoutName.displayTitle(
+          client.id!,
+          ownerFallback: 'Owner',
+          clientFallback: 'Client',
+        ),
+        'Owner',
+      );
+    });
   });
 
   group('ChatModel.displayImageUrl', () {

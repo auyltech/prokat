@@ -51,16 +51,16 @@ class ProkatListTile extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 45,
+            width: 50,
             height: 50,
             decoration: BoxDecoration(
               color: iconBgColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 25),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
           Expanded(
             child: Column(

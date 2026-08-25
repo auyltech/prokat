@@ -61,9 +61,7 @@ class ClientBookingTile extends ConsumerWidget {
           // Owner Profile & Status Badging Row
           Row(
             children: [
-              UserInfoTile(user: booking.owner),
-
-              Spacer(),
+              Expanded(child: UserInfoTile(user: booking.owner)),
 
               // Text(displayMessage),
               BookingStatusBadge(status: booking.status),

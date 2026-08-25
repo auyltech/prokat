@@ -12,7 +12,7 @@ class LegalDocumentsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final iconColor = theme.colorScheme.primary;
+    final iconColor = theme.colorScheme.onPrimary;
     final iconBgColor = theme.colorScheme.primary.withValues(alpha: 0.2);
 
     return Scaffold(

@@ -25,6 +25,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String offersReceivedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Получено $count предложения',
+      many: 'Получено $count предложений',
+      few: 'Получено $count предложения',
+      one: 'Получено 1 предложение',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get activeRequestAlreadyExists => 'У вас уже есть активный запрос.';
 
   @override
@@ -2473,6 +2486,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get unknownRenter => 'Неизвестный арендатор';
+
+  @override
+  String get nameNotSpecified => 'Имя не указано';
 
   @override
   String get pendingDate => 'Дата не указана';

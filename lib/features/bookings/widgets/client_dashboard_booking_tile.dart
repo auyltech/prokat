@@ -63,8 +63,8 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                       style: theme.textTheme.bodyMedium,
                     ),
                     Text(
-                      booking.owner?.displayName ??
-                          "", // ?? 'Unknown Equipment',
+                      booking.owner?.displayNameOr(l10n.nameNotSpecified) ??
+                          l10n.nameNotSpecified,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ],

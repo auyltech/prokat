@@ -225,157 +225,137 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         : l10n.updateRequest;
 
     return Scaffold(
-      backgroundColor: colors.primary,
+      backgroundColor: colors.surface,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(32),
-                  ),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                    children: [
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.joinTeamHint,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.requestReviewedHint,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 12),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              const SizedBox(height: 12),
+              Text(l10n.joinTeamHint, style: theme.textTheme.bodyMedium),
+              const SizedBox(height: 8),
+              Text(l10n.requestReviewedHint, style: theme.textTheme.bodySmall),
+              const SizedBox(height: 12),
 
-                      if (request != null) _StatusCard(request: request),
-                      if (request != null) const SizedBox(height: 16),
+              if (request != null) _StatusCard(request: request),
+              if (request != null) const SizedBox(height: 16),
 
-                      InputField(
-                        controller: _firstNameController,
-                        label: l10n.firstName,
-                        hint: l10n.firstNameHint,
-                        icon: Icons.person_outline,
-                        // enabled: !isAccepted,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.firstNameRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-
-                      InputField(
-                        controller: _lastNameController,
-                        label: l10n.lastName,
-                        hint: l10n.lastNameHint,
-                        icon: Icons.person_outline,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.lastNameRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _phoneController,
-                        label: l10n.phoneNumber,
-                        hint: l10n.phoneHint,
-                        icon: Icons.phone_outlined,
-                        keyboardType: TextInputType.phone,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.phoneNumberRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _emailController,
-                        label: l10n.email,
-                        hint: l10n.emailHint,
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) {
-                          final value = (v ?? '').trim();
-                          if (value.isEmpty) return null;
-                          if (!value.contains('@')) {
-                            return l10n.enterValidEmail;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _cityController,
-                        label: l10n.city,
-                        hint: l10n.cityInputHint,
-                        icon: Icons.location_city_outlined,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.cityRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _messageController,
-                        label: l10n.message,
-                        hint: l10n.messageHint,
-                        icon: Icons.message_outlined,
-                        // maxLines: 3,
-                        keyboardType: TextInputType.multiline,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.messageRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-
-                      if (request == null || !isAccepted) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          l10n.noteDescribeHint,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        PrimaryButton(
-                          label: submitLabel,
-                          isLoading: mutationState.isLoading,
-                          icon: Icons.send_rounded,
-                          onPressed: mutationState.isLoading ? null : _submit,
-                        ),
-                      ] else ...[
-                        _AcceptedInfo(theme: theme),
-                      ],
-
-                      SizedBox(height: 40),
-                    ],
-                  ),
-                ),
+              InputField(
+                controller: _firstNameController,
+                label: l10n.firstName,
+                hint: l10n.firstNameHint,
+                icon: Icons.person_outline,
+                // enabled: !isAccepted,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.firstNameRequired;
+                  }
+                  return null;
+                },
               ),
-            ),
-          ],
+
+              SizedBox(height: 8),
+
+              InputField(
+                controller: _lastNameController,
+                label: l10n.lastName,
+                hint: l10n.lastNameHint,
+                icon: Icons.person_outline,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.lastNameRequired;
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 8),
+              InputField(
+                controller: _phoneController,
+                label: l10n.phoneNumber,
+                hint: l10n.phoneHint,
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.phoneNumberRequired;
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 8),
+              InputField(
+                controller: _emailController,
+                label: l10n.email,
+                hint: l10n.emailHint,
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) {
+                  final value = (v ?? '').trim();
+                  if (value.isEmpty) return null;
+                  if (!value.contains('@')) {
+                    return l10n.enterValidEmail;
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 8),
+              InputField(
+                controller: _cityController,
+                label: l10n.city,
+                hint: l10n.cityInputHint,
+                icon: Icons.location_city_outlined,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.cityRequired;
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 8),
+              InputField(
+                controller: _messageController,
+                label: l10n.message,
+                hint: l10n.messageHint,
+                icon: Icons.message_outlined,
+                // maxLines: 3,
+                keyboardType: TextInputType.multiline,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.messageRequired;
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 8),
+
+              if (request == null || !isAccepted) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.noteDescribeHint,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                PrimaryButton(
+                  label: submitLabel,
+                  isLoading: mutationState.isLoading,
+                  icon: Icons.send_rounded,
+                  onPressed: mutationState.isLoading ? null : _submit,
+                ),
+              ] else ...[
+                _AcceptedInfo(theme: theme),
+              ],
+
+              SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
+import 'package:prokat/features/user/widgets/user_display_name.dart';
 
 class UserInfoTile extends StatelessWidget {
   final UserModel? user;
@@ -35,30 +36,25 @@ class UserInfoTile extends StatelessWidget {
 
         const SizedBox(width: 10),
 
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              user?.displayName ?? "",
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              UserDisplayName(user: user),
 
-            Row(
-              children: [
-                const Icon(Icons.star, size: 14, color: Colors.amber),
-                const SizedBox(width: 2),
-                Text(
-                  '${user?.rating ?? 0} • ${user?.orderCount ?? 0} orders',
-                  style: theme.textTheme.bodySmall,
-                ),
-                const SizedBox(width: 8),
-              ],
-            ),
-          ],
+              Row(
+                children: [
+                  const Icon(Icons.star, size: 14, color: Colors.amber),
+                  const SizedBox(width: 2),
+                  Text(
+                    '${user?.rating ?? 0} • ${user?.orderCount ?? 0} orders',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );

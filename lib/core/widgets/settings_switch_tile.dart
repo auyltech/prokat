@@ -44,7 +44,7 @@ class SettingsSwitchTile extends StatelessWidget {
             child: Icon(
               icon,
               size: 32,
-              color: iconColor ?? theme.colorScheme.primary,
+              color: iconColor ?? theme.colorScheme.onPrimary,
             ),
           ),
 

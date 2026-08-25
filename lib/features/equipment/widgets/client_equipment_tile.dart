@@ -191,7 +191,8 @@ class ClientEquipmentTile extends ConsumerWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        equipment.owner?.displayName ?? l10n.owner,
+                        equipment.owner?.displayNameOr(l10n.nameNotSpecified) ??
+                            l10n.nameNotSpecified,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.6,

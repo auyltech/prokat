@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -144,14 +146,18 @@ class _ErrorImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      color: backgroundColor ?? colorScheme.surfaceContainerHighest,
-      alignment: Alignment.center,
-      child: Icon(
-        icon,
-        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
-        size: 100,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          color: backgroundColor ?? colorScheme.surfaceContainerHighest,
+          alignment: Alignment.center,
+          child: Icon(
+            icon,
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
+            size: 0.5 * min(constraints.maxHeight, constraints.maxHeight),
+          ),
+        );
+      },
     );
   }
 }

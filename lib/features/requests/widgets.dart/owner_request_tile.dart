@@ -56,10 +56,9 @@ class OwnerRequestTile extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              UserInfoTile(user: request.client),
+              Expanded(child: UserInfoTile(user: request.client)),
 
               const SizedBox(width: 16),
-              const Spacer(),
 
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
