@@ -71,7 +71,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       title: l10n.becomeOwner,
       subtitle: l10n.becomeOwnerSubtitle,
       bgColor: theme.colorScheme.surfaceBright,
-      contentColor: theme.colorScheme.primary,
+      contentColor: theme.colorScheme.onPrimary,
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
   }

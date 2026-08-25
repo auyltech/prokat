@@ -23,7 +23,7 @@ class RequestOffersHeader extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Expanded(

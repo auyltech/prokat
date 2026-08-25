@@ -79,21 +79,6 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 40),
-
-                    //
-                    // ProkatListTile(
-                    //   icon: Icons.phone_android_rounded,
-                    //   iconColor: theme.colorScheme.primary,
-                    //   iconBgColor: theme.colorScheme.primary.withValues(
-                    //     alpha: 0.18,
-                    //   ),
-                    //   title: l10n.phoneNumber,
-                    //   subtitle: userProfile?.phoneNumber ?? "+7 234 ...",
-                    //   onTap: () {},
-                    //   // trailing: const Icon(Icons.edit, color: Colors.white54),
-                    // ),
-                    //
-                    // const SizedBox(height: 20),
                     ClientRentalPreferencesSection(),
                   ],
                 ),
@@ -114,7 +99,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                   children: [
                     ProkatListTile(
                       icon: Icons.favorite_outline,
-                      iconColor: theme.colorScheme.primary,
+                      iconColor: theme.colorScheme.onPrimary,
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
                       ),
@@ -127,7 +112,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                     ProkatListTile(
                       icon: LucideIcons.scrollText,
-                      iconColor: theme.colorScheme.primary,
+                      iconColor: theme.colorScheme.onPrimary,
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
                       ),
@@ -151,7 +136,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                     ProkatListTile(
                       icon: LucideIcons.settings,
-                      iconColor: theme.colorScheme.primary,
+                      iconColor: theme.colorScheme.onPrimary,
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
                       ),
