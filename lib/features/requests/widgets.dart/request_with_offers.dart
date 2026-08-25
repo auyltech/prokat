@@ -36,7 +36,7 @@ class _RequestWithOffersState extends State<RequestWithOffers>
     _controller = AnimationController(
       vsync: this,
       duration: _expandDuration,
-      value: 1,
+      value: 0,
     );
     _expandAnimation = CurvedAnimation(
       parent: _controller,
