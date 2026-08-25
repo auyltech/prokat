@@ -8,6 +8,12 @@
       "count": { "type": "int" }
     }
   },
+  "offersReceivedCount": "{count, plural, =1{Received 1 offer} other{Received {count} offers}}",
+  "@offersReceivedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "activeRequestAlreadyExists": "You already have an active request.",
   "supportTicketSubmitted": "Support ticket submitted successfully!",
   "failedToSubmitTicket": "Failed to submit ticket",
@@ -876,6 +882,7 @@
   "statusBookingCreated": "Booking Created",
   "statusExpired": "Expired",
   "unknownRenter": "Unknown Renter",
+  "nameNotSpecified": "Name not specified",
   "pendingDate": "Pending Date",
   "overdue": "Overdue",
   "details": "Details",

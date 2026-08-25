@@ -47,8 +47,8 @@ class ChatTile extends StatelessWidget {
     final title = chat.type == ChatType.direct
         ? chat.displayTitle(
             currentUserId,
-            ownerFallback: l10n.owner,
-            clientFallback: l10n.clientRole,
+            ownerFallback: l10n.nameNotSpecified,
+            clientFallback: l10n.nameNotSpecified,
           )
         : chat.type == ChatType.support
         ? l10n.support
@@ -108,8 +108,15 @@ class ChatTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: title == l10n.nameNotSpecified
+                                ? FontWeight.w400
+                                : FontWeight.bold,
                             fontSize: 16,
+                            color: title == l10n.nameNotSpecified
+                                ? theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.55,
+                                  )
+                                : null,
                           ),
                         ),
                         const SizedBox(height: 6),

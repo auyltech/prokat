@@ -28,8 +28,8 @@ class OwnerChatInfoScreen extends ConsumerWidget {
       data: (chat) {
         final title = chat?.displayTitle(
           currentUserId,
-          ownerFallback: l10n.owner,
-          clientFallback: l10n.clientRole,
+          ownerFallback: l10n.nameNotSpecified,
+          clientFallback: l10n.nameNotSpecified,
         );
 
         return Scaffold(

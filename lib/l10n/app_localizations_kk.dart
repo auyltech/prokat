@@ -23,6 +23,17 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String offersReceivedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ұсыныс алынды',
+      one: '1 ұсыныс алынды',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get activeRequestAlreadyExists => 'Сізде белсенді сұрау бар.';
 
   @override
@@ -2458,6 +2469,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get unknownRenter => 'Белгісіз жалға алушы';
+
+  @override
+  String get nameNotSpecified => 'Аты көрсетілмеген';
 
   @override
   String get pendingDate => 'Күні белгісіз';

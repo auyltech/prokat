@@ -8,6 +8,12 @@
       "count": { "type": "int" }
     }
   },
+  "offersReceivedCount": "{count, plural, =1{Получено 1 предложение} few{Получено {count} предложения} many{Получено {count} предложений} other{Получено {count} предложения}}",
+  "@offersReceivedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "activeRequestAlreadyExists": "У вас уже есть активный запрос.",
   "supportTicketSubmitted": "Обращение в поддержку успешно отправлено!",
   "failedToSubmitTicket": "Не удалось отправить обращение",
@@ -873,6 +879,7 @@
   "statusBookingCreated": "Бронирование создано",
   "statusExpired": "Истёк",
   "unknownRenter": "Неизвестный арендатор",
+  "nameNotSpecified": "Имя не указано",
   "pendingDate": "Дата не указана",
   "overdue": "Просрочено",
   "details": "Подробнее",

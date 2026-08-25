@@ -23,6 +23,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String offersReceivedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Received $count offers',
+      one: 'Received 1 offer',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get activeRequestAlreadyExists =>
       'You already have an active request.';
 
@@ -2462,6 +2473,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownRenter => 'Unknown Renter';
+
+  @override
+  String get nameNotSpecified => 'Name not specified';
 
   @override
   String get pendingDate => 'Pending Date';

@@ -182,7 +182,12 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                     (_selectedImage == null &&
                         (widget.initialImageUrl == null ||
                             widget.initialImageUrl!.isEmpty))
-                    ? const Icon(Icons.person, size: 70)
+                    ? ClipOval(
+                        child: Transform.translate(
+                          offset: const Offset(-30, -20),
+                          child: const Icon(Icons.person, size: 220),
+                        ),
+                      )
                     : null,
               ),
             ),

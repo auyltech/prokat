@@ -30,8 +30,8 @@ class ClientChatInfoScreen extends ConsumerWidget {
         final title = currentUserId != null
             ? chat?.displayTitle(
                 currentUserId,
-                ownerFallback: l10n.owner,
-                clientFallback: l10n.clientRole,
+                ownerFallback: l10n.nameNotSpecified,
+                clientFallback: l10n.nameNotSpecified,
               )
             : "";
 

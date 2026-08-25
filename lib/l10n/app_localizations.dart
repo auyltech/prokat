@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 offer} other{{count} offers}}'**
   String offerCount(int count);
 
+  /// No description provided for @offersReceivedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Received 1 offer} other{Received {count} offers}}'**
+  String offersReceivedCount(int count);
+
   /// No description provided for @activeRequestAlreadyExists.
   ///
   /// In en, this message translates to:
@@ -4797,6 +4803,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown Renter'**
   String get unknownRenter;
+
+  /// No description provided for @nameNotSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Name not specified'**
+  String get nameNotSpecified;
 
   /// No description provided for @pendingDate.
   ///
