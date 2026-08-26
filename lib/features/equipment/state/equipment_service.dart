@@ -76,6 +76,7 @@ class EquipmentService {
   }
 
   Future<ApiResponse<List<Equipment>>> getClientEquipment({
+    required String locale,
     String? categoryId,
     String? query,
     String? city,
@@ -86,6 +87,7 @@ class EquipmentService {
       final response = await _dio.get(
         ApiRoutes.clientEquipment,
         queryParameters: {
+          'locale': locale,
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,

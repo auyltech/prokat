@@ -73,7 +73,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                           ? Colors.green
                           : Colors.grey,
                     ),
-                    if (equipment.city!.isNotEmpty) ...[
+                    if ((equipment.city ?? '').isNotEmpty) ...[
                       const SizedBox(width: 8),
                       _badge(
                         text: localizedCityName(equipment.city, l10n),

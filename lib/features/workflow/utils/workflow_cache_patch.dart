@@ -99,6 +99,17 @@ ChatModel applyWorkflowDeltaToChat(ChatModel chat, WorkflowUpdate update) {
   return next;
 }
 
+bool workflowUpdateIntroducesUnknownOffer(
+  ChatModel chat,
+  WorkflowUpdate update,
+) {
+  final offerDeltas = update.offers;
+  if (offerDeltas == null || offerDeltas.isEmpty) return false;
+
+  final existingIds = {for (final offer in chat.offers) offer.id};
+  return offerDeltas.any((delta) => !existingIds.contains(delta.id));
+}
+
 WorkflowChatApplyResult applyWorkflowUpdateToChatItems({
   required List<ChatModel> items,
   required int count,

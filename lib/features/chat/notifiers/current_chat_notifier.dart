@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -51,6 +53,9 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
     final chat = state.value;
     if (chat == null) return;
     state = AsyncData(applyWorkflowDeltaToChat(chat, update));
+    if (workflowUpdateIntroducesUnknownOffer(chat, update)) {
+      unawaited(refresh());
+    }
   }
 
   Future<void> refresh() {

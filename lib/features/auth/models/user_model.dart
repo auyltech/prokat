@@ -22,6 +22,7 @@ class UserModel {
   final String? username;
   final String? firstName;
   final String? lastName;
+  final String? companyName;
   final int? rating;
   final int? orderCount;
   final UserRole? role;
@@ -33,6 +34,7 @@ class UserModel {
     this.username,
     this.firstName,
     this.lastName,
+    this.companyName,
     this.rating,
     this.orderCount,
     this.role,
@@ -44,7 +46,7 @@ class UserModel {
     return 'User(firstName: $firstName, lastName: $lastName, username: $username)';
   }
 
-  /// Given name or username. Phone is never a public label.
+  /// Given name, company name, or username. Phone is never a public label.
   String get displayName {
     final first = _publicLabel(firstName);
     final last = _publicLabel(lastName);
@@ -52,7 +54,7 @@ class UserModel {
       return [first, last].whereType<String>().join(' ');
     }
 
-    return _publicLabel(username) ?? '';
+    return _publicLabel(companyName) ?? _publicLabel(username) ?? '';
   }
 
   String displayNameOr(String fallback) {
@@ -76,6 +78,7 @@ class UserModel {
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
         username: json['username']?.toString(),
+        companyName: json['companyName']?.toString(),
         phoneNumber: json['phoneNumber']?.toString(),
         rating: parseNullableInt(json['rating'] ?? json['ratingAverage']),
         orderCount: parseNullableInt(json['orderCount']),
@@ -94,6 +97,7 @@ class UserModel {
       'username': username,
       'firstName': firstName,
       'lastName': lastName,
+      'companyName': companyName,
       'role': role?.name.toUpperCase(),
       'imageUrl': imageUrl,
       'ratingAverage': rating,

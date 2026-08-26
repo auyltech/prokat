@@ -14,7 +14,7 @@
 
 ## Что патчится
 
-- Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`).
+- Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`). Если в payload оффер с новым id — ещё `currentChat.refresh()`.
 - Списки чатов: `clientChatsByFilterProvider` / `ownerChatsByFilterProvider` (`ACTIVE` / `ARCHIVED`). Терминальный заказ/заявка → убрать из Active, инвалидировать Archive.
 - Заказы: active — патч или remove + decrement; history — патч или `invalidate()`. Guard по `updatedAt`; HTTP-рефреш не затирает более новый сокет.
 - Заявки участников: тот же канал и coordinator; terminal → убрать из active, history клиента — патч или `invalidate()`. Лента чужих тендеров у владельца — HTTP, не broadcast.

@@ -16,6 +16,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -34,8 +35,19 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(locationProvider.notifier).getClientLocations();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final address = await ref
+          .read(locationProvider.notifier)
+          .ensureSelectedClientAddress(
+            preferredId: ref
+                .read(clientProfileProvider)
+                .userProfile
+                ?.selectedAddressId,
+          );
+      if (!mounted) return;
+      if (address != null) {
+        ref.read(bookingMutationProvider.notifier).selectLocation(address);
+      }
     });
   }
 

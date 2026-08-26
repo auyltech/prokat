@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -46,7 +47,9 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
     }
+    final locale = ref.watch(localeProvider).languageCode.toUpperCase();
     final response = await api.getClientEquipment(
+      locale: locale,
       page: page,
       itemsPerPage: _itemsPerPage,
       query: _query,
@@ -163,7 +166,9 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     try {
       final nextPage = current.page + 1;
 
+      final locale = ref.watch(localeProvider).languageCode.toUpperCase();
       final response = await api.getClientEquipment(
+        locale: locale,
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         query: _query,

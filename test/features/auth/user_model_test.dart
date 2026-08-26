@@ -45,4 +45,22 @@ void main() {
     expect(user.displayName, isEmpty);
     expect(user.displayNameOr('Name not specified'), 'Name not specified');
   });
+
+  test('UserModel.fromJson accepts backend ratingAverage as a double', () {
+    final user = UserModel.fromJson(const {
+      'id': 'user-1',
+      'ratingAverage': 4.5,
+    });
+
+    expect(user.rating, 5);
+  });
+
+  test('displayName uses companyName when personal name is empty', () {
+    const user = UserModel(
+      companyName: 'Atyrau Vac',
+      phoneNumber: '+77052222222',
+    );
+
+    expect(user.displayName, 'Atyrau Vac');
+  });
 }

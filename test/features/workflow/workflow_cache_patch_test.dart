@@ -6,6 +6,8 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
@@ -162,5 +164,42 @@ void main() {
     expect(result.status, RequestQueryApplyStatus.removed);
     expect(result.state?.items, isEmpty);
     expect(result.state?.count, 0);
+  });
+
+  test('detects a new offer that is not already on the open chat', () {
+    final chat = ChatModel(id: 'chat-1');
+    final update = WorkflowUpdate(
+      v: 1,
+      eventId: 'evt-offer',
+      emittedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      reason: 'OFFER_CREATED',
+      actorId: 'owner-1',
+      chatId: 'chat-1',
+      offers: [
+        WorkflowOfferDelta(
+          id: 'offer-1',
+          status: OfferStatus.created,
+          updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+        ),
+      ],
+    );
+
+    expect(workflowUpdateIntroducesUnknownOffer(chat, update), isTrue);
+
+    final withOffer = ChatModel(
+      id: 'chat-1',
+      offers: [
+        OfferModel(
+          id: 'offer-1',
+          status: OfferStatus.created,
+          requestId: 'request-1',
+          chatId: 'chat-1',
+          equipmentId: 'equipment-1',
+          price: 1000,
+        ),
+      ],
+    );
+
+    expect(workflowUpdateIntroducesUnknownOffer(withOffer, update), isFalse);
   });
 }

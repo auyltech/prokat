@@ -292,6 +292,7 @@ class _ControlledEquipmentService extends EquipmentService {
 
   @override
   Future<ApiResponse<List<Equipment>>> getClientEquipment({
+    required String locale,
     String? categoryId,
     String? query,
     String? city,

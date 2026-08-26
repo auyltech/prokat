@@ -4,7 +4,6 @@ import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
-import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import '../models/location_model.dart';
 import 'location_service.dart';
@@ -15,8 +14,6 @@ class LocationNotifier extends StateNotifier<LocationState> {
   final Ref ref;
 
   LocationNotifier(this.api, this.ref) : super(const LocationState());
-
-  List<LocationSearchResult> suggestions = [];
 
   void selectCity(String city) {
     state = state.copyWith(city: city);
@@ -164,13 +161,11 @@ class LocationNotifier extends StateNotifier<LocationState> {
         if (location.service == "EQUIPMENT") {
           ref.read(ownerEquipmentProvider.notifier).refresh();
         } else {
-          getClientLocations();
+          await getClientLocations();
         }
 
-        if (location.service == "ADDRESS" &&
-            result.data != null &&
-            state.clientLocations.isNotEmpty) {
-          final createdAddress = result.data ?? state.clientLocations[0];
+        final createdAddress = result.data;
+        if (location.service == "ADDRESS" && createdAddress != null) {
           selectAddress(createdAddress);
 
           if (from == "create_request") {
@@ -256,6 +251,22 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
   void selectAddress(LocationModel address) {
     state = state.copyWith(selectedAddress: address);
+  }
+
+  Future<LocationModel?> ensureSelectedClientAddress({
+    String? preferredId,
+  }) async {
+    if (state.clientLocations.isEmpty) {
+      await getClientLocations();
+    }
+
+    final current = state.selectedAddress;
+    if (current != null && (current.id ?? '').isNotEmpty) {
+      return current;
+    }
+
+    selectAddressById(preferredId);
+    return state.selectedAddress;
   }
 
   void selectAddressById(String? addressId) {

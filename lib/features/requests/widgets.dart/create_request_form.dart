@@ -32,6 +32,39 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   final commentController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncSelectedAddress();
+      _syncSelectedCategory();
+    });
+  }
+
+  void _syncSelectedAddress() {
+    final address = ref.read(locationProvider).selectedAddress;
+    if (address?.id != null) {
+      ref.read(requestMutationProvider.notifier).selectLocation(address!);
+    }
+  }
+
+  void _syncSelectedCategory() {
+    final profileCategoryId = ref
+        .read(clientProfileProvider)
+        .userProfile
+        ?.selectedCategoryId;
+    final categories =
+        ref.read(categoriesProvider).valueOrNull?.items ?? const [];
+    final foundCategory = categories
+        .where((item) => item.id == profileCategoryId)
+        .firstOrNull;
+
+    if (profileCategoryId != null && foundCategory != null) {
+      ref.read(requestMutationProvider.notifier).selectCategory(foundCategory);
+    }
+  }
+
+  @override
   void dispose() {
     capacityController.dispose();
     rateController.dispose();
