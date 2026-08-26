@@ -12,42 +12,79 @@ void showLocationSheet(BuildContext context, LocationModel location) {
 
   showModalBottomSheet(
     context: context,
+    backgroundColor: theme.cardColor,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) => Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l10n.deliveryAddress, style: theme.textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Text(
-            formatStreetCity(
-              l10n: l10n,
-              street: location.street,
-              city: location.city,
-            ),
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 24),
+    builder: (context) {
+      final sheetTheme = Theme.of(context);
+      final colorScheme = sheetTheme.colorScheme;
 
-          ListTile(
-            leading: const Icon(Icons.map_outlined, color: Colors.green),
-            title: Text(l10n.openIn2GIS),
-            onTap: () => _launchMap('2gis', lat, lon),
-          ),
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-          ListTile(
-            leading: const Icon(Icons.location_on, color: Colors.red),
-            title: Text(l10n.openInGoogleMaps),
-            onTap: () => _launchMap('google', lat, lon),
+              Text(
+                l10n.deliveryAddress,
+                style: sheetTheme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Text(
+                formatStreetCity(
+                  l10n: l10n,
+                  street: location.street,
+                  city: location.city,
+                ),
+                style: sheetTheme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.85),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.map_outlined, color: Colors.green),
+                title: Text(
+                  l10n.openIn2GIS,
+                  style: sheetTheme.textTheme.titleMedium,
+                ),
+                onTap: () => _launchMap('2gis', lat, lon),
+              ),
+
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.location_on, color: Colors.red),
+                title: Text(
+                  l10n.openInGoogleMaps,
+                  style: sheetTheme.textTheme.titleMedium,
+                ),
+                onTap: () => _launchMap('google', lat, lon),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    ),
+        ),
+      );
+    },
   );
 }
 

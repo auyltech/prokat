@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-// Standalone bottom sheet component for displaying full vehicle specifications
+/// Bottom sheet with full vehicle specifications.
 class EquipmentDetailsSheet extends StatelessWidget {
   final String? name;
   final String? model;
   final String? plateNumber;
   final String? imageUrl;
-  final List<String>?
-  specifications; // Handles an array of specs for flexible display
+  final List<String>? specifications;
 
   const EquipmentDetailsSheet({
     super.key,
@@ -19,7 +18,6 @@ class EquipmentDetailsSheet extends StatelessWidget {
     this.specifications,
   });
 
-  // Helper method to trigger the bottom drawer cleanly from any context action
   static void show(
     BuildContext context, {
     required String? name,
@@ -28,10 +26,12 @@ class EquipmentDetailsSheet extends StatelessWidget {
     required String? imageUrl,
     List<String>? specifications,
   }) {
+    final theme = Theme.of(context);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -48,114 +48,122 @@ class EquipmentDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 12,
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Drag Handle indicator
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // 2. Title Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.equipmentDetails,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 20, color: Colors.grey),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // 3. Image Presentation Block
-          if (imageUrl != null && imageUrl!.isNotEmpty) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl!,
-                width: double.infinity,
-                height: 180,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
-                  height: 180,
-                  color: Colors.grey[100],
-                  child: const Icon(
-                    Icons.image_not_supported,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: 12,
+          left: 24,
+          right: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-          ],
 
-          // 4. Data Specification Rows
-          _buildSpecRow(l10n.vehicleName, name ?? "—"),
-          const Divider(height: 16, thickness: 0.5),
-          _buildSpecRow(l10n.modelType, model ?? "—"),
-          const Divider(height: 16, thickness: 0.5),
-          _buildSpecRow(l10n.plateNumberLabel, plateNumber ?? "—"),
+            Text(
+              l10n.equipmentDetails,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 20),
 
-          if (specifications != null && specifications!.isNotEmpty) ...[
-            const Divider(height: 16, thickness: 0.5),
-            _buildSpecRow(l10n.technicalSpecs, specifications!.join(" • ")),
+            if (imageUrl != null && imageUrl!.isNotEmpty) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl!,
+                  width: double.infinity,
+                  height: 180,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Container(
+                    height: 180,
+                    color: colorScheme.surfaceContainerHigh,
+                    child: Icon(
+                      Icons.image_not_supported,
+                      size: 40,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
+            _buildSpecRow(context, l10n.vehicleName, name ?? '—'),
+            Divider(
+              height: 24,
+              thickness: 0.5,
+              color: theme.dividerColor.withValues(alpha: 0.6),
+            ),
+            _buildSpecRow(context, l10n.modelType, model ?? '—'),
+            Divider(
+              height: 24,
+              thickness: 0.5,
+              color: theme.dividerColor.withValues(alpha: 0.6),
+            ),
+            _buildSpecRow(context, l10n.plateNumberLabel, plateNumber ?? '—'),
+
+            if (specifications != null && specifications!.isNotEmpty) ...[
+              Divider(
+                height: 24,
+                thickness: 0.5,
+                color: theme.dividerColor.withValues(alpha: 0.6),
+              ),
+              _buildSpecRow(
+                context,
+                l10n.technicalSpecs,
+                specifications!.join(' • '),
+              ),
+            ],
+            const SizedBox(height: 8),
           ],
-          const SizedBox(height: 12),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildSpecRow(String label, String value) {
+  Widget _buildSpecRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 110,
+            width: 130,
             child: Text(
               label,
-              style: const TextStyle(
-                color: Colors.grey,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
                 fontWeight: FontWeight.w600,
-                fontSize: 13,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),

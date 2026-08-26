@@ -719,6 +719,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get available => 'Available';
 
   @override
+  String get booked => 'Booked';
+
+  @override
   String get perDay => '/ day';
 
   @override
@@ -2457,7 +2460,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusCanceled => 'Canceled';
 
   @override
+  String get statusFailed => 'Failed';
+
+  @override
   String get statusCompleted => 'Completed';
+
+  @override
+  String get statusReviewed => 'Reviewed';
 
   @override
   String get statusRequestSent => 'Request Sent';

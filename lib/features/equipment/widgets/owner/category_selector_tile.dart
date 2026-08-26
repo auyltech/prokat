@@ -105,7 +105,7 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
                   ? _getCategoryIcon(selectedCategory.name)
                   : Icons.category_outlined,
               color: hasCategory
-                  ? theme.colorScheme.onPrimary
+                  ? Colors.white
                   : theme.colorScheme.onSurface.withValues(alpha: 0.3),
               size: 24,
             ),

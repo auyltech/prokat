@@ -89,6 +89,7 @@ class Equipment {
   bool get isModerated => [
     EquipmentStatus.available,
     EquipmentStatus.accepted,
+    EquipmentStatus.booked,
     EquipmentStatus.maintenance,
     EquipmentStatus.disabled,
   ].contains(status);

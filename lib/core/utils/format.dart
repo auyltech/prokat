@@ -157,11 +157,11 @@ String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {
     case BookingStatus.cancelled:
       return l10n?.statusCanceled ?? "Cancelled";
     case BookingStatus.failed:
-      return l10n?.statusCanceled ?? "Failed";
+      return l10n?.statusFailed ?? "Failed";
     case BookingStatus.completed:
       return l10n?.statusCompleted ?? "Completed";
-    default:
-      return "";
+    case BookingStatus.reviewed:
+      return l10n?.statusReviewed ?? "Reviewed";
   }
 }
 

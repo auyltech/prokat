@@ -1384,6 +1384,12 @@ abstract class AppLocalizations {
   /// **'Available'**
   String get available;
 
+  /// No description provided for @booked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get booked;
+
   /// No description provided for @perDay.
   ///
   /// In en, this message translates to:
@@ -4768,11 +4774,23 @@ abstract class AppLocalizations {
   /// **'Canceled'**
   String get statusCanceled;
 
+  /// No description provided for @statusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get statusFailed;
+
   /// No description provided for @statusCompleted.
   ///
   /// In en, this message translates to:
   /// **'Completed'**
   String get statusCompleted;
+
+  /// No description provided for @statusReviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed'**
+  String get statusReviewed;
 
   /// No description provided for @statusRequestSent.
   ///

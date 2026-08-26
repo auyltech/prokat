@@ -117,30 +117,24 @@ class OwnerRequestTile extends ConsumerWidget {
                   ),
                 ],
               ),
+            ],
+          ),
 
-              Spacer(),
-
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: 20,
-                    color: theme.colorScheme.error,
-                  ),
-                  const SizedBox(width: 2),
-
-                  Text(
-                    minutesLeft > 0
-                        ? l10n.minutesLeft(minutesLeft)
-                        : formatRequestTime(request.createdAt.toString(), l10n),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: minutesLeft > 0
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+          Row(
+            children: [
+              const Spacer(),
+              Icon(Icons.access_time, size: 20, color: theme.colorScheme.error),
+              const SizedBox(width: 4),
+              Text(
+                minutesLeft > 0
+                    ? l10n.minutesLeft(minutesLeft)
+                    : formatRequestTime(request.createdAt.toString(), l10n),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: minutesLeft > 0
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

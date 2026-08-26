@@ -708,6 +708,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get available => 'Қолжетімді';
 
   @override
+  String get booked => 'Жалдауда';
+
+  @override
   String get perDay => '/ күн';
 
   @override
@@ -2453,7 +2456,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get statusCanceled => 'Болдырылмады';
 
   @override
+  String get statusFailed => 'Сәтсіз';
+
+  @override
   String get statusCompleted => 'Аяқталды';
+
+  @override
+  String get statusReviewed => 'Бағаланды';
 
   @override
   String get statusRequestSent => 'Сұраным жіберілді';

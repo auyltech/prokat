@@ -34,7 +34,7 @@ class PriceRateSelector extends StatelessWidget {
           },
           // Custom styling to make them look like solid wrapped boxes
           selectedColor: theme.colorScheme.primaryContainer,
-          checkmarkColor: Theme.of(context).colorScheme.primary,
+          checkmarkColor: Theme.of(context).colorScheme.onPrimary,
           labelStyle: TextStyle(
             color: isSelected
                 ? Theme.of(context).colorScheme.onPrimaryContainer

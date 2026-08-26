@@ -119,7 +119,7 @@ class DemandCategoryCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   title,
-                  maxLines: 2,
+                  maxLines: 1,
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(

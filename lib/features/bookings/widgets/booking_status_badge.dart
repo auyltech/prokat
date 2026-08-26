@@ -19,8 +19,9 @@ class BookingStatusBadge extends StatelessWidget {
         return Color.fromARGB(255, 32, 57, 141);
       case BookingStatus.cancelled:
       case BookingStatus.rejected:
+      case BookingStatus.failed:
         return Color.fromARGB(255, 179, 0, 0);
-      default:
+      case BookingStatus.draft:
         return Colors.grey;
     }
   }

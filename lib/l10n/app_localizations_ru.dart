@@ -724,6 +724,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get available => 'Доступно';
 
   @override
+  String get booked => 'Занята';
+
+  @override
   String get perDay => '/ день';
 
   @override
@@ -2470,7 +2473,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusCanceled => 'Отменено';
 
   @override
+  String get statusFailed => 'Сбой';
+
+  @override
   String get statusCompleted => 'Завершено';
+
+  @override
+  String get statusReviewed => 'Оценено';
 
   @override
   String get statusRequestSent => 'Заявка отправлена';

@@ -175,10 +175,10 @@ class OwnerBookingTile extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: theme.cardColor,
         border: Border(
-          bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1.0),
+          bottom: BorderSide(color: theme.dividerColor, width: 1.0),
         ),
       ),
       child: Column(
