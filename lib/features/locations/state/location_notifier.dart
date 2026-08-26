@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
+import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
@@ -169,13 +170,18 @@ class LocationNotifier extends StateNotifier<LocationState> {
         if (location.service == "ADDRESS" &&
             result.data != null &&
             state.clientLocations.isNotEmpty) {
-          selectAddress(result.data ?? state.clientLocations[0]);
+          final createdAddress = result.data ?? state.clientLocations[0];
+          selectAddress(createdAddress);
 
           if (from == "create_request") {
             ref
                 .read(requestMutationProvider.notifier)
-                .selectLocation(result.data ?? state.clientLocations[0]);
-          } else if (from == "create_booking") {}
+                .selectLocation(createdAddress);
+          } else if (from == "create_booking") {
+            ref
+                .read(bookingMutationProvider.notifier)
+                .selectLocation(createdAddress);
+          }
         }
 
         return true;
