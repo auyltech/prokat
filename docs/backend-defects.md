@@ -17,9 +17,20 @@
 
 ## BE-001 — Имена характеристик техники (`specs[].name`) только на английском
 
-**Статус:** `open`  
-**Где замечено:** Flutter, клиентский поиск техники (карточка с кнопкой «ЗАБРОНИРОВАТЬ»), русская локаль UI. На карточке «Kamaz Vacuum Truck KO-505A» пилюли характеристик: `Tank Volume: 8`, `Hose Length: 10`.  
-**Дата фиксации наблюдения:** 2026-08-24.
+**Статус:** `fixed`  
+**Бэкенд:** `prokat-backend` ветка `feat/equipment-demand-survey`, коммит `6fedbd7` (локально, ещё не в remote).  
+**Дата фикса:** 2026-08-26.
+
+Fallback локали без `locale`/`lang`/`Accept-Language`: **`ru`**.
+
+Сериализация: `name` уже локализован; дополнительно `names: { en, ru, kk }` на категории и на `specs[]`.
+
+### Проверка
+
+1. `GET /equipment/guest` без языка: `tank_volume.name` = `Объём цистерны`, `hose_length.name` = `Длина рукава`.
+2. `Accept-Language: en` → английские подписи; `kk` → казахские; `?locale=ru` тоже работает.
+3. `GET /categories` без заголовка — русские названия категорий (`Вакуумные машины`, не `Vacuum Trucks`).
+4. PATCH values specs не затирает `CategorySpec.names`.
 
 ### Почему это бэкенд, а не Flutter
 
@@ -118,9 +129,17 @@
 
 ## BE-002 — В `GET /offers` у `owner` пустые имя, аватар, рейтинг и счётчики
 
-**Статус:** `open`  
-**Где замечено:** Flutter, клиент «Мои заявки», карточки откликов (`OfferTile` / `UserInfoTile`). На карточке телефон (`+7705…`), плейсхолдер аватара, `★ 0 · 0 orders`.  
-**Дата:** 2026-08-24.
+**Статус:** `fixed`  
+**Бэкенд:** `prokat-backend` ветка `feat/equipment-demand-survey`, коммит `6fedbd7` (локально, ещё не в remote).  
+**Дата фикса:** 2026-08-26.
+
+`getOfferDTO` берёт `getOwnerPublicDTO(equipment.owner)` (`OwnerProfile`). `orderCount` ← `completedOrderCount`; `rating`/`ratingAverage` ← `ratingAverage`; `ratingCount` отдельно.
+
+### Проверка
+
+1. `GET /offers` под клиентом: у `owner` есть `firstName`/`lastName`/`imageUrl` из `OwnerProfile`, даже если `UserProfile` пустой.
+2. `orderCount` совпадает с `completedOrderCount`, а не с `ratingCount`.
+3. Карточка заказа (`booking.owner`) и карточка отклика выглядят одинаково.
 
 ### Симптом
 
