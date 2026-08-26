@@ -79,10 +79,17 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       return;
     }
 
+    final isOrganization = _selectedOwnerType == OwnerType.organization;
+    // Controllers keep draft values while toggling type; only persist / clear on save.
+    final companyName = isOrganization
+        ? _companyNameController.text.trim()
+        : '';
+    final legalName = isOrganization ? _legalNameController.text.trim() : '';
+
     final updatedProfile = widget.initialProfile.copyWith(
       ownerType: _selectedOwnerType,
-      companyName: _companyNameController.text.trim(),
-      legalName: _legalNameController.text.trim(),
+      companyName: companyName,
+      legalName: legalName,
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
       phoneNumber: _phoneController.text.trim(),
@@ -96,6 +103,11 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           .updateOwnerProfile(updatedProfile);
 
       if (!mounted) return;
+
+      if (success && !isOrganization) {
+        _companyNameController.clear();
+        _legalNameController.clear();
+      }
 
       final l10n = AppLocalizations.of(context)!;
       AppSnackBar.show(
@@ -151,31 +163,33 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           ),
           const SizedBox(height: 16),
 
-          Text(
-            l10n.companyInformation,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+          if (isOrganization) ...[
+            Text(
+              l10n.companyInformation,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-          InputField(
-            label: l10n.companyName,
-            hint: l10n.enterCompanyName,
-            controller: _companyNameController,
-            isRequired: isOrganization,
-          ),
+            InputField(
+              label: l10n.companyName,
+              hint: l10n.enterCompanyName,
+              controller: _companyNameController,
+              isRequired: true,
+            ),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-          InputField(
-            label: l10n.legalEntityName,
-            hint: l10n.legalEntityNameHint,
-            controller: _legalNameController,
-            isRequired: isOrganization,
-          ),
+            InputField(
+              label: l10n.legalEntityName,
+              hint: l10n.legalEntityNameHint,
+              controller: _legalNameController,
+              isRequired: true,
+            ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
+          ],
 
           Text(
             l10n.personalContactDetails,

@@ -112,7 +112,11 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 child: InfoTile(
                   icon: Icons.timelapse,
                   label: l10n.dateAndTime,
-                  value: formatDateTime(request.requiredOn, request.requiredAt),
+                  value: formatDateTime(
+                    request.requiredOn,
+                    request.requiredAt,
+                    locale: l10n.localeName,
+                  ),
                 ),
               ),
             ],

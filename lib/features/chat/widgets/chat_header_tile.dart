@@ -102,7 +102,11 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
                     ),
                     if (lastMessageAt != null)
                       Text(
-                        formatDateTime(lastMessageAt, lastMessageAt),
+                        formatDateTime(
+                          lastMessageAt,
+                          lastMessageAt,
+                          locale: l10n.localeName,
+                        ),
                         style: theme.textTheme.labelSmall,
                       ),
                   ],

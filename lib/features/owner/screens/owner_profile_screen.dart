@@ -97,11 +97,11 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                       children: [
                         Expanded(
                           child: OwnerStatCard(
-                            value: ownerEquipmentCount
-                                .toString(), // wire up from billingProvider
+                            value: ownerEquipmentCount.toString(),
                             label: l10n.navEquipment,
                             valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.truck,
+                            onTap: () => context.go(AppRoutes.ownerEquipment),
                           ),
                         ),
 
@@ -112,6 +112,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                             label: l10n.ordersUnit,
                             valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.package,
+                            onTap: () => context.go(AppRoutes.ownerBookings),
                           ),
                         ),
                       ],

@@ -40,10 +40,10 @@ String formatTime(BuildContext context, DateTime date) {
   return TimeOfDay.fromDateTime(date).format(context);
 }
 
-String formatDateTime(dynamic date, dynamic time) {
-  final dateStr = DateFormat('E dd MMM').format(date);
+String formatDateTime(dynamic date, dynamic time, {String? locale}) {
+  final dateStr = DateFormat('E dd MMM', locale).format(date);
   if (time != null) {
-    final timeStr = DateFormat('HH:mm').format(time!);
+    final timeStr = DateFormat('HH:mm', locale).format(time);
     return "$dateStr • $timeStr";
   }
   return dateStr;

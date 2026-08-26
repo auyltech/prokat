@@ -223,7 +223,11 @@ class _NegotiationMessageBubbleState
               ),
 
               Text(
-                formatDateTime(parsed.createdAt, parsed.createdAt),
+                formatDateTime(
+                  parsed.createdAt,
+                  parsed.createdAt,
+                  locale: l10n.localeName,
+                ),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w400,

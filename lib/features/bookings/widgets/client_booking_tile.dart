@@ -99,7 +99,11 @@ class ClientBookingTile extends ConsumerWidget {
                 child: InfoTile(
                   icon: Icons.timelapse,
                   label: l10n.dateAndTime,
-                  value: formatDateTime(booking.bookedOn, booking.bookedAt),
+                  value: formatDateTime(
+                    booking.bookedOn,
+                    booking.bookedAt,
+                    locale: l10n.localeName,
+                  ),
                 ),
               ),
             ],

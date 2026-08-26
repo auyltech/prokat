@@ -6,6 +6,7 @@ class OwnerStatCard extends StatelessWidget {
   final String label;
   final Color valueColor;
   final IconData icon;
+  final VoidCallback? onTap;
 
   const OwnerStatCard({
     super.key,
@@ -13,6 +14,7 @@ class OwnerStatCard extends StatelessWidget {
     required this.label,
     required this.valueColor,
     required this.icon,
+    this.onTap,
   });
 
   @override
@@ -20,6 +22,7 @@ class OwnerStatCard extends StatelessWidget {
     final theme = Theme.of(context);
     return BaseTile(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      onTap: onTap,
       child: Row(
         children: [
           Icon(icon, size: 32, color: theme.colorScheme.onSurface),

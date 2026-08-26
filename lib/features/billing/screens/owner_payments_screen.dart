@@ -40,7 +40,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final billingState = ref.watch(billingProvider);
 
     final secondsRemaining = billingState.accountBalance?.secondsRemaining ?? 0;
-    final humanReadableTime = getTimeString(secondsRemaining);
+    final humanReadableTime = getTimeString(secondsRemaining, l10n);
 
     final onlineEquipment = ref
         .watch(ownerEquipmentProvider.notifier)
@@ -51,6 +51,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final dailyCost = billingState.getDailyCost(onlineEquipment);
     final timeForOnlineEquipment = getTimeString(
       billingState.getReminaingSeconds(onlineEquipment),
+      l10n,
     );
 
     final payments = ref.watch(billingProvider).transactions;

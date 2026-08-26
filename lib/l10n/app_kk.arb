@@ -1021,6 +1021,31 @@
       "count": { "type": "int" }
     }
   },
+  "durationDays": "{count, plural, =1{1 күн} other{{count} күн}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 сағ} other{{count} сағ}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count, plural, =1{1 мин} other{{count} мин}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationSeconds": "{count, plural, =1{1 сек} other{{count} сек}}",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "invalidSecondsValue": "Секунд мәні жарамсыз",
   "newOffer": "Жаңа ұсыныс",
   "offerStatusViewed": "Қаралды",
   "offerStatusCancelled": "Бас тартылды",

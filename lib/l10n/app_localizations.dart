@@ -5506,6 +5506,36 @@ abstract class AppLocalizations {
   /// **'{count} h ago'**
   String hoursAgo(int count);
 
+  /// No description provided for @durationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String durationDays(int count);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hr} other{{count} hrs}}'**
+  String durationHours(int count);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 min} other{{count} min}}'**
+  String durationMinutes(int count);
+
+  /// No description provided for @durationSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sec} other{{count} sec}}'**
+  String durationSeconds(int count);
+
+  /// No description provided for @invalidSecondsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid seconds value'**
+  String get invalidSecondsValue;
+
   /// No description provided for @newOffer.
   ///
   /// In en, this message translates to:
