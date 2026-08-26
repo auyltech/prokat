@@ -10,6 +10,7 @@ import 'package:prokat/features/requests/providers/client_active_requests_provid
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/create_request_form.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateRequestScreen extends ConsumerStatefulWidget {
@@ -27,11 +28,27 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
 
       if (ref.read(locationProvider).fetchStatus == FetchStatus.initial) {
-        ref.read(locationProvider.notifier).getClientLocations();
+        await ref.read(locationProvider.notifier).getClientLocations();
+      }
+      if (!mounted) return;
+
+      final alreadySelected = ref.read(locationProvider).selectedAddress;
+      if (alreadySelected != null && (alreadySelected.id ?? '').isNotEmpty) {
+        return;
+      }
+
+      final selectedAddressId = ref
+          .read(clientProfileProvider)
+          .userProfile
+          ?.selectedAddressId;
+      if ((selectedAddressId ?? '').isNotEmpty) {
+        ref
+            .read(locationProvider.notifier)
+            .selectAddressById(selectedAddressId);
       }
     });
   }
