@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class InputField extends StatelessWidget {
@@ -15,7 +16,9 @@ class InputField extends StatelessWidget {
   final Color? iconColor;
   final VoidCallback? onChanged;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   final String? errorText;
+  final String? helperText;
   final String? requiredMessage;
 
   const InputField({
@@ -34,7 +37,9 @@ class InputField extends StatelessWidget {
     this.iconColor,
     this.onChanged,
     this.keyboardType,
+    this.inputFormatters,
     this.errorText,
+    this.helperText,
   });
 
   @override
@@ -43,7 +48,9 @@ class InputField extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: helperText != null
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       children: [
         if (icon != null) ...[
           Container(
@@ -102,6 +109,7 @@ class InputField extends StatelessWidget {
                       keyboardType: isNumeric
                           ? TextInputType.number
                           : keyboardType,
+                      inputFormatters: inputFormatters,
                       textInputAction: isLast
                           ? TextInputAction.done
                           : TextInputAction.next,
@@ -145,6 +153,16 @@ class InputField extends StatelessWidget {
                     ),
                 ],
               ),
+
+              if (helperText != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  helperText!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
 
               if (errorText != null) ...[
                 const SizedBox(height: 6),

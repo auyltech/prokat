@@ -12,16 +12,20 @@ enum CitySelectorService {
   createequipment,
   clientcity,
   demandsurvey,
+  becomeowner,
+  ownerprofile,
 }
 
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
+  final String? highlightedCity;
 
-  const CityPickerSheet({super.key, this.service});
+  const CityPickerSheet({super.key, this.service, this.highlightedCity});
 
   static Future<String?> show({
     required BuildContext context,
     CitySelectorService? service,
+    String? highlightedCity,
   }) {
     return showModalBottomSheet<String?>(
       context: context,
@@ -32,7 +36,10 @@ class CityPickerSheet extends ConsumerStatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
-        return CityPickerSheet(service: service);
+        return CityPickerSheet(
+          service: service,
+          highlightedCity: highlightedCity,
+        );
       },
     );
   }
@@ -43,7 +50,12 @@ class CityPickerSheet extends ConsumerStatefulWidget {
 
 class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
   Future<String?> _onCitySelected(String city) async {
-    ref.read(locationProvider.notifier).selectCity(city);
+    final persistSessionCity =
+        widget.service != CitySelectorService.becomeowner &&
+        widget.service != CitySelectorService.ownerprofile;
+    if (persistSessionCity) {
+      ref.read(locationProvider.notifier).selectCity(city);
+    }
 
     if (mounted && context.canPop()) {
       context.pop(city);
@@ -51,7 +63,9 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
 
     if (widget.service == CitySelectorService.guestcategory ||
         widget.service == CitySelectorService.createequipment ||
-        widget.service == CitySelectorService.demandsurvey) {
+        widget.service == CitySelectorService.demandsurvey ||
+        widget.service == CitySelectorService.becomeowner ||
+        widget.service == CitySelectorService.ownerprofile) {
       return city;
     }
 
@@ -71,7 +85,8 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final selectedCity = ref.watch(locationProvider).city;
+    final selectedCity =
+        widget.highlightedCity ?? ref.watch(locationProvider).city;
     final title = l10n.selectCity;
     final allLocationsLabel = l10n.allLocations;
 

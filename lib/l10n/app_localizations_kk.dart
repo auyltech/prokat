@@ -1971,6 +1971,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get phoneNumberRequired => 'Телефон нөмірі міндетті';
 
   @override
+  String get ownerContactPhoneHint =>
+      'Бұл нөмірді әкімші мен клиенттер көреді. Оған қоңырау шалуға болуы керек.';
+
+  @override
   String get cityRequired => 'Қала міндетті';
 
   @override

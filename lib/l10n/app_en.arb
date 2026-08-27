@@ -725,6 +725,7 @@
   "firstNameRequired": "First name is required",
   "lastNameRequired": "Last name is required",
   "phoneNumberRequired": "Phone number is required",
+  "ownerContactPhoneHint": "Admins and clients will see this number. It should be reachable by phone.",
   "cityRequired": "City is required",
   "messageRequired": "Please add a short message",
   "submitRequest": "Submit request",

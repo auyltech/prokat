@@ -722,6 +722,7 @@
   "firstNameRequired": "Имя обязательно",
   "lastNameRequired": "Фамилия обязательна",
   "phoneNumberRequired": "Номер телефона обязателен",
+  "ownerContactPhoneHint": "Этот номер увидят администратор и клиенты. По нему должны дозвониться.",
   "cityRequired": "Город обязателен",
   "messageRequired": "Пожалуйста, добавьте короткое сообщение",
   "submitRequest": "Отправить заявку",

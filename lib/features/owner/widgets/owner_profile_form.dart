@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/constants/cities.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:prokat/features/user/widgets/city_select_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerProfileForm extends ConsumerStatefulWidget {
@@ -32,14 +38,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   OwnerType? _selectedOwnerType;
   String? _selectedCity;
 
-  // Static list example of label/value city configurations
-  final List<Map<String, String>> _citiesList = [
-    {'label': 'Atyrau', 'value': 'atyrau'},
-    {'label': 'Almaty', 'value': 'almaty'},
-    {'label': 'Astana', 'value': 'astana'},
-    {'label': 'Shymkent', 'value': 'shymkent'},
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -49,14 +47,18 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     _legalNameController = TextEditingController(text: profile.legalName);
     _firstNameController = TextEditingController(text: profile.firstName);
     _lastNameController = TextEditingController(text: profile.lastName);
-    _phoneController = TextEditingController(text: profile.phoneNumber);
+    _phoneController = TextEditingController(
+      text: maskedKzPhone(profile.phoneNumber),
+    );
     _descriptionController = TextEditingController(
       text: profile.serviceDescription,
     );
 
     // Bind state variations directly from the profile instance
     _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
-    _selectedCity = profile.city;
+    _selectedCity =
+        canonicalCity(profile.city, cities) ??
+        ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
   }
 
   @override
@@ -72,12 +74,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedCity == null) {
-      AppSnackBar.show(
-        message: AppLocalizations.of(context)!.pleaseSelectYourCity,
-      );
-      return;
-    }
 
     final isOrganization = _selectedOwnerType == OwnerType.organization;
     // Controllers keep draft values while toggling type; only persist / clear on save.
@@ -92,7 +88,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       legalName: legalName,
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
-      phoneNumber: _phoneController.text.trim(),
+      phoneNumber: normalizeKzPhone(_phoneController.text) ?? '',
       serviceDescription: _descriptionController.text.trim(),
       city: _selectedCity,
     );
@@ -124,7 +120,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final providerState = ref.watch(ownerRegistrationMutationProvider);
     final isLoading = providerState.isLoading;
@@ -218,85 +213,21 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
           const SizedBox(height: 12),
 
-          InputField(
-            label: l10n.phoneNumber,
-            hint: "+7 (700) 000-00-00",
+          KzPhoneInputField(
             controller: _phoneController,
-            keyboardType: TextInputType.phone,
-            isRequired: true,
-            validator: (value) {
-              final phone = value?.trim() ?? '';
-
-              if (phone.isNotEmpty && phone.length < 10) {
-                return l10n.enterValidPhoneNumber;
-              }
-
-              return null;
-            },
+            label: l10n.phoneNumber,
+            hint: l10n.phoneHint,
+            helperText: l10n.ownerContactPhoneHint,
           ),
 
-          const SizedBox(height: 24),
-
-          // Custom City Selection Field using a Wrap layout
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.city,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                l10n.requiredHint,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 12),
 
-          // Responsive button matrix group using Wrap
-          Wrap(
-            spacing: 8.0, // Horizontal space between buttons
-            runSpacing: 8.0, // Vertical space between wrapped lines
-            children: _citiesList.map((city) {
-              final cityKey = city['value']!;
-              final isSelected = isSameCity(_selectedCity, cityKey);
-              final primaryColor = const Color(0xFF0F5A56);
-
-              return ChoiceChip(
-                label: Text(localizedCityName(cityKey, l10n)),
-                selected: isSelected,
-                onSelected: (bool selected) {
-                  setState(() {
-                    _selectedCity = selected ? city['value'] : null;
-                  });
-                },
-                selectedColor: primaryColor.withValues(alpha: 0.1),
-                backgroundColor: theme.cardColor,
-                labelStyle: TextStyle(
-                  color: isSelected ? primaryColor : colorScheme.onSurface,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(
-                    color: isSelected
-                        ? primaryColor
-                        : theme.dividerColor.withValues(alpha: 0.5),
-                    width: isSelected ? 1.5 : 1,
-                  ),
-                ),
-                showCheckmark:
-                    false, // Hides native check icon for a clean action button style
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              );
-            }).toList(),
+          CitySelectField(
+            city: _selectedCity,
+            isRequired: true,
+            showIcon: false,
+            service: CitySelectorService.ownerprofile,
+            onChanged: (city) => setState(() => _selectedCity = city),
           ),
 
           const SizedBox(height: 12),

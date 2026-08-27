@@ -31,6 +31,51 @@ class AppTheme {
   static const Color darkTextTertiary = Color(0xFF8A8F98);
   static const Color darkTextDisabled = Color(0xFF5F6368);
 
+  // Semantic status: pale tinted surfaces + darker content in light,
+  // deep tinted surfaces (near darkCard) + lighter content in dark.
+  static const Color lightSuccessBg = Color(0xFFF2F9F3);
+  static const Color lightSuccessFg = Color(0xFF1B5E20);
+  static const Color darkSuccessBg = Color(0xFF17231C);
+  static const Color darkSuccessFg = Color(0xFFA8D5AB);
+
+  static const Color lightDangerBg = Color(0xFFFDF4F5);
+  static const Color lightDangerFg = Color(0xFFB71C1C);
+  static const Color darkDangerBg = Color(0xFF27181A);
+  static const Color darkDangerFg = Color(0xFFEF9A9A);
+
+  static const Color lightWarningBg = Color(0xFFFFF8F1);
+  static const Color lightWarningFg = Color(0xFFBF360C);
+  static const Color darkWarningBg = Color(0xFF271C14);
+  static const Color darkWarningFg = Color(0xFFFFCC80);
+
+  static Color _tone(Brightness brightness, Color light, Color dark) =>
+      brightness == Brightness.dark ? dark : light;
+
+  static Color successBg(Brightness brightness) =>
+      _tone(brightness, lightSuccessBg, darkSuccessBg);
+
+  static Color successFg(Brightness brightness) =>
+      _tone(brightness, lightSuccessFg, darkSuccessFg);
+
+  static Color dangerBg(Brightness brightness) =>
+      _tone(brightness, lightDangerBg, darkDangerBg);
+
+  static Color dangerFg(Brightness brightness) =>
+      _tone(brightness, lightDangerFg, darkDangerFg);
+
+  static Color warningBg(Brightness brightness) =>
+      _tone(brightness, lightWarningBg, darkWarningBg);
+
+  static Color warningFg(Brightness brightness) =>
+      _tone(brightness, lightWarningFg, darkWarningFg);
+
+  /// Soft brand wash for invite-style surfaces (chat-bubble tokens).
+  static Color brandTintBg(Brightness brightness) =>
+      _tone(brightness, lightBubbleMe, darkBubbleMe);
+
+  static Color brandTintFg(Brightness brightness) =>
+      _tone(brightness, accent, lightBubbleMe);
+
   /// Light Theme Configuration
   static ThemeData get lightTheme {
     return ThemeData(

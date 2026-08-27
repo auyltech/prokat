@@ -8,7 +8,10 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 
 class GuestEquipmentCard extends StatelessWidget {
   final Equipment item;
+
   const GuestEquipmentCard({super.key, required this.item});
+
+  static const double height = 94;
 
   void _showSignInDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -43,115 +46,106 @@ class GuestEquipmentCard extends StatelessWidget {
     final isTop = (item.owner?.rating ?? 0) >= 4.5;
 
     return GestureDetector(
-      onTap: () {
-        _showSignInDialog(context);
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // ── Thumbnail ────────────────────────────────────────────────
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: OptimizedNetworkImage(
-                imageUrl: item.imageUrl ?? "",
-                width: 100,
-                height: 76,
-                fit: BoxFit.contain,
-                fallbackIcon: Icons.inventory_2_outlined,
-              ),
+      onTap: () => _showSignInDialog(context),
+      child: Row(
+        spacing: 12,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // ── Thumbnail ────────────────────────────────────────────────
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: OptimizedNetworkImage(
+              imageUrl: item.imageUrl ?? "",
+              width: 120,
+              height: height,
+              fit: BoxFit.contain,
+              fallbackIcon: Icons.inventory_2_outlined,
             ),
+          ),
 
-            // ── Info ─────────────────────────────────────────────────────
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 12,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
+          // ── Info ─────────────────────────────────────────────────────
+          Expanded(
+            child: SizedBox(
+              height: height,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _StatusBadge(isTop: isTop),
+                  const SizedBox(height: 3),
+
+                  Text(
+                    item.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 3),
+
+                  // TODO(Vadim): temp hided
+                  // Text(
+                  //   item.category?.name ?? "",
+                  //   style: theme.textTheme.bodyMedium,
+                  // ),
+                  //
+                  const Spacer(),
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rate_rounded,
+                        size: 20,
+                        color: Color(0xFFF59E0B),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    const SizedBox(height: 3),
-
-                    Row(
-                      children: [
-                        Text(
-                          item.category?.name ?? "",
-                          style: theme.textTheme.bodyMedium,
+                      const SizedBox(width: 3),
+                      Text(
+                        (item.owner?.rating ?? 0).toStringAsFixed(1),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
-                        Spacer(),
-                        _StatusBadge(isTop: isTop),
-                      ],
-                    ),
+                      ),
 
-                    const SizedBox(height: 6),
-
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star_rate_rounded,
-                          size: 20,
-                          color: Color(0xFFF59E0B),
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          (item.owner?.rating ?? 0).toStringAsFixed(1),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: theme.textTheme.bodyLarge?.color,
-                          ),
-                        ),
-
-                        Spacer(),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: formatPrice(
-                                  item.prices.isEmpty
-                                      ? 0
-                                      : item.prices[0].price.floorToDouble(),
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1D4ED8),
-                                ),
+                      Spacer(),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: formatPrice(
+                                item.prices.isEmpty
+                                    ? 0
+                                    : item.prices[0].price.floorToDouble(),
                               ),
-                              TextSpan(
-                                text:
-                                    ' ${AppLocalizations.of(context)!.perDay}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF1D4ED8),
-                                ),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1D4ED8),
                               ),
-                            ],
-                          ),
+                            ),
+                            TextSpan(
+                              text:
+                                  ' ${AppLocalizations.of(context)!.perDay}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF1D4ED8),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -159,6 +153,7 @@ class GuestEquipmentCard extends StatelessWidget {
 
 class _StatusBadge extends StatelessWidget {
   final bool isTop;
+
   const _StatusBadge({required this.isTop});
 
   @override

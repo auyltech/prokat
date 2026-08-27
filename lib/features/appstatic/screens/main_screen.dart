@@ -244,7 +244,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverList.separated(
                   itemCount: items.length + (queryState!.isLoadingMore ? 1 : 0),
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     if (index == items.length) {
                       return const Padding(

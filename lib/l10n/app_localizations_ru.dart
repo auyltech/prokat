@@ -1987,6 +1987,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneNumberRequired => 'Номер телефона обязателен';
 
   @override
+  String get ownerContactPhoneHint =>
+      'Этот номер увидят администратор и клиенты. По нему должны дозвониться.';
+
+  @override
   String get cityRequired => 'Город обязателен';
 
   @override

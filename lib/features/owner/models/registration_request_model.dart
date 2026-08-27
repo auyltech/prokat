@@ -1,5 +1,21 @@
 import 'package:prokat/core/utils/parse.dart';
 
+/// Become-owner application as returned by `GET /owner/become-owner`.
+/// Backend may send `APPROVED` or `ACCEPTED` for the same outcome.
+enum BecomeOwnerRequestStatus { pending, rejected, approved }
+
+BecomeOwnerRequestStatus parseBecomeOwnerRequestStatus(String? status) {
+  switch ((status ?? '').trim().toLowerCase()) {
+    case 'approved':
+    case 'accepted':
+      return BecomeOwnerRequestStatus.approved;
+    case 'rejected':
+      return BecomeOwnerRequestStatus.rejected;
+    default:
+      return BecomeOwnerRequestStatus.pending;
+  }
+}
+
 class RegistrationRequestModel {
   final String? id;
 
@@ -33,6 +49,13 @@ class RegistrationRequestModel {
 
     this.createdAt,
   });
+
+  BecomeOwnerRequestStatus get parsedStatus =>
+      parseBecomeOwnerRequestStatus(status);
+
+  bool get isApproved => parsedStatus == BecomeOwnerRequestStatus.approved;
+
+  bool get isRejected => parsedStatus == BecomeOwnerRequestStatus.rejected;
 
   factory RegistrationRequestModel.fromJson(Map<String, dynamic> json) {
     try {

@@ -3862,6 +3862,12 @@ abstract class AppLocalizations {
   /// **'Phone number is required'**
   String get phoneNumberRequired;
 
+  /// No description provided for @ownerContactPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins and clients will see this number. It should be reachable by phone.'**
+  String get ownerContactPhoneHint;
+
   /// No description provided for @cityRequired.
   ///
   /// In en, this message translates to:

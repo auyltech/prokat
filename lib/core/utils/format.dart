@@ -57,6 +57,22 @@ String formatMinutes(int minutes) {
   return "$hours hours";
 }
 
+/// Kazakhstan contact number as E.164 (`+77051111111`).
+/// Accepts `8…`, `7…`, national 10 digits, and formatted input.
+String? normalizeKzPhone(String? input) {
+  final digits = (input ?? '').replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) return null;
+
+  String national = digits;
+  if (national.length == 11 &&
+      (national.startsWith('8') || national.startsWith('7'))) {
+    national = national.substring(1);
+  }
+
+  if (national.length != 10) return null;
+  return '+7$national';
+}
+
 String formatPhoneNumber(String phoneNumber) {
   // 1. Remove all non-digit characters
   String cleaned = phoneNumber.replaceAll(RegExp(r'\D'), '');

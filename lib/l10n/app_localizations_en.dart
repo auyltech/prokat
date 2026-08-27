@@ -1979,6 +1979,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneNumberRequired => 'Phone number is required';
 
   @override
+  String get ownerContactPhoneHint =>
+      'Admins and clients will see this number. It should be reachable by phone.';
+
+  @override
   String get cityRequired => 'City is required';
 
   @override

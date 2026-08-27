@@ -723,6 +723,7 @@
   "firstNameRequired": "Аты міндетті",
   "lastNameRequired": "Тегі міндетті",
   "phoneNumberRequired": "Телефон нөмірі міндетті",
+  "ownerContactPhoneHint": "Бұл нөмірді әкімші мен клиенттер көреді. Оған қоңырау шалуға болуы керек.",
   "cityRequired": "Қала міндетті",
   "messageRequired": "Қысқаша хабарлама қосыңыз",
   "submitRequest": "Өтінішті жіберу",
