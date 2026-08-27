@@ -12,6 +12,7 @@ import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
@@ -47,6 +48,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       if (!mounted) return;
 
       await ref.read(categoriesProvider.notifier).refreshIfStale();
+      await ref.read(catalogProvider.notifier).refreshIfStale();
     } catch (error, stackTrace) {
       // Catalog failures already live in AsyncValue. Swallow them here so the
       // unawaited initState/timer task is not reported as a Crashlytics fatal.
@@ -70,6 +72,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Future<void> _onRefresh() async {
     try {
       await Future.wait([
+        ref.read(catalogProvider.notifier).refresh(),
         ref.read(categoriesProvider.notifier).refresh(),
         ref.read(guestEquipmentProvider.notifier).refresh(),
         ref.read(demandConfigProvider.notifier).refresh(),
@@ -230,11 +233,22 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     imageName: 'empty_equipment.png',
                     title: selectedCity.isNotEmpty
                         ? l10n.noEquipmentListedInCity(
-                            selectedCategory?.name ?? l10n.navEquipment,
-                            localizedCityName(selectedCity, l10n),
+                            selectedCategory?.localizedName(
+                                  locale.languageCode,
+                                ) ??
+                                l10n.navEquipment,
+                            catalogCityLabel(
+                              city: selectedCity,
+                              languageCode: locale.languageCode,
+                              catalog: ref.watch(catalogProvider).valueOrNull,
+                              fallback: (city) => localizedCityName(city, l10n),
+                            ),
                           )
                         : l10n.noEquipmentForCategory(
-                            selectedCategory?.name ?? l10n.navEquipment,
+                            selectedCategory?.localizedName(
+                                  locale.languageCode,
+                                ) ??
+                                l10n.navEquipment,
                           ),
                   ),
                 ),

@@ -89,7 +89,12 @@ class CategorySelectionSheet extends ConsumerWidget {
                       size: 20,
                     ),
                   ),
-                  title: Text(category.name, style: theme.textTheme.bodyLarge),
+                  title: Text(
+                    category.localizedName(
+                      Localizations.localeOf(context).languageCode,
+                    ),
+                    style: theme.textTheme.bodyLarge,
+                  ),
                   onTap: () {
                     if (service == CategorySheetMode.createRequest) {
                       // Update the Request Notifier

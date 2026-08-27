@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
@@ -10,6 +9,7 @@ import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/features/user/widgets/city_select_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -57,7 +57,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     // Bind state variations directly from the profile instance
     _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
     _selectedCity =
-        canonicalCity(profile.city, cities) ??
+        canonicalCity(profile.city, catalogCityKeys(ref.read(catalogProvider).valueOrNull)) ??
         ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
   }
 

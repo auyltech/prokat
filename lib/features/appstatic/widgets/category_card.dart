@@ -44,7 +44,9 @@ class CategoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              category.name,
+              category.localizedName(
+                Localizations.localeOf(context).languageCode,
+              ),
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: isSelected

@@ -18,6 +18,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? _query;
   String? _city;
   String? _categoryId;
+  List<String> _spec = const [];
 
   static const _itemsPerPage = 10;
 
@@ -30,6 +31,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       _query = null;
       _city = null;
       _categoryId = null;
+      _spec = const [];
       _requestGeneration++;
     }
     if (scope == null) {
@@ -47,7 +49,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
     }
-    final locale = ref.watch(localeProvider).languageCode.toUpperCase();
+    final locale = ref.read(localeProvider).languageCode.toUpperCase();
     final response = await api.getClientEquipment(
       locale: locale,
       page: page,
@@ -55,6 +57,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       query: _query,
       city: _city,
       categoryId: _categoryId,
+      spec: _spec,
     );
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
@@ -166,7 +169,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     try {
       final nextPage = current.page + 1;
 
-      final locale = ref.watch(localeProvider).languageCode.toUpperCase();
+      final locale = ref.read(localeProvider).languageCode.toUpperCase();
       final response = await api.getClientEquipment(
         locale: locale,
         page: nextPage,
@@ -174,6 +177,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         query: _query,
         city: _city,
         categoryId: _categoryId,
+        spec: _spec,
       );
 
       if (!_isRequestCurrent(generation, scope)) return;
@@ -203,15 +207,25 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     }
   }
 
-  Future<void> search({String? query, String? city, String? categoryId}) async {
+  Future<void> search({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+  }) async {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
+    final nextSpec = spec ?? _spec;
     final changed =
-        _query != query || _city != city || _categoryId != categoryId;
+        _query != query ||
+        _city != city ||
+        _categoryId != categoryId ||
+        !_sameSpec(_spec, nextSpec);
     _query = query;
     _city = city;
     _categoryId = categoryId;
+    _spec = List<String>.from(nextSpec);
 
     if (!changed) {
       await refreshIfStale();
@@ -230,10 +244,15 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
-    final changed = _query != null || _city != null || _categoryId != null;
+    final changed =
+        _query != null ||
+        _city != null ||
+        _categoryId != null ||
+        _spec.isNotEmpty;
     _query = null;
     _city = null;
     _categoryId = null;
+    _spec = const [];
 
     if (changed) {
       final generation = ++_requestGeneration;
@@ -282,5 +301,13 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   bool _isRequestCurrent(int generation, AuthenticatedSessionScopeKey scope) {
     return generation == _requestGeneration &&
         isAuthenticatedSessionScopeCurrent(ref, scope);
+  }
+
+  bool _sameSpec(List<String> left, List<String> right) {
+    if (left.length != right.length) return false;
+    for (var i = 0; i < left.length; i++) {
+      if (left[i] != right[i]) return false;
+    }
+    return true;
   }
 }

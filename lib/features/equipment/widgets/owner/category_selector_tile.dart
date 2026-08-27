@@ -47,7 +47,11 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
     // ? ref.watch(requestMutationProvider).selectedCategory
     // : ref.watch(equipmentMutationProvider).category;
 
-    final categoryName = selectedCategory?.name ?? l10n.selectService;
+    final categoryName =
+        selectedCategory?.localizedName(
+          Localizations.localeOf(context).languageCode,
+        ) ??
+        l10n.selectService;
     final bool hasCategory = selectedCategory != null;
 
     void onCategoryTap() async {

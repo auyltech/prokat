@@ -15,6 +15,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? _query;
   String? _city;
   String? _categoryId;
+  List<String> _spec = const [];
 
   @override
   Future<QueryState<Equipment>> build() async {
@@ -22,7 +23,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<QueryState<Equipment>> _fetchPage(int page) async {
-    final locale = ref.watch(localeProvider);
+    final locale = ref.read(localeProvider);
 
     final response = await api.getGuestEquipment(
       locale: locale.languageCode.toUpperCase(),
@@ -31,6 +32,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       query: _query,
       city: _city,
       categoryId: _categoryId,
+      spec: _spec,
     );
 
     if (!response.success) {
@@ -115,7 +117,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     state = AsyncData(current.copyWith(isLoadingMore: true));
 
     try {
-      final locale = ref.watch(localeProvider);
+      final locale = ref.read(localeProvider);
 
       final nextPage = current.page + 1;
 
@@ -126,6 +128,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         query: _query,
         city: _city,
         categoryId: _categoryId,
+        spec: _spec,
       );
 
       if (generation != _requestGeneration) return;
@@ -159,13 +162,19 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     String? query,
     String? city,
     String? categoryId,
+    List<String>? spec,
   }) async {
     try {
+      final nextSpec = spec ?? _spec;
       final changed =
-          _query != query || _city != city || _categoryId != categoryId;
+          _query != query ||
+          _city != city ||
+          _categoryId != categoryId ||
+          !_sameSpec(_spec, nextSpec);
       _query = query;
       _city = city;
       _categoryId = categoryId;
+      _spec = List<String>.from(nextSpec);
 
       if (!changed) {
         await refreshIfStale();
@@ -185,10 +194,15 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   Future<void> clearFilters() async {
     try {
-      final changed = _query != null || _city != null || _categoryId != null;
+      final changed =
+          _query != null ||
+          _city != null ||
+          _categoryId != null ||
+          _spec.isNotEmpty;
       _query = null;
       _city = null;
       _categoryId = null;
+      _spec = const [];
 
       if (changed) {
         final generation = ++_requestGeneration;
@@ -236,4 +250,12 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? get city => _city;
 
   String? get categoryId => _categoryId;
+}
+
+bool _sameSpec(List<String> left, List<String> right) {
+  if (left.length != right.length) return false;
+  for (var i = 0; i < left.length; i++) {
+    if (left[i] != right[i]) return false;
+  }
+  return true;
 }

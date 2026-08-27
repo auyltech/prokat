@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
@@ -15,6 +14,7 @@ import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/features/user/widgets/city_select_field.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 
@@ -120,7 +120,11 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   }
 
   String? _canonicalCity(String? city) {
-    return canonicalCity(city, cities) ?? _nonEmpty(city);
+    return canonicalCity(
+          city,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
+        _nonEmpty(city);
   }
 
   void _prefillFromRequest(RegistrationRequestModel request) {

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/constants/cities.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class CitySelectField extends StatelessWidget {
+class CitySelectField extends ConsumerWidget {
   final String? city;
   final bool isRequired;
   final bool showIcon;
@@ -22,6 +23,7 @@ class CitySelectField extends StatelessWidget {
 
   Future<void> _pickCity(
     BuildContext context,
+    WidgetRef ref,
     FormFieldState<String> state,
   ) async {
     final selected = await CityPickerSheet.show(
@@ -31,18 +33,30 @@ class CitySelectField extends StatelessWidget {
     );
     if (selected == null || selected.isEmpty) return;
 
-    final next = canonicalCity(selected, cities) ?? selected;
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    final next =
+        canonicalCity(selected, catalogCityKeys(catalog)) ?? selected;
     onChanged(next);
     state.didChange(next);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
     final hasCity = (city ?? '').trim().isNotEmpty;
     final hint = l10n.cityInputHint;
+    final label = hasCity
+        ? catalogCityLabel(
+            city: city,
+            languageCode: locale,
+            catalog: catalog,
+            fallback: (value) => localizedCityName(value, l10n),
+          )
+        : hint;
 
     return FormField<String>(
       validator: (_) {
@@ -53,7 +67,7 @@ class CitySelectField extends StatelessWidget {
       },
       builder: (state) {
         return InkWell(
-          onTap: () => _pickCity(context, state),
+          onTap: () => _pickCity(context, ref, state),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -91,7 +105,7 @@ class CitySelectField extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.only(top: 4, bottom: 4),
                             child: Text(
-                              hasCity ? localizedCityName(city, l10n) : hint,
+                              label,
                               style: hasCity
                                   ? theme.textTheme.bodyMedium
                                   : theme.textTheme.labelLarge?.copyWith(

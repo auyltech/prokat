@@ -1,0 +1,169 @@
+{
+  "version": "asset",
+  "cities": [
+    {
+      "id": "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a1",
+      "slug": "atyrau",
+      "names": { "en": "Atyrau", "ru": "Атырау", "kk": "Атырау" },
+      "isVisible": true,
+      "acceptsEquipment": true,
+      "region": null,
+      "sortIndex": 0
+    },
+    {
+      "id": "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a2",
+      "slug": "almaty",
+      "names": { "en": "Almaty", "ru": "Алматы", "kk": "Алматы" },
+      "isVisible": true,
+      "acceptsEquipment": true,
+      "region": null,
+      "sortIndex": 1
+    },
+    {
+      "id": "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a3",
+      "slug": "astana",
+      "names": { "en": "Astana", "ru": "Астана", "kk": "Астана" },
+      "isVisible": true,
+      "acceptsEquipment": true,
+      "region": null,
+      "sortIndex": 2
+    }
+  ],
+  "categories": [],
+  "units": [
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "slug": "meter",
+      "symbols": { "en": "m", "ru": "м", "kk": "м" },
+      "names": { "en": "Meter", "ru": "Метр", "kk": "Метр" },
+      "sortIndex": 0
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b102",
+      "slug": "millimeter",
+      "symbols": { "en": "mm", "ru": "мм", "kk": "мм" },
+      "names": { "en": "Millimeter", "ru": "Миллиметр", "kk": "Миллиметр" },
+      "sortIndex": 1
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "slug": "ton",
+      "symbols": { "en": "t", "ru": "т", "kk": "т" },
+      "names": { "en": "Ton", "ru": "Тонна", "kk": "Тонна" },
+      "sortIndex": 2
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b104",
+      "slug": "cubic_meter",
+      "symbols": { "en": "m³", "ru": "м³", "kk": "м³" },
+      "names": { "en": "Cubic meter", "ru": "Кубический метр", "kk": "Текше метр" },
+      "sortIndex": 3
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b105",
+      "slug": "cubic_meter_per_hour",
+      "symbols": { "en": "m³/h", "ru": "м³/ч", "kk": "м³/сағ" },
+      "names": { "en": "Cubic meter per hour", "ru": "Кубический метр в час", "kk": "Текше метр сағатына" },
+      "sortIndex": 4
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b106",
+      "slug": "degree",
+      "symbols": { "en": "°", "ru": "°", "kk": "°" },
+      "names": { "en": "Degree", "ru": "Градус", "kk": "Градус" },
+      "sortIndex": 5
+    }
+  ],
+  "specs": [
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c201",
+      "slug": "lifting_capacity",
+      "names": { "en": "Lifting Capacity", "ru": "Грузоподъёмность", "kk": "Көтеру қабілеті" },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "iconLibrary": "lucide",
+      "iconName": "weight",
+      "decimals": 2,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "fuel_type",
+      "names": { "en": "Fuel Type", "ru": "Тип топлива", "kk": "Отын түрі" },
+      "type": "SELECT",
+      "unitId": null,
+      "iconLibrary": "lucide",
+      "iconName": "zap",
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "tow_type",
+      "names": { "en": "Tow Type", "ru": "Тип эвакуации", "kk": "Сүйрету түрі" },
+      "type": "SELECT",
+      "unitId": null,
+      "iconLibrary": "lucide",
+      "iconName": "list",
+      "isActive": true
+    }
+  ],
+  "specOptions": [
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d301",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "diesel",
+      "names": { "en": "Diesel", "ru": "Дизель", "kk": "Дизель" },
+      "sortIndex": 0,
+      "isActive": true
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d302",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "gasoline",
+      "names": { "en": "Gasoline", "ru": "Бензин", "kk": "Бензин" },
+      "sortIndex": 1,
+      "isActive": true
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d303",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "gas",
+      "names": { "en": "Gas", "ru": "Газ", "kk": "Газ" },
+      "sortIndex": 2,
+      "isActive": true
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d304",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "electric",
+      "names": { "en": "Electric", "ru": "Электрический", "kk": "Электрлі" },
+      "sortIndex": 3,
+      "isActive": true
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d311",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "platform",
+      "names": { "en": "Platform", "ru": "Платформа", "kk": "Платформа" },
+      "sortIndex": 0,
+      "isActive": true
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d312",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "wheel_lift",
+      "names": { "en": "Wheel lift", "ru": "Захват за колёса", "kk": "Дөңгелектен көтеру" },
+      "sortIndex": 1,
+      "isActive": true
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d313",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "partial_load",
+      "names": { "en": "Partial load", "ru": "Частичная погрузка", "kk": "Жартылай тиеу" },
+      "sortIndex": 2,
+      "isActive": true
+    }
+  ],
+  "categorySpecs": []
+}

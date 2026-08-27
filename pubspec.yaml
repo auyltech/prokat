@@ -50,6 +50,7 @@ dependencies:
   package_info_plus: ^9.0.1
   uuid: ^4.6.0
   firebase_crashlytics: ^5.2.7
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +78,7 @@ flutter:
     - assets/icons/map_marker.png
     - assets/legal/
     - assets/media/
+    - assets/catalog/catalog_bundle.json
 
 flutter_launcher_icons:
   android: true

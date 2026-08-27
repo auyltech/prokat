@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -81,6 +81,9 @@ class _LocationSectionState extends State<LocationSection> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    final catalog = widget.ref.watch(catalogProvider).valueOrNull;
+    final cityKeys = catalogCityKeys(catalog);
 
     final accent = colorScheme.primary;
     final warning = colorScheme.tertiary;
@@ -156,9 +159,17 @@ class _LocationSectionState extends State<LocationSection> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const SizedBox(height: 10),
-                                ...cities.map(
+                                ...cityKeys.map(
                                   (city) => ListTile(
-                                    title: Text(localizedCityName(city, l10n)),
+                                    title: Text(
+                                      catalogCityLabel(
+                                        city: city,
+                                        languageCode: locale,
+                                        catalog: catalog,
+                                        fallback: (value) =>
+                                            localizedCityName(value, l10n),
+                                      ),
+                                    ),
                                     leading: const Icon(Icons.location_city),
                                     trailing:
                                         isSameCity(_cityController.text, city)
@@ -211,7 +222,13 @@ class _LocationSectionState extends State<LocationSection> {
                             const SizedBox(height: 4),
                             Text(
                               hasLocation
-                                  ? localizedCityName(value.text, l10n)
+                                  ? catalogCityLabel(
+                                      city: value.text,
+                                      languageCode: locale,
+                                      catalog: catalog,
+                                      fallback: (city) =>
+                                          localizedCityName(city, l10n),
+                                    )
                                   : l10n.selectCity,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: hasLocation

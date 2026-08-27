@@ -8,6 +8,7 @@ import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/search_box.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/widgets/user_category_selector.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
@@ -15,6 +16,7 @@ import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
+import 'package:prokat/features/equipment/widgets/spec_filter_panel.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
@@ -37,20 +39,28 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   ProviderSubscription? _categoriesSub;
   ProviderSubscription? _locationSub;
   ProviderSubscription? _equipmentSub;
+  ProviderSubscription? _specSub;
 
   Future<void> _fetchData() async {
     final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
     final query = ref.read(searchEquipmentProvider).query;
+    final spec = ref.read(specFilterQueryProvider);
 
     await ref
         .read(clientEquipmentProvider.notifier)
-        .search(categoryId: categoryId, city: city, query: query);
+        .search(
+          categoryId: categoryId,
+          city: city,
+          query: query,
+          spec: spec,
+        );
 
     if (!mounted) return;
     ref.read(favoritesProvider.notifier).getFavorites();
 
     await ref.read(categoriesProvider.notifier).refreshIfStale();
+    await ref.read(catalogProvider.notifier).refreshIfStale();
   }
 
   void _loadMore() {
@@ -67,6 +77,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
   Future<void> _onRefresh() async {
     await Future.wait([
+      ref.read(catalogProvider.notifier).refresh(),
       ref.read(clientEquipmentProvider.notifier).refresh(),
       ref.read(categoriesProvider.notifier).refresh(),
       ref.read(demandConfigProvider.notifier).refresh(),
@@ -92,6 +103,11 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
       (_, _) => _fetchData(),
     );
 
+    _specSub = ref.listenManual(
+      specFilterQueryProvider,
+      (_, _) => _onFiltersChanged(),
+    );
+
     unawaited(
       Future.microtask(() async {
         if (!mounted) return;
@@ -106,6 +122,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     _categoriesSub?.close();
     _locationSub?.close();
     _equipmentSub?.close();
+    _specSub?.close();
     super.dispose();
   }
 
@@ -140,6 +157,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                 mode: "search",
                 selectedCategoryId: selectedCategoryId,
               ),
+
+              const SizedBox(height: 12),
+
+              const SpecFilterPanel(),
 
               const SizedBox(height: 12),
 

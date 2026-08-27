@@ -22,6 +22,7 @@ class EquipmentService {
     String? categoryId,
     String? query,
     String? city,
+    List<String>? spec,
     int page = 1,
     int itemsPerPage = 10,
   }) async {
@@ -33,6 +34,7 @@ class EquipmentService {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
         },
@@ -80,6 +82,7 @@ class EquipmentService {
     String? categoryId,
     String? query,
     String? city,
+    List<String>? spec,
     int page = 1,
     int itemsPerPage = 10,
   }) async {
@@ -91,6 +94,7 @@ class EquipmentService {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
         },

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class DemandSurveyCityField extends StatelessWidget {
+class DemandSurveyCityField extends ConsumerWidget {
   final String? city;
   final VoidCallback onTap;
 
@@ -13,11 +15,20 @@ class DemandSurveyCityField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
     final hasCity = city != null && city!.isNotEmpty;
     final muted = theme.colorScheme.onSurface.withValues(alpha: 0.45);
+    final label = hasCity
+        ? catalogCityLabel(
+            city: city,
+            languageCode: Localizations.localeOf(context).languageCode,
+            catalog: catalog,
+            fallback: (value) => localizedCityName(value, l10n),
+          )
+        : l10n.demandSurveySelectCity;
 
     return InkWell(
       onTap: onTap,
@@ -47,7 +58,7 @@ class DemandSurveyCityField extends StatelessWidget {
           ),
         ),
         child: Text(
-          hasCity ? localizedCityName(city, l10n) : l10n.demandSurveySelectCity,
+          label,
           style: hasCity
               ? theme.textTheme.bodyMedium
               : theme.textTheme.bodySmall?.copyWith(
