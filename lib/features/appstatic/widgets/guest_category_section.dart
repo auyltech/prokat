@@ -97,7 +97,7 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
                     category: category,
                     onTap: () => ref
                         .read(selectedCategoryProvider.notifier)
-                        .select(category),
+                        .toggle(category),
                   );
                 },
               ),

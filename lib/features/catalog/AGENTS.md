@@ -7,4 +7,4 @@
 - `categoriesProvider` reads this bundle (no extra category HTTP). City pickers use catalog cities only.
 - Visible city text uses catalog `names` via `catalogCityLabel` / `catalogCityLabelOf`. Do not show slugs.
 - Unknown `Spec.type`: do not render a field and do not drop the stored value.
-- Owner spec writes go to `PUT /equipment/:id/spec-values`. Search filters include NUMBER, SELECT, BOOLEAN and use facets for min/max/options.
+- Owner spec writes go to `PUT /equipment/:id/spec-values`. Search filters include NUMBER, SELECT, MULTI_SELECT, BOOLEAN and use facets for min/max/options.

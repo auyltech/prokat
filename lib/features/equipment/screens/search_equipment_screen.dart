@@ -65,7 +65,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   void _onFiltersChanged() {
     _debounce?.cancel();
 
-    _debounce = Timer(const Duration(seconds: 1), () {
+    _debounce = Timer(const Duration(milliseconds: 500), () {
       _fetchData();
     });
   }
