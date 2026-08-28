@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -36,7 +37,7 @@ class AddressSearchSuggestions extends ConsumerWidget {
             subtitle: Text(
               formatCityCountry(
                 l10n: l10n,
-                city: result.city,
+                city: catalogCityLabelOf(ref, context, result.city),
                 country: result.country,
               ),
             ),

@@ -5,6 +5,7 @@ import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -160,7 +161,11 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                       formatStreetCity(
                                         l10n: l10n,
                                         street: equipment.location?.street,
-                                        city: equipment.location?.city,
+                                        city: catalogCityLabelOf(
+                                          ref,
+                                          context,
+                                          equipment.location?.city,
+                                        ),
                                       ),
                                       style: const TextStyle(
                                         color: Colors.white70,

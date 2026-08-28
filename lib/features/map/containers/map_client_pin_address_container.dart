@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -171,7 +172,11 @@ class _MapClientPinAddressContainerState
                           Text(
                             formatCityCountry(
                               l10n: l10n,
-                              city: selectedAddress!.city,
+                              city: catalogCityLabelOf(
+                                ref,
+                                context,
+                                selectedAddress!.city,
+                              ),
                               country: selectedAddress!.country,
                             ),
                             style: const TextStyle(color: Colors.grey),

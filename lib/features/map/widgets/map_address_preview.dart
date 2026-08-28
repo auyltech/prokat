@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../../locations/models/location_search_result.dart';
 
-class MapAddressPreview extends StatelessWidget {
+class MapAddressPreview extends ConsumerWidget {
   final bool loading;
   final LocationSearchResult? address;
   final VoidCallback? onConfirm;
@@ -15,7 +17,7 @@ class MapAddressPreview extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
 
     return Align(
@@ -45,7 +47,7 @@ class MapAddressPreview extends StatelessWidget {
                     ),
                     Text(
                       [
-                        address!.city,
+                        catalogCityLabelOf(ref, context, address!.city),
                         address!.country,
                       ].where((e) => e != null && e.isNotEmpty).join(", "),
                     ),

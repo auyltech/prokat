@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -47,13 +48,18 @@ class _ClientRentalPreferencesSectionState
     }
   }
 
-  String _formatAddress(LocationModel? address, AppLocalizations l10n) {
+  String _formatAddress(
+    LocationModel? address,
+    AppLocalizations l10n,
+    WidgetRef ref,
+    BuildContext context,
+  ) {
     if (address == null) return l10n.noAddressSelected;
 
     return formatStreetCity(
       l10n: l10n,
       street: address.street,
-      city: address.city,
+      city: catalogCityLabelOf(ref, context, address.city),
     );
   }
 
@@ -78,7 +84,7 @@ class _ClientRentalPreferencesSectionState
           title: l10n.city,
           subtitle: city.isEmpty
               ? l10n.selectCity
-              : localizedCityName(city, l10n),
+              : catalogCityLabelOf(ref, context, city),
           onTap: () => CityPickerSheet.show(
             context: context,
             service: CitySelectorService.clientcity,
@@ -112,7 +118,7 @@ class _ClientRentalPreferencesSectionState
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           title: l10n.selectedAddress,
-          subtitle: _formatAddress(selectedAddress, l10n),
+          subtitle: _formatAddress(selectedAddress, l10n, ref, context),
           onTap: () => SelectAddressSheet.show(
             context,
             service: "select_primary",

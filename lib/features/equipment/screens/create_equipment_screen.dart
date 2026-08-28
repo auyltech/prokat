@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
@@ -141,7 +141,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                           Expanded(
                             child: Text(
                               hasLocation
-                                  ? localizedCityName(location, l10n)
+                                  ? catalogCityLabelOf(ref, context, location)
                                   : l10n.selectCity,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: hasLocation

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class EquipmentBrowseSheet extends StatelessWidget {
+class EquipmentBrowseSheet extends ConsumerWidget {
   const EquipmentBrowseSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     const bgColor = Color(0xFF121417);
     const accentColor = Color(0xFF4E73DF);
@@ -81,7 +82,7 @@ class EquipmentBrowseSheet extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '${localizedCityName('Atyrau', l10n)}, ${l10n.countryKazakhstan}',
+                              '${catalogCityLabelOf(ref, context, 'Atyrau')}, ${l10n.countryKazakhstan}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,

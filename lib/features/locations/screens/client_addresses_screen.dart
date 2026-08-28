@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -35,13 +36,18 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
     }
   }
 
-  String _formatAddress(LocationModel? address, AppLocalizations l10n) {
+  String _formatAddress(
+    LocationModel? address,
+    AppLocalizations l10n,
+    WidgetRef ref,
+    BuildContext context,
+  ) {
     if (address == null) return l10n.noAddressSelected;
 
     return formatStreetCity(
       l10n: l10n,
       street: address.street,
-      city: address.city,
+      city: catalogCityLabelOf(ref, context, address.city),
     );
   }
 
@@ -122,7 +128,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                             ? theme.colorScheme.primary
                             : theme.colorScheme.onSurfaceVariant,
                       ),
-                      title: Text(_formatAddress(address, l10n)),
+                      title: Text(_formatAddress(address, l10n, ref, context)),
                       subtitle: (address.instructions ?? '').trim().isNotEmpty
                           ? Text(address.instructions!)
                           : null,

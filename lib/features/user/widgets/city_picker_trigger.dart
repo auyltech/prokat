@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -31,7 +31,7 @@ class _CityPickerTriggerState extends ConsumerState<CityPickerTrigger> {
       label: Text(
         (selectedCity == null || selectedCity.isEmpty)
             ? l10n.selectCity
-            : localizedCityName(selectedCity, l10n),
+            : catalogCityLabelOf(ref, context, selectedCity),
         style: TextStyle(color: theme.colorScheme.onPrimary),
       ),
       onPressed: () {

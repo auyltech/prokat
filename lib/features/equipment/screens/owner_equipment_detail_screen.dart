@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
@@ -104,7 +105,11 @@ class _OwnerEquipmentDetailScreenState
                           ? formatStreetCity(
                               l10n: l10n,
                               street: equipment.location!.street,
-                              city: equipment.location!.city,
+                              city: catalogCityLabelOf(
+                                ref,
+                                context,
+                                equipment.location!.city,
+                              ),
                             )
                           : "",
                     ),

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/features/catalog/catalog_cache.dart';
@@ -126,9 +127,17 @@ String catalogCityLabel({
   required String? city,
   required String languageCode,
   required CatalogBundle? catalog,
-  required String Function(String? city) fallback,
+  String Function(String? city)? fallback,
 }) {
   final match = catalog?.cityBySlugOrName(city);
   if (match != null) return match.label(languageCode);
-  return fallback(city);
+  return fallback?.call(city) ?? (city?.trim() ?? '');
+}
+
+String catalogCityLabelOf(WidgetRef ref, BuildContext context, String? city) {
+  return catalogCityLabel(
+    city: city,
+    languageCode: Localizations.localeOf(context).languageCode,
+    catalog: ref.watch(catalogProvider).valueOrNull,
+  );
 }

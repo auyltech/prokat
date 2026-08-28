@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -33,6 +32,7 @@ class ClientEquipmentTile extends ConsumerWidget {
     final favoritesIds = ref.watch(favoritesProvider).favoritesIds;
     final bool isFavorite = favoritesIds?.contains(equipment.id) ?? false;
     final notifier = ref.read(favoritesProvider.notifier);
+    final catalog = ref.watch(catalogProvider).valueOrNull;
 
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
@@ -78,7 +78,13 @@ class ClientEquipmentTile extends ConsumerWidget {
                     if ((equipment.city ?? '').isNotEmpty) ...[
                       const SizedBox(width: 8),
                       _badge(
-                        text: localizedCityName(equipment.city, l10n),
+                        text: catalogCityLabel(
+                          city: equipment.city,
+                          languageCode: Localizations.localeOf(
+                            context,
+                          ).languageCode,
+                          catalog: catalog,
+                        ),
                         color: Colors.black.withValues(alpha: 0.6),
                       ),
                     ],
@@ -214,7 +220,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                   context,
                   equipment.specs ?? [],
                   theme,
-                  catalog: ref.watch(catalogProvider).valueOrNull,
+                  catalog: catalog,
                 ),
 
                 const SizedBox(height: 20),
