@@ -758,6 +758,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
+  String get apply => 'Apply';
+
+  @override
   String get send => 'Send';
 
   @override
@@ -1124,6 +1127,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yesReject => 'Yes, Reject';
 
   @override
+  String get yes => 'Yes';
+
+  @override
   String get no => 'No';
 
   @override
@@ -1136,6 +1142,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get volume => 'Volume';
+
+  @override
+  String get specFilterFrom => 'From';
+
+  @override
+  String get specFilterTo => 'To';
 
   @override
   String get noOrderHistory => 'No order history yet';
@@ -1419,6 +1431,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Failed to save address';
+
+  @override
+  String get deleteAddress => 'Delete address';
+
+  @override
+  String get deleteAddressQuestion => 'Delete this address?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'This address will be removed from your saved list.';
+
+  @override
+  String get failedToDeleteAddress => 'Failed to delete address';
 
   @override
   String get noEquipmentLocations => 'No equipment locations yet';

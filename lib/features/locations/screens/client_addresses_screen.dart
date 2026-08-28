@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -44,11 +43,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
   ) {
     if (address == null) return l10n.noAddressSelected;
 
-    return formatStreetCity(
-      l10n: l10n,
-      street: address.street,
-      city: catalogCityLabelOf(ref, context, address.city),
-    );
+    return formatLocationModel(ref, context, address);
   }
 
   @override
@@ -56,6 +51,52 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
     super.initState();
 
     Future.microtask(_loadAddresses);
+  }
+
+  Future<void> _confirmDeleteAddress(
+    BuildContext context,
+    WidgetRef ref,
+    String addressId,
+    AppLocalizations l10n,
+  ) async {
+    final theme = Theme.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: theme.cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l10n.deleteAddressQuestion),
+        content: Text(l10n.deleteAddressConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final deleted = await ref
+        .read(locationProvider.notifier)
+        .deleteLocation(addressId);
+
+    if (!context.mounted) return;
+
+    if (deleted) {
+      await ref.read(clientProfileProvider.notifier).refresh();
+      return;
+    }
+
+    AppSnackBar.show(message: l10n.failedToDeleteAddress, isError: true);
   }
 
   @override
@@ -115,7 +156,9 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                     final addressId = address.id;
                     final isSelected =
                         locationState.selectedAddress?.id == addressId;
-                    final isSaving = ref.watch(locationProvider).isSubmitting;
+                    final isDeleting = ref
+                        .watch(locationProvider)
+                        .isActionActive("location:$addressId:delete");
 
                     return ListTile(
                       enabled: addressId != null,
@@ -132,12 +175,26 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                       subtitle: (address.instructions ?? '').trim().isNotEmpty
                           ? Text(address.instructions!)
                           : null,
-                      trailing: isSaving
+                      trailing: addressId == null
+                          ? null
+                          : isDeleting
                           ? const SizedBox.square(
                               dimension: 22,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Icon(Icons.chevron_right_rounded),
+                          : IconButton(
+                              tooltip: l10n.deleteAddress,
+                              onPressed: () => _confirmDeleteAddress(
+                                context,
+                                ref,
+                                addressId,
+                                l10n,
+                              ),
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: theme.colorScheme.error,
+                              ),
+                            ),
                       onTap: addressId == null
                           ? null
                           : () async {

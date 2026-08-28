@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
@@ -12,6 +10,7 @@ import 'package:prokat/features/equipment/widgets/owner/edit_equipment_details_f
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_specs.dart';
 import 'package:prokat/features/equipment/widgets/owner/location_section.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/equipment/widgets/owner/pricing_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/visibility_status_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -102,14 +101,10 @@ class _OwnerEquipmentDetailScreenState
                       ref: ref,
                       equipment: equipment,
                       location: equipment.location != null
-                          ? formatStreetCity(
-                              l10n: l10n,
-                              street: equipment.location!.street,
-                              city: catalogCityLabelOf(
-                                ref,
-                                context,
-                                equipment.location!.city,
-                              ),
+                          ? formatEquipmentLocation(
+                              ref,
+                              context,
+                              equipment.location!,
                             )
                           : "",
                     ),

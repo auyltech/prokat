@@ -1462,6 +1462,12 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
   /// No description provided for @send.
   ///
   /// In en, this message translates to:
@@ -2176,6 +2182,12 @@ abstract class AppLocalizations {
   /// **'Yes, Reject'**
   String get yesReject;
 
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
   /// No description provided for @no.
   ///
   /// In en, this message translates to:
@@ -2199,6 +2211,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Volume'**
   String get volume;
+
+  /// No description provided for @specFilterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get specFilterFrom;
+
+  /// No description provided for @specFilterTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get specFilterTo;
 
   /// No description provided for @noOrderHistory.
   ///
@@ -2763,6 +2787,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to save address'**
   String get failedSaveAddress;
+
+  /// No description provided for @deleteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete address'**
+  String get deleteAddress;
+
+  /// No description provided for @deleteAddressQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this address?'**
+  String get deleteAddressQuestion;
+
+  /// No description provided for @deleteAddressConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'This address will be removed from your saved list.'**
+  String get deleteAddressConfirmation;
+
+  /// No description provided for @failedToDeleteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete address'**
+  String get failedToDeleteAddress;
 
   /// No description provided for @noEquipmentLocations.
   ///

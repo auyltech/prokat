@@ -21,10 +21,13 @@ String localizedCityName(String? city, AppLocalizations l10n) {
 String formatStreetCity({
   required AppLocalizations l10n,
   String? street,
+  String? houseNumber,
   String? city,
 }) {
   return [
-    street?.trim() ?? '',
+    [street?.trim() ?? '', houseNumber?.trim() ?? '']
+        .where((part) => part.isNotEmpty)
+        .join(', '),
     localizedCityName(city, l10n),
   ].where((part) => part.isNotEmpty).join(', ');
 }

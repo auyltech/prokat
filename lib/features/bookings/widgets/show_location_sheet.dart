@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -55,11 +54,7 @@ void showLocationSheet(BuildContext context, LocationModel location) {
                   const SizedBox(height: 12),
 
                   Text(
-                    formatStreetCity(
-                      l10n: l10n,
-                      street: location.street,
-                      city: catalogCityLabelOf(ref, context, location.city),
-                    ),
+                    formatLocationModel(ref, context, location),
                     style: sheetTheme.textTheme.titleMedium?.copyWith(
                       color: colorScheme.onSurface.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w500,

@@ -747,6 +747,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get close => 'Жабу';
 
   @override
+  String get apply => 'Қолдану';
+
+  @override
   String get send => 'Жіберу';
 
   @override
@@ -1112,6 +1115,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get yesReject => 'Иә, қабылдамау';
 
   @override
+  String get yes => 'Иә';
+
+  @override
   String get no => 'Жоқ';
 
   @override
@@ -1124,6 +1130,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get volume => 'Көлем';
+
+  @override
+  String get specFilterFrom => 'бастап';
+
+  @override
+  String get specFilterTo => 'дейін';
 
   @override
   String get noOrderHistory => 'Тапсырыс тарихы жоқ';
@@ -1407,6 +1419,19 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Мекен-жайды сақтау сәтсіз аяқталды';
+
+  @override
+  String get deleteAddress => 'Мекен-жайды жою';
+
+  @override
+  String get deleteAddressQuestion => 'Бұл мекен-жайды жою керек пе?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'Мекен-жай сақталған тізімнен өшіріледі.';
+
+  @override
+  String get failedToDeleteAddress => 'Мекен-жайды жою сәтсіз аяқталды';
 
   @override
   String get noEquipmentLocations => 'Техника мекен-жайлары жоқ';

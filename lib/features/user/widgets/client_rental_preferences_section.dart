@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -56,11 +56,7 @@ class _ClientRentalPreferencesSectionState
   ) {
     if (address == null) return l10n.noAddressSelected;
 
-    return formatStreetCity(
-      l10n: l10n,
-      street: address.street,
-      city: catalogCityLabelOf(ref, context, address.city),
-    );
+    return formatLocationModel(ref, context, address);
   }
 
   @override

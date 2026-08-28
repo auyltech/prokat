@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import '../../locations/models/location_search_result.dart';
 
@@ -19,6 +19,7 @@ class MapAddressPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -42,14 +43,19 @@ class MapAddressPreview extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      address!.street,
+                      address!.streetLine(languageCode),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       [
-                        catalogCityLabelOf(ref, context, address!.city),
-                        address!.country,
-                      ].where((e) => e != null && e.isNotEmpty).join(", "),
+                        locationCityLabel(
+                          ref,
+                          context,
+                          city: address!.city,
+                          names: address!.cityNames,
+                        ),
+                        address!.labelCountry(languageCode),
+                      ].where((e) => e.isNotEmpty).join(", "),
                     ),
                   ],
                 ),

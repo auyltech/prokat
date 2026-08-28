@@ -81,7 +81,10 @@ class ClientBookingTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: booking.location?.street ?? "",
+                  value: booking.location?.streetLine(
+                        Localizations.localeOf(context).languageCode,
+                      ) ??
+                      "",
                   onTap: () {
                     final location = booking.location;
 

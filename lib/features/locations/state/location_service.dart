@@ -3,6 +3,7 @@ import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
+import 'package:prokat/core/constants/map_constants.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import '../models/location_model.dart';
 import '../models/location_search_result.dart';
@@ -182,38 +183,62 @@ class LocationService {
     }
   }
 
-  Future<void> deleteLocation(String id) async {
-    await _dio.delete('/locations/$id');
+  Future<ApiResponse<void>> deleteLocation(String id) async {
+    try {
+      final response = await _dio.delete('${ApiRoutes.locations}/$id');
+      return handleEmptyApiResponse(
+        response: response,
+        fallbackMessage: "Address deleted",
+      );
+    } on DioException catch (error) {
+      return handleDioException(
+        error,
+        fallbackMessage: "Failed to delete address",
+      );
+    } catch (error) {
+      return handleUnknownException(
+        error,
+        fallbackMessage: "Failed to delete address",
+      );
+    }
   }
 
-  /// Search address (Mapbox or backend proxy)
-  Future<List<LocationSearchResult>> searchLocation(String query) async {
+  Future<List<LocationSearchResult>> searchLocation(
+    String query, {
+    double? proximityLongitude,
+    double? proximityLatitude,
+  }) async {
     final response = await _dio.get(
-      '/locations/search',
-      queryParameters: {"query": query},
+      ApiRoutes.locationSearch,
+      queryParameters: {
+        "query": query,
+        "proximityLongitude":
+            proximityLongitude ?? MapConstants.defaultLongitude,
+        "proximityLatitude": proximityLatitude ?? MapConstants.defaultLatitude,
+      },
     );
 
     return (response.data as List).map((e) {
-      return LocationSearchResult(
-        name: e['name'] ?? '',
-        street: e['street'] ?? '',
-        city: e['city'],
-        country: e['country'],
-        longitude: (e['longitude'] as num).toDouble(),
-        latitude: (e['latitude'] as num).toDouble(),
-      );
+      if (e is! Map<String, dynamic>) {
+        throw const FormatException("Invalid location search item");
+      }
+      return LocationSearchResult.fromJson(e);
     }).toList();
   }
 
-  /// Reverse geocode coordinates → address
   Future<LocationSearchResult?> reverseGeocode(
     double longitude,
     double latitude,
   ) async {
     try {
       final response = await _dio.get(
-        '/locations/reverse',
-        queryParameters: {"longitude": longitude, "latitude": latitude},
+        ApiRoutes.locationReverse,
+        queryParameters: {
+          "longitude": longitude,
+          "latitude": latitude,
+          "proximityLongitude": longitude,
+          "proximityLatitude": latitude,
+        },
       );
 
       if (response.statusCode != 200) {
@@ -226,15 +251,11 @@ class LocationService {
       }
 
       final data = response.data;
+      if (data is! Map<String, dynamic>) {
+        return null;
+      }
 
-      return LocationSearchResult(
-        name: data['name'],
-        street: data['street'],
-        city: data['city'],
-        country: data['country'],
-        longitude: longitude,
-        latitude: latitude,
-      );
+      return LocationSearchResult.fromJson(data);
     } catch (e) {
       return null;
     }

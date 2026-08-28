@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/localized_names.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class FavoriteTile extends ConsumerWidget {
@@ -24,7 +25,12 @@ class FavoriteTile extends ConsumerWidget {
 
     final location = (equipment.location?.city ?? '').isEmpty
         ? l10n.unknownLocation
-        : catalogCityLabelOf(ref, context, equipment.location?.city);
+        : locationCityLabel(
+            ref,
+            context,
+            city: equipment.location?.city,
+            names: equipment.location?.cityNames ?? const LocalizedNames(),
+          );
 
     final price = equipment.prices.isNotEmpty
         ? "${equipment.prices.first.price} ₸/${equipment.prices.first.priceRate}"

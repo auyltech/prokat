@@ -28,16 +28,37 @@ class MyMapView extends ConsumerStatefulWidget {
 
 class _MyMapViewState extends ConsumerState<MyMapView> {
   MapboxMap? _map;
+  MapController? _mapController;
+  bool _closed = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _mapController = ref.read(mapControllerProvider);
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _closed = false;
+  }
+
+  @override
+  void deactivate() {
+    _closed = true;
+    super.deactivate();
+  }
 
   @override
   void dispose() {
-    ref.read(mapControllerProvider).detach(_map);
+    _mapController?.detach(_map);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = ref.read(mapControllerProvider);
+    final MapController mapController = ref.read(mapControllerProvider);
+    _mapController = mapController;
 
     return Stack(
       children: [
@@ -54,38 +75,40 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
             zoom: MapConstants.defaultZoom,
           ),
           onMapCreated: (mapboxMap) async {
-            if (!mounted) return;
+            if (_closed) return;
             _map = mapboxMap;
-            controller.attach(mapboxMap, initialItems: widget.equipmentList);
+            mapController.attach(mapboxMap, initialItems: widget.equipmentList);
             try {
-              await controller.enableUserLocation();
-              if (!mounted) {
-                controller.detach(mapboxMap);
+              await mapController.enableUserLocation();
+              if (_closed) {
+                mapController.detach(mapboxMap);
                 return;
               }
-              await controller.moveToCurrentLocation();
+              await mapController.moveToCurrentLocation();
             } catch (_) {
               // Keep the map usable if location setup fails.
             }
-            if (!mounted) {
-              controller.detach(mapboxMap);
+            if (_closed) {
+              mapController.detach(mapboxMap);
             }
           },
           onStyleLoadedListener: (data) async {
-            if (!mounted) return;
-            await controller.onStyleLoaded(data);
+            if (_closed) return;
+            await mapController.onStyleLoaded(data);
           },
           onCameraChangeListener: (event) {
+            if (_closed) return;
             widget.onCameraIdle?.call(event);
           },
           onTapListener: (context) {
+            if (_closed) return;
             widget.onMapTap?.call(context.point);
           },
         ),
         MapControls(
-          onZoomIn: controller.zoomIn,
-          onZoomOut: controller.zoomOut,
-          onChangeLocation: controller.moveToCurrentLocation,
+          onZoomIn: mapController.zoomIn,
+          onZoomOut: mapController.zoomOut,
+          onChangeLocation: mapController.moveToCurrentLocation,
         ),
       ],
     );

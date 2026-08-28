@@ -763,6 +763,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get close => 'Закрыть';
 
   @override
+  String get apply => 'Применить';
+
+  @override
   String get send => 'Отправить';
 
   @override
@@ -1128,6 +1131,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get yesReject => 'Да, отклонить';
 
   @override
+  String get yes => 'Да';
+
+  @override
   String get no => 'Нет';
 
   @override
@@ -1140,6 +1146,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get volume => 'Объём';
+
+  @override
+  String get specFilterFrom => 'от';
+
+  @override
+  String get specFilterTo => 'до';
 
   @override
   String get noOrderHistory => 'История заказов пуста';
@@ -1423,6 +1435,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Не удалось сохранить адрес';
+
+  @override
+  String get deleteAddress => 'Удалить адрес';
+
+  @override
+  String get deleteAddressQuestion => 'Удалить этот адрес?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'Адрес будет удалён из сохранённого списка.';
+
+  @override
+  String get failedToDeleteAddress => 'Не удалось удалить адрес';
 
   @override
   String get noEquipmentLocations => 'Адреса техники не добавлены';

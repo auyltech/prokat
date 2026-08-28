@@ -96,7 +96,9 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: request.location.street,
+                  value: request.location.streetLine(
+                    Localizations.localeOf(context).languageCode,
+                  ),
                   onTap: () {
                     final location = request.location;
 

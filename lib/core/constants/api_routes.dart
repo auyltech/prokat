@@ -8,6 +8,8 @@ class ApiRoutes {
   static const ownerEquipment = "$equipment/owner";
   static const locations = "/locations";
   static const ownerLocations = "/locations/owner";
+  static const locationSearch = "$locations/search";
+  static const locationReverse = "$locations/reverse";
   // Client
   static const profile = "/user/profile";
   static const clientNotificationSettings =

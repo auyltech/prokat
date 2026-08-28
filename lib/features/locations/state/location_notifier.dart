@@ -224,10 +224,38 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 
   // Delete location
-  Future<void> deleteLocation(String id) async {
-    await api.deleteLocation(id);
+  Future<bool> deleteLocation(String id) async {
+    final actionId = "location:$id:delete";
+    try {
+      _startAction(actionId);
 
-    await getClientLocations();
+      final result = await api.deleteLocation(id);
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: result.errorCode ?? "",
+                message: result.message,
+              ),
+      );
+
+      if (!result.success) {
+        return false;
+      }
+
+      await getClientLocations();
+      if (state.selectedAddress?.id == id) {
+        state = state.copyWith(clearSelectedAddress: true);
+      }
+
+      return true;
+    } catch (error) {
+      _finishAction(actionId);
+      return false;
+    }
   }
 
   Future<void> searchLocations(String query) async {

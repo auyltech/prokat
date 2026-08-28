@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_location.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class LocationPickerSheet extends ConsumerWidget {
@@ -35,8 +35,10 @@ class LocationPickerSheet extends ConsumerWidget {
               ...previewLocations.map(
                 (loc) => ListTile(
                   leading: const Icon(Icons.location_on_rounded),
-                  title: Text(catalogCityLabelOf(ref, context, loc.city)),
-                  subtitle: Text(loc.street),
+                  title: Text(locationCityLabel(ref, context, city: loc.city, names: loc.cityNames)),
+                  subtitle: Text(
+                    loc.streetLine(Localizations.localeOf(context).languageCode),
+                  ),
                   onTap: () {
                     Navigator.pop(context, loc);
                   },

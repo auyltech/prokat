@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -32,6 +32,20 @@ class _MapClientPinAddressContainerState
   bool loadingAddress = false;
 
   Timer? idleDebounce;
+  bool _closed = false;
+
+  @override
+  void activate() {
+    super.activate();
+    _closed = false;
+  }
+
+  @override
+  void deactivate() {
+    _closed = true;
+    idleDebounce?.cancel();
+    super.deactivate();
+  }
 
   @override
   void dispose() {
@@ -40,7 +54,7 @@ class _MapClientPinAddressContainerState
   }
 
   Future<void> reverseGeocode() async {
-    if (!mounted) return;
+    if (_closed) return;
 
     setState(() {
       loadingAddress = true;
@@ -48,11 +62,11 @@ class _MapClientPinAddressContainerState
     });
 
     try {
-      final result = await ref
-          .read(locationApiProvider)
-          .reverseGeocode(longitude, latitude);
+      if (_closed) return;
+      final api = ref.read(locationApiProvider);
+      final result = await api.reverseGeocode(longitude, latitude);
 
-      if (!mounted) return;
+      if (_closed) return;
 
       if (result != null) {
         setState(() {
@@ -60,9 +74,10 @@ class _MapClientPinAddressContainerState
         });
       }
     } catch (e) {
+      if (_closed) return;
       debugPrint("Geocoding failed: $e");
     } finally {
-      if (mounted) {
+      if (!_closed) {
         setState(() {
           loadingAddress = false;
         });
@@ -72,14 +87,14 @@ class _MapClientPinAddressContainerState
 
   void onCameraIdle(CameraChangedEventData data) {
     idleDebounce?.cancel();
-    if (!mounted) return;
+    if (_closed) return;
 
     setState(() {
       selectedAddress = null;
     });
 
     idleDebounce = Timer(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
+      if (_closed) return;
       latitude = data.cameraState.center.coordinates.lat.toDouble();
       longitude = data.cameraState.center.coordinates.lng.toDouble();
 
@@ -89,11 +104,9 @@ class _MapClientPinAddressContainerState
 
   Future<void> createAddress() async {
     try {
-      final location = LocationModel(
+      final location = LocationModel.fromSearchResult(
+        selectedAddress!,
         service: "ADDRESS",
-        street: selectedAddress!.street,
-        city: selectedAddress!.city ?? "",
-        country: selectedAddress!.country ?? "",
         latitude: latitude,
         longitude: longitude,
       );
@@ -162,7 +175,9 @@ class _MapClientPinAddressContainerState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            selectedAddress!.street,
+                            selectedAddress!.streetLine(
+                              Localizations.localeOf(context).languageCode,
+                            ),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -172,12 +187,15 @@ class _MapClientPinAddressContainerState
                           Text(
                             formatCityCountry(
                               l10n: l10n,
-                              city: catalogCityLabelOf(
+                              city: locationCityLabel(
                                 ref,
                                 context,
-                                selectedAddress!.city,
+                                city: selectedAddress!.city,
+                                names: selectedAddress!.cityNames,
                               ),
-                              country: selectedAddress!.country,
+                              country: selectedAddress!.labelCountry(
+                                Localizations.localeOf(context).languageCode,
+                              ),
                             ),
                             style: const TextStyle(color: Colors.grey),
                           ),

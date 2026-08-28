@@ -150,7 +150,9 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           InfoTile.secondary(
             icon: Icons.location_on_outlined,
             label: l10n.location,
-            value: request.location.street,
+            value: request.location.streetLine(
+              Localizations.localeOf(context).languageCode,
+            ),
             onTap: () => showLocationSheet(context, request.location),
           ),
 

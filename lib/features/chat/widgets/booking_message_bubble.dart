@@ -175,7 +175,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
             InfoTile(
               icon: Icons.location_on_outlined,
               // label: "Location",
-              value: booking.location?.street ?? "",
+              value: booking.location?.streetLine(
+                    Localizations.localeOf(context).languageCode,
+                  ) ??
+                  "",
               onTap: () => showLocationSheet(context, location),
             ),
             const SizedBox(height: 8),
