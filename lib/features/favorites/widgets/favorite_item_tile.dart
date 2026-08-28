@@ -12,11 +12,13 @@ class FavoriteItemTile extends ConsumerWidget {
 
   const FavoriteItemTile({super.key, required this.equipment});
 
+  static const width = 160.0;
+  static const imageHeight = 120.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    // Watch the favorite status to ensure UI updates immediately
     final isFavorite =
         ref.watch(
           favoritesProvider.select(
@@ -34,12 +36,10 @@ class FavoriteItemTile extends ConsumerWidget {
         '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
       ),
       child: Container(
-        width: 160,
+        width: width,
         decoration: BoxDecoration(
           color: theme.cardColor,
-          borderRadius: BorderRadius.circular(
-            24,
-          ), // Match the main equipment card style
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -49,9 +49,9 @@ class FavoriteItemTile extends ConsumerWidget {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 1. IMAGE SECTION
             Stack(
               children: [
                 ClipRRect(
@@ -60,14 +60,13 @@ class FavoriteItemTile extends ConsumerWidget {
                   ),
                   child: OptimizedNetworkImage(
                     imageUrl: equipment.imageUrl ?? "",
-                    height: 120, // Slightly taller for better aspect ratio
+                    height: imageHeight,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     fallbackIcon: Icons.broken_image_outlined,
                     backgroundColor: theme.colorScheme.surfaceBright,
                   ),
                 ),
-                // Clean glass-effect favorite toggle
                 Positioned(
                   top: 8,
                   right: 8,
@@ -93,8 +92,6 @@ class FavoriteItemTile extends ConsumerWidget {
                 ),
               ],
             ),
-
-            /// 2. INFO SECTION
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -113,24 +110,29 @@ class FavoriteItemTile extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        priceEntry != null ? "${priceEntry.price} ₸" : l10n.poa,
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 14,
+                      Flexible(
+                        child: Text(
+                          priceEntry != null
+                              ? "${priceEntry.price} ₸"
+                              : l10n.poa,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                      // Tiny star rating to fill space elegantly
-                      Row(
+                      const Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.star_rounded,
                             color: Colors.amber,
                             size: 14,
                           ),
-                          const SizedBox(width: 2),
-                          const Text(
+                          SizedBox(width: 2),
+                          Text(
                             "4.5",
                             style: TextStyle(
                               fontSize: 11,
@@ -144,9 +146,6 @@ class FavoriteItemTile extends ConsumerWidget {
                 ],
               ),
             ),
-
-            // Removed the 'Open' button - instead, make the whole card clickable
-            // by wrapping this Container in an InkWell outside.
           ],
         ),
       ),

@@ -49,12 +49,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     await ref
         .read(clientEquipmentProvider.notifier)
-        .search(
-          categoryId: categoryId,
-          city: city,
-          query: query,
-          spec: spec,
-        );
+        .search(categoryId: categoryId, city: city, query: query, spec: spec);
 
     if (!mounted) return;
     ref.read(favoritesProvider.notifier).getFavorites();
@@ -143,74 +138,75 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     return Scaffold(
       body: SafeArea(
         top: false,
-        child: RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              SearchBox(placeholder: l10n.searchEquipment),
+        child: FavoritesOverlay(
+          child: RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                SearchBox(placeholder: l10n.searchEquipment),
 
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-              UserCategorySelector(
-                mode: "search",
-                selectedCategoryId: selectedCategoryId,
-              ),
-
-              const SizedBox(height: 12),
-
-              const SpecFilterPanel(),
-
-              const SizedBox(height: 12),
-
-              SectionTitle(title: l10n.search),
-
-              const SizedBox(height: 12),
-
-              if (equipmentAsync.isLoading && items.isEmpty)
-                const EquipmentListSkeleton()
-              else if (equipmentAsync.hasError)
-                EquipmentErrorTile(onRetry: () => unawaited(_onRefresh()))
-              else if (items.isEmpty)
-                const EquipmentEmptyTile()
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  separatorBuilder: (_, _) => const SizedBox(height: 18),
-                  itemCount: items.length + (queryState!.isLoadingMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == items.length) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 24),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    if (index == items.length - 1 &&
-                        queryState.hasMore &&
-                        !queryState.isLoadingMore) {
-                      Future.microtask(_loadMore);
-                    }
-
-                    final equipment = items[index];
-
-                    return ClientEquipmentTile(
-                      equipment: equipment,
-                      onTap: () {
-                        bookingNotifier.selectEquipment(equipment);
-
-                        context.push(
-                          '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
-                        );
-                      },
-                    );
-                  },
+                UserCategorySelector(
+                  mode: "search",
+                  selectedCategoryId: selectedCategoryId,
                 ),
 
-              const FavoritesSection(),
-            ],
+                const SizedBox(height: 12),
+
+                const SpecFilterPanel(),
+
+                const SizedBox(height: 12),
+
+                SectionTitle(title: l10n.search),
+
+                const SizedBox(height: 12),
+
+                if (equipmentAsync.isLoading && items.isEmpty)
+                  const EquipmentListSkeleton()
+                else if (equipmentAsync.hasError)
+                  EquipmentErrorTile(onRetry: () => unawaited(_onRefresh()))
+                else if (items.isEmpty)
+                  const EquipmentEmptyTile()
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (_, _) => const SizedBox(height: 18),
+                    itemCount:
+                        items.length + (queryState!.isLoadingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == items.length) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      if (index == items.length - 1 &&
+                          queryState.hasMore &&
+                          !queryState.isLoadingMore) {
+                        Future.microtask(_loadMore);
+                      }
+
+                      final equipment = items[index];
+
+                      return ClientEquipmentTile(
+                        equipment: equipment,
+                        onTap: () {
+                          bookingNotifier.selectEquipment(equipment);
+
+                          context.push(
+                            '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                          );
+                        },
+                      );
+                    },
+                  ),
+              ],
+            ),
           ),
         ),
       ),
