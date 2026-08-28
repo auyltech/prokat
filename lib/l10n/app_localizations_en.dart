@@ -218,10 +218,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidEmail => 'Enter a valid email';
 
   @override
+  String get emailAddressRequiredLabel => 'Email Address *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Phone Number *';
+
+  @override
+  String get inquiryTopicValidation => 'Please select an inquiry topic';
+
+  @override
   String get inquiryDetails => 'Inquiry Details';
 
   @override
   String get inquiryTopicRequiredLabel => 'Inquiry Topic *';
+
+  @override
+  String get selectInquiryTopic => 'Select inquiry topic';
+
+  @override
+  String get inquiryTopicGeneral => 'General';
+
+  @override
+  String get inquiryTopicSupport => 'Support';
+
+  @override
+  String get inquiryTopicBugReport => 'Bug report';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Feature request';
+
+  @override
+  String get inquiryTopicSales => 'Sales';
+
+  @override
+  String get inquiryTopicPartnership => 'Partnership';
+
+  @override
+  String get inquiryTopicBilling => 'Billing';
+
+  @override
+  String get inquiryTopicCallMe => 'Call me';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Account deletion';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Account recovery';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Account issue';
+
+  @override
+  String get inquiryTopicOther => 'Other';
 
   @override
   String get yourMessageRequiredLabel => 'Your Message *';

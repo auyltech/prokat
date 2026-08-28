@@ -478,6 +478,24 @@ abstract class AppLocalizations {
   /// **'Enter a valid email'**
   String get invalidEmail;
 
+  /// No description provided for @emailAddressRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address *'**
+  String get emailAddressRequiredLabel;
+
+  /// No description provided for @phoneNumberRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number *'**
+  String get phoneNumberRequiredLabel;
+
+  /// No description provided for @inquiryTopicValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an inquiry topic'**
+  String get inquiryTopicValidation;
+
   /// No description provided for @inquiryDetails.
   ///
   /// In en, this message translates to:
@@ -489,6 +507,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inquiry Topic *'**
   String get inquiryTopicRequiredLabel;
+
+  /// No description provided for @selectInquiryTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Select inquiry topic'**
+  String get selectInquiryTopic;
+
+  /// No description provided for @inquiryTopicGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get inquiryTopicGeneral;
+
+  /// No description provided for @inquiryTopicSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get inquiryTopicSupport;
+
+  /// No description provided for @inquiryTopicBugReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug report'**
+  String get inquiryTopicBugReport;
+
+  /// No description provided for @inquiryTopicFeatureRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature request'**
+  String get inquiryTopicFeatureRequest;
+
+  /// No description provided for @inquiryTopicSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get inquiryTopicSales;
+
+  /// No description provided for @inquiryTopicPartnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Partnership'**
+  String get inquiryTopicPartnership;
+
+  /// No description provided for @inquiryTopicBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get inquiryTopicBilling;
+
+  /// No description provided for @inquiryTopicCallMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Call me'**
+  String get inquiryTopicCallMe;
+
+  /// No description provided for @inquiryTopicAccountDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion'**
+  String get inquiryTopicAccountDeletion;
+
+  /// No description provided for @inquiryTopicAccountRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Account recovery'**
+  String get inquiryTopicAccountRecovery;
+
+  /// No description provided for @inquiryTopicAccountIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Account issue'**
+  String get inquiryTopicAccountIssue;
+
+  /// No description provided for @inquiryTopicOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get inquiryTopicOther;
 
   /// No description provided for @yourMessageRequiredLabel.
   ///

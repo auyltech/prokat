@@ -222,10 +222,58 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invalidEmail => 'Введите корректный email';
 
   @override
+  String get emailAddressRequiredLabel => 'Адрес электронной почты *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Номер телефона *';
+
+  @override
+  String get inquiryTopicValidation => 'Выберите тему обращения';
+
+  @override
   String get inquiryDetails => 'Сведения об обращении';
 
   @override
   String get inquiryTopicRequiredLabel => 'Тема обращения *';
+
+  @override
+  String get selectInquiryTopic => 'Выберите тему обращения';
+
+  @override
+  String get inquiryTopicGeneral => 'Общий вопрос';
+
+  @override
+  String get inquiryTopicSupport => 'Поддержка';
+
+  @override
+  String get inquiryTopicBugReport => 'Сообщение об ошибке';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Предложение функции';
+
+  @override
+  String get inquiryTopicSales => 'Продажи';
+
+  @override
+  String get inquiryTopicPartnership => 'Партнёрство';
+
+  @override
+  String get inquiryTopicBilling => 'Оплата и счета';
+
+  @override
+  String get inquiryTopicCallMe => 'Перезвоните мне';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Удаление аккаунта';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Восстановление аккаунта';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Проблема с аккаунтом';
+
+  @override
+  String get inquiryTopicOther => 'Другое';
 
   @override
   String get yourMessageRequiredLabel => 'Ваше сообщение *';

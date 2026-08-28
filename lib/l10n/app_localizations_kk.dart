@@ -217,10 +217,58 @@ class AppLocalizationsKk extends AppLocalizations {
   String get invalidEmail => 'Дұрыс email енгізіңіз';
 
   @override
+  String get emailAddressRequiredLabel => 'Электрондық пошта мекенжайы *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Телефон нөмірі *';
+
+  @override
+  String get inquiryTopicValidation => 'Өтініш тақырыбын таңдаңыз';
+
+  @override
   String get inquiryDetails => 'Өтініш мәліметтері';
 
   @override
   String get inquiryTopicRequiredLabel => 'Өтініш тақырыбы *';
+
+  @override
+  String get selectInquiryTopic => 'Өтініш тақырыбын таңдаңыз';
+
+  @override
+  String get inquiryTopicGeneral => 'Жалпы сұрақ';
+
+  @override
+  String get inquiryTopicSupport => 'Қолдау';
+
+  @override
+  String get inquiryTopicBugReport => 'Қате туралы хабарлама';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Функция ұсыну';
+
+  @override
+  String get inquiryTopicSales => 'Сату';
+
+  @override
+  String get inquiryTopicPartnership => 'Серіктестік';
+
+  @override
+  String get inquiryTopicBilling => 'Төлем және шоттар';
+
+  @override
+  String get inquiryTopicCallMe => 'Маған қоңырау шалыңыз';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Аккаунтты жою';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Аккаунтты қалпына келтіру';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Аккаунт мәселесі';
+
+  @override
+  String get inquiryTopicOther => 'Басқа';
 
   @override
   String get yourMessageRequiredLabel => 'Хабарламаңыз *';
