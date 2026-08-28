@@ -296,6 +296,7 @@ class _ControlledEquipmentService extends EquipmentService {
     String? categoryId,
     String? query,
     String? city,
+    List<String>? spec,
     int page = 1,
     int itemsPerPage = 10,
   }) {
@@ -308,6 +309,7 @@ class _ControlledEquipmentService extends EquipmentService {
     String? categoryId,
     String? query,
     String? city,
+    List<String>? spec,
     int page = 1,
     int itemsPerPage = 10,
   }) {
@@ -370,8 +372,6 @@ Equipment _equipment(String id) {
     id: id,
     name: id,
     model: 'model',
-    capacity: '1',
-    capacityUnit: 'unit',
     status: EquipmentStatus.available,
     isVisible: true,
     prices: const [],

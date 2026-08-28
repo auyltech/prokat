@@ -3056,51 +3056,6 @@ class AppLocalizationsKk extends AppLocalizations {
   String get ratePerHour => 'Сағатына';
 
   @override
-  String get cityNameAtyrau => 'Атырау';
-
-  @override
-  String get cityNameAlmaty => 'Алматы';
-
-  @override
-  String get cityNameAstana => 'Астана';
-
-  @override
-  String get cityNameShymkent => 'Шымкент';
-
-  @override
-  String get cityNameAktobe => 'Ақтөбе';
-
-  @override
-  String get cityNameKaraganda => 'Қарағанды';
-
-  @override
-  String get cityNameTaraz => 'Тараз';
-
-  @override
-  String get cityNamePavlodar => 'Павлодар';
-
-  @override
-  String get cityNameUstKamenogorsk => 'Өскемен';
-
-  @override
-  String get cityNameSemey => 'Семей';
-
-  @override
-  String get cityNameKostanay => 'Қостанай';
-
-  @override
-  String get cityNameKyzylorda => 'Қызылорда';
-
-  @override
-  String get cityNameUralsk => 'Орал';
-
-  @override
-  String get cityNamePetropavl => 'Петропавл';
-
-  @override
-  String get cityNameTurkistan => 'Түркістан';
-
-  @override
   String get connectionTimedOut =>
       'Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.';
 

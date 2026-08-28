@@ -3083,51 +3083,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ratePerHour => 'За час';
 
   @override
-  String get cityNameAtyrau => 'Атырау';
-
-  @override
-  String get cityNameAlmaty => 'Алматы';
-
-  @override
-  String get cityNameAstana => 'Астана';
-
-  @override
-  String get cityNameShymkent => 'Шымкент';
-
-  @override
-  String get cityNameAktobe => 'Актобе';
-
-  @override
-  String get cityNameKaraganda => 'Караганда';
-
-  @override
-  String get cityNameTaraz => 'Тараз';
-
-  @override
-  String get cityNamePavlodar => 'Павлодар';
-
-  @override
-  String get cityNameUstKamenogorsk => 'Усть-Каменогорск';
-
-  @override
-  String get cityNameSemey => 'Семей';
-
-  @override
-  String get cityNameKostanay => 'Костанай';
-
-  @override
-  String get cityNameKyzylorda => 'Кызылорда';
-
-  @override
-  String get cityNameUralsk => 'Уральск';
-
-  @override
-  String get cityNamePetropavl => 'Петропавловск';
-
-  @override
-  String get cityNameTurkistan => 'Туркестан';
-
-  @override
   String get connectionTimedOut =>
       'Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.';
 

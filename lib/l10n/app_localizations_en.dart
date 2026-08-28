@@ -3054,51 +3054,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ratePerHour => 'Per hour';
 
   @override
-  String get cityNameAtyrau => 'Atyrau';
-
-  @override
-  String get cityNameAlmaty => 'Almaty';
-
-  @override
-  String get cityNameAstana => 'Astana';
-
-  @override
-  String get cityNameShymkent => 'Shymkent';
-
-  @override
-  String get cityNameAktobe => 'Aktobe';
-
-  @override
-  String get cityNameKaraganda => 'Karaganda';
-
-  @override
-  String get cityNameTaraz => 'Taraz';
-
-  @override
-  String get cityNamePavlodar => 'Pavlodar';
-
-  @override
-  String get cityNameUstKamenogorsk => 'Ust-Kamenogorsk';
-
-  @override
-  String get cityNameSemey => 'Semey';
-
-  @override
-  String get cityNameKostanay => 'Kostanay';
-
-  @override
-  String get cityNameKyzylorda => 'Kyzylorda';
-
-  @override
-  String get cityNameUralsk => 'Uralsk';
-
-  @override
-  String get cityNamePetropavl => 'Petropavl';
-
-  @override
-  String get cityNameTurkistan => 'Turkistan';
-
-  @override
   String get connectionTimedOut =>
       'Connection timed out. The server may be warming up — please try again.';
 

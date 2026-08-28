@@ -6,7 +6,7 @@ import 'package:prokat/core/mutation/mutation_notifier.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
-import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
+import 'package:prokat/features/equipment/models/equipment_spec_value_input.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
@@ -366,7 +366,7 @@ class EquipmentMutationNotifier
 
   Future<bool> updateEquipmentSpecs({
     required String equipmentId,
-    required List<EquipmentSpecUpdateInput> specs,
+    required List<EquipmentSpecValueInput> specs,
   }) async {
     if (equipmentId.toString().trim().isEmpty) {
       return false;
@@ -377,7 +377,7 @@ class EquipmentMutationNotifier
     try {
       startAction(actionId);
 
-      final result = await api.updateEquipmentSpecs(
+      final result = await api.updateEquipmentSpecValues(
         equipmentId: equipmentId,
         specs: specs,
       );

@@ -15,27 +15,7 @@ String? canonicalCity(String? city, Iterable<String> knownCities) {
 }
 
 String localizedCityName(String? city, AppLocalizations l10n) {
-  final trimmed = city?.trim() ?? '';
-  if (trimmed.isEmpty) return '';
-
-  return switch (trimmed.toLowerCase()) {
-    'atyrau' => l10n.cityNameAtyrau,
-    'almaty' => l10n.cityNameAlmaty,
-    'astana' => l10n.cityNameAstana,
-    'shymkent' => l10n.cityNameShymkent,
-    'aktobe' => l10n.cityNameAktobe,
-    'karaganda' => l10n.cityNameKaraganda,
-    'taraz' => l10n.cityNameTaraz,
-    'pavlodar' => l10n.cityNamePavlodar,
-    'ust-kamenogorsk' => l10n.cityNameUstKamenogorsk,
-    'semey' => l10n.cityNameSemey,
-    'kostanay' => l10n.cityNameKostanay,
-    'kyzylorda' => l10n.cityNameKyzylorda,
-    'uralsk' => l10n.cityNameUralsk,
-    'petropavl' => l10n.cityNamePetropavl,
-    'turkistan' => l10n.cityNameTurkistan,
-    _ => trimmed,
-  };
+  return city?.trim() ?? '';
 }
 
 String formatStreetCity({

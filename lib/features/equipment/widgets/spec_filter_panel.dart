@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_facet.dart';
 import 'package:prokat/features/catalog/models/catalog_spec_type.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -18,6 +19,7 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
   final Map<String, TextEditingController> _min = {};
   final Map<String, TextEditingController> _max = {};
   final Map<String, Set<String>> _options = {};
+  final Map<String, bool?> _booleans = {};
   String? _categoryId;
 
   @override
@@ -54,10 +56,21 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
         final selected = _options[spec.slug] ?? {};
         if (selected.isEmpty) continue;
         encoded.add('${spec.slug}:${selected.join(',')}');
+      } else if (spec.type == CatalogSpecType.boolean) {
+        final value = _booleans[spec.slug];
+        if (value == null) continue;
+        encoded.add('${spec.slug}:${value ? 'true' : 'false'}');
       }
     }
 
     ref.read(specFilterQueryProvider.notifier).state = encoded;
+  }
+
+  CatalogFacet? _facetFor(List<CatalogFacet> facets, String specId) {
+    for (final facet in facets) {
+      if (facet.specId == specId) return facet;
+    }
+    return null;
   }
 
   @override
@@ -66,6 +79,11 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
     final locale = Localizations.localeOf(context).languageCode;
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final categoryId = ref.watch(selectedCategoryProvider)?.id;
+    final facets =
+        categoryId == null
+            ? const <CatalogFacet>[]
+            : (ref.watch(catalogFacetsProvider(categoryId)).valueOrNull ??
+                  const <CatalogFacet>[]);
 
     if (_categoryId != categoryId) {
       _categoryId = categoryId;
@@ -75,6 +93,7 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
           controller.clear();
         }
         _options.clear();
+        _booleans.clear();
         ref.read(specFilterQueryProvider.notifier).state = const [];
         setState(() {});
       });
@@ -97,11 +116,14 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
           if (spec == null || !spec.type.isKnown) {
             return const SizedBox.shrink();
           }
+          final facet = _facetFor(facets, spec.id);
           final label = spec.label(locale);
           if (spec.type == CatalogSpecType.number) {
             _min.putIfAbsent(spec.slug, TextEditingController.new);
             _max.putIfAbsent(spec.slug, TextEditingController.new);
             final unit = catalog.unitById(spec.unitId)?.symbol(locale) ?? '';
+            final hintMin = facet?.min?.toString();
+            final hintMax = facet?.max?.toString();
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
@@ -114,6 +136,7 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
                       ),
                       decoration: InputDecoration(
                         labelText: '$label min',
+                        hintText: hintMin,
                         suffixText: unit.isEmpty ? null : unit,
                       ),
                       onChanged: (_) => _publish(),
@@ -128,6 +151,7 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
                       ),
                       decoration: InputDecoration(
                         labelText: '$label max',
+                        hintText: hintMax,
                         suffixText: unit.isEmpty ? null : unit,
                       ),
                       onChanged: (_) => _publish(),
@@ -140,7 +164,16 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
 
           if (spec.type == CatalogSpecType.select ||
               spec.type == CatalogSpecType.multiSelect) {
-            final options = catalog.optionsForSpec(spec.id);
+            final catalogOptions = catalog.optionsForSpec(spec.id);
+            final facetSlugs = {
+              for (final option in facet?.options ?? const <CatalogFacetOption>[])
+                if (option.count > 0) option.slug,
+            };
+            final options = facetSlugs.isEmpty
+                ? catalogOptions
+                : catalogOptions
+                    .where((option) => facetSlugs.contains(option.slug))
+                    .toList();
             if (options.isEmpty) return const SizedBox.shrink();
             final selected = _options.putIfAbsent(spec.slug, () => <String>{});
             return Padding(
@@ -168,6 +201,44 @@ class _SpecFilterPanelState extends ConsumerState<SpecFilterPanel> {
                         },
                       );
                     }).toList(),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (spec.type == CatalogSpecType.boolean) {
+            final selected = _booleans[spec.slug];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      FilterChip(
+                        label: const Text('Yes'),
+                        selected: selected == true,
+                        onSelected: (next) {
+                          setState(() {
+                            _booleans[spec.slug] = next ? true : null;
+                          });
+                          _publish();
+                        },
+                      ),
+                      FilterChip(
+                        label: const Text('No'),
+                        selected: selected == false,
+                        onSelected: (next) {
+                          setState(() {
+                            _booleans[spec.slug] = next ? false : null;
+                          });
+                          _publish();
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -40,9 +40,6 @@ class Equipment {
 
   final List<EquipmentSpec>? specs;
 
-  final String capacity;
-  final String capacityUnit;
-
   final String? ownerComment;
   final String? rentCondition;
 
@@ -69,8 +66,6 @@ class Equipment {
     required this.model,
     this.plateNumber,
     this.specs,
-    required this.capacity,
-    required this.capacityUnit,
     this.ownerComment,
     this.rentCondition,
     required this.status,
@@ -123,8 +118,6 @@ class Equipment {
       "model": model,
       "plateNumber": plateNumber,
       if (specs != null) "specs": specs!.map((e) => e.toJson()).toList(),
-      "capacity": capacity,
-      "capacityUnit": capacityUnit,
       "rentCondition": rentCondition,
       "status": status,
       "isVisible": isVisible,
@@ -176,9 +169,6 @@ class Equipment {
 
         specs: specs,
 
-        capacity: json["capacity"].toString(),
-        capacityUnit: json["capacityUnit"]?.toString() ?? '',
-
         ownerComment: json["ownerComment"] ?? "",
         rentCondition: json["rentCondition"],
 
@@ -226,8 +216,6 @@ class Equipment {
     String? model,
     String? plateNumber,
     List<EquipmentSpec>? specs,
-    String? capacity,
-    String? capacityUnit,
     String? ownerComment,
     String? rentCondition,
     EquipmentStatus? status,
@@ -248,8 +236,6 @@ class Equipment {
       model: model ?? this.model,
       plateNumber: plateNumber ?? this.plateNumber,
       specs: specs ?? this.specs,
-      capacity: capacity ?? this.capacity,
-      capacityUnit: capacityUnit ?? this.capacityUnit,
       ownerComment: ownerComment ?? this.ownerComment,
       rentCondition: rentCondition ?? this.rentCondition,
       status: status ?? this.status,

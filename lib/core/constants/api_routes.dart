@@ -1,5 +1,6 @@
 class ApiRoutes {
   static const catalog = "/catalog";
+  static const catalogFacets = "/catalog/facets";
   static const categories = "/categories";
   static const equipment = "/equipment";
   static const clientEquipment = "$equipment/client";

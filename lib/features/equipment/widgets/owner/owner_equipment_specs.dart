@@ -9,7 +9,7 @@ import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/catalog/models/catalog_spec_type.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
-import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
+import 'package:prokat/features/equipment/models/equipment_spec_value_input.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -59,7 +59,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
         final a = oldSpecs[i];
         final b = newSpecs[i];
         if (a.id != b.id) return true;
-        if ((a.value ?? '') != (b.value ?? '')) return true;
+        if ((a.numberValue ?? 0) != (b.numberValue ?? 0)) return true;
+        if (a.boolValue != b.boolValue) return true;
+        if ((a.textValue ?? '') != (b.textValue ?? '')) return true;
         if ((a.specId ?? '') != (b.specId ?? '')) return true;
         if (!_sameIds(a.optionIds, b.optionIds)) return true;
         if ((a.inputType ?? '') != (b.inputType ?? '')) return true;
@@ -100,9 +102,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
         _optionsByKey[key] = [...spec.optionIds];
       } else {
         _controllersByKey[key] = TextEditingController(
-          text: spec.numberValue?.toString() ??
-              spec.textValue ??
-              (spec.value ?? ''),
+          text: spec.numberValue?.toString() ?? spec.textValue ?? '',
         );
       }
     }
@@ -135,7 +135,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final controller = _controllersByKey[draftKey];
     if (controller != null) return controller.text.trim();
     if (spec.numberValue != null) return spec.numberValue.toString();
-    return (spec.textValue ?? spec.value ?? '').trim();
+    return (spec.textValue ?? '').trim();
   }
 
   void _onFieldChanged() {
@@ -206,21 +206,50 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
     setState(() => _isSaving = true);
     final catalog = ref.read(catalogProvider).valueOrNull;
-    final payload = <EquipmentSpecUpdateInput>[];
+    final payload = <EquipmentSpecValueInput>[];
 
     for (var i = 0; i < _sortedSpecs.length; i++) {
       final spec = _sortedSpecs[i];
       final key = _controllerKey(spec, i);
       final type = spec.resolvedType(catalog?.specById(spec.specId));
       if (!type.isKnown) continue;
+      final registryId = spec.specId ?? spec.id;
+      if (registryId.isEmpty) continue;
 
-      payload.add(
-        EquipmentSpecUpdateInput(
-          specId: spec.id,
-          categorySpecId: spec.id,
-          value: _currentWireValue(spec, catalog, type, key: key),
-        ),
-      );
+      if (type == CatalogSpecType.boolean) {
+        payload.add(
+          EquipmentSpecValueInput(
+            specId: registryId,
+            boolValue: _boolByKey[key] ?? spec.boolValue,
+          ),
+        );
+      } else if (type == CatalogSpecType.select ||
+          type == CatalogSpecType.multiSelect) {
+        payload.add(
+          EquipmentSpecValueInput(
+            specId: registryId,
+            optionIds: _optionsByKey[key] ?? spec.optionIds,
+          ),
+        );
+      } else if (type == CatalogSpecType.number) {
+        final raw = _controllersByKey[key]?.text.trim() ?? '';
+        payload.add(
+          EquipmentSpecValueInput(
+            specId: registryId,
+            numberValue: raw.isEmpty
+                ? null
+                : double.tryParse(raw.replaceAll(',', '.')),
+          ),
+        );
+      } else {
+        final raw = _controllersByKey[key]?.text.trim() ?? '';
+        payload.add(
+          EquipmentSpecValueInput(
+            specId: registryId,
+            textValue: raw.isEmpty ? null : raw,
+          ),
+        );
+      }
     }
 
     try {
@@ -447,7 +476,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
               label: label,
               controller: controller,
               hint: label,
-              isRequired: isRequired && (spec.value == null || spec.value!.isEmpty),
+              isRequired: isRequired && !spec.hasFilledValue,
               suffixText: unit.trim().isEmpty ? null : unit.trim(),
               onChanged: _onFieldChanged,
               isNumeric: type == CatalogSpecType.number,

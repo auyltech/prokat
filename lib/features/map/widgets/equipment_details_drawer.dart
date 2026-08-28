@@ -106,7 +106,7 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            "${equipment.model} • ${equipment.capacity} ${equipment.capacityUnit}",
+                            "${equipment.model}",
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.4),
                               fontSize: 14,

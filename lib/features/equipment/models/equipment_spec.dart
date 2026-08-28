@@ -157,4 +157,11 @@ class EquipmentSpec {
     }
     return (value ?? '').trim();
   }
+
+  bool get hasFilledValue {
+    if (optionIds.isNotEmpty) return true;
+    if (numberValue != null) return true;
+    if (boolValue != null) return true;
+    return textValue != null && textValue!.trim().isNotEmpty;
+  }
 }

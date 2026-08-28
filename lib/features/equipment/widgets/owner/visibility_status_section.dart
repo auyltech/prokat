@@ -114,7 +114,7 @@ class _VisibilityStatusSectionState
     final hasSpecs =
         equipment?.specs
             ?.where((spec) => spec.isRequired == true)
-            .every((spec) => hasText(spec.value)) ??
+            .every((spec) => spec.hasFilledValue) ??
         true;
 
     final hasData =

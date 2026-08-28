@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_provider.dart';
-import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/features/catalog/catalog_cache.dart';
 import 'package:prokat/features/catalog/catalog_service.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+import 'package:prokat/features/catalog/models/catalog_facet.dart';
 
 final catalogCacheProvider = Provider<CatalogCache>((ref) {
   return CatalogCache();
@@ -15,6 +15,12 @@ final catalogServiceProvider = Provider<CatalogService>((ref) {
 
 final catalogProvider =
     AsyncNotifierProvider<CatalogNotifier, CatalogBundle>(CatalogNotifier.new);
+
+final catalogFacetsProvider = FutureProvider.autoDispose
+    .family<List<CatalogFacet>, String>((ref, categoryId) async {
+      if (categoryId.isEmpty) return const [];
+      return ref.watch(catalogServiceProvider).fetchFacets(categoryId);
+    });
 
 class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
   static const staleAfter = Duration(hours: 24);
@@ -113,9 +119,7 @@ class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
 }
 
 List<String> catalogCityKeys(CatalogBundle? catalog) {
-  final slugs = catalog?.visibleCities.map((item) => item.slug).toList() ?? [];
-  if (slugs.isNotEmpty) return slugs;
-  return cities;
+  return catalog?.visibleCities.map((item) => item.slug).toList() ?? const [];
 }
 
 String catalogCityLabel({
