@@ -44,8 +44,8 @@ void main() {
     return _verifyClientOldPageIsIgnored();
   });
 
-  test('guest equipment ignores an old page after filters change', () {
-    return _verifyGuestOldPageIsIgnored();
+  test('guest equipment stays on a single demo page of at most 10 items', () {
+    return _verifyGuestDoesNotLoadMore();
   });
 
   test(
@@ -177,7 +177,7 @@ Future<void> _verifyClientOldPageIsIgnored() async {
   expect(result.isLoadingMore, isFalse);
 }
 
-Future<void> _verifyGuestOldPageIsIgnored() async {
+Future<void> _verifyGuestDoesNotLoadMore() async {
   final service = _ControlledEquipmentService();
   final container = ProviderContainer(
     overrides: [
@@ -198,21 +198,14 @@ Future<void> _verifyGuestOldPageIsIgnored() async {
   final notifier = container.read(
     guest_dependencies.guestEquipmentProvider.notifier,
   );
-  final oldPage = notifier.loadMore();
-  await _waitForRequestCount(service, 2);
-  final newSearch = notifier.setFilters(query: 'newer');
-  await _waitForRequestCount(service, 3);
-
-  service.complete(2, 'newer');
-  await newSearch;
-  service.complete(1, 'old-page');
-  await oldPage;
+  await notifier.loadMore();
 
   final result = container
       .read(guest_dependencies.guestEquipmentProvider)
       .requireValue;
-  expect(service.pages, [1, 2, 1]);
-  expect(result.items.map((item) => item.id), ['newer']);
+  expect(service.pages, [1]);
+  expect(result.items, hasLength(10));
+  expect(result.hasMore, isFalse);
   expect(result.isLoadingMore, isFalse);
 }
 

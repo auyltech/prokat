@@ -45,9 +45,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       items: items,
       page: page,
       itemsPerPage: 10,
-      count: items.length < 10
-          ? ((page - 1) * 10) + items.length
-          : page * 10 + 1,
+      count: items.length,
       lastFetchedAt: DateTime.now(),
     );
   }
@@ -105,57 +103,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> loadMore() async {
-    final current = state.valueOrNull;
-    final generation = _requestGeneration;
-
-    if (current == null) return;
-
-    if (!current.hasMore) return;
-
-    if (current.isLoadingMore) return;
-
-    state = AsyncData(current.copyWith(isLoadingMore: true));
-
-    try {
-      final locale = ref.read(localeProvider);
-
-      final nextPage = current.page + 1;
-
-      final response = await api.getGuestEquipment(
-        locale: locale.languageCode.toUpperCase(),
-        page: nextPage,
-        itemsPerPage: current.itemsPerPage,
-        query: _query,
-        city: _city,
-        categoryId: _categoryId,
-        spec: _spec,
-      );
-
-      if (generation != _requestGeneration) return;
-
-      if (!response.success || response.data == null) {
-        state = AsyncData(current.copyWith(isLoadingMore: false));
-        return;
-      }
-
-      final items = response.data!;
-
-      state = AsyncData(
-        current.copyWith(
-          items: [...current.items, ...items],
-          page: nextPage,
-          count: items.length < current.itemsPerPage
-              ? current.count + items.length
-              : current.count + current.itemsPerPage,
-          lastFetchedAt: DateTime.now,
-          isLoadingMore: false,
-        ),
-      );
-    } catch (_) {
-      if (generation == _requestGeneration) {
-        state = AsyncData(current.copyWith(isLoadingMore: false));
-      }
-    }
+    // Guest catalog is a demo slice of at most 10 items; never page further.
   }
 
   Future<void> setFilters({

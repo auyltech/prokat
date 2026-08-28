@@ -103,6 +103,13 @@ DateTime? extractRetryAt(Response response, {DateTime? now}) {
   return currentTime.add(Duration(seconds: seconds));
 }
 
+int? _extractListCount(dynamic data) {
+  if (data is! Map) return null;
+  final count = data['count'];
+  if (count is num) return count.toInt();
+  return int.tryParse(count?.toString() ?? '');
+}
+
 int? _parsePositiveSeconds(dynamic value) {
   final seconds = value is num
       ? value.toInt()
@@ -219,6 +226,7 @@ ApiResponse<T> handleApiResponse<T>({
       statusCode: statusCode,
       errorCode: errorCode,
       retryAt: retryAt,
+      count: _extractListCount(responseData),
     );
   } catch (error) {
     return ApiResponse.failure(

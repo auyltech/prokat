@@ -68,14 +68,16 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     }
 
     final items = response.data ?? [];
+    final total = response.count;
 
     return QueryState(
       items: items,
       page: page,
       itemsPerPage: _itemsPerPage,
-      count: items.length < _itemsPerPage
-          ? ((page - 1) * _itemsPerPage) + items.length
-          : (page * _itemsPerPage) + 1,
+      count: total ??
+          (items.length < _itemsPerPage
+              ? ((page - 1) * _itemsPerPage) + items.length
+              : (page * _itemsPerPage) + 1),
       lastFetchedAt: DateTime.now(),
     );
   }
@@ -188,14 +190,16 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       }
 
       final items = response.data!;
+      final total = response.count;
 
       state = AsyncData(
         current.copyWith(
           items: [...current.items, ...items],
           page: nextPage,
-          count: items.length < current.itemsPerPage
-              ? current.count + items.length
-              : current.count + current.itemsPerPage,
+          count: total ??
+              (items.length < current.itemsPerPage
+                  ? current.items.length + items.length
+                  : current.count + current.itemsPerPage),
           lastFetchedAt: DateTime.now,
           isLoadingMore: false,
         ),
