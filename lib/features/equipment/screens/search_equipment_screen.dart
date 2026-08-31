@@ -187,7 +187,8 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
                       if (index == items.length - 1 &&
                           queryState.hasMore &&
-                          !queryState.isLoadingMore) {
+                          !queryState.isLoadingMore &&
+                          !queryState.isRefreshing) {
                         unawaited(Future.microtask(_loadMore));
                       }
 

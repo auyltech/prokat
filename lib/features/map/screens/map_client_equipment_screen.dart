@@ -23,7 +23,7 @@ class _MapRenterEquipmentScreenState
 
     unawaited(
       Future.microtask(() {
-        unawaited(ref.read(clientEquipmentProvider.notifier).refresh());
+        unawaited(ref.read(clientEquipmentProvider.notifier).refreshIfStale());
       }),
     );
   }

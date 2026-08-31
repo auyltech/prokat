@@ -67,6 +67,31 @@ void main() {
   test('client equipment applies a city set during the initial load', () {
     return _verifyClientSearchCityDuringInitialLoad();
   });
+
+  test(
+    'client equipment does not refetch on blank search after initial load',
+    () {
+      return _verifyClientBlankSearchDoesNotRefetch();
+    },
+  );
+
+  test(
+    'client equipment blank search during initial load does not add a request',
+    () {
+      return _verifyClientBlankSearchDuringInitialLoad();
+    },
+  );
+
+  test(
+    'guest equipment does not refetch on blank setFilters after initial load',
+    () {
+      return _verifyGuestBlankSetFiltersDoesNotRefetch();
+    },
+  );
+
+  test('client equipment ignores loadMore while a refresh is in flight', () {
+    return _verifyClientLoadMoreIgnoredWhileRefreshing();
+  });
 }
 
 Future<void> _verifyClientLatestRequestWins({
@@ -339,6 +364,136 @@ Future<void> _verifyClientSearchCityDuringInitialLoad() async {
   expect(service.cities, [null, 'almaty']);
   expect(notifier.city, 'almaty');
   expect(result.items.map((item) => item.id), ['almaty-item']);
+}
+
+Future<void> _verifyClientBlankSearchDoesNotRefetch() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
+      client_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  container.read(locationProvider.notifier).selectCity('almaty');
+  final initial = container.read(clientEquipmentProvider.future);
+  await _waitForRequestCount(service, 1);
+  service.complete(0, 'almaty-item');
+  await initial;
+
+  final notifier = container.read(clientEquipmentProvider.notifier);
+  await notifier.search(query: '', city: 'almaty', spec: const []);
+
+  expect(service.requests, hasLength(1));
+  expect(service.cities, ['almaty']);
+  expect(notifier.query, isNull);
+  expect(notifier.city, 'almaty');
+}
+
+Future<void> _verifyClientBlankSearchDuringInitialLoad() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
+      client_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  container.read(locationProvider.notifier).selectCity('almaty');
+  final initial = container.read(clientEquipmentProvider.future);
+  await _waitForRequestCount(service, 1);
+  final notifier = container.read(clientEquipmentProvider.notifier);
+  final searchFuture = notifier.search(
+    query: '',
+    city: 'almaty',
+    spec: const [],
+  );
+  service.complete(0, 'almaty-item');
+  await initial;
+  await searchFuture;
+
+  expect(service.requests, hasLength(1));
+  expect(service.queries, [null]);
+  expect(service.cities, ['almaty']);
+  expect(notifier.query, isNull);
+  expect(notifier.city, 'almaty');
+}
+
+Future<void> _verifyGuestBlankSetFiltersDoesNotRefetch() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      guest_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  container.read(locationProvider.notifier).selectCity('almaty');
+  final initial = container.read(
+    guest_dependencies.guestEquipmentProvider.future,
+  );
+  await _waitForRequestCount(service, 1);
+  service.complete(0, 'almaty-item');
+  await initial;
+
+  final notifier = container.read(
+    guest_dependencies.guestEquipmentProvider.notifier,
+  );
+  await notifier.setFilters(query: '', city: 'almaty', spec: const []);
+
+  expect(service.requests, hasLength(1));
+  expect(notifier.query, isNull);
+  expect(notifier.city, 'almaty');
+}
+
+Future<void> _verifyClientLoadMoreIgnoredWhileRefreshing() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
+      client_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  final initial = container.read(clientEquipmentProvider.future);
+  await _waitForRequestCount(service, 1);
+  service.complete(0, 'initial', itemCount: 10);
+  await initial;
+
+  final notifier = container.read(clientEquipmentProvider.notifier);
+  final refresh = notifier.refresh();
+  await _waitForRequestCount(service, 2);
+  await notifier.loadMore();
+
+  expect(service.pages, [1, 1]);
+  expect(
+    container.read(clientEquipmentProvider).requireValue.isLoadingMore,
+    isFalse,
+  );
+
+  service.complete(1, 'refreshed', itemCount: 10);
+  await refresh;
 }
 
 Future<void> _completeInSelectedOrder({

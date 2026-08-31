@@ -20,7 +20,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   @override
   Future<QueryState<Equipment>> build() async {
-    _city = ref.watch(locationProvider.select((s) => s.city));
+    _city = _normalizeFilter(ref.watch(locationProvider.select((s) => s.city)));
     return _fetchPage(1);
   }
 
@@ -116,16 +116,12 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     List<String>? spec,
   }) async {
     try {
-      final nextSpec = spec ?? _spec;
-      final changed =
-          _query != query ||
-          _city != city ||
-          _categoryId != categoryId ||
-          !_sameSpec(_spec, nextSpec);
-      _query = query;
-      _city = city;
-      _categoryId = categoryId;
-      _spec = List<String>.from(nextSpec);
+      final changed = _replaceFilters(
+        query: query,
+        city: city,
+        categoryId: categoryId,
+        spec: spec,
+      );
 
       if (!changed) {
         await refreshIfStale();
@@ -201,6 +197,34 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? get city => _city;
 
   String? get categoryId => _categoryId;
+
+  bool _replaceFilters({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+  }) {
+    final nextQuery = _normalizeFilter(query);
+    final nextCity = _normalizeFilter(city);
+    final nextCategoryId = _normalizeFilter(categoryId);
+    final nextSpec = spec ?? _spec;
+    final changed =
+        _query != nextQuery ||
+        _city != nextCity ||
+        _categoryId != nextCategoryId ||
+        !_sameSpec(_spec, nextSpec);
+    _query = nextQuery;
+    _city = nextCity;
+    _categoryId = nextCategoryId;
+    _spec = List<String>.from(nextSpec);
+    return changed;
+  }
+}
+
+String? _normalizeFilter(String? value) {
+  final trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) return null;
+  return trimmed;
 }
 
 bool _sameSpec(List<String> left, List<String> right) {

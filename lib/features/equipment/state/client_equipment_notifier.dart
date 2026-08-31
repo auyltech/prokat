@@ -35,7 +35,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       _spec = const [];
       _requestGeneration++;
     }
-    _city = city;
+    _city = _normalizeFilter(city);
     if (scope == null) {
       return const QueryState(itemsPerPage: _itemsPerPage, count: 0);
     }
@@ -168,7 +168,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
     if (!current.hasMore) return;
 
-    if (current.isLoadingMore) return;
+    if (current.isLoadingMore || current.isRefreshing) return;
 
     state = AsyncData(current.copyWith(isLoadingMore: true));
 
@@ -225,16 +225,12 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
-    final nextSpec = spec ?? _spec;
-    final changed =
-        _query != query ||
-        _city != city ||
-        _categoryId != categoryId ||
-        !_sameSpec(_spec, nextSpec);
-    _query = query;
-    _city = city;
-    _categoryId = categoryId;
-    _spec = List<String>.from(nextSpec);
+    final changed = _replaceFilters(
+      query: query,
+      city: city,
+      categoryId: categoryId,
+      spec: spec,
+    );
 
     if (!changed) {
       await refreshIfStale();
@@ -307,6 +303,28 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   String? get categoryId => _categoryId;
 
+  bool _replaceFilters({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+  }) {
+    final nextQuery = _normalizeFilter(query);
+    final nextCity = _normalizeFilter(city);
+    final nextCategoryId = _normalizeFilter(categoryId);
+    final nextSpec = spec ?? _spec;
+    final changed =
+        _query != nextQuery ||
+        _city != nextCity ||
+        _categoryId != nextCategoryId ||
+        !_sameSpec(_spec, nextSpec);
+    _query = nextQuery;
+    _city = nextCity;
+    _categoryId = nextCategoryId;
+    _spec = List<String>.from(nextSpec);
+    return changed;
+  }
+
   bool _isRequestCurrent(int generation, AuthenticatedSessionScopeKey scope) {
     return generation == _requestGeneration &&
         isAuthenticatedSessionScopeCurrent(ref, scope);
@@ -319,4 +337,10 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     }
     return true;
   }
+}
+
+String? _normalizeFilter(String? value) {
+  final trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) return null;
+  return trimmed;
 }
