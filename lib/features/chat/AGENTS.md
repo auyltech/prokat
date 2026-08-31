@@ -8,10 +8,10 @@
 
 - `ACCEPTED` без booking на треде = выбран другой владелец (`offernotselected`), не «Booking Created».
 - Кнопка Cancel Request только у клиента на `requestcreated`. У `requestaccepted` / `offernotselected` действий нет.
-- `Chat.status` и `ChatParticipant.isArchived` не используются. Архив списка: terminal booking, либо `CANCELLED`/`EXPIRED` заявки при `bookingId == null`. Живой заказ при отменённой заявке в Active остаётся.
+- Архив списка и лок ввода: `Chat.status` (`closed` / `archived`). `SUPPORT` всегда Active и не лочится. `ChatParticipant.isArchived` не используется.
 
 ## Ввод
 
-`isChatInputLocked` в `get_chat_status.dart`. Композер скрыт для `workcompleted`, `bookingcancelled`, `bookingreviewed`, `requestcancelled`, `offernotselected`.
+`isChatInputLocked` в `get_chat_status.dart`. Композер скрыт при `Chat.status` closed/archived и для `workcompleted`, `bookingcancelled`, `bookingreviewed`, `requestcancelled`, `offernotselected`. `leaveReview` остаётся на закрытом треде после `COMPLETED`.
 
-Сервер тоже режет `chat:message:send` на тех же terminal-тредах. `SUPPORT` не блокируется. Одна только вкладка Archive ввод не запирает.
+Сервер режет `chat:message:send`, если `Chat.status` не `ACTIVE`. `SUPPORT` не блокируется.

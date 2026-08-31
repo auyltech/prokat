@@ -33,7 +33,12 @@ class ChatActionBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!chatHasVisibleActions(status: chatStatus, mode: mode)) {
+    if (!chatHasVisibleActions(
+      status: chatStatus,
+      mode: mode,
+      threadStatus: currentChat.status,
+      chatType: currentChat.type,
+    )) {
       return const SizedBox.shrink();
     }
 
@@ -48,9 +53,7 @@ class ChatActionBar extends ConsumerWidget {
     final title = actionBarTitle.trim();
     final requestMutation = ref.read(requestMutationProvider.notifier);
     final bookingMutation = ref.read(bookingMutationProvider.notifier);
-    final chatNotifier = ref.read(
-      currentChatProvider(currentChat.id).notifier,
-    );
+    final chatNotifier = ref.read(currentChatProvider(currentChat.id).notifier);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

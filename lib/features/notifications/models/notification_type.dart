@@ -7,6 +7,7 @@ enum NotificationType {
   offerCancelled,
   offerAccepted,
   offerRejected,
+  offerNotSelected,
   offerExpired,
 
   bookingCreated,
@@ -68,6 +69,7 @@ extension NotificationTypeX on NotificationType {
     NotificationType.offerCancelled => 'OFFER_CANCELLED',
     NotificationType.offerAccepted => 'OFFER_ACCEPTED',
     NotificationType.offerRejected => 'OFFER_REJECTED',
+    NotificationType.offerNotSelected => 'OFFER_NOT_SELECTED',
     NotificationType.offerExpired => 'OFFER_EXPIRED',
 
     NotificationType.bookingCreated => 'BOOKING_CREATED',

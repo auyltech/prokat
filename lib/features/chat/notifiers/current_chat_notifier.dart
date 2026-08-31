@@ -193,28 +193,6 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
     );
   }
 
-  void closeChat() {
-    if (!_canMutateCurrentScope) return;
-    final chat = state.value;
-
-    if (chat == null) {
-      return;
-    }
-
-    state = AsyncData(chat.copyWith(status: ChatStatus.closed));
-  }
-
-  void archiveChat() {
-    if (!_canMutateCurrentScope) return;
-    final chat = state.value;
-
-    if (chat == null) {
-      return;
-    }
-
-    state = AsyncData(chat.copyWith(status: ChatStatus.archived));
-  }
-
   bool get _canMutateCurrentScope {
     final scope = readAuthenticatedSessionScope(ref);
     return scope != null && _stateScope == scope;

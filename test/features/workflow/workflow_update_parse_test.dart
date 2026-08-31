@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
 
 void main() {
@@ -40,6 +41,11 @@ void main() {
           'updatedAt': '2026-08-20T12:00:00.000Z',
         },
       ],
+      'chat': {
+        'id': 'chat-1',
+        'status': 'CLOSED',
+        'updatedAt': '2026-08-20T12:00:00.000Z',
+      },
     });
 
     expect(update, isNotNull);
@@ -49,6 +55,7 @@ void main() {
     expect(update.request?.id, 'request-1');
     expect(update.offers?.single.id, 'offer-1');
     expect(update.negotiations?.single.status.name, 'closed');
+    expect(update.chat?.status, ChatStatus.closed);
   });
 
   test('rejects payloads without eventId or v=1', () {

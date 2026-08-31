@@ -23,10 +23,18 @@ class ChatConfig {
 bool chatHasVisibleActions({
   required ChatStatusDetail status,
   required AppMode mode,
+  ChatStatus? threadStatus,
+  ChatType? chatType,
 }) {
+  if (chatType == ChatType.support) return false;
+  if (status == ChatStatusDetail.leaveReview) return true;
+  if (threadStatus == ChatStatus.closed ||
+      threadStatus == ChatStatus.archived) {
+    return false;
+  }
+
   switch (status) {
     case ChatStatusDetail.requestcreated:
-    case ChatStatusDetail.leaveReview:
       return true;
     case ChatStatusDetail.bookingconfirmed:
       return mode == AppMode.ownerMode;
@@ -37,7 +45,17 @@ bool chatHasVisibleActions({
   }
 }
 
-bool isChatInputLocked(ChatStatusDetail status) {
+bool isChatInputLocked(
+  ChatStatusDetail status, {
+  ChatStatus? threadStatus,
+  ChatType? chatType,
+}) {
+  if (chatType == ChatType.support) return false;
+  if (threadStatus == ChatStatus.closed ||
+      threadStatus == ChatStatus.archived) {
+    return true;
+  }
+
   switch (status) {
     case ChatStatusDetail.workcompleted:
     case ChatStatusDetail.bookingcancelled:

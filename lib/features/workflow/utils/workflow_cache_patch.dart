@@ -1,5 +1,4 @@
 import 'package:prokat/features/bookings/models/booking_model.dart';
-import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/booking_status_buckets.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
@@ -26,34 +25,7 @@ class WorkflowChatApplyResult {
 
 bool isChatArchived(ChatModel chat) {
   if (chat.type == ChatType.support) return false;
-
-  final bookingStatus = chat.booking?.status;
-  if (bookingStatus != null && isHistoryBookingStatus(bookingStatus)) {
-    return true;
-  }
-
-  final summaryStatus = chat.bookingSummary == null
-      ? null
-      : parseBookingStatus(chat.bookingSummary!.status);
-  if (summaryStatus != null &&
-      summaryStatus != BookingStatus.draft &&
-      isHistoryBookingStatus(summaryStatus)) {
-    return true;
-  }
-
-  final requestStatus = chat.request?.status;
-  final hasBooking =
-      (chat.bookingId != null && chat.bookingId!.trim().isNotEmpty) ||
-      chat.booking != null ||
-      (chat.bookingSummary != null &&
-          chat.bookingSummary!.id.trim().isNotEmpty);
-  if (!hasBooking &&
-      requestStatus != null &&
-      isArchivedRequestStatus(requestStatus)) {
-    return true;
-  }
-
-  return false;
+  return chat.status == ChatStatus.closed || chat.status == ChatStatus.archived;
 }
 
 ChatModel applyWorkflowDeltaToChat(ChatModel chat, WorkflowUpdate update) {
@@ -101,6 +73,16 @@ ChatModel applyWorkflowDeltaToChat(ChatModel chat, WorkflowUpdate update) {
       return offer.copyWith(status: delta.status, updatedAt: delta.updatedAt);
     }).toList();
     next = next.copyWith(offers: offers);
+  }
+
+  final chatDelta = update.chat;
+  if (chatDelta != null && chatDelta.id == next.id) {
+    if (!isIncomingWorkflowStale(next.updatedAt, chatDelta.updatedAt)) {
+      next = next.copyWith(
+        status: chatDelta.status,
+        updatedAt: chatDelta.updatedAt,
+      );
+    }
   }
 
   return next;
@@ -191,6 +173,17 @@ ChatModel mergeChatPreferringNewerWorkflow(
         incomingRequestUpdatedAt,
       )) {
     merged = merged.copyWith(request: previousRequest);
+  }
+
+  final previousUpdatedAt = previous.updatedAt;
+  final incomingChatUpdatedAt =
+      incoming.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+  if (previousUpdatedAt != null &&
+      isIncomingWorkflowStale(previousUpdatedAt, incomingChatUpdatedAt)) {
+    merged = merged.copyWith(
+      status: previous.status,
+      updatedAt: previousUpdatedAt,
+    );
   }
 
   return merged;

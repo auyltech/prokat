@@ -63,9 +63,21 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     final isSendingAny =
         messages.valueOrNull?.items.any((e) => e.isPending) ?? false;
 
-    final isLocked = isChatInputLocked(widget.chatStatus);
+    final isLocked = isChatInputLocked(
+      widget.chatStatus,
+      threadStatus: widget.currentChat?.status,
+      chatType: widget.type,
+    );
+    final showActions =
+        widget.currentChat != null &&
+        chatHasVisibleActions(
+          status: widget.chatStatus,
+          mode: widget.mode,
+          threadStatus: widget.currentChat?.status,
+          chatType: widget.type,
+        );
 
-    if (isLocked) {
+    if (isLocked && !showActions) {
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
         decoration: const BoxDecoration(color: Colors.transparent),
@@ -81,9 +93,21 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       );
     }
 
-    final showActions =
-        widget.currentChat != null &&
-        chatHasVisibleActions(status: widget.chatStatus, mode: widget.mode);
+    if (isLocked && showActions) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        decoration: const BoxDecoration(color: Colors.transparent),
+        child: SafeArea(
+          top: false,
+          child: ChatActionBar(
+            currentChat: widget.currentChat!,
+            chatStatus: widget.chatStatus,
+            mode: widget.mode,
+            actionBarTitle: widget.actionBarTitle,
+          ),
+        ),
+      );
+    }
 
     return Container(
       decoration: BoxDecoration(

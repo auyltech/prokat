@@ -56,6 +56,7 @@ class NotificationNavigationService {
 
       case NotificationType.offerAccepted:
       case NotificationType.offerRejected:
+      case NotificationType.offerNotSelected:
         return AppRoutes.ownerRequests;
 
       case NotificationType.counterOfferCreated:

@@ -20,6 +20,7 @@ WorkflowUpdate _update({
   required String eventId,
   String? chatId,
   WorkflowBookingDelta? booking,
+  WorkflowChatDelta? chat,
 }) {
   return WorkflowUpdate(
     v: 1,
@@ -29,6 +30,7 @@ WorkflowUpdate _update({
     actorId: 'user-1',
     chatId: chatId,
     booking: booking,
+    chat: chat,
   );
 }
 
@@ -68,10 +70,16 @@ void main() {
           status: BookingStatus.cancelled,
           updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
         ),
+        chat: WorkflowChatDelta(
+          id: 'chat-1',
+          status: ChatStatus.closed,
+          updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+        ),
       );
 
       final patched = applyWorkflowDeltaToChat(chat, update);
       expect(patched.booking?.status, BookingStatus.cancelled);
+      expect(patched.status, ChatStatus.closed);
 
       final result = applyWorkflowUpdateToChatItems(
         items: [chat],
@@ -86,19 +94,59 @@ void main() {
     },
   );
 
+  test('keeps a live booking chat active when its request is cancelled', () {
+    final chat = ChatModel(
+      id: 'chat-winner',
+      bookingId: 'booking-1',
+      booking: BookingModel(
+        id: 'booking-1',
+        status: BookingStatus.confirmed,
+        price: 2000,
+        priceRate: parseRateOption('PER_TRIP'),
+        updatedAt: DateTime.parse('2026-08-20T11:00:00.000Z'),
+      ),
+      request: RequestModel(
+        id: 'request-1',
+        status: RequestStatus.accepted,
+        capacity: '10',
+        offeredPrice: 1000,
+        updatedAt: DateTime.parse('2026-08-20T11:00:00.000Z'),
+      ),
+    );
+
+    expect(isChatArchived(chat), isFalse);
+
+    final update = WorkflowUpdate(
+      v: 1,
+      eventId: 'evt-req-cancel',
+      emittedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      reason: 'REQUEST_CANCELLED',
+      actorId: 'user-1',
+      chatId: 'chat-winner',
+      request: WorkflowRequestDelta(
+        id: 'request-1',
+        status: RequestStatus.cancelled,
+        updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      ),
+    );
+
+    final result = applyWorkflowUpdateToChatItems(
+      items: [chat],
+      count: 1,
+      filter: ChatListFilter.active,
+      update: update,
+    );
+
+    expect(result.status, WorkflowChatApplyStatus.applied);
+    expect(result.items, hasLength(1));
+    expect(isChatArchived(result.items.single), isFalse);
+  });
+
   test(
-    'keeps a live booking chat active when its request is cancelled',
+    'does not archive from request status when Chat.status stays active',
     () {
       final chat = ChatModel(
-        id: 'chat-winner',
-        bookingId: 'booking-1',
-        booking: BookingModel(
-          id: 'booking-1',
-          status: BookingStatus.confirmed,
-          price: 2000,
-          priceRate: parseRateOption('PER_TRIP'),
-          updatedAt: DateTime.parse('2026-08-20T11:00:00.000Z'),
-        ),
+        id: 'chat-loser',
         request: RequestModel(
           id: 'request-1',
           status: RequestStatus.accepted,
@@ -108,32 +156,25 @@ void main() {
         ),
       );
 
-      expect(isChatArchived(chat), isFalse);
-
-      final update = WorkflowUpdate(
-        v: 1,
-        eventId: 'evt-req-cancel',
-        emittedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
-        reason: 'REQUEST_CANCELLED',
-        actorId: 'user-1',
-        chatId: 'chat-winner',
-        request: WorkflowRequestDelta(
-          id: 'request-1',
-          status: RequestStatus.cancelled,
-          updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      final patched = applyWorkflowDeltaToChat(
+        chat,
+        WorkflowUpdate(
+          v: 1,
+          eventId: 'evt-req-cancel-no-chat',
+          emittedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+          reason: 'REQUEST_CANCELLED',
+          actorId: 'user-1',
+          chatId: 'chat-loser',
+          request: WorkflowRequestDelta(
+            id: 'request-1',
+            status: RequestStatus.cancelled,
+            updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+          ),
         ),
       );
 
-      final result = applyWorkflowUpdateToChatItems(
-        items: [chat],
-        count: 1,
-        filter: ChatListFilter.active,
-        update: update,
-      );
-
-      expect(result.status, WorkflowChatApplyStatus.applied);
-      expect(result.items, hasLength(1));
-      expect(isChatArchived(result.items.single), isFalse);
+      expect(patched.request?.status, RequestStatus.cancelled);
+      expect(isChatArchived(patched), isFalse);
     },
   );
 
@@ -165,10 +206,26 @@ void main() {
           status: RequestStatus.cancelled,
           updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
         ),
+        chat: WorkflowChatDelta(
+          id: 'chat-loser',
+          status: ChatStatus.closed,
+          updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+        ),
       ),
     );
 
+    expect(patched.status, ChatStatus.closed);
     expect(isChatArchived(patched), isTrue);
+  });
+
+  test('support chats stay in Active even if Chat.status is closed', () {
+    const chat = ChatModel(
+      id: 'support-1',
+      type: ChatType.support,
+      status: ChatStatus.closed,
+    );
+
+    expect(isChatArchived(chat), isFalse);
   });
 
   test('ignores stale booking updates by updatedAt', () {
