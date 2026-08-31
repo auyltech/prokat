@@ -20,13 +20,16 @@ class PriceNegotiationService {
   }) async {
     try {
       final isBooking = query.bookingId != null;
+      final offerId = query.offerId?.trim() ?? '';
+      final path = isBooking
+          ? '/price-negotiations/booking'
+          : '/price-negotiations/offer/$offerId';
       final response = await _dio.get(
-        isBooking ? '/price-negotiations/booking' : '/price-negotiations/offer',
+        path,
         queryParameters: {
           'page': page,
           'itemsPerPage': query.itemsPerPage,
           if (isBooking) 'bookingId': query.bookingId,
-          if (!isBooking) 'offerId': query.offerId,
           if (query.filter != null) 'status': query.filter!.apiValue,
         },
       );
