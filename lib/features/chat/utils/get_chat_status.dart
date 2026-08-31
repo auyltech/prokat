@@ -58,6 +58,7 @@ bool isChatInputLocked(
 
   switch (status) {
     case ChatStatusDetail.workcompleted:
+    case ChatStatusDetail.leaveReview:
     case ChatStatusDetail.bookingcancelled:
     case ChatStatusDetail.bookingreviewed:
     case ChatStatusDetail.requestcancelled:

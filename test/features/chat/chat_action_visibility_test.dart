@@ -76,6 +76,7 @@ void main() {
     expect(isChatInputLocked(ChatStatusDetail.workcompleted), isTrue);
     expect(isChatInputLocked(ChatStatusDetail.requestcancelled), isTrue);
     expect(isChatInputLocked(ChatStatusDetail.offernotselected), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.leaveReview), isTrue);
     expect(isChatInputLocked(ChatStatusDetail.requestcreated), isFalse);
     expect(isChatInputLocked(ChatStatusDetail.bookingconfirmed), isFalse);
     expect(

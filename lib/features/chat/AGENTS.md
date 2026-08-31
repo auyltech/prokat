@@ -12,6 +12,6 @@
 
 ## Ввод
 
-`isChatInputLocked` в `get_chat_status.dart`. Композер скрыт при `Chat.status` closed/archived и для `workcompleted`, `bookingcancelled`, `bookingreviewed`, `requestcancelled`, `offernotselected`. `leaveReview` остаётся на закрытом треде после `COMPLETED`.
+`isChatInputLocked` в `get_chat_status.dart`. Композер скрыт при `Chat.status` closed/archived и для `workcompleted`, `leaveReview`, `bookingcancelled`, `bookingreviewed`, `requestcancelled`, `offernotselected`. На `leaveReview` остаётся панель Review без поля ввода; клавиатура закрывается.
 
 Сервер режет `chat:message:send`, если `Chat.status` не `ACTIVE`. `SUPPORT` не блокируется.
