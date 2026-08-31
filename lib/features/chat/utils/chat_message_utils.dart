@@ -1,5 +1,19 @@
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 
+/// Offer cards carry a full offer DTO in [ChatMessageModel.meta] (`id` present).
+/// Losing-tender EVENT rows reuse `service: OFFER` but only have `offerId` /
+/// `reason: NOT_SELECTED` — those must render as text, not as an offer card.
+bool isOfferCardMessage(ChatMessageModel message) {
+  if (message.service != 'OFFER') return false;
+
+  final meta = message.meta;
+  if (meta == null) return false;
+  if (meta['reason']?.toString() == 'NOT_SELECTED') return false;
+
+  final id = meta['id']?.toString().trim() ?? '';
+  return id.isNotEmpty;
+}
+
 bool withinThirtySeconds(DateTime? first, DateTime? second) {
   if (first == null || second == null) return false;
 

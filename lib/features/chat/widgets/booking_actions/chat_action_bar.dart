@@ -56,6 +56,7 @@ class ChatActionBar extends ConsumerWidget {
     final chatNotifier = ref.read(currentChatProvider(currentChat.id).notifier);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (title.isNotEmpty)
