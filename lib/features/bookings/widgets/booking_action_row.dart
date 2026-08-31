@@ -113,17 +113,8 @@ class BookingActionRow extends ConsumerWidget {
           ] else
             Expanded(
               child: ElevatedButton(
-                onPressed: () => showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: theme.colorScheme.surface,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  builder: (_) => BookingStatusSheet(booking: booking),
-                ),
+                onPressed: () =>
+                    BookingStatusSheet.show(context, booking: booking),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(

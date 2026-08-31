@@ -160,7 +160,7 @@ class InfoTile extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (icon != null)
-                    Icon(icon, color: theme.colorScheme.primary, size: 20),
+                    Icon(icon, color: theme.colorScheme.onPrimary, size: 20),
 
                   Text(
                     value,
@@ -169,7 +169,7 @@ class InfoTile extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: variant == InfoTileVariant.destructive
                           ? Colors.red[700]
-                          : Colors.black,
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                 ],

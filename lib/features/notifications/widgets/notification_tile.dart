@@ -43,7 +43,7 @@ class NotificationTile extends StatelessWidget {
       ),
       subtitle: Text(
         notification.body,
-        maxLines: 2,
+        maxLines: 5,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: onDelete == null

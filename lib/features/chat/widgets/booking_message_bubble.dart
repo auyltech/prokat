@@ -69,7 +69,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
             children: [
               Icon(
                 Icons.assignment_outlined,
-                color: theme.colorScheme.primary,
+                color: theme.colorScheme.onPrimary,
                 size: 22,
               ),
               const SizedBox(width: 6),
@@ -77,7 +77,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 l10n.newOrder,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
 
