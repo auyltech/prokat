@@ -308,6 +308,44 @@ void main() {
     expect(result.state?.count, 0);
   });
 
+  test('removes accepted requests from the active list after a match', () {
+    final current = QueryState<RequestModel>(
+      items: [
+        RequestModel(
+          id: 'request-1',
+          status: RequestStatus.responded,
+          capacity: '2',
+          offeredPrice: 1000,
+          location: LocationModel(
+            service: 'ADDRESS',
+            street: 'st',
+            city: 'city',
+            country: 'kz',
+            longitude: 0,
+            latitude: 0,
+          ),
+          updatedAt: DateTime.parse('2026-08-20T11:00:00.000Z'),
+        ),
+      ],
+      itemsPerPage: 10,
+      count: 1,
+    );
+
+    final result = applyRequestDeltaToQuery(
+      current: current,
+      delta: WorkflowRequestDelta(
+        id: 'request-1',
+        status: RequestStatus.accepted,
+        updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      ),
+      kind: RequestQueryPatchKind.active,
+    );
+
+    expect(result.status, RequestQueryApplyStatus.removed);
+    expect(result.state?.items, isEmpty);
+    expect(result.state?.count, 0);
+  });
+
   test('detects a new offer that is not already on the open chat', () {
     const chat = ChatModel(id: 'chat-1');
     final update = WorkflowUpdate(
