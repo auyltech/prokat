@@ -52,7 +52,7 @@ class ChatActionBar extends ConsumerWidget {
       children: [
         if (title.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
             child: Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
@@ -60,21 +60,21 @@ class ChatActionBar extends ConsumerWidget {
               ),
             ),
           ),
-        Row(
-          children: [
-            if (chatStatus == ChatStatusDetail.requestcreated) ...[
-              if (mode == AppMode.ownerMode)
-                Expanded(
-                  child: ActionBarButton.destructive(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              const SizedBox(width: 16),
+              if (chatStatus == ChatStatusDetail.requestcreated) ...[
+                if (mode == AppMode.ownerMode)
+                  ActionBarButton.destructive(
                     label: l10n.hideRequest,
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {},
-                  ),
-                )
-              else
-                Expanded(
-                  child: ActionBarButton.danger(
+                  )
+                else
+                  ActionBarButton.danger(
                     label: l10n.cancelRequestAction,
                     isEnabled: true,
                     isLoading: false,
@@ -92,10 +92,8 @@ class ChatActionBar extends ConsumerWidget {
                       );
                     },
                   ),
-                ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ActionBarButton.secondary(
+                const SizedBox(width: 12),
+                ActionBarButton.secondary(
                   label: l10n.counter,
                   isEnabled:
                       activeOffer != null && activeOffer.priceRate != null,
@@ -114,10 +112,8 @@ class ChatActionBar extends ConsumerWidget {
                     );
                   },
                 ),
-              ),
-            ] else if (chatStatus == ChatStatusDetail.requestaccepted) ...[
-              Expanded(
-                child: ActionBarButton.danger(
+              ] else if (chatStatus == ChatStatusDetail.requestaccepted) ...[
+                ActionBarButton.danger(
                   label: l10n.cancelRequestAction,
                   isEnabled: true,
                   isLoading: false,
@@ -131,12 +127,10 @@ class ChatActionBar extends ConsumerWidget {
                         .refreshAll();
                   },
                 ),
-              ),
-            ] else if (chatStatus == ChatStatusDetail.bookingconfirmed &&
-                mode == AppMode.ownerMode) ...[
-              if (booking != null)
-                Expanded(
-                  child: ActionBarButton.destructive(
+              ] else if (chatStatus == ChatStatusDetail.bookingconfirmed &&
+                  mode == AppMode.ownerMode) ...[
+                if (booking != null)
+                  ActionBarButton.destructive(
                     label: l10n.rejectOrder,
                     isEnabled: !submitState.isSubmitting,
                     isLoading:
@@ -182,10 +176,8 @@ class ChatActionBar extends ConsumerWidget {
                       }
                     },
                   ),
-                ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: ActionBarButton(
+                const SizedBox(width: 6),
+                ActionBarButton(
                   label: l10n.completeWork,
                   isEnabled: !submitState.isSubmitting,
                   isLoading:
@@ -222,11 +214,9 @@ class ChatActionBar extends ConsumerWidget {
                     if (confirmed != true) return;
                   },
                 ),
-              ),
-              const SizedBox(width: 6),
-              if (booking != null)
-                Expanded(
-                  child: ActionBarButton.secondary(
+                const SizedBox(width: 6),
+                if (booking != null)
+                  ActionBarButton.secondary(
                     label: l10n.updateStatus,
                     isEnabled: !submitState.isSubmitting,
                     isLoading:
@@ -245,10 +235,8 @@ class ChatActionBar extends ConsumerWidget {
                       }
                     },
                   ),
-                ),
-            ] else if (chatStatus == ChatStatusDetail.confirmcompleted) ...[
-              Expanded(
-                child: ActionBarButton(
+              ] else if (chatStatus == ChatStatusDetail.confirmcompleted) ...[
+                ActionBarButton(
                   label: l10n.confirm,
                   isEnabled: !submitState.isSubmitting,
                   isLoading: submitState.isSubmitting,
@@ -294,10 +282,8 @@ class ChatActionBar extends ConsumerWidget {
                     );
                   },
                 ),
-              ),
-            ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
-              Expanded(
-                child: ActionBarButton(
+              ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
+                ActionBarButton(
                   label: l10n.review,
                   isEnabled: !submitState.isSubmitting,
                   isLoading:
@@ -322,9 +308,10 @@ class ChatActionBar extends ConsumerWidget {
                     }
                   },
                 ),
-              ),
+              ],
+              const SizedBox(width: 16),
             ],
-          ],
+          ),
         ),
       ],
     );

@@ -112,7 +112,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,95 +133,98 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                   ),
                 ),
               ],
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 5,
-                      textCapitalization: TextCapitalization.sentences,
-                      style: TextStyle(
-                        color: theme.colorScheme.onPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: l10n.typeMessageHint,
-                        hintStyle: const TextStyle(
-                          color: Color.fromARGB(255, 126, 126, 126),
-                          fontWeight: FontWeight.w400,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        minLines: 1,
+                        maxLines: 5,
+                        textCapitalization: TextCapitalization.sentences,
+                        style: TextStyle(
+                          color: theme.colorScheme.onPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
-                        filled: true,
-                        fillColor: theme.scaffoldBackgroundColor.withValues(
-                          alpha: 0.85,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.dividerColor.withValues(alpha: 0.4),
+                        decoration: InputDecoration(
+                          hintText: l10n.typeMessageHint,
+                          hintStyle: const TextStyle(
+                            color: Color.fromARGB(255, 126, 126, 126),
+                            fontWeight: FontWeight.w400,
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.dividerColor.withValues(alpha: 0.4),
+                          filled: true,
+                          fillColor: theme.scaffoldBackgroundColor.withValues(
+                            alpha: 0.85,
                           ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.4,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: theme.dividerColor.withValues(alpha: 0.4),
                             ),
-                            width: 1.5,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: theme.dividerColor.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide(
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.4,
+                              ),
+                              width: 1.5,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Material(
-                    color: theme.colorScheme.primary,
-                    shape: const CircleBorder(),
-                    elevation: 2,
-                    child: IconButton(
-                      onPressed: isWorkCompleted || isOrderCanceled
-                          ? null
-                          : _sendMessage,
-                      icon: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          const Icon(
-                            Icons.send_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          if (isSendingAny)
-                            const Positioned(
-                              right: -4,
-                              top: -4,
-                              child: SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                    const SizedBox(width: 12),
+                    Material(
+                      color: theme.colorScheme.primary,
+                      shape: const CircleBorder(),
+                      elevation: 2,
+                      child: IconButton(
+                        onPressed: isWorkCompleted || isOrderCanceled
+                            ? null
+                            : _sendMessage,
+                        icon: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Icon(
+                              Icons.send_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            if (isSendingAny)
+                              const Positioned(
+                                right: -4,
+                                top: -4,
+                                child: SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
