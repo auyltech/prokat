@@ -528,6 +528,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestAccepted => 'Запрос принят';
 
   @override
+  String get offerNotSelected => 'Выбран другой владелец';
+
+  @override
   String get requestRejected => 'Запрос отклонён';
 
   @override

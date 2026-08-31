@@ -1036,6 +1036,12 @@ abstract class AppLocalizations {
   /// **'Request Accepted'**
   String get requestAccepted;
 
+  /// No description provided for @offerNotSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Another owner was selected'**
+  String get offerNotSelected;
+
   /// No description provided for @requestRejected.
   ///
   /// In en, this message translates to:

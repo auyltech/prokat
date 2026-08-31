@@ -194,6 +194,7 @@
   "reviewOwner": "Иесі туралы пікір",
   "reviewClient": "Клиент туралы пікір",
   "requestAccepted": "Сұрау қабылданды",
+  "offerNotSelected": "Басқа иесі таңдалды",
   "requestRejected": "Сұрау қабылданбады",
   "requestPending": "Сұрау күтілуде",
   "estimatedExhaustion": "Болжалды аяқталу",

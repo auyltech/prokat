@@ -26,13 +26,25 @@ bool chatHasVisibleActions({
 }) {
   switch (status) {
     case ChatStatusDetail.requestcreated:
-    case ChatStatusDetail.requestaccepted:
     case ChatStatusDetail.leaveReview:
       return true;
     case ChatStatusDetail.bookingconfirmed:
       return mode == AppMode.ownerMode;
     case ChatStatusDetail.confirmcompleted:
       return mode == AppMode.clientMode;
+    default:
+      return false;
+  }
+}
+
+bool isChatInputLocked(ChatStatusDetail status) {
+  switch (status) {
+    case ChatStatusDetail.workcompleted:
+    case ChatStatusDetail.bookingcancelled:
+    case ChatStatusDetail.bookingreviewed:
+    case ChatStatusDetail.requestcancelled:
+    case ChatStatusDetail.offernotselected:
+      return true;
     default:
       return false;
   }
@@ -189,9 +201,9 @@ ChatConfig getChatConfig({
 
     case RequestStatus.accepted:
       return ChatConfig(
-        status: ChatStatusDetail.requestaccepted,
-        actionBartitle: l10n.requestAccepted,
-        statusLabel: l10n.requestAccepted,
+        status: ChatStatusDetail.offernotselected,
+        actionBartitle: l10n.offerNotSelected,
+        statusLabel: l10n.offerNotSelected,
       );
 
     case RequestStatus.cancelled:

@@ -63,12 +63,9 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     final isSendingAny =
         messages.valueOrNull?.items.any((e) => e.isPending) ?? false;
 
-    final isWorkCompleted = widget.chatStatus == ChatStatusDetail.workcompleted;
-    final isOrderCanceled =
-        widget.chatStatus == ChatStatusDetail.bookingcancelled;
-    final isReviewed = widget.chatStatus == ChatStatusDetail.bookingreviewed;
+    final isLocked = isChatInputLocked(widget.chatStatus);
 
-    if (isWorkCompleted || isOrderCanceled || isReviewed) {
+    if (isLocked) {
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
         decoration: const BoxDecoration(color: Colors.transparent),
@@ -193,9 +190,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                       shape: const CircleBorder(),
                       elevation: 2,
                       child: IconButton(
-                        onPressed: isWorkCompleted || isOrderCanceled
-                            ? null
-                            : _sendMessage,
+                        onPressed: isLocked ? null : _sendMessage,
                         icon: Stack(
                           clipBehavior: Clip.none,
                           children: [

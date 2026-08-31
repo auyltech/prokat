@@ -525,6 +525,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestAccepted => 'Request Accepted';
 
   @override
+  String get offerNotSelected => 'Another owner was selected';
+
+  @override
   String get requestRejected => 'Request Rejected';
 
   @override

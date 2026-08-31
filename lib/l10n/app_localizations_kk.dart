@@ -522,6 +522,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get requestAccepted => 'Сұрау қабылданды';
 
   @override
+  String get offerNotSelected => 'Басқа иесі таңдалды';
+
+  @override
   String get requestRejected => 'Сұрау қабылданбады';
 
   @override

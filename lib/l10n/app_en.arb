@@ -201,6 +201,7 @@
   "reviewOwner": "Review owner",
   "reviewClient": "Review client",
   "requestAccepted": "Request Accepted",
+  "offerNotSelected": "Another owner was selected",
   "requestRejected": "Request Rejected",
   "requestPending": "Request Pending",
   "estimatedExhaustion": "Est. exhaustion",

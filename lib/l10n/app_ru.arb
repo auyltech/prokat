@@ -194,6 +194,7 @@
   "reviewOwner": "Отзыв о владельце",
   "reviewClient": "Отзыв о клиенте",
   "requestAccepted": "Запрос принят",
+  "offerNotSelected": "Выбран другой владелец",
   "requestRejected": "Запрос отклонён",
   "requestPending": "Запрос ожидает ответа",
   "estimatedExhaustion": "Прогноз исчерпания",

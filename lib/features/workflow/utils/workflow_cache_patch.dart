@@ -42,7 +42,14 @@ bool isChatArchived(ChatModel chat) {
   }
 
   final requestStatus = chat.request?.status;
-  if (requestStatus != null && isArchivedRequestStatus(requestStatus)) {
+  final hasBooking =
+      (chat.bookingId != null && chat.bookingId!.trim().isNotEmpty) ||
+      chat.booking != null ||
+      (chat.bookingSummary != null &&
+          chat.bookingSummary!.id.trim().isNotEmpty);
+  if (!hasBooking &&
+      requestStatus != null &&
+      isArchivedRequestStatus(requestStatus)) {
     return true;
   }
 

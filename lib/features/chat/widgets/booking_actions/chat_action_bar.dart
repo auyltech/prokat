@@ -46,6 +46,11 @@ class ChatActionBar extends ConsumerWidget {
     final chatOwnerId = currentChat.owner?.id;
     final chatClientId = currentChat.client?.id;
     final title = actionBarTitle.trim();
+    final requestMutation = ref.read(requestMutationProvider.notifier);
+    final bookingMutation = ref.read(bookingMutationProvider.notifier);
+    final chatNotifier = ref.read(
+      currentChatProvider(currentChat.id).notifier,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,9 +84,9 @@ class ChatActionBar extends ConsumerWidget {
                     isEnabled: true,
                     isLoading: false,
                     onPressed: () async {
-                      final result = await ref
-                          .read(requestMutationProvider.notifier)
-                          .cancelRequest(request?.id ?? "");
+                      final result = await requestMutation.cancelRequest(
+                        request?.id ?? "",
+                      );
 
                       AppSnackBar.show(
                         message: result.success
@@ -110,21 +115,6 @@ class ChatActionBar extends ConsumerWidget {
                       initialPriceRate: offer.priceRate,
                       mode: mode,
                     );
-                  },
-                ),
-              ] else if (chatStatus == ChatStatusDetail.requestaccepted) ...[
-                ActionBarButton.danger(
-                  label: l10n.cancelRequestAction,
-                  isEnabled: true,
-                  isLoading: false,
-                  onPressed: () async {
-                    await ref
-                        .read(requestMutationProvider.notifier)
-                        .cancelRequest(request?.id ?? "");
-
-                    await ref
-                        .read(currentChatProvider(currentChat.id).notifier)
-                        .refreshAll();
                   },
                 ),
               ] else if (chatStatus == ChatStatusDetail.bookingconfirmed &&
@@ -161,18 +151,14 @@ class ChatActionBar extends ConsumerWidget {
                       final reason = decision.reason;
                       if (reason == null || reason.trim().isEmpty) return;
 
-                      final result = await ref
-                          .read(bookingMutationProvider.notifier)
-                          .updateBookingStatus(
-                            id: booking.id,
-                            status: BookingStatus.rejected,
-                            cancelReason: reason,
-                          );
+                      final result = await bookingMutation.updateBookingStatus(
+                        id: booking.id,
+                        status: BookingStatus.rejected,
+                        cancelReason: reason,
+                      );
 
                       if (result.success == true) {
-                        await ref
-                            .read(currentChatProvider(currentChat.id).notifier)
-                            .refreshAll();
+                        await chatNotifier.refreshAll();
                       }
                     },
                   ),
@@ -198,12 +184,10 @@ class ChatActionBar extends ConsumerWidget {
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.pop(context, true);
-                              await ref
-                                  .read(bookingMutationProvider.notifier)
-                                  .updateBookingWorkStatus(
-                                    id: booking?.id ?? "",
-                                    workStatus: WorkStatus.completed,
-                                  );
+                              await bookingMutation.updateBookingWorkStatus(
+                                id: booking?.id ?? "",
+                                workStatus: WorkStatus.completed,
+                              );
                             },
                             child: Text(l10n.markCompleted),
                           ),
@@ -229,9 +213,7 @@ class ChatActionBar extends ConsumerWidget {
                       );
 
                       if (result == true) {
-                        await ref
-                            .read(currentChatProvider(currentChat.id).notifier)
-                            .refreshAll();
+                        await chatNotifier.refreshAll();
                       }
                     },
                   ),
@@ -258,21 +240,14 @@ class ChatActionBar extends ConsumerWidget {
                                 Navigator.pop(context, false);
                               }
 
-                              final result = await ref
-                                  .read(bookingMutationProvider.notifier)
+                              final result = await bookingMutation
                                   .updateBookingStatus(
                                     id: booking?.id ?? "",
                                     status: BookingStatus.completed,
                                   );
 
                               if (result.success) {
-                                await ref
-                                    .read(
-                                      currentChatProvider(
-                                        currentChat.id,
-                                      ).notifier,
-                                    )
-                                    .refreshAll();
+                                await chatNotifier.refreshAll();
                               }
                             },
                             child: Text(l10n.confirm),
@@ -302,9 +277,7 @@ class ChatActionBar extends ConsumerWidget {
                     );
 
                     if (submitted == true) {
-                      await ref
-                          .read(currentChatProvider(currentChat.id).notifier)
-                          .refreshAll();
+                      await chatNotifier.refreshAll();
                     }
                   },
                 ),
