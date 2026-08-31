@@ -365,8 +365,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                 ? l10n.invalidNumber
                 : null;
             final label = spec.displayName(locale);
-            final unit =
-                catalogSpec == null
+            final unit = catalogSpec == null
                 ? spec.unit
                 : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
                       spec.unit;

@@ -29,7 +29,7 @@ class OwnerStatCard extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          Spacer(),
+          const Spacer(),
 
           Text(
             value,

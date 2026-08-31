@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -81,7 +83,8 @@ class ClientBookingTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: booking.location?.streetLine(
+                  value:
+                      booking.location?.streetLine(
                         Localizations.localeOf(context).languageCode,
                       ) ??
                       "",
@@ -162,7 +165,7 @@ class ClientBookingTile extends ConsumerWidget {
                         .isActionActive(
                           "booking:${booking.id}:update:${BookingStatus.cancelled}",
                         ))
-                      SizedBox(
+                      const SizedBox(
                         height: 14,
                         width: 14,
                         child: CircularProgressIndicator(
@@ -174,7 +177,9 @@ class ClientBookingTile extends ConsumerWidget {
                       IconButton(
                         onPressed: !isSubmittingCancel
                             ? () {
-                                _handleCancel(context, ref, booking, l10n);
+                                unawaited(
+                                  _handleCancel(context, ref, booking, l10n),
+                                );
                               }
                             : null,
                         icon: Icon(
@@ -188,8 +193,10 @@ class ClientBookingTile extends ConsumerWidget {
 
                     IconButton(
                       onPressed: () {
-                        context.push(
-                          '${AppRoutes.clientChatList}/direct/${booking.chatId}',
+                        unawaited(
+                          context.push(
+                            '${AppRoutes.clientChatList}/direct/${booking.chatId}',
+                          ),
                         );
                       },
                       icon: Icon(
@@ -220,7 +227,7 @@ class ClientBookingTile extends ConsumerWidget {
                       },
                     ),
                   ] else ...[
-                    Text(""),
+                    const Text(""),
                   ],
                 ],
               ),
@@ -259,7 +266,10 @@ Future<void> _handleCancel(
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.yesCancel, style: TextStyle(color: Colors.red)),
+            child: Text(
+              l10n.yesCancel,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       );
@@ -295,14 +305,16 @@ Future<void> _handleCancel(
 
   if (!context.mounted) return;
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: theme.colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  unawaited(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) =>
+          CancelBookingSheet(booking: booking, mode: AppMode.clientMode),
     ),
-    builder: (context) =>
-        CancelBookingSheet(booking: booking, mode: AppMode.clientMode),
   );
 }

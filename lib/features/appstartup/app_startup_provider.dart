@@ -116,11 +116,6 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
   AppStartupController(this.ref, this.modeStorage)
     : super(const AppStartupStatus.loading()) {
-    Future.microtask(() async {
-      // Startup init is triggered from MyApp (lib/app.dart). Keep constructor
-      // side effects minimal to avoid duplicate init calls / flicker.
-    });
-
     ref.listen<int>(unauthorizedSignalProvider, (prev, next) {
       if (prev == next) return;
       unawaited(_handleUnauthorized());
@@ -373,7 +368,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     if (!isOwnerRole) {
       _currentMode = AppMode.clientMode;
       // Persisted mode does not affect routing, but keep it consistent.
-      modeStorage.saveMode(_currentMode);
+      unawaited(modeStorage.saveMode(_currentMode));
 
       return AppStartupRouteState.client;
     }

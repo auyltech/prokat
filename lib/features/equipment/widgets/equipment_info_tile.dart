@@ -12,7 +12,7 @@ class EquipmentInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (equipment == null) return SizedBox.shrink();
+    if (equipment == null) return const SizedBox.shrink();
 
     final imageUrl = equipment?.imageUrl ?? "";
     final equipmentName = equipment?.name ?? "";

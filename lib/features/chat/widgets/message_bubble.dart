@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -213,9 +215,8 @@ class _SendStatusIndicatorState extends State<_SendStatusIndicator>
 
     if (widget.isPending) {
       _hasFinishedSpins = false;
-      _controller
-        ..reset()
-        ..repeat();
+      _controller.reset();
+      unawaited(_controller.repeat());
 
       Future<void>.delayed(_controller.duration! * _spinCount, () {
         if (!mounted) {

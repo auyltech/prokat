@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prokat/features/support/models/user_guide.dart';
 import 'package:prokat/features/support/screens/user_guide_screen.dart';
@@ -23,12 +24,14 @@ class UserGuidesSection extends StatelessWidget {
             guide: guide,
             locale: currentLocale,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => UserGuideScreen(
-                    guide: guide,
-                    currentLocale: currentLocale,
+              unawaited(
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => UserGuideScreen(
+                      guide: guide,
+                      currentLocale: currentLocale,
+                    ),
                   ),
                 ),
               );

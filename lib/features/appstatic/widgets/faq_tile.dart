@@ -13,7 +13,7 @@ class FaqTile extends StatelessWidget {
     final tr = faq.translation(currentLocale);
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey, width: 1.2)),
       ),
       child: ExpansionTile(

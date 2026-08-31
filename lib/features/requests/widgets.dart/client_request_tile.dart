@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -96,11 +97,14 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: request.location.streetLine(
-                    Localizations.localeOf(context).languageCode,
-                  ),
+                  value:
+                      request.location?.streetLine(
+                        Localizations.localeOf(context).languageCode,
+                      ) ??
+                      l10n.unknownLocation,
                   onTap: () {
                     final location = request.location;
+                    if (location == null) return;
 
                     showLocationSheet(context, location);
                   },
@@ -146,12 +150,12 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 ],
               ),
 
-              Spacer(),
+              const Spacer(),
 
               if (ref
                   .watch(requestMutationProvider)
                   .isActionActive("request:$id:cancel"))
-                SizedBox(
+                const SizedBox(
                   height: 14,
                   width: 14,
                   child: CircularProgressIndicator(
@@ -170,7 +174,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                   ),
                 ),
 
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
           ),
         ],
@@ -185,45 +189,47 @@ void _showCancelConfirmation(
   String requestId,
   AppLocalizations l10n,
 ) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l10n.cancelRequest),
-      content: Text(l10n.cancelRequestContent),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            l10n.no,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            Navigator.pop(context);
-
-            final result = await ref
-                .read(requestMutationProvider.notifier)
-                .cancelRequest(requestId);
-
-            AppSnackBar.show(
-              message: result.success
-                  ? l10n.requestCancelled
-                  : l10n.failedToCancelRequest,
-              isSuccess: result.success,
-              isError: !result.success,
-            );
-          },
-          child: Text(
-            l10n.yesCancel,
-            style: const TextStyle(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.bold,
+  unawaited(
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.cancelRequest),
+        content: Text(l10n.cancelRequestContent),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              l10n.no,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final result = await ref
+                  .read(requestMutationProvider.notifier)
+                  .cancelRequest(requestId);
+
+              AppSnackBar.show(
+                message: result.success
+                    ? l10n.requestCancelled
+                    : l10n.failedToCancelRequest,
+                isSuccess: result.success,
+                isError: !result.success,
+              );
+            },
+            child: Text(
+              l10n.yesCancel,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

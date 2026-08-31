@@ -17,7 +17,7 @@ class AuthApiService {
         response: response,
         parser: (data) {
           if (data is! Map<String, dynamic>) {
-            throw FormatException("Invalid session item");
+            throw const FormatException("Invalid session item");
           }
 
           return AuthSession.fromJson(data);
@@ -71,7 +71,7 @@ class AuthApiService {
         response: response,
         parser: (data) {
           if (data is! Map<String, dynamic>) {
-            throw FormatException("Invalid session item");
+            throw const FormatException("Invalid session item");
           }
 
           return AuthSession.fromJson(data);

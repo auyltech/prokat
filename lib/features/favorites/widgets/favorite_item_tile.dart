@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
@@ -30,6 +31,11 @@ class FavoriteItemTile extends ConsumerWidget {
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
         : null;
+    final priceLabel = priceEntry == null
+        ? l10n.poa
+        : '${formatPrice(priceEntry.price)} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}'
+              .trim();
+    final ratingLabel = '${equipment.owner?.rating ?? 0}';
 
     return GestureDetector(
       onTap: () => context.push(
@@ -65,6 +71,40 @@ class FavoriteItemTile extends ConsumerWidget {
                     fit: BoxFit.cover,
                     fallbackIcon: Icons.broken_image_outlined,
                     backgroundColor: theme.colorScheme.surfaceBright,
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          ratingLabel,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
@@ -107,41 +147,15 @@ class FavoriteItemTile extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          priceEntry != null
-                              ? "${priceEntry.price} ₸"
-                              : l10n.poa,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      const Row(
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber,
-                            size: 14,
-                          ),
-                          SizedBox(width: 2),
-                          Text(
-                            "4.5",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  Text(
+                    priceLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,17 +26,19 @@ class SelectAddressSheet extends ConsumerWidget {
     required String from,
     String? equipmentId,
   }) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SelectAddressSheet(
-        service: service,
-        from: from,
-        equipmentId: equipmentId,
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => SelectAddressSheet(
+          service: service,
+          from: from,
+          equipmentId: equipmentId,
+        ),
       ),
     );
   }
@@ -104,9 +107,11 @@ class SelectAddressSheet extends ConsumerWidget {
 
                   final addressId = address.id;
                   if (from == 'profile' && (addressId ?? '').isNotEmpty) {
-                    ref
-                        .read(clientProfileMutationProvider.notifier)
-                        .selectAddress(addressId!);
+                    unawaited(
+                      ref
+                          .read(clientProfileMutationProvider.notifier)
+                          .selectAddress(addressId!),
+                    );
                   }
 
                   Navigator.pop(context);
@@ -123,13 +128,15 @@ class SelectAddressSheet extends ConsumerWidget {
             child: OutlinedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
-                context.push(
-                  AppRoutes.clientPinAddress,
-                  extra: {
-                    'equipmentId': equipmentId,
-                    "service": service,
-                    "from": from,
-                  },
+                unawaited(
+                  context.push(
+                    AppRoutes.clientPinAddress,
+                    extra: {
+                      'equipmentId': equipmentId,
+                      "service": service,
+                      "from": from,
+                    },
+                  ),
                 );
               },
               icon: const Icon(Icons.map_outlined, size: 24),
@@ -159,7 +166,7 @@ class SelectAddressSheet extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
-                  context.push(AppRoutes.clientAddresses);
+                  unawaited(context.push(AppRoutes.clientAddresses));
                 },
                 icon: const Icon(Icons.edit_location_alt),
                 label: Text(l10n.manageMyAddresses),

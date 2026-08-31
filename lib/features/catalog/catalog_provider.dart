@@ -14,8 +14,9 @@ final catalogServiceProvider = Provider<CatalogService>((ref) {
   return CatalogService(ref.watch(apiClientProvider));
 });
 
-final catalogProvider =
-    AsyncNotifierProvider<CatalogNotifier, CatalogBundle>(CatalogNotifier.new);
+final catalogProvider = AsyncNotifierProvider<CatalogNotifier, CatalogBundle>(
+  CatalogNotifier.new,
+);
 
 final catalogFacetsProvider = FutureProvider.autoDispose
     .family<List<CatalogFacet>, String>((ref, categoryId) async {

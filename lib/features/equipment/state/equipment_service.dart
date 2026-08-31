@@ -46,12 +46,12 @@ class EquipmentService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected equipment list");
+            throw const FormatException("Expected equipment list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid equipment item");
+              throw const FormatException("Invalid equipment item");
             }
 
             return Equipment.fromJson(item);
@@ -106,12 +106,12 @@ class EquipmentService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected equipment list");
+            throw const FormatException("Expected equipment list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid equipment item");
+              throw const FormatException("Invalid equipment item");
             }
 
             return Equipment.fromJson(item);
@@ -193,12 +193,12 @@ class EquipmentService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected equipment list");
+            throw const FormatException("Expected equipment list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid equipment item");
+              throw const FormatException("Invalid equipment item");
             }
 
             return Equipment.fromJson(item);

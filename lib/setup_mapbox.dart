@@ -9,7 +9,7 @@ class MapboxConfig {
   static void ensureInitialized() {
     if (_initialized) return;
 
-    final token = const String.fromEnvironment('MAPBOX_TOKEN');
+    const token = String.fromEnvironment('MAPBOX_TOKEN');
     if (token.isEmpty) {
       throw StateError('Missing MAPBOX_TOKEN');
     }

@@ -167,7 +167,7 @@ void main() {
   });
 
   test('detects a new offer that is not already on the open chat', () {
-    final chat = ChatModel(id: 'chat-1');
+    const chat = ChatModel(id: 'chat-1');
     final update = WorkflowUpdate(
       v: 1,
       eventId: 'evt-offer',

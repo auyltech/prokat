@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -30,7 +31,7 @@ class OwnerAddressesScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          context.push(AppRoutes.ownerAddressCreate);
+          unawaited(context.push(AppRoutes.ownerAddressCreate));
         },
       ),
     );

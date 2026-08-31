@@ -145,7 +145,7 @@ class PushNotificationService {
   }
 
   void listenForTokenRefresh({required AuthSession session}) {
-    _onTokenRefreshSub?.cancel();
+    unawaited(_onTokenRefreshSub?.cancel());
     _onTokenRefreshSub = messaging.onTokenRefresh.listen((token) async {
       try {
         final settings = await messaging.getNotificationSettings();
@@ -164,7 +164,7 @@ class PushNotificationService {
   }
 
   void handleForegroundMessages() {
-    _onMessageSub?.cancel();
+    unawaited(_onMessageSub?.cancel());
     _onMessageSub = FirebaseMessaging.onMessage.listen((message) async {
       final notification = _toAppNotification(message);
       if (notification == null) return;
@@ -186,11 +186,11 @@ class PushNotificationService {
   }
 
   void handleBackgroundNotificationTap() {
-    _onMessageOpenedSub?.cancel();
+    unawaited(_onMessageOpenedSub?.cancel());
     _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((
       message,
     ) {
-      handleNotificationTap(message);
+      unawaited(handleNotificationTap(message));
     });
   }
 
@@ -373,9 +373,9 @@ class PushNotificationService {
   }
 
   void dispose() {
-    _onMessageSub?.cancel();
-    _onMessageOpenedSub?.cancel();
-    _onTokenRefreshSub?.cancel();
+    unawaited(_onMessageSub?.cancel());
+    unawaited(_onMessageOpenedSub?.cancel());
+    unawaited(_onTokenRefreshSub?.cancel());
     _onMessageSub = null;
     _onMessageOpenedSub = null;
     _onTokenRefreshSub = null;

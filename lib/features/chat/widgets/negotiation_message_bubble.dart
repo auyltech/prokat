@@ -97,7 +97,7 @@ class _NegotiationMessageBubbleState
                     ),
                   ),
 
-                  Spacer(),
+                  const Spacer(),
 
                   Text(priceNegotiation.status.name),
                 ],
@@ -106,7 +106,7 @@ class _NegotiationMessageBubbleState
 
               // Main Body: Price details and action buttons
               Padding(
-                padding: EdgeInsets.only(left: 0),
+                padding: const EdgeInsets.only(left: 0),
                 child: Row(
                   children: [
                     Text(
@@ -116,13 +116,13 @@ class _NegotiationMessageBubbleState
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
 
                     if (priceNegotiation.status ==
                             PriceNegotiationStatus.created &&
                         widget.isMe) ...[
                       if (mutationState.isSubmitting)
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -149,15 +149,15 @@ class _NegotiationMessageBubbleState
                                 );
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.clear, color: Colors.red),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
                     ] else if (priceNegotiation.status ==
                         PriceNegotiationStatus.created) ...[
                       if (ref
                           .watch(priceNegotiationMutationProvider)
                           .isActionActive("price:reject"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -183,14 +183,14 @@ class _NegotiationMessageBubbleState
                             // chatId: widget.message.chatId,
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.clear, color: Colors.red),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
 
                       if (ref
                           .watch(priceNegotiationMutationProvider)
                           .isActionActive("price:accept"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -214,8 +214,8 @@ class _NegotiationMessageBubbleState
                                 );
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.check, color: Colors.green),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.check, color: Colors.green),
                         ),
                     ],
                   ],

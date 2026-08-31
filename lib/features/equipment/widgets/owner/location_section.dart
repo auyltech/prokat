@@ -91,7 +91,7 @@ class _LocationSectionState extends State<LocationSection> {
     final canSave = widget.equipment.isDraft;
 
     return Container(
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

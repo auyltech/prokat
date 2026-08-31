@@ -26,7 +26,7 @@ class UserInfoTile extends StatelessWidget {
               ? null
               : ClipOval(
                   child: Transform.translate(
-                    offset: Offset(-6, -2),
+                    offset: const Offset(-6, -2),
                     child: Icon(
                       Icons.person_rounded,
                       color: theme.colorScheme.primary,
@@ -48,11 +48,14 @@ class UserInfoTile extends StatelessWidget {
                 children: [
                   const Icon(Icons.star, size: 14, color: Colors.amber),
                   const SizedBox(width: 2),
-                  Text(
-                    '${user?.rating ?? 0} • ${l10n.ordersCount(user?.orderCount ?? 0)}',
-                    style: theme.textTheme.bodySmall,
+                  Flexible(
+                    child: Text(
+                      '${user?.rating ?? 0} • ${l10n.ordersCount(user?.orderCount ?? 0)}',
+                      style: theme.textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const SizedBox(width: 8),
                 ],
               ),
             ],

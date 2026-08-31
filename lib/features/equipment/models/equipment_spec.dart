@@ -133,10 +133,7 @@ class EquipmentSpec {
     return names.pick(languageCode, fallback: name.isNotEmpty ? name : key);
   }
 
-  String displayValue({
-    required String languageCode,
-    CatalogBundle? catalog,
-  }) {
+  String displayValue({required String languageCode, CatalogBundle? catalog}) {
     if (optionIds.isNotEmpty && catalog != null) {
       final labels = optionIds
           .map((id) => catalog.optionById(id)?.label(languageCode) ?? id)

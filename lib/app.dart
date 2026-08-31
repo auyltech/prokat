@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -24,7 +25,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(appStartupProvider.notifier).init();
+      unawaited(ref.read(appStartupProvider.notifier).init());
     });
   }
 

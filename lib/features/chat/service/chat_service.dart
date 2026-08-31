@@ -43,12 +43,12 @@ class ChatService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected chat list");
+            throw const FormatException("Expected chat list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid chat item");
+              throw const FormatException("Invalid chat item");
             }
 
             return ChatModel.fromJson(item);
@@ -106,12 +106,12 @@ class ChatService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected chat list");
+            throw const FormatException("Expected chat list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid chat item");
+              throw const FormatException("Invalid chat item");
             }
 
             return ChatModel.fromJson(item);
@@ -166,12 +166,12 @@ class ChatService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected messages list");
+            throw const FormatException("Expected messages list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid chat message item");
+              throw const FormatException("Invalid chat message item");
             }
 
             return ChatMessageModel.fromJson(item);

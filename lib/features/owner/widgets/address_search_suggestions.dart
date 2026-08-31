@@ -33,7 +33,9 @@ class AddressSearchSuggestions extends ConsumerWidget {
 
           return ListTile(
             leading: const Icon(Icons.location_on_outlined),
-            title: Text(result.streetLine(Localizations.localeOf(context).languageCode)),
+            title: Text(
+              result.streetLine(Localizations.localeOf(context).languageCode),
+            ),
             subtitle: Text(
               formatCityCountry(
                 l10n: l10n,

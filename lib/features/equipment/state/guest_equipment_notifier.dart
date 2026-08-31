@@ -4,6 +4,7 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 
 class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
@@ -19,6 +20,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   @override
   Future<QueryState<Equipment>> build() async {
+    _city = ref.watch(locationProvider.select((s) => s.city));
     return _fetchPage(1);
   }
 
@@ -71,15 +73,16 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   Future<void> _refresh(int generation) async {
     try {
+      if (state.isLoading && state.valueOrNull == null) {
+        try {
+          await future;
+        } catch (_) {}
+        if (generation != _requestGeneration) return;
+      }
+
       final previous = state.valueOrNull;
 
       if (previous == null) {
-        if (state.isLoading) {
-          try {
-            await future;
-            return;
-          } catch (_) {}
-        }
         if (generation != _requestGeneration) return;
         state = const AsyncLoading();
         final next = await AsyncValue.guard(() => _fetchPage(1));

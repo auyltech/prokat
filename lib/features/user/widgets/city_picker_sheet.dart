@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -72,9 +74,11 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     final profile = ref.read(clientProfileProvider).userProfile;
 
     if (profile != null) {
-      ref
-          .read(clientProfileMutationProvider.notifier)
-          .selectCityRegion(city: city);
+      unawaited(
+        ref
+            .read(clientProfileMutationProvider.notifier)
+            .selectCityRegion(city: city),
+      );
     }
 
     return city;

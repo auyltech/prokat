@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -40,7 +41,9 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       return;
     }
 
-    ref.read(chatMessagesProvider(widget.chatId).notifier).sendMessage(text);
+    unawaited(
+      ref.read(chatMessagesProvider(widget.chatId).notifier).sendMessage(text),
+    );
 
     _controller.clear();
   }
@@ -68,7 +71,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     if (isWorkCompleted || isOrderCanceled || isReviewed) {
       return Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-        decoration: BoxDecoration(color: Colors.transparent),
+        decoration: const BoxDecoration(color: Colors.transparent),
         child: SafeArea(
           top: false,
           child: Text(
@@ -200,7 +203,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                             size: 20,
                           ),
                           if (isSendingAny)
-                            Positioned(
+                            const Positioned(
                               right: -4,
                               top: -4,
                               child: SizedBox(
@@ -208,10 +211,9 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                                 height: 12,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               ),
                             ),

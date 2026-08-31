@@ -52,7 +52,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
@@ -81,7 +81,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 ),
               ),
 
-              Spacer(),
+              const Spacer(),
 
               BookingStatusBadge(status: booking.status),
             ],
@@ -175,7 +175,8 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
             InfoTile(
               icon: Icons.location_on_outlined,
               // label: "Location",
-              value: booking.location?.streetLine(
+              value:
+                  booking.location?.streetLine(
                     Localizations.localeOf(context).languageCode,
                   ) ??
                   "",
@@ -228,7 +229,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
               ),
 
-              Spacer(),
+              const Spacer(),
 
               // Cancel Order
               if ([
@@ -242,7 +243,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ref
                         .watch(bookingMutationProvider)
                         .isActionActive("booking:${booking.id}:reject"))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(
@@ -279,7 +280,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 if (ref
                     .watch(bookingMutationProvider)
                     .isActionActive("price:create"))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(
@@ -315,7 +316,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     .isActionActive(
                       "booking:${booking.id}:update:${BookingStatus.confirmed}",
                     ))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(

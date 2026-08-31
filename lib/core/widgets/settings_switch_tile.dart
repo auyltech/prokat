@@ -48,7 +48,7 @@ class SettingsSwitchTile extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
           Expanded(
             child: Column(
@@ -72,7 +72,7 @@ class SettingsSwitchTile extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
           isLoading == true
               ? const SizedBox.square(

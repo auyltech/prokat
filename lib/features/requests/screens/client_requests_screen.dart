@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,19 +36,25 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
-        ref.read(clientActiveRequestsProvider.notifier).loadMore();
-        ref
-            .read(clientOffersProvider(const OfferQuery.active()).notifier)
-            .loadMore();
+        unawaited(ref.read(clientActiveRequestsProvider.notifier).loadMore());
+        unawaited(
+          ref
+              .read(clientOffersProvider(const OfferQuery.active()).notifier)
+              .loadMore(),
+        );
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
+      unawaited(
+        ref.read(clientActiveRequestsProvider.notifier).refreshIfStale(),
+      );
 
-      ref
-          .read(clientOffersProvider(const OfferQuery.active()).notifier)
-          .refreshIfStale();
+      unawaited(
+        ref
+            .read(clientOffersProvider(const OfferQuery.active()).notifier)
+            .refreshIfStale(),
+      );
     });
   }
 
@@ -117,7 +124,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               children: [
                 if (requests.isEmpty)
                   Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     child: EmptyStateTile(
                       imageName: 'empty_requests.png',
                       title: l10n.noRequestsAtMoment,

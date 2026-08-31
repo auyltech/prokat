@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -147,11 +148,14 @@ class OwnerRequestTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: request.location.streetLine(
-                    Localizations.localeOf(context).languageCode,
-                  ),
+                  value:
+                      request.location?.streetLine(
+                        Localizations.localeOf(context).languageCode,
+                      ) ??
+                      l10n.unknownLocation,
                   onTap: () {
                     final location = request.location;
+                    if (location == null) return;
 
                     showLocationSheet(context, location);
                   },
@@ -207,8 +211,10 @@ class OwnerRequestTile extends ConsumerWidget {
                     // Go To Chat
                     IconButton(
                       onPressed: () {
-                        context.push(
-                          '${AppRoutes.ownerChatList}/direct/${activeOffer.chatId}',
+                        unawaited(
+                          context.push(
+                            '${AppRoutes.ownerChatList}/direct/${activeOffer.chatId}',
+                          ),
                         );
                       },
                       icon: Icon(
@@ -279,7 +285,7 @@ class OwnerRequestTile extends ConsumerWidget {
                             .read(offerMutationProvider.notifier)
                             .selectRequest(request);
 
-                        context.push(AppRoutes.ownerCreateOffer);
+                        unawaited(context.push(AppRoutes.ownerCreateOffer));
                       },
                       icon: Icon(
                         LucideIcons.send,

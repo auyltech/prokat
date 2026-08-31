@@ -17,7 +17,7 @@ class RequestModel {
   final DateTime? requiredOn;
   final DateTime? requiredAt;
 
-  final LocationModel location;
+  final LocationModel? location;
   final UserModel? client;
 
   final Category? category;
@@ -37,7 +37,7 @@ class RequestModel {
     this.requiredOn,
     this.requiredAt,
 
-    required this.location,
+    this.location,
     this.client,
 
     this.category,
@@ -99,9 +99,7 @@ class RequestModel {
           ? Category.fromJson(json['category'])
           : null,
 
-      location: json['location'] != null
-          ? LocationModel.fromJson(json['location'])
-          : throw Exception("Location is required but missing"),
+      location: _tryParseLocation(json['location']),
 
       client: json["client"] != null
           ? UserModel.fromJson(json["client"])
@@ -125,10 +123,19 @@ class RequestModel {
       "capacity": capacity,
       "offeredPrice": offeredPrice,
       "comment": comment,
-      "location": location.toJson(),
+      "location": location?.toJson(),
       "client": client?.toJson(),
       "requiredOn": requiredOn?.toUtc().toIso8601String(),
       "requiredAt": requiredAt?.toUtc().toIso8601String(),
     };
+  }
+}
+
+LocationModel? _tryParseLocation(dynamic value) {
+  if (value is! Map) return null;
+  try {
+    return LocationModel.fromJson(Map<String, dynamic>.from(value));
+  } catch (_) {
+    return null;
   }
 }

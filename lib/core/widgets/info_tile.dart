@@ -123,7 +123,7 @@ class InfoTile extends StatelessWidget {
                           color: theme.colorScheme.onPrimary,
                           size: 20,
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                       ],
 
                       Text(
@@ -137,7 +137,7 @@ class InfoTile extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
                   Text(
                     value,

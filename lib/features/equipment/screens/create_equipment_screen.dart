@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -68,9 +69,11 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(categoriesProvider.notifier).refreshIfStale();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(categoriesProvider.notifier).refreshIfStale();
+      }),
+    );
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,133 +18,139 @@ void openLocationPickerSheet(
   final accentColor = theme.colorScheme.primary;
   final l10n = AppLocalizations.of(context)!;
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (context) {
-      final locations = ref.watch(locationProvider).ownerLocations;
-      final topLocations = locations.take(5).toList();
+  unawaited(
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        final locations = ref.watch(locationProvider).ownerLocations;
+        final topLocations = locations.take(5).toList();
 
-      return Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          border: Border(top: BorderSide(color: Color(0x14FFFFFF), width: 1)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                width: 32,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+        return Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: const Border(
+              top: BorderSide(color: Color(0x14FFFFFF), width: 1),
             ),
-
-            const SizedBox(height: 24),
-
-            Text(
-              l10n.selectLocation,
-              style: TextStyle(
-                color: theme.colorScheme.onSurface,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            if (topLocations.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Text(
-                  l10n.noSavedLocations,
-                  style: TextStyle(
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 32,
+                  height: 4,
+                  decoration: BoxDecoration(
                     color: theme.colorScheme.onSurface,
-                    fontSize: 13,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                ),
-              )
-            else
-              ...topLocations.map(
-                (loc) => _LocationTile(
-                  icon: Icons.location_on_outlined,
-                  title: loc.streetLine(
-                    Localizations.localeOf(context).languageCode,
-                  ),
-                  subtitle: locationCityLabel(
-                    ref,
-                    context,
-                    city: loc.city,
-                    names: loc.cityNames,
-                  ),
-                  onTap: () async {
-                    final res = await ref
-                        .read(equipmentMutationProvider.notifier)
-                        .updateEquipmentLocation(equipmentId, {
-                          "id": equipmentId,
-                          "locationId": loc.id,
-                        });
-
-                    if (res == true && context.mounted) {
-                      Navigator.pop(context);
-                    }
-                  },
                 ),
               ),
 
-            const SizedBox(height: 8),
+              const SizedBox(height: 24),
 
-            InkWell(
-              onTap: () {
-                context.pop();
-                context.push(AppRoutes.ownerAddressMap);
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.add_location_alt_rounded,
-                      color: accentColor,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      l10n.createNewOnMap,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const Spacer(),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                    ),
-                  ],
+              Text(
+                l10n.selectLocation,
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
-      );
-    },
+
+              const SizedBox(height: 16),
+
+              if (topLocations.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    l10n.noSavedLocations,
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontSize: 13,
+                    ),
+                  ),
+                )
+              else
+                ...topLocations.map(
+                  (loc) => _LocationTile(
+                    icon: Icons.location_on_outlined,
+                    title: loc.streetLine(
+                      Localizations.localeOf(context).languageCode,
+                    ),
+                    subtitle: locationCityLabel(
+                      ref,
+                      context,
+                      city: loc.city,
+                      names: loc.cityNames,
+                    ),
+                    onTap: () async {
+                      final res = await ref
+                          .read(equipmentMutationProvider.notifier)
+                          .updateEquipmentLocation(equipmentId, {
+                            "id": equipmentId,
+                            "locationId": loc.id,
+                          });
+
+                      if (res == true && context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                ),
+
+              const SizedBox(height: 8),
+
+              InkWell(
+                onTap: () {
+                  context.pop();
+                  unawaited(context.push(AppRoutes.ownerAddressMap));
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.add_location_alt_rounded,
+                        color: accentColor,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.createNewOnMap,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        );
+      },
+    ),
   );
 }
 

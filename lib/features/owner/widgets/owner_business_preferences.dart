@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +27,7 @@ class _OwnerBusinessPreferencesSectionState
   void initState() {
     super.initState();
 
-    Future.microtask(_loadBusinessData);
+    unawaited(Future.microtask(_loadBusinessData));
   }
 
   Future<void> _loadBusinessData() async {
@@ -49,7 +50,7 @@ class _OwnerBusinessPreferencesSectionState
     final equipmentCount =
         ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
 
-    final accent = AppColors.teal800;
+    const accent = AppColors.teal800;
     final accentBackground = accent.withValues(alpha: 0.15);
 
     final equipmentText = equipmentCount == 0
@@ -65,6 +66,8 @@ class _OwnerBusinessPreferencesSectionState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 16),
+
         Text(
           l10n.businessPreferences,
           style: Theme.of(

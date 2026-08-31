@@ -26,12 +26,12 @@ class CategoryService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected category list");
+            throw const FormatException("Expected category list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid category item");
+              throw const FormatException("Invalid category item");
             }
 
             return Category.fromJson(item);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -8,14 +9,16 @@ class DisplayName extends ConsumerWidget {
   const DisplayName({super.key});
 
   void _openEditSheet(BuildContext context, WidgetRef ref, String currentName) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (_) => EditNameSheet(initialName: currentName),
       ),
-      builder: (_) => EditNameSheet(initialName: currentName),
     );
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -106,7 +107,7 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            "${equipment.model}",
+                            equipment.model,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.4),
                               fontSize: 14,
@@ -183,7 +184,9 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                     ? Icons.favorite_rounded
                                     : Icons.favorite_border_rounded,
                                 onTap: () {
-                                  notifier.toggleFavorite(equipment.id);
+                                  unawaited(
+                                    notifier.toggleFavorite(equipment.id),
+                                  );
                                 },
                               ),
                               const SizedBox(width: 16),
@@ -196,8 +199,10 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                         .read(bookingMutationProvider.notifier)
                                         .selectEquipment(equipment);
                                     // Navigate to booking page
-                                    context.push(
-                                      '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                                    unawaited(
+                                      context.push(
+                                        '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                                      ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(

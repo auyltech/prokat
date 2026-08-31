@@ -41,7 +41,7 @@ class EquipmentStatusBadge extends StatelessWidget {
       ),
       child: Text(
         statusString.toUpperCase(),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: Colors.white,

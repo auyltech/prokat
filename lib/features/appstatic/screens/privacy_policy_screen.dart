@@ -73,7 +73,7 @@ class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
             ),
           ),
         ],
-        actionsPadding: EdgeInsets.only(right: 8),
+        actionsPadding: const EdgeInsets.only(right: 8),
       ),
       body: SafeArea(
         child: FutureBuilder<String>(

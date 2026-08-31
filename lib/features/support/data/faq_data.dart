@@ -1,7 +1,7 @@
 import 'package:prokat/features/support/models/faq_model.dart';
 
 final faqs = [
-  FaqModel(
+  const FaqModel(
     id: 'rent_equipment',
     category: 'BOOKINGS',
     order: 1,
@@ -28,7 +28,7 @@ final faqs = [
     ],
   ),
 
-  FaqModel(
+  const FaqModel(
     id: 'list_equipment',
     category: 'EQUIPMENT',
     order: 2,
@@ -55,7 +55,7 @@ final faqs = [
     ],
   ),
 
-  FaqModel(
+  const FaqModel(
     id: 'cancel_booking',
     category: 'BOOKINGS',
     order: 3,
@@ -82,7 +82,7 @@ final faqs = [
     ],
   ),
 
-  FaqModel(
+  const FaqModel(
     id: 'payments',
     category: 'PAYMENTS',
     order: 4,
@@ -109,7 +109,7 @@ final faqs = [
     ],
   ),
 
-  FaqModel(
+  const FaqModel(
     id: 'contact_support',
     category: 'GENERAL',
     order: 5,

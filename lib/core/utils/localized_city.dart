@@ -25,9 +25,10 @@ String formatStreetCity({
   String? city,
 }) {
   return [
-    [street?.trim() ?? '', houseNumber?.trim() ?? '']
-        .where((part) => part.isNotEmpty)
-        .join(', '),
+    [
+      street?.trim() ?? '',
+      houseNumber?.trim() ?? '',
+    ].where((part) => part.isNotEmpty).join(', '),
     localizedCityName(city, l10n),
   ].where((part) => part.isNotEmpty).join(', ');
 }

@@ -30,7 +30,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
     final accent = colorScheme.primary;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.only(left: 16),
       decoration: BoxDecoration(
         color: Colors.grey[100],
@@ -67,7 +67,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
           if (ref
               .watch(equipmentMutationProvider)
               .isActionActive("equipment:price:update:${widget.priceEntry.id}"))
-            SizedBox(
+            const SizedBox(
               height: 14,
               width: 14,
               child: CircularProgressIndicator(
@@ -84,7 +84,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
           if (ref
               .watch(equipmentMutationProvider)
               .isActionActive("equipment:price:delete:${widget.priceEntry.id}"))
-            SizedBox(
+            const SizedBox(
               height: 14,
               width: 14,
               child: CircularProgressIndicator(
@@ -95,7 +95,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
           else
             IconButton(
               onPressed: widget.onDelete,
-              icon: Icon(Icons.delete, color: Colors.red, size: 20),
+              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
             ),
         ],
       ),

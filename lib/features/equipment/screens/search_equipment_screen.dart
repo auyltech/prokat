@@ -52,21 +52,21 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
         .search(categoryId: categoryId, city: city, query: query, spec: spec);
 
     if (!mounted) return;
-    ref.read(favoritesProvider.notifier).getFavorites();
+    await ref.read(favoritesProvider.notifier).getFavorites();
 
     await ref.read(categoriesProvider.notifier).refreshIfStale();
     await ref.read(catalogProvider.notifier).refreshIfStale();
   }
 
   void _loadMore() {
-    ref.read(clientEquipmentProvider.notifier).loadMore();
+    unawaited(ref.read(clientEquipmentProvider.notifier).loadMore());
   }
 
   void _onFiltersChanged() {
     _debounce?.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _fetchData();
+      unawaited(_fetchData());
     });
   }
 
@@ -188,7 +188,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                       if (index == items.length - 1 &&
                           queryState.hasMore &&
                           !queryState.isLoadingMore) {
-                        Future.microtask(_loadMore);
+                        unawaited(Future.microtask(_loadMore));
                       }
 
                       final equipment = items[index];
@@ -198,8 +198,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                         onTap: () {
                           bookingNotifier.selectEquipment(equipment);
 
-                          context.push(
-                            '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                          unawaited(
+                            context.push(
+                              '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                            ),
                           );
                         },
                       );

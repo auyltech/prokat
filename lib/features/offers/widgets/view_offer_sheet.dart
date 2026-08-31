@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
@@ -10,13 +11,15 @@ void openViewOfferSheet({
   required OfferModel offer,
   required VoidCallback onCancel,
 }) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  unawaited(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => ViewOfferSheet(offer: offer, onCancel: onCancel),
     ),
-    builder: (context) => ViewOfferSheet(offer: offer, onCancel: onCancel),
   );
 }
 

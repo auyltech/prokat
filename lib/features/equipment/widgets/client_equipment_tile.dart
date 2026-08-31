@@ -42,7 +42,7 @@ class ClientEquipmentTile extends ConsumerWidget {
 
     return BaseTile(
       borderRadius: 16,
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       child: Column(
         children: [
           /// 1. IMAGE SECTION (Clean & Floating Elements)
@@ -137,9 +137,9 @@ class ClientEquipmentTile extends ConsumerWidget {
                       ),
                       Text(
                         priceRate,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: const Color.fromARGB(255, 65, 65, 65),
+                          color: Color.fromARGB(255, 65, 65, 65),
                           fontWeight: FontWeight.w700,
                         ),
                       ),

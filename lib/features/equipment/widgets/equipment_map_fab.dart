@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -14,7 +15,7 @@ class EquipmentMapFab extends StatelessWidget {
         heroTag: 'equipment-map-fab',
         backgroundColor: Colors.orange,
         onPressed: () {
-          context.push(AppRoutes.clientRequestsCreate);
+          unawaited(context.push(AppRoutes.clientRequestsCreate));
         },
         child: const Icon(Icons.add),
       ),

@@ -4,8 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/favorites/state/favorites_notifier.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/state/favorites_service.dart';
@@ -153,6 +156,39 @@ void main() {
     expect(find.text('9'), findsOneWidget);
     expect(find.text('9+'), findsNothing);
   });
+
+  testWidgets('expanded cards show the equipment price instead of POA', (
+    tester,
+  ) async {
+    await _pumpOverlay(
+      tester,
+      favorites: [
+        _equipment(
+          '1',
+          prices: [
+            PriceEntry(
+              id: 'price-1',
+              price: 1500,
+              priceRate: parseRateOption('PER_CUBIC_METER'),
+            ),
+          ],
+          owner: const UserModel(
+            firstName: 'Ерлан',
+            lastName: 'Садыков',
+            rating: 5,
+            orderCount: 21,
+          ),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byKey(const Key('favorites-section-header')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('1,500'), findsOneWidget);
+    expect(find.text('ПОЗ'), findsNothing);
+    expect(find.text('5'), findsOneWidget);
+  });
 }
 
 double _drawerHeight(WidgetTester tester) {
@@ -210,14 +246,19 @@ Future<void> _pumpOverlay(
   );
 }
 
-Equipment _equipment(String id) {
+Equipment _equipment(
+  String id, {
+  List<PriceEntry> prices = const [],
+  UserModel? owner,
+}) {
   return Equipment(
     id: id,
     name: 'Truck $id',
     model: 'TATRA',
     status: EquipmentStatus.available,
     isVisible: true,
-    prices: const [],
+    prices: prices,
+    owner: owner,
   );
 }
 

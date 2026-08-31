@@ -14,6 +14,7 @@ import 'package:prokat/features/equipment/providers/equipment_provider.dart'
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart'
     as guest_dependencies;
 import 'package:prokat/features/equipment/state/equipment_service.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,18 @@ void main() {
       return _verifyGuestSetFiltersDoesNotRethrowFailedLoad();
     },
   );
+
+  test('client equipment first page uses the already selected city', () {
+    return _verifyClientInitialLoadUsesSelectedCity();
+  });
+
+  test('guest equipment first page uses the already selected city', () {
+    return _verifyGuestInitialLoadUsesSelectedCity();
+  });
+
+  test('client equipment applies a city set during the initial load', () {
+    return _verifyClientSearchCityDuringInitialLoad();
+  });
 }
 
 Future<void> _verifyClientLatestRequestWins({
@@ -244,6 +257,90 @@ Future<void> _verifyGuestSetFiltersDoesNotRethrowFailedLoad() async {
   );
 }
 
+Future<void> _verifyClientInitialLoadUsesSelectedCity() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
+      client_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  container.read(locationProvider.notifier).selectCity('almaty');
+  final initial = container.read(clientEquipmentProvider.future);
+  await _waitForRequestCount(service, 1);
+  service.complete(0, 'almaty-item');
+  await initial;
+
+  final result = container.read(clientEquipmentProvider).requireValue;
+  expect(service.cities, ['almaty']);
+  expect(result.items.map((item) => item.id), ['almaty-item']);
+}
+
+Future<void> _verifyGuestInitialLoadUsesSelectedCity() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      guest_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  container.read(locationProvider.notifier).selectCity('almaty');
+  final initial = container.read(
+    guest_dependencies.guestEquipmentProvider.future,
+  );
+  await _waitForRequestCount(service, 1);
+  service.complete(0, 'almaty-item');
+  await initial;
+
+  final result = container
+      .read(guest_dependencies.guestEquipmentProvider)
+      .requireValue;
+  expect(service.cities, ['almaty']);
+  expect(result.items.map((item) => item.id), ['almaty-item']);
+}
+
+Future<void> _verifyClientSearchCityDuringInitialLoad() async {
+  final service = _ControlledEquipmentService();
+  final container = ProviderContainer(
+    overrides: [
+      authenticatedSessionScopeKeyProvider.overrideWithValue(
+        const AuthenticatedSessionScopeKey.forUser('test-user'),
+      ),
+      client_dependencies.equipmentServiceProvider.overrideWithValue(service),
+    ],
+  );
+  addTearDown(() {
+    service.completeAllPending();
+    container.dispose();
+  });
+
+  final initial = container.read(clientEquipmentProvider.future);
+  await _waitForRequestCount(service, 1);
+  final notifier = container.read(clientEquipmentProvider.notifier);
+  final searchFuture = notifier.search(city: 'almaty');
+  service.complete(0, 'all-cities');
+  await _waitForRequestCount(service, 2);
+  service.complete(1, 'almaty-item');
+  await searchFuture;
+  await initial;
+
+  final result = container.read(clientEquipmentProvider).requireValue;
+  expect(service.cities, [null, 'almaty']);
+  expect(notifier.city, 'almaty');
+  expect(result.items.map((item) => item.id), ['almaty-item']);
+}
+
 Future<void> _completeInSelectedOrder({
   required _ControlledEquipmentService service,
   required Future<void> olderSearch,
@@ -281,6 +378,7 @@ class _ControlledEquipmentService extends EquipmentService {
 
   List<String?> get queries =>
       requests.map((request) => request.query).toList();
+  List<String?> get cities => requests.map((request) => request.city).toList();
   List<int> get pages => requests.map((request) => request.page).toList();
 
   @override
@@ -293,7 +391,7 @@ class _ControlledEquipmentService extends EquipmentService {
     int page = 1,
     int itemsPerPage = 10,
   }) {
-    return _enqueue(query, page);
+    return _enqueue(query, page, city);
   }
 
   @override
@@ -306,11 +404,15 @@ class _ControlledEquipmentService extends EquipmentService {
     int page = 1,
     int itemsPerPage = 10,
   }) {
-    return _enqueue(query, page);
+    return _enqueue(query, page, city);
   }
 
-  Future<ApiResponse<List<Equipment>>> _enqueue(String? query, int page) {
-    final request = _PendingEquipmentRequest(query, page);
+  Future<ApiResponse<List<Equipment>>> _enqueue(
+    String? query,
+    int page,
+    String? city,
+  ) {
+    final request = _PendingEquipmentRequest(query, page, city);
     requests.add(request);
     return request.completer.future;
   }
@@ -348,9 +450,10 @@ class _ControlledEquipmentService extends EquipmentService {
 class _PendingEquipmentRequest {
   final String? query;
   final int page;
+  final String? city;
   final Completer<ApiResponse<List<Equipment>>> completer = Completer();
 
-  _PendingEquipmentRequest(this.query, this.page);
+  _PendingEquipmentRequest(this.query, this.page, this.city);
 }
 
 class _TestApiClient implements ApiClient {

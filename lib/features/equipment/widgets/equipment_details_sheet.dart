@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -28,19 +29,21 @@ class EquipmentDetailsSheet extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => EquipmentDetailsSheet(
-        name: name,
-        model: model,
-        plateNumber: plateNumber,
-        imageUrl: imageUrl,
-        specifications: specifications,
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: theme.cardColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => EquipmentDetailsSheet(
+          name: name,
+          model: model,
+          plateNumber: plateNumber,
+          imageUrl: imageUrl,
+          specifications: specifications,
+        ),
       ),
     );
   }

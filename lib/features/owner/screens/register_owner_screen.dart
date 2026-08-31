@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -81,7 +82,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       final userId = ref.read(authProvider).currentUserId;
 
       if (userId != null) {
-        _loadCurrentAccount(userId);
+        unawaited(_loadCurrentAccount(userId));
       } else {
         _tryPrefill();
       }
@@ -233,11 +234,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       _clearFormForAccountChange();
 
       if (nextUserId != null) {
-        Future.microtask(() {
-          if (mounted) {
-            return _loadCurrentAccount(nextUserId);
-          }
-        });
+        unawaited(
+          Future.microtask(() {
+            if (mounted) {
+              return _loadCurrentAccount(nextUserId);
+            }
+          }),
+        );
       }
     });
 
@@ -296,7 +299,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 },
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               InputField(
                 controller: _lastNameController,
@@ -311,7 +314,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 },
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               KzPhoneInputField(
                 controller: _phoneController,
                 label: l10n.phoneNumber,
@@ -320,7 +323,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 helperText: l10n.ownerContactPhoneHint,
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               InputField(
                 controller: _emailController,
                 label: l10n.email,
@@ -337,7 +340,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 },
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               CitySelectField(
                 city: _selectedCity,
                 isRequired: true,
@@ -345,7 +348,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 onChanged: (city) => setState(() => _selectedCity = city),
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               InputField(
                 controller: _messageController,
                 label: l10n.message,
@@ -361,7 +364,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 },
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               if (request == null || !isAccepted) ...[
                 const SizedBox(height: 12),
@@ -382,7 +385,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 _AcceptedInfo(theme: theme),
               ],
 
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           ),
         ),

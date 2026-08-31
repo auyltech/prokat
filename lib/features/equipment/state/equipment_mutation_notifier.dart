@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/app_error.dart';
@@ -79,7 +80,7 @@ class EquipmentMutationNotifier
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create equipment",
           code: "",
@@ -124,7 +125,7 @@ class EquipmentMutationNotifier
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update equipment",
           code: "",
@@ -171,7 +172,7 @@ class EquipmentMutationNotifier
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update equipment",
           code: "",
@@ -212,14 +213,14 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update equipment",
           code: "",
@@ -258,8 +259,8 @@ class EquipmentMutationNotifier
       if (result.success) {
         finishAction(actionId);
 
-        _refreshEquipmentCaches(equipmentId);
-        ref.read(billingProvider.notifier).getOwnerBalance();
+        await _refreshEquipmentCaches(equipmentId);
+        unawaited(ref.read(billingProvider.notifier).getOwnerBalance());
 
         return true;
       }
@@ -285,7 +286,7 @@ class EquipmentMutationNotifier
 
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           code: "",
           message: "Failed to update equipment.",
@@ -307,7 +308,7 @@ class EquipmentMutationNotifier
     if (original == null) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           code: "",
           message: "Equipment not found.",
@@ -330,8 +331,8 @@ class EquipmentMutationNotifier
       if (result.success) {
         finishAction(actionId);
 
-        ref.read(billingProvider.notifier).getOwnerBalance();
-        _refreshEquipmentCaches(equipmentId);
+        unawaited(ref.read(billingProvider.notifier).getOwnerBalance());
+        await _refreshEquipmentCaches(equipmentId);
 
         return true;
       }
@@ -353,7 +354,7 @@ class EquipmentMutationNotifier
 
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           code: "",
           message: "Failed to update equipment.",
@@ -394,14 +395,14 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update equipment",
           code: "",
@@ -445,7 +446,7 @@ class EquipmentMutationNotifier
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to delete equipment",
           code: "",
@@ -468,7 +469,7 @@ class EquipmentMutationNotifier
       );
     }
 
-    final actionId = "equipment:price:create";
+    const actionId = "equipment:price:create";
 
     try {
       startAction(actionId);
@@ -487,7 +488,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return MutationResponse(
@@ -499,7 +500,7 @@ class EquipmentMutationNotifier
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create price entry",
           code: "",
@@ -545,7 +546,7 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return MutationResponse(
@@ -557,7 +558,7 @@ class EquipmentMutationNotifier
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update price entry",
           code: "",
@@ -597,14 +598,14 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to delete price entry",
           code: "",
@@ -644,14 +645,14 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to upload image",
           code: "",
@@ -691,14 +692,14 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to delete image",
           code: "",
@@ -738,14 +739,14 @@ class EquipmentMutationNotifier
       );
 
       if (result.success) {
-        _refreshEquipmentCaches(equipmentId);
+        await _refreshEquipmentCaches(equipmentId);
       }
 
       return result.success;
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update image",
           code: "",

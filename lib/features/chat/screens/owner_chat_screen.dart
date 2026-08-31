@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -31,15 +32,21 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      ref
-          .read(chatMessagesProvider(widget.chatId).notifier)
-          .dismissDisplayedPush();
-      await Future.wait([
-        ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale(),
-        ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale(),
-      ]);
-    });
+    unawaited(
+      Future.microtask(() async {
+        ref
+            .read(chatMessagesProvider(widget.chatId).notifier)
+            .dismissDisplayedPush();
+        await Future.wait([
+          ref
+              .read(currentChatProvider(widget.chatId).notifier)
+              .refreshIfStale(),
+          ref
+              .read(chatMessagesProvider(widget.chatId).notifier)
+              .refreshIfStale(),
+        ]);
+      }),
+    );
   }
 
   @override
@@ -68,7 +75,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       _entryOfferQuery = offerQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(ownerOffersProvider(offerQuery).notifier).refreshIfStale();
+        unawaited(
+          ref.read(ownerOffersProvider(offerQuery).notifier).refreshIfStale(),
+        );
       });
     }
 
@@ -81,9 +90,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       _entryNegotiationQuery = negotiationQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref
-            .read(priceNegotiationsProvider(negotiationQuery).notifier)
-            .refreshIfStale();
+        unawaited(
+          ref
+              .read(priceNegotiationsProvider(negotiationQuery).notifier)
+              .refreshIfStale(),
+        );
       });
     }
     final negotiations = negotiationQuery == null

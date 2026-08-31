@@ -155,7 +155,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create order",
           code: "",
@@ -230,7 +230,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update booking",
           code: "",
@@ -279,7 +279,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update order status",
           code: "",

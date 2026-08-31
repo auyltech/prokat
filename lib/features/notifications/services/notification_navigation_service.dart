@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/app_router.dart';
@@ -169,15 +171,15 @@ class NotificationNavigationService {
 
     if (notification.category == "BOOKING") {
       if (startup == AppStartupRouteState.owner) {
-        ref.read(ownerActiveBookingsProvider.notifier).invalidate();
+        unawaited(ref.read(ownerActiveBookingsProvider.notifier).invalidate());
       } else {
-        ref.read(clientActiveBookingsProvider.notifier).invalidate();
+        unawaited(ref.read(clientActiveBookingsProvider.notifier).invalidate());
       }
     } else if (notification.category == "REQUEST") {
       if (startup == AppStartupRouteState.owner) {
-        ref.read(ownerActiveRequestsProvider.notifier).invalidate();
+        unawaited(ref.read(ownerActiveRequestsProvider.notifier).invalidate());
       } else {
-        ref.read(clientActiveRequestsProvider.notifier).invalidate();
+        unawaited(ref.read(clientActiveRequestsProvider.notifier).invalidate());
       }
     }
 

@@ -150,7 +150,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create request",
           code: "",

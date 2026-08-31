@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -30,7 +31,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
+      await ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
 
       final address = await ref
           .read(locationProvider.notifier)
@@ -81,8 +82,8 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
             if (canCreateRequest) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.all(16),
-                children: [CreateRequestForm()],
+                padding: const EdgeInsets.all(16),
+                children: const [CreateRequestForm()],
               );
             } else {
               return _ActiveRequestLimitView(activeCount: blockingCount);
@@ -128,7 +129,7 @@ class _ActiveRequestLimitView extends StatelessWidget {
             PrimaryButton(
               label: l10n.myRequests,
               onPressed: () {
-                context.push(AppRoutes.clientRequests);
+                unawaited(context.push(AppRoutes.clientRequests));
               },
             ),
           ],

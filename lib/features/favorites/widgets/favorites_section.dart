@@ -182,7 +182,6 @@ class FavoritesSection extends ConsumerWidget {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-
                                       Flexible(
                                         child: Text(
                                           l10n.myFavorites,
@@ -289,7 +288,7 @@ class _WellShadows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shadow = Colors.black;
+    const shadow = Colors.black;
 
     return Stack(
       children: [
@@ -303,7 +302,10 @@ class _WellShadows extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [shadow.withValues(alpha: 0.10), shadow.withValues(alpha: 0)],
+                colors: [
+                  shadow.withValues(alpha: 0.10),
+                  shadow.withValues(alpha: 0),
+                ],
               ),
             ),
           ),
@@ -318,7 +320,10 @@ class _WellShadows extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [shadow.withValues(alpha: 0.06), shadow.withValues(alpha: 0)],
+                colors: [
+                  shadow.withValues(alpha: 0.06),
+                  shadow.withValues(alpha: 0),
+                ],
               ),
             ),
           ),

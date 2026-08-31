@@ -175,7 +175,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       // This forces the background color to bleed to the phone's bottom edge
       decoration: BoxDecoration(
         color: theme.cardColor,
-        border: Border(
+        border: const Border(
           top: BorderSide(
             color: Colors.black12, // Light gray color
             width: 1.0, // Border thickness
@@ -215,7 +215,10 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: IconTheme(
-                        data: IconThemeData(color: Colors.black87, size: 32),
+                        data: const IconThemeData(
+                          color: Colors.black87,
+                          size: 32,
+                        ),
                         child: Icon(
                           item.icon,
                           size: 28,

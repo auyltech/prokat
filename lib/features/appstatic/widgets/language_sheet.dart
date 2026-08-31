@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -10,24 +11,26 @@ class LanguageSheet extends ConsumerStatefulWidget {
   ConsumerState<LanguageSheet> createState() => LanguageSheetState();
 
   static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled:
-          true, // Allows sheet to wrap its content height dynamically
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled:
+            true, // Allows sheet to wrap its content height dynamically
+        backgroundColor: Theme.of(context).cardColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (sheetContext) {
+          return const LanguageSheet();
+        },
       ),
-      builder: (sheetContext) {
-        return const LanguageSheet();
-      },
     );
   }
 }
 
 class LanguageSheetState extends ConsumerState<LanguageSheet> {
   void _selectLocale(String langCode) {
-    ref.read(localeProvider.notifier).setLocale(Locale(langCode));
+    unawaited(ref.read(localeProvider.notifier).setLocale(Locale(langCode)));
     Navigator.pop(context);
   }
 

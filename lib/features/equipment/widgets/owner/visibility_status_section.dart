@@ -159,7 +159,7 @@ class _VisibilityStatusSectionState
           ],
         ),
 
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         if (isModerated)
           Column(
@@ -167,7 +167,7 @@ class _VisibilityStatusSectionState
             children: [
               Text(l10n.availableForRent, style: theme.textTheme.bodyMedium),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               if (equipment?.status == EquipmentStatus.available ||
                   equipment?.status == EquipmentStatus.accepted)
@@ -176,11 +176,11 @@ class _VisibilityStatusSectionState
                   isVisible: equipment?.isVisible ?? false,
                 ),
 
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
               Text(l10n.operatingStatus, style: theme.textTheme.bodyMedium),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -239,7 +239,7 @@ class _VisibilityStatusSectionState
                 ),
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
             ],
           ),
 
@@ -248,7 +248,7 @@ class _VisibilityStatusSectionState
             l10n.pleaseCompleteRequiredFields,
             style: TextStyle(color: theme.colorScheme.error, fontSize: 14),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
         ],
 
         if (isDraftFlow)

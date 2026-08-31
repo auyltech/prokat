@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
@@ -35,19 +38,18 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     if (_isRefreshing) return;
     setState(() => _isRefreshing = true);
     try {
-      await Future.wait([
-        ref.read(ownerRegistrationRequestProvider.notifier).refresh(),
-        ref.read(clientProfileProvider.notifier).refresh(),
-      ]);
+      // Refresh the application first: GET /owner/become-owner repairs
+      // APPROVED+CLIENT drift before we mint a session from User.role.
+      await ref.read(ownerRegistrationRequestProvider.notifier).refresh();
       if (!mounted) return;
       final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
       final awaitingModeration = request != null && !request.isApproved;
       // Do not mint an OWNER session while the application is still CREATED.
-      if (!awaitingModeration &&
-          !ref.read(authProvider).isOwner &&
-          _hasOwnerRole()) {
+      if (!awaitingModeration && !ref.read(authProvider).isOwner) {
         await ref.read(authProvider.notifier).refreshSession();
+        if (!mounted) return;
       }
+      await ref.read(clientProfileProvider.notifier).refresh();
     } finally {
       if (mounted) setState(() => _isRefreshing = false);
     }
@@ -56,9 +58,16 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
   Future<void> _enterOwnerMode() async {
     await _refreshApplicationState();
     if (!mounted) return;
+    if (ref.read(authProvider).session == null) return;
     final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
     if (request != null && !request.isApproved) return;
-    if (!_hasOwnerRole()) return;
+    if (!_hasOwnerRole()) {
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,
+        isError: true,
+      );
+      return;
+    }
     await ref.read(appStartupProvider.notifier).setOwnerMode();
     if (mounted) context.go(AppRoutes.ownerProfile);
   }
@@ -87,11 +96,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         case BecomeOwnerRequestStatus.pending:
         case BecomeOwnerRequestStatus.rejected:
           final status = registrationRequest.parsedStatus;
-          final config = _getStatusConfig(
-            status,
-            l10n,
-            theme.brightness,
-          );
+          final config = _getStatusConfig(status, l10n, theme.brightness);
           return _buildModernCTA(
             context,
             icon: config.icon,
@@ -152,7 +157,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         await _refreshApplicationState();
         return;
       case BecomeOwnerRequestStatus.rejected:
-        if (mounted) context.push(AppRoutes.becomeOwner);
+        if (mounted) unawaited(context.push(AppRoutes.becomeOwner));
         return;
       case BecomeOwnerRequestStatus.approved:
         await _enterOwnerMode();

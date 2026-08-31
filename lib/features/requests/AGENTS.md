@@ -5,6 +5,7 @@
 ## Списки
 
 - Клиент: `GET /requests?status=ACTIVE|HISTORY`. Active — `CREATED` / `DRAFT` / `RESPONDED` / `VIEWED` / `ACCEPTED`. History — только `CANCELLED`.
+- `location` в DTO может быть `null` (нет адреса / удалён). Список не должен падать.
 - Лимит новой заявки: слот занимают `DRAFT` / `CREATED` / `VIEWED` / `RESPONDED`. `ACCEPTED` остаётся в active, но не блокирует создание следующей.
 - Владелец «Запросы на аренду» (будущий таб «Все»): `GET /requests/owner?status=ACTIVE`. Без `CANCELLED` / `EXPIRED`. Это чужие тендеры, не «мои отклики».
 - Отмена клиентом → `CANCELLED`. В ленте владельца карточки быть не должно.

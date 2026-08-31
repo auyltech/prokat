@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,7 +24,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
   final FlutterSecureStorage _storage;
 
   LocaleNotifier(this._storage) : super(_systemLocale()) {
-    _loadPersisted();
+    unawaited(_loadPersisted());
   }
 
   Future<void> _loadPersisted() async {

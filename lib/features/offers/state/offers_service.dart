@@ -56,12 +56,12 @@ class OffersService {
           final itemsJson = payload['items'] ?? payload['data'];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected offers list");
+            throw const FormatException("Expected offers list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid offer item");
+              throw const FormatException("Invalid offer item");
             }
 
             return OfferModel.fromJson(item);

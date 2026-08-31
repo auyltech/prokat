@@ -159,7 +159,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
       if (result.success) {
         if (location.service == "EQUIPMENT") {
-          ref.read(ownerEquipmentProvider.notifier).refresh();
+          await ref.read(ownerEquipmentProvider.notifier).refresh();
         } else {
           await getClientLocations();
         }
@@ -210,9 +210,9 @@ class LocationNotifier extends StateNotifier<LocationState> {
       );
 
       if (location.service == "ADDRESS") {
-        getClientLocations();
+        await getClientLocations();
       } else {
-        getOwnerLocations();
+        await getOwnerLocations();
       }
 
       return result.success;

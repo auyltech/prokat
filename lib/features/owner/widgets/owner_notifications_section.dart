@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,7 +61,7 @@ class _OwnerNotificationsSectionState
     _preferences = widget.initialValue;
     WidgetsBinding.instance.addObserver(this);
 
-    _refreshPermission();
+    unawaited(_refreshPermission());
   }
 
   @override
@@ -75,7 +76,7 @@ class _OwnerNotificationsSectionState
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshAndSyncPermission();
+      unawaited(_refreshAndSyncPermission());
     }
   }
 
@@ -224,7 +225,7 @@ class _OwnerNotificationsSectionState
           isLoading: _loadingPermission,
           onTap: _loadingPermission ? null : _managePushPermission,
           onChanged: (_) {
-            _managePushPermission();
+            unawaited(_managePushPermission());
           },
         ),
 
@@ -239,9 +240,11 @@ class _OwnerNotificationsSectionState
           value: _preferences.requestsAndOffers,
           isLoading: _savingPreference == 'requestsAndOffers',
           onChanged: (value) {
-            _updatePreference(
-              key: 'requestsAndOffers',
-              nextValue: _preferences.copyWith(requestsAndOffers: value),
+            unawaited(
+              _updatePreference(
+                key: 'requestsAndOffers',
+                nextValue: _preferences.copyWith(requestsAndOffers: value),
+              ),
             );
           },
         ),
@@ -257,9 +260,11 @@ class _OwnerNotificationsSectionState
           value: _preferences.ordersAndWork,
           isLoading: _savingPreference == 'ordersAndWork',
           onChanged: (value) {
-            _updatePreference(
-              key: 'ordersAndWork',
-              nextValue: _preferences.copyWith(ordersAndWork: value),
+            unawaited(
+              _updatePreference(
+                key: 'ordersAndWork',
+                nextValue: _preferences.copyWith(ordersAndWork: value),
+              ),
             );
           },
         ),
@@ -275,9 +280,11 @@ class _OwnerNotificationsSectionState
           value: _preferences.messages,
           isLoading: _savingPreference == 'messages',
           onChanged: (value) {
-            _updatePreference(
-              key: 'messages',
-              nextValue: _preferences.copyWith(messages: value),
+            unawaited(
+              _updatePreference(
+                key: 'messages',
+                nextValue: _preferences.copyWith(messages: value),
+              ),
             );
           },
         ),
@@ -293,9 +300,13 @@ class _OwnerNotificationsSectionState
           value: _preferences.equipmentAndVerification,
           isLoading: _savingPreference == 'equipmentAndVerification',
           onChanged: (value) {
-            _updatePreference(
-              key: 'equipmentAndVerification',
-              nextValue: _preferences.copyWith(equipmentAndVerification: value),
+            unawaited(
+              _updatePreference(
+                key: 'equipmentAndVerification',
+                nextValue: _preferences.copyWith(
+                  equipmentAndVerification: value,
+                ),
+              ),
             );
           },
         ),
@@ -311,9 +322,11 @@ class _OwnerNotificationsSectionState
           value: _preferences.balanceAlerts,
           isLoading: _savingPreference == 'balanceAlerts',
           onChanged: (value) {
-            _updatePreference(
-              key: 'balanceAlerts',
-              nextValue: _preferences.copyWith(balanceAlerts: value),
+            unawaited(
+              _updatePreference(
+                key: 'balanceAlerts',
+                nextValue: _preferences.copyWith(balanceAlerts: value),
+              ),
             );
           },
         ),
@@ -329,9 +342,11 @@ class _OwnerNotificationsSectionState
           value: _preferences.remindersAndReviews,
           isLoading: _savingPreference == 'remindersAndReviews',
           onChanged: (value) {
-            _updatePreference(
-              key: 'remindersAndReviews',
-              nextValue: _preferences.copyWith(remindersAndReviews: value),
+            unawaited(
+              _updatePreference(
+                key: 'remindersAndReviews',
+                nextValue: _preferences.copyWith(remindersAndReviews: value),
+              ),
             );
           },
         ),

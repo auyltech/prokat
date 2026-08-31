@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
@@ -19,7 +20,7 @@ class _OwnerRegistrationScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ownerProfileProvider.notifier).refreshIfStale();
+      unawaited(ref.read(ownerProfileProvider.notifier).refreshIfStale());
     });
   }
 

@@ -40,12 +40,12 @@ class PriceNegotiationService {
           final itemsJson = payload['items'] ?? payload['data'];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected price negotiation list");
+            throw const FormatException("Expected price negotiation list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid price negotiation item");
+              throw const FormatException("Invalid price negotiation item");
             }
 
             return PriceNegotiation.fromJson(item);

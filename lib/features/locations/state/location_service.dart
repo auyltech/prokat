@@ -27,12 +27,12 @@ class LocationService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected locations list");
+            throw const FormatException("Expected locations list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid location item");
+              throw const FormatException("Invalid location item");
             }
 
             return LocationModel.fromJson(item);
@@ -70,12 +70,12 @@ class LocationService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected locations list");
+            throw const FormatException("Expected locations list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid location item");
+              throw const FormatException("Invalid location item");
             }
 
             return LocationModel.fromJson(item);
@@ -113,7 +113,7 @@ class LocationService {
           final rawJson = data["data"];
 
           if (rawJson is! Map<String, dynamic>) {
-            throw FormatException("Invalid location item");
+            throw const FormatException("Invalid location item");
           }
 
           return LocationModel.fromJson(rawJson);

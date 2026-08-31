@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -25,7 +26,7 @@ class _ClientRentalPreferencesSectionState
   void initState() {
     super.initState();
 
-    Future.microtask(_loadAddresses);
+    unawaited(Future.microtask(_loadAddresses));
   }
 
   Future<void> _loadAddresses() async {

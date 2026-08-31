@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/constants/otp_cooldown.dart';
@@ -231,7 +233,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Keep the login route mounted while the authenticated profile is
         // resolved. A full startup reload would route through /launch and
         // make a successful sign-in look like an application restart.
-        ref.read(appStartupProvider.notifier).reloadAfterAuthChanged();
+        unawaited(
+          ref.read(appStartupProvider.notifier).reloadAfterAuthChanged(),
+        );
 
         return true;
       }

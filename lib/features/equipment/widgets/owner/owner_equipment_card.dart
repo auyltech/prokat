@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +43,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
               ref
                   .read(equipmentMutationProvider.notifier)
                   .selectEditEquipment(equipment.id);
-              context.push('${AppRoutes.ownerEquipment}/${equipment.id}');
+              unawaited(
+                context.push('${AppRoutes.ownerEquipment}/${equipment.id}'),
+              );
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +75,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -92,7 +95,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
                           ),
                           const SizedBox(width: 2),
 
-                          Spacer(),
+                          const Spacer(),
 
                           EquipmentStatusBadge(status: equipment.status),
                         ],
@@ -104,7 +107,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
             ),
           ),
 
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
 
           // ROW 2: Pricing Strategy & Online Switch
           Row(

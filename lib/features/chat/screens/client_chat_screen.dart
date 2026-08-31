@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -32,8 +33,12 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale();
-      ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale();
+      unawaited(
+        ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale(),
+      );
+      unawaited(
+        ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale(),
+      );
       ref
           .read(chatMessagesProvider(widget.chatId).notifier)
           .dismissDisplayedPush();
@@ -66,7 +71,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       _entryOfferQuery = offerQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(clientOffersProvider(offerQuery).notifier).refreshIfStale();
+        unawaited(
+          ref.read(clientOffersProvider(offerQuery).notifier).refreshIfStale(),
+        );
       });
     }
 
@@ -79,9 +86,11 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       _entryNegotiationQuery = negotiationQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref
-            .read(priceNegotiationsProvider(negotiationQuery).notifier)
-            .refreshIfStale();
+        unawaited(
+          ref
+              .read(priceNegotiationsProvider(negotiationQuery).notifier)
+              .refreshIfStale(),
+        );
       });
     }
     final negotiations = negotiationQuery == null

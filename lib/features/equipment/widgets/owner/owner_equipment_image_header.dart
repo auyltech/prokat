@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -124,10 +125,12 @@ class _OwnerEquipmentImageHeaderState
     } else {
       final count = _displayImages.length;
       if (count > 0) {
-        _pageController.animateToPage(
-          count - 1,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
+        unawaited(
+          _pageController.animateToPage(
+            count - 1,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          ),
         );
       }
     }
@@ -213,20 +216,22 @@ class _OwnerEquipmentImageHeaderState
     required bool canSetCover,
     required bool canDelete,
   }) {
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (_) {
-        return EquipmentImageActionsSheet(
-          canAddMore: canAddMore,
-          isBusy: isBusy,
-          limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
-          onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
-          onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
-          onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
-          onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
-        );
-      },
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        builder: (_) {
+          return EquipmentImageActionsSheet(
+            canAddMore: canAddMore,
+            isBusy: isBusy,
+            limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
+            onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
+            onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
+            onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
+            onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
+          );
+        },
+      ),
     );
   }
 
@@ -237,7 +242,7 @@ class _OwnerEquipmentImageHeaderState
 
     final state = ref.watch(equipmentMutationProvider);
 
-    final actionId = "equipment:image";
+    const actionId = "equipment:image";
 
     final isBusy =
         state.activeActions

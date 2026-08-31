@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -60,17 +61,25 @@ class _ChatListViewState extends ConsumerState<ChatListView>
     if (controller.position.extentAfter >= 240) return;
 
     if (widget.isOwner) {
-      ref.read(ownerChatsByFilterProvider(filter).notifier).loadMore();
+      unawaited(
+        ref.read(ownerChatsByFilterProvider(filter).notifier).loadMore(),
+      );
     } else {
-      ref.read(clientChatsByFilterProvider(filter).notifier).loadMore();
+      unawaited(
+        ref.read(clientChatsByFilterProvider(filter).notifier).loadMore(),
+      );
     }
   }
 
   void _refreshIfStale(ChatListFilter filter) {
     if (widget.isOwner) {
-      ref.read(ownerChatsByFilterProvider(filter).notifier).refreshIfStale();
+      unawaited(
+        ref.read(ownerChatsByFilterProvider(filter).notifier).refreshIfStale(),
+      );
     } else {
-      ref.read(clientChatsByFilterProvider(filter).notifier).refreshIfStale();
+      unawaited(
+        ref.read(clientChatsByFilterProvider(filter).notifier).refreshIfStale(),
+      );
     }
   }
 

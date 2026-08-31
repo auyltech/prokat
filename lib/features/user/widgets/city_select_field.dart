@@ -34,8 +34,7 @@ class CitySelectField extends ConsumerWidget {
     if (selected == null || selected.isEmpty) return;
 
     final catalog = ref.read(catalogProvider).valueOrNull;
-    final next =
-        canonicalCity(selected, catalogCityKeys(catalog)) ?? selected;
+    final next = canonicalCity(selected, catalogCityKeys(catalog)) ?? selected;
     onChanged(next);
     state.didChange(next);
   }

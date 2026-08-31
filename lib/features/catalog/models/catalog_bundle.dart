@@ -142,7 +142,9 @@ class CatalogUnit {
       id: _asString(json['id']),
       slug: _asString(json['slug']),
       symbols: LocalizedNames.fromJson(json['symbols']),
-      names: json['names'] == null ? null : LocalizedNames.fromJson(json['names']),
+      names: json['names'] == null
+          ? null
+          : LocalizedNames.fromJson(json['names']),
       sortIndex: _asInt(json['sortIndex']),
     );
   }
@@ -344,21 +346,24 @@ class CatalogBundle {
       version: version,
       cities: _asObjectList(json['cities']).map(CatalogCity.fromJson).toList()
         ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
-      categories: _asObjectList(
-        json['categories'],
-      ).map(CatalogCategory.fromJson).toList()
-        ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
+      categories:
+          _asObjectList(
+              json['categories'],
+            ).map(CatalogCategory.fromJson).toList()
+            ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       units: _asObjectList(json['units']).map(CatalogUnit.fromJson).toList()
         ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       specs: _asObjectList(json['specs']).map(CatalogSpec.fromJson).toList(),
-      specOptions: _asObjectList(
-        json['specOptions'],
-      ).map(CatalogSpecOption.fromJson).toList()
-        ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
-      categorySpecs: _asObjectList(
-        json['categorySpecs'],
-      ).map(CatalogCategorySpec.fromJson).toList()
-        ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
+      specOptions:
+          _asObjectList(
+              json['specOptions'],
+            ).map(CatalogSpecOption.fromJson).toList()
+            ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
+      categorySpecs:
+          _asObjectList(
+              json['categorySpecs'],
+            ).map(CatalogCategorySpec.fromJson).toList()
+            ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
     );
   }
 
@@ -430,12 +435,14 @@ class CatalogBundle {
 
   List<CatalogCategorySpec> bindingsForCategory(String? categoryId) {
     if (categoryId == null || categoryId.isEmpty) return const [];
-    return categorySpecs.where((item) => item.categoryId == categoryId).toList();
+    return categorySpecs
+        .where((item) => item.categoryId == categoryId)
+        .toList();
   }
 
   List<CatalogCategorySpec> filterBindingsForCategory(String? categoryId) {
-    return bindingsForCategory(categoryId)
-        .where((item) => item.showInFilters && item.visibleToClient)
-        .toList();
+    return bindingsForCategory(
+      categoryId,
+    ).where((item) => item.showInFilters && item.visibleToClient).toList();
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -31,11 +32,15 @@ class _OwnerEquipmentDetailScreenState
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(ownerEquipmentDetailsProvider(widget.equipmentId).future);
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(
+          ownerEquipmentDetailsProvider(widget.equipmentId).future,
+        );
 
-      await ref.read(categoriesProvider.notifier).refreshIfStale();
-    });
+        await ref.read(categoriesProvider.notifier).refreshIfStale();
+      }),
+    );
   }
 
   @override

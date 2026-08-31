@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class BackgroundGlow extends StatelessWidget {
@@ -46,7 +48,8 @@ class _PulseWrapperState extends State<_PulseWrapper>
     _controller = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
-    )..repeat(reverse: true); // This creates the continuous breathing loop
+    );
+    unawaited(_controller.repeat(reverse: true));
 
     _animation = Tween<double>(
       begin: 0.85,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -154,7 +156,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     ].contains(currentPath)) {
       // Don't show notifications on login
     } else {
-      actionWidgets.add(NotificationBadge());
+      actionWidgets.add(const NotificationBadge());
     }
 
     return AppBar(
@@ -175,7 +177,7 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 size: 26,
                 color: theme.colorScheme.onPrimary,
               ),
-              onPressed: () async {
+              onPressed: () {
                 if (GoRouter.of(context).canPop()) {
                   context.pop();
                 } else {
@@ -193,7 +195,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
                 if (isChatByIdScreen) {
                   final chatId = segments[3];
-                  ref.read(chatSocketServiceProvider).leaveChat(chatId);
+                  unawaited(
+                    ref.read(chatSocketServiceProvider).leaveChat(chatId),
+                  );
                 }
               },
             )

@@ -22,7 +22,10 @@ void main() {
   });
 
   test('canonicalCity matches known tokens case-insensitively', () {
-    expect(canonicalCity('Ust-Kamenogorsk', ['Ust-Kamenogorsk']), 'Ust-Kamenogorsk');
+    expect(
+      canonicalCity('Ust-Kamenogorsk', ['Ust-Kamenogorsk']),
+      'Ust-Kamenogorsk',
+    );
     expect(canonicalCity('atyrau', ['Atyrau', 'Almaty']), 'Atyrau');
   });
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -50,7 +51,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(_loadAddresses);
+    unawaited(Future.microtask(_loadAddresses));
   }
 
   Future<void> _confirmDeleteAddress(
@@ -136,7 +137,7 @@ class _ClientAddressesScreenState extends ConsumerState<ClientAddressesScreen> {
                       FilledButton.icon(
                         onPressed: () {
                           Navigator.pop(context);
-                          context.push(AppRoutes.clientAddresses);
+                          unawaited(context.push(AppRoutes.clientAddresses));
                         },
                         icon: const Icon(Icons.add_location_alt),
                         label: Text(l10n.addAddress),

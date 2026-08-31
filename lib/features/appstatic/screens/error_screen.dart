@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -51,7 +52,7 @@ class ErrorScreen extends ConsumerWidget {
               text: l10n.retryConnection,
               loadingText: l10n.reconnecting,
               onPressed: () {
-                ref.read(appStartupProvider.notifier).init();
+                unawaited(ref.read(appStartupProvider.notifier).init());
                 context.go(AppRoutes.launch);
               },
             ),

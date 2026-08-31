@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -90,7 +92,7 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
           ? "${AppRoutes.ownerEquipment}/${widget.equipmentId}"
           : "${AppRoutes.equipment}/${widget.equipmentId}";
 
-      context.push(url);
+      unawaited(context.push(url));
       AppSnackBar.show(message: _l10n.addressCreated, isSuccess: true);
     } else {
       AppSnackBar.show(message: _l10n.failedCreateAddress, isError: true);

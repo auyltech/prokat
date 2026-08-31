@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -39,9 +40,11 @@ class _OwnerPaymentsTopupScreenState
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(billingProvider.notifier).getPricingTiers();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(billingProvider.notifier).getPricingTiers();
+      }),
+    );
   }
 
   @override

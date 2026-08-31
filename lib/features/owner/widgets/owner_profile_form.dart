@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -57,7 +58,10 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     // Bind state variations directly from the profile instance
     _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
     _selectedCity =
-        canonicalCity(profile.city, catalogCityKeys(ref.read(catalogProvider).valueOrNull)) ??
+        canonicalCity(
+          profile.city,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
         ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
   }
 
@@ -93,28 +97,30 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       city: _selectedCity,
     );
 
-    Future.microtask(() async {
-      final success = await ref
-          .read(ownerRegistrationMutationProvider.notifier)
-          .updateOwnerProfile(updatedProfile);
+    unawaited(
+      Future.microtask(() async {
+        final success = await ref
+            .read(ownerRegistrationMutationProvider.notifier)
+            .updateOwnerProfile(updatedProfile);
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      if (success && !isOrganization) {
-        _companyNameController.clear();
-        _legalNameController.clear();
-      }
+        if (success && !isOrganization) {
+          _companyNameController.clear();
+          _legalNameController.clear();
+        }
 
-      final l10n = AppLocalizations.of(context)!;
-      AppSnackBar.show(
-        message: success
-            ? l10n.profileUpdatedSuccessfully
-            : ref.read(ownerRegistrationMutationProvider).error ??
-                  l10n.failedToUpdateProfile,
-        isSuccess: success,
-        isError: !success,
-      );
-    });
+        final l10n = AppLocalizations.of(context)!;
+        AppSnackBar.show(
+          message: success
+              ? l10n.profileUpdatedSuccessfully
+              : ref.read(ownerRegistrationMutationProvider).error ??
+                    l10n.failedToUpdateProfile,
+          isSuccess: success,
+          isError: !success,
+        );
+      }),
+    );
   }
 
   @override
@@ -131,7 +137,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           // Owner Type Selector
           Text(
             l10n.ownerType,
@@ -252,7 +258,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
   Widget _buildTypeButton(String label, OwnerType value, ThemeData theme) {
     final isSelected = _selectedOwnerType == value;
-    final primaryColor = const Color(0xFF0F5A56);
+    const primaryColor = Color(0xFF0F5A56);
     return Expanded(
       child: OutlinedButton(
         onPressed: () => setState(() => _selectedOwnerType = value),

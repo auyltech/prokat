@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -54,10 +56,10 @@ class _RequestWithOffersState extends State<RequestWithOffers>
     switch (_controller.status) {
       case AnimationStatus.completed:
       case AnimationStatus.forward:
-        _controller.reverse();
+        unawaited(_controller.reverse());
       case AnimationStatus.dismissed:
       case AnimationStatus.reverse:
-        _controller.forward();
+        unawaited(_controller.forward());
     }
   }
 

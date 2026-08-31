@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
@@ -20,9 +21,11 @@ class _MapRenterEquipmentScreenState
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(clientEquipmentProvider.notifier).refresh();
-    });
+    unawaited(
+      Future.microtask(() {
+        unawaited(ref.read(clientEquipmentProvider.notifier).refresh());
+      }),
+    );
   }
 
   @override

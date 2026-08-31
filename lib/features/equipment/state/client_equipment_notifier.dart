@@ -5,6 +5,7 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 
 class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
@@ -25,15 +26,16 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   @override
   Future<QueryState<Equipment>> build() async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    final city = ref.watch(locationProvider.select((s) => s.city));
     _stateScope = null;
     if (_filterScope != scope) {
       _filterScope = scope;
       _query = null;
-      _city = null;
       _categoryId = null;
       _spec = const [];
       _requestGeneration++;
     }
+    _city = city;
     if (scope == null) {
       return const QueryState(itemsPerPage: _itemsPerPage, count: 0);
     }
@@ -74,7 +76,8 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       items: items,
       page: page,
       itemsPerPage: _itemsPerPage,
-      count: total ??
+      count:
+          total ??
           (items.length < _itemsPerPage
               ? ((page - 1) * _itemsPerPage) + items.length
               : (page * _itemsPerPage) + 1),
@@ -116,16 +119,17 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     int generation,
     AuthenticatedSessionScopeKey scope,
   ) async {
+    if (state.isLoading &&
+        (_stateScope != scope || state.valueOrNull == null)) {
+      try {
+        await future;
+      } catch (_) {}
+      if (!_isRequestCurrent(generation, scope)) return;
+    }
+
     final previous = _stateScope == scope ? state.valueOrNull : null;
 
     if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          if (!_isRequestCurrent(generation, scope)) return;
-          return;
-        } catch (_) {}
-      }
       if (!_isRequestCurrent(generation, scope)) return;
       state = const AsyncLoading();
       _stateScope = null;
@@ -196,7 +200,8 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         current.copyWith(
           items: [...current.items, ...items],
           page: nextPage,
-          count: total ??
+          count:
+              total ??
               (items.length < current.itemsPerPage
                   ? current.items.length + items.length
                   : current.count + current.itemsPerPage),

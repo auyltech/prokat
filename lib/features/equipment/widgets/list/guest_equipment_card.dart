@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -15,28 +16,30 @@ class GuestEquipmentCard extends StatelessWidget {
 
   void _showSignInDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(l10n.loginRequired),
-          content: Text(l10n.loginRequiredToViewEquipment),
-          actions: <Widget>[
-            TextButton(
-              child: Text(l10n.cancel),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            ElevatedButton(
-              child: Text(l10n.loginLink),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
+    unawaited(
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(l10n.loginRequired),
+            content: Text(l10n.loginRequiredToViewEquipment),
+            actions: <Widget>[
+              TextButton(
+                child: Text(l10n.cancel),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              ElevatedButton(
+                child: Text(l10n.loginLink),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
 
-                context.go(AppRoutes.login);
-              },
-            ),
-          ],
-        );
-      },
+                  context.go(AppRoutes.login);
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -112,7 +115,7 @@ class GuestEquipmentCard extends StatelessWidget {
                         ),
                       ),
 
-                      Spacer(),
+                      const Spacer(),
                       RichText(
                         text: TextSpan(
                           children: [
@@ -129,8 +132,7 @@ class GuestEquipmentCard extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text:
-                                  ' ${AppLocalizations.of(context)!.perDay}',
+                              text: ' ${AppLocalizations.of(context)!.perDay}',
                               style: const TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFF1D4ED8),

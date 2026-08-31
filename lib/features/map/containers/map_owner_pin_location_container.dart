@@ -77,7 +77,7 @@ class _MapOwnerPinLocationContainerState
       latitude = data.cameraState.center.coordinates.lat.toDouble();
       longitude = data.cameraState.center.coordinates.lng.toDouble();
 
-      reverseGeocode();
+      unawaited(reverseGeocode());
     });
   }
 

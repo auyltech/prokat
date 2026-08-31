@@ -270,7 +270,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     if (index == items.length - 1 &&
                         queryState.hasMore &&
                         !queryState.isLoadingMore) {
-                      Future.microtask(_loadMore);
+                      unawaited(Future.microtask(_loadMore));
                     }
 
                     return GuestEquipmentCard(item: items[index]);

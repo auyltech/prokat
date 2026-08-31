@@ -134,7 +134,7 @@ class _AsyncPendingRouteStorage extends NotificationLocalStorage {
   int clearCalls = 0;
   String? pendingRoute = '/chats/user-a';
 
-  _AsyncPendingRouteStorage() : super(storage: FlutterSecureStorage());
+  _AsyncPendingRouteStorage() : super(storage: const FlutterSecureStorage());
 
   @override
   Future<String?> readPendingRoute() async => pendingRoute;

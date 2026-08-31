@@ -16,11 +16,11 @@ class BookingStatusBadge extends StatelessWidget {
         return const Color.fromARGB(255, 0, 121, 4);
       case BookingStatus.completed:
       case BookingStatus.reviewed:
-        return Color.fromARGB(255, 32, 57, 141);
+        return const Color.fromARGB(255, 32, 57, 141);
       case BookingStatus.cancelled:
       case BookingStatus.rejected:
       case BookingStatus.failed:
-        return Color.fromARGB(255, 179, 0, 0);
+        return const Color.fromARGB(255, 179, 0, 0);
       case BookingStatus.draft:
         return Colors.grey;
     }
@@ -41,7 +41,7 @@ class BookingStatusBadge extends StatelessWidget {
       ),
       child: Text(
         getBookingStatus(status, l10n: l10n),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: Colors.white,

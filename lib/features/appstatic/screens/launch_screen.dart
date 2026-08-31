@@ -61,7 +61,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
       ),
     );
 
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
 
     _controller = AnimationController(
       vsync: this,
@@ -73,7 +73,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
       curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
     );
 
-    _controller.forward();
+    unawaited(_controller.forward());
   }
 
   Future<void> _loadAppVersion() async {
@@ -88,9 +88,11 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
   @override
   void dispose() {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: SystemUiOverlay.values,
+    unawaited(
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      ),
     );
     _warmupTimer?.cancel();
     _controller.dispose();
@@ -100,11 +102,11 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accentColor = const Color(0xFF00489B);
+    const accentColor = Color(0xFF00489B);
     final textTheme = theme.textTheme;
 
     final startup = ref.watch(appStartupProvider);
-    final showDetails = !kReleaseMode;
+    const showDetails = !kReleaseMode;
     final progress = startup.progress.clamp(0.0, 1.0);
     final percentText = '${(progress * 100).round()}%';
 
@@ -158,8 +160,8 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                         fontFamily: 'Oswald',
                         letterSpacing: 6,
                       ),
-                      children: [
-                        const TextSpan(text: 'PRO'),
+                      children: const [
+                        TextSpan(text: 'PRO'),
                         TextSpan(
                           text: 'KAT',
                           style: TextStyle(color: accentColor),
@@ -204,7 +206,9 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
                     value: showDetails ? progress : null,
-                    valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      accentColor,
+                    ),
                     backgroundColor: accentColor.withValues(alpha: 0.1),
                     minHeight: 4,
                   ),

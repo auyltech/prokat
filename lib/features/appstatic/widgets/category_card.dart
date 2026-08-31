@@ -93,7 +93,7 @@ class DemandCategoryCard extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      SizedBox.expand(),
+                      const SizedBox.expand(),
                       Positioned(
                         top: -6,
                         child: Icon(
