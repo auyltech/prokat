@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' show Color;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
@@ -15,6 +16,8 @@ import 'package:prokat/features/notifications/utils/chat_push_tag.dart';
 
 class PushNotificationService {
   static const String _androidChannelId = 'prokat_notifications';
+  static const String _androidNotificationIcon = 'ic_notification';
+  static const Color _androidNotificationColor = Color(0xFFFFCA0A);
 
   final FirebaseMessaging messaging;
   final FlutterLocalNotificationsPlugin localNotifications;
@@ -262,7 +265,7 @@ class PushNotificationService {
   }
 
   Future<void> _initLocalNotifications() async {
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings(_androidNotificationIcon);
     const ios = DarwinInitializationSettings();
     const settings = InitializationSettings(android: android, iOS: ios);
 
@@ -305,6 +308,8 @@ class PushNotificationService {
         _androidChannelId,
         'Notifications',
         channelDescription: 'Prokat notifications',
+        icon: _androidNotificationIcon,
+        color: _androidNotificationColor,
         importance: Importance.high,
         priority: Priority.high,
         tag: tag,
