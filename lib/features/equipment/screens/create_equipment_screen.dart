@@ -28,18 +28,25 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   final _plateNumber = TextEditingController();
   final _cityController = TextEditingController();
 
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   bool _loading = false;
 
   Future<void> onSubmit(AppLocalizations l10n) async {
-    if (!_formKey.currentState!.validate()) return;
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) {
+      setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
+      return;
+    }
+
+    final category = ref.read(equipmentMutationProvider).category;
+    if (category == null) {
+      setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
+      return;
+    }
+
     setState(() => _loading = true);
 
     try {
-      final equipmentState = ref.watch(equipmentMutationProvider);
-      final category = equipmentState.category;
-
-      if (category == null) return;
-
       final result = await ref
           .read(equipmentMutationProvider.notifier)
           .createEquipment({
@@ -77,6 +84,15 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   }
 
   @override
+  void dispose() {
+    _name.dispose();
+    _model.dispose();
+    _plateNumber.dispose();
+    _cityController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -101,61 +117,119 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
               padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
+                autovalidateMode: _autovalidateMode,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CategorySelectorTile(
-                      mode: CategorySheetMode.createEquipment,
-                      selectedCategoryId: category?.id,
+                    FormField<String>(
+                      validator: (_) {
+                        if (ref.read(equipmentMutationProvider).category ==
+                            null) {
+                          return l10n.fieldRequired;
+                        }
+                        return null;
+                      },
+                      builder: (state) {
+                        return CategorySelectorTile(
+                          mode: CategorySheetMode.createEquipment,
+                          selectedCategoryId: category?.id,
+                          errorText: state.errorText,
+                          onChanged: (picked) => state.didChange(picked?.id),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 16),
 
-                    GestureDetector(
-                      onTap: () async {
-                        final selectedCity = await CityPickerSheet.show(
-                          context: context,
-                          service: CitySelectorService.createequipment,
-                        );
-
-                        setState(() {
-                          _cityController.text = selectedCity ?? "";
-                        });
+                    FormField<String>(
+                      validator: (_) {
+                        if (_cityController.text.trim().isEmpty) {
+                          return l10n.cityRequired;
+                        }
+                        return null;
                       },
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.2,
+                      builder: (state) {
+                        final hasError = state.hasError;
+
+                        return GestureDetector(
+                          onTap: () async {
+                            final selectedCity = await CityPickerSheet.show(
+                              context: context,
+                              service: CitySelectorService.createequipment,
+                            );
+                            if (!context.mounted) return;
+                            if (selectedCity == null || selectedCity.isEmpty) {
+                              return;
+                            }
+
+                            setState(() {
+                              _cityController.text = selectedCity;
+                            });
+                            state.didChange(selectedCity);
+                          },
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: hasError
+                                      ? colorScheme.error.withValues(alpha: 0.2)
+                                      : theme.colorScheme.primary.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.location_pin,
+                                  color: hasError
+                                      ? colorScheme.error
+                                      : hasLocation
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.onPrimary,
+                                  size: 24,
+                                ),
                               ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.location_pin,
-                              color: hasLocation
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onPrimary,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              hasLocation
-                                  ? catalogCityLabelOf(ref, context, location)
-                                  : l10n.selectCity,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: hasLocation
-                                    ? colorScheme.primary
-                                    : colorScheme.onSurface,
-                                fontWeight: FontWeight.w600,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      hasLocation
+                                          ? catalogCityLabelOf(
+                                              ref,
+                                              context,
+                                              location,
+                                            )
+                                          : l10n.selectCity,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: hasError
+                                                ? colorScheme.error
+                                                : hasLocation
+                                                ? colorScheme.primary
+                                                : colorScheme.onSurface,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                    if (state.errorText != null) ...[
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        state.errorText!,
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: colorScheme.error,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 16),
@@ -165,7 +239,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       label: l10n.equipmentNameLabel,
                       controller: _name,
                       hint: l10n.equipmentNameHint,
-                      validator: (v) => v!.isEmpty ? l10n.required : null,
+                      isRequired: true,
                     ),
 
                     const SizedBox(height: 8),
@@ -175,6 +249,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       label: l10n.modelLabel,
                       controller: _model,
                       hint: l10n.modelHint,
+                      isRequired: true,
                     ),
 
                     const SizedBox(height: 8),
@@ -184,6 +259,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       label: l10n.plateNumberLabel,
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
+                      isRequired: true,
                       isLast: true,
                     ),
 
