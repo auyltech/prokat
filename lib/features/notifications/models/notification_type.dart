@@ -15,6 +15,7 @@ enum NotificationType {
   bookingRejected,
   bookingConfirmed,
   bookingCancelled,
+  bookingWorkStatus,
   bookingCompleted,
   clientConfirmedCompletion,
 
@@ -77,6 +78,7 @@ extension NotificationTypeX on NotificationType {
     NotificationType.bookingRejected => 'BOOKING_REJECTED',
     NotificationType.bookingConfirmed => 'BOOKING_CONFIRMED',
     NotificationType.bookingCancelled => 'BOOKING_CANCELLED',
+    NotificationType.bookingWorkStatus => 'BOOKING_WORK_STATUS',
     NotificationType.bookingCompleted => 'BOOKING_COMPLETED',
     NotificationType.clientConfirmedCompletion => 'CLIENT_CONFIRMED_COMPLETION',
 

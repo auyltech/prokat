@@ -63,6 +63,7 @@ class AppNotification {
   String? get requestId => _dataString('requestId');
   String? get offerId => _dataString('offerId');
   String? get reviewId => _dataString('reviewId');
+  String? get audience => _dataString('audience');
 
   static DateTime? _tryParseDate(dynamic value) {
     if (value == null) return null;

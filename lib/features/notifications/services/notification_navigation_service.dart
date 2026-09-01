@@ -10,6 +10,7 @@ import 'package:prokat/features/bookings/providers/owner_active_bookings_provide
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
+import 'package:prokat/features/notifications/utils/notification_audience.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 
@@ -23,16 +24,26 @@ class NotificationNavigationService {
 
   NotificationNavigationService(this.ref, this.storage);
 
-  bool get _isOwnerRole =>
-      ref.read(authProvider).session?.user?.isOwner ?? false;
+  bool get _isOwnerMode =>
+      ref.read(appStartupProvider).routeState == AppStartupRouteState.owner;
+
+  bool _opensOwnerShell(AppNotification notification) {
+    return notificationOpensOwnerShell(
+      type: notification.type,
+      data: notification.data,
+      isOwnerMode: _isOwnerMode,
+    );
+  }
 
   String notificationsHomeRoute() {
-    return _isOwnerRole
+    return _isOwnerMode
         ? AppRoutes.ownerNotifications
         : AppRoutes.clientNotifications;
   }
 
   String resolveRoute(AppNotification notification) {
+    final opensOwner = _opensOwnerShell(notification);
+
     switch (notification.type) {
       // ===========================
       // Requests
@@ -41,9 +52,7 @@ class NotificationNavigationService {
       case NotificationType.requestCreated:
       case NotificationType.requestCancelled:
       case NotificationType.requestExpired:
-        return _isOwnerRole
-            ? AppRoutes.ownerRequests
-            : AppRoutes.clientRequests;
+        return opensOwner ? AppRoutes.ownerRequests : AppRoutes.clientRequests;
 
       // ===========================
       // Offers / Negotiation
@@ -64,9 +73,7 @@ class NotificationNavigationService {
       case NotificationType.counterOfferRejected:
       case NotificationType.negotiationExpired:
       case NotificationType.negotiationClosed:
-        return _isOwnerRole
-            ? AppRoutes.ownerChatList
-            : AppRoutes.clientChatList;
+        return opensOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList;
 
       // ===========================
       // Bookings
@@ -77,6 +84,7 @@ class NotificationNavigationService {
       case NotificationType.bookingRejected:
       case NotificationType.bookingConfirmed:
       case NotificationType.bookingCancelled:
+      case NotificationType.bookingWorkStatus:
       case NotificationType.bookingCompleted:
       case NotificationType.clientConfirmedCompletion:
       case NotificationType.clientConfirmationRequired:
@@ -86,7 +94,7 @@ class NotificationNavigationService {
       case NotificationType.workPaused:
       case NotificationType.workFailed:
       case NotificationType.workCompleted:
-        return _isOwnerRole ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
+        return opensOwner ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
 
       // ===========================
       // Chats
@@ -99,7 +107,7 @@ class NotificationNavigationService {
         final chatId = notification.data["chatId"] as String?;
 
         if (chatId != null && chatId.isNotEmpty) {
-          return _isOwnerRole
+          return opensOwner
               ? '${AppRoutes.ownerChatList}/direct/$chatId'
               : '${AppRoutes.clientChatList}/direct/$chatId';
         }
@@ -113,7 +121,7 @@ class NotificationNavigationService {
       case NotificationType.reviewAvailable:
       case NotificationType.reviewSubmitted:
       case NotificationType.reviewReminder:
-        return _isOwnerRole ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
+        return opensOwner ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
 
       // ===========================
       // Equipment
@@ -124,11 +132,11 @@ class NotificationNavigationService {
       case NotificationType.equipmentSuspended:
         final equipmentId = notification.data["equipmentId"] as String?;
 
-        if (_isOwnerRole && equipmentId != null && equipmentId.isNotEmpty) {
+        if (opensOwner && equipmentId != null && equipmentId.isNotEmpty) {
           return '${AppRoutes.ownerEquipment}/$equipmentId';
         }
 
-        return _isOwnerRole ? AppRoutes.ownerEquipment : AppRoutes.searchList;
+        return opensOwner ? AppRoutes.ownerEquipment : AppRoutes.searchList;
 
       // ===========================
       // Owner Registration
@@ -139,9 +147,7 @@ class NotificationNavigationService {
       case NotificationType.ownerRejected:
       case NotificationType.documentRequired:
       case NotificationType.adminWarning:
-        return _isOwnerRole
-            ? AppRoutes.ownerRegistration
-            : AppRoutes.becomeOwner;
+        return opensOwner ? AppRoutes.ownerRegistration : AppRoutes.becomeOwner;
 
       // ===========================
       // Billing
@@ -166,18 +172,19 @@ class NotificationNavigationService {
   Future<void> navigate(AppNotification notification) async {
     final router = ref.read(routerProvider);
     final route = resolveRoute(notification);
+    final goingOwner = route.startsWith(AppRoutes.ownerMain);
 
     final startup = ref.read(appStartupProvider).routeState;
     final session = ref.read(authProvider).session;
 
     if (notification.category == "BOOKING") {
-      if (startup == AppStartupRouteState.owner) {
+      if (goingOwner) {
         unawaited(ref.read(ownerActiveBookingsProvider.notifier).invalidate());
       } else {
         unawaited(ref.read(clientActiveBookingsProvider.notifier).invalidate());
       }
     } else if (notification.category == "REQUEST") {
-      if (startup == AppStartupRouteState.owner) {
+      if (goingOwner) {
         unawaited(ref.read(ownerActiveRequestsProvider.notifier).invalidate());
       } else {
         unawaited(ref.read(clientActiveRequestsProvider.notifier).invalidate());
@@ -199,8 +206,7 @@ class NotificationNavigationService {
       return;
     }
 
-    if (route.startsWith(AppRoutes.ownerMain) &&
-        startup == AppStartupRouteState.client) {
+    if (goingOwner && startup == AppStartupRouteState.client) {
       await ref.read(appStartupProvider.notifier).setOwnerMode();
     } else if (route.startsWith(AppRoutes.clientMain) &&
         startup == AppStartupRouteState.owner) {
