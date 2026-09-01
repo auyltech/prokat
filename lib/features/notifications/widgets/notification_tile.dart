@@ -19,6 +19,9 @@ class NotificationTile extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final title = notification.localizedTitle(languageCode);
+    final body = notification.localizedBody(languageCode);
     final isUnread = notification.isUnread;
 
     return ListTile(
@@ -36,13 +39,13 @@ class NotificationTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        notification.title.isNotEmpty ? notification.title : l10n.notification,
+        title.isNotEmpty ? title : l10n.notification,
         style: theme.textTheme.titleSmall?.copyWith(
           fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
         ),
       ),
       subtitle: Text(
-        notification.body,
+        body,
         maxLines: 5,
         overflow: TextOverflow.ellipsis,
       ),

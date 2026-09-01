@@ -1,3 +1,4 @@
+import 'package:prokat/core/i18n/localized_text.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
 
 class AppNotification {
@@ -31,6 +32,24 @@ class AppNotification {
 
   bool get isRead => readAt != null;
   bool get isUnread => !isRead;
+
+  String localizedTitle(String languageCode) {
+    return pickLocalizedText(
+      data['i18n'],
+      languageCode: languageCode,
+      field: 'title',
+      fallback: title,
+    );
+  }
+
+  String localizedBody(String languageCode) {
+    return pickLocalizedText(
+      data['i18n'],
+      languageCode: languageCode,
+      field: 'body',
+      fallback: body,
+    );
+  }
 
   String? _dataString(String key) {
     final value = data[key];

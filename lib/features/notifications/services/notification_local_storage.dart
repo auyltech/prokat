@@ -7,6 +7,7 @@ class NotificationLocalStorage {
   static const _lastTokenKey = 'notifications_last_fcm_token';
   static const _lastTokenAtKey = 'notifications_last_fcm_token_at';
   static const _lastTokenUserIdKey = 'notifications_last_fcm_token_user_id';
+  static const _lastTokenLocaleKey = 'notifications_last_fcm_token_locale';
   static const _pendingRouteKey = 'notifications_pending_route';
 
   final FlutterSecureStorage _storage;
@@ -18,13 +19,17 @@ class NotificationLocalStorage {
     required String token,
     required DateTime at,
     required String? userId,
+    String? locale,
   }) async {
     await _storage.write(key: _lastTokenKey, value: token);
     await _storage.write(key: _lastTokenAtKey, value: at.toIso8601String());
     await _storage.write(key: _lastTokenUserIdKey, value: userId ?? '');
+    if (locale != null) {
+      await _storage.write(key: _lastTokenLocaleKey, value: locale);
+    }
   }
 
-  Future<({String token, DateTime? at, String? userId})?>
+  Future<({String token, DateTime? at, String? userId, String? locale})?>
   readLastRegisteredToken() async {
     final token = await _storage.read(key: _lastTokenKey);
     if (token == null || token.trim().isEmpty) return null;
@@ -33,10 +38,12 @@ class NotificationLocalStorage {
     final at = atRaw == null ? null : DateTime.tryParse(atRaw);
 
     final userId = await _storage.read(key: _lastTokenUserIdKey);
+    final locale = await _storage.read(key: _lastTokenLocaleKey);
     return (
       token: token,
       at: at,
       userId: (userId ?? '').trim().isEmpty ? null : userId,
+      locale: (locale ?? '').trim().isEmpty ? null : locale,
     );
   }
 
@@ -44,6 +51,7 @@ class NotificationLocalStorage {
     await _storage.delete(key: _lastTokenKey);
     await _storage.delete(key: _lastTokenAtKey);
     await _storage.delete(key: _lastTokenUserIdKey);
+    await _storage.delete(key: _lastTokenLocaleKey);
   }
 
   Future<void> savePendingRoute(String route) async {

@@ -12,6 +12,7 @@ class ApiRoutes {
   static const locationReverse = "$locations/reverse";
   // Client
   static const profile = "/user/profile";
+  static const userSettings = "/user/profile/settings";
   static const clientNotificationSettings =
       '/user/profile/settings/notifications';
   static const userCategory = "/user/profile/category";

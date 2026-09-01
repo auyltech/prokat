@@ -56,7 +56,11 @@ class ChatTile extends StatelessWidget {
         ? l10n.support
         : l10n.announcements;
 
-    final preview = chat.lastMessage?.content ?? l10n.noMessagesYet;
+    final preview =
+        chat.lastMessage?.localizedContent(
+          Localizations.localeOf(context).languageCode,
+        ) ??
+        l10n.noMessagesYet;
 
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,

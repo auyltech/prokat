@@ -7,7 +7,8 @@
 `getChatConfig` берёт booking (в списке — `bookingSummary`), иначе заявку **этого** треда.
 
 - `ACCEPTED` без booking на треде = выбран другой владелец (`offernotselected`), не «Booking Created».
-- Карточка оффера только если `service: OFFER` и в `meta` есть `id` (DTO оффера). EVENT проигрыша тендера (`reason: NOT_SELECTED`, текст поддержки) рисуется как обычное сообщение; превью списка берёт `lastMessage.content`.
+- Карточка оффера только если `service: OFFER` и в `meta` есть `id` (DTO оффера). EVENT проигрыша тендера (`reason: NOT_SELECTED`, текст поддержки) рисуется как обычное сообщение; превью списка берёт `lastMessage.localizedContent(locale)`, не сырой `content`.
+- Системные EVENT: `meta.i18n = { ru, kk, en }` (тела) + `templateKey` + `params`. `content` — RU fallback для старых клиентов. Не затирать DTO в `meta` (оффер/бронь).
 - Кнопка Cancel Request только у клиента на `requestcreated`. У `requestaccepted` / `offernotselected` действий нет.
 - Архив списка и лок ввода: `Chat.status` (`closed` / `archived`). `SUPPORT` всегда Active и не лочится. `ChatParticipant.isArchived` не используется.
 

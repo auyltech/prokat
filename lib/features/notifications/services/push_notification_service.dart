@@ -23,6 +23,7 @@ class PushNotificationService {
   final NotificationNavigationService navigation;
   final void Function(AppNotification notification) onIncoming;
   final bool Function(String id)? shouldSuppressDisplay;
+  final String Function()? currentLocale;
 
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
@@ -38,6 +39,7 @@ class PushNotificationService {
     required this.navigation,
     required this.onIncoming,
     this.shouldSuppressDisplay,
+    this.currentLocale,
   });
 
   Future<void> initialize({required AuthSession session}) async {
@@ -99,34 +101,51 @@ class PushNotificationService {
   Future<void> registerTokenWithBackend({
     required AuthSession session,
     required String token,
+    String? locale,
+    bool force = false,
   }) async {
     if (kIsWeb) return;
     final normalizedToken = token.trim();
     if (normalizedToken.isEmpty) return;
 
     final userId = session.user?.id ?? session.user?.phoneNumber;
+    final resolvedLocale =
+        (locale ?? currentLocale?.call() ?? '').trim().toLowerCase();
 
     final last = await storage.readLastRegisteredToken();
     final lastToken = last?.token.trim();
     final lastAt = last?.at;
     final lastUserId = last?.userId;
+    final lastLocale = last?.locale?.trim().toLowerCase();
 
     final tooSoon =
         lastAt != null &&
         DateTime.now().difference(lastAt) < const Duration(hours: 12);
 
-    if (lastToken == normalizedToken && lastUserId == userId && tooSoon) {
+    final localeChanged =
+        resolvedLocale.isNotEmpty && resolvedLocale != lastLocale;
+
+    if (!force &&
+        lastToken == normalizedToken &&
+        lastUserId == userId &&
+        tooSoon &&
+        !localeChanged) {
       return;
     }
 
     final platform = _platformName();
 
-    await api.registerDeviceToken(token: normalizedToken, platform: platform);
+    await api.registerDeviceToken(
+      token: normalizedToken,
+      platform: platform,
+      metadata: resolvedLocale.isEmpty ? null : {'locale': resolvedLocale},
+    );
 
     await storage.saveLastRegisteredToken(
       token: normalizedToken,
       at: DateTime.now(),
       userId: userId,
+      locale: resolvedLocale.isEmpty ? null : resolvedLocale,
     );
   }
 
@@ -297,8 +316,8 @@ class PushNotificationService {
 
     await localNotifications.show(
       id: tag?.hashCode ?? notification.id.hashCode,
-      title: notification.title,
-      body: notification.body,
+      title: notification.localizedTitle(currentLocale?.call() ?? 'ru'),
+      body: notification.localizedBody(currentLocale?.call() ?? 'ru'),
       notificationDetails: details,
       payload: jsonEncode(notification.toJson()),
     );
@@ -336,7 +355,11 @@ class PushNotificationService {
     } catch (_) {}
   }
 
-  Future<bool> syncCurrentDevice({required AuthSession session}) async {
+  Future<bool> syncCurrentDevice({
+    required AuthSession session,
+    String? locale,
+    bool force = false,
+  }) async {
     if (kIsWeb) return false;
 
     final settings = await messaging.getNotificationSettings();
@@ -355,7 +378,12 @@ class PushNotificationService {
       return false;
     }
 
-    await registerTokenWithBackend(session: session, token: token!);
+    await registerTokenWithBackend(
+      session: session,
+      token: token!,
+      locale: locale,
+      force: force,
+    );
 
     return true;
   }

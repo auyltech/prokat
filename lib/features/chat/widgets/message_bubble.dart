@@ -126,7 +126,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                   Padding(
                     padding: EdgeInsets.only(right: widget.isMe ? 20 : 0),
                     child: Text(
-                      widget.message.content,
+                      widget.message.localizedContent(
+                        Localizations.localeOf(context).languageCode,
+                      ),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         height: 1.3,
                         color: widget.isMe

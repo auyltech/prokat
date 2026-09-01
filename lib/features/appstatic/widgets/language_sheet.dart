@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LanguageSheet extends ConsumerStatefulWidget {
   const LanguageSheet({super.key});
@@ -30,8 +34,29 @@ class LanguageSheet extends ConsumerStatefulWidget {
 
 class LanguageSheetState extends ConsumerState<LanguageSheet> {
   void _selectLocale(String langCode) {
-    unawaited(ref.read(localeProvider.notifier).setLocale(Locale(langCode)));
+    unawaited(_applyLocale(langCode));
     Navigator.pop(context);
+  }
+
+  Future<void> _applyLocale(String langCode) async {
+    await ref.read(localeProvider.notifier).setLocale(Locale(langCode));
+
+    final session = ref.read(authProvider).session;
+    if (session == null) return;
+
+    try {
+      await ref
+          .read(clientProfileServiceProvider)
+          .updateUserSettings(language: langCode);
+    } catch (_) {}
+
+    if (!Env.pushNotificationsEnabled) return;
+
+    try {
+      await ref
+          .read(pushNotificationServiceProvider)
+          .syncCurrentDevice(session: session, locale: langCode, force: true);
+    } catch (_) {}
   }
 
   @override

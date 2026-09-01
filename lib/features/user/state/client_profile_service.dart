@@ -82,6 +82,17 @@ class ClientProfileService {
     }
   }
 
+  Future<void> updateUserSettings({required String language}) async {
+    try {
+      await _dio.patch(
+        ApiRoutes.userSettings,
+        data: {'language': language},
+      );
+    } on DioException catch (error) {
+      throw Exception(extractBackendMessage(error));
+    }
+  }
+
   Future<ApiResponse<void>> updateClientNotificationSettings(
     ClientNotificationPreferences preferences,
   ) async {
