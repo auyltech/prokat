@@ -98,7 +98,7 @@ Coordinator патчит списки заявок **участников** та
 
 - Списки чатов: вкладки Active / Archive; в списке `bookingSummary`, полного `booking` нет; подпись тайла из summary.
 - `workflow:update` патчит открытый чат, списки чатов, активные/история заказов, списки заявок участников; офферы/торг — invalidate family.
-- Resume-ресинк загруженных чатов, заказов, заявок (не только если сокет реально переподключился).
+- Resume-ресинк загруженных чатов, заказов, заявок и списков офферов `OfferQuery.active|history` (не только если сокет реально переподключился). Family с `requestId` (открытый чат) — через `currentChat.refresh()`.
 - Дубль HTTP списков чатов из sidebar-bootstrap на resume убран: один ресинк в workflow.
 
 Не трогать: `notification:new`, `chat:message:new`, `chat:sidebar:update`. Админка (`prokatWeb`) канал не слушает.
@@ -110,4 +110,3 @@ Coordinator патчит списки заявок **участников** та
 - `EXPIRED` нет ни в ACTIVE, ни в HISTORY.
 - `RequestStatus.VIEWED` на сущности заявки не выставляется.
 - Вкладка «История заявок» (кто выиграл / проиграл) ещё не в UI; API `HISTORY` уже отдаёт `ACCEPTED` / `CANCELLED`.
-- Family офферов/торга на resume не инвалидируется целиком; открытый чат подтягивается через `currentChat.refresh()`.

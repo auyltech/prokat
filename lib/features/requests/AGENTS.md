@@ -16,5 +16,6 @@
 - Канал тот же, что у заказов: `workflow:update`. Комнаты участников (клиент + владельцы с чатом). Не broadcast на всех владельцев.
 - `WorkflowCacheCoordinator` патчит списки заявок участников: terminal (`CANCELLED` / `EXPIRED`) → убрать из active; history клиента — патч или `invalidate()`.
 - Лента чужих тендеров без чата обновляется HTTP: вход (`refreshIfStale`), pull-to-refresh, resume-ресинк.
+- Resume рефетчит загруженные списки заявок и офферов (`OfferQuery.active|history`).
 
 Не эмитить `createRequest` в workflow. Не путать с заказами: отклик ≠ переезд в заказы.
