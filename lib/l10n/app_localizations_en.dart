@@ -1246,6 +1246,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workStatusStopWork => 'Stop work';
 
   @override
+  String get workStatusResumeWork => 'Resume work';
+
+  @override
   String get workStatusCompleteWork => 'Complete work';
 
   @override

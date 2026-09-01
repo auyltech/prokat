@@ -1234,6 +1234,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get workStatusStopWork => 'Жұмысты тоқтату';
 
   @override
+  String get workStatusResumeWork => 'Жұмысты жалғастыру';
+
+  @override
   String get workStatusCompleteWork => 'Жұмысты аяқтау';
 
   @override

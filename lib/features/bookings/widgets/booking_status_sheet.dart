@@ -35,20 +35,7 @@ class BookingStatusSheet extends ConsumerWidget {
     final notifier = ref.read(bookingMutationProvider.notifier);
 
     final currentStatus = booking.workStatus;
-    final isStarted = currentStatus.level >= WorkStatus.started.level;
-
-    final availableStatuses = isStarted
-        ? [WorkStatus.stopped, WorkStatus.completed, WorkStatus.cancelled]
-        : [
-            WorkStatus.onMyWay,
-            WorkStatus.onSite,
-            WorkStatus.started,
-            WorkStatus.postponed,
-          ];
-
-    final validStatuses = availableStatuses
-        .where((s) => canTransition(currentStatus, s))
-        .toList();
+    final validStatuses = nextWorkStatuses(currentStatus);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -72,11 +59,9 @@ class BookingStatusSheet extends ConsumerWidget {
 
             ...validStatuses.map((status) {
               return _StatusTile(
-                label: status.localizedLabel(l10n),
+                label: status.sheetLabel(l10n, current: currentStatus),
                 isCurrent: status == currentStatus,
-                isDanger:
-                    status == WorkStatus.cancelled ||
-                    status == WorkStatus.stopped,
+                isDanger: status == WorkStatus.stopped,
                 onTap: () async {
                   final result = await notifier.updateBookingWorkStatus(
                     id: booking.id,

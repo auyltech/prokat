@@ -467,6 +467,7 @@
   "workStatusStartWork": "Жұмысты бастау",
   "workStatusPostpone": "Кейінге қалдыру",
   "workStatusStopWork": "Жұмысты тоқтату",
+  "workStatusResumeWork": "Жұмысты жалғастыру",
   "workStatusCompleteWork": "Жұмысты аяқтау",
   "workStatusCancelJob": "Тапсырманы жою",
 

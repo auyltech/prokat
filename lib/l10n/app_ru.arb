@@ -466,6 +466,7 @@
   "workStatusStartWork": "Начать работу",
   "workStatusPostpone": "Отложить",
   "workStatusStopWork": "Остановить работу",
+  "workStatusResumeWork": "Возобновить работу",
   "workStatusCompleteWork": "Завершить работу",
   "workStatusCancelJob": "Отменить задание",
 

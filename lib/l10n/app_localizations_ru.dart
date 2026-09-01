@@ -1250,6 +1250,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get workStatusStopWork => 'Остановить работу';
 
   @override
+  String get workStatusResumeWork => 'Возобновить работу';
+
+  @override
   String get workStatusCompleteWork => 'Завершить работу';
 
   @override

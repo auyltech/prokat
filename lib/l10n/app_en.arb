@@ -468,6 +468,7 @@
   "workStatusStartWork": "Start work",
   "workStatusPostpone": "Postpone",
   "workStatusStopWork": "Stop work",
+  "workStatusResumeWork": "Resume work",
   "workStatusCompleteWork": "Complete work",
   "workStatusCancelJob": "Cancel job",
 

@@ -2416,6 +2416,12 @@ abstract class AppLocalizations {
   /// **'Stop work'**
   String get workStatusStopWork;
 
+  /// No description provided for @workStatusResumeWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume work'**
+  String get workStatusResumeWork;
+
   /// No description provided for @workStatusCompleteWork.
   ///
   /// In en, this message translates to:
