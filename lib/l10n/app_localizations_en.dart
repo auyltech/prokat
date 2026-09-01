@@ -2013,6 +2013,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please update your documents and try again.';
 
   @override
+  String get ownerProfileSuspended => 'Profile suspended';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Listing equipment is temporarily unavailable. Contact support.';
+
+  @override
+  String get ownerProfilePendingReview => 'Waiting for review';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Your updated details will be checked by an administrator.';
+
+  @override
+  String get profileUpdateNeedsModeration =>
+      'Your details will be sent for moderation';
+
+  @override
   String get submitForVerification => 'Submit for Verification';
 
   @override

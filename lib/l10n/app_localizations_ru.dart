@@ -2021,6 +2021,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateDocumentsHint => 'Обновите документы и повторите попытку.';
 
   @override
+  String get ownerProfileSuspended => 'Профиль приостановлен';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Размещение техники временно недоступно. Свяжитесь с поддержкой.';
+
+  @override
+  String get ownerProfilePendingReview => 'Ожидайте рассмотрения';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Отправленные данные снова проходят модерацию.';
+
+  @override
+  String get profileUpdateNeedsModeration =>
+      'Данные будут переданы на модерацию';
+
+  @override
   String get submitForVerification => 'Отправить на верификацию';
 
   @override

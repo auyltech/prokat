@@ -2005,6 +2005,23 @@ class AppLocalizationsKk extends AppLocalizations {
   String get updateDocumentsHint => 'Құжаттарыңызды жаңартып, қайта жіберіңіз.';
 
   @override
+  String get ownerProfileSuspended => 'Профиль тоқтатылды';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Техниканы орналастыру уақытша қолжетімсіз. Қолдау қызметіне хабарласыңыз.';
+
+  @override
+  String get ownerProfilePendingReview => 'Қарауды күтіңіз';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Жіберілген деректер қайта модерациядан өтеді.';
+
+  @override
+  String get profileUpdateNeedsModeration => 'Деректер модерацияға жіберіледі';
+
+  @override
   String get submitForVerification => 'Тексеруге жіберу';
 
   @override

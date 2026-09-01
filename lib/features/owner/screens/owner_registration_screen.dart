@@ -30,6 +30,7 @@ class _OwnerRegistrationScreenState
     final l10n = AppLocalizations.of(context)!;
 
     final initialProfile = ref.watch(ownerProfileProvider).valueOrNull;
+    final status = initialProfile?.status;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -44,12 +45,9 @@ class _OwnerRegistrationScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStatusCard(
-                    theme,
-                    l10n,
-                    OwnerRegistrationStatus.incomplete,
-                  ),
-
+                  if (status != null &&
+                      shouldShowOwnerProfileStatusBanner(status))
+                    _buildStatusCard(l10n, status),
                   if (initialProfile != null)
                     OwnerProfileForm(initialProfile: initialProfile),
                 ],
@@ -62,44 +60,33 @@ class _OwnerRegistrationScreenState
   }
 
   Widget _buildStatusCard(
-    ThemeData theme,
     AppLocalizations l10n,
     OwnerRegistrationStatus status,
   ) {
-    String title;
-    String subtitle;
-    Color color;
-    IconData icon;
+    final (title, subtitle, color, icon) = switch (status) {
+      OwnerRegistrationStatus.pending => (
+        l10n.ownerProfilePendingReview,
+        l10n.ownerProfilePendingReviewHint,
+        Colors.blue,
+        Icons.hourglass_top,
+      ),
+      OwnerRegistrationStatus.rejected => (
+        l10n.verificationFailed,
+        l10n.statusRejectedSubtitle,
+        Colors.red,
+        Icons.error_outline,
+      ),
+      OwnerRegistrationStatus.suspended => (
+        l10n.ownerProfileSuspended,
+        l10n.ownerProfileSuspendedHint,
+        Colors.red,
+        Icons.block,
+      ),
+      OwnerRegistrationStatus.incomplete || OwnerRegistrationStatus.approved =>
+        ('', '', Colors.transparent, Icons.info_outline),
+    };
 
-    switch (status) {
-      case OwnerRegistrationStatus.incomplete:
-        title = l10n.completeRegistration;
-        subtitle = l10n.submitDocumentsHint;
-        color = Colors.orange;
-        icon = Icons.pending_actions;
-        break;
-
-      case OwnerRegistrationStatus.pending:
-        title = l10n.verificationInProgress;
-        subtitle = l10n.reviewingDocuments;
-        color = Colors.blue;
-        icon = Icons.hourglass_top;
-        break;
-
-      case OwnerRegistrationStatus.approved:
-        title = l10n.youAreVerified;
-        subtitle = l10n.canListEquipment;
-        color = Colors.green;
-        icon = Icons.verified;
-        break;
-
-      case OwnerRegistrationStatus.rejected:
-        title = l10n.verificationFailed;
-        subtitle = l10n.updateDocumentsHint;
-        color = Colors.red;
-        icon = Icons.error_outline;
-        break;
-    }
+    if (title.isEmpty) return const SizedBox.shrink();
 
     return Card(
       child: ListTile(

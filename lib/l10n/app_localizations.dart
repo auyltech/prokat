@@ -3934,6 +3934,36 @@ abstract class AppLocalizations {
   /// **'Please update your documents and try again.'**
   String get updateDocumentsHint;
 
+  /// No description provided for @ownerProfileSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile suspended'**
+  String get ownerProfileSuspended;
+
+  /// No description provided for @ownerProfileSuspendedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing equipment is temporarily unavailable. Contact support.'**
+  String get ownerProfileSuspendedHint;
+
+  /// No description provided for @ownerProfilePendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get ownerProfilePendingReview;
+
+  /// No description provided for @ownerProfilePendingReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your updated details will be checked by an administrator.'**
+  String get ownerProfilePendingReviewHint;
+
+  /// No description provided for @profileUpdateNeedsModeration.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details will be sent for moderation'**
+  String get profileUpdateNeedsModeration;
+
   /// No description provided for @submitForVerification.
   ///
   /// In en, this message translates to:
