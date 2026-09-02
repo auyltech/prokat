@@ -9,6 +9,7 @@ class CitySelectField extends ConsumerWidget {
   final String? city;
   final bool isRequired;
   final bool showIcon;
+  final bool enabled;
   final CitySelectorService? service;
   final ValueChanged<String> onChanged;
 
@@ -18,6 +19,7 @@ class CitySelectField extends ConsumerWidget {
     required this.onChanged,
     this.isRequired = false,
     this.showIcon = true,
+    this.enabled = true,
     this.service,
   });
 
@@ -65,8 +67,19 @@ class CitySelectField extends ConsumerWidget {
         return null;
       },
       builder: (state) {
+        final valueStyle = !enabled
+            ? theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              )
+            : hasCity
+            ? theme.textTheme.bodyMedium
+            : theme.textTheme.labelLarge?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                fontWeight: FontWeight.w400,
+              );
+
         return InkWell(
-          onTap: () => _pickCity(context, ref, state),
+          onTap: enabled ? () => _pickCity(context, ref, state) : null,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -103,22 +116,14 @@ class CitySelectField extends ConsumerWidget {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.only(top: 4, bottom: 4),
-                            child: Text(
-                              label,
-                              style: hasCity
-                                  ? theme.textTheme.bodyMedium
-                                  : theme.textTheme.labelLarge?.copyWith(
-                                      color: colorScheme.onSurface.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                            ),
+                            child: Text(label, style: valueStyle),
                           ),
                         ),
                         Icon(
                           Icons.keyboard_arrow_down,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: colorScheme.onSurface.withValues(
+                            alpha: enabled ? 0.6 : 0.35,
+                          ),
                         ),
                       ],
                     ),

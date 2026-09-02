@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/utils/chat_resume_sync_observer.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
@@ -64,7 +65,9 @@ final workflowBootstrapProvider = Provider<void>((ref) {
 
     try {
       await socketService.connect();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      Logger.log('workflow socket connect failed: $error\n$stackTrace');
+    }
   }
 
   final lifecycleObserver = ChatResumeSyncObserver(

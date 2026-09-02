@@ -2,9 +2,12 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/media/media_providers.dart';
+import 'package:prokat/core/media/resolve_media_url.dart';
 import 'package:shimmer/shimmer.dart';
 
-class OptimizedNetworkImage extends StatelessWidget {
+class OptimizedNetworkImage extends ConsumerWidget {
   final String? imageUrl;
   final double? width;
   final double? height;
@@ -27,13 +30,13 @@ class OptimizedNetworkImage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final url = imageUrl?.trim() ?? '';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resolved = resolveMediaUrl(imageUrl);
     final child = LayoutBuilder(
       builder: (context, constraints) {
         final cacheSize = _cacheSize(context, constraints);
 
-        if (url.isEmpty) {
+        if (resolved == null || resolved.isEmpty) {
           return _ErrorImage(
             icon: fallbackIcon,
             backgroundColor: backgroundColor,
@@ -41,7 +44,10 @@ class OptimizedNetworkImage extends StatelessWidget {
         }
 
         return CachedNetworkImage(
-          imageUrl: url,
+          imageUrl: resolved,
+          cacheManager: isApiMediaUrl(resolved)
+              ? ref.watch(mediaCacheManagerProvider)
+              : null,
           fit: fit,
           width: double.infinity,
           height: double.infinity,
@@ -82,9 +88,6 @@ class OptimizedNetworkImage extends StatelessWidget {
       maxCacheHeight,
     );
 
-    // ResizeImage (memCacheWidth/Height) defaults to ResizeImagePolicy.exact.
-    // Both dimensions decode like BoxFit.fill and stretch the bitmap before
-    // [fit] is applied, so cover/contain cannot restore the aspect ratio.
     if (widthPx != null && heightPx != null) {
       if (widthPx >= heightPx) {
         return (width: widthPx, height: null);

@@ -268,6 +268,12 @@ abstract class AppLocalizations {
   /// **'Waiting Client Confirmation'**
   String get waitingClientConfirmation;
 
+  /// No description provided for @waitingForClientConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting confirmation'**
+  String get waitingForClientConfirm;
+
   /// No description provided for @confirmWorkCompleted.
   ///
   /// In en, this message translates to:
@@ -1335,6 +1341,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price Offer'**
   String get priceOffer;
+
+  /// No description provided for @priceOfferStatusCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get priceOfferStatusCreated;
+
+  /// No description provided for @priceOfferStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get priceOfferStatusCancelled;
 
   /// No description provided for @offeredPrice.
   ///

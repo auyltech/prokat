@@ -8,6 +8,8 @@ import 'package:prokat/features/map/widgets/map_controls.dart';
 
 enum MyMapMode { browseEquipment, renterPickAddress, ownerPlaceEquipment }
 
+const _mapTapInteractionId = 'prokat-map-tap';
+
 class MyMapView extends ConsumerStatefulWidget {
   final MyMapMode mode;
   final Function(CameraChangedEventData data)? onCameraIdle;
@@ -65,7 +67,7 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
         MapWidget(
           key: const ValueKey('prokat-map'),
           styleUri: MapboxStyles.MAPBOX_STREETS,
-          cameraOptions: CameraOptions(
+          viewport: CameraViewportState(
             center: Point(
               coordinates: Position(
                 MapConstants.defaultLongitude,
@@ -77,10 +79,18 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
           onMapCreated: (mapboxMap) async {
             if (_closed) return;
             _map = mapboxMap;
+            mapboxMap.addInteraction(
+              TapInteraction.onMap((context) {
+                if (_closed) return;
+                widget.onMapTap?.call(context.point);
+              }),
+              interactionID: _mapTapInteractionId,
+            );
             mapController.attach(mapboxMap, initialItems: widget.equipmentList);
             try {
               await mapController.enableUserLocation();
               if (_closed) {
+                mapboxMap.removeInteraction(_mapTapInteractionId);
                 mapController.detach(mapboxMap);
                 return;
               }
@@ -89,6 +99,7 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
               // Keep the map usable if location setup fails.
             }
             if (_closed) {
+              mapboxMap.removeInteraction(_mapTapInteractionId);
               mapController.detach(mapboxMap);
             }
           },
@@ -99,10 +110,6 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
           onCameraChangeListener: (event) {
             if (_closed) return;
             widget.onCameraIdle?.call(event);
-          },
-          onTapListener: (context) {
-            if (_closed) return;
-            widget.onMapTap?.call(context.point);
           },
         ),
         MapControls(

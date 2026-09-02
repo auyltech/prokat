@@ -18,6 +18,6 @@
 - `postponed` → `onMyWay` | `onSite` | `started`
 - `started` → `stopped` | `completed`
 - `stopped` → `started` (возобновить) | `completed`
-- `completed` — конец работ; клиент подтверждает заказ
+- `completed` — конец работ; клиент подтверждает заказ. В списке заказов «Завершить работу» скрыта (`CONFIRMED` + `completed`).
 
 Шит: `BookingStatusSheet` берёт `nextWorkStatuses`. Кнопки — ARB. Тела EVENT и пушей — бэкенд `meta.i18n` / `data.i18n`, не ARB.

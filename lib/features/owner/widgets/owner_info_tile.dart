@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/media/media_image_provider.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/user/widgets/user_display_name.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class OwnerInfoTile extends StatelessWidget {
+class OwnerInfoTile extends ConsumerWidget {
   final UserModel? user;
 
   const OwnerInfoTile({super.key, this.user});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
@@ -20,7 +22,7 @@ class OwnerInfoTile extends StatelessWidget {
           radius: 24,
           backgroundColor: theme.colorScheme.surfaceContainer,
           backgroundImage: (user?.imageUrl ?? '').isNotEmpty
-              ? NetworkImage(user?.imageUrl ?? "")
+              ? mediaImageProvider(ref, user?.imageUrl)
               : null,
           child: Icon(
             Icons.person_rounded,

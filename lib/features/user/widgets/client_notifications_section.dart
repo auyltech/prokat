@@ -96,12 +96,9 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
     final status = _notificationSettings?.authorizationStatus;
 
     if (status == AuthorizationStatus.authorized ||
-        status == AuthorizationStatus.provisional) {
-      await openAppSettings();
-      return;
-    }
-
-    if (status == AuthorizationStatus.denied) {
+        status == AuthorizationStatus.provisional ||
+        status == AuthorizationStatus.denied ||
+        status == AuthorizationStatus.deniedPermanently) {
       await openAppSettings();
       return;
     }
@@ -130,6 +127,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
       AuthorizationStatus.authorized => l10n.pushEnabled,
       AuthorizationStatus.provisional => l10n.pushEnabledQuietly,
       AuthorizationStatus.denied => l10n.pushBlocked,
+      AuthorizationStatus.deniedPermanently => l10n.pushBlocked,
       AuthorizationStatus.notDetermined => l10n.pushNotEnabled,
       null => l10n.pushUnavailable,
     };

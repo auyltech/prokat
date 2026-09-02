@@ -37,3 +37,8 @@ bool shouldShowOwnerProfileStatusBanner(OwnerRegistrationStatus? status) {
     _ => false,
   };
 }
+
+/// `PENDING_REVIEW` stays read-only so owners cannot spam the moderator queue.
+bool isOwnerBusinessProfileLocked(OwnerRegistrationStatus? status) {
+  return status == OwnerRegistrationStatus.pending;
+}

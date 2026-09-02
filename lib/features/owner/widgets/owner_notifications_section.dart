@@ -118,7 +118,8 @@ class _OwnerNotificationsSectionState
 
     if (status == AuthorizationStatus.authorized ||
         status == AuthorizationStatus.provisional ||
-        status == AuthorizationStatus.denied) {
+        status == AuthorizationStatus.denied ||
+        status == AuthorizationStatus.deniedPermanently) {
       await openAppSettings();
       return;
     }
@@ -151,6 +152,7 @@ class _OwnerNotificationsSectionState
       AuthorizationStatus.authorized => l10n.pushEnabledInDeviceSettings,
       AuthorizationStatus.provisional => l10n.pushEnabledQuietly,
       AuthorizationStatus.denied => l10n.pushBlockedInDeviceSettings,
+      AuthorizationStatus.deniedPermanently => l10n.pushBlockedInDeviceSettings,
       AuthorizationStatus.notDetermined => l10n.pushPermissionNotRequested,
       null => l10n.pushPermissionUnavailable,
     };

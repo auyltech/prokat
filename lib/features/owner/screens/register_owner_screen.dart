@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
@@ -169,7 +170,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   Future<void> _submit() async {
     final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
 
-    if (request?.isApproved == true) return;
+    if (request != null && !request.isRejected) return;
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
@@ -184,34 +185,20 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final city = _selectedCity?.trim() ?? '';
     final message = _messageController.text.trim();
 
-    final isResubmit = request?.isRejected == true;
-    final success = request == null || isResubmit
-        ? await notifier.createOwnerRegistrationRequest(
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber,
-            email: email,
-            city: city,
-            message: message,
-          )
-        : await notifier.updateOwnerRegistrationRequest(
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber,
-            email: email,
-            city: city,
-            message: message,
-          );
+    final success = await notifier.createOwnerRegistrationRequest(
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+      email: email,
+      city: city,
+      message: message,
+    );
 
     if (success && mounted) {
       final l10n = AppLocalizations.of(context)!;
 
-      AppSnackBar.show(
-        message: request == null || isResubmit
-            ? l10n.requestSubmitted
-            : l10n.requestUpdated,
-        isSuccess: true,
-      );
+      AppSnackBar.show(message: l10n.requestSubmitted, isSuccess: true);
+      if (context.canPop()) context.pop();
     }
   }
 
@@ -225,6 +212,8 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final mutationState = ref.watch(ownerRegistrationMutationProvider);
 
     final isAccepted = request?.isApproved == true;
+    final isReadOnly = request != null && !request.isRejected;
+    final canSubmit = request == null || request.isRejected;
 
     ref.listen<String?>(authProvider.select((auth) => auth.currentUserId), (
       previousUserId,
@@ -263,11 +252,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       _tryPrefill();
     });
 
-    final submitLabel = request == null
-        ? l10n.submitRequest
-        : request.isRejected
+    final submitLabel = request?.isRejected == true
         ? l10n.resubmitRequest
-        : l10n.updateRequest;
+        : l10n.submitRequest;
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -291,7 +278,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 label: l10n.firstName,
                 hint: l10n.firstNameHint,
                 icon: Icons.person_outline,
-                // enabled: !isAccepted,
+                readOnly: isReadOnly,
                 validator: (v) {
                   if ((v ?? '').trim().isEmpty) {
                     return l10n.firstNameRequired;
@@ -307,6 +294,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 label: l10n.lastName,
                 hint: l10n.lastNameHint,
                 icon: Icons.person_outline,
+                readOnly: isReadOnly,
                 validator: (v) {
                   if ((v ?? '').trim().isEmpty) {
                     return l10n.lastNameRequired;
@@ -322,6 +310,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 hint: l10n.phoneHint,
                 icon: Icons.phone_outlined,
                 helperText: l10n.ownerContactPhoneHint,
+                readOnly: isReadOnly,
               ),
 
               const SizedBox(height: 8),
@@ -331,6 +320,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 hint: l10n.emailHint,
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
+                readOnly: isReadOnly,
                 validator: (v) {
                   final value = (v ?? '').trim();
                   if (value.isEmpty) return null;
@@ -345,6 +335,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
               CitySelectField(
                 city: _selectedCity,
                 isRequired: true,
+                enabled: !isReadOnly,
                 service: CitySelectorService.becomeowner,
                 onChanged: (city) => setState(() => _selectedCity = city),
               ),
@@ -355,8 +346,8 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 label: l10n.message,
                 hint: l10n.messageHint,
                 icon: Icons.message_outlined,
-                // maxLines: 3,
                 keyboardType: TextInputType.multiline,
+                readOnly: isReadOnly,
                 validator: (v) {
                   if ((v ?? '').trim().isEmpty) {
                     return l10n.messageRequired;
@@ -367,7 +358,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
               const SizedBox(height: 8),
 
-              if (request == null || !isAccepted) ...[
+              if (canSubmit) ...[
                 const SizedBox(height: 12),
                 Text(
                   l10n.noteDescribeHint,
@@ -382,7 +373,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                   icon: Icons.send_rounded,
                   onPressed: mutationState.isLoading ? null : _submit,
                 ),
-              ] else ...[
+              ] else if (isAccepted) ...[
                 _AcceptedInfo(theme: theme),
               ],
 

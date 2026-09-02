@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/errors/socket_connect_exception.dart';
+import 'package:prokat/core/services/crash_reporting_service.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -46,9 +49,10 @@ class AppSocketService {
 
   Future<void> _connect() async {
     final session = ref.read(authProvider).session;
-    final sessionToken = session?.sessionToken;
+    final sessionToken = session?.sessionToken?.trim() ?? '';
+    final userId = session?.user?.id?.trim();
 
-    if (sessionToken == null || sessionToken.isEmpty) {
+    if (sessionToken.isEmpty) {
       throw StateError(
         'Cannot connect socket without an authenticated session',
       );
@@ -61,7 +65,9 @@ class AppSocketService {
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
+          .enableForceNew()
           .setAuth({'token': sessionToken})
+          .setExtraHeaders({'Authorization': 'Bearer $sessionToken'})
           .build(),
     );
 
@@ -72,6 +78,44 @@ class AppSocketService {
     }
 
     final completer = Completer<void>();
+    var reportedConnectError = false;
+
+    void failHandshake(Object error, [StackTrace? stackTrace]) {
+      final exception = error is SocketConnectException
+          ? error
+          : SocketConnectException(
+              message: SocketConnectException.messageFrom(error),
+              cause: error,
+              hasToken: sessionToken.isNotEmpty,
+              tokenLength: sessionToken.length,
+              sessionExpiredOnClient: session?.isExpired ?? false,
+              socketUrl: Env.socketUrl,
+              userId: userId,
+            );
+
+      if (!reportedConnectError) {
+        reportedConnectError = true;
+        unawaited(
+          CrashReportingService.recordError(
+            exception,
+            stackTrace ?? StackTrace.current,
+            reason: 'socket_connect',
+            keys: {
+              ...exception.crashlyticsKeys,
+              'app_env': Env.environment.name,
+            },
+            userId: userId,
+            fatal: true,
+          ),
+        );
+      }
+
+      Logger.log('Socket connect error: ${exception.message}');
+
+      if (!completer.isCompleted) {
+        completer.completeError(exception, stackTrace);
+      }
+    }
 
     socket.onConnect((_) {
       if (!identical(_socket, socket)) {
@@ -84,21 +128,52 @@ class AppSocketService {
         completer.complete();
       }
 
+      Logger.log(
+        'Socket connected user=${userId ?? 'none'} url=${Env.socketUrl}',
+      );
+
       scheduleMicrotask(_notifyConnectListeners);
     });
 
     socket.onConnectError((error) {
-      if (!completer.isCompleted) {
-        completer.completeError(Exception(error.toString()));
-      }
+      failHandshake(error is Object ? error : error.toString());
     });
 
     socket.connect();
 
-    await completer.future.timeout(
-      const Duration(seconds: 10),
-      onTimeout: () => throw Exception('Socket connection timed out'),
-    );
+    try {
+      await completer.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Socket connection timed out');
+        },
+      );
+    } catch (error, stackTrace) {
+      if (identical(_socket, socket)) {
+        try {
+          socket.dispose();
+        } catch (_) {}
+        _socket = null;
+      }
+
+      if (error is SocketConnectException) {
+        Error.throwWithStackTrace(error, stackTrace);
+      }
+
+      failHandshake(error, stackTrace);
+      Error.throwWithStackTrace(
+        SocketConnectException(
+          message: SocketConnectException.messageFrom(error),
+          cause: error,
+          hasToken: sessionToken.isNotEmpty,
+          tokenLength: sessionToken.length,
+          sessionExpiredOnClient: session?.isExpired ?? false,
+          socketUrl: Env.socketUrl,
+          userId: userId,
+        ),
+        stackTrace,
+      );
+    }
   }
 
   void on(String event, void Function(dynamic payload) handler) {

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/price_negotiations/widgets/price_negotiation_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class NegotiationMessageBubble extends ConsumerStatefulWidget {
@@ -81,25 +83,27 @@ class _NegotiationMessageBubbleState
             children: [
               // Top Status Info Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.balance_outlined,
-                    color: theme.colorScheme.primary,
+                    LucideIcons.coins,
+                    color: theme.colorScheme.onSurface,
                     size: 26,
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    l10n.priceOffer,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
+                  Expanded(
+                    child: Text(
+                      l10n.priceOffer,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                   ),
-
-                  const Spacer(),
-
-                  Text(priceNegotiation.status.name),
+                  const SizedBox(width: 8),
+                  PriceNegotiationStatusBadge(status: priceNegotiation.status),
                 ],
               ),
               const SizedBox(height: 8),
@@ -112,7 +116,7 @@ class _NegotiationMessageBubbleState
                     Text(
                       "${formatPrice(parsed.price)} ${getPriceRate(priceNegotiation.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

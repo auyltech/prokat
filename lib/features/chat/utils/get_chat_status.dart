@@ -121,7 +121,7 @@ ChatConfig getChatConfig({
             ? ChatConfig(
                 status: ChatStatusDetail.workcompleted,
                 actionBartitle: l10n.waitingClientConfirmation,
-                statusLabel: l10n.workCompleted,
+                statusLabel: l10n.waitingForClientConfirm,
               )
             : ChatConfig(
                 status: ChatStatusDetail.confirmcompleted,

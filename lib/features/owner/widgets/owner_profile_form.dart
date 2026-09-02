@@ -11,6 +11,7 @@ import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
+import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
@@ -40,7 +41,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   // Local state properties for non-text selections
   OwnerType? _selectedOwnerType;
   String? _selectedCity;
-  String? _initialCity;
+  bool _lastHasChanges = false;
 
   @override
   void initState() {
@@ -66,11 +67,19 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
         ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
-    _initialCity = _selectedCity;
+
+    _firstNameController.addListener(_onFieldsChanged);
+    _lastNameController.addListener(_onFieldsChanged);
+    _phoneController.addListener(_onFieldsChanged);
+    _descriptionController.addListener(_onFieldsChanged);
   }
 
   @override
   void dispose() {
+    _firstNameController.removeListener(_onFieldsChanged);
+    _lastNameController.removeListener(_onFieldsChanged);
+    _phoneController.removeListener(_onFieldsChanged);
+    _descriptionController.removeListener(_onFieldsChanged);
     _companyNameController.dispose();
     _legalNameController.dispose();
     _firstNameController.dispose();
@@ -80,8 +89,29 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     super.dispose();
   }
 
+  void _onFieldsChanged() {
+    final next = _hasChanges;
+    if (next == _lastHasChanges) return;
+    _lastHasChanges = next;
+    if (mounted) setState(() {});
+  }
+
+  bool get _isLocked =>
+      isOwnerBusinessProfileLocked(widget.initialProfile.status);
+
+  bool get _hasChanges => ownerBusinessProfileHasChanges(
+    current: widget.initialProfile,
+    firstName: _firstNameController.text,
+    lastName: _lastNameController.text,
+    phoneNumber: _phoneController.text,
+    city: _selectedCity,
+    serviceDescription: _descriptionController.text,
+  );
+
   Future<void> _submitForm() async {
+    if (_isLocked) return;
     if (!_formKey.currentState!.validate()) return;
+    if (!_hasChanges) return;
 
     final isOrganization = _selectedOwnerType == OwnerType.organization;
     final companyName = isOrganization
@@ -93,44 +123,31 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     final phoneNumber = normalizeKzPhone(_phoneController.text);
     final serviceDescription = _descriptionController.text.trim();
     final l10n = AppLocalizations.of(context)!;
-    final needsModeration =
-        ownerBusinessProfileHasChanges(
-          current: widget.initialProfile,
-          firstName: firstName,
-          lastName: lastName,
-          phoneNumber: phoneNumber,
-          city: widget.initialProfile.city,
-          serviceDescription: serviceDescription,
-        ) ||
-        ownerProfileComparableText(_initialCity) !=
-            ownerProfileComparableText(_selectedCity);
 
-    if (needsModeration) {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) {
-          final theme = Theme.of(dialogContext);
-          return AlertDialog(
-            backgroundColor: theme.cardColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          backgroundColor: theme.cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(l10n.profileUpdateNeedsModeration),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(l10n.no),
             ),
-            title: Text(l10n.profileUpdateNeedsModeration),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text(l10n.no),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text(l10n.yes),
-              ),
-            ],
-          );
-        },
-      );
-      if (!mounted || confirmed != true) return;
-    }
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.yes),
+            ),
+          ],
+        );
+      },
+    );
+    if (!mounted || confirmed != true) return;
 
     final updatedProfile = widget.initialProfile.copyWith(
       ownerType: _selectedOwnerType,
@@ -145,13 +162,17 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
     final success = await ref
         .read(ownerRegistrationMutationProvider.notifier)
-        .updateOwnerProfile(updatedProfile, submitForReview: needsModeration);
+        .updateOwnerProfile(updatedProfile, submitForReview: true);
 
     if (!mounted) return;
 
     if (success && !isOrganization) {
       _companyNameController.clear();
       _legalNameController.clear();
+    }
+
+    if (success) {
+      FocusManager.instance.primaryFocus?.unfocus();
     }
 
     AppSnackBar.show(
@@ -170,6 +191,8 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     final l10n = AppLocalizations.of(context)!;
     final providerState = ref.watch(ownerRegistrationMutationProvider);
     final isLoading = providerState.isLoading;
+    final isLocked = _isLocked;
+    final showSubmit = !isLocked && (_hasChanges || isLoading);
 
     // TODO(Vadim): Временно отключена возможность работать как организация
     // final isOrganization = _selectedOwnerType == OwnerType.organization;
@@ -248,6 +271,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             hint: l10n.enterFirstName,
             controller: _firstNameController,
             isRequired: true,
+            readOnly: isLocked,
           ),
 
           const SizedBox(height: 12),
@@ -257,6 +281,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             hint: l10n.enterLastName,
             controller: _lastNameController,
             isRequired: true,
+            readOnly: isLocked,
           ),
 
           const SizedBox(height: 12),
@@ -266,6 +291,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             label: l10n.phoneNumber,
             hint: l10n.phoneHint,
             helperText: l10n.ownerContactPhoneHint,
+            readOnly: isLocked,
           ),
 
           const SizedBox(height: 12),
@@ -274,8 +300,12 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             city: _selectedCity,
             isRequired: true,
             showIcon: false,
+            enabled: !isLocked,
             service: CitySelectorService.ownerprofile,
-            onChanged: (city) => setState(() => _selectedCity = city),
+            onChanged: (city) => setState(() {
+              _selectedCity = city;
+              _lastHasChanges = _hasChanges;
+            }),
           ),
 
           const SizedBox(height: 12),
@@ -285,14 +315,16 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             hint: l10n.serviceDetailsHint,
             controller: _descriptionController,
             isLast: true,
+            readOnly: isLocked,
           ),
-          const SizedBox(height: 32),
-
-          PrimaryButton(
-            label: l10n.updateProfile,
-            isLoading: isLoading,
-            onPressed: isLoading ? null : () => unawaited(_submitForm()),
-          ),
+          if (showSubmit) ...[
+            const SizedBox(height: 32),
+            PrimaryButton(
+              label: l10n.updateProfile,
+              isLoading: isLoading,
+              onPressed: isLoading ? null : () => unawaited(_submitForm()),
+            ),
+          ],
         ],
       ),
     );

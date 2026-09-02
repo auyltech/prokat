@@ -111,6 +111,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get waitingClientConfirmation => 'Клиенттің растауы күтілуде';
 
   @override
+  String get waitingForClientConfirm => 'Растау күтілуде';
+
+  @override
   String get confirmWorkCompleted => 'Жұмыстың аяқталғанын растау';
 
   @override
@@ -675,6 +678,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get priceOffer => 'Баға ұсынысы';
+
+  @override
+  String get priceOfferStatusCreated => 'Жасалды';
+
+  @override
+  String get priceOfferStatusCancelled => 'Бас тартылды';
 
   @override
   String offeredPrice(String price) {

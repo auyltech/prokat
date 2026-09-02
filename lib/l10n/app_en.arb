@@ -39,6 +39,7 @@
   "orderHasBeenCancelled": "Order has been cancelled",
   "waitingOwnerResponse": "Waiting Owner Response",
   "waitingClientConfirmation": "Waiting Client Confirmation",
+  "waitingForClientConfirm": "Awaiting confirmation",
   "confirmWorkCompleted": "Confirm Work Completed",
   "orderCompleted": "Order Completed",
   "reviewSent": "Review Sent",
@@ -251,6 +252,8 @@
   "failedToConfirmOrder": "Failed to confirm order",
   "chatLocked": "Chat locked",
   "priceOffer": "Price Offer",
+  "priceOfferStatusCreated": "Created",
+  "priceOfferStatusCancelled": "Cancelled",
   "offeredPrice": "Offered: {price}",
   "@offeredPrice": {
     "placeholders": {

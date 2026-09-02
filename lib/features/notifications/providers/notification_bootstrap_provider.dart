@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
@@ -66,8 +67,10 @@ final notificationBootstrapProvider = Provider<void>((ref) {
       try {
         await appSocket.connect();
         attachSocketNotificationListener();
-      } catch (_) {
-        // Best-effort: socket should not crash startup.
+      } catch (error, stackTrace) {
+        // Handshake failures are recorded as Crashlytics fatals in
+        // AppSocketService. Swallow here so startup still opens the app.
+        Logger.log('notification socket connect failed: $error\n$stackTrace');
       }
     }());
 

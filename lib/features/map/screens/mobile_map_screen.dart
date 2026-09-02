@@ -32,7 +32,7 @@ class MobileMapScreen extends ConsumerStatefulWidget {
 class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
   MapboxMap? _map;
   geo.Position? _userPosition;
-  CameraOptions? _initialCamera;
+  CameraViewportState? _initialViewport;
   PointAnnotationManager? _annotationManager;
 
   double _zoom = 14;
@@ -70,7 +70,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
 
     _userPosition = pos;
 
-    _initialCamera = CameraOptions(
+    _initialViewport = CameraViewportState(
       center: Point(coordinates: Position(pos.longitude, pos.latitude)),
       zoom: _zoom,
     );
@@ -246,7 +246,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_initialCamera == null) {
+    if (_initialViewport == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -256,7 +256,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
           MapWidget(
             key: const ValueKey('map'),
             styleUri: MapboxStyles.MAPBOX_STREETS,
-            cameraOptions: _initialCamera,
+            viewport: _initialViewport,
             onMapCreated: _onMapCreated,
             onStyleLoadedListener: _onStyleLoaded,
             onCameraChangeListener: _onCameraChanged,

@@ -332,7 +332,8 @@ class OwnerBookingTile extends ConsumerWidget {
                         color: Colors.green[800],
                       ),
                     ),
-                  ] else if (booking.status == BookingStatus.confirmed) ...[
+                  ] else if (booking.status == BookingStatus.confirmed &&
+                      booking.workStatus != WorkStatus.completed) ...[
                     ActionButton(
                       label: l10n.completeWork,
                       isLoading: ref
