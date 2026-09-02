@@ -2,6 +2,10 @@
 
 Тред сделки, не каталог. Список vs открытый чат: `lib/features/workflow/AGENTS.md`.
 
+## Сообщения
+
+HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:join` только для live. Отказ connect не роняет историю. Handshake `Not authorized` пишется в Crashlytics (`reason: socket_connect`). В нотифаере сообщений читать `AsyncValue.valueOrNull`, не `value`.
+
 ## Статус треда
 
 `getChatConfig` берёт booking (в списке — `bookingSummary`), иначе заявку **этого** треда.
