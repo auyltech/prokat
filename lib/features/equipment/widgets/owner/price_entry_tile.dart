@@ -33,9 +33,9 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.only(left: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.25)),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -70,10 +70,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
             const SizedBox(
               height: 14,
               width: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2),
             )
           else
             IconButton(
@@ -87,15 +84,12 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
             const SizedBox(
               height: 14,
               width: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2),
             )
           else
             IconButton(
               onPressed: widget.onDelete,
-              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+              icon: Icon(Icons.delete, color: colorScheme.error, size: 20),
             ),
         ],
       ),

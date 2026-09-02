@@ -116,6 +116,8 @@ void showEditSheet({required BuildContext context, required Widget sheet}) {
   final theme = Theme.of(context);
   final bgColor = theme.colorScheme.surface;
 
+  FocusManager.instance.primaryFocus?.unfocus();
+
   unawaited(
     showModalBottomSheet(
       context: context,
@@ -123,6 +125,8 @@ void showEditSheet({required BuildContext context, required Widget sheet}) {
       backgroundColor: bgColor,
       barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (_) => sheet,
-    ),
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }),
   );
 }

@@ -24,11 +24,12 @@ class PriceEntrySheet extends ConsumerStatefulWidget {
     required String equipmentId,
     PriceEntry? priceEntry,
   }) async {
-    return showModalBottomSheet(
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showModalBottomSheet(
       context: context,
       isScrollControlled:
           true, // Allows sheet to wrap its content height dynamically
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -39,6 +40,7 @@ class PriceEntrySheet extends ConsumerStatefulWidget {
         );
       },
     );
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   @override

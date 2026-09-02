@@ -1688,6 +1688,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get information => 'Information';
 
   @override
+  String get generalInformation => 'General information';
+
+  @override
+  String get registrationData => 'Registration details';
+
+  @override
+  String get saveAll => 'Save all';
+
+  @override
+  String get expandAll => 'Expand all';
+
+  @override
+  String get collapseAll => 'Collapse all';
+
+  @override
+  String get ownerCommentHint => 'Part load possible, access notes…';
+
+  @override
   String get prices => 'Prices';
 
   @override

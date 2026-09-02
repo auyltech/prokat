@@ -1693,6 +1693,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get information => 'Информация';
 
   @override
+  String get generalInformation => 'Общая информация';
+
+  @override
+  String get registrationData => 'Регистрационные данные';
+
+  @override
+  String get saveAll => 'Сохранить все';
+
+  @override
+  String get expandAll => 'Развернуть все';
+
+  @override
+  String get collapseAll => 'Свернуть все';
+
+  @override
+  String get ownerCommentHint =>
+      'Возможна неполная загрузка, заметки по доступу…';
+
+  @override
   String get prices => 'Цены';
 
   @override
