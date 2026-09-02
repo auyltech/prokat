@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/custom_icon_button.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/catalog/models/catalog_spec_type.dart';
@@ -11,6 +9,10 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/equipment/models/equipment_spec_value_input.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
+import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
+import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
+import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentSpecs extends ConsumerStatefulWidget {
@@ -34,8 +36,11 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
   bool _isDirty = false;
   bool _isSaving = false;
+  bool _saveAttempted = false;
 
   bool _didInit = false;
+
+  bool get _canEdit => widget.equipment.isDraft;
 
   @override
   void didChangeDependencies() {
@@ -43,6 +48,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     if (_didInit) return;
     _didInit = true;
     _rebuildControllers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _publish();
+    });
   }
 
   @override
@@ -77,8 +85,10 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       setState(() {
         _isDirty = false;
         _isSaving = false;
+        _saveAttempted = false;
         _errorsByKey.clear();
       });
+      _publish();
     }
   }
 
@@ -138,10 +148,57 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     return (spec.textValue ?? '').trim();
   }
 
+  OwnerEquipmentEditorNotifier get _editor {
+    return ref.read(ownerEquipmentEditorProvider(widget.equipment.id).notifier);
+  }
+
+  bool get _isComplete {
+    if (_sortedSpecs.isEmpty) return true;
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    for (var i = 0; i < _sortedSpecs.length; i++) {
+      final spec = _sortedSpecs[i];
+      if (spec.isRequired != true) continue;
+      final key = _controllerKey(spec, i);
+      final type = spec.resolvedType(catalog?.specById(spec.specId));
+      if (!type.isKnown) continue;
+      if (_currentWireValue(spec, catalog, type, key: key).isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _bind() {
+    _editor.bind(
+      id: OwnerEquipmentBlockId.specs,
+      save: ({required bool notify}) => _handleSave(notify: notify),
+      validate: () {
+        final valid = _validate();
+        setState(() {});
+        return valid;
+      },
+    );
+  }
+
+  void _publish() {
+    _bind();
+    _editor.report(
+      id: OwnerEquipmentBlockId.specs,
+      isDirty: _canEdit && _isDirty,
+      isSaving: _isSaving,
+      indicator: blockIndicatorFor(
+        complete: _isComplete,
+        saveAttempted: _saveAttempted,
+      ),
+    );
+  }
+
   void _onFieldChanged() {
+    if (!_canEdit) return;
     final dirty = _computeIsDirty();
-    _validate();
+    if (_saveAttempted) _validate();
     setState(() => _isDirty = dirty);
+    _publish();
   }
 
   bool _computeIsDirty() {
@@ -158,9 +215,8 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     return false;
   }
 
-  bool _hasErrors() => _errorsByKey.values.any((e) => e != null);
-
   bool _validate() {
+    _saveAttempted = true;
     _errorsByKey.clear();
     final catalog = ref.read(catalogProvider).valueOrNull;
     var ok = true;
@@ -194,17 +250,22 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     return ok;
   }
 
-  Future<void> _handleSave(AppLocalizations l10n) async {
-    if (!_isDirty || _isSaving) return;
+  Future<bool> _handleSave({required bool notify}) async {
+    final l10n = AppLocalizations.of(context)!;
+    if (!_canEdit || !_isDirty || _isSaving) return false;
 
     final valid = _validate();
     if (!valid) {
       setState(() {});
-      AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
-      return;
+      _publish();
+      if (notify) {
+        AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+      }
+      return false;
     }
 
     setState(() => _isSaving = true);
+    _publish();
     final catalog = ref.read(catalogProvider).valueOrNull;
     final payload = <EquipmentSpecValueInput>[];
 
@@ -279,18 +340,33 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           _isSaving = false;
           _errorsByKey.clear();
         });
+        _editor.markSaved(
+          OwnerEquipmentBlockId.specs,
+          indicator: blockIndicatorFor(
+            complete: _isComplete,
+            saveAttempted: _saveAttempted,
+          ),
+        );
       } else {
         setState(() => _isSaving = false);
+        _publish();
       }
 
-      AppSnackBar.show(
-        message: result ? l10n.equipmentUpdated : l10n.updateFailed,
-        isSuccess: result,
-        isError: !result,
-      );
+      if (notify) {
+        AppSnackBar.show(
+          message: result ? l10n.equipmentUpdated : l10n.updateFailed,
+          isSuccess: result,
+          isError: !result,
+        );
+      }
+      return result;
     } catch (_) {
       setState(() => _isSaving = false);
-      AppSnackBar.show(message: l10n.updateFailed, isError: true);
+      _publish();
+      if (notify) {
+        AppSnackBar.show(message: l10n.updateFailed, isError: true);
+      }
+      return false;
     }
   }
 
@@ -317,172 +393,184 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final locale = Localizations.localeOf(context).languageCode;
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final colorScheme = theme.colorScheme;
-    final ghostGray = colorScheme.onSurface.withValues(alpha: 0.6);
+    final ghostGray = colorScheme.onSurfaceVariant;
+
+    _bind();
 
     final hasSpecs = _sortedSpecs.isNotEmpty;
-    final canSave =
-        hasSpecs &&
-        widget.equipment.isDraft &&
-        _isDirty &&
-        !_isSaving &&
-        !_hasErrors();
+    final view = ref
+        .watch(ownerEquipmentEditorProvider(widget.equipment.id))
+        .block(OwnerEquipmentBlockId.specs);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(child: SectionTitle(title: l10n.technicalSpecs)),
-            CustomIconButton(
-              onPressed: canSave ? () => _handleSave(l10n) : null,
-              icon: _isDirty ? Icons.save_rounded : Icons.lock_outline_rounded,
-              iconColor: _isDirty
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        if (!hasSpecs)
-          Text(
-            l10n.noSpecsConfigured,
-            style: theme.textTheme.bodyMedium?.copyWith(color: ghostGray),
-          )
-        else
-          ...List.generate(_sortedSpecs.length, (i) {
-            final spec = _sortedSpecs[i];
-            final key = _controllerKey(spec, i);
-            final catalogSpec = catalog?.specById(spec.specId);
-            final type = spec.resolvedType(catalogSpec);
-            if (!type.isKnown) {
-              return const SizedBox.shrink();
-            }
+    Widget specFields() {
+      if (!hasSpecs) {
+        return Text(
+          l10n.noSpecsConfigured,
+          style: theme.textTheme.bodyMedium?.copyWith(color: ghostGray),
+        );
+      }
 
-            final errorKey = _errorsByKey[key];
-            final String? errorText = errorKey == 'required'
-                ? l10n.required
-                : errorKey == 'invalidNumber'
-                ? l10n.invalidNumber
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(_sortedSpecs.length, (i) {
+          final spec = _sortedSpecs[i];
+          final key = _controllerKey(spec, i);
+          final catalogSpec = catalog?.specById(spec.specId);
+          final type = spec.resolvedType(catalogSpec);
+          if (!type.isKnown) {
+            return const SizedBox.shrink();
+          }
+
+          final errorKey = _errorsByKey[key];
+          final String? errorText = errorKey == 'required'
+              ? l10n.required
+              : errorKey == 'invalidNumber'
+              ? l10n.invalidNumber
+              : null;
+          final label = spec.displayName(locale);
+          final unit = catalogSpec == null
+              ? spec.unit
+              : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
+                    spec.unit;
+          final isRequired = spec.isRequired == true;
+
+          if (type == CatalogSpecType.boolean) {
+            return SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(label),
+              value: _boolByKey[key] ?? false,
+              onChanged: !_canEdit
+                  ? null
+                  : (value) {
+                      _boolByKey[key] = value;
+                      _onFieldChanged();
+                    },
+            );
+          }
+
+          if (type == CatalogSpecType.select) {
+            final options = catalogSpec == null
+                ? const <CatalogSpecOption>[]
+                : catalog!.optionsForSpec(catalogSpec.id);
+            final selected = (_optionsByKey[key] ?? spec.optionIds)
+                .where((id) => id.isNotEmpty)
+                .firstOrNull;
+            final optionIds = options.map((option) => option.id).toSet();
+            final dropdownValue =
+                selected != null && optionIds.contains(selected)
+                ? selected
                 : null;
-            final label = spec.displayName(locale);
-            final unit = catalogSpec == null
-                ? spec.unit
-                : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
-                      spec.unit;
-            final isRequired = spec.isRequired == true;
-
-            if (type == CatalogSpecType.boolean) {
-              return SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(label),
-                value: _boolByKey[key] ?? false,
-                onChanged: (value) {
-                  _boolByKey[key] = value;
-                  _onFieldChanged();
-                },
-              );
-            }
-
-            if (type == CatalogSpecType.select) {
-              final options = catalogSpec == null
-                  ? const <CatalogSpecOption>[]
-                  : catalog!.optionsForSpec(catalogSpec.id);
-              final selected = (_optionsByKey[key] ?? spec.optionIds)
-                  .where((id) => id.isNotEmpty)
-                  .firstOrNull;
-              final optionIds = options.map((option) => option.id).toSet();
-              final dropdownValue =
-                  selected != null && optionIds.contains(selected)
-                  ? selected
-                  : null;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: label,
-                    errorText: errorText,
-                    border: const OutlineInputBorder(),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      value: dropdownValue,
-                      hint: Text(label),
-                      items: options
-                          .map(
-                            (option) => DropdownMenuItem(
-                              value: option.id,
-                              child: Text(option.label(locale)),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        _optionsByKey[key] = value == null ? [] : [value];
-                        _onFieldChanged();
-                      },
-                    ),
-                  ),
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: label,
+                  errorText: errorText,
+                  filled: !_canEdit,
+                  fillColor: !_canEdit
+                      ? colorScheme.surfaceContainerHighest
+                      : null,
+                  border: const OutlineInputBorder(),
                 ),
-              );
-            }
-
-            if (type == CatalogSpecType.multiSelect) {
-              final options = catalogSpec == null
-                  ? const <CatalogSpecOption>[]
-                  : catalog!.optionsForSpec(catalogSpec.id);
-              final selected = {...(_optionsByKey[key] ?? spec.optionIds)};
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label, style: theme.textTheme.labelLarge),
-                    Wrap(
-                      spacing: 8,
-                      children: options.map((option) {
-                        final isSelected = selected.contains(option.id);
-                        return FilterChip(
-                          label: Text(option.label(locale)),
-                          selected: isSelected,
-                          onSelected: (next) {
-                            if (next) {
-                              selected.add(option.id);
-                            } else {
-                              selected.remove(option.id);
-                            }
-                            _optionsByKey[key] = selected.toList();
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: dropdownValue,
+                    hint: Text(label),
+                    items: options
+                        .map(
+                          (option) => DropdownMenuItem(
+                            value: option.id,
+                            child: Text(option.label(locale)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: !_canEdit
+                        ? null
+                        : (value) {
+                            _optionsByKey[key] = value == null ? [] : [value];
                             _onFieldChanged();
                           },
-                        );
-                      }).toList(),
-                    ),
-                    if (errorText != null)
-                      Text(
-                        errorText,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.error,
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-              );
-            }
-
-            final controller = _controllersByKey[key];
-            if (controller == null) return const SizedBox.shrink();
-
-            return InputField(
-              label: label,
-              controller: controller,
-              hint: label,
-              isRequired: isRequired && !spec.hasFilledValue,
-              suffixText: unit.trim().isEmpty ? null : unit.trim(),
-              onChanged: _onFieldChanged,
-              isNumeric: type == CatalogSpecType.number,
-              errorText: errorText,
+              ),
             );
-          }),
-      ],
+          }
+
+          if (type == CatalogSpecType.multiSelect) {
+            final options = catalogSpec == null
+                ? const <CatalogSpecOption>[]
+                : catalog!.optionsForSpec(catalogSpec.id);
+            final selected = {...(_optionsByKey[key] ?? spec.optionIds)};
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: theme.textTheme.labelLarge),
+                  Wrap(
+                    spacing: 8,
+                    children: options.map((option) {
+                      final isSelected = selected.contains(option.id);
+                      return FilterChip(
+                        label: Text(option.label(locale)),
+                        selected: isSelected,
+                        onSelected: !_canEdit
+                            ? null
+                            : (next) {
+                                if (next) {
+                                  selected.add(option.id);
+                                } else {
+                                  selected.remove(option.id);
+                                }
+                                _optionsByKey[key] = selected.toList();
+                                _onFieldChanged();
+                              },
+                      );
+                    }).toList(),
+                  ),
+                  if (errorText != null)
+                    Text(
+                      errorText,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }
+
+          final controller = _controllersByKey[key];
+          if (controller == null) return const SizedBox.shrink();
+
+          return InputField(
+            label: label,
+            controller: controller,
+            hint: label,
+            isRequired: isRequired && !spec.hasFilledValue,
+            suffixText: unit.trim().isEmpty ? null : unit.trim(),
+            onChanged: _onFieldChanged,
+            isNumeric: type == CatalogSpecType.number,
+            errorText: errorText,
+            readOnly: !_canEdit,
+          );
+        }),
+      );
+    }
+
+    return EquipmentEditorSection(
+      title: l10n.technicalSpecs,
+      indicator: view.indicator,
+      expanded: view.isExpanded,
+      onToggleExpanded: () =>
+          _editor.toggleExpanded(OwnerEquipmentBlockId.specs),
+      saveLabel: l10n.save,
+      showSave: _canEdit && _isDirty,
+      saveEnabled: _canEdit && _isDirty && !_isSaving,
+      saveLoading: _isSaving,
+      onSave: () => _handleSave(notify: true),
+      child: specFields(),
     );
   }
 }

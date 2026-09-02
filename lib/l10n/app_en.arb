@@ -621,6 +621,12 @@
   "reconnecting": "RECONNECTING...",
 
   "information": "Information",
+  "generalInformation": "General information",
+  "registrationData": "Registration details",
+  "saveAll": "Save all",
+  "expandAll": "Expand all",
+  "collapseAll": "Collapse all",
+  "ownerCommentHint": "Part load possible, access notes…",
   "prices": "Prices",
   "allRatingOptionsListed": "All Rating Options Listed",
   "pleaseEnterValidPrice": "Please enter a valid price",

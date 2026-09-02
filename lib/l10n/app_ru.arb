@@ -619,6 +619,12 @@
   "reconnecting": "ПЕРЕПОДКЛЮЧЕНИЕ...",
 
   "information": "Информация",
+  "generalInformation": "Общая информация",
+  "registrationData": "Регистрационные данные",
+  "saveAll": "Сохранить все",
+  "expandAll": "Развернуть все",
+  "collapseAll": "Свернуть все",
+  "ownerCommentHint": "Возможна неполная загрузка, заметки по доступу…",
   "prices": "Цены",
   "allRatingOptionsListed": "Все тарифы добавлены",
   "pleaseEnterValidPrice": "Введите корректную цену",

@@ -10,6 +10,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -17,12 +18,14 @@ class OwnerEquipmentImageHeader extends ConsumerStatefulWidget {
   final String equipmentId;
   final List<EquipmentImage> images;
   final String? legacyImageUrl;
+  final bool canEditImages;
 
   const OwnerEquipmentImageHeader({
     super.key,
     required this.equipmentId,
     required this.images,
     required this.legacyImageUrl,
+    this.canEditImages = true,
   });
 
   @override
@@ -216,6 +219,7 @@ class _OwnerEquipmentImageHeaderState
     required bool canSetCover,
     required bool canDelete,
   }) {
+    FocusManager.instance.primaryFocus?.unfocus();
     unawaited(
       showModalBottomSheet(
         context: context,
@@ -231,7 +235,9 @@ class _OwnerEquipmentImageHeaderState
             onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
           );
         },
-      ),
+      ).whenComplete(() {
+        FocusManager.instance.primaryFocus?.unfocus();
+      }),
     );
   }
 
@@ -305,16 +311,26 @@ class _OwnerEquipmentImageHeaderState
         Positioned(
           right: 16,
           bottom: 16,
-          child: FloatingActionButton.small(
-            heroTag: 'editEquipmentImages_${widget.equipmentId}',
-            onPressed: () => _openActionsSheet(
-              isBusy: isBusy,
-              canAddMore: canAddMore,
-              current: current,
-              canSetCover: canSetCoverCurrent,
-              canDelete: canDeleteCurrent,
-            ),
-            child: const Icon(Icons.camera_alt),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _ExpandBlocksFab(equipmentId: widget.equipmentId),
+              if (widget.canEditImages) ...[
+                const SizedBox(height: 8),
+                FloatingActionButton.small(
+                  heroTag: 'editEquipmentImages_${widget.equipmentId}',
+                  onPressed: () => _openActionsSheet(
+                    isBusy: isBusy,
+                    canAddMore: canAddMore,
+                    current: current,
+                    canSetCover: canSetCoverCurrent,
+                    canDelete: canDeleteCurrent,
+                  ),
+                  child: const Icon(Icons.camera_alt),
+                ),
+              ],
+            ],
           ),
         ),
 
@@ -387,6 +403,31 @@ class _DotsIndicator extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+class _ExpandBlocksFab extends ConsumerWidget {
+  final String equipmentId;
+
+  const _ExpandBlocksFab({required this.equipmentId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final editor = ref.watch(ownerEquipmentEditorProvider(equipmentId));
+    final notifier = ref.read(
+      ownerEquipmentEditorProvider(equipmentId).notifier,
+    );
+    final collapse = editor.allExpanded;
+
+    return FloatingActionButton.small(
+      heroTag: 'expandEquipmentBlocks_$equipmentId',
+      tooltip: collapse ? l10n.collapseAll : l10n.expandAll,
+      onPressed: collapse ? notifier.collapseAll : notifier.expandAll,
+      child: Icon(
+        collapse ? Icons.unfold_less_rounded : Icons.unfold_more_rounded,
+      ),
     );
   }
 }

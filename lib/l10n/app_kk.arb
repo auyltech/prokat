@@ -620,6 +620,12 @@
   "reconnecting": "ҚАЙТА ҚОСЫЛУДА...",
 
   "information": "Ақпарат",
+  "generalInformation": "Жалпы ақпарат",
+  "registrationData": "Тіркеу деректері",
+  "saveAll": "Барлығын сақтау",
+  "expandAll": "Барлығын жаю",
+  "collapseAll": "Барлығын жию",
+  "ownerCommentHint": "Толық емес жүктеме, кіру туралы жазбалар…",
   "prices": "Бағалар",
   "allRatingOptionsListed": "Барлық тарифтер қосылды",
   "pleaseEnterValidPrice": "Дұрыс баға енгізіңіз",

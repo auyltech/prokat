@@ -96,6 +96,7 @@ void _confirmDelete(
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
 
+  FocusManager.instance.primaryFocus?.unfocus();
   unawaited(
     showModalBottomSheet(
       context: context,
@@ -211,6 +212,8 @@ void _confirmDelete(
           ],
         ),
       ),
-    ),
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }),
   );
 }

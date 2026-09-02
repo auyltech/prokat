@@ -124,7 +124,7 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
               color: hasError
                   ? errorColor
                   : hasCategory
-                  ? Colors.white
+                  ? theme.colorScheme.onPrimary
                   : theme.colorScheme.onSurface.withValues(alpha: 0.3),
               size: 24,
             ),
@@ -162,10 +162,11 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
             ),
           ),
           // Trailing arrow
-          Icon(
-            Icons.chevron_right_rounded,
-            color: Colors.grey.withValues(alpha: 0.2),
-          ),
+          if (widget.mode != CategorySheetMode.editEquipment)
+            Icon(
+              Icons.chevron_right_rounded,
+              color: theme.colorScheme.outline.withValues(alpha: 0.6),
+            ),
         ],
       ),
     );

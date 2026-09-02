@@ -1677,6 +1677,24 @@ class AppLocalizationsKk extends AppLocalizations {
   String get information => 'Ақпарат';
 
   @override
+  String get generalInformation => 'Жалпы ақпарат';
+
+  @override
+  String get registrationData => 'Тіркеу деректері';
+
+  @override
+  String get saveAll => 'Барлығын сақтау';
+
+  @override
+  String get expandAll => 'Барлығын жаю';
+
+  @override
+  String get collapseAll => 'Барлығын жию';
+
+  @override
+  String get ownerCommentHint => 'Толық емес жүктеме, кіру туралы жазбалар…';
+
+  @override
   String get prices => 'Бағалар';
 
   @override

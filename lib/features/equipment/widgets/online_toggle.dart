@@ -13,6 +13,8 @@ class OnlineToggle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final actionId = "equipment:update:$id:status";
 
     final isSubmitting = ref
@@ -26,12 +28,9 @@ class OnlineToggle extends ConsumerWidget {
 
         Text(
           isVisible ? l10n.online : l10n.offline,
-          style: TextStyle(
-            fontSize: 12,
+          style: theme.textTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: isVisible
-                ? const Color.fromARGB(255, 0, 160, 5)
-                : const Color.fromARGB(255, 218, 0, 0),
+            color: isVisible ? colorScheme.primary : colorScheme.error,
           ),
         ),
 
@@ -39,7 +38,6 @@ class OnlineToggle extends ConsumerWidget {
           scale: 0.8,
           child: Switch(
             value: isVisible,
-            activeThumbColor: const Color(0xFF4E73DF),
             onChanged: (val) async {
               final result = await ref
                   .read(equipmentMutationProvider.notifier)
