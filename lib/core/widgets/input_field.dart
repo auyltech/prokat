@@ -20,6 +20,7 @@ class InputField extends StatelessWidget {
   final String? errorText;
   final String? helperText;
   final String? requiredMessage;
+  final bool readOnly;
 
   const InputField({
     super.key,
@@ -40,6 +41,7 @@ class InputField extends StatelessWidget {
     this.inputFormatters,
     this.errorText,
     this.helperText,
+    this.readOnly = false,
   });
 
   @override
@@ -95,6 +97,9 @@ class InputField extends StatelessWidget {
                     // Fixes layout crash by constraining the TextFormField width
                     child: TextFormField(
                       controller: controller,
+                      readOnly: readOnly,
+                      enableInteractiveSelection: !readOnly,
+                      canRequestFocus: !readOnly,
                       validator: (value) {
                         final text = value?.trim() ?? '';
 
@@ -106,6 +111,9 @@ class InputField extends StatelessWidget {
                         return validator?.call(value);
                       },
                       onChanged: (_) => onChanged?.call(),
+                      onTapOutside: (_) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       keyboardType: isNumeric
                           ? TextInputType.number
                           : keyboardType,
@@ -114,7 +122,11 @@ class InputField extends StatelessWidget {
                           ? TextInputAction.done
                           : TextInputAction.next,
                       cursorColor: colorScheme.primary,
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: readOnly
+                            ? colorScheme.onSurfaceVariant
+                            : colorScheme.onSurface,
+                      ),
                       decoration: InputDecoration(
                         hintText: hint,
                         hintStyle: theme.textTheme.labelLarge?.copyWith(
@@ -122,6 +134,10 @@ class InputField extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                         ),
                         isDense: true,
+                        filled: readOnly,
+                        fillColor: readOnly
+                            ? colorScheme.surfaceContainerHighest
+                            : null,
                         contentPadding: const EdgeInsets.only(
                           top: 4,
                           bottom: 4,

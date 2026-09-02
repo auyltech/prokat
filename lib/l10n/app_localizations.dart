@@ -3286,6 +3286,42 @@ abstract class AppLocalizations {
   /// **'Information'**
   String get information;
 
+  /// No description provided for @generalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'General information'**
+  String get generalInformation;
+
+  /// No description provided for @registrationData.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration details'**
+  String get registrationData;
+
+  /// No description provided for @saveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all'**
+  String get saveAll;
+
+  /// No description provided for @expandAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand all'**
+  String get expandAll;
+
+  /// No description provided for @collapseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse all'**
+  String get collapseAll;
+
+  /// No description provided for @ownerCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Part load possible, access notes…'**
+  String get ownerCommentHint;
+
   /// No description provided for @prices.
   ///
   /// In en, this message translates to:
