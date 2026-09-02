@@ -12,6 +12,12 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
   errors:
     # Surface these as warnings so they stay visible in the Problems panel.
     prefer_const_constructors: warning
