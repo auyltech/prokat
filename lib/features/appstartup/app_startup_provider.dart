@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -504,8 +505,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       state = _statusForStep(
         AppStartupStep.done,
         routeState: AppStartupRouteState.error,
-        errorMessage:
-            "An unexpected error occurred during application startup. Please try again.",
+        errorMessage: "An unexpected error occurred during application startup. Please try again.",
       );
     } finally {
       _isInitializing = false;

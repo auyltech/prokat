@@ -1,6 +1,7 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import 'package:flutter/foundation.dart';
+
 // If your Mapbox SDK requires specific package imports, leave them here
 
 class MapboxConfig {

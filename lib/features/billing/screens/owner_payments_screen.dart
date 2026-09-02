@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
@@ -165,10 +166,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                         // Using the tile we built in the previous step
                         return VolumeDiscountTile(
                           volumeCase: volumeDiscountItems[index],
-                          isHighlighted:
-                              index ==
-                              volumeDiscountItems.length -
-                                  1, // Highlight the best option (e.g., first item)
+                          isHighlighted: index == volumeDiscountItems.length - 1, // Highlight the best option (e.g., first item)
                         );
                       },
                     ),

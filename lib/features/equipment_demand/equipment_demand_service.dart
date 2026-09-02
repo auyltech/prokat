@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
+
 import 'equipment_demand_models.dart';
 
 class EquipmentDemandService {

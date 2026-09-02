@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import '../models/auth_session.dart';
 
 class AuthApiService {

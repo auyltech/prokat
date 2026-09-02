@@ -347,22 +347,22 @@ class CatalogBundle {
       cities: _asObjectList(json['cities']).map(CatalogCity.fromJson).toList()
         ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       categories:
-          _asObjectList(
-              json['categories'],
-            ).map(CatalogCategory.fromJson).toList()
+          _asObjectList(json['categories'])
+              .map(CatalogCategory.fromJson)
+              .toList()
             ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       units: _asObjectList(json['units']).map(CatalogUnit.fromJson).toList()
         ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       specs: _asObjectList(json['specs']).map(CatalogSpec.fromJson).toList(),
       specOptions:
-          _asObjectList(
-              json['specOptions'],
-            ).map(CatalogSpecOption.fromJson).toList()
+          _asObjectList(json['specOptions'])
+              .map(CatalogSpecOption.fromJson)
+              .toList()
             ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       categorySpecs:
-          _asObjectList(
-              json['categorySpecs'],
-            ).map(CatalogCategorySpec.fromJson).toList()
+          _asObjectList(json['categorySpecs'])
+              .map(CatalogCategorySpec.fromJson)
+              .toList()
             ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
     );
   }
@@ -441,8 +441,8 @@ class CatalogBundle {
   }
 
   List<CatalogCategorySpec> filterBindingsForCategory(String? categoryId) {
-    return bindingsForCategory(
-      categoryId,
-    ).where((item) => item.showInFilters && item.visibleToClient).toList();
+    return bindingsForCategory(categoryId)
+        .where((item) => item.showInFilters && item.visibleToClient)
+        .toList();
   }
 }

@@ -196,9 +196,8 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   if (booking.bookedOn == null) return "TBD";
 
                   // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                  final dateStr = DateFormat(
-                    'dd MMM yyyy',
-                  ).format(booking.bookedOn!.toLocal());
+                  final dateStr = DateFormat('dd MMM yyyy')
+                      .format(booking.bookedOn!.toLocal());
 
                   // 3. Return just the date if no time was specified
                   return dateStr;

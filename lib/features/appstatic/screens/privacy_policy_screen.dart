@@ -114,12 +114,10 @@ class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
                   fontWeight: FontWeight.bold,
                   // marginTop: 16.0,
                 ),
-                p: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(height: 1.5),
-                listBullet: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                p: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(height: 1.5),
+                listBullet: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
             );
           },

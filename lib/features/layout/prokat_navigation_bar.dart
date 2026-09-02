@@ -183,8 +183,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
         ),
       ),
       child: SafeArea(
-        top:
-            false, // Keeps layout restrictions focused exclusively on the bottom notch
+        top: false, // Keeps layout restrictions focused exclusively on the bottom notch
         child: Container(
           height: 64,
           decoration: BoxDecoration(color: theme.cardColor),

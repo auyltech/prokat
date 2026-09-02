@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+
 import '../../locations/models/location_search_result.dart';
 
 class MapAddressPreview extends ConsumerWidget {

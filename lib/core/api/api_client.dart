@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:prokat/core/services/client_request_metadata_service.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
+
 import '../config/env.dart';
 import 'api_interceptor.dart';
 

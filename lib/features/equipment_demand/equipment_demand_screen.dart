@@ -10,6 +10,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../core/widgets/action_button.dart';
 import 'equipment_demand_models.dart';
 import 'equipment_demand_provider.dart';
@@ -72,9 +73,8 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
           );
       ref.read(demandConfigProvider.notifier).markResponded(widget.campaignId);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.demandSurveyThankYou)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.demandSurveyThankYou)));
       context.pop();
     } on DemandApiException catch (error) {
       if (error.code == 'DEMAND_RESPONSE_ALREADY_EXISTS') {

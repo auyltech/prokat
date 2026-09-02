@@ -110,9 +110,8 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
 
       final result = await api.createBooking({
         "equipmentId": state.selectedEquipment?.id,
-        "price": int.tryParse(
-          (state.selectedPriceEntry?.price ?? 0).toString(),
-        ).toString(),
+        "price": int.tryParse((state.selectedPriceEntry?.price ?? 0).toString())
+            .toString(),
         "priceRate": state.selectedPriceEntry?.priceRate.value ?? "",
         "locationId": state.selectedLocation?.id,
         "bookedOn": state.selectedDate!.toUtc().toIso8601String(),

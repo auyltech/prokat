@@ -46,9 +46,10 @@ class EquipmentSectionCard extends StatelessWidget {
                   // Button is visually disabled if isActionEnabled is false or onAction is null
                   onPressed: isActionEnabled ? onAction : null,
                   style: IconButton.styleFrom(
-                    disabledBackgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceDim.withAlpha(10),
+                    disabledBackgroundColor: Theme.of(context)
+                        .colorScheme
+                        .surfaceDim
+                        .withAlpha(10),
                   ),
                 ),
               ],

@@ -147,8 +147,7 @@ class _SkeletonBox extends StatelessWidget {
       width: size,
       height: height ?? size,
       decoration: BoxDecoration(
-        color: Colors
-            .white, // Colors here must be solid for the shimmer overlay mask to clip onto them properly
+        color: Colors.white, // Colors here must be solid for the shimmer overlay mask to clip onto them properly
         borderRadius: BorderRadius.circular(radius),
       ),
     );

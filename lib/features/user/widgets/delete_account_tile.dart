@@ -86,9 +86,8 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                   // 3. Clear the navigation stack back to the authentication screen
                   if (context.mounted) {
                     unawaited(
-                      Navigator.of(
-                        context,
-                      ).pushNamedAndRemoveUntil('/login', (route) => false),
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil('/login', (route) => false),
                     );
                   }
                 },

@@ -1,4 +1,5 @@
 import 'dart:collection';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';

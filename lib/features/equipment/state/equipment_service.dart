@@ -6,8 +6,10 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/equipment/models/equipment_spec_value_input.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
+
 import '../../../core/constants/api_routes.dart';
 import '../models/equipment_model.dart';
+
 import 'dart:io';
 
 class EquipmentService {

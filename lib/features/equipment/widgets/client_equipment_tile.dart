@@ -80,9 +80,8 @@ class ClientEquipmentTile extends ConsumerWidget {
                       _badge(
                         text: catalogCityLabel(
                           city: equipment.city,
-                          languageCode: Localizations.localeOf(
-                            context,
-                          ).languageCode,
+                          languageCode: Localizations.localeOf(context)
+                              .languageCode,
                           catalog: catalog,
                         ),
                         color: Colors.black.withValues(alpha: 0.6),

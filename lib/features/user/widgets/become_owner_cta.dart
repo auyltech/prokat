@@ -195,15 +195,13 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge?.copyWith(color: contentColor),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(color: contentColor),
                   ),
                   Text(
                     subtitle,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: mutedColor),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: mutedColor),
                   ),
                 ],
               ),

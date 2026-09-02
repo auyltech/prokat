@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -161,9 +162,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
     if (!saved) {
       AppSnackBar.show(
-        message: AppLocalizations.of(
-          context,
-        )!.failedToSaveNotificationPreferences,
+        message: AppLocalizations.of(context)!
+            .failedToSaveNotificationPreferences,
         isError: true,
       );
     }

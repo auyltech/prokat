@@ -5,6 +5,7 @@ import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/core/constants/map_constants.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import '../models/location_model.dart';
 import '../models/location_search_result.dart';
 

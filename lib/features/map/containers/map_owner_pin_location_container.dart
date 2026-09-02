@@ -108,9 +108,8 @@ class _MapOwnerPinLocationContainerState
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
     }
   }
 

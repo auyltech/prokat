@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -94,9 +95,8 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant
+                          .withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -106,10 +106,8 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
 
                 Text(
                   l10n.uploadProfileImage,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 16),
 

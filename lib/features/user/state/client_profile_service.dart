@@ -6,6 +6,7 @@ import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/user/models/client_notification_preferences.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
+
 import 'dart:io';
 
 class ClientProfileService {

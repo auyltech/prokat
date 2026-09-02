@@ -5,6 +5,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
+
 import '../models/request_model.dart';
 
 class Value<T> {

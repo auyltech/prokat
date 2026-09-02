@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -172,9 +173,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
                               await ref
                                   .read(
-                                    chatMessagesProvider(
-                                      widget.chatId,
-                                    ).notifier,
+                                    chatMessagesProvider(widget.chatId)
+                                        .notifier,
                                   )
                                   .refresh();
                             },

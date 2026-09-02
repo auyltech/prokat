@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -177,9 +178,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                     if (request.requiredOn == null) return l10n.pending;
 
                     // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                    final dateStr = DateFormat(
-                      'dd MMM yyyy',
-                    ).format(request.requiredOn!.toLocal());
+                    final dateStr = DateFormat('dd MMM yyyy')
+                        .format(request.requiredOn!.toLocal());
 
                     // 3. Return just the date if no time was specified
                     return dateStr;
@@ -196,9 +196,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   value: () {
                     // 2. If a specific time exists, format and append it (e.g., "14:30")
                     if (request.requiredAt != null) {
-                      final timeStr = DateFormat(
-                        'HH:mm',
-                      ).format(request.requiredAt!.toLocal());
+                      final timeStr = DateFormat('HH:mm')
+                          .format(request.requiredAt!.toLocal());
                       return timeStr;
                     }
 

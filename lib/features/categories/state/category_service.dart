@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import '../../../core/constants/api_routes.dart';
 import '../models/category.dart';
+
 import 'package:prokat/core/api/api_helper.dart';
 
 class CategoryService {

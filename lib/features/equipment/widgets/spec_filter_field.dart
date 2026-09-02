@@ -133,9 +133,8 @@ class _ClearIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(
-      context,
-    ).colorScheme.onSurface.withValues(alpha: enabled ? 0.6 : 0.25);
+    final color = Theme.of(context).colorScheme.onSurface
+        .withValues(alpha: enabled ? 0.6 : 0.25);
 
     return IconButton(
       visualDensity: VisualDensity.compact,
