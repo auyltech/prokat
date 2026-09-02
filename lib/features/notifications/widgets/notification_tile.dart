@@ -44,11 +44,7 @@ class NotificationTile extends StatelessWidget {
           fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
         ),
       ),
-      subtitle: Text(
-        body,
-        maxLines: 5,
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: Text(body, maxLines: 5, overflow: TextOverflow.ellipsis),
       trailing: onDelete == null
           ? null
           : IconButton(

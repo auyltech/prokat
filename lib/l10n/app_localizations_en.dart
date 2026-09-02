@@ -616,6 +616,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotificationsYet => 'No notifications yet';
 
   @override
+  String get notificationOwnerApprovedTitle => 'Owner registration approved';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Your owner registration has been approved.';
+
+  @override
+  String get notificationOwnerRejectedTitle => 'Owner registration rejected';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Your owner registration has been rejected.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Booking completed';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Your booking was marked as completed.';
+
+  @override
   String get errorLoadingEquipment => 'Error Loading Equipment';
 
   @override

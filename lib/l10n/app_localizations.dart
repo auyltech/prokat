@@ -1216,6 +1216,42 @@ abstract class AppLocalizations {
   /// **'No notifications yet'**
   String get noNotificationsYet;
 
+  /// No description provided for @notificationOwnerApprovedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner registration approved'**
+  String get notificationOwnerApprovedTitle;
+
+  /// No description provided for @notificationOwnerApprovedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your owner registration has been approved.'**
+  String get notificationOwnerApprovedBody;
+
+  /// No description provided for @notificationOwnerRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner registration rejected'**
+  String get notificationOwnerRejectedTitle;
+
+  /// No description provided for @notificationOwnerRejectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your owner registration has been rejected.'**
+  String get notificationOwnerRejectedBody;
+
+  /// No description provided for @notificationBookingCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking completed'**
+  String get notificationBookingCompletedTitle;
+
+  /// No description provided for @notificationBookingCompletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your booking was marked as completed.'**
+  String get notificationBookingCompletedBody;
+
   /// No description provided for @errorLoadingEquipment.
   ///
   /// In en, this message translates to:

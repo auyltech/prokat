@@ -612,6 +612,28 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noNotificationsYet => 'Хабарландырулар әзірге жоқ';
 
   @override
+  String get notificationOwnerApprovedTitle => 'Ие ретінде тіркелу мақұлданды';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Сіздің ие ретінде тіркелуіңіз мақұлданды.';
+
+  @override
+  String get notificationOwnerRejectedTitle =>
+      'Ие ретінде тіркелу қабылданбады';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Сіздің ие ретінде тіркелуіңіз қабылданбады.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Тапсырыс аяқталды';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Сіздің тапсырысыңыз аяқталды деп белгіленді.';
+
+  @override
   String get errorLoadingEquipment => 'Техниканы жүктеу қатесі';
 
   @override

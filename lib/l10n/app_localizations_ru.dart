@@ -618,6 +618,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noNotificationsYet => 'Уведомлений пока нет';
 
   @override
+  String get notificationOwnerApprovedTitle => 'Регистрация владельца одобрена';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Ваша регистрация в качестве владельца одобрена.';
+
+  @override
+  String get notificationOwnerRejectedTitle =>
+      'Регистрация владельца отклонена';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Ваша регистрация в качестве владельца отклонена.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Заказ завершён';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Ваш заказ отмечен как завершённый.';
+
+  @override
   String get errorLoadingEquipment => 'Ошибка загрузки техники';
 
   @override

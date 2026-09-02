@@ -112,8 +112,9 @@ class PushNotificationService {
     if (normalizedToken.isEmpty) return;
 
     final userId = session.user?.id ?? session.user?.phoneNumber;
-    final resolvedLocale =
-        (locale ?? currentLocale?.call() ?? '').trim().toLowerCase();
+    final resolvedLocale = (locale ?? currentLocale?.call() ?? '')
+        .trim()
+        .toLowerCase();
 
     final last = await storage.readLastRegisteredToken();
     final lastToken = last?.token.trim();

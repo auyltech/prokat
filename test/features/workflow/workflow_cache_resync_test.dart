@@ -31,7 +31,9 @@ void main() {
     addTearDown(container.dispose);
 
     await container.read(clientActiveRequestsProvider.future);
-    await container.read(clientOffersProvider(const OfferQuery.active()).future);
+    await container.read(
+      clientOffersProvider(const OfferQuery.active()).future,
+    );
 
     expect(requests.getClientRequestsCalls, 1);
     expect(offers.getClientOffersCalls, 1);

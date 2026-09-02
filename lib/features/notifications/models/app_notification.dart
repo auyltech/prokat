@@ -1,5 +1,6 @@
 import 'package:prokat/core/i18n/localized_text.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
+import 'package:prokat/features/notifications/utils/notification_copy.dart';
 
 class AppNotification {
   final String id;
@@ -38,7 +39,7 @@ class AppNotification {
       data['i18n'],
       languageCode: languageCode,
       field: 'title',
-      fallback: title,
+      fallback: fallbackNotificationTitle(type, languageCode) ?? title,
     );
   }
 
@@ -47,7 +48,7 @@ class AppNotification {
       data['i18n'],
       languageCode: languageCode,
       field: 'body',
-      fallback: body,
+      fallback: fallbackNotificationBody(type, languageCode) ?? body,
     );
   }
 

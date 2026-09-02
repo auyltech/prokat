@@ -33,10 +33,7 @@ void main() {
               child: SizedBox.expand(),
             ),
             bottomNavigationBar: ChatActionBar(
-              currentChat: ChatModel(
-                id: 'chat-1',
-                status: ChatStatus.closed,
-              ),
+              currentChat: ChatModel(id: 'chat-1', status: ChatStatus.closed),
               chatStatus: ChatStatusDetail.leaveReview,
               mode: AppMode.ownerMode,
               actionBarTitle: 'Submit Review',

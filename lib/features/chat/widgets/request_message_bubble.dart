@@ -212,7 +212,10 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           if (request.comment?.isNotEmpty ?? false)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: InfoTile.secondary(label: l10n.comments, value: request.comment!),
+              child: InfoTile.secondary(
+                label: l10n.comments,
+                value: request.comment!,
+              ),
             ),
 
           const SizedBox(height: 8),
