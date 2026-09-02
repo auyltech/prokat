@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+
 import '../../auth/providers/auth_provider.dart';
 
 class LogoutButton extends ConsumerWidget {

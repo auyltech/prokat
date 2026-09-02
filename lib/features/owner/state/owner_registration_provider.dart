@@ -106,10 +106,16 @@ class OwnerRegistrationMutationNotifier
     }
   }
 
-  Future<bool> updateOwnerProfile(OwnerProfileModel profile) async {
+  Future<bool> updateOwnerProfile(
+    OwnerProfileModel profile, {
+    bool submitForReview = false,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final result = await api.updateOwnerProfile(profile);
+      final result = await api.updateOwnerProfile(
+        profile,
+        submitForReview: submitForReview,
+      );
       if (result) await ref.read(ownerProfileProvider.notifier).refresh();
       state = state.copyWith(isLoading: false);
       return result;

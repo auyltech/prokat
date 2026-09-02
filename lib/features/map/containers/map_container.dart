@@ -88,10 +88,10 @@ class _MapContainerState extends State<MapContainer> {
                 PageHeader(title: widget.title),
                 const SizedBox(height: 32),
 
-                Icon(
+                const Icon(
                   Icons.map_outlined,
                   size: 64,
-                  color: const Color(0xFFD97706),
+                  color: Color(0xFFD97706),
                 ),
 
                 const SizedBox(height: 24),

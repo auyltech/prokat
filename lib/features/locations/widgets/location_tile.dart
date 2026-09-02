@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/utils/localized_city.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 
-class LocationTile extends StatelessWidget {
+class LocationTile extends ConsumerWidget {
   final LocationModel location;
   final VoidCallback onTap;
 
   const LocationTile({super.key, required this.location, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -29,11 +28,7 @@ class LocationTile extends StatelessWidget {
           size: 24,
         ),
         title: Text(
-          formatStreetCity(
-            l10n: l10n,
-            street: location.street,
-            city: location.city,
-          ),
+          formatLocationModel(ref, context, location),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface,
           ),

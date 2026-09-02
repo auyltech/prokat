@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -27,13 +29,15 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(clientProfileProvider.notifier).refreshIfStale();
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(clientProfileProvider.notifier).refreshIfStale();
 
-      await ref
-          .read(ownerRegistrationRequestProvider.notifier)
-          .refreshIfStale();
-    });
+        await ref
+            .read(ownerRegistrationRequestProvider.notifier)
+            .refreshIfStale();
+      }),
+    );
   }
 
   @override
@@ -59,7 +63,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             SliverAppBar(
               backgroundColor: theme.colorScheme.primary,
               expandedHeight: 400,
-              actions: [
+              actions: const [
                 NotificationBadge(color: Colors.white),
                 SizedBox(width: 16),
               ],
@@ -73,28 +77,28 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
               ),
             ),
 
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     ClientRentalPreferencesSection(),
                   ],
                 ),
               ),
             ),
 
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
-                child: const BecomeOwnerCTA(),
+                child: BecomeOwnerCTA(),
               ),
             ),
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     ProkatListTile(
@@ -151,7 +155,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
               ),
             ),
 
-            SliverFillRemaining(
+            const SliverFillRemaining(
               hasScrollBody: false, // Prevents nested inner scrollbars
               fillOverscroll: true,
               child: Padding(
@@ -161,7 +165,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                   left: 16,
                   right: 16,
                 ),
-                child: const LogoutButton(),
+                child: LogoutButton(),
               ),
             ),
           ],

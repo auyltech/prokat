@@ -45,7 +45,7 @@ class BookingService {
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid booking item");
+              throw const FormatException("Invalid booking item");
             }
 
             return BookingModel.fromJson(item);
@@ -104,12 +104,12 @@ class BookingService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected booking list");
+            throw const FormatException("Expected booking list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid booking item");
+              throw const FormatException("Invalid booking item");
             }
 
             return BookingModel.fromJson(item);

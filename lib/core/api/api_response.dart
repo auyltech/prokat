@@ -17,6 +17,9 @@ class ApiResponse<T> {
   /// Absolute local time when the request may be attempted again.
   final DateTime? retryAt;
 
+  /// Total matching rows when the backend sends `count` (list endpoints).
+  final int? count;
+
   const ApiResponse({
     required this.success,
     this.data,
@@ -25,6 +28,7 @@ class ApiResponse<T> {
     this.statusCode,
     this.errorCode,
     this.retryAt,
+    this.count,
   });
 
   factory ApiResponse.success(
@@ -33,6 +37,7 @@ class ApiResponse<T> {
     int? statusCode,
     String? errorCode,
     DateTime? retryAt,
+    int? count,
   }) {
     return ApiResponse<T>(
       success: true,
@@ -42,6 +47,7 @@ class ApiResponse<T> {
       statusCode: statusCode,
       errorCode: errorCode,
       retryAt: retryAt,
+      count: count,
     );
   }
 

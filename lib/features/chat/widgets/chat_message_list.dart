@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -91,7 +93,9 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
 
     if (_controller.position.extentAfter > _loadMoreExtent) return;
 
-    ref.read(chatMessagesProvider(widget.chatId).notifier).loadMore();
+    unawaited(
+      ref.read(chatMessagesProvider(widget.chatId).notifier).loadMore(),
+    );
   }
 
   void _scheduleLoadMoreCheck() {
@@ -120,10 +124,12 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
       if (!position.hasContentDimensions) return;
       if (position.pixels <= 0.5) return;
 
-      _controller.animateTo(
-        0,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
+      unawaited(
+        _controller.animateTo(
+          0,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+        ),
       );
     });
   }

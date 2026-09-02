@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -222,10 +223,58 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invalidEmail => 'Введите корректный email';
 
   @override
+  String get emailAddressRequiredLabel => 'Адрес электронной почты *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Номер телефона *';
+
+  @override
+  String get inquiryTopicValidation => 'Выберите тему обращения';
+
+  @override
   String get inquiryDetails => 'Сведения об обращении';
 
   @override
   String get inquiryTopicRequiredLabel => 'Тема обращения *';
+
+  @override
+  String get selectInquiryTopic => 'Выберите тему обращения';
+
+  @override
+  String get inquiryTopicGeneral => 'Общий вопрос';
+
+  @override
+  String get inquiryTopicSupport => 'Поддержка';
+
+  @override
+  String get inquiryTopicBugReport => 'Сообщение об ошибке';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Предложение функции';
+
+  @override
+  String get inquiryTopicSales => 'Продажи';
+
+  @override
+  String get inquiryTopicPartnership => 'Партнёрство';
+
+  @override
+  String get inquiryTopicBilling => 'Оплата и счета';
+
+  @override
+  String get inquiryTopicCallMe => 'Перезвоните мне';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Удаление аккаунта';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Восстановление аккаунта';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Проблема с аккаунтом';
+
+  @override
+  String get inquiryTopicOther => 'Другое';
 
   @override
   String get yourMessageRequiredLabel => 'Ваше сообщение *';
@@ -480,6 +529,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestAccepted => 'Запрос принят';
 
   @override
+  String get offerNotSelected => 'Выбран другой владелец';
+
+  @override
   String get requestRejected => 'Запрос отклонён';
 
   @override
@@ -565,6 +617,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noNotificationsYet => 'Уведомлений пока нет';
+
+  @override
+  String get notificationOwnerApprovedTitle => 'Регистрация владельца одобрена';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Ваша регистрация в качестве владельца одобрена.';
+
+  @override
+  String get notificationOwnerRejectedTitle =>
+      'Регистрация владельца отклонена';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Ваша регистрация в качестве владельца отклонена.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Заказ завершён';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Ваш заказ отмечен как завершённый.';
 
   @override
   String get errorLoadingEquipment => 'Ошибка загрузки техники';
@@ -724,6 +798,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get available => 'Доступно';
 
   @override
+  String get booked => 'Занята';
+
+  @override
   String get perDay => '/ день';
 
   @override
@@ -758,6 +835,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get close => 'Закрыть';
+
+  @override
+  String get apply => 'Применить';
 
   @override
   String get send => 'Отправить';
@@ -1125,6 +1205,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get yesReject => 'Да, отклонить';
 
   @override
+  String get yes => 'Да';
+
+  @override
   String get no => 'Нет';
 
   @override
@@ -1137,6 +1220,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get volume => 'Объём';
+
+  @override
+  String get specFilterFrom => 'от';
+
+  @override
+  String get specFilterTo => 'до';
 
   @override
   String get noOrderHistory => 'История заказов пуста';
@@ -1182,6 +1271,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get workStatusStopWork => 'Остановить работу';
+
+  @override
+  String get workStatusResumeWork => 'Возобновить работу';
 
   @override
   String get workStatusCompleteWork => 'Завершить работу';
@@ -1420,6 +1512,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Не удалось сохранить адрес';
+
+  @override
+  String get deleteAddress => 'Удалить адрес';
+
+  @override
+  String get deleteAddressQuestion => 'Удалить этот адрес?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'Адрес будет удалён из сохранённого списка.';
+
+  @override
+  String get failedToDeleteAddress => 'Не удалось удалить адрес';
 
   @override
   String get noEquipmentLocations => 'Адреса техники не добавлены';
@@ -1939,6 +2044,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateDocumentsHint => 'Обновите документы и повторите попытку.';
 
   @override
+  String get ownerProfileSuspended => 'Профиль приостановлен';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Размещение техники временно недоступно. Свяжитесь с поддержкой.';
+
+  @override
+  String get ownerProfilePendingReview => 'Ожидайте рассмотрения';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Отправленные данные снова проходят модерацию.';
+
+  @override
+  String get profileUpdateNeedsModeration =>
+      'Данные будут переданы на модерацию';
+
+  @override
   String get submitForVerification => 'Отправить на верификацию';
 
   @override
@@ -1982,6 +2105,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneNumberRequired => 'Номер телефона обязателен';
+
+  @override
+  String get ownerContactPhoneHint =>
+      'Этот номер увидят администратор и клиенты. По нему должны дозвониться.';
 
   @override
   String get cityRequired => 'Город обязателен';
@@ -2470,7 +2597,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusCanceled => 'Отменено';
 
   @override
+  String get statusFailed => 'Сбой';
+
+  @override
   String get statusCompleted => 'Завершено';
+
+  @override
+  String get statusReviewed => 'Оценено';
 
   @override
   String get statusRequestSent => 'Заявка отправлена';
@@ -2869,6 +3002,61 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня',
+      many: '$count дней',
+      few: '$count дня',
+      one: '1 день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count часа',
+      many: '$count часов',
+      few: '$count часа',
+      one: '1 час',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мин',
+      many: '$count мин',
+      few: '$count мин',
+      one: '1 мин',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сек',
+      many: '$count сек',
+      few: '$count сек',
+      one: '1 сек',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invalidSecondsValue => 'Некорректное значение секунд';
+
+  @override
   String get newOffer => 'Новое предложение';
 
   @override
@@ -3013,51 +3201,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ratePerHour => 'За час';
-
-  @override
-  String get cityNameAtyrau => 'Атырау';
-
-  @override
-  String get cityNameAlmaty => 'Алматы';
-
-  @override
-  String get cityNameAstana => 'Астана';
-
-  @override
-  String get cityNameShymkent => 'Шымкент';
-
-  @override
-  String get cityNameAktobe => 'Актобе';
-
-  @override
-  String get cityNameKaraganda => 'Караганда';
-
-  @override
-  String get cityNameTaraz => 'Тараз';
-
-  @override
-  String get cityNamePavlodar => 'Павлодар';
-
-  @override
-  String get cityNameUstKamenogorsk => 'Усть-Каменогорск';
-
-  @override
-  String get cityNameSemey => 'Семей';
-
-  @override
-  String get cityNameKostanay => 'Костанай';
-
-  @override
-  String get cityNameKyzylorda => 'Кызылорда';
-
-  @override
-  String get cityNameUralsk => 'Уральск';
-
-  @override
-  String get cityNamePetropavl => 'Петропавловск';
-
-  @override
-  String get cityNameTurkistan => 'Туркестан';
 
   @override
   String get connectionTimedOut =>

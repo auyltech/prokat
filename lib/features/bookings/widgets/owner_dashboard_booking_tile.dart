@@ -56,7 +56,10 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      booking.location?.street ?? "",
+                      booking.location?.streetLine(
+                            Localizations.localeOf(context).languageCode,
+                          ) ??
+                          "",
                       style: theme.textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -111,9 +114,8 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           booking.bookedOn != null
-                              ? DateFormat(
-                                  'dd MMM, HH:mm',
-                                ).format(booking.bookedOn!)
+                              ? DateFormat('dd MMM, HH:mm')
+                                    .format(booking.bookedOn!)
                               : l10n.pendingDate,
                           style: theme.textTheme.bodySmall,
                         ),

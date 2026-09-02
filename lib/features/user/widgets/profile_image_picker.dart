@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -61,73 +63,72 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
 
       if (croppedFile != null) {
         setState(() => _selectedImage = File(croppedFile.path));
-        onImageSelected(_selectedImage);
+        await onImageSelected(_selectedImage);
       }
     } finally {}
   }
 
   void _showPickerOptions() {
     final l10n = AppLocalizations.of(context)!;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            bottom: 24,
-            top: 12,
-            left: 24,
-            right: 24,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Theme.of(context).cardColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              bottom: 24,
+              top: 12,
+              left: 24,
+              right: 24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant
+                          .withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              Text(
-                l10n.uploadProfileImage,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
+                Text(
+                  l10n.uploadProfileImage,
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(fontSize: 20, fontWeight: FontWeight.w500),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: Text(l10n.photoGallery),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickAndCropImage(ImageSource.gallery);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: Text(l10n.camera),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _pickAndCropImage(ImageSource.camera);
-                },
-              ),
-            ],
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: Text(l10n.photoGallery),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    unawaited(_pickAndCropImage(ImageSource.gallery));
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: Text(l10n.camera),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    unawaited(_pickAndCropImage(ImageSource.camera));
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+
 import 'equipment_demand_models.dart';
 import 'equipment_demand_service.dart';
 

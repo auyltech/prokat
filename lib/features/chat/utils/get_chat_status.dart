@@ -23,16 +23,47 @@ class ChatConfig {
 bool chatHasVisibleActions({
   required ChatStatusDetail status,
   required AppMode mode,
+  ChatStatus? threadStatus,
+  ChatType? chatType,
 }) {
+  if (chatType == ChatType.support) return false;
+  if (status == ChatStatusDetail.leaveReview) return true;
+  if (threadStatus == ChatStatus.closed ||
+      threadStatus == ChatStatus.archived) {
+    return false;
+  }
+
   switch (status) {
     case ChatStatusDetail.requestcreated:
-    case ChatStatusDetail.requestaccepted:
-    case ChatStatusDetail.leaveReview:
       return true;
     case ChatStatusDetail.bookingconfirmed:
       return mode == AppMode.ownerMode;
     case ChatStatusDetail.confirmcompleted:
       return mode == AppMode.clientMode;
+    default:
+      return false;
+  }
+}
+
+bool isChatInputLocked(
+  ChatStatusDetail status, {
+  ChatStatus? threadStatus,
+  ChatType? chatType,
+}) {
+  if (chatType == ChatType.support) return false;
+  if (threadStatus == ChatStatus.closed ||
+      threadStatus == ChatStatus.archived) {
+    return true;
+  }
+
+  switch (status) {
+    case ChatStatusDetail.workcompleted:
+    case ChatStatusDetail.leaveReview:
+    case ChatStatusDetail.bookingcancelled:
+    case ChatStatusDetail.bookingreviewed:
+    case ChatStatusDetail.requestcancelled:
+    case ChatStatusDetail.offernotselected:
+      return true;
     default:
       return false;
   }
@@ -189,9 +220,9 @@ ChatConfig getChatConfig({
 
     case RequestStatus.accepted:
       return ChatConfig(
-        status: ChatStatusDetail.requestaccepted,
-        actionBartitle: l10n.requestAccepted,
-        statusLabel: l10n.requestAccepted,
+        status: ChatStatusDetail.offernotselected,
+        actionBartitle: l10n.offerNotSelected,
+        statusLabel: l10n.offerNotSelected,
       );
 
     case RequestStatus.cancelled:

@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentDetailsDrawer extends ConsumerWidget {
@@ -106,7 +108,7 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            "${equipment.model} • ${equipment.capacity} ${equipment.capacityUnit}",
+                            equipment.model,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.4),
                               fontSize: 14,
@@ -157,10 +159,10 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      formatStreetCity(
-                                        l10n: l10n,
-                                        street: equipment.location?.street,
-                                        city: equipment.location?.city,
+                                      formatEquipmentLocation(
+                                        ref,
+                                        context,
+                                        equipment.location!,
                                       ),
                                       style: const TextStyle(
                                         color: Colors.white70,
@@ -183,7 +185,9 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                     ? Icons.favorite_rounded
                                     : Icons.favorite_border_rounded,
                                 onTap: () {
-                                  notifier.toggleFavorite(equipment.id);
+                                  unawaited(
+                                    notifier.toggleFavorite(equipment.id),
+                                  );
                                 },
                               ),
                               const SizedBox(width: 16),
@@ -196,8 +200,10 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                         .read(bookingMutationProvider.notifier)
                                         .selectEquipment(equipment);
                                     // Navigate to booking page
-                                    context.push(
-                                      '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                                    unawaited(
+                                      context.push(
+                                        '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
+                                      ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(

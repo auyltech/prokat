@@ -76,6 +76,7 @@ class OfferChatActionBar extends ConsumerWidget {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(

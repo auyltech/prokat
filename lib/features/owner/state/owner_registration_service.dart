@@ -157,11 +157,17 @@ class OwnerRegistrationService {
     }
   }
 
-  Future<bool> updateOwnerProfile(OwnerProfileModel profile) async {
+  Future<bool> updateOwnerProfile(
+    OwnerProfileModel profile, {
+    bool submitForReview = false,
+  }) async {
     try {
       final res = await _dio.patch(
         ApiRoutes.ownerProfile,
-        data: profile.toPatchJson(),
+        data: {
+          ...profile.toPatchJson(),
+          if (submitForReview) 'submitForReview': true,
+        },
       );
 
       final status = res.statusCode ?? 0;

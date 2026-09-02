@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,44 +33,46 @@ class OwnerBookingTile extends ConsumerWidget {
     ThemeData theme,
   ) async {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(l10n.acceptOrderQuestion),
-          content: Text(l10n.acceptOrderConfirmation),
-          actions: [
-            TextButton(
-              onPressed: () {
-                if (context.mounted && context.canPop()) {
-                  context.pop();
-                }
-              },
-              child: Text(l10n.cancel),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (context.mounted && context.canPop()) {
-                  context.pop();
-                }
-                await ref
-                    .read(bookingMutationProvider.notifier)
-                    .updateBookingStatus(
-                      id: booking.id,
-                      status: BookingStatus.confirmed,
-                    );
-              },
-              child: Text(
-                l10n.confirm,
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+    unawaited(
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(l10n.acceptOrderQuestion),
+            content: Text(l10n.acceptOrderConfirmation),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  if (context.mounted && context.canPop()) {
+                    context.pop();
+                  }
+                },
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (context.mounted && context.canPop()) {
+                    context.pop();
+                  }
+                  await ref
+                      .read(bookingMutationProvider.notifier)
+                      .updateBookingStatus(
+                        id: booking.id,
+                        status: BookingStatus.confirmed,
+                      );
+                },
+                child: Text(
+                  l10n.confirm,
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -147,15 +151,17 @@ class OwnerBookingTile extends ConsumerWidget {
 
     // Open step option modal form sheet past strict time restriction window
     if (context.mounted) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: theme.colorScheme.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      unawaited(
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: theme.colorScheme.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (context) =>
+              CancelBookingSheet(booking: booking, mode: AppMode.ownerMode),
         ),
-        builder: (context) =>
-            CancelBookingSheet(booking: booking, mode: AppMode.ownerMode),
       );
     }
   }
@@ -175,10 +181,10 @@ class OwnerBookingTile extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: theme.cardColor,
         border: Border(
-          bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1.0),
+          bottom: BorderSide(color: theme.dividerColor, width: 1.0),
         ),
       ),
       child: Column(
@@ -206,7 +212,11 @@ class OwnerBookingTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: booking.location?.street ?? "",
+                  value:
+                      booking.location?.streetLine(
+                        Localizations.localeOf(context).languageCode,
+                      ) ??
+                      "",
                   onTap: () {
                     final location = booking.location;
 
@@ -224,7 +234,11 @@ class OwnerBookingTile extends ConsumerWidget {
                 child: InfoTile(
                   icon: Icons.timelapse,
                   label: l10n.dateAndTime,
-                  value: formatDateTime(booking.bookedOn, booking.bookedAt),
+                  value: formatDateTime(
+                    booking.bookedOn,
+                    booking.bookedAt,
+                    locale: l10n.localeName,
+                  ),
                 ),
               ),
             ],
@@ -256,14 +270,14 @@ class OwnerBookingTile extends ConsumerWidget {
                 value: formatPrice(booking.price),
               ),
 
-              Spacer(),
+              const Spacer(),
 
               Row(
                 children: [
                   if (booking.status == BookingStatus.created ||
                       booking.status == BookingStatus.confirmed) ...[
                     if (isSubmittingCancel) ...[
-                      SizedBox(
+                      const SizedBox(
                         height: 25,
                         width: 25,
                         child: CircularProgressIndicator(
@@ -271,7 +285,7 @@ class OwnerBookingTile extends ConsumerWidget {
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                     ] else
                       IconButton(
                         onPressed: () => _handleCancel(
@@ -289,8 +303,10 @@ class OwnerBookingTile extends ConsumerWidget {
 
                     IconButton(
                       onPressed: () {
-                        context.push(
-                          '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
+                        unawaited(
+                          context.push(
+                            '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
+                          ),
                         );
                       },
                       icon: Icon(

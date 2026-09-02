@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/user/widgets/user_display_name.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class UserInfoTile extends StatelessWidget {
   final UserModel? user;
@@ -10,6 +11,7 @@ class UserInfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -24,7 +26,7 @@ class UserInfoTile extends StatelessWidget {
               ? null
               : ClipOval(
                   child: Transform.translate(
-                    offset: Offset(-6, -2),
+                    offset: const Offset(-6, -2),
                     child: Icon(
                       Icons.person_rounded,
                       color: theme.colorScheme.primary,
@@ -46,11 +48,14 @@ class UserInfoTile extends StatelessWidget {
                 children: [
                   const Icon(Icons.star, size: 14, color: Colors.amber),
                   const SizedBox(width: 2),
-                  Text(
-                    '${user?.rating ?? 0} • ${user?.orderCount ?? 0} orders',
-                    style: theme.textTheme.bodySmall,
+                  Flexible(
+                    child: Text(
+                      '${user?.rating ?? 0} • ${l10n.ordersCount(user?.orderCount ?? 0)}',
+                      style: theme.textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const SizedBox(width: 8),
                 ],
               ),
             ],

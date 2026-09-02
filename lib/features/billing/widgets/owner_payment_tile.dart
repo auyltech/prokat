@@ -50,11 +50,15 @@ class OwnerPaymentTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          getTimeString(transaction.seconds),
+          getTimeString(transaction.seconds, l10n),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Text(
-          formatDateTime(transaction.createdAt, transaction.createdAt),
+          formatDateTime(
+            transaction.createdAt,
+            transaction.createdAt,
+            locale: l10n.localeName,
+          ),
           style: const TextStyle(fontSize: 12),
         ),
         trailing: transaction.type == TransactionType.topup

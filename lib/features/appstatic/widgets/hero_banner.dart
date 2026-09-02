@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/utils/localized_city.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class HeroBanner extends StatelessWidget {
+class HeroBanner extends ConsumerWidget {
   final String selectedCity;
 
   const HeroBanner({super.key, required this.selectedCity});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const Color darkBlueBg = Color(0xFF071D49);
     final l10n = AppLocalizations.of(context)!;
 
@@ -68,7 +69,7 @@ class HeroBanner extends StatelessWidget {
 
                   Text(
                     selectedCity.isNotEmpty
-                        ? localizedCityName(selectedCity, l10n)
+                        ? catalogCityLabelOf(ref, context, selectedCity)
                         : l10n.allLocations,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),

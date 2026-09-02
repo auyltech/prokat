@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -114,11 +116,13 @@ void showEditSheet({required BuildContext context, required Widget sheet}) {
   final theme = Theme.of(context);
   final bgColor = theme.colorScheme.surface;
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: bgColor,
-    barrierColor: Colors.black.withValues(alpha: 0.7),
-    builder: (_) => sheet,
+  unawaited(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: bgColor,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (_) => sheet,
+    ),
   );
 }

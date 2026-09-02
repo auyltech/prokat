@@ -74,8 +74,24 @@
   "emailOrPhoneRequired": "Укажите email или номер телефона",
   "phoneRequiredIfEmailEmpty": "Обязательно, если номер телефона не указан",
   "invalidEmail": "Введите корректный email",
+  "emailAddressRequiredLabel": "Адрес электронной почты *",
+  "phoneNumberRequiredLabel": "Номер телефона *",
+  "inquiryTopicValidation": "Выберите тему обращения",
   "inquiryDetails": "Сведения об обращении",
   "inquiryTopicRequiredLabel": "Тема обращения *",
+  "selectInquiryTopic": "Выберите тему обращения",
+  "inquiryTopicGeneral": "Общий вопрос",
+  "inquiryTopicSupport": "Поддержка",
+  "inquiryTopicBugReport": "Сообщение об ошибке",
+  "inquiryTopicFeatureRequest": "Предложение функции",
+  "inquiryTopicSales": "Продажи",
+  "inquiryTopicPartnership": "Партнёрство",
+  "inquiryTopicBilling": "Оплата и счета",
+  "inquiryTopicCallMe": "Перезвоните мне",
+  "inquiryTopicAccountDeletion": "Удаление аккаунта",
+  "inquiryTopicAccountRecovery": "Восстановление аккаунта",
+  "inquiryTopicAccountIssue": "Проблема с аккаунтом",
+  "inquiryTopicOther": "Другое",
   "yourMessageRequiredLabel": "Ваше сообщение *",
   "messageValidation": "Введите сообщение",
   "counterOffer": "Встречное предложение",
@@ -178,6 +194,7 @@
   "reviewOwner": "Отзыв о владельце",
   "reviewClient": "Отзыв о клиенте",
   "requestAccepted": "Запрос принят",
+  "offerNotSelected": "Выбран другой владелец",
   "requestRejected": "Запрос отклонён",
   "requestPending": "Запрос ожидает ответа",
   "estimatedExhaustion": "Прогноз исчерпания",
@@ -207,6 +224,12 @@
   "review": "Отзыв",
   "saved": "Сохранено",
   "noNotificationsYet": "Уведомлений пока нет",
+  "notificationOwnerApprovedTitle": "Регистрация владельца одобрена",
+  "notificationOwnerApprovedBody": "Ваша регистрация в качестве владельца одобрена.",
+  "notificationOwnerRejectedTitle": "Регистрация владельца отклонена",
+  "notificationOwnerRejectedBody": "Ваша регистрация в качестве владельца отклонена.",
+  "notificationBookingCompletedTitle": "Заказ завершён",
+  "notificationBookingCompletedBody": "Ваш заказ отмечен как завершённый.",
   "errorLoadingEquipment": "Ошибка загрузки техники",
   "priceMustBePositive": "Цена должна быть больше нуля",
   "priceMaximumExceeded": "Цена не может превышать 100 000",
@@ -274,6 +297,7 @@
   "selectLanguage": "Выберите язык",
   "topRated": "Топ рейтинга",
   "available": "Доступно",
+  "booked": "Занята",
   "perDay": "/ день",
   "heavyEquipmentRentals": "ПРОКАТ ТЯЖЁЛОЙ ТЕХНИКИ",
   "initializingSystems": "ИНИЦИАЛИЗАЦИЯ...",
@@ -286,6 +310,7 @@
   "retry": "Повторить",
   "refresh": "Обновить",
   "close": "Закрыть",
+  "apply": "Применить",
   "send": "Отправить",
   "submit": "Отправить",
   "upload": "Загрузить",
@@ -420,6 +445,7 @@
     }
   },
   "yesReject": "Да, отклонить",
+  "yes": "Да",
   "no": "Нет",
   "decline": "Отклонить",
   "minutesLeft": "{minutes} мин осталось",
@@ -429,6 +455,8 @@
     }
   },
   "volume": "Объём",
+  "specFilterFrom": "от",
+  "specFilterTo": "до",
   "noOrderHistory": "История заказов пуста",
   "cancelReasonClientNotRespond": "Клиент не ответил",
   "cancelReasonEquipUnavailable": "Техника недоступна",
@@ -444,6 +472,7 @@
   "workStatusStartWork": "Начать работу",
   "workStatusPostpone": "Отложить",
   "workStatusStopWork": "Остановить работу",
+  "workStatusResumeWork": "Возобновить работу",
   "workStatusCompleteWork": "Завершить работу",
   "workStatusCancelJob": "Отменить задание",
 
@@ -527,6 +556,10 @@
   "confirmLocation": "Подтвердить местоположение",
   "failedCreateAddress": "Не удалось создать адрес",
   "failedSaveAddress": "Не удалось сохранить адрес",
+  "deleteAddress": "Удалить адрес",
+  "deleteAddressQuestion": "Удалить этот адрес?",
+  "deleteAddressConfirmation": "Адрес будет удалён из сохранённого списка.",
+  "failedToDeleteAddress": "Не удалось удалить адрес",
   "noEquipmentLocations": "Адреса техники не добавлены",
   "equipmentLocations": "Адреса техники",
   "searchAddress": "Поиск адреса",
@@ -707,6 +740,11 @@
   "canListEquipment": "Теперь вы можете размещать технику для аренды.",
   "verificationFailed": "Верификация не пройдена",
   "updateDocumentsHint": "Обновите документы и повторите попытку.",
+  "ownerProfileSuspended": "Профиль приостановлен",
+  "ownerProfileSuspendedHint": "Размещение техники временно недоступно. Свяжитесь с поддержкой.",
+  "ownerProfilePendingReview": "Ожидайте рассмотрения",
+  "ownerProfilePendingReviewHint": "Отправленные данные снова проходят модерацию.",
+  "profileUpdateNeedsModeration": "Данные будут переданы на модерацию",
   "submitForVerification": "Отправить на верификацию",
   "underReview": "На проверке",
   "viewListings": "Посмотреть объявления",
@@ -721,6 +759,7 @@
   "firstNameRequired": "Имя обязательно",
   "lastNameRequired": "Фамилия обязательна",
   "phoneNumberRequired": "Номер телефона обязателен",
+  "ownerContactPhoneHint": "Этот номер увидят администратор и клиенты. По нему должны дозвониться.",
   "cityRequired": "Город обязателен",
   "messageRequired": "Пожалуйста, добавьте короткое сообщение",
   "submitRequest": "Отправить заявку",
@@ -873,7 +912,9 @@
   "statusDraft": "Черновик",
   "statusConfirmed": "Подтверждено",
   "statusCanceled": "Отменено",
+  "statusFailed": "Сбой",
   "statusCompleted": "Завершено",
+  "statusReviewed": "Оценено",
   "statusRequestSent": "Заявка отправлена",
   "statusOffersReceived": "Предложения получены",
   "statusBookingCreated": "Бронирование создано",
@@ -1017,6 +1058,31 @@
       "count": { "type": "int" }
     }
   },
+  "durationDays": "{count, plural, =1{1 день} few{{count} дня} many{{count} дней} other{{count} дня}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 час} few{{count} часа} many{{count} часов} other{{count} часа}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count, plural, =1{1 мин} few{{count} мин} many{{count} мин} other{{count} мин}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationSeconds": "{count, plural, =1{1 сек} few{{count} сек} many{{count} сек} other{{count} сек}}",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "invalidSecondsValue": "Некорректное значение секунд",
   "newOffer": "Новое предложение",
   "offerStatusViewed": "Просмотрено",
   "offerStatusCancelled": "Отменено",
@@ -1071,22 +1137,6 @@
   "ratePerCubicMeter": "За м³",
   "ratePerDay": "За сутки",
   "ratePerHour": "За час",
-
-  "cityNameAtyrau": "Атырау",
-  "cityNameAlmaty": "Алматы",
-  "cityNameAstana": "Астана",
-  "cityNameShymkent": "Шымкент",
-  "cityNameAktobe": "Актобе",
-  "cityNameKaraganda": "Караганда",
-  "cityNameTaraz": "Тараз",
-  "cityNamePavlodar": "Павлодар",
-  "cityNameUstKamenogorsk": "Усть-Каменогорск",
-  "cityNameSemey": "Семей",
-  "cityNameKostanay": "Костанай",
-  "cityNameKyzylorda": "Кызылорда",
-  "cityNameUralsk": "Уральск",
-  "cityNamePetropavl": "Петропавловск",
-  "cityNameTurkistan": "Туркестан",
 
   "connectionTimedOut": "Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.",
   "noConnectionCheckNetwork": "Нет соединения. Проверьте сеть и попробуйте снова.",

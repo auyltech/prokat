@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -16,6 +18,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -34,8 +37,19 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(locationProvider.notifier).getClientLocations();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final address = await ref
+          .read(locationProvider.notifier)
+          .ensureSelectedClientAddress(
+            preferredId: ref
+                .read(clientProfileProvider)
+                .userProfile
+                ?.selectedAddressId,
+          );
+      if (!mounted) return;
+      if (address != null) {
+        ref.read(bookingMutationProvider.notifier).selectLocation(address);
+      }
     });
   }
 
@@ -73,7 +87,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     );
 
     if (result.success && mounted) {
-      context.push(AppRoutes.clientOrders);
+      unawaited(context.push(AppRoutes.clientOrders));
     }
   }
 
@@ -145,7 +159,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                 EquipmentImageHeader(imageUrl: displayUrl),
 
                 Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -186,7 +200,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           GestureDetector(
                             onTap: isClient
                                 ? () async {
-                                    ref
+                                    await ref
                                         .read(favoritesProvider.notifier)
                                         .toggleFavorite(equipment.id);
                                   }
@@ -261,7 +275,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate, l10n: l10n)}",
                                 style: theme.textTheme.labelLarge?.copyWith(
                                   color: isSelected
-                                      ? theme.colorScheme.onPrimary
+                                      ? Colors.white
                                       : theme.colorScheme.onSurface.withValues(
                                           alpha: 0.7,
                                         ),

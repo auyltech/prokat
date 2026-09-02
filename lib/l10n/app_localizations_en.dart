@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -218,10 +219,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidEmail => 'Enter a valid email';
 
   @override
+  String get emailAddressRequiredLabel => 'Email Address *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Phone Number *';
+
+  @override
+  String get inquiryTopicValidation => 'Please select an inquiry topic';
+
+  @override
   String get inquiryDetails => 'Inquiry Details';
 
   @override
   String get inquiryTopicRequiredLabel => 'Inquiry Topic *';
+
+  @override
+  String get selectInquiryTopic => 'Select inquiry topic';
+
+  @override
+  String get inquiryTopicGeneral => 'General';
+
+  @override
+  String get inquiryTopicSupport => 'Support';
+
+  @override
+  String get inquiryTopicBugReport => 'Bug report';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Feature request';
+
+  @override
+  String get inquiryTopicSales => 'Sales';
+
+  @override
+  String get inquiryTopicPartnership => 'Partnership';
+
+  @override
+  String get inquiryTopicBilling => 'Billing';
+
+  @override
+  String get inquiryTopicCallMe => 'Call me';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Account deletion';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Account recovery';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Account issue';
+
+  @override
+  String get inquiryTopicOther => 'Other';
 
   @override
   String get yourMessageRequiredLabel => 'Your Message *';
@@ -477,6 +526,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestAccepted => 'Request Accepted';
 
   @override
+  String get offerNotSelected => 'Another owner was selected';
+
+  @override
   String get requestRejected => 'Request Rejected';
 
   @override
@@ -563,6 +615,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noNotificationsYet => 'No notifications yet';
+
+  @override
+  String get notificationOwnerApprovedTitle => 'Owner registration approved';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Your owner registration has been approved.';
+
+  @override
+  String get notificationOwnerRejectedTitle => 'Owner registration rejected';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Your owner registration has been rejected.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Booking completed';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Your booking was marked as completed.';
 
   @override
   String get errorLoadingEquipment => 'Error Loading Equipment';
@@ -719,6 +792,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get available => 'Available';
 
   @override
+  String get booked => 'Booked';
+
+  @override
   String get perDay => '/ day';
 
   @override
@@ -753,6 +829,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get apply => 'Apply';
 
   @override
   String get send => 'Send';
@@ -1121,6 +1200,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yesReject => 'Yes, Reject';
 
   @override
+  String get yes => 'Yes';
+
+  @override
   String get no => 'No';
 
   @override
@@ -1133,6 +1215,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get volume => 'Volume';
+
+  @override
+  String get specFilterFrom => 'From';
+
+  @override
+  String get specFilterTo => 'To';
 
   @override
   String get noOrderHistory => 'No order history yet';
@@ -1178,6 +1266,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workStatusStopWork => 'Stop work';
+
+  @override
+  String get workStatusResumeWork => 'Resume work';
 
   @override
   String get workStatusCompleteWork => 'Complete work';
@@ -1416,6 +1507,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Failed to save address';
+
+  @override
+  String get deleteAddress => 'Delete address';
+
+  @override
+  String get deleteAddressQuestion => 'Delete this address?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'This address will be removed from your saved list.';
+
+  @override
+  String get failedToDeleteAddress => 'Failed to delete address';
 
   @override
   String get noEquipmentLocations => 'No equipment locations yet';
@@ -1931,6 +2035,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please update your documents and try again.';
 
   @override
+  String get ownerProfileSuspended => 'Profile suspended';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Listing equipment is temporarily unavailable. Contact support.';
+
+  @override
+  String get ownerProfilePendingReview => 'Waiting for review';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Your updated details will be checked by an administrator.';
+
+  @override
+  String get profileUpdateNeedsModeration =>
+      'Your details will be sent for moderation';
+
+  @override
   String get submitForVerification => 'Submit for Verification';
 
   @override
@@ -1974,6 +2096,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneNumberRequired => 'Phone number is required';
+
+  @override
+  String get ownerContactPhoneHint =>
+      'Admins and clients will see this number. It should be reachable by phone.';
 
   @override
   String get cityRequired => 'City is required';
@@ -2457,7 +2583,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusCanceled => 'Canceled';
 
   @override
+  String get statusFailed => 'Failed';
+
+  @override
   String get statusCompleted => 'Completed';
+
+  @override
+  String get statusReviewed => 'Reviewed';
 
   @override
   String get statusRequestSent => 'Request Sent';
@@ -2850,6 +2982,53 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hrs',
+      one: '1 hr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min',
+      one: '1 min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sec',
+      one: '1 sec',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invalidSecondsValue => 'Invalid seconds value';
+
+  @override
   String get newOffer => 'New Offer';
 
   @override
@@ -2992,51 +3171,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ratePerHour => 'Per hour';
-
-  @override
-  String get cityNameAtyrau => 'Atyrau';
-
-  @override
-  String get cityNameAlmaty => 'Almaty';
-
-  @override
-  String get cityNameAstana => 'Astana';
-
-  @override
-  String get cityNameShymkent => 'Shymkent';
-
-  @override
-  String get cityNameAktobe => 'Aktobe';
-
-  @override
-  String get cityNameKaraganda => 'Karaganda';
-
-  @override
-  String get cityNameTaraz => 'Taraz';
-
-  @override
-  String get cityNamePavlodar => 'Pavlodar';
-
-  @override
-  String get cityNameUstKamenogorsk => 'Ust-Kamenogorsk';
-
-  @override
-  String get cityNameSemey => 'Semey';
-
-  @override
-  String get cityNameKostanay => 'Kostanay';
-
-  @override
-  String get cityNameKyzylorda => 'Kyzylorda';
-
-  @override
-  String get cityNameUralsk => 'Uralsk';
-
-  @override
-  String get cityNamePetropavl => 'Petropavl';
-
-  @override
-  String get cityNameTurkistan => 'Turkistan';
 
   @override
   String get connectionTimedOut =>

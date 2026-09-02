@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -33,19 +35,25 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
-        ref.read(ownerActiveRequestsProvider.notifier).loadMore();
-        ref
-            .read(ownerOffersProvider(const OfferQuery.active()).notifier)
-            .loadMore();
+        unawaited(ref.read(ownerActiveRequestsProvider.notifier).loadMore());
+        unawaited(
+          ref
+              .read(ownerOffersProvider(const OfferQuery.active()).notifier)
+              .loadMore(),
+        );
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ownerActiveRequestsProvider.notifier).refreshIfStale();
-      ref.read(ownerEquipmentProvider.notifier).refreshIfStale();
-      ref
-          .read(ownerOffersProvider(const OfferQuery.active()).notifier)
-          .refreshIfStale();
+      unawaited(
+        ref.read(ownerActiveRequestsProvider.notifier).refreshIfStale(),
+      );
+      unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
+      unawaited(
+        ref
+            .read(ownerOffersProvider(const OfferQuery.active()).notifier)
+            .refreshIfStale(),
+      );
     });
   }
 
@@ -95,7 +103,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               Padding(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: l10n.errorLoadingRequests,
@@ -114,7 +122,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
               children: [
                 if (requests.isEmpty)
                   Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     child: EmptyStateTile(
                       imageName: 'empty_requests.png',
                       title: l10n.noRequestsAtMoment,

@@ -26,10 +26,23 @@ const activeRequestStatuses = <RequestStatus>{
   RequestStatus.created,
   RequestStatus.viewed,
   RequestStatus.responded,
-  RequestStatus.accepted,
 };
 
+/// Statuses that occupy the "one active request" create slot.
+/// `ACCEPTED` leaves the active list (history later) and does not block a new request.
+const occupiesCreateRequestSlotStatuses = <RequestStatus>{
+  RequestStatus.draft,
+  RequestStatus.created,
+  RequestStatus.viewed,
+  RequestStatus.responded,
+};
+
+bool occupiesCreateRequestSlot(RequestStatus status) {
+  return occupiesCreateRequestSlotStatuses.contains(status);
+}
+
 const archivedRequestStatuses = <RequestStatus>{
+  RequestStatus.accepted,
   RequestStatus.cancelled,
   RequestStatus.expired,
 };

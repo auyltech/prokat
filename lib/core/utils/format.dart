@@ -40,10 +40,10 @@ String formatTime(BuildContext context, DateTime date) {
   return TimeOfDay.fromDateTime(date).format(context);
 }
 
-String formatDateTime(dynamic date, dynamic time) {
-  final dateStr = DateFormat('E dd MMM').format(date);
+String formatDateTime(dynamic date, dynamic time, {String? locale}) {
+  final dateStr = DateFormat('E dd MMM', locale).format(date);
   if (time != null) {
-    final timeStr = DateFormat('HH:mm').format(time!);
+    final timeStr = DateFormat('HH:mm', locale).format(time);
     return "$dateStr • $timeStr";
   }
   return dateStr;
@@ -55,6 +55,22 @@ String formatMinutes(int minutes) {
 
   if (days > 0) return "$days days $hours hours";
   return "$hours hours";
+}
+
+/// Kazakhstan contact number as E.164 (`+77051111111`).
+/// Accepts `8…`, `7…`, national 10 digits, and formatted input.
+String? normalizeKzPhone(String? input) {
+  final digits = (input ?? '').replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) return null;
+
+  String national = digits;
+  if (national.length == 11 &&
+      (national.startsWith('8') || national.startsWith('7'))) {
+    national = national.substring(1);
+  }
+
+  if (national.length != 10) return null;
+  return '+7$national';
 }
 
 String formatPhoneNumber(String phoneNumber) {
@@ -157,11 +173,11 @@ String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {
     case BookingStatus.cancelled:
       return l10n?.statusCanceled ?? "Cancelled";
     case BookingStatus.failed:
-      return l10n?.statusCanceled ?? "Failed";
+      return l10n?.statusFailed ?? "Failed";
     case BookingStatus.completed:
       return l10n?.statusCompleted ?? "Completed";
-    default:
-      return "";
+    case BookingStatus.reviewed:
+      return l10n?.statusReviewed ?? "Reviewed";
   }
 }
 

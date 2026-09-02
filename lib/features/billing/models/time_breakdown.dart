@@ -1,3 +1,5 @@
+import 'package:prokat/l10n/app_localizations.dart';
+
 class TimeBreakdown {
   final int days;
   final int hours;
@@ -11,25 +13,24 @@ class TimeBreakdown {
     required this.seconds,
   });
 
-  @override
-  String toString() {
+  String format(AppLocalizations l10n) {
     final parts = <String>[];
 
     if (days > 0) {
-      parts.add('$days ${days == 1 ? 'day' : 'days'}');
+      parts.add(l10n.durationDays(days));
     }
 
     if (hours > 0) {
-      parts.add('$hours ${hours == 1 ? 'hr' : 'hrs'}');
+      parts.add(l10n.durationHours(hours));
     }
 
     if (minutes > 0 || parts.isEmpty) {
-      parts.add('$minutes min');
+      parts.add(l10n.durationMinutes(minutes));
     }
 
     if (days == 0 && hours == 0 && minutes == 0 && seconds > 0 ||
         parts.isEmpty) {
-      parts.add('$seconds sec');
+      parts.add(l10n.durationSeconds(seconds));
     }
 
     return parts.join(', ');
@@ -51,10 +52,10 @@ TimeBreakdown getTimeBreakDown(int? totalSeconds) {
   );
 }
 
-String getTimeString(int? totalSeconds) {
+String getTimeString(int? totalSeconds, AppLocalizations l10n) {
   if (totalSeconds == null || totalSeconds < 0) {
-    return "Invalid Seconds Value";
+    return l10n.invalidSecondsValue;
   }
 
-  return getTimeBreakDown(totalSeconds).toString();
+  return getTimeBreakDown(totalSeconds).format(l10n);
 }

@@ -212,7 +212,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.main,
                 builder: (context, state) {
-                  return MainScreen();
+                  return const MainScreen();
                 },
               ),
               // Static Pages
@@ -243,7 +243,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.searchList,
                 builder: (context, state) {
-                  return SearchEquipmentScreen();
+                  return const SearchEquipmentScreen();
                 },
               ),
               // Map screen which displays equipment for rent
@@ -262,7 +262,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.clientAddresses,
                 builder: (context, state) {
-                  return ClientAddressesScreen();
+                  return const ClientAddressesScreen();
                 },
                 routes: [
                   GoRoute(
@@ -326,12 +326,12 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.clientChatList,
                 builder: (context, state) {
-                  return ClientChatListScreen();
+                  return const ClientChatListScreen();
                 },
                 routes: [
                   GoRoute(
                     path: AppRoutes.supportChat,
-                    builder: (context, state) => ClientSupportChat(),
+                    builder: (context, state) => const ClientSupportChat(),
                   ),
                   GoRoute(
                     path: "${AppRoutes.directChat}/${AppRoutes.id}",
@@ -433,7 +433,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.ownerAddresses,
                 builder: (context, state) {
-                  return OwnerAddressesScreen();
+                  return const OwnerAddressesScreen();
                 },
                 routes: [
                   GoRoute(
@@ -482,7 +482,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.sendOffer,
                     builder: (context, state) {
-                      return CreateOfferScreen();
+                      return const CreateOfferScreen();
                     },
                   ),
                 ],
@@ -497,7 +497,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: AppRoutes.history,
                     builder: (context, state) {
-                      return OwnerBookingHistoryScreen();
+                      return const OwnerBookingHistoryScreen();
                     },
                   ),
                 ],

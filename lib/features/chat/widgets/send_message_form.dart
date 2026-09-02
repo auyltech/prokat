@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -33,6 +35,42 @@ class SendMessageForm extends ConsumerStatefulWidget {
 
 class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  bool _isLockedFor(SendMessageForm target) {
+    return isChatInputLocked(
+      target.chatStatus,
+      threadStatus: target.currentChat?.status,
+      chatType: target.type,
+    );
+  }
+
+  void _dismissKeyboard() {
+    _focusNode.unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _isLockedFor(widget)) {
+        _dismissKeyboard();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant SendMessageForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_isLockedFor(widget) && !_isLockedFor(oldWidget)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _dismissKeyboard();
+        }
+      });
+    }
+  }
 
   void _sendMessage() {
     final text = _controller.text.trim();
@@ -40,51 +78,22 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       return;
     }
 
-    ref.read(chatMessagesProvider(widget.chatId).notifier).sendMessage(text);
+    unawaited(
+      ref.read(chatMessagesProvider(widget.chatId).notifier).sendMessage(text),
+    );
 
     _controller.clear();
   }
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _roundedPanel({required Widget child}) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-
-    final messages = ref.watch(chatMessagesProvider(widget.chatId));
-    final isSendingAny =
-        messages.valueOrNull?.items.any((e) => e.isPending) ?? false;
-
-    final isWorkCompleted = widget.chatStatus == ChatStatusDetail.workcompleted;
-    final isOrderCanceled =
-        widget.chatStatus == ChatStatusDetail.bookingcancelled;
-    final isReviewed = widget.chatStatus == ChatStatusDetail.bookingreviewed;
-
-    if (isWorkCompleted || isOrderCanceled || isReviewed) {
-      return Container(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-        decoration: BoxDecoration(color: Colors.transparent),
-        child: SafeArea(
-          top: false,
-          child: Text(
-            l10n.chatLocked,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-      );
-    }
-
-    final showActions =
-        widget.currentChat != null &&
-        chatHasVisibleActions(status: widget.chatStatus, mode: widget.mode);
-
     return Container(
       decoration: BoxDecoration(
         color: theme.cardColor.withValues(alpha: 0.80),
@@ -109,121 +118,173 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (showActions) ...[
-                ChatActionBar(
-                  currentChat: widget.currentChat!,
-                  chatStatus: widget.chatStatus,
-                  mode: widget.mode,
-                  actionBarTitle: widget.actionBarTitle,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                  ),
-                ),
-              ],
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 5,
-                      textCapitalization: TextCapitalization.sentences,
-                      style: TextStyle(
-                        color: theme.colorScheme.onPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final messages = ref.watch(chatMessagesProvider(widget.chatId));
+    final isSendingAny =
+        messages.valueOrNull?.items.any((e) => e.isPending) ?? false;
+
+    final isLocked = _isLockedFor(widget);
+    final showActions =
+        widget.currentChat != null &&
+        chatHasVisibleActions(
+          status: widget.chatStatus,
+          mode: widget.mode,
+          threadStatus: widget.currentChat?.status,
+          chatType: widget.type,
+        );
+
+    if (isLocked && !showActions) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        decoration: const BoxDecoration(color: Colors.transparent),
+        child: SafeArea(
+          top: false,
+          child: Text(
+            l10n.chatLocked,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (isLocked && showActions) {
+      return _roundedPanel(
+        child: ChatActionBar(
+          currentChat: widget.currentChat!,
+          chatStatus: widget.chatStatus,
+          mode: widget.mode,
+          actionBarTitle: widget.actionBarTitle,
+        ),
+      );
+    }
+
+    return _roundedPanel(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showActions) ...[
+            ChatActionBar(
+              currentChat: widget.currentChat!,
+              chatStatus: widget.chatStatus,
+              mode: widget.mode,
+              actionBarTitle: widget.actionBarTitle,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              ),
+            ),
+          ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    minLines: 1,
+                    maxLines: 5,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: TextStyle(
+                      color: theme.colorScheme.onPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: l10n.typeMessageHint,
+                      hintStyle: const TextStyle(
+                        color: Color.fromARGB(255, 126, 126, 126),
+                        fontWeight: FontWeight.w400,
                       ),
-                      decoration: InputDecoration(
-                        hintText: l10n.typeMessageHint,
-                        hintStyle: const TextStyle(
-                          color: Color.fromARGB(255, 126, 126, 126),
-                          fontWeight: FontWeight.w400,
+                      filled: true,
+                      fillColor: theme.scaffoldBackgroundColor.withValues(
+                        alpha: 0.85,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: theme.dividerColor.withValues(alpha: 0.4),
                         ),
-                        filled: true,
-                        fillColor: theme.scaffoldBackgroundColor.withValues(
-                          alpha: 0.85,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: theme.dividerColor.withValues(alpha: 0.4),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.dividerColor.withValues(alpha: 0.4),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.4,
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.dividerColor.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.4,
-                            ),
-                            width: 1.5,
-                          ),
+                          width: 1.5,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Material(
-                    color: theme.colorScheme.primary,
-                    shape: const CircleBorder(),
-                    elevation: 2,
-                    child: IconButton(
-                      onPressed: isWorkCompleted || isOrderCanceled
-                          ? null
-                          : _sendMessage,
-                      icon: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          const Icon(
-                            Icons.send_rounded,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          if (isSendingAny)
-                            Positioned(
-                              right: -4,
-                              top: -4,
-                              child: SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
+                ),
+                const SizedBox(width: 12),
+                Material(
+                  color: theme.colorScheme.primary,
+                  shape: const CircleBorder(),
+                  elevation: 2,
+                  child: IconButton(
+                    onPressed: _sendMessage,
+                    icon: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        const Icon(
+                          Icons.send_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        if (isSendingAny)
+                          const Positioned(
+                            right: -4,
+                            top: -4,
+                            child: SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

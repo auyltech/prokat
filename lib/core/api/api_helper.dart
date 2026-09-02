@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import 'api_response.dart';
 
 String? extractBackendCode(dynamic data) {
@@ -101,6 +102,13 @@ DateTime? extractRetryAt(Response response, {DateTime? now}) {
   if (seconds == null) return null;
 
   return currentTime.add(Duration(seconds: seconds));
+}
+
+int? _extractListCount(dynamic data) {
+  if (data is! Map) return null;
+  final count = data['count'];
+  if (count is num) return count.toInt();
+  return int.tryParse(count?.toString() ?? '');
 }
 
 int? _parsePositiveSeconds(dynamic value) {
@@ -219,6 +227,7 @@ ApiResponse<T> handleApiResponse<T>({
       statusCode: statusCode,
       errorCode: errorCode,
       retryAt: retryAt,
+      count: _extractListCount(responseData),
     );
   } catch (error) {
     return ApiResponse.failure(

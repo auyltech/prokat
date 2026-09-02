@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
@@ -24,12 +26,14 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(billingProvider.notifier).getPricingTiers();
-      await ref.read(billingProvider.notifier).getVolumeDiscounts();
-      await ref.read(billingProvider.notifier).getOwnerTransactions();
-      await ref.read(ownerEquipmentProvider.notifier).refresh();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(billingProvider.notifier).getPricingTiers();
+        await ref.read(billingProvider.notifier).getVolumeDiscounts();
+        await ref.read(billingProvider.notifier).getOwnerTransactions();
+        await ref.read(ownerEquipmentProvider.notifier).refresh();
+      }),
+    );
   }
 
   @override
@@ -40,7 +44,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final billingState = ref.watch(billingProvider);
 
     final secondsRemaining = billingState.accountBalance?.secondsRemaining ?? 0;
-    final humanReadableTime = getTimeString(secondsRemaining);
+    final humanReadableTime = getTimeString(secondsRemaining, l10n);
 
     final onlineEquipment = ref
         .watch(ownerEquipmentProvider.notifier)
@@ -51,6 +55,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final dailyCost = billingState.getDailyCost(onlineEquipment);
     final timeForOnlineEquipment = getTimeString(
       billingState.getReminaingSeconds(onlineEquipment),
+      l10n,
     );
 
     final payments = ref.watch(billingProvider).transactions;
@@ -109,7 +114,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
 
             const SizedBox(height: 16),
 
-            TopUpCtaTile(),
+            const TopUpCtaTile(),
 
             const SizedBox(height: 16),
 
@@ -138,10 +143,10 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                       Badge(
                         label: Text(
                           l10n.save15Percent,
-                          style: TextStyle(fontWeight: FontWeight.w400),
+                          style: const TextStyle(fontWeight: FontWeight.w400),
                         ),
                         backgroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 4,
                         ),
@@ -161,10 +166,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
                         // Using the tile we built in the previous step
                         return VolumeDiscountTile(
                           volumeCase: volumeDiscountItems[index],
-                          isHighlighted:
-                              index ==
-                              volumeDiscountItems.length -
-                                  1, // Highlight the best option (e.g., first item)
+                          isHighlighted: index == volumeDiscountItems.length - 1, // Highlight the best option (e.g., first item)
                         );
                       },
                     ),

@@ -74,8 +74,24 @@
   "emailOrPhoneRequired": "Email немесе телефон нөмірін көрсетіңіз",
   "phoneRequiredIfEmailEmpty": "Телефон нөмірі көрсетілмесе, міндетті",
   "invalidEmail": "Дұрыс email енгізіңіз",
+  "emailAddressRequiredLabel": "Электрондық пошта мекенжайы *",
+  "phoneNumberRequiredLabel": "Телефон нөмірі *",
+  "inquiryTopicValidation": "Өтініш тақырыбын таңдаңыз",
   "inquiryDetails": "Өтініш мәліметтері",
   "inquiryTopicRequiredLabel": "Өтініш тақырыбы *",
+  "selectInquiryTopic": "Өтініш тақырыбын таңдаңыз",
+  "inquiryTopicGeneral": "Жалпы сұрақ",
+  "inquiryTopicSupport": "Қолдау",
+  "inquiryTopicBugReport": "Қате туралы хабарлама",
+  "inquiryTopicFeatureRequest": "Функция ұсыну",
+  "inquiryTopicSales": "Сату",
+  "inquiryTopicPartnership": "Серіктестік",
+  "inquiryTopicBilling": "Төлем және шоттар",
+  "inquiryTopicCallMe": "Маған қоңырау шалыңыз",
+  "inquiryTopicAccountDeletion": "Аккаунтты жою",
+  "inquiryTopicAccountRecovery": "Аккаунтты қалпына келтіру",
+  "inquiryTopicAccountIssue": "Аккаунт мәселесі",
+  "inquiryTopicOther": "Басқа",
   "yourMessageRequiredLabel": "Хабарламаңыз *",
   "messageValidation": "Хабарламаны енгізіңіз",
   "counterOffer": "Қарсы ұсыныс",
@@ -178,6 +194,7 @@
   "reviewOwner": "Иесі туралы пікір",
   "reviewClient": "Клиент туралы пікір",
   "requestAccepted": "Сұрау қабылданды",
+  "offerNotSelected": "Басқа иесі таңдалды",
   "requestRejected": "Сұрау қабылданбады",
   "requestPending": "Сұрау күтілуде",
   "estimatedExhaustion": "Болжалды аяқталу",
@@ -207,6 +224,12 @@
   "review": "Пікір",
   "saved": "Сақталды",
   "noNotificationsYet": "Хабарландырулар әзірге жоқ",
+  "notificationOwnerApprovedTitle": "Ие ретінде тіркелу мақұлданды",
+  "notificationOwnerApprovedBody": "Сіздің ие ретінде тіркелуіңіз мақұлданды.",
+  "notificationOwnerRejectedTitle": "Ие ретінде тіркелу қабылданбады",
+  "notificationOwnerRejectedBody": "Сіздің ие ретінде тіркелуіңіз қабылданбады.",
+  "notificationBookingCompletedTitle": "Тапсырыс аяқталды",
+  "notificationBookingCompletedBody": "Сіздің тапсырысыңыз аяқталды деп белгіленді.",
   "errorLoadingEquipment": "Техниканы жүктеу қатесі",
   "priceMustBePositive": "Баға нөлден жоғары болуы керек",
   "priceMaximumExceeded": "Баға 100 000-нан аспауы керек",
@@ -274,6 +297,7 @@
   "selectLanguage": "Тілді таңдаңыз",
   "topRated": "Үздік",
   "available": "Қолжетімді",
+  "booked": "Жалдауда",
   "perDay": "/ күн",
   "heavyEquipmentRentals": "АУЫР ТЕХНИКА ЖАЛДАУ",
   "initializingSystems": "ЖҮЙЕ ІСКЕ ҚОСЫЛУДА...",
@@ -287,6 +311,7 @@
   "retry": "Қайталау",
   "refresh": "Жаңарту",
   "close": "Жабу",
+  "apply": "Қолдану",
   "send": "Жіберу",
   "submit": "Жіберу",
   "upload": "Жүктеу",
@@ -421,6 +446,7 @@
     }
   },
   "yesReject": "Иә, қабылдамау",
+  "yes": "Иә",
   "no": "Жоқ",
   "decline": "Қабылдамау",
   "minutesLeft": "{minutes} мин қалды",
@@ -430,6 +456,8 @@
     }
   },
   "volume": "Көлем",
+  "specFilterFrom": "бастап",
+  "specFilterTo": "дейін",
   "noOrderHistory": "Тапсырыс тарихы жоқ",
   "cancelReasonClientNotRespond": "Клиент жауап бермеді",
   "cancelReasonEquipUnavailable": "Техника қолжетімсіз",
@@ -445,6 +473,7 @@
   "workStatusStartWork": "Жұмысты бастау",
   "workStatusPostpone": "Кейінге қалдыру",
   "workStatusStopWork": "Жұмысты тоқтату",
+  "workStatusResumeWork": "Жұмысты жалғастыру",
   "workStatusCompleteWork": "Жұмысты аяқтау",
   "workStatusCancelJob": "Тапсырманы жою",
 
@@ -528,6 +557,10 @@
   "confirmLocation": "Орналасуды растау",
   "failedCreateAddress": "Мекен-жай жасау мүмкін болмады",
   "failedSaveAddress": "Мекен-жайды сақтау сәтсіз аяқталды",
+  "deleteAddress": "Мекен-жайды жою",
+  "deleteAddressQuestion": "Бұл мекен-жайды жою керек пе?",
+  "deleteAddressConfirmation": "Мекен-жай сақталған тізімнен өшіріледі.",
+  "failedToDeleteAddress": "Мекен-жайды жою сәтсіз аяқталды",
   "noEquipmentLocations": "Техника мекен-жайлары жоқ",
   "equipmentLocations": "Техника мекен-жайлары",
   "searchAddress": "Мекен-жай іздеу",
@@ -708,6 +741,11 @@
   "canListEquipment": "Енді техниканы жалға беруге орналастыра аласыз.",
   "verificationFailed": "Тексеру сәтсіз аяқталды",
   "updateDocumentsHint": "Құжаттарыңызды жаңартып, қайта жіберіңіз.",
+  "ownerProfileSuspended": "Профиль тоқтатылды",
+  "ownerProfileSuspendedHint": "Техниканы орналастыру уақытша қолжетімсіз. Қолдау қызметіне хабарласыңыз.",
+  "ownerProfilePendingReview": "Қарауды күтіңіз",
+  "ownerProfilePendingReviewHint": "Жіберілген деректер қайта модерациядан өтеді.",
+  "profileUpdateNeedsModeration": "Деректер модерацияға жіберіледі",
   "submitForVerification": "Тексеруге жіберу",
   "underReview": "Тексерілуде",
   "viewListings": "Жарнамаларды қарау",
@@ -722,6 +760,7 @@
   "firstNameRequired": "Аты міндетті",
   "lastNameRequired": "Тегі міндетті",
   "phoneNumberRequired": "Телефон нөмірі міндетті",
+  "ownerContactPhoneHint": "Бұл нөмірді әкімші мен клиенттер көреді. Оған қоңырау шалуға болуы керек.",
   "cityRequired": "Қала міндетті",
   "messageRequired": "Қысқаша хабарлама қосыңыз",
   "submitRequest": "Өтінішті жіберу",
@@ -874,7 +913,9 @@
   "statusDraft": "Жоба",
   "statusConfirmed": "Расталды",
   "statusCanceled": "Болдырылмады",
+  "statusFailed": "Сәтсіз",
   "statusCompleted": "Аяқталды",
+  "statusReviewed": "Бағаланды",
   "statusRequestSent": "Сұраным жіберілді",
   "statusOffersReceived": "Ұсыныстар алынды",
   "statusBookingCreated": "Брондау жасалды",
@@ -1018,6 +1059,31 @@
       "count": { "type": "int" }
     }
   },
+  "durationDays": "{count, plural, =1{1 күн} other{{count} күн}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 сағ} other{{count} сағ}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count, plural, =1{1 мин} other{{count} мин}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationSeconds": "{count, plural, =1{1 сек} other{{count} сек}}",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "invalidSecondsValue": "Секунд мәні жарамсыз",
   "newOffer": "Жаңа ұсыныс",
   "offerStatusViewed": "Қаралды",
   "offerStatusCancelled": "Бас тартылды",
@@ -1072,22 +1138,6 @@
   "ratePerCubicMeter": "М³-ге",
   "ratePerDay": "Күніне",
   "ratePerHour": "Сағатына",
-
-  "cityNameAtyrau": "Атырау",
-  "cityNameAlmaty": "Алматы",
-  "cityNameAstana": "Астана",
-  "cityNameShymkent": "Шымкент",
-  "cityNameAktobe": "Ақтөбе",
-  "cityNameKaraganda": "Қарағанды",
-  "cityNameTaraz": "Тараз",
-  "cityNamePavlodar": "Павлодар",
-  "cityNameUstKamenogorsk": "Өскемен",
-  "cityNameSemey": "Семей",
-  "cityNameKostanay": "Қостанай",
-  "cityNameKyzylorda": "Қызылорда",
-  "cityNameUralsk": "Орал",
-  "cityNamePetropavl": "Петропавл",
-  "cityNameTurkistan": "Түркістан",
 
   "connectionTimedOut": "Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.",
   "noConnectionCheckNetwork": "Байланыс жоқ. Желіні тексеріп, қайталап көріңіз.",

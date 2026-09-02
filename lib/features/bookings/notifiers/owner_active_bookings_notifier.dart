@@ -132,7 +132,9 @@ class OwnerActiveBookingsNotifier
 
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     // state = AsyncData(previous.copyWith(isRefreshing: true));
-    state = AsyncLoading<QueryState<BookingModel>>().copyWithPrevious(state);
+    state = const AsyncLoading<QueryState<BookingModel>>().copyWithPrevious(
+      state,
+    );
 
     try {
       final next = await _fetchPage(1, scope);

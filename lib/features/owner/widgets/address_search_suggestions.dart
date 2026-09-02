@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -32,12 +33,21 @@ class AddressSearchSuggestions extends ConsumerWidget {
 
           return ListTile(
             leading: const Icon(Icons.location_on_outlined),
-            title: Text(result.street),
+            title: Text(
+              result.streetLine(Localizations.localeOf(context).languageCode),
+            ),
             subtitle: Text(
               formatCityCountry(
                 l10n: l10n,
-                city: result.city,
-                country: result.country,
+                city: locationCityLabel(
+                  ref,
+                  context,
+                  city: result.city,
+                  names: result.cityNames,
+                ),
+                country: result.labelCountry(
+                  Localizations.localeOf(context).languageCode,
+                ),
               ),
             ),
             onTap: () {

@@ -72,9 +72,8 @@ class OwnerEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       return aOnline.compareTo(bOnline);
     }
 
-    final statusCompare = _statusPriority(
-      a.status,
-    ).compareTo(_statusPriority(b.status));
+    final statusCompare = _statusPriority(a.status)
+        .compareTo(_statusPriority(b.status));
 
     if (statusCompare != 0) {
       return statusCompare;

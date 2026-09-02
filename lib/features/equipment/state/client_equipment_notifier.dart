@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 
 class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
@@ -17,20 +19,23 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? _query;
   String? _city;
   String? _categoryId;
+  List<String> _spec = const [];
 
   static const _itemsPerPage = 10;
 
   @override
   Future<QueryState<Equipment>> build() async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    final city = ref.watch(locationProvider.select((s) => s.city));
     _stateScope = null;
     if (_filterScope != scope) {
       _filterScope = scope;
       _query = null;
-      _city = null;
       _categoryId = null;
+      _spec = const [];
       _requestGeneration++;
     }
+    _city = _normalizeFilter(city);
     if (scope == null) {
       return const QueryState(itemsPerPage: _itemsPerPage, count: 0);
     }
@@ -46,12 +51,15 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
     }
+    final locale = ref.read(localeProvider).languageCode.toUpperCase();
     final response = await api.getClientEquipment(
+      locale: locale,
       page: page,
       itemsPerPage: _itemsPerPage,
       query: _query,
       city: _city,
       categoryId: _categoryId,
+      spec: _spec,
     );
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
@@ -62,14 +70,17 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     }
 
     final items = response.data ?? [];
+    final total = response.count;
 
     return QueryState(
       items: items,
       page: page,
       itemsPerPage: _itemsPerPage,
-      count: items.length < _itemsPerPage
-          ? ((page - 1) * _itemsPerPage) + items.length
-          : (page * _itemsPerPage) + 1,
+      count:
+          total ??
+          (items.length < _itemsPerPage
+              ? ((page - 1) * _itemsPerPage) + items.length
+              : (page * _itemsPerPage) + 1),
       lastFetchedAt: DateTime.now(),
     );
   }
@@ -108,16 +119,17 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     int generation,
     AuthenticatedSessionScopeKey scope,
   ) async {
+    if (state.isLoading &&
+        (_stateScope != scope || state.valueOrNull == null)) {
+      try {
+        await future;
+      } catch (_) {}
+      if (!_isRequestCurrent(generation, scope)) return;
+    }
+
     final previous = _stateScope == scope ? state.valueOrNull : null;
 
     if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          if (!_isRequestCurrent(generation, scope)) return;
-          return;
-        } catch (_) {}
-      }
       if (!_isRequestCurrent(generation, scope)) return;
       state = const AsyncLoading();
       _stateScope = null;
@@ -156,19 +168,22 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
     if (!current.hasMore) return;
 
-    if (current.isLoadingMore) return;
+    if (current.isLoadingMore || current.isRefreshing) return;
 
     state = AsyncData(current.copyWith(isLoadingMore: true));
 
     try {
       final nextPage = current.page + 1;
 
+      final locale = ref.read(localeProvider).languageCode.toUpperCase();
       final response = await api.getClientEquipment(
+        locale: locale,
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         query: _query,
         city: _city,
         categoryId: _categoryId,
+        spec: _spec,
       );
 
       if (!_isRequestCurrent(generation, scope)) return;
@@ -179,14 +194,17 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       }
 
       final items = response.data!;
+      final total = response.count;
 
       state = AsyncData(
         current.copyWith(
           items: [...current.items, ...items],
           page: nextPage,
-          count: items.length < current.itemsPerPage
-              ? current.count + items.length
-              : current.count + current.itemsPerPage,
+          count:
+              total ??
+              (items.length < current.itemsPerPage
+                  ? current.items.length + items.length
+                  : current.count + current.itemsPerPage),
           lastFetchedAt: DateTime.now,
           isLoadingMore: false,
         ),
@@ -198,15 +216,21 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     }
   }
 
-  Future<void> search({String? query, String? city, String? categoryId}) async {
+  Future<void> search({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+  }) async {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
-    final changed =
-        _query != query || _city != city || _categoryId != categoryId;
-    _query = query;
-    _city = city;
-    _categoryId = categoryId;
+    final changed = _replaceFilters(
+      query: query,
+      city: city,
+      categoryId: categoryId,
+      spec: spec,
+    );
 
     if (!changed) {
       await refreshIfStale();
@@ -225,10 +249,15 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
-    final changed = _query != null || _city != null || _categoryId != null;
+    final changed =
+        _query != null ||
+        _city != null ||
+        _categoryId != null ||
+        _spec.isNotEmpty;
     _query = null;
     _city = null;
     _categoryId = null;
+    _spec = const [];
 
     if (changed) {
       final generation = ++_requestGeneration;
@@ -274,8 +303,44 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
 
   String? get categoryId => _categoryId;
 
+  bool _replaceFilters({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+  }) {
+    final nextQuery = _normalizeFilter(query);
+    final nextCity = _normalizeFilter(city);
+    final nextCategoryId = _normalizeFilter(categoryId);
+    final nextSpec = spec ?? _spec;
+    final changed =
+        _query != nextQuery ||
+        _city != nextCity ||
+        _categoryId != nextCategoryId ||
+        !_sameSpec(_spec, nextSpec);
+    _query = nextQuery;
+    _city = nextCity;
+    _categoryId = nextCategoryId;
+    _spec = List<String>.from(nextSpec);
+    return changed;
+  }
+
   bool _isRequestCurrent(int generation, AuthenticatedSessionScopeKey scope) {
     return generation == _requestGeneration &&
         isAuthenticatedSessionScopeCurrent(ref, scope);
   }
+
+  bool _sameSpec(List<String> left, List<String> right) {
+    if (left.length != right.length) return false;
+    for (var i = 0; i < left.length; i++) {
+      if (left[i] != right[i]) return false;
+    }
+    return true;
+  }
+}
+
+String? _normalizeFilter(String? value) {
+  final trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) return null;
+  return trimmed;
 }

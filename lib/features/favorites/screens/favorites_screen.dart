@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -22,9 +25,11 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(favoritesProvider.notifier).getFavorites();
-    });
+    unawaited(
+      Future.microtask(() {
+        unawaited(ref.read(favoritesProvider.notifier).getFavorites());
+      }),
+    );
   }
 
   @override
@@ -58,7 +63,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: favorites.length,
-                separatorBuilder: (context, index) => Divider(),
+                separatorBuilder: (context, index) => const Divider(),
                 itemBuilder: (context, index) {
                   final item = favorites[index];
                   return _FavoriteCard(
@@ -67,8 +72,10 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                       ref
                           .read(bookingMutationProvider.notifier)
                           .selectEquipment(item);
-                      context.push(
-                        '${AppRoutes.equipment}/${item.id}/${AppRoutes.book}',
+                      unawaited(
+                        context.push(
+                          '${AppRoutes.equipment}/${item.id}/${AppRoutes.book}',
+                        ),
                       );
                     },
                   );
@@ -90,6 +97,14 @@ class _FavoriteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final priceEntry = equipment.prices.isNotEmpty
+        ? equipment.prices.first
+        : null;
+    final priceLabel = priceEntry == null
+        ? l10n.noPrice
+        : '${formatPrice(priceEntry.price)} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}'
+              .trim();
 
     return InkWell(
       onTap: onTap,
@@ -102,13 +117,14 @@ class _FavoriteCard extends StatelessWidget {
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(18)),
               child: OptimizedNetworkImage(
                 imageUrl: equipment.imageUrl ?? "",
-                height: 70,
-                width: 100,
+                height: 100,
+                width: 130,
                 fit: BoxFit.cover,
                 fallbackIcon: Icons.precision_manufacturing_outlined,
               ),
@@ -122,14 +138,29 @@ class _FavoriteCard extends StatelessWidget {
                 children: [
                   Text(equipment.name, style: theme.textTheme.bodyMedium),
                   UserInfoTile(user: equipment.owner),
+                  const SizedBox(height: 4),
+                  Text(
+                    priceLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
 
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: theme.colorScheme.primary.withValues(alpha: 0.5),
-              size: 16,
+            SizedBox(
+              height: 100,
+              child: Center(
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                  size: 16,
+                ),
+              ),
             ),
           ],
         ),

@@ -1,3 +1,5 @@
+import 'package:prokat/core/i18n/localized_text.dart';
+
 class ChatMessageModel {
   final String id;
   final String chatId;
@@ -136,5 +138,13 @@ class ChatMessageModel {
     } catch (_) {
       return null;
     }
+  }
+
+  String localizedContent(String languageCode) {
+    return pickLocalizedText(
+      meta?['i18n'],
+      languageCode: languageCode,
+      fallback: content,
+    );
   }
 }

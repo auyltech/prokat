@@ -22,7 +22,7 @@ class OnlineToggle extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (isSubmitting) CircularProgressIndicator(),
+        if (isSubmitting) const CircularProgressIndicator(),
 
         Text(
           isVisible ? l10n.online : l10n.offline,

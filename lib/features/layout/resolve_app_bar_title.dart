@@ -71,7 +71,7 @@ String resolveAppBarTitle(
     if (path == AppRoutes.ownerProfile) return l10n.myProfile;
     if (path == AppRoutes.ownerSettings) return l10n.navSettings;
 
-    if (path == AppRoutes.ownerRegistration) return l10n.registration;
+    if (path == AppRoutes.ownerRegistration) return l10n.businessProfile;
 
     if (path == AppRoutes.ownerEquipment) return l10n.myEquipment;
     if (path == AppRoutes.ownerEquipmentCreate) return l10n.addEquipment;

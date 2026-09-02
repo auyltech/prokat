@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
@@ -30,5 +31,6 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
       final recentIds = ref.read(notificationProvider).recentIds;
       return recentIds.containsKey(id);
     },
+    currentLocale: () => ref.read(localeProvider).languageCode,
   );
 });

@@ -2,6 +2,7 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
@@ -76,6 +77,18 @@ class WorkflowReviewDelta {
   });
 }
 
+class WorkflowChatDelta {
+  final String id;
+  final ChatStatus status;
+  final DateTime updatedAt;
+
+  const WorkflowChatDelta({
+    required this.id,
+    required this.status,
+    required this.updatedAt,
+  });
+}
+
 class WorkflowUpdate {
   final int v;
   final String eventId;
@@ -88,6 +101,7 @@ class WorkflowUpdate {
   final List<WorkflowOfferDelta>? offers;
   final List<WorkflowNegotiationDelta>? negotiations;
   final WorkflowReviewDelta? review;
+  final WorkflowChatDelta? chat;
 
   const WorkflowUpdate({
     required this.v,
@@ -101,6 +115,7 @@ class WorkflowUpdate {
     this.offers,
     this.negotiations,
     this.review,
+    this.chat,
   });
 
   static WorkflowUpdate? tryParse(dynamic payload) {
@@ -134,6 +149,7 @@ class WorkflowUpdate {
       offers: _parseOffers(json['offers']),
       negotiations: _parseNegotiations(json['negotiations']),
       review: _parseReview(json['review']),
+      chat: _parseChat(json['chat']),
     );
   }
 
@@ -227,6 +243,21 @@ class WorkflowUpdate {
       id: id,
       bookingId: bookingId,
       reviewerId: reviewerId,
+    );
+  }
+
+  static WorkflowChatDelta? _parseChat(dynamic value) {
+    final json = _asStringKeyedMap(value);
+    if (json == null) return null;
+
+    final id = json['id']?.toString().trim() ?? '';
+    final updatedAt = _parseDate(json['updatedAt']);
+    if (id.isEmpty || updatedAt == null) return null;
+
+    return WorkflowChatDelta(
+      id: id,
+      status: parseChatStatus(json['status']),
+      updatedAt: updatedAt,
     );
   }
 

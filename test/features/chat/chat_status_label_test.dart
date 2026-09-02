@@ -1,7 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
+import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations_en.dart';
 
 void main() {
@@ -24,5 +30,45 @@ void main() {
     final config = getChatConfig(chat: chat, l10n: l10n);
 
     expect(config.statusLabel, isEmpty);
+  });
+
+  test('accepted request without a booking means another owner won', () {
+    final chat = ChatModel(
+      id: 'chat-loser',
+      request: RequestModel(
+        id: 'request-1',
+        status: RequestStatus.accepted,
+        capacity: '10',
+        offeredPrice: 1000,
+      ),
+    );
+
+    final config = getChatConfig(chat: chat, l10n: l10n);
+
+    expect(config.status, ChatStatusDetail.offernotselected);
+    expect(config.statusLabel, l10n.offerNotSelected);
+  });
+
+  test('accepted request with a booking still uses the booking status', () {
+    final chat = ChatModel(
+      id: 'chat-winner',
+      bookingId: 'booking-1',
+      booking: BookingModel(
+        id: 'booking-1',
+        status: BookingStatus.confirmed,
+        price: 1000,
+        priceRate: parseRateOption('PER_TRIP'),
+      ),
+      request: RequestModel(
+        id: 'request-1',
+        status: RequestStatus.accepted,
+        capacity: '10',
+        offeredPrice: 1000,
+      ),
+    );
+
+    final config = getChatConfig(chat: chat, l10n: l10n);
+
+    expect(config.status, ChatStatusDetail.bookingconfirmed);
   });
 }

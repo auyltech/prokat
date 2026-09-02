@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -17,7 +19,7 @@ class TopUpCtaTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [AppColors.teal600, AppColors.teal800],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -58,7 +60,7 @@ class TopUpCtaTile extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              context.push(AppRoutes.ownerPaymentTopUp);
+              unawaited(context.push(AppRoutes.ownerPaymentTopUp));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,

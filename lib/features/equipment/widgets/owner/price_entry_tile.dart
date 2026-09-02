@@ -30,8 +30,8 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
     final accent = colorScheme.primary;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(0),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(left: 16),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
@@ -41,20 +41,22 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
         children: [
           /// PRICE INFO
           Expanded(
-            child: Column(
+            child: Row(
+              spacing: 8,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
                   "${widget.priceEntry.price} ₸",
                   style: theme.textTheme.titleMedium?.copyWith(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontSize: 16,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ],
@@ -65,7 +67,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
           if (ref
               .watch(equipmentMutationProvider)
               .isActionActive("equipment:price:update:${widget.priceEntry.id}"))
-            SizedBox(
+            const SizedBox(
               height: 14,
               width: 14,
               child: CircularProgressIndicator(
@@ -82,7 +84,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
           if (ref
               .watch(equipmentMutationProvider)
               .isActionActive("equipment:price:delete:${widget.priceEntry.id}"))
-            SizedBox(
+            const SizedBox(
               height: 14,
               width: 14,
               child: CircularProgressIndicator(
@@ -93,7 +95,7 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
           else
             IconButton(
               onPressed: widget.onDelete,
-              icon: Icon(Icons.delete, color: Colors.red, size: 20),
+              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
             ),
         ],
       ),

@@ -11,6 +11,7 @@ import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 
 class OfferTile extends ConsumerWidget {
@@ -72,7 +73,10 @@ class OfferTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final mutedText = colorScheme.onSurfaceVariant;
+    final priceColor = AppTheme.brandTintFg(theme.brightness);
 
     final equipment = offer.equipment;
     final ownerComment = offer.comment?.trim();
@@ -113,9 +117,9 @@ class OfferTile extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FB),
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: colorScheme.outlineVariant),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +129,7 @@ class OfferTile extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.grey[600],
+                      color: mutedText,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -133,7 +137,7 @@ class OfferTile extends ConsumerWidget {
                   Text(
                     ownerComment,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF424242),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -150,10 +154,10 @@ class OfferTile extends ConsumerWidget {
                   children: [
                     Text(
                       l10n.offeredRate.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Colors.grey,
+                        color: mutedText,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -161,7 +165,7 @@ class OfferTile extends ConsumerWidget {
                     Text(
                       "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: const Color(0xFF0D47A1),
+                        color: priceColor,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

@@ -93,13 +93,10 @@ class ActionBarButton extends StatelessWidget {
                   : theme.disabledColor.withValues(alpha: 0.2),
               width: 1.5,
             ),
-            minimumSize: const Size(
-              0,
-              44,
-            ), // Standard height matching primary view
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-            ), // Compressed padding
+            minimumSize: const Size(0, 44),
+            // Standard height matching primary view
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            // Compressed padding
             shape: const StadiumBorder(),
             elevation: 0,
           )
@@ -112,39 +109,32 @@ class ActionBarButton extends StatelessWidget {
                   : theme.disabledColor.withValues(alpha: 0.2),
               width: 1.5,
             ),
-            minimumSize: const Size(
-              0,
-              44,
-            ), // Standard height matching primary view
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-            ), // Compressed padding
+            minimumSize: const Size(0, 44),
+            // Standard height matching primary view
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            // Compressed padding
             shape: const StadiumBorder(),
             elevation: 0,
           )
         : variant == ActionBarButtonVariant.danger
         ? ElevatedButton.styleFrom(
-            backgroundColor:
-                theme.colorScheme.error, // Uniform matching color tint
+            backgroundColor: theme.colorScheme.error,
+            // Uniform matching color tint
             foregroundColor: theme.colorScheme.onError,
             elevation: 0,
             minimumSize: const Size(0, 44),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 0,
-            ), // Compressed padding
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            // Compressed padding
             shape: const StadiumBorder(),
           )
         : ElevatedButton.styleFrom(
-            backgroundColor:
-                theme.colorScheme.primary, // Uniform matching color tint
-            foregroundColor: theme.colorScheme.onPrimary,
+            backgroundColor: theme.colorScheme.primary,
+            // Uniform matching color tint
+            foregroundColor: Colors.white,
             elevation: 0,
             minimumSize: const Size(0, 44),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ), // Compressed padding
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            // Compressed padding
             shape: const StadiumBorder(),
           );
 
@@ -164,8 +154,7 @@ class ActionBarButton extends StatelessWidget {
   Widget _buildChild(BuildContext context, Color color) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize:
-          MainAxisSize.min, // Constrain to prevent overflow boundaries
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (isLoading) ...[
           SizedBox(
@@ -185,13 +174,8 @@ class ActionBarButton extends StatelessWidget {
           child: Text(
             label,
             maxLines: 1,
-            overflow: TextOverflow
-                .ellipsis, // Drop safely into ellipsis if text pushes boundaries
-            style: const TextStyle(
-              fontSize:
-                  16, // Downsized slightly from 15 to give breathing room in triplets
-              fontWeight: FontWeight.w500,
-            ),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ),
       ],

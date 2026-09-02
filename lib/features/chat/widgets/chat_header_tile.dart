@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -72,8 +74,10 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
 
         return GestureDetector(
           onTap: () {
-            context.push(
-              '${widget.isOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList}/direct/${widget.chatId}/info',
+            unawaited(
+              context.push(
+                '${widget.isOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList}/direct/${widget.chatId}/info',
+              ),
             );
           },
           child: Row(
@@ -102,7 +106,11 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
                     ),
                     if (lastMessageAt != null)
                       Text(
-                        formatDateTime(lastMessageAt, lastMessageAt),
+                        formatDateTime(
+                          lastMessageAt,
+                          lastMessageAt,
+                          locale: l10n.localeName,
+                        ),
                         style: theme.textTheme.labelSmall,
                       ),
                   ],

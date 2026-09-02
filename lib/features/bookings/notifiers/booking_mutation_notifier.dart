@@ -110,9 +110,8 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
 
       final result = await api.createBooking({
         "equipmentId": state.selectedEquipment?.id,
-        "price": int.tryParse(
-          (state.selectedPriceEntry?.price ?? 0).toString(),
-        ).toString(),
+        "price": int.tryParse((state.selectedPriceEntry?.price ?? 0).toString())
+            .toString(),
         "priceRate": state.selectedPriceEntry?.priceRate.value ?? "",
         "locationId": state.selectedLocation?.id,
         "bookedOn": state.selectedDate!.toUtc().toIso8601String(),
@@ -155,7 +154,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create order",
           code: "",
@@ -230,7 +229,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update booking",
           code: "",
@@ -279,7 +278,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update order status",
           code: "",

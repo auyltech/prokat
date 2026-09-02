@@ -117,8 +117,8 @@ class PriceNegotiationsNotifier
       } catch (_) {}
     }
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
-    final current = state.value;
-    if (_stateScope != scope || current == null || current.isStale) {
+    final current = _stateScope == scope ? state.valueOrNull : null;
+    if (current == null || current.isStale) {
       await refresh();
     }
   }

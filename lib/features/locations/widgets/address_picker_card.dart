@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class AddressPickerCard extends StatelessWidget {
+class AddressPickerCard extends ConsumerWidget {
   final LocationModel? selectedAddress;
   final VoidCallback onTap;
   final bool? isRequired;
@@ -17,7 +18,7 @@ class AddressPickerCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
@@ -83,10 +84,10 @@ class AddressPickerCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           selectedAddress != null
-                              ? formatStreetCity(
-                                  l10n: l10n,
-                                  street: selectedAddress?.street,
-                                  city: selectedAddress?.city,
+                              ? formatLocationModel(
+                                  ref,
+                                  context,
+                                  selectedAddress!,
                                 )
                               : l10n.selectValue,
                           style: theme.textTheme.bodyMedium?.copyWith(

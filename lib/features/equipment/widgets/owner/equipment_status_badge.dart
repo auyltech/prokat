@@ -27,6 +27,8 @@ class EquipmentStatusBadge extends StatelessWidget {
         ? l10n.available
         : status == EquipmentStatus.rejected
         ? l10n.resubmit
+        : status == EquipmentStatus.booked
+        ? l10n.booked
         : status == EquipmentStatus.maintenance
         ? l10n.maintenance
         : '';
@@ -39,7 +41,7 @@ class EquipmentStatusBadge extends StatelessWidget {
       ),
       child: Text(
         statusString.toUpperCase(),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: Colors.white,

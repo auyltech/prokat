@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -36,9 +38,11 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(clientProfileProvider.notifier).refreshIfStale();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(clientProfileProvider.notifier).refreshIfStale();
+      }),
+    );
   }
 
   @override
@@ -130,7 +134,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             const SizedBox(height: 60),
 
-            DeleteAccountTile(),
+            const DeleteAccountTile(),
 
             const SizedBox(height: 140),
 

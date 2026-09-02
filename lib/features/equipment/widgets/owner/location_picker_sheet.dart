@@ -1,17 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/equipment/models/equipment_location.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class LocationPickerSheet extends StatelessWidget {
+class LocationPickerSheet extends ConsumerWidget {
   final List<EquipmentLocation> locations;
 
   const LocationPickerSheet({super.key, required this.locations});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final previewLocations = locations.take(2).toList();
 
@@ -34,8 +37,19 @@ class LocationPickerSheet extends StatelessWidget {
               ...previewLocations.map(
                 (loc) => ListTile(
                   leading: const Icon(Icons.location_on_rounded),
-                  title: Text(localizedCityName(loc.city, l10n)),
-                  subtitle: Text(loc.street),
+                  title: Text(
+                    locationCityLabel(
+                      ref,
+                      context,
+                      city: loc.city,
+                      names: loc.cityNames,
+                    ),
+                  ),
+                  subtitle: Text(
+                    loc.streetLine(
+                      Localizations.localeOf(context).languageCode,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context, loc);
                   },
@@ -50,7 +64,7 @@ class LocationPickerSheet extends StatelessWidget {
                 leading: const Icon(Icons.list_rounded),
                 title: Text(l10n.viewAllLocations),
                 onTap: () {
-                  context.push(AppRoutes.ownerAddresses);
+                  unawaited(context.push(AppRoutes.ownerAddresses));
                 },
               ),
 
@@ -61,7 +75,7 @@ class LocationPickerSheet extends StatelessWidget {
               leading: const Icon(Icons.add_location_alt_rounded),
               title: Text(l10n.addAddressManually),
               onTap: () {
-                context.push(AppRoutes.ownerAddressCreate);
+                unawaited(context.push(AppRoutes.ownerAddressCreate));
               },
             ),
 
@@ -70,7 +84,7 @@ class LocationPickerSheet extends StatelessWidget {
               leading: const Icon(Icons.map_rounded),
               title: Text(l10n.setOnMap),
               onTap: () {
-                context.push(AppRoutes.ownerAddressMap);
+                unawaited(context.push(AppRoutes.ownerAddressMap));
               },
             ),
           ],

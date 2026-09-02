@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -117,30 +119,24 @@ class OwnerRequestTile extends ConsumerWidget {
                   ),
                 ],
               ),
+            ],
+          ),
 
-              Spacer(),
-
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: 20,
-                    color: theme.colorScheme.error,
-                  ),
-                  const SizedBox(width: 2),
-
-                  Text(
-                    minutesLeft > 0
-                        ? l10n.minutesLeft(minutesLeft)
-                        : formatRequestTime(request.createdAt.toString(), l10n),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: minutesLeft > 0
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+          Row(
+            children: [
+              const Spacer(),
+              Icon(Icons.access_time, size: 20, color: theme.colorScheme.error),
+              const SizedBox(width: 4),
+              Text(
+                minutesLeft > 0
+                    ? l10n.minutesLeft(minutesLeft)
+                    : formatRequestTime(request.createdAt.toString(), l10n),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: minutesLeft > 0
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -153,9 +149,14 @@ class OwnerRequestTile extends ConsumerWidget {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: request.location.street,
+                  value:
+                      request.location?.streetLine(
+                        Localizations.localeOf(context).languageCode,
+                      ) ??
+                      l10n.unknownLocation,
                   onTap: () {
                     final location = request.location;
+                    if (location == null) return;
 
                     showLocationSheet(context, location);
                   },
@@ -169,7 +170,11 @@ class OwnerRequestTile extends ConsumerWidget {
                 child: InfoTile(
                   icon: Icons.timelapse,
                   label: l10n.dateAndTime,
-                  value: formatDateTime(request.requiredOn, request.requiredAt),
+                  value: formatDateTime(
+                    request.requiredOn,
+                    request.requiredAt,
+                    locale: l10n.localeName,
+                  ),
                 ),
               ),
             ],
@@ -207,8 +212,10 @@ class OwnerRequestTile extends ConsumerWidget {
                     // Go To Chat
                     IconButton(
                       onPressed: () {
-                        context.push(
-                          '${AppRoutes.ownerChatList}/direct/${activeOffer.chatId}',
+                        unawaited(
+                          context.push(
+                            '${AppRoutes.ownerChatList}/direct/${activeOffer.chatId}',
+                          ),
                         );
                       },
                       icon: Icon(
@@ -279,7 +286,7 @@ class OwnerRequestTile extends ConsumerWidget {
                             .read(offerMutationProvider.notifier)
                             .selectRequest(request);
 
-                        context.push(AppRoutes.ownerCreateOffer);
+                        unawaited(context.push(AppRoutes.ownerCreateOffer));
                       },
                       icon: Icon(
                         LucideIcons.send,

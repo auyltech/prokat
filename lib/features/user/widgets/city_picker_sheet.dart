@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -12,16 +14,20 @@ enum CitySelectorService {
   createequipment,
   clientcity,
   demandsurvey,
+  becomeowner,
+  ownerprofile,
 }
 
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
+  final String? highlightedCity;
 
-  const CityPickerSheet({super.key, this.service});
+  const CityPickerSheet({super.key, this.service, this.highlightedCity});
 
   static Future<String?> show({
     required BuildContext context,
     CitySelectorService? service,
+    String? highlightedCity,
   }) {
     return showModalBottomSheet<String?>(
       context: context,
@@ -32,7 +38,10 @@ class CityPickerSheet extends ConsumerStatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
-        return CityPickerSheet(service: service);
+        return CityPickerSheet(
+          service: service,
+          highlightedCity: highlightedCity,
+        );
       },
     );
   }
@@ -43,7 +52,12 @@ class CityPickerSheet extends ConsumerStatefulWidget {
 
 class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
   Future<String?> _onCitySelected(String city) async {
-    ref.read(locationProvider.notifier).selectCity(city);
+    final persistSessionCity =
+        widget.service != CitySelectorService.becomeowner &&
+        widget.service != CitySelectorService.ownerprofile;
+    if (persistSessionCity) {
+      ref.read(locationProvider.notifier).selectCity(city);
+    }
 
     if (mounted && context.canPop()) {
       context.pop(city);
@@ -51,16 +65,20 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
 
     if (widget.service == CitySelectorService.guestcategory ||
         widget.service == CitySelectorService.createequipment ||
-        widget.service == CitySelectorService.demandsurvey) {
+        widget.service == CitySelectorService.demandsurvey ||
+        widget.service == CitySelectorService.becomeowner ||
+        widget.service == CitySelectorService.ownerprofile) {
       return city;
     }
 
     final profile = ref.read(clientProfileProvider).userProfile;
 
     if (profile != null) {
-      ref
-          .read(clientProfileMutationProvider.notifier)
-          .selectCityRegion(city: city);
+      unawaited(
+        ref
+            .read(clientProfileMutationProvider.notifier)
+            .selectCityRegion(city: city),
+      );
     }
 
     return city;
@@ -70,14 +88,18 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
 
-    final selectedCity = ref.watch(locationProvider).city;
+    final selectedCity =
+        widget.highlightedCity ?? ref.watch(locationProvider).city;
     final title = l10n.selectCity;
     final allLocationsLabel = l10n.allLocations;
+    final cityKeys = catalogCityKeys(catalog);
 
     final cityOptions = widget.service == CitySelectorService.guestcategory
-        ? ["", ...cities]
-        : cities;
+        ? ["", ...cityKeys]
+        : cityKeys;
 
     return SafeArea(
       top: false,
@@ -125,7 +147,13 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
                       title: Text(
                         option.isEmpty
                             ? allLocationsLabel
-                            : localizedCityName(option, l10n),
+                            : catalogCityLabel(
+                                city: option,
+                                languageCode: locale,
+                                catalog: catalog,
+                                fallback: (city) =>
+                                    localizedCityName(city, l10n),
+                              ),
                       ),
                       trailing: isSelected
                           ? Icon(

@@ -4,8 +4,8 @@ import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
-import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
+
 import '../models/location_model.dart';
 import 'location_service.dart';
 import 'location_state.dart';
@@ -15,8 +15,6 @@ class LocationNotifier extends StateNotifier<LocationState> {
   final Ref ref;
 
   LocationNotifier(this.api, this.ref) : super(const LocationState());
-
-  List<LocationSearchResult> suggestions = [];
 
   void selectCity(String city) {
     state = state.copyWith(city: city);
@@ -162,15 +160,13 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
       if (result.success) {
         if (location.service == "EQUIPMENT") {
-          ref.read(ownerEquipmentProvider.notifier).refresh();
+          await ref.read(ownerEquipmentProvider.notifier).refresh();
         } else {
-          getClientLocations();
+          await getClientLocations();
         }
 
-        if (location.service == "ADDRESS" &&
-            result.data != null &&
-            state.clientLocations.isNotEmpty) {
-          final createdAddress = result.data ?? state.clientLocations[0];
+        final createdAddress = result.data;
+        if (location.service == "ADDRESS" && createdAddress != null) {
           selectAddress(createdAddress);
 
           if (from == "create_request") {
@@ -215,9 +211,9 @@ class LocationNotifier extends StateNotifier<LocationState> {
       );
 
       if (location.service == "ADDRESS") {
-        getClientLocations();
+        await getClientLocations();
       } else {
-        getOwnerLocations();
+        await getOwnerLocations();
       }
 
       return result.success;
@@ -229,10 +225,38 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 
   // Delete location
-  Future<void> deleteLocation(String id) async {
-    await api.deleteLocation(id);
+  Future<bool> deleteLocation(String id) async {
+    final actionId = "location:$id:delete";
+    try {
+      _startAction(actionId);
 
-    await getClientLocations();
+      final result = await api.deleteLocation(id);
+
+      _finishAction(
+        actionId,
+        error: result.success
+            ? null
+            : AppError(
+                type: ErrorType.unknown,
+                code: result.errorCode ?? "",
+                message: result.message,
+              ),
+      );
+
+      if (!result.success) {
+        return false;
+      }
+
+      await getClientLocations();
+      if (state.selectedAddress?.id == id) {
+        state = state.copyWith(clearSelectedAddress: true);
+      }
+
+      return true;
+    } catch (error) {
+      _finishAction(actionId);
+      return false;
+    }
   }
 
   Future<void> searchLocations(String query) async {
@@ -256,6 +280,22 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
   void selectAddress(LocationModel address) {
     state = state.copyWith(selectedAddress: address);
+  }
+
+  Future<LocationModel?> ensureSelectedClientAddress({
+    String? preferredId,
+  }) async {
+    if (state.clientLocations.isEmpty) {
+      await getClientLocations();
+    }
+
+    final current = state.selectedAddress;
+    if (current != null && (current.id ?? '').isNotEmpty) {
+      return current;
+    }
+
+    selectAddressById(preferredId);
+    return state.selectedAddress;
   }
 
   void selectAddressById(String? addressId) {

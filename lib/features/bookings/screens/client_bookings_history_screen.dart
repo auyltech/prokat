@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -22,7 +24,9 @@ class ClientBookingsHistoryScreenState
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(clientHistoryBookingsProvider.notifier).refreshIfStale();
+      unawaited(
+        ref.read(clientHistoryBookingsProvider.notifier).refreshIfStale(),
+      );
     });
   }
 
@@ -40,13 +44,13 @@ class ClientBookingsHistoryScreenState
         },
         child: bookingsAsync.when(
           loading: () => ListView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: const [OwnerBookingSkeleton()],
           ),
 
           error: (error, _) => ListView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EmptyStateTile(
@@ -65,7 +69,7 @@ class ClientBookingsHistoryScreenState
               children: [
                 if (historyBookings.isEmpty)
                   Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: EmptyStateTile(
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,

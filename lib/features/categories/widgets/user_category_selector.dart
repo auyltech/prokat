@@ -36,7 +36,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     }
 
     if (widget.mode == "search") {
-      ref.read(selectedCategoryProvider.notifier).select(category);
+      ref.read(selectedCategoryProvider.notifier).toggle(category);
     }
   }
 

@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/api/fetch_status.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/requests/widgets.dart/create_request_form.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
@@ -29,33 +32,21 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
+      await ref.read(clientActiveRequestsProvider.notifier).refreshIfStale();
 
-      if (ref.read(locationProvider).fetchStatus == FetchStatus.initial) {
-        await ref.read(locationProvider.notifier).getClientLocations();
-      }
+      final address = await ref
+          .read(locationProvider.notifier)
+          .ensureSelectedClientAddress(
+            preferredId: ref
+                .read(clientProfileProvider)
+                .userProfile
+                ?.selectedAddressId,
+          );
       if (!mounted) return;
-
-      final alreadySelected = ref.read(locationProvider).selectedAddress;
-      if (alreadySelected != null && (alreadySelected.id ?? '').isNotEmpty) {
-        return;
-      }
-
-      final selectedAddressId = ref
-          .read(clientProfileProvider)
-          .userProfile
-          ?.selectedAddressId;
-      if ((selectedAddressId ?? '').isNotEmpty) {
-        ref
-            .read(locationProvider.notifier)
-            .selectAddressById(selectedAddressId);
+      if (address != null) {
+        ref.read(requestMutationProvider.notifier).selectLocation(address);
       }
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -83,18 +74,20 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
           ),
 
           data: (query) {
-            final requests = query.items;
+            final blockingCount = query.items
+                .where((request) => occupiesCreateRequestSlot(request.status))
+                .length;
 
-            final canCreateRequest = (requests.length < maxAllowedRequests);
+            final canCreateRequest = blockingCount < maxAllowedRequests;
 
             if (canCreateRequest) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.all(16),
-                children: [CreateRequestForm()],
+                padding: const EdgeInsets.all(16),
+                children: const [CreateRequestForm()],
               );
             } else {
-              return _ActiveRequestLimitView(activeCount: requests.length);
+              return _ActiveRequestLimitView(activeCount: blockingCount);
             }
           },
         ),
@@ -137,7 +130,7 @@ class _ActiveRequestLimitView extends StatelessWidget {
             PrimaryButton(
               label: l10n.myRequests,
               onPressed: () {
-                context.push(AppRoutes.clientRequests);
+                unawaited(context.push(AppRoutes.clientRequests));
               },
             ),
           ],

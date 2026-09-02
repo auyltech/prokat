@@ -9,6 +9,7 @@ import 'package:prokat/features/bookings/providers/owner_history_bookings_provid
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/providers/chat_list_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
@@ -82,6 +83,17 @@ class WorkflowCacheCoordinator {
     }
     if (ref.exists(clientHistoryRequestsProvider)) {
       refreshes.add(ref.read(clientHistoryRequestsProvider.notifier).refresh());
+    }
+
+    for (final query in const [OfferQuery.active(), OfferQuery.history()]) {
+      final clientOffers = clientOffersProvider(query);
+      if (ref.exists(clientOffers)) {
+        refreshes.add(ref.read(clientOffers.notifier).refresh());
+      }
+      final ownerOffers = ownerOffersProvider(query);
+      if (ref.exists(ownerOffers)) {
+        refreshes.add(ref.read(ownerOffers.notifier).refresh());
+      }
     }
 
     await Future.wait(refreshes);

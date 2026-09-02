@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -217,10 +218,58 @@ class AppLocalizationsKk extends AppLocalizations {
   String get invalidEmail => 'Дұрыс email енгізіңіз';
 
   @override
+  String get emailAddressRequiredLabel => 'Электрондық пошта мекенжайы *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Телефон нөмірі *';
+
+  @override
+  String get inquiryTopicValidation => 'Өтініш тақырыбын таңдаңыз';
+
+  @override
   String get inquiryDetails => 'Өтініш мәліметтері';
 
   @override
   String get inquiryTopicRequiredLabel => 'Өтініш тақырыбы *';
+
+  @override
+  String get selectInquiryTopic => 'Өтініш тақырыбын таңдаңыз';
+
+  @override
+  String get inquiryTopicGeneral => 'Жалпы сұрақ';
+
+  @override
+  String get inquiryTopicSupport => 'Қолдау';
+
+  @override
+  String get inquiryTopicBugReport => 'Қате туралы хабарлама';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Функция ұсыну';
+
+  @override
+  String get inquiryTopicSales => 'Сату';
+
+  @override
+  String get inquiryTopicPartnership => 'Серіктестік';
+
+  @override
+  String get inquiryTopicBilling => 'Төлем және шоттар';
+
+  @override
+  String get inquiryTopicCallMe => 'Маған қоңырау шалыңыз';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Аккаунтты жою';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Аккаунтты қалпына келтіру';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Аккаунт мәселесі';
+
+  @override
+  String get inquiryTopicOther => 'Басқа';
 
   @override
   String get yourMessageRequiredLabel => 'Хабарламаңыз *';
@@ -474,6 +523,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get requestAccepted => 'Сұрау қабылданды';
 
   @override
+  String get offerNotSelected => 'Басқа иесі таңдалды';
+
+  @override
   String get requestRejected => 'Сұрау қабылданбады';
 
   @override
@@ -559,6 +611,28 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get noNotificationsYet => 'Хабарландырулар әзірге жоқ';
+
+  @override
+  String get notificationOwnerApprovedTitle => 'Ие ретінде тіркелу мақұлданды';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Сіздің ие ретінде тіркелуіңіз мақұлданды.';
+
+  @override
+  String get notificationOwnerRejectedTitle =>
+      'Ие ретінде тіркелу қабылданбады';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Сіздің ие ретінде тіркелуіңіз қабылданбады.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Тапсырыс аяқталды';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Сіздің тапсырысыңыз аяқталды деп белгіленді.';
 
   @override
   String get errorLoadingEquipment => 'Техниканы жүктеу қатесі';
@@ -708,6 +782,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get available => 'Қолжетімді';
 
   @override
+  String get booked => 'Жалдауда';
+
+  @override
   String get perDay => '/ күн';
 
   @override
@@ -742,6 +819,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get close => 'Жабу';
+
+  @override
+  String get apply => 'Қолдану';
 
   @override
   String get send => 'Жіберу';
@@ -1109,6 +1189,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get yesReject => 'Иә, қабылдамау';
 
   @override
+  String get yes => 'Иә';
+
+  @override
   String get no => 'Жоқ';
 
   @override
@@ -1121,6 +1204,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get volume => 'Көлем';
+
+  @override
+  String get specFilterFrom => 'бастап';
+
+  @override
+  String get specFilterTo => 'дейін';
 
   @override
   String get noOrderHistory => 'Тапсырыс тарихы жоқ';
@@ -1166,6 +1255,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get workStatusStopWork => 'Жұмысты тоқтату';
+
+  @override
+  String get workStatusResumeWork => 'Жұмысты жалғастыру';
 
   @override
   String get workStatusCompleteWork => 'Жұмысты аяқтау';
@@ -1404,6 +1496,19 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Мекен-жайды сақтау сәтсіз аяқталды';
+
+  @override
+  String get deleteAddress => 'Мекен-жайды жою';
+
+  @override
+  String get deleteAddressQuestion => 'Бұл мекен-жайды жою керек пе?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'Мекен-жай сақталған тізімнен өшіріледі.';
+
+  @override
+  String get failedToDeleteAddress => 'Мекен-жайды жою сәтсіз аяқталды';
 
   @override
   String get noEquipmentLocations => 'Техника мекен-жайлары жоқ';
@@ -1923,6 +2028,23 @@ class AppLocalizationsKk extends AppLocalizations {
   String get updateDocumentsHint => 'Құжаттарыңызды жаңартып, қайта жіберіңіз.';
 
   @override
+  String get ownerProfileSuspended => 'Профиль тоқтатылды';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Техниканы орналастыру уақытша қолжетімсіз. Қолдау қызметіне хабарласыңыз.';
+
+  @override
+  String get ownerProfilePendingReview => 'Қарауды күтіңіз';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Жіберілген деректер қайта модерациядан өтеді.';
+
+  @override
+  String get profileUpdateNeedsModeration => 'Деректер модерацияға жіберіледі';
+
+  @override
   String get submitForVerification => 'Тексеруге жіберу';
 
   @override
@@ -1966,6 +2088,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get phoneNumberRequired => 'Телефон нөмірі міндетті';
+
+  @override
+  String get ownerContactPhoneHint =>
+      'Бұл нөмірді әкімші мен клиенттер көреді. Оған қоңырау шалуға болуы керек.';
 
   @override
   String get cityRequired => 'Қала міндетті';
@@ -2453,7 +2579,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get statusCanceled => 'Болдырылмады';
 
   @override
+  String get statusFailed => 'Сәтсіз';
+
+  @override
   String get statusCompleted => 'Аяқталды';
+
+  @override
+  String get statusReviewed => 'Бағаланды';
 
   @override
   String get statusRequestSent => 'Сұраным жіберілді';
@@ -2852,6 +2984,53 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count күн',
+      one: '1 күн',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сағ',
+      one: '1 сағ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мин',
+      one: '1 мин',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сек',
+      one: '1 сек',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invalidSecondsValue => 'Секунд мәні жарамсыз';
+
+  @override
   String get newOffer => 'Жаңа ұсыныс';
 
   @override
@@ -2994,51 +3173,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get ratePerHour => 'Сағатына';
-
-  @override
-  String get cityNameAtyrau => 'Атырау';
-
-  @override
-  String get cityNameAlmaty => 'Алматы';
-
-  @override
-  String get cityNameAstana => 'Астана';
-
-  @override
-  String get cityNameShymkent => 'Шымкент';
-
-  @override
-  String get cityNameAktobe => 'Ақтөбе';
-
-  @override
-  String get cityNameKaraganda => 'Қарағанды';
-
-  @override
-  String get cityNameTaraz => 'Тараз';
-
-  @override
-  String get cityNamePavlodar => 'Павлодар';
-
-  @override
-  String get cityNameUstKamenogorsk => 'Өскемен';
-
-  @override
-  String get cityNameSemey => 'Семей';
-
-  @override
-  String get cityNameKostanay => 'Қостанай';
-
-  @override
-  String get cityNameKyzylorda => 'Қызылорда';
-
-  @override
-  String get cityNameUralsk => 'Орал';
-
-  @override
-  String get cityNamePetropavl => 'Петропавл';
-
-  @override
-  String get cityNameTurkistan => 'Түркістан';
 
   @override
   String get connectionTimedOut =>

@@ -38,12 +38,12 @@ class RequestService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected requests list");
+            throw const FormatException("Expected requests list");
           }
 
           final requests = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid request item");
+              throw const FormatException("Invalid request item");
             }
 
             return RequestModel.fromJson(item);
@@ -249,12 +249,12 @@ class RequestService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected requests list");
+            throw const FormatException("Expected requests list");
           }
 
           final requests = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid request item");
+              throw const FormatException("Invalid request item");
             }
 
             return RequestModel.fromJson(item);

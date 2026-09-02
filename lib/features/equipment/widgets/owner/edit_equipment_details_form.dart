@@ -152,7 +152,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             ],
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           InputField(
             label: l10n.name,
@@ -161,7 +161,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             hint: l10n.equipmentNameHint,
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           InputField(
             label: l10n.model,
@@ -170,7 +170,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             hint: l10n.modelHint,
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           InputField(
             label: l10n.plateNumberLabel,
@@ -179,7 +179,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             hint: l10n.plateNumberHint,
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           InputField(
             label: l10n.rentCondition,
@@ -188,7 +188,7 @@ class _EditEquipmentDetailsFormState extends State<EditEquipmentDetailsForm> {
             hint: l10n.fullLoadOnly,
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           InputField(
             label: l10n.commentNotes,
             controller: _commentController,

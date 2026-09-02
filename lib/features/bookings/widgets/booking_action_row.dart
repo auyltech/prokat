@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:prokat/features/appstartup/app_mode_storage.dart";
@@ -23,27 +25,29 @@ class BookingActionRow extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingMutationProvider.notifier);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.confirmOrder),
-        content: Text(l10n.acceptBookingFor(booking.equipment?.name ?? '')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await notifier.updateBookingStatus(
-                id: booking.id,
-                status: BookingStatus.confirmed,
-              );
-              if (context.mounted) Navigator.pop(context);
-            },
-            child: Text(l10n.confirm),
-          ),
-        ],
+    unawaited(
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.confirmOrder),
+          content: Text(l10n.acceptBookingFor(booking.equipment?.name ?? '')),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await notifier.updateBookingStatus(
+                  id: booking.id,
+                  status: BookingStatus.confirmed,
+                );
+                if (context.mounted) Navigator.pop(context);
+              },
+              child: Text(l10n.confirm),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -109,17 +113,8 @@ class BookingActionRow extends ConsumerWidget {
           ] else
             Expanded(
               child: ElevatedButton(
-                onPressed: () => showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: theme.colorScheme.surface,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  builder: (_) => BookingStatusSheet(booking: booking),
-                ),
+                onPressed: () =>
+                    BookingStatusSheet.show(context, booking: booking),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -137,14 +132,16 @@ class BookingActionRow extends ConsumerWidget {
   }
 
   void _handleCounterOffer(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => CounterOfferSheet(
-        bookingId: booking.id,
-        initialPrice: booking.price,
-        initialPriceRate: booking.priceRate,
-        mode: AppMode.clientMode,
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => CounterOfferSheet(
+          bookingId: booking.id,
+          initialPrice: booking.price,
+          initialPriceRate: booking.priceRate,
+          mode: AppMode.clientMode,
+        ),
       ),
     );
   }
@@ -213,22 +210,23 @@ class BookingActionRow extends ConsumerWidget {
         Navigator.pop(context);
 
         if (!context.mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.orderCancelled)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.orderCancelled)));
       }
       return;
     }
 
     if (!context.mounted) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: theme.colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => CancelBookingSheet(booking: booking),
       ),
-      builder: (context) => CancelBookingSheet(booking: booking),
     );
   }
 }

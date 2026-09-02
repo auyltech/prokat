@@ -1,0 +1,899 @@
+{
+  "version": "3d1a35bc54d936fd1f57241cc3d59efa8cd59717",
+  "cities": [
+    {
+      "id": "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a1",
+      "slug": "atyrau",
+      "names": {
+        "en": "Atyrau",
+        "ru": "Атырау",
+        "kk": "Атырау"
+      },
+      "isVisible": true,
+      "acceptsEquipment": true,
+      "region": null,
+      "sortIndex": 0
+    },
+    {
+      "id": "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a2",
+      "slug": "almaty",
+      "names": {
+        "en": "Almaty",
+        "ru": "Алматы",
+        "kk": "Алматы"
+      },
+      "isVisible": true,
+      "acceptsEquipment": true,
+      "region": null,
+      "sortIndex": 1
+    },
+    {
+      "id": "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a3",
+      "slug": "astana",
+      "names": {
+        "en": "Astana",
+        "ru": "Астана",
+        "kk": "Астана"
+      },
+      "isVisible": true,
+      "acceptsEquipment": true,
+      "region": null,
+      "sortIndex": 2
+    }
+  ],
+  "categories": [
+    {
+      "id": "ad5b653f-310b-4040-ae4e-d24587e7d209",
+      "slug": "vacuum_trucks",
+      "names": {
+        "en": "Vacuum Trucks",
+        "ru": "Вакуумные машины",
+        "kk": "Вакуумдық машиналар"
+      },
+      "imageUrl": "https://ompeocwjggsqcuayzmkn.supabase.co/storage/v1/object/public/user-content/category/ad5b653f-310b-4040-ae4e-d24587e7d209/image-1779341047892-2f5ba4b7.png",
+      "sortIndex": 1,
+      "isUserVisible": true,
+      "isOwnerVisible": true
+    },
+    {
+      "id": "a5c792a3-edbe-4d75-a9b9-7e717bb35568",
+      "slug": "manipulators",
+      "names": {
+        "en": "Manipulators",
+        "ru": "Манипуляторы",
+        "kk": "Манипуляторлар"
+      },
+      "imageUrl": "https://ompeocwjggsqcuayzmkn.supabase.co/storage/v1/object/public/user-content/category/a5c792a3-edbe-4d75-a9b9-7e717bb35568/image-1779341528270-26b2e2da.png",
+      "sortIndex": 2,
+      "isUserVisible": false,
+      "isOwnerVisible": false
+    },
+    {
+      "id": "7bb6ddf3-c1c3-4470-97b7-5e6c83d8c972",
+      "slug": "forklifts",
+      "names": {
+        "en": "Forklifts",
+        "ru": "Вилочные погрузчики",
+        "kk": "Жүк көтергіштер"
+      },
+      "imageUrl": "https://ompeocwjggsqcuayzmkn.supabase.co/storage/v1/object/public/user-content/category/7bb6ddf3-c1c3-4470-97b7-5e6c83d8c972/image-1779341540037-b7a0b09d.png",
+      "sortIndex": 3,
+      "isUserVisible": false,
+      "isOwnerVisible": false
+    },
+    {
+      "id": "94e21956-e5b4-4582-b0c3-463eb126488a",
+      "slug": "tow_trucks",
+      "names": {
+        "en": "Tow Trucks",
+        "ru": "Эвакуаторы",
+        "kk": "Эвакуаторлар"
+      },
+      "imageUrl": "https://ompeocwjggsqcuayzmkn.supabase.co/storage/v1/object/public/user-content/category/94e21956-e5b4-4582-b0c3-463eb126488a/image-1779341553245-f57f3a3f.png",
+      "sortIndex": 4,
+      "isUserVisible": false,
+      "isOwnerVisible": false
+    },
+    {
+      "id": "7ea41000-10e5-43ff-ba10-c0c5e0d62a7b",
+      "slug": "cranes",
+      "names": {
+        "en": "Cranes",
+        "ru": "Краны",
+        "kk": "Крандар"
+      },
+      "imageUrl": "https://ompeocwjggsqcuayzmkn.supabase.co/storage/v1/object/public/user-content/category/7ea41000-10e5-43ff-ba10-c0c5e0d62a7b/image-1779341566375-2ecbabc5.png",
+      "sortIndex": 5,
+      "isUserVisible": false,
+      "isOwnerVisible": false
+    },
+    {
+      "id": "fa54a2d4-24d0-46de-bbd6-51727767a0e3",
+      "slug": "excavators",
+      "names": {
+        "en": "Excavators",
+        "ru": "Экскаваторы",
+        "kk": "Экскаваторлар"
+      },
+      "imageUrl": "https://ompeocwjggsqcuayzmkn.supabase.co/storage/v1/object/public/user-content/category/fa54a2d4-24d0-46de-bbd6-51727767a0e3/image-1779341578567-182374af.png",
+      "sortIndex": 6,
+      "isUserVisible": false,
+      "isOwnerVisible": false
+    }
+  ],
+  "units": [
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "slug": "meter",
+      "symbols": {
+        "en": "m",
+        "ru": "м",
+        "kk": "м"
+      },
+      "names": {
+        "en": "Meter",
+        "ru": "Метр",
+        "kk": "Метр"
+      },
+      "sortIndex": 0
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b102",
+      "slug": "millimeter",
+      "symbols": {
+        "en": "mm",
+        "ru": "мм",
+        "kk": "мм"
+      },
+      "names": {
+        "en": "Millimeter",
+        "ru": "Миллиметр",
+        "kk": "Миллиметр"
+      },
+      "sortIndex": 1
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "slug": "ton",
+      "symbols": {
+        "en": "t",
+        "ru": "т",
+        "kk": "т"
+      },
+      "names": {
+        "en": "Ton",
+        "ru": "Тонна",
+        "kk": "Тонна"
+      },
+      "sortIndex": 2
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b104",
+      "slug": "cubic_meter",
+      "symbols": {
+        "en": "m³",
+        "ru": "м³",
+        "kk": "м³"
+      },
+      "names": {
+        "en": "Cubic meter",
+        "ru": "Кубический метр",
+        "kk": "Текше метр"
+      },
+      "sortIndex": 3
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b105",
+      "slug": "cubic_meter_per_hour",
+      "symbols": {
+        "en": "m³/h",
+        "ru": "м³/ч",
+        "kk": "м³/сағ"
+      },
+      "names": {
+        "en": "Cubic meter per hour",
+        "ru": "Кубический метр в час",
+        "kk": "Текше метр сағатына"
+      },
+      "sortIndex": 4
+    },
+    {
+      "id": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b106",
+      "slug": "degree",
+      "symbols": {
+        "en": "°",
+        "ru": "°",
+        "kk": "°"
+      },
+      "names": {
+        "en": "Degree",
+        "ru": "Градус",
+        "kk": "Градус"
+      },
+      "sortIndex": 5
+    }
+  ],
+  "specs": [
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c203",
+      "slug": "bed_length",
+      "names": {
+        "en": "Truck Bed Length",
+        "ru": "Длина кузова",
+        "kk": "Кузов ұзындығы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "layout",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c202",
+      "slug": "boom_length",
+      "names": {
+        "en": "Boom Length",
+        "ru": "Длина стрелы",
+        "kk": "Жебе ұзындығы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "ruler",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c205",
+      "slug": "bucket_capacity",
+      "names": {
+        "en": "Bucket Capacity",
+        "ru": "Объём ковша",
+        "kk": "Шөміш көлемі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b104",
+      "iconLibrary": "lucide",
+      "iconName": "package",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c206",
+      "slug": "digging_depth",
+      "names": {
+        "en": "Max Digging Depth",
+        "ru": "Макс. глубина копания",
+        "kk": "Макс. қазу тереңдігі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "arrow-down",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c210",
+      "slug": "fork_length",
+      "names": {
+        "en": "Fork Length",
+        "ru": "Длина вил",
+        "kk": "Айыр ұзындығы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b102",
+      "iconLibrary": "lucide",
+      "iconName": "minimize-2",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 0,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "fuel_type",
+      "names": {
+        "en": "Fuel Type",
+        "ru": "Тип топлива",
+        "kk": "Отын түрі"
+      },
+      "type": "SELECT",
+      "unitId": null,
+      "iconLibrary": "lucide",
+      "iconName": "zap",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": null,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c218",
+      "slug": "hose_length",
+      "names": {
+        "en": "Hose Length",
+        "ru": "Длина рукава",
+        "kk": "Шланг ұзындығы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "ruler",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c201",
+      "slug": "lifting_capacity",
+      "names": {
+        "en": "Lifting Capacity",
+        "ru": "Грузоподъёмность",
+        "kk": "Көтеру қабілеті"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "iconLibrary": "lucide",
+      "iconName": "weight",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c209",
+      "slug": "lifting_height",
+      "names": {
+        "en": "Max Lift Height",
+        "ru": "Макс. высота подъёма",
+        "kk": "Макс. көтеру биіктігі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "arrow-up",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c204",
+      "slug": "load_capacity",
+      "names": {
+        "en": "Load Capacity",
+        "ru": "Грузоподъёмность",
+        "kk": "Жүк көтергіштігі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "iconLibrary": "lucide",
+      "iconName": "weight",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c220",
+      "slug": "max_depth",
+      "names": {
+        "en": "Max Suction Depth",
+        "ru": "Макс. глубина всасывания",
+        "kk": "Макс. сору тереңдігі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "arrow-down",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c212",
+      "slug": "max_height",
+      "names": {
+        "en": "Max Lifting Height",
+        "ru": "Макс. высота подъёма",
+        "kk": "Макс. көтеру биіктігі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "arrow-up",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c214",
+      "slug": "platform_length",
+      "names": {
+        "en": "Platform Length",
+        "ru": "Длина платформы",
+        "kk": "Платформа ұзындығы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "layout",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c219",
+      "slug": "pump_power",
+      "names": {
+        "en": "Pump Power",
+        "ru": "Производительность насоса",
+        "kk": "Сорғы өнімділігі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b105",
+      "iconLibrary": "lucide",
+      "iconName": "activity",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c207",
+      "slug": "reach",
+      "names": {
+        "en": "Max Reach",
+        "ru": "Макс. вылет",
+        "kk": "Макс. жету қашықтығы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b101",
+      "iconLibrary": "lucide",
+      "iconName": "move",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c213",
+      "slug": "rotation",
+      "names": {
+        "en": "Rotation Angle",
+        "ru": "Угол поворота",
+        "kk": "Бұрылу бұрышы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b106",
+      "iconLibrary": "lucide",
+      "iconName": "rotate-cw",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 0,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c217",
+      "slug": "tank_volume",
+      "names": {
+        "en": "Tank Volume",
+        "ru": "Объём цистерны",
+        "kk": "Цистерна көлемі"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b104",
+      "iconLibrary": "lucide",
+      "iconName": "database",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "tow_type",
+      "names": {
+        "en": "Tow Type",
+        "ru": "Тип эвакуации",
+        "kk": "Сүйрету түрі"
+      },
+      "type": "SELECT",
+      "unitId": null,
+      "iconLibrary": "lucide",
+      "iconName": "list",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": null,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c208",
+      "slug": "weight",
+      "names": {
+        "en": "Machine Weight",
+        "ru": "Масса машины",
+        "kk": "Машина салмағы"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "iconLibrary": "lucide",
+      "iconName": "weight",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    },
+    {
+      "id": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c215",
+      "slug": "winch_capacity",
+      "names": {
+        "en": "Winch Capacity",
+        "ru": "Тяговое усилие лебёдки",
+        "kk": "Лебедка тарту күші"
+      },
+      "type": "NUMBER",
+      "unitId": "b1b1b1b1-b1b1-41b1-81b1-b1b1b1b1b103",
+      "iconLibrary": "lucide",
+      "iconName": "anchor",
+      "minNumber": null,
+      "maxNumber": null,
+      "decimals": 2,
+      "maxLength": null,
+      "isActive": true
+    }
+  ],
+  "specOptions": [
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d301",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "diesel",
+      "names": {
+        "en": "Diesel",
+        "ru": "Дизель",
+        "kk": "Дизель"
+      },
+      "sortIndex": 0
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d302",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "gasoline",
+      "names": {
+        "en": "Gasoline",
+        "ru": "Бензин",
+        "kk": "Бензин"
+      },
+      "sortIndex": 1
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d303",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "gas",
+      "names": {
+        "en": "Gas",
+        "ru": "Газ",
+        "kk": "Газ"
+      },
+      "sortIndex": 2
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d304",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "slug": "electric",
+      "names": {
+        "en": "Electric",
+        "ru": "Электрический",
+        "kk": "Электрлі"
+      },
+      "sortIndex": 3
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d311",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "platform",
+      "names": {
+        "en": "Platform",
+        "ru": "Платформа",
+        "kk": "Платформа"
+      },
+      "sortIndex": 0
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d312",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "wheel_lift",
+      "names": {
+        "en": "Wheel lift",
+        "ru": "Захват за колёса",
+        "kk": "Дөңгелектен көтеру"
+      },
+      "sortIndex": 1
+    },
+    {
+      "id": "d3d3d3d3-d3d3-43d3-83d3-d3d3d3d3d313",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "slug": "partial_load",
+      "names": {
+        "en": "Partial load",
+        "ru": "Частичная погрузка",
+        "kk": "Жартылай тиеу"
+      },
+      "sortIndex": 2
+    }
+  ],
+  "categorySpecs": [
+    {
+      "id": "297840fb-f9d7-47c4-907d-6288425facde",
+      "categoryId": "7bb6ddf3-c1c3-4470-97b7-5e6c83d8c972",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c201",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 1
+    },
+    {
+      "id": "c7c66b0d-0137-42b4-aa19-6a8c0679624f",
+      "categoryId": "7bb6ddf3-c1c3-4470-97b7-5e6c83d8c972",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c209",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 2
+    },
+    {
+      "id": "1ac664e4-0299-411c-b91c-00630431724a",
+      "categoryId": "7bb6ddf3-c1c3-4470-97b7-5e6c83d8c972",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c210",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 3
+    },
+    {
+      "id": "c2ae31a2-a41d-448e-b26a-0b8ca6256a99",
+      "categoryId": "7bb6ddf3-c1c3-4470-97b7-5e6c83d8c972",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c211",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 4
+    },
+    {
+      "id": "17c0190c-5c90-4d25-a740-a49824dab00f",
+      "categoryId": "7ea41000-10e5-43ff-ba10-c0c5e0d62a7b",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c201",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 1
+    },
+    {
+      "id": "d640568b-d0f2-4808-b933-92097c0c74f6",
+      "categoryId": "7ea41000-10e5-43ff-ba10-c0c5e0d62a7b",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c202",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 2
+    },
+    {
+      "id": "f4e67dcf-c0f9-4cb1-b0ae-ed300a85bdc1",
+      "categoryId": "7ea41000-10e5-43ff-ba10-c0c5e0d62a7b",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c203",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 3
+    },
+    {
+      "id": "730b90fc-8989-467f-9b74-955f7fb458e4",
+      "categoryId": "7ea41000-10e5-43ff-ba10-c0c5e0d62a7b",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c204",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 4
+    },
+    {
+      "id": "d5f26be1-236c-402f-836c-3d0e6223fcc9",
+      "categoryId": "94e21956-e5b4-4582-b0c3-463eb126488a",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c204",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 1
+    },
+    {
+      "id": "adf3de96-a97a-43fc-868c-25e4acc71ab5",
+      "categoryId": "94e21956-e5b4-4582-b0c3-463eb126488a",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c214",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 2
+    },
+    {
+      "id": "8d8a4032-f0d6-4f74-8716-7e86de572dac",
+      "categoryId": "94e21956-e5b4-4582-b0c3-463eb126488a",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c215",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 3
+    },
+    {
+      "id": "c0b5c7eb-1122-4e87-919a-9fecb0d5df23",
+      "categoryId": "94e21956-e5b4-4582-b0c3-463eb126488a",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c216",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 4
+    },
+    {
+      "id": "56bd243d-2552-4c0c-b8de-6ccaf6862c3e",
+      "categoryId": "a5c792a3-edbe-4d75-a9b9-7e717bb35568",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c201",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 1
+    },
+    {
+      "id": "47a47057-eb96-4fa2-96e4-51693cfa15c2",
+      "categoryId": "a5c792a3-edbe-4d75-a9b9-7e717bb35568",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c202",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 2
+    },
+    {
+      "id": "c90d96b3-02b9-46e5-b4c1-476d4c8bdae3",
+      "categoryId": "a5c792a3-edbe-4d75-a9b9-7e717bb35568",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c212",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 3
+    },
+    {
+      "id": "c945d9e9-a37c-49d5-9b42-cb94252a24fb",
+      "categoryId": "a5c792a3-edbe-4d75-a9b9-7e717bb35568",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c213",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 4
+    },
+    {
+      "id": "23753203-9bd4-4aa5-87ad-db2417ab6c76",
+      "categoryId": "ad5b653f-310b-4040-ae4e-d24587e7d209",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c217",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 1
+    },
+    {
+      "id": "fe68e0df-532a-4a6a-bd6c-9583ebe0f317",
+      "categoryId": "ad5b653f-310b-4040-ae4e-d24587e7d209",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c218",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 2
+    },
+    {
+      "id": "54df9f31-f179-4245-a092-fd40f0a2cc9f",
+      "categoryId": "ad5b653f-310b-4040-ae4e-d24587e7d209",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c219",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 3
+    },
+    {
+      "id": "3fbd95ac-ac5f-431f-a4a3-6f5450a2d0d0",
+      "categoryId": "ad5b653f-310b-4040-ae4e-d24587e7d209",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c220",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 4
+    },
+    {
+      "id": "fc5acee1-55de-4e12-8269-b1580ec4a896",
+      "categoryId": "fa54a2d4-24d0-46de-bbd6-51727767a0e3",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c205",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 1
+    },
+    {
+      "id": "c20af4f6-d1b6-4b48-b116-24238a7a8e78",
+      "categoryId": "fa54a2d4-24d0-46de-bbd6-51727767a0e3",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c206",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 2
+    },
+    {
+      "id": "b50dbde1-aecb-49a6-b89b-0d3c5e6ec127",
+      "categoryId": "fa54a2d4-24d0-46de-bbd6-51727767a0e3",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c207",
+      "isRequired": true,
+      "visibleToClient": true,
+      "showInFilters": true,
+      "showInCard": true,
+      "sortIndex": 3
+    },
+    {
+      "id": "5f4ef8be-fa9f-4200-88c7-3f43e0b4fa24",
+      "categoryId": "fa54a2d4-24d0-46de-bbd6-51727767a0e3",
+      "specId": "c2c2c2c2-c2c2-42c2-82c2-c2c2c2c2c208",
+      "isRequired": false,
+      "visibleToClient": false,
+      "showInFilters": false,
+      "showInCard": false,
+      "sortIndex": 4
+    }
+  ]
+}

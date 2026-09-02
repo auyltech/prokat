@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -43,7 +45,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -71,7 +73,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   color: theme.colorScheme.onSurface,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
 
               RequestStatusBadge(status: request.status, mode: widget.mode),
             ],
@@ -115,7 +117,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                           Icons.propane_outlined,
                           color: theme.colorScheme.onPrimary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           '${request.capacity} ${l10n.unitCubicMeters}',
                           style: theme.textTheme.titleSmall?.copyWith(
@@ -123,12 +125,12 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                             letterSpacing: 0.5,
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Icon(
                           Icons.cable_outlined,
                           color: theme.colorScheme.onPrimary,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           '${10} ${l10n.unitMeters}',
                           style: theme.textTheme.titleSmall?.copyWith(
@@ -150,8 +152,16 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           InfoTile.secondary(
             icon: Icons.location_on_outlined,
             label: l10n.location,
-            value: request.location.street,
-            onTap: () => showLocationSheet(context, request.location),
+            value:
+                request.location?.streetLine(
+                  Localizations.localeOf(context).languageCode,
+                ) ??
+                l10n.unknownLocation,
+            onTap: () {
+              final location = request.location;
+              if (location == null) return;
+              showLocationSheet(context, location);
+            },
           ),
 
           const SizedBox(height: 8),
@@ -168,9 +178,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                     if (request.requiredOn == null) return l10n.pending;
 
                     // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                    final dateStr = DateFormat(
-                      'dd MMM yyyy',
-                    ).format(request.requiredOn!.toLocal());
+                    final dateStr = DateFormat('dd MMM yyyy')
+                        .format(request.requiredOn!.toLocal());
 
                     // 3. Return just the date if no time was specified
                     return dateStr;
@@ -187,9 +196,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   value: () {
                     // 2. If a specific time exists, format and append it (e.g., "14:30")
                     if (request.requiredAt != null) {
-                      final timeStr = DateFormat(
-                        'HH:mm',
-                      ).format(request.requiredAt!.toLocal());
+                      final timeStr = DateFormat('HH:mm')
+                          .format(request.requiredAt!.toLocal());
                       return timeStr;
                     }
 
@@ -201,7 +209,13 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           ),
 
           if (request.comment?.isNotEmpty ?? false)
-            InfoTile.secondary(label: l10n.comments, value: request.comment!),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: InfoTile.secondary(
+                label: l10n.comments,
+                value: request.comment!,
+              ),
+            ),
 
           const SizedBox(height: 8),
 
@@ -232,7 +246,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                 ],
               ),
 
-              Spacer(),
+              const Spacer(),
 
               if (widget.mode == AppMode.clientMode &&
                   [
@@ -242,7 +256,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                 if (ref
                     .watch(requestMutationProvider)
                     .isActionActive("request:${request.id}:cancel"))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(
@@ -276,45 +290,47 @@ void _showCancelConfirmation(
   String requestId,
   AppLocalizations l10n,
 ) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l10n.cancelRequest),
-      content: Text(l10n.cancelRequestContent),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            l10n.no,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            Navigator.pop(context);
-
-            final result = await ref
-                .read(requestMutationProvider.notifier)
-                .cancelRequest(requestId);
-
-            AppSnackBar.show(
-              message: result.success
-                  ? l10n.requestCancelled
-                  : l10n.failedToCancelRequest,
-              isSuccess: result.success,
-              isError: !result.success,
-            );
-          },
-          child: Text(
-            l10n.yesCancel,
-            style: const TextStyle(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.bold,
+  unawaited(
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.cancelRequest),
+        content: Text(l10n.cancelRequestContent),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              l10n.no,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final result = await ref
+                  .read(requestMutationProvider.notifier)
+                  .cancelRequest(requestId);
+
+              AppSnackBar.show(
+                message: result.success
+                    ? l10n.requestCancelled
+                    : l10n.failedToCancelRequest,
+                isSuccess: result.success,
+                isError: !result.success,
+              );
+            },
+            child: Text(
+              l10n.yesCancel,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

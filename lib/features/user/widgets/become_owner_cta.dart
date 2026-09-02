@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BecomeOwnerCTA extends ConsumerStatefulWidget {
@@ -16,6 +22,56 @@ class BecomeOwnerCTA extends ConsumerStatefulWidget {
 }
 
 class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
+  bool _isRefreshing = false;
+
+  bool _hasOwnerRole() {
+    if (ref.read(authProvider).isOwner) return true;
+    final role = ref
+        .read(clientProfileProvider)
+        .userProfile
+        ?.role
+        ?.toLowerCase();
+    return role == 'owner' || role == 'admin';
+  }
+
+  Future<void> _refreshApplicationState() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    try {
+      // Refresh the application first: GET /owner/become-owner repairs
+      // APPROVED+CLIENT drift before we mint a session from User.role.
+      await ref.read(ownerRegistrationRequestProvider.notifier).refresh();
+      if (!mounted) return;
+      final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
+      final awaitingModeration = request != null && !request.isApproved;
+      // Do not mint an OWNER session while the application is still CREATED.
+      if (!awaitingModeration && !ref.read(authProvider).isOwner) {
+        await ref.read(authProvider.notifier).refreshSession();
+        if (!mounted) return;
+      }
+      await ref.read(clientProfileProvider.notifier).refresh();
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  Future<void> _enterOwnerMode() async {
+    await _refreshApplicationState();
+    if (!mounted) return;
+    if (ref.read(authProvider).session == null) return;
+    final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
+    if (request != null && !request.isApproved) return;
+    if (!_hasOwnerRole()) {
+      AppSnackBar.show(
+        message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,
+        isError: true,
+      );
+      return;
+    }
+    await ref.read(appStartupProvider.notifier).setOwnerMode();
+    if (mounted) context.go(AppRoutes.ownerProfile);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -25,55 +81,87 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         .watch(ownerRegistrationRequestProvider)
         .valueOrNull;
 
-    final isOwner = ref.watch(authProvider).isOwner;
+    final isOwnerJwt = ref.watch(authProvider).isOwner;
+    final profileRole = ref
+        .watch(clientProfileProvider)
+        .userProfile
+        ?.role
+        ?.toLowerCase();
+    final isOwnerRole =
+        isOwnerJwt || profileRole == 'owner' || profileRole == 'admin';
 
-    // 1. Owner State
-    if (isOwner) {
+    // CREATED/REJECTED wins over User.role=OWNER (local auto-promote setting).
+    if (registrationRequest != null) {
+      switch (registrationRequest.parsedStatus) {
+        case BecomeOwnerRequestStatus.pending:
+        case BecomeOwnerRequestStatus.rejected:
+          final status = registrationRequest.parsedStatus;
+          final config = _getStatusConfig(status, l10n, theme.brightness);
+          return _buildModernCTA(
+            context,
+            icon: config.icon,
+            title: config.label,
+            subtitle: _subtitleForRequest(registrationRequest, l10n),
+            bgColor: config.bg,
+            contentColor: config.color,
+            trailingIcon: config.trailing,
+            isLoading: _isRefreshing,
+            onTap: () => _onRequestTap(status),
+          );
+        case BecomeOwnerRequestStatus.approved:
+          break;
+      }
+    }
+
+    if (isOwnerRole || registrationRequest?.isApproved == true) {
       return _buildModernCTA(
         context,
         icon: Icons.dashboard_customize_outlined,
         title: l10n.ownerDashboard,
         subtitle: l10n.ownerDashboardSubtitle,
-        bgColor: theme.colorScheme.primary,
-        contentColor: theme.colorScheme.onPrimary,
-        isPrimary: true,
-        onTap: () async {
-          await ref.read(appStartupProvider.notifier).setOwnerMode();
-          if (context.mounted) context.go(AppRoutes.ownerProfile);
-        },
+        bgColor: AppTheme.accent,
+        contentColor: AppTheme.white,
+        isLoading: _isRefreshing,
+        onTap: _enterOwnerMode,
       );
     }
 
-    // 2. Request Pending/Rejected State
-    if (registrationRequest != null) {
-      final config = _getStatusConfig(
-        registrationRequest.status?.toUpperCase() ?? 'PENDING',
-        theme,
-        l10n,
-      );
-
-      return _buildModernCTA(
-        context,
-        icon: config.icon,
-        title: config.label,
-        subtitle:
-            '${l10n.submittedOn} ${formatDate(date: registrationRequest.createdAt)}',
-        bgColor: config.bg,
-        contentColor: config.color,
-        onTap: () => context.push(AppRoutes.becomeOwner),
-      );
-    }
-
-    // 3. Default "Become an Owner"
+    final brightness = theme.brightness;
     return _buildModernCTA(
       context,
       icon: Icons.add_business_outlined,
       title: l10n.becomeOwner,
       subtitle: l10n.becomeOwnerSubtitle,
-      bgColor: theme.colorScheme.surfaceBright,
-      contentColor: theme.colorScheme.onPrimary,
+      bgColor: AppTheme.brandTintBg(brightness),
+      contentColor: AppTheme.brandTintFg(brightness),
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
+  }
+
+  String _subtitleForRequest(
+    RegistrationRequestModel request,
+    AppLocalizations l10n,
+  ) {
+    if (request.isRejected) {
+      final comment = (request.adminComment ?? '').trim();
+      if (comment.isNotEmpty) return comment;
+      return l10n.statusRejectedSubtitle;
+    }
+
+    return '${l10n.submittedOn} ${formatDate(date: request.createdAt)}';
+  }
+
+  Future<void> _onRequestTap(BecomeOwnerRequestStatus status) async {
+    switch (status) {
+      case BecomeOwnerRequestStatus.pending:
+        await _refreshApplicationState();
+        return;
+      case BecomeOwnerRequestStatus.rejected:
+        if (mounted) unawaited(context.push(AppRoutes.becomeOwner));
+        return;
+      case BecomeOwnerRequestStatus.approved:
+        await _enterOwnerMode();
+    }
   }
 
   Widget _buildModernCTA(
@@ -83,11 +171,13 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     required String subtitle,
     required Color bgColor,
     required Color contentColor,
-    bool? isPrimary = false,
+    IconData trailingIcon = Icons.chevron_right,
+    bool isLoading = false,
     required VoidCallback onTap,
   }) {
+    final mutedColor = contentColor.withValues(alpha: 0.8);
     return InkWell(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
@@ -105,33 +195,28 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      // fontWeight: FontWeight.bold,
-                      color: contentColor,
-                      // letterSpacing: 0.5,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(color: contentColor),
                   ),
                   Text(
                     subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: isPrimary == true
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.onPrimary.withValues(alpha: 0.7)
-                          : Theme.of(context).colorScheme.onSurface,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: mutedColor),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: isPrimary == true
-                  ? Theme.of(
-                      context,
-                    ).colorScheme.onPrimary.withValues(alpha: 0.7)
-                  : Theme.of(context).colorScheme.onSurface,
-            ),
+            if (isLoading)
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: contentColor,
+                ),
+              )
+            else
+              Icon(trailingIcon, color: mutedColor),
           ],
         ),
       ),
@@ -139,30 +224,33 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
   }
 
   _StatusConfig _getStatusConfig(
-    String status,
-    ThemeData theme,
+    BecomeOwnerRequestStatus status,
     AppLocalizations l10n,
+    Brightness brightness,
   ) {
     switch (status) {
-      case 'APPROVED':
+      case BecomeOwnerRequestStatus.approved:
         return _StatusConfig(
-          bg: const Color(0xFFE8F5E9),
-          color: const Color(0xFF2E7D32),
+          bg: AppTheme.successBg(brightness),
+          color: AppTheme.successFg(brightness),
           icon: Icons.check,
+          trailing: Icons.chevron_right,
           label: l10n.requestAccepted,
         );
-      case 'REJECTED':
+      case BecomeOwnerRequestStatus.rejected:
         return _StatusConfig(
-          bg: const Color(0xFFFFEBEE),
-          color: const Color(0xFFC62828),
+          bg: AppTheme.dangerBg(brightness),
+          color: AppTheme.dangerFg(brightness),
           icon: Icons.error,
+          trailing: Icons.chevron_right,
           label: l10n.requestRejected,
         );
-      default: // PENDING
+      case BecomeOwnerRequestStatus.pending:
         return _StatusConfig(
-          bg: const Color(0xFFFFF3E0),
-          color: const Color(0xFFE65100),
+          bg: AppTheme.warningBg(brightness),
+          color: AppTheme.warningFg(brightness),
           icon: Icons.history_toggle_off_rounded,
+          trailing: Icons.refresh,
           label: l10n.requestPending,
         );
     }
@@ -173,11 +261,13 @@ class _StatusConfig {
   final Color bg;
   final Color color;
   final IconData icon;
+  final IconData trailing;
   final String label;
   _StatusConfig({
     required this.bg,
     required this.color,
     required this.icon,
+    required this.trailing,
     required this.label,
   });
 }

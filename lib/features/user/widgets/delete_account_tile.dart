@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -39,59 +41,62 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // Force them to explicitly tap "OK" to acknowledge the state
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Icon(
-                Icons.check_circle_outline_rounded,
-                color: theme
-                    .colorScheme
-                    .primary, // Neutral or branding color for confirmation
-                size: 28,
-              ),
-              const SizedBox(width: 10),
-              Text(l10n.requestReceived),
-            ],
-          ),
-          content: Text(l10n.accountDeletionScheduledBody),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onPressed: () async {
-                // Close the dialog box view
-                Navigator.of(dialogContext).pop();
-
-                // 2. Perform the global logout sequence
-                // Replace this with your project's auth notifier reference (e.g., authProvider)
-                await ref.read(appStartupProvider.notifier).forceSignedOut();
-
-                // 3. Clear the navigation stack back to the authentication screen
-                if (context.mounted) {
-                  Navigator.of(
-                    context,
-                  ).pushNamedAndRemoveUntil('/login', (route) => false);
-                }
-              },
-              child: Text(l10n.ok),
+    unawaited(
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // Force them to explicitly tap "OK" to acknowledge the state
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-          ],
-        );
-      },
+            title: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: theme
+                      .colorScheme
+                      .primary, // Neutral or branding color for confirmation
+                  size: 28,
+                ),
+                const SizedBox(width: 10),
+                Text(l10n.requestReceived),
+              ],
+            ),
+            content: Text(l10n.accountDeletionScheduledBody),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () async {
+                  // Close the dialog box view
+                  Navigator.of(dialogContext).pop();
+
+                  // 2. Perform the global logout sequence
+                  // Replace this with your project's auth notifier reference (e.g., authProvider)
+                  await ref.read(appStartupProvider.notifier).forceSignedOut();
+
+                  // 3. Clear the navigation stack back to the authentication screen
+                  if (context.mounted) {
+                    unawaited(
+                      Navigator.of(context)
+                          .pushNamedAndRemoveUntil('/login', (route) => false),
+                    );
+                  }
+                },
+                child: Text(l10n.ok),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -99,51 +104,53 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // Prevents accidental closing during high-stakes actions
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Icon(
-                Icons.warning_amber_rounded,
-                color: theme.colorScheme.error,
-                size: 28,
-              ),
-              const SizedBox(width: 10),
-              Text(l10n.confirmDeletion),
-            ],
-          ),
-          content: Text(l10n.accountDeletionConfirmationBody),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(
-                l10n.cancel,
-                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-              ),
+    unawaited(
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // Prevents accidental closing during high-stakes actions
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-                foregroundColor: theme.colorScheme.onError,
-                elevation: 0,
+            title: Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: theme.colorScheme.error,
+                  size: 28,
+                ),
+                const SizedBox(width: 10),
+                Text(l10n.confirmDeletion),
+              ],
+            ),
+            content: Text(l10n.accountDeletionConfirmationBody),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(
+                  l10n.cancel,
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                ),
               ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop(); // Close dialog
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(); // Close dialog
 
-                onSubmit();
-              },
-              child: Text(l10n.deleteAccount),
-            ),
-          ],
-        );
-      },
+                  unawaited(onSubmit());
+                },
+                child: Text(l10n.deleteAccount),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -164,7 +171,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
             Expanded(
               child: Divider(color: theme.colorScheme.error, thickness: 2),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -176,7 +183,7 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
                 ),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Divider(color: theme.colorScheme.error, thickness: 2),
             ),

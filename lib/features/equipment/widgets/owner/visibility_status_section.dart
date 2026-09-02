@@ -20,24 +20,18 @@ class VisibilityStatusSection extends ConsumerStatefulWidget {
 
 class _VisibilityStatusSectionState
     extends ConsumerState<VisibilityStatusSection> {
-  late bool _tempVisible;
   late EquipmentStatus _tempStatus;
 
-  Future<void> onSubmit() async {
+  /// Submit / resubmit for moderation. Backend never accepts DRAFT as a target.
+  Future<void> onSubmitForReview() async {
     final equipment = widget.equipment;
     if (equipment == null) return;
 
     final l10n = AppLocalizations.of(context)!;
 
-    final nextStatus =
-        (equipment.status == EquipmentStatus.draft ||
-            equipment.status == EquipmentStatus.created)
-        ? EquipmentStatus.created
-        : EquipmentStatus.draft;
-
     final res = await ref
         .read(equipmentMutationProvider.notifier)
-        .updateEquipmentStatus(widget.equipment?.id ?? "", nextStatus);
+        .updateEquipmentStatus(equipment.id, EquipmentStatus.created);
 
     if (!mounted) return;
 
@@ -48,18 +42,43 @@ class _VisibilityStatusSectionState
     );
   }
 
+  Future<void> onSaveOperatingStatus() async {
+    final equipment = widget.equipment;
+    if (equipment == null) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    final res = await ref
+        .read(equipmentMutationProvider.notifier)
+        .updateEquipmentStatus(equipment.id, _tempStatus);
+
+    if (!mounted) return;
+
+    AppSnackBar.show(
+      message: res ? l10n.statusUpdated : l10n.failedToUpdateEquipment,
+      isSuccess: res,
+      isError: !res,
+    );
+  }
+
   bool hasText(String? value) => value?.trim().isNotEmpty == true;
 
   @override
   void initState() {
     super.initState();
-    _tempVisible = widget.equipment?.isVisible ?? false;
     _tempStatus = widget.equipment?.status ?? EquipmentStatus.draft;
   }
 
-  bool get _isDirty =>
-      (_tempVisible != widget.equipment?.isVisible) ||
-      (_tempStatus != widget.equipment?.status);
+  @override
+  void didUpdateWidget(covariant VisibilityStatusSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.equipment?.status;
+    if (next != null && next != oldWidget.equipment?.status) {
+      _tempStatus = next;
+    }
+  }
+
+  bool get _isOperatingStatusDirty => _tempStatus != widget.equipment?.status;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +114,7 @@ class _VisibilityStatusSectionState
     final hasSpecs =
         equipment?.specs
             ?.where((spec) => spec.isRequired == true)
-            .every((spec) => hasText(spec.value)) ??
+            .every((spec) => spec.hasFilledValue) ??
         true;
 
     final hasData =
@@ -107,6 +126,7 @@ class _VisibilityStatusSectionState
         hasSpecs;
 
     final isModerated = equipment?.isModerated ?? false;
+    final isDraftFlow = equipment?.isDraft ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,28 +137,14 @@ class _VisibilityStatusSectionState
           children: [
             SectionTitle(title: l10n.status),
 
-            if (_isDirty)
+            if (isModerated && _isOperatingStatusDirty)
               FilledButton.icon(
-                onPressed: equipment == null
-                    ? null
-                    : () async {
-                        final res = await ref
-                            .read(equipmentMutationProvider.notifier)
-                            .toggleEquipmentOnline(
-                              widget.equipment?.id ?? "",
-                              widget.equipment?.isVisible ?? false,
-                            );
-
-                        if (res && context.mounted) {
-                          AppSnackBar.show(
-                            message: l10n.submittedForReview,
-                            isSuccess: true,
-                          );
-                        }
-                      },
+                onPressed: equipment == null ? null : onSaveOperatingStatus,
                 icon: const Icon(Icons.sync_rounded, size: 16),
                 label: Text(l10n.save),
                 style: FilledButton.styleFrom(
+                  iconColor: Colors.white,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
@@ -153,7 +159,7 @@ class _VisibilityStatusSectionState
           ],
         ),
 
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         if (isModerated)
           Column(
@@ -161,7 +167,7 @@ class _VisibilityStatusSectionState
             children: [
               Text(l10n.availableForRent, style: theme.textTheme.bodyMedium),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               if (equipment?.status == EquipmentStatus.available ||
                   equipment?.status == EquipmentStatus.accepted)
@@ -170,11 +176,11 @@ class _VisibilityStatusSectionState
                   isVisible: equipment?.isVisible ?? false,
                 ),
 
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
               Text(l10n.operatingStatus, style: theme.textTheme.bodyMedium),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -189,6 +195,12 @@ class _VisibilityStatusSectionState
                         final isWarning = s == EquipmentStatus.maintenance;
 
                         final Color activeColor = isWarning ? warning : accent;
+                        final label = switch (s) {
+                          EquipmentStatus.available => l10n.available,
+                          EquipmentStatus.booked => l10n.booked,
+                          EquipmentStatus.maintenance => l10n.maintenance,
+                          _ => s.name,
+                        };
 
                         return GestureDetector(
                           onTap: () => setState(() => _tempStatus = s),
@@ -214,7 +226,7 @@ class _VisibilityStatusSectionState
                               ),
                             ),
                             child: Text(
-                              s.name,
+                              label,
                               style: theme.textTheme.labelMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1,
@@ -227,7 +239,7 @@ class _VisibilityStatusSectionState
                 ),
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
             ],
           ),
 
@@ -236,23 +248,23 @@ class _VisibilityStatusSectionState
             l10n.pleaseCompleteRequiredFields,
             style: TextStyle(color: theme.colorScheme.error, fontSize: 14),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
         ],
 
-        // if (isDraft)
-        PrimaryButton(
-          label: equipment?.status == EquipmentStatus.draft
-              ? l10n.submitForReview
-              : equipment?.status == EquipmentStatus.created
-              ? l10n.resubmit
-              : l10n.editEquipment,
-          onPressed: hasData ? onSubmit : null,
-          isLoading: equipment == null
-              ? false
-              : ref
-                    .watch(equipmentMutationProvider)
-                    .isActionActive("equipment:update:${equipment.id}:status"),
-        ),
+        if (isDraftFlow)
+          PrimaryButton(
+            label: equipment?.status == EquipmentStatus.draft
+                ? l10n.submitForReview
+                : l10n.resubmit,
+            onPressed: hasData ? onSubmitForReview : null,
+            isLoading: equipment == null
+                ? false
+                : ref
+                      .watch(equipmentMutationProvider)
+                      .isActionActive(
+                        "equipment:update:${equipment.id}:status",
+                      ),
+          ),
       ],
     );
   }

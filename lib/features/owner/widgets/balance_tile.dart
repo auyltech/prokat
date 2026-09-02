@@ -31,8 +31,8 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
     // ── Loading state ──
     if (billingState.isBalanceLoading) {
-      return BaseTile(
-        child: const SizedBox(
+      return const BaseTile(
+        child: SizedBox(
           height: 120,
           child: Center(child: CircularProgressIndicator()),
         ),
@@ -118,7 +118,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                   ),
                   child: Text(
                     "$onlineEquipment Equipment online",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF0D5F5C),

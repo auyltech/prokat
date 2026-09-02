@@ -25,7 +25,7 @@ class OfferStatusBadge extends StatelessWidget {
               ? Colors.blue
               : status == OfferStatus.rejected
               ? const Color(0xFFC62828)
-              : const Color(0xFFFFEBEE),
+              : const Color(0xFF00489B),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

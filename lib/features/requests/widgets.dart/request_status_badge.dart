@@ -21,11 +21,11 @@ class RequestStatusBadge extends StatelessWidget {
       case RequestStatus.created:
       case RequestStatus.viewed:
       case RequestStatus.responded:
-        return Color.fromARGB(255, 32, 57, 141);
+        return const Color.fromARGB(255, 32, 57, 141);
       case RequestStatus.accepted:
         return const Color.fromARGB(255, 0, 121, 4);
       case RequestStatus.cancelled:
-        return Color.fromARGB(255, 179, 0, 0);
+        return const Color.fromARGB(255, 179, 0, 0);
       case RequestStatus.expired:
         return Colors.orange;
       default:

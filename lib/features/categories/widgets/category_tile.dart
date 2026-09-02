@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -24,7 +26,7 @@ class _CategoryTileState extends ConsumerState<CategoryTile> {
         path: AppRoutes.searchList,
         queryParameters: {'category': category.id},
       ).toString();
-      context.push(uri);
+      unawaited(context.push(uri));
     }
   }
 

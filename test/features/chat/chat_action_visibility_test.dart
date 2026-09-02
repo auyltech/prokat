@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 
@@ -42,6 +43,75 @@ void main() {
         mode: AppMode.clientMode,
       ),
       isTrue,
+    );
+  });
+
+  test('hides actions when another owner won the tender', () {
+    expect(
+      chatHasVisibleActions(
+        status: ChatStatusDetail.requestaccepted,
+        mode: AppMode.clientMode,
+      ),
+      isFalse,
+    );
+    expect(
+      chatHasVisibleActions(
+        status: ChatStatusDetail.offernotselected,
+        mode: AppMode.ownerMode,
+      ),
+      isFalse,
+    );
+    expect(
+      chatHasVisibleActions(
+        status: ChatStatusDetail.requestcancelled,
+        mode: AppMode.clientMode,
+      ),
+      isFalse,
+    );
+  });
+
+  test('locks composer for terminal request threads', () {
+    expect(isChatInputLocked(ChatStatusDetail.bookingcancelled), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.bookingreviewed), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.workcompleted), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.requestcancelled), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.offernotselected), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.leaveReview), isTrue);
+    expect(isChatInputLocked(ChatStatusDetail.requestcreated), isFalse);
+    expect(isChatInputLocked(ChatStatusDetail.bookingconfirmed), isFalse);
+    expect(
+      isChatInputLocked(
+        ChatStatusDetail.requestcreated,
+        threadStatus: ChatStatus.closed,
+      ),
+      isTrue,
+    );
+    expect(
+      isChatInputLocked(
+        ChatStatusDetail.requestcreated,
+        threadStatus: ChatStatus.closed,
+        chatType: ChatType.support,
+      ),
+      isFalse,
+    );
+  });
+
+  test('keeps leave-review on a closed completed booking', () {
+    expect(
+      chatHasVisibleActions(
+        status: ChatStatusDetail.leaveReview,
+        mode: AppMode.clientMode,
+        threadStatus: ChatStatus.closed,
+      ),
+      isTrue,
+    );
+    expect(
+      chatHasVisibleActions(
+        status: ChatStatusDetail.bookingconfirmed,
+        mode: AppMode.ownerMode,
+        threadStatus: ChatStatus.closed,
+      ),
+      isFalse,
     );
   });
 }

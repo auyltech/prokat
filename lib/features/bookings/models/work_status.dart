@@ -1,14 +1,14 @@
 import 'package:prokat/l10n/app_localizations.dart';
 
 enum WorkStatus {
-  pending, // 0
-  onMyWay, // 1
-  onSite, // 2
-  started, // 3
-  postponed, // 3
-  stopped, // 4
-  completed, // 5
-  cancelled, // 5
+  pending,
+  onMyWay,
+  onSite,
+  started,
+  postponed,
+  stopped,
+  completed,
+  cancelled,
 }
 
 WorkStatus parseWorkStatus(dynamic value) {
@@ -23,25 +23,6 @@ WorkStatus parseWorkStatus(dynamic value) {
 }
 
 extension WorkStatusX on WorkStatus {
-  int get level {
-    switch (this) {
-      case WorkStatus.pending:
-        return 0;
-      case WorkStatus.onMyWay:
-        return 1;
-      case WorkStatus.onSite:
-        return 2;
-      case WorkStatus.started:
-      case WorkStatus.postponed:
-        return 3;
-      case WorkStatus.stopped:
-        return 4;
-      case WorkStatus.completed:
-      case WorkStatus.cancelled:
-        return 5;
-    }
-  }
-
   String get label {
     switch (this) {
       case WorkStatus.pending:
@@ -83,22 +64,41 @@ extension WorkStatusX on WorkStatus {
         return l10n.workStatusCancelJob;
     }
   }
+
+  String sheetLabel(AppLocalizations l10n, {required WorkStatus current}) {
+    if (this == WorkStatus.started && current == WorkStatus.stopped) {
+      return l10n.workStatusResumeWork;
+    }
+    return localizedLabel(l10n);
+  }
+}
+
+List<WorkStatus> nextWorkStatuses(WorkStatus current) {
+  switch (current) {
+    case WorkStatus.pending:
+      return [
+        WorkStatus.onMyWay,
+        WorkStatus.onSite,
+        WorkStatus.started,
+        WorkStatus.postponed,
+      ];
+    case WorkStatus.onMyWay:
+      return [WorkStatus.onSite, WorkStatus.started, WorkStatus.postponed];
+    case WorkStatus.onSite:
+      return [WorkStatus.started, WorkStatus.postponed];
+    case WorkStatus.postponed:
+      return [WorkStatus.onMyWay, WorkStatus.onSite, WorkStatus.started];
+    case WorkStatus.started:
+      return [WorkStatus.stopped, WorkStatus.completed];
+    case WorkStatus.stopped:
+      return [WorkStatus.started, WorkStatus.completed];
+    case WorkStatus.completed:
+      return const [];
+    case WorkStatus.cancelled:
+      return [WorkStatus.started, WorkStatus.stopped, WorkStatus.completed];
+  }
 }
 
 bool canTransition(WorkStatus current, WorkStatus next) {
-  return next.level >= current.level;
+  return nextWorkStatuses(current).contains(next);
 }
-
-final preStartStatuses = [
-  WorkStatus.pending,
-  WorkStatus.onMyWay,
-  WorkStatus.onSite,
-  WorkStatus.started,
-  WorkStatus.postponed,
-];
-
-final postStartStatuses = [
-  WorkStatus.stopped,
-  WorkStatus.completed,
-  WorkStatus.cancelled,
-];

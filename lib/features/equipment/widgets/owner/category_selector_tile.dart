@@ -10,11 +10,15 @@ import 'package:prokat/l10n/app_localizations.dart';
 class CategorySelectorTile extends ConsumerStatefulWidget {
   final CategorySheetMode mode;
   final String? selectedCategoryId;
+  final String? errorText;
+  final ValueChanged<Category?>? onChanged;
 
   const CategorySelectorTile({
     super.key,
     required this.mode,
     this.selectedCategoryId,
+    this.errorText,
+    this.onChanged,
   });
 
   @override
@@ -47,14 +51,25 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
     // ? ref.watch(requestMutationProvider).selectedCategory
     // : ref.watch(equipmentMutationProvider).category;
 
-    final categoryName = selectedCategory?.name ?? l10n.selectService;
+    final categoryName =
+        selectedCategory?.localizedName(
+          Localizations.localeOf(context).languageCode,
+        ) ??
+        l10n.selectService;
     final bool hasCategory = selectedCategory != null;
+    final hasError = (widget.errorText ?? '').isNotEmpty;
+    final errorColor = theme.colorScheme.error;
 
     void onCategoryTap() async {
       final Category? picked = await CategorySelectionSheet.show(
         context,
         service: widget.mode,
       );
+
+      if (picked != null) {
+        if (!mounted) return;
+        widget.onChanged?.call(picked);
+      }
 
       if (widget.mode == CategorySheetMode.createEquipment ||
           widget.mode == CategorySheetMode.createRequest) {
@@ -95,7 +110,9 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: hasCategory
+              color: hasError
+                  ? errorColor.withValues(alpha: 0.2)
+                  : hasCategory
                   ? theme.colorScheme.primary
                   : theme.colorScheme.surfaceDim,
               shape: BoxShape.circle,
@@ -104,8 +121,10 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
               hasCategory
                   ? _getCategoryIcon(selectedCategory.name)
                   : Icons.category_outlined,
-              color: hasCategory
-                  ? theme.colorScheme.onPrimary
+              color: hasError
+                  ? errorColor
+                  : hasCategory
+                  ? Colors.white
                   : theme.colorScheme.onSurface.withValues(alpha: 0.3),
               size: 24,
             ),
@@ -117,12 +136,28 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.service, style: theme.textTheme.labelLarge),
-                // const SizedBox(height: 2),
+                Text(
+                  l10n.service,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: hasError ? errorColor : null,
+                  ),
+                ),
                 Text(
                   hasCategory ? categoryName : l10n.selectService,
-                  style: theme.textTheme.bodyLarge,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: hasError ? errorColor : null,
+                  ),
                 ),
+                if (hasError) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    widget.errorText!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: errorColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

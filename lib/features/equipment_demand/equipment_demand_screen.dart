@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/cities.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_app_bar.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_city_field.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_comment_field.dart';
@@ -10,6 +10,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../core/widgets/action_button.dart';
 import 'equipment_demand_models.dart';
 import 'equipment_demand_provider.dart';
@@ -36,7 +37,8 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
   void initState() {
     super.initState();
     final currentCity = ref.read(locationProvider).city;
-    _city = canonicalCity(currentCity, cities);
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    _city = canonicalCity(currentCity, catalogCityKeys(catalog));
   }
 
   @override
@@ -48,7 +50,9 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context)!;
     final other = _otherController.text.trim();
-    if (canonicalCity(_city, cities) == null ||
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    final cityKeys = catalogCityKeys(catalog);
+    if (canonicalCity(_city, cityKeys) == null ||
         (_selected.isEmpty && other.isEmpty)) {
       setState(() => _error = l10n.demandSurveySubmitError);
       return;
@@ -69,9 +73,8 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
           );
       ref.read(demandConfigProvider.notifier).markResponded(widget.campaignId);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.demandSurveyThankYou)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.demandSurveyThankYou)));
       context.pop();
     } on DemandApiException catch (error) {
       if (error.code == 'DEMAND_RESPONSE_ALREADY_EXISTS') {
@@ -100,7 +103,10 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
       service: CitySelectorService.demandsurvey,
     );
     if (!mounted || selected == null || selected.isEmpty) return;
-    setState(() => _city = canonicalCity(selected, cities) ?? selected);
+    setState(() {
+      final catalog = ref.read(catalogProvider).valueOrNull;
+      _city = canonicalCity(selected, catalogCityKeys(catalog)) ?? selected;
+    });
   }
 
   @override

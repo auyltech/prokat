@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -38,9 +40,11 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(ownerProfileProvider.notifier).refreshIfStale();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(ownerProfileProvider.notifier).refreshIfStale();
+      }),
+    );
   }
 
   @override
@@ -59,7 +63,7 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
         ownerProfile?.notificationSettings ??
         const OwnerNotificationPreferences();
 
-    final ownerColor = AppColors.teal800;
+    const ownerColor = AppColors.teal800;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

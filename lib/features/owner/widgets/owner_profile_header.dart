@@ -12,7 +12,7 @@ class OwnerProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (ownerProfile == null) return SizedBox.shrink();
+    if (ownerProfile == null) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),

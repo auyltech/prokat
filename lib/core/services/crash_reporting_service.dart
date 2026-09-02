@@ -20,7 +20,7 @@ class CrashReportingService {
     }
 
     final crashlytics = FirebaseCrashlytics.instance;
-    final collectionEnabled = !kDebugMode;
+    const collectionEnabled = !kDebugMode;
 
     await crashlytics.setCrashlyticsCollectionEnabled(collectionEnabled);
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -78,7 +80,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
           ),
 
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Divider(
               height: 2,
               thickness: 1,
@@ -106,7 +108,7 @@ class ClientDashboardBookingTile extends ConsumerWidget {
           ),
 
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Divider(
               height: 2,
               thickness: 1,
@@ -124,8 +126,10 @@ class ClientDashboardBookingTile extends ConsumerWidget {
                 child: ActionButton(
                   icon: Icons.chat,
                   onPressed: () {
-                    context.push(
-                      '${AppRoutes.clientChatList}/direct/${booking.chatId}',
+                    unawaited(
+                      context.push(
+                        '${AppRoutes.clientChatList}/direct/${booking.chatId}',
+                      ),
                     );
                   },
                 ),

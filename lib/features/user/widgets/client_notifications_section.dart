@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -41,7 +43,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
     _preferences = widget.initialValue;
     WidgetsBinding.instance.addObserver(this);
 
-    _refreshPermission();
+    unawaited(_refreshPermission());
   }
 
   @override
@@ -56,7 +58,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshAndSyncPermission();
+      unawaited(_refreshAndSyncPermission());
     }
   }
 
@@ -160,9 +162,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
     if (!saved) {
       AppSnackBar.show(
-        message: AppLocalizations.of(
-          context,
-        )!.failedToSaveNotificationPreferences,
+        message: AppLocalizations.of(context)!
+            .failedToSaveNotificationPreferences,
         isError: true,
       );
     }
@@ -204,7 +205,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
           subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           onChanged: (_) {
-            _manageNotificationPermission();
+            unawaited(_manageNotificationPermission());
           },
           isLoading: _loadingPermission,
         ),

@@ -74,8 +74,24 @@
   "emailOrPhoneRequired": "Provide either an email or phone number",
   "phoneRequiredIfEmailEmpty": "Required if phone number is empty",
   "invalidEmail": "Enter a valid email",
+  "emailAddressRequiredLabel": "Email Address *",
+  "phoneNumberRequiredLabel": "Phone Number *",
+  "inquiryTopicValidation": "Please select an inquiry topic",
   "inquiryDetails": "Inquiry Details",
   "inquiryTopicRequiredLabel": "Inquiry Topic *",
+  "selectInquiryTopic": "Select inquiry topic",
+  "inquiryTopicGeneral": "General",
+  "inquiryTopicSupport": "Support",
+  "inquiryTopicBugReport": "Bug report",
+  "inquiryTopicFeatureRequest": "Feature request",
+  "inquiryTopicSales": "Sales",
+  "inquiryTopicPartnership": "Partnership",
+  "inquiryTopicBilling": "Billing",
+  "inquiryTopicCallMe": "Call me",
+  "inquiryTopicAccountDeletion": "Account deletion",
+  "inquiryTopicAccountRecovery": "Account recovery",
+  "inquiryTopicAccountIssue": "Account issue",
+  "inquiryTopicOther": "Other",
   "yourMessageRequiredLabel": "Your Message *",
   "messageValidation": "Please enter your message",
   "counterOffer": "Counter offer",
@@ -185,6 +201,7 @@
   "reviewOwner": "Review owner",
   "reviewClient": "Review client",
   "requestAccepted": "Request Accepted",
+  "offerNotSelected": "Another owner was selected",
   "requestRejected": "Request Rejected",
   "requestPending": "Request Pending",
   "estimatedExhaustion": "Est. exhaustion",
@@ -214,6 +231,12 @@
   "review": "Review",
   "saved": "Saved",
   "noNotificationsYet": "No notifications yet",
+  "notificationOwnerApprovedTitle": "Owner registration approved",
+  "notificationOwnerApprovedBody": "Your owner registration has been approved.",
+  "notificationOwnerRejectedTitle": "Owner registration rejected",
+  "notificationOwnerRejectedBody": "Your owner registration has been rejected.",
+  "notificationBookingCompletedTitle": "Booking completed",
+  "notificationBookingCompletedBody": "Your booking was marked as completed.",
   "errorLoadingEquipment": "Error Loading Equipment",
   "priceMustBePositive": "Price must be greater than zero",
   "priceMaximumExceeded": "Price cannot exceed 100,000",
@@ -275,6 +298,7 @@
   "selectLanguage": "Select Language",
   "topRated": "Top rated",
   "available": "Available",
+  "booked": "Booked",
   "perDay": "/ day",
   "heavyEquipmentRentals": "HEAVY EQUIPMENT RENTALS",
   "initializingSystems": "INITIALIZING SYSTEMS...",
@@ -288,6 +312,7 @@
   "retry": "Retry",
   "refresh": "Refresh",
   "close": "Close",
+  "apply": "Apply",
   "send": "Send",
   "submit": "Submit",
   "upload": "Upload",
@@ -422,6 +447,7 @@
     }
   },
   "yesReject": "Yes, Reject",
+  "yes": "Yes",
   "no": "No",
   "decline": "Decline",
   "minutesLeft": "{minutes} min left",
@@ -431,6 +457,8 @@
     }
   },
   "volume": "Volume",
+  "specFilterFrom": "From",
+  "specFilterTo": "To",
   "noOrderHistory": "No order history yet",
   "cancelReasonClientNotRespond": "Client did not respond",
   "cancelReasonEquipUnavailable": "Equipment unavailable",
@@ -446,6 +474,7 @@
   "workStatusStartWork": "Start work",
   "workStatusPostpone": "Postpone",
   "workStatusStopWork": "Stop work",
+  "workStatusResumeWork": "Resume work",
   "workStatusCompleteWork": "Complete work",
   "workStatusCancelJob": "Cancel job",
 
@@ -529,6 +558,10 @@
   "confirmLocation": "Confirm Location",
   "failedCreateAddress": "Could not create address",
   "failedSaveAddress": "Failed to save address",
+  "deleteAddress": "Delete address",
+  "deleteAddressQuestion": "Delete this address?",
+  "deleteAddressConfirmation": "This address will be removed from your saved list.",
+  "failedToDeleteAddress": "Failed to delete address",
   "noEquipmentLocations": "No equipment locations yet",
   "equipmentLocations": "Equipment Locations",
   "searchAddress": "Search address",
@@ -709,6 +742,11 @@
   "canListEquipment": "You can now list and rent out equipment.",
   "verificationFailed": "Verification failed",
   "updateDocumentsHint": "Please update your documents and try again.",
+  "ownerProfileSuspended": "Profile suspended",
+  "ownerProfileSuspendedHint": "Listing equipment is temporarily unavailable. Contact support.",
+  "ownerProfilePendingReview": "Waiting for review",
+  "ownerProfilePendingReviewHint": "Your updated details will be checked by an administrator.",
+  "profileUpdateNeedsModeration": "Your details will be sent for moderation",
   "submitForVerification": "Submit for Verification",
   "underReview": "Under Review",
   "viewListings": "View Listings",
@@ -724,6 +762,7 @@
   "firstNameRequired": "First name is required",
   "lastNameRequired": "Last name is required",
   "phoneNumberRequired": "Phone number is required",
+  "ownerContactPhoneHint": "Admins and clients will see this number. It should be reachable by phone.",
   "cityRequired": "City is required",
   "messageRequired": "Please add a short message",
   "submitRequest": "Submit request",
@@ -876,7 +915,9 @@
   "statusDraft": "Draft",
   "statusConfirmed": "Confirmed",
   "statusCanceled": "Canceled",
+  "statusFailed": "Failed",
   "statusCompleted": "Completed",
+  "statusReviewed": "Reviewed",
   "statusRequestSent": "Request Sent",
   "statusOffersReceived": "Offers Received",
   "statusBookingCreated": "Booking Created",
@@ -1020,6 +1061,31 @@
       "count": { "type": "int" }
     }
   },
+  "durationDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 hr} other{{count} hrs}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count, plural, =1{1 min} other{{count} min}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationSeconds": "{count, plural, =1{1 sec} other{{count} sec}}",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "invalidSecondsValue": "Invalid seconds value",
   "newOffer": "New Offer",
   "offerStatusViewed": "Viewed",
   "offerStatusCancelled": "Cancelled",
@@ -1074,22 +1140,6 @@
   "ratePerCubicMeter": "Per cubic meter",
   "ratePerDay": "Per day",
   "ratePerHour": "Per hour",
-
-  "cityNameAtyrau": "Atyrau",
-  "cityNameAlmaty": "Almaty",
-  "cityNameAstana": "Astana",
-  "cityNameShymkent": "Shymkent",
-  "cityNameAktobe": "Aktobe",
-  "cityNameKaraganda": "Karaganda",
-  "cityNameTaraz": "Taraz",
-  "cityNamePavlodar": "Pavlodar",
-  "cityNameUstKamenogorsk": "Ust-Kamenogorsk",
-  "cityNameSemey": "Semey",
-  "cityNameKostanay": "Kostanay",
-  "cityNameKyzylorda": "Kyzylorda",
-  "cityNameUralsk": "Uralsk",
-  "cityNamePetropavl": "Petropavl",
-  "cityNameTurkistan": "Turkistan",
 
   "connectionTimedOut": "Connection timed out. The server may be warming up — please try again.",
   "noConnectionCheckNetwork": "No connection. Check your network and try again.",

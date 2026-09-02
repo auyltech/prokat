@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,6 +32,39 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   final capacityController = TextEditingController();
   final rateController = TextEditingController();
   final commentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _syncSelectedAddress();
+      _syncSelectedCategory();
+    });
+  }
+
+  void _syncSelectedAddress() {
+    final address = ref.read(locationProvider).selectedAddress;
+    if (address?.id != null) {
+      ref.read(requestMutationProvider.notifier).selectLocation(address!);
+    }
+  }
+
+  void _syncSelectedCategory() {
+    final profileCategoryId = ref
+        .read(clientProfileProvider)
+        .userProfile
+        ?.selectedCategoryId;
+    final categories =
+        ref.read(categoriesProvider).valueOrNull?.items ?? const [];
+    final foundCategory = categories
+        .where((item) => item.id == profileCategoryId)
+        .firstOrNull;
+
+    if (profileCategoryId != null && foundCategory != null) {
+      ref.read(requestMutationProvider.notifier).selectCategory(foundCategory);
+    }
+  }
 
   @override
   void dispose() {
@@ -78,7 +113,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     );
 
     if (result.success && mounted) {
-      context.push(AppRoutes.clientRequests);
+      unawaited(context.push(AppRoutes.clientRequests));
     }
   }
 
@@ -143,7 +178,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           trailing: hasCategory ? null : l10n.requiredHint,
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         UserCategorySelector(
           mode: "create_request",

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/utils/chat_message_utils.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/negotiation_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_message_bubble.dart';
@@ -54,7 +57,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         message: widget.message,
         mode: widget.mode,
       );
-    } else if (service == "OFFER") {
+    } else if (isOfferCardMessage(widget.message)) {
       return OfferMessageBubble(
         message: widget.message,
         isMe: widget.isMe,
@@ -123,7 +126,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                   Padding(
                     padding: EdgeInsets.only(right: widget.isMe ? 20 : 0),
                     child: Text(
-                      widget.message.content,
+                      widget.message.localizedContent(
+                        Localizations.localeOf(context).languageCode,
+                      ),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         height: 1.3,
                         color: widget.isMe
@@ -213,9 +218,8 @@ class _SendStatusIndicatorState extends State<_SendStatusIndicator>
 
     if (widget.isPending) {
       _hasFinishedSpins = false;
-      _controller
-        ..reset()
-        ..repeat();
+      _controller.reset();
+      unawaited(_controller.repeat());
 
       Future<void>.delayed(_controller.duration! * _spinCount, () {
         if (!mounted) {

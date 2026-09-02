@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LanguageSheet extends ConsumerStatefulWidget {
   const LanguageSheet({super.key});
@@ -10,25 +16,48 @@ class LanguageSheet extends ConsumerStatefulWidget {
   ConsumerState<LanguageSheet> createState() => LanguageSheetState();
 
   static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled:
-          true, // Allows sheet to wrap its content height dynamically
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled:
+            true, // Allows sheet to wrap its content height dynamically
+        backgroundColor: Theme.of(context).cardColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (sheetContext) {
+          return const LanguageSheet();
+        },
       ),
-      builder: (sheetContext) {
-        return const LanguageSheet();
-      },
     );
   }
 }
 
 class LanguageSheetState extends ConsumerState<LanguageSheet> {
   void _selectLocale(String langCode) {
-    ref.read(localeProvider.notifier).setLocale(Locale(langCode));
+    unawaited(_applyLocale(langCode));
     Navigator.pop(context);
+  }
+
+  Future<void> _applyLocale(String langCode) async {
+    await ref.read(localeProvider.notifier).setLocale(Locale(langCode));
+
+    final session = ref.read(authProvider).session;
+    if (session == null) return;
+
+    try {
+      await ref
+          .read(clientProfileServiceProvider)
+          .updateUserSettings(language: langCode);
+    } catch (_) {}
+
+    if (!Env.pushNotificationsEnabled) return;
+
+    try {
+      await ref
+          .read(pushNotificationServiceProvider)
+          .syncCurrentDevice(session: session, locale: langCode, force: true);
+    } catch (_) {}
   }
 
   @override

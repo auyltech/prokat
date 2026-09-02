@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -29,12 +31,14 @@ class _ClientRequestsHistoryScreenState
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
-        ref.read(clientHistoryRequestsProvider.notifier).loadMore();
+        unawaited(ref.read(clientHistoryRequestsProvider.notifier).loadMore());
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(clientHistoryRequestsProvider.notifier).refreshIfStale();
+      unawaited(
+        ref.read(clientHistoryRequestsProvider.notifier).refreshIfStale(),
+      );
     });
   }
 

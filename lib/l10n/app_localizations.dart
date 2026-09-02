@@ -478,6 +478,24 @@ abstract class AppLocalizations {
   /// **'Enter a valid email'**
   String get invalidEmail;
 
+  /// No description provided for @emailAddressRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address *'**
+  String get emailAddressRequiredLabel;
+
+  /// No description provided for @phoneNumberRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number *'**
+  String get phoneNumberRequiredLabel;
+
+  /// No description provided for @inquiryTopicValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an inquiry topic'**
+  String get inquiryTopicValidation;
+
   /// No description provided for @inquiryDetails.
   ///
   /// In en, this message translates to:
@@ -489,6 +507,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inquiry Topic *'**
   String get inquiryTopicRequiredLabel;
+
+  /// No description provided for @selectInquiryTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Select inquiry topic'**
+  String get selectInquiryTopic;
+
+  /// No description provided for @inquiryTopicGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get inquiryTopicGeneral;
+
+  /// No description provided for @inquiryTopicSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get inquiryTopicSupport;
+
+  /// No description provided for @inquiryTopicBugReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug report'**
+  String get inquiryTopicBugReport;
+
+  /// No description provided for @inquiryTopicFeatureRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature request'**
+  String get inquiryTopicFeatureRequest;
+
+  /// No description provided for @inquiryTopicSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get inquiryTopicSales;
+
+  /// No description provided for @inquiryTopicPartnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Partnership'**
+  String get inquiryTopicPartnership;
+
+  /// No description provided for @inquiryTopicBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get inquiryTopicBilling;
+
+  /// No description provided for @inquiryTopicCallMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Call me'**
+  String get inquiryTopicCallMe;
+
+  /// No description provided for @inquiryTopicAccountDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion'**
+  String get inquiryTopicAccountDeletion;
+
+  /// No description provided for @inquiryTopicAccountRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Account recovery'**
+  String get inquiryTopicAccountRecovery;
+
+  /// No description provided for @inquiryTopicAccountIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Account issue'**
+  String get inquiryTopicAccountIssue;
+
+  /// No description provided for @inquiryTopicOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get inquiryTopicOther;
 
   /// No description provided for @yourMessageRequiredLabel.
   ///
@@ -940,6 +1036,12 @@ abstract class AppLocalizations {
   /// **'Request Accepted'**
   String get requestAccepted;
 
+  /// No description provided for @offerNotSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Another owner was selected'**
+  String get offerNotSelected;
+
   /// No description provided for @requestRejected.
   ///
   /// In en, this message translates to:
@@ -1113,6 +1215,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No notifications yet'**
   String get noNotificationsYet;
+
+  /// No description provided for @notificationOwnerApprovedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner registration approved'**
+  String get notificationOwnerApprovedTitle;
+
+  /// No description provided for @notificationOwnerApprovedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your owner registration has been approved.'**
+  String get notificationOwnerApprovedBody;
+
+  /// No description provided for @notificationOwnerRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner registration rejected'**
+  String get notificationOwnerRejectedTitle;
+
+  /// No description provided for @notificationOwnerRejectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your owner registration has been rejected.'**
+  String get notificationOwnerRejectedBody;
+
+  /// No description provided for @notificationBookingCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking completed'**
+  String get notificationBookingCompletedTitle;
+
+  /// No description provided for @notificationBookingCompletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your booking was marked as completed.'**
+  String get notificationBookingCompletedBody;
 
   /// No description provided for @errorLoadingEquipment.
   ///
@@ -1384,6 +1522,12 @@ abstract class AppLocalizations {
   /// **'Available'**
   String get available;
 
+  /// No description provided for @booked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get booked;
+
   /// No description provided for @perDay.
   ///
   /// In en, this message translates to:
@@ -1455,6 +1599,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
 
   /// No description provided for @send.
   ///
@@ -2170,6 +2320,12 @@ abstract class AppLocalizations {
   /// **'Yes, Reject'**
   String get yesReject;
 
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
   /// No description provided for @no.
   ///
   /// In en, this message translates to:
@@ -2193,6 +2349,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Volume'**
   String get volume;
+
+  /// No description provided for @specFilterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get specFilterFrom;
+
+  /// No description provided for @specFilterTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get specFilterTo;
 
   /// No description provided for @noOrderHistory.
   ///
@@ -2283,6 +2451,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop work'**
   String get workStatusStopWork;
+
+  /// No description provided for @workStatusResumeWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume work'**
+  String get workStatusResumeWork;
 
   /// No description provided for @workStatusCompleteWork.
   ///
@@ -2757,6 +2931,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to save address'**
   String get failedSaveAddress;
+
+  /// No description provided for @deleteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete address'**
+  String get deleteAddress;
+
+  /// No description provided for @deleteAddressQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this address?'**
+  String get deleteAddressQuestion;
+
+  /// No description provided for @deleteAddressConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'This address will be removed from your saved list.'**
+  String get deleteAddressConfirmation;
+
+  /// No description provided for @failedToDeleteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete address'**
+  String get failedToDeleteAddress;
 
   /// No description provided for @noEquipmentLocations.
   ///
@@ -3772,6 +3970,36 @@ abstract class AppLocalizations {
   /// **'Please update your documents and try again.'**
   String get updateDocumentsHint;
 
+  /// No description provided for @ownerProfileSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile suspended'**
+  String get ownerProfileSuspended;
+
+  /// No description provided for @ownerProfileSuspendedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing equipment is temporarily unavailable. Contact support.'**
+  String get ownerProfileSuspendedHint;
+
+  /// No description provided for @ownerProfilePendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get ownerProfilePendingReview;
+
+  /// No description provided for @ownerProfilePendingReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your updated details will be checked by an administrator.'**
+  String get ownerProfilePendingReviewHint;
+
+  /// No description provided for @profileUpdateNeedsModeration.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details will be sent for moderation'**
+  String get profileUpdateNeedsModeration;
+
   /// No description provided for @submitForVerification.
   ///
   /// In en, this message translates to:
@@ -3855,6 +4083,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Phone number is required'**
   String get phoneNumberRequired;
+
+  /// No description provided for @ownerContactPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins and clients will see this number. It should be reachable by phone.'**
+  String get ownerContactPhoneHint;
 
   /// No description provided for @cityRequired.
   ///
@@ -4768,11 +5002,23 @@ abstract class AppLocalizations {
   /// **'Canceled'**
   String get statusCanceled;
 
+  /// No description provided for @statusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get statusFailed;
+
   /// No description provided for @statusCompleted.
   ///
   /// In en, this message translates to:
   /// **'Completed'**
   String get statusCompleted;
+
+  /// No description provided for @statusReviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed'**
+  String get statusReviewed;
 
   /// No description provided for @statusRequestSent.
   ///
@@ -5488,6 +5734,36 @@ abstract class AppLocalizations {
   /// **'{count} h ago'**
   String hoursAgo(int count);
 
+  /// No description provided for @durationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String durationDays(int count);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hr} other{{count} hrs}}'**
+  String durationHours(int count);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 min} other{{count} min}}'**
+  String durationMinutes(int count);
+
+  /// No description provided for @durationSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sec} other{{count} sec}}'**
+  String durationSeconds(int count);
+
+  /// No description provided for @invalidSecondsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid seconds value'**
+  String get invalidSecondsValue;
+
   /// No description provided for @newOffer.
   ///
   /// In en, this message translates to:
@@ -5751,96 +6027,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Per hour'**
   String get ratePerHour;
-
-  /// No description provided for @cityNameAtyrau.
-  ///
-  /// In en, this message translates to:
-  /// **'Atyrau'**
-  String get cityNameAtyrau;
-
-  /// No description provided for @cityNameAlmaty.
-  ///
-  /// In en, this message translates to:
-  /// **'Almaty'**
-  String get cityNameAlmaty;
-
-  /// No description provided for @cityNameAstana.
-  ///
-  /// In en, this message translates to:
-  /// **'Astana'**
-  String get cityNameAstana;
-
-  /// No description provided for @cityNameShymkent.
-  ///
-  /// In en, this message translates to:
-  /// **'Shymkent'**
-  String get cityNameShymkent;
-
-  /// No description provided for @cityNameAktobe.
-  ///
-  /// In en, this message translates to:
-  /// **'Aktobe'**
-  String get cityNameAktobe;
-
-  /// No description provided for @cityNameKaraganda.
-  ///
-  /// In en, this message translates to:
-  /// **'Karaganda'**
-  String get cityNameKaraganda;
-
-  /// No description provided for @cityNameTaraz.
-  ///
-  /// In en, this message translates to:
-  /// **'Taraz'**
-  String get cityNameTaraz;
-
-  /// No description provided for @cityNamePavlodar.
-  ///
-  /// In en, this message translates to:
-  /// **'Pavlodar'**
-  String get cityNamePavlodar;
-
-  /// No description provided for @cityNameUstKamenogorsk.
-  ///
-  /// In en, this message translates to:
-  /// **'Ust-Kamenogorsk'**
-  String get cityNameUstKamenogorsk;
-
-  /// No description provided for @cityNameSemey.
-  ///
-  /// In en, this message translates to:
-  /// **'Semey'**
-  String get cityNameSemey;
-
-  /// No description provided for @cityNameKostanay.
-  ///
-  /// In en, this message translates to:
-  /// **'Kostanay'**
-  String get cityNameKostanay;
-
-  /// No description provided for @cityNameKyzylorda.
-  ///
-  /// In en, this message translates to:
-  /// **'Kyzylorda'**
-  String get cityNameKyzylorda;
-
-  /// No description provided for @cityNameUralsk.
-  ///
-  /// In en, this message translates to:
-  /// **'Uralsk'**
-  String get cityNameUralsk;
-
-  /// No description provided for @cityNamePetropavl.
-  ///
-  /// In en, this message translates to:
-  /// **'Petropavl'**
-  String get cityNamePetropavl;
-
-  /// No description provided for @cityNameTurkistan.
-  ///
-  /// In en, this message translates to:
-  /// **'Turkistan'**
-  String get cityNameTurkistan;
 
   /// No description provided for @connectionTimedOut.
   ///

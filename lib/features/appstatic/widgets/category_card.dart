@@ -44,7 +44,9 @@ class CategoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              category.name,
+              category.localizedName(
+                Localizations.localeOf(context).languageCode,
+              ),
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: isSelected
@@ -91,7 +93,7 @@ class DemandCategoryCard extends StatelessWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      SizedBox.expand(),
+                      const SizedBox.expand(),
                       Positioned(
                         top: -6,
                         child: Icon(
@@ -119,7 +121,7 @@ class DemandCategoryCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   title,
-                  maxLines: 2,
+                  maxLines: 1,
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(

@@ -1,4 +1,6 @@
+import 'package:prokat/core/i18n/localized_text.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
+import 'package:prokat/features/notifications/utils/notification_copy.dart';
 
 class AppNotification {
   final String id;
@@ -32,6 +34,24 @@ class AppNotification {
   bool get isRead => readAt != null;
   bool get isUnread => !isRead;
 
+  String localizedTitle(String languageCode) {
+    return pickLocalizedText(
+      data['i18n'],
+      languageCode: languageCode,
+      field: 'title',
+      fallback: fallbackNotificationTitle(type, languageCode) ?? title,
+    );
+  }
+
+  String localizedBody(String languageCode) {
+    return pickLocalizedText(
+      data['i18n'],
+      languageCode: languageCode,
+      field: 'body',
+      fallback: fallbackNotificationBody(type, languageCode) ?? body,
+    );
+  }
+
   String? _dataString(String key) {
     final value = data[key];
     final stringified = value?.toString().trim();
@@ -44,6 +64,7 @@ class AppNotification {
   String? get requestId => _dataString('requestId');
   String? get offerId => _dataString('offerId');
   String? get reviewId => _dataString('reviewId');
+  String? get audience => _dataString('audience');
 
   static DateTime? _tryParseDate(dynamic value) {
     if (value == null) return null;

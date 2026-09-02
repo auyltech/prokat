@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' show Color;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
@@ -15,6 +16,8 @@ import 'package:prokat/features/notifications/utils/chat_push_tag.dart';
 
 class PushNotificationService {
   static const String _androidChannelId = 'prokat_notifications';
+  static const String _androidNotificationIcon = 'ic_notification';
+  static const Color _androidNotificationColor = Color(0xFFFFCA0A);
 
   final FirebaseMessaging messaging;
   final FlutterLocalNotificationsPlugin localNotifications;
@@ -23,6 +26,7 @@ class PushNotificationService {
   final NotificationNavigationService navigation;
   final void Function(AppNotification notification) onIncoming;
   final bool Function(String id)? shouldSuppressDisplay;
+  final String Function()? currentLocale;
 
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
@@ -38,6 +42,7 @@ class PushNotificationService {
     required this.navigation,
     required this.onIncoming,
     this.shouldSuppressDisplay,
+    this.currentLocale,
   });
 
   Future<void> initialize({required AuthSession session}) async {
@@ -99,34 +104,52 @@ class PushNotificationService {
   Future<void> registerTokenWithBackend({
     required AuthSession session,
     required String token,
+    String? locale,
+    bool force = false,
   }) async {
     if (kIsWeb) return;
     final normalizedToken = token.trim();
     if (normalizedToken.isEmpty) return;
 
     final userId = session.user?.id ?? session.user?.phoneNumber;
+    final resolvedLocale = (locale ?? currentLocale?.call() ?? '')
+        .trim()
+        .toLowerCase();
 
     final last = await storage.readLastRegisteredToken();
     final lastToken = last?.token.trim();
     final lastAt = last?.at;
     final lastUserId = last?.userId;
+    final lastLocale = last?.locale?.trim().toLowerCase();
 
     final tooSoon =
         lastAt != null &&
         DateTime.now().difference(lastAt) < const Duration(hours: 12);
 
-    if (lastToken == normalizedToken && lastUserId == userId && tooSoon) {
+    final localeChanged =
+        resolvedLocale.isNotEmpty && resolvedLocale != lastLocale;
+
+    if (!force &&
+        lastToken == normalizedToken &&
+        lastUserId == userId &&
+        tooSoon &&
+        !localeChanged) {
       return;
     }
 
     final platform = _platformName();
 
-    await api.registerDeviceToken(token: normalizedToken, platform: platform);
+    await api.registerDeviceToken(
+      token: normalizedToken,
+      platform: platform,
+      metadata: resolvedLocale.isEmpty ? null : {'locale': resolvedLocale},
+    );
 
     await storage.saveLastRegisteredToken(
       token: normalizedToken,
       at: DateTime.now(),
       userId: userId,
+      locale: resolvedLocale.isEmpty ? null : resolvedLocale,
     );
   }
 
@@ -145,7 +168,7 @@ class PushNotificationService {
   }
 
   void listenForTokenRefresh({required AuthSession session}) {
-    _onTokenRefreshSub?.cancel();
+    unawaited(_onTokenRefreshSub?.cancel());
     _onTokenRefreshSub = messaging.onTokenRefresh.listen((token) async {
       try {
         final settings = await messaging.getNotificationSettings();
@@ -164,7 +187,7 @@ class PushNotificationService {
   }
 
   void handleForegroundMessages() {
-    _onMessageSub?.cancel();
+    unawaited(_onMessageSub?.cancel());
     _onMessageSub = FirebaseMessaging.onMessage.listen((message) async {
       final notification = _toAppNotification(message);
       if (notification == null) return;
@@ -186,11 +209,11 @@ class PushNotificationService {
   }
 
   void handleBackgroundNotificationTap() {
-    _onMessageOpenedSub?.cancel();
+    unawaited(_onMessageOpenedSub?.cancel());
     _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen((
       message,
     ) {
-      handleNotificationTap(message);
+      unawaited(handleNotificationTap(message));
     });
   }
 
@@ -243,7 +266,7 @@ class PushNotificationService {
   }
 
   Future<void> _initLocalNotifications() async {
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings(_androidNotificationIcon);
     const ios = DarwinInitializationSettings();
     const settings = InitializationSettings(android: android, iOS: ios);
 
@@ -286,6 +309,8 @@ class PushNotificationService {
         _androidChannelId,
         'Notifications',
         channelDescription: 'Prokat notifications',
+        icon: _androidNotificationIcon,
+        color: _androidNotificationColor,
         importance: Importance.high,
         priority: Priority.high,
         tag: tag,
@@ -297,8 +322,8 @@ class PushNotificationService {
 
     await localNotifications.show(
       id: tag?.hashCode ?? notification.id.hashCode,
-      title: notification.title,
-      body: notification.body,
+      title: notification.localizedTitle(currentLocale?.call() ?? 'ru'),
+      body: notification.localizedBody(currentLocale?.call() ?? 'ru'),
       notificationDetails: details,
       payload: jsonEncode(notification.toJson()),
     );
@@ -336,7 +361,11 @@ class PushNotificationService {
     } catch (_) {}
   }
 
-  Future<bool> syncCurrentDevice({required AuthSession session}) async {
+  Future<bool> syncCurrentDevice({
+    required AuthSession session,
+    String? locale,
+    bool force = false,
+  }) async {
     if (kIsWeb) return false;
 
     final settings = await messaging.getNotificationSettings();
@@ -355,7 +384,12 @@ class PushNotificationService {
       return false;
     }
 
-    await registerTokenWithBackend(session: session, token: token!);
+    await registerTokenWithBackend(
+      session: session,
+      token: token!,
+      locale: locale,
+      force: force,
+    );
 
     return true;
   }
@@ -373,9 +407,9 @@ class PushNotificationService {
   }
 
   void dispose() {
-    _onMessageSub?.cancel();
-    _onMessageOpenedSub?.cancel();
-    _onTokenRefreshSub?.cancel();
+    unawaited(_onMessageSub?.cancel());
+    unawaited(_onMessageOpenedSub?.cancel());
+    unawaited(_onTokenRefreshSub?.cancel());
     _onMessageSub = null;
     _onMessageOpenedSub = null;
     _onTokenRefreshSub = null;

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
@@ -12,11 +13,13 @@ class FavoriteItemTile extends ConsumerWidget {
 
   const FavoriteItemTile({super.key, required this.equipment});
 
+  static const width = 160.0;
+  static const imageHeight = 120.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    // Watch the favorite status to ensure UI updates immediately
     final isFavorite =
         ref.watch(
           favoritesProvider.select(
@@ -28,18 +31,21 @@ class FavoriteItemTile extends ConsumerWidget {
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
         : null;
+    final priceLabel = priceEntry == null
+        ? l10n.poa
+        : '${formatPrice(priceEntry.price)} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}'
+              .trim();
+    final ratingLabel = '${equipment.owner?.rating ?? 0}';
 
     return GestureDetector(
       onTap: () => context.push(
         '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}',
       ),
       child: Container(
-        width: 160,
+        width: width,
         decoration: BoxDecoration(
           color: theme.cardColor,
-          borderRadius: BorderRadius.circular(
-            24,
-          ), // Match the main equipment card style
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -49,9 +55,9 @@ class FavoriteItemTile extends ConsumerWidget {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 1. IMAGE SECTION
             Stack(
               children: [
                 ClipRRect(
@@ -60,14 +66,47 @@ class FavoriteItemTile extends ConsumerWidget {
                   ),
                   child: OptimizedNetworkImage(
                     imageUrl: equipment.imageUrl ?? "",
-                    height: 120, // Slightly taller for better aspect ratio
+                    height: imageHeight,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     fallbackIcon: Icons.broken_image_outlined,
                     backgroundColor: theme.colorScheme.surfaceBright,
                   ),
                 ),
-                // Clean glass-effect favorite toggle
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          ratingLabel,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            height: 1,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Positioned(
                   top: 8,
                   right: 8,
@@ -93,8 +132,6 @@ class FavoriteItemTile extends ConsumerWidget {
                 ),
               ],
             ),
-
-            /// 2. INFO SECTION
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -110,43 +147,19 @@ class FavoriteItemTile extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        priceEntry != null ? "${priceEntry.price} ₸" : l10n.poa,
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 14,
-                        ),
-                      ),
-                      // Tiny star rating to fill space elegantly
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            color: Colors.amber,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 2),
-                          const Text(
-                            "4.5",
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  Text(
+                    priceLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
-
-            // Removed the 'Open' button - instead, make the whole card clickable
-            // by wrapping this Container in an InkWell outside.
           ],
         ),
       ),
