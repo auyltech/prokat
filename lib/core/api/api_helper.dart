@@ -175,6 +175,7 @@ String extractDioExceptionMessage(DioException e) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
+    case DioExceptionType.transformTimeout:
       return "Connection timeout";
 
     case DioExceptionType.connectionError:

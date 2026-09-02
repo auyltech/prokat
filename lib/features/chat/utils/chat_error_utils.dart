@@ -5,7 +5,8 @@ String friendlyChatError(Object error, AppLocalizations l10n) {
   if (error is DioException) {
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
-        error.type == DioExceptionType.sendTimeout) {
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.transformTimeout) {
       return l10n.connectionTimedOut;
     }
 
