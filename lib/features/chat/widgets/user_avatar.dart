@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/media/media_image_provider.dart';
 
-class UserAvatar extends StatelessWidget {
+class UserAvatar extends ConsumerWidget {
   final String? avatarUrl;
   final String? firstName;
   final String? lastName;
@@ -62,7 +64,7 @@ class UserAvatar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final hasImage = avatarUrl != null && avatarUrl!.trim().isNotEmpty;
     final initials = _getInitials();
 
@@ -78,7 +80,7 @@ class UserAvatar extends StatelessWidget {
       backgroundColor: hasImage
           ? Colors.transparent
           : _getBackgroundColor(initials),
-      backgroundImage: hasImage ? NetworkImage(avatarUrl!) : null,
+      backgroundImage: hasImage ? mediaImageProvider(ref, avatarUrl) : null,
       onBackgroundImageError: hasImage
           ? (exception, stackTrace) {
               // Gracefully handles broken network URLs in production environments

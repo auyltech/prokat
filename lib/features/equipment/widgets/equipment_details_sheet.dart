@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 /// Bottom sheet with full vehicle specifications.
@@ -91,20 +92,11 @@ class EquipmentDetailsSheet extends StatelessWidget {
             if (imageUrl != null && imageUrl!.isNotEmpty) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imageUrl!,
+                child: OptimizedNetworkImage(
+                  imageUrl: imageUrl,
                   width: double.infinity,
                   height: 180,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    height: 180,
-                    color: colorScheme.surfaceContainerHigh,
-                    child: Icon(
-                      Icons.image_not_supported,
-                      size: 40,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 20),

@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -70,5 +72,32 @@ void main() {
     final config = getChatConfig(chat: chat, l10n: l10n);
 
     expect(config.status, ChatStatusDetail.bookingconfirmed);
+  });
+
+  test('owner list badge waits for the client to confirm completed work', () {
+    final chat = ChatModel(
+      id: 'chat-work-done',
+      bookingSummary: BookingSummaryModel(
+        id: 'booking-1',
+        status: 'CONFIRMED',
+        workStatus: WorkStatus.completed,
+      ),
+    );
+
+    final owner = getChatConfig(
+      chat: chat,
+      l10n: l10n,
+      mode: AppMode.ownerMode,
+    );
+    expect(owner.status, ChatStatusDetail.workcompleted);
+    expect(owner.statusLabel, l10n.waitingForClientConfirm);
+
+    final client = getChatConfig(
+      chat: chat,
+      l10n: l10n,
+      mode: AppMode.clientMode,
+    );
+    expect(client.status, ChatStatusDetail.confirmcompleted);
+    expect(client.statusLabel, l10n.confirmWorkCompleted);
   });
 }

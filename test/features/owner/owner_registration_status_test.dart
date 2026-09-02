@@ -66,4 +66,30 @@ void main() {
       );
     });
   });
+
+  group('isOwnerBusinessProfileLocked', () {
+    test('locks only while the profile is pending review', () {
+      expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.pending),
+        isTrue,
+      );
+      expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.approved),
+        isFalse,
+      );
+      expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.rejected),
+        isFalse,
+      );
+      expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.incomplete),
+        isFalse,
+      );
+      expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.suspended),
+        isFalse,
+      );
+      expect(isOwnerBusinessProfileLocked(null), isFalse);
+    });
+  });
 }

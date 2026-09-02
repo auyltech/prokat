@@ -57,6 +57,8 @@ class RegistrationRequestModel {
 
   bool get isRejected => parsedStatus == BecomeOwnerRequestStatus.rejected;
 
+  bool get isPending => parsedStatus == BecomeOwnerRequestStatus.pending;
+
   factory RegistrationRequestModel.fromJson(Map<String, dynamic> json) {
     try {
       return RegistrationRequestModel(

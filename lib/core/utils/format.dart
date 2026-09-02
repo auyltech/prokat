@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -157,6 +158,28 @@ String getOfferStatus(OfferStatus status, {AppLocalizations? l10n}) {
       return l10n?.offerStatusExpired ?? "Expired";
     case OfferStatus.closed:
       return l10n?.offerStatusClosed ?? "Closed";
+  }
+}
+
+String getPriceNegotiationStatus(
+  PriceNegotiationStatus status, {
+  AppLocalizations? l10n,
+}) {
+  switch (status) {
+    case PriceNegotiationStatus.created:
+      return l10n?.priceOfferStatusCreated ?? "Created";
+    case PriceNegotiationStatus.accepted:
+      return l10n?.offerStatusAccepted ?? "Accepted";
+    case PriceNegotiationStatus.rejected:
+      return l10n?.offerStatusRejected ?? "Rejected";
+    case PriceNegotiationStatus.cancelled:
+      return l10n?.priceOfferStatusCancelled ?? "Cancelled";
+    case PriceNegotiationStatus.closed:
+      return l10n?.offerStatusClosed ?? "Closed";
+    case PriceNegotiationStatus.expired:
+      return l10n?.offerStatusExpired ?? "Expired";
+    case PriceNegotiationStatus.unknown:
+      return status.name;
   }
 }
 

@@ -36,6 +36,7 @@ dependencies:
   # utilities
   intl: ^0.20.2
   cached_network_image: ^4.0.0
+  flutter_cache_manager: ^3.4.2
   lucide_icons_flutter: ^3.1.17
   shimmer: ^4.0.0
   url_launcher: ^6.3.2

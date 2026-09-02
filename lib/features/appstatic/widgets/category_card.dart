@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/categories/models/category.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -26,15 +27,10 @@ class CategoryCard extends StatelessWidget {
             Expanded(
               child:
                   (category.imageUrl != null && category.imageUrl!.isNotEmpty)
-                  ? Image.network(
-                      category.imageUrl!,
+                  ? OptimizedNetworkImage(
+                      imageUrl: category.imageUrl,
                       height: 50,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const Icon(
-                        Icons.image_not_supported,
-                        size: 48,
-                        color: Colors.grey,
-                      ),
                     )
                   : const Icon(
                       Icons.image_not_supported,

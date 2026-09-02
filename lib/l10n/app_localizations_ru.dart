@@ -115,6 +115,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get waitingClientConfirmation => 'Ожидание подтверждения клиента';
 
   @override
+  String get waitingForClientConfirm => 'Ждёт подтверждения';
+
+  @override
   String get confirmWorkCompleted => 'Подтвердить завершение работы';
 
   @override
@@ -681,6 +684,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get priceOffer => 'Предложение цены';
+
+  @override
+  String get priceOfferStatusCreated => 'Создано';
+
+  @override
+  String get priceOfferStatusCancelled => 'Отменено';
 
   @override
   String offeredPrice(String price) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -107,21 +108,11 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 if (equipment?.imageUrl != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
-                    child: Image.network(
-                      equipment!.imageUrl!,
+                    child: OptimizedNetworkImage(
+                      imageUrl: equipment!.imageUrl,
                       width: 80,
                       height: 50,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(
-                        width: 54,
-                        height: 40,
-                        color: const Color(0xFFE0E0E0),
-                        child: const Icon(
-                          Icons.image,
-                          size: 20,
-                          color: Colors.grey,
-                        ),
-                      ),
                     ),
                   )
                 else

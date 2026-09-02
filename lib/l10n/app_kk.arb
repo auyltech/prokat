@@ -39,6 +39,7 @@
   "orderHasBeenCancelled": "Тапсырыс болдырылмады",
   "waitingOwnerResponse": "Иесінің жауабы күтілуде",
   "waitingClientConfirmation": "Клиенттің растауы күтілуде",
+  "waitingForClientConfirm": "Растау күтілуде",
   "confirmWorkCompleted": "Жұмыстың аяқталғанын растау",
   "orderCompleted": "Тапсырыс аяқталды",
   "reviewSent": "Пікір жіберілді",
@@ -244,6 +245,8 @@
   "failedToConfirmOrder": "Тапсырысты растау мүмкін болмады",
   "chatLocked": "Чат бұғатталған",
   "priceOffer": "Баға ұсынысы",
+  "priceOfferStatusCreated": "Жасалды",
+  "priceOfferStatusCancelled": "Бас тартылды",
   "offeredPrice": "Ұсынылғаны: {price}",
   "@offeredPrice": {
     "placeholders": {
