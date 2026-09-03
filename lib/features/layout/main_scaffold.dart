@@ -25,6 +25,10 @@ class MainScaffold extends StatelessWidget {
         segments[1] == 'chat' &&
         segments[2] == 'direct');
 
+    final bool isPinMapScreen =
+        currentPath == AppRoutes.clientPinAddress ||
+        currentPath == AppRoutes.ownerAddressMap;
+
     final bool hideAppBar = [
       AppRoutes.launch,
       AppRoutes.main,
@@ -37,8 +41,9 @@ class MainScaffold extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: theme.scaffoldBackgroundColor,
+      resizeToAvoidBottomInset: !isPinMapScreen,
       appBar: hideAppBar ? null : const ProkatAppBar(),
-      bottomNavigationBar: isChatDetailScreen
+      bottomNavigationBar: isChatDetailScreen || isPinMapScreen
           ? null
           : const ProkatNavigationBar(),
       body: navigationShell,

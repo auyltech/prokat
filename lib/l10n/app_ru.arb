@@ -336,6 +336,7 @@
   "username": "Имя пользователя",
   "city": "Город",
   "street": "Улица",
+  "houseNumber": "№",
   "address": "Адрес",
   "model": "Модель",
   "capacity": "Объём",

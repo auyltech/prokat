@@ -189,7 +189,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "4.5",
+                      (equipment.owner?.rating ?? 0).toStringAsFixed(1),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         letterSpacing: -.5,

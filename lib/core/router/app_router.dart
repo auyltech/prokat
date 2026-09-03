@@ -25,7 +25,6 @@ import 'package:prokat/features/support/screens/contact_support_screen.dart';
 import 'package:prokat/features/equipment/screens/search_equipment_screen.dart';
 import 'package:prokat/features/layout/main_scaffold.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
-import 'package:prokat/features/locations/screens/client_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
 import 'package:prokat/features/map/screens/map_client_equipment_screen.dart';
 import 'package:prokat/features/map/screens/map_client_pin_address_screen.dart';
@@ -261,8 +260,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: AppRoutes.clientAddresses,
-                builder: (context, state) {
-                  return const ClientAddressesScreen();
+                redirect: (context, state) {
+                  if (state.uri.path == AppRoutes.clientAddresses) {
+                    return AppRoutes.clientProfile;
+                  }
+                  return null;
                 },
                 routes: [
                   GoRoute(

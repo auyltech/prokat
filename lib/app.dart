@@ -10,6 +10,7 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
+import 'package:prokat/features/map/services/map_language.dart';
 import 'package:prokat/features/notifications/providers/notification_bootstrap_provider.dart';
 import 'package:prokat/features/workflow/providers/workflow_bootstrap_provider.dart';
 
@@ -21,13 +22,26 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+  ProviderSubscription<Locale>? _localeSub;
+
   @override
   void initState() {
     super.initState();
 
+    _localeSub = ref.listenManual(localeProvider, (previous, next) {
+      if (previous?.languageCode == next.languageCode) return;
+      unawaited(applyMapboxLanguagePreference(next.languageCode));
+    }, fireImmediately: true);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(ref.read(appStartupProvider.notifier).init());
     });
+  }
+
+  @override
+  void dispose() {
+    _localeSub?.close();
+    super.dispose();
   }
 
   @override

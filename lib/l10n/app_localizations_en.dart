@@ -906,6 +906,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get street => 'Street';
 
   @override
+  String get houseNumber => 'No.';
+
+  @override
   String get address => 'Address';
 
   @override

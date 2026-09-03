@@ -338,6 +338,7 @@
   "username": "Username",
   "city": "City",
   "street": "Street",
+  "houseNumber": "No.",
   "address": "Address",
   "model": "Model",
   "capacity": "Capacity",

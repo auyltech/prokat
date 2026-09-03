@@ -23,15 +23,25 @@ Locale _systemLocale() {
 
 class LocaleNotifier extends StateNotifier<Locale> {
   final FlutterSecureStorage _storage;
+  final Completer<void> _hydrated = Completer<void>();
 
   LocaleNotifier(this._storage) : super(_systemLocale()) {
     unawaited(_loadPersisted());
   }
 
+  /// Completes after the saved app language is applied (or confirmed missing).
+  ///
+  /// Until then [state] is the phone language, which is often `kk` in KZ.
+  Future<void> get hydrated => _hydrated.future;
+
   Future<void> _loadPersisted() async {
-    final saved = await _storage.read(key: _localeStorageKey);
-    if (saved != null && _supportedCodes.contains(saved)) {
-      state = Locale(saved);
+    try {
+      final saved = await _storage.read(key: _localeStorageKey);
+      if (saved != null && _supportedCodes.contains(saved)) {
+        state = Locale(saved);
+      }
+    } finally {
+      if (!_hydrated.isCompleted) _hydrated.complete();
     }
   }
 

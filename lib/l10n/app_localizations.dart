@@ -1750,6 +1750,12 @@ abstract class AppLocalizations {
   /// **'Street'**
   String get street;
 
+  /// No description provided for @houseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No.'**
+  String get houseNumber;
+
   /// No description provided for @address.
   ///
   /// In en, this message translates to:

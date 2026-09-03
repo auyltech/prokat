@@ -896,6 +896,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get street => 'Көше';
 
   @override
+  String get houseNumber => '№';
+
+  @override
   String get address => 'Мекен-жай';
 
   @override

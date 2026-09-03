@@ -337,6 +337,7 @@
   "username": "Пайдаланушы аты",
   "city": "Қала",
   "street": "Көше",
+  "houseNumber": "№",
   "address": "Мекен-жай",
   "model": "Модель",
   "capacity": "Сыйымдылық",

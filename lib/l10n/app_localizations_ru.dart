@@ -912,6 +912,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get street => 'Улица';
 
   @override
+  String get houseNumber => '№';
+
+  @override
   String get address => 'Адрес';
 
   @override
