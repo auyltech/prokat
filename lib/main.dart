@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/bootstrap/firebase_bootstrap.dart';
 import 'package:prokat/core/config/env.dart';
@@ -18,8 +19,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Perform short, non-UI background work here.
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   final supportsMapbox =
       !kIsWeb &&
