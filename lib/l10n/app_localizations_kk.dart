@@ -2252,10 +2252,33 @@ class AppLocalizationsKk extends AppLocalizations {
   String get minutesBalance => 'Минут балансы';
 
   @override
-  String get minutesUnit => 'Мин';
+  String get minutesUnit => 'мин';
 
   @override
   String get burnRate => 'Жұмсалу жылдамдығы';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate мин/сағ';
+  }
+
+  @override
+  String get noActiveDepletion => 'Белсенді жұмсалу жоқ';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'Төленген минуттар нөлде болғанда техника тапсырыс берушілердің іздеуінде көрінбейді. Қайта шығу үшін балансты толтырыңыз.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count техника желіде',
+      one: '$count техника желіде',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get hello => 'Сәлем!';

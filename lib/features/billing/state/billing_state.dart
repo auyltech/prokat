@@ -93,13 +93,12 @@ class BillingState {
     return Colors.blue; // Normal operational color
   }
 
-  /// Formats the estimated time when the machines will run out of power completely
-  String get formattedExhaustionTime {
+  /// Clock time when credit runs out, or null when nothing is burning.
+  String? get formattedExhaustionTime {
     final expiry = accountBalance?.estimatedExhaustionAt;
 
-    if (expiry == null || !hasActiveBurn) return "No active depletion";
+    if (expiry == null || !hasActiveBurn) return null;
 
-    // Example format: 14:35 (or use intl package standard: DateFormat.Hm().format(expiry))
     return "${expiry.hour.toString().padLeft(2, '0')}:${expiry.minute.toString().padLeft(2, '0')}";
   }
 

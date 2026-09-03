@@ -4399,7 +4399,7 @@ abstract class AppLocalizations {
   /// No description provided for @minutesUnit.
   ///
   /// In en, this message translates to:
-  /// **'Min'**
+  /// **'min'**
   String get minutesUnit;
 
   /// No description provided for @burnRate.
@@ -4407,6 +4407,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Burn Rate'**
   String get burnRate;
+
+  /// No description provided for @burnRateValue.
+  ///
+  /// In en, this message translates to:
+  /// **'~{rate} min/hr'**
+  String burnRateValue(int rate);
+
+  /// No description provided for @noActiveDepletion.
+  ///
+  /// In en, this message translates to:
+  /// **'No active depletion'**
+  String get noActiveDepletion;
+
+  /// No description provided for @zeroBalanceHiddenFromSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.'**
+  String get zeroBalanceHiddenFromSearch;
+
+  /// No description provided for @equipmentOnlineCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} equipment online} other{{count} equipment online}}'**
+  String equipmentOnlineCount(int count);
 
   /// No description provided for @hello.
   ///

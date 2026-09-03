@@ -811,8 +811,22 @@
   "onlineStatus": "В сети",
   "offlineStatus": "Не в сети",
   "minutesBalance": "Баланс минут",
-  "minutesUnit": "Мин",
+  "minutesUnit": "мин",
   "burnRate": "Скорость расхода",
+  "burnRateValue": "~{rate} мин/ч",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "Нет активного расхода",
+  "zeroBalanceHiddenFromSearch": "При 0 оплаченных минут техника не видна заказчикам в поиске. Пополните баланс, чтобы снова появиться в выдаче.",
+  "equipmentOnlineCount": "{count, plural, one{{count} единица онлайн} few{{count} единицы онлайн} many{{count} единиц онлайн} other{{count} единиц онлайн}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "hello": "Привет!",
   "reviews": "отзывов",
   "rentAnEquipment": "Арендовать технику",

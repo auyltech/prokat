@@ -814,8 +814,22 @@
   "onlineStatus": "Online",
   "offlineStatus": "Offline",
   "minutesBalance": "Minutes Balance",
-  "minutesUnit": "Min",
+  "minutesUnit": "min",
   "burnRate": "Burn Rate",
+  "burnRateValue": "~{rate} min/hr",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "No active depletion",
+  "zeroBalanceHiddenFromSearch": "With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.",
+  "equipmentOnlineCount": "{count, plural, =1{{count} equipment online} other{{count} equipment online}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "hello": "Hello!",
   "reviews": "reviews",
   "rentAnEquipment": "Rent an equipment",

@@ -812,8 +812,22 @@
   "onlineStatus": "Желіде",
   "offlineStatus": "Желіде емес",
   "minutesBalance": "Минут балансы",
-  "minutesUnit": "Мин",
+  "minutesUnit": "мин",
   "burnRate": "Жұмсалу жылдамдығы",
+  "burnRateValue": "~{rate} мин/сағ",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "Белсенді жұмсалу жоқ",
+  "zeroBalanceHiddenFromSearch": "Төленген минуттар нөлде болғанда техника тапсырыс берушілердің іздеуінде көрінбейді. Қайта шығу үшін балансты толтырыңыз.",
+  "equipmentOnlineCount": "{count, plural, one{{count} техника желіде} other{{count} техника желіде}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "hello": "Сәлем!",
   "reviews": "пікір",
   "rentAnEquipment": "Техника жалдау",

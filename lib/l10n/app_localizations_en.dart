@@ -2260,10 +2260,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get minutesBalance => 'Minutes Balance';
 
   @override
-  String get minutesUnit => 'Min';
+  String get minutesUnit => 'min';
 
   @override
   String get burnRate => 'Burn Rate';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate min/hr';
+  }
+
+  @override
+  String get noActiveDepletion => 'No active depletion';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count equipment online',
+      one: '$count equipment online',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get hello => 'Hello!';

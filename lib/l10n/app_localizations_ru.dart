@@ -2270,10 +2270,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String get minutesBalance => 'Баланс минут';
 
   @override
-  String get minutesUnit => 'Мин';
+  String get minutesUnit => 'мин';
 
   @override
   String get burnRate => 'Скорость расхода';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate мин/ч';
+  }
+
+  @override
+  String get noActiveDepletion => 'Нет активного расхода';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'При 0 оплаченных минут техника не видна заказчикам в поиске. Пополните баланс, чтобы снова появиться в выдаче.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count единиц онлайн',
+      many: '$count единиц онлайн',
+      few: '$count единицы онлайн',
+      one: '$count единица онлайн',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get hello => 'Привет!';
