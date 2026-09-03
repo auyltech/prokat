@@ -1,3 +1,6 @@
+// Mapbox language APIs are marked experimental; this file is the wrapper.
+// ignore_for_file: experimental_member_use
+
 import 'package:flutter/foundation.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
@@ -68,15 +71,13 @@ Object? rewriteStreetsLabelExpression(Object? value, String nameProperty) {
 
 /// Pushes the app language into Mapbox before tiles are requested.
 ///
-/// [MapboxMapsOptions.setLanguage] is fire-and-forget over a platform
-/// channel. Awaiting [getLanguage] flushes that write so [MapWidget] is
-/// not built against the device locale (often Kazakh on KZ phones).
+/// `setLanguage` is fire-and-forget over a platform channel. Awaiting
+/// `getLanguage` flushes that write so [MapWidget] is not built against
+/// the device locale (often Kazakh on KZ phones).
 Future<void> applyMapboxLanguagePreference(String languageCode) async {
   if (!_mapboxLanguageSupported) return;
-  // ignore: experimental_member_use
   MapboxMapsOptions.setLanguage(languageCode);
   try {
-    // ignore: experimental_member_use
     await MapboxMapsOptions.getLanguage();
   } catch (_) {}
 }

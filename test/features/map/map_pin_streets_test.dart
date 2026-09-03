@@ -16,8 +16,8 @@ Map<String?, Object?> _road({
     'properties': {
       'class': roadClass,
       'name': name,
-      if (nameRu != null) 'name_ru': nameRu,
-      if (nameEn != null) 'name_en': nameEn,
+      'name_ru': ?nameRu,
+      'name_en': ?nameEn,
     },
     'geometry': {
       'type': 'LineString',
