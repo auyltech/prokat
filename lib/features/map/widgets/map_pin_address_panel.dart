@@ -180,7 +180,7 @@ InputDecoration _pinFieldDecoration(
       minWidth: 40,
       minHeight: _pinFieldHeight,
     ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
     constraints: const BoxConstraints.tightFor(height: _pinFieldHeight),
     border: border,
     enabledBorder: border,
@@ -267,6 +267,7 @@ class _HouseField extends StatelessWidget {
         keyboardType: TextInputType.text,
         textInputAction: TextInputAction.done,
         maxLines: 1,
+
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
         style: theme.textTheme.bodyMedium?.copyWith(

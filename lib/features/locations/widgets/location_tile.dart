@@ -43,10 +43,14 @@ class LocationTile extends ConsumerWidget {
             color: theme.colorScheme.onSurface,
           ),
         ),
+        contentPadding: const EdgeInsets.fromLTRB(12, 0, 8, 0),
         trailing: isDeleting
-            ? const SizedBox.square(
-                dimension: 22,
-                child: CircularProgressIndicator(strokeWidth: 2),
+            ? const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: SizedBox.square(
+                  dimension: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
               )
             : IconButton(
                 tooltip: l10n.deleteAddress,
