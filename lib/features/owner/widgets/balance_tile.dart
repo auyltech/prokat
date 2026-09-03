@@ -101,9 +101,8 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             children: [
               Text(
                 l10n.accountBalance,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-                  letterSpacing: 0.3,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               if (onlineEquipment > 0)

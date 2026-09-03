@@ -4432,6 +4432,30 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{{count} equipment online} other{{count} equipment online}}'**
   String equipmentOnlineCount(int count);
 
+  /// No description provided for @statTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'total'**
+  String get statTotal;
+
+  /// No description provided for @statOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'online'**
+  String get statOnline;
+
+  /// No description provided for @statActive.
+  ///
+  /// In en, this message translates to:
+  /// **'active'**
+  String get statActive;
+
+  /// No description provided for @statCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'completed'**
+  String get statCompleted;
+
   /// No description provided for @hello.
   ///
   /// In en, this message translates to:
@@ -5943,6 +5967,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to update status'**
   String get failedToggleStatus;
+
+  /// No description provided for @cannotGoOnlineWithZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot go online with a zero balance'**
+  String get cannotGoOnlineWithZeroBalance;
+
+  /// No description provided for @cannotRespondWithZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot respond to requests with a zero balance'**
+  String get cannotRespondWithZeroBalance;
 
   /// No description provided for @countryKazakhstan.
   ///

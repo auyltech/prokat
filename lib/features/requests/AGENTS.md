@@ -17,5 +17,6 @@
 - `WorkflowCacheCoordinator` патчит списки заявок участников: terminal (`CANCELLED` / `EXPIRED`) → убрать из active; history клиента — патч или `invalidate()`.
 - Лента чужих тендеров без чата обновляется HTTP: вход (`refreshIfStale`), pull-to-refresh, resume-ресинк.
 - Resume рефетчит загруженные списки заявок и офферов (`OfferQuery.active|history`).
+- Владелец не может создать оффер при нуле оплаченных минут (`CONFLICT:OFFERS:CREATE:BALANCE`).
 
 Не эмитить `createRequest` в workflow. Не путать с заказами: отклик ≠ переезд в заказы.

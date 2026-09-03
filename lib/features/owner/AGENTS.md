@@ -6,3 +6,4 @@
 - `PENDING_REVIEW` locks the form until an admin accepts or rejects — no further edits (anti-spam).
 - Banner: pending / rejected / suspended only. Approved and incomplete show no plaque; documents are not collected.
 - Become-owner (`POST /owner/become-owner`) is a separate client-mode screen. After submit it pops back to the client profile CTA (`pending`). Pending/approved applications are read-only; rejected can resubmit.
+- Online switch (`PATCH /owner/profile/status`): `ONLINE` needs paid minutes. Zero balance forces `OFFLINE` and the switch snaps back with `cannotGoOnlineWithZeroBalance`.

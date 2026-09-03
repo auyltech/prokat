@@ -46,7 +46,7 @@ class OwnerProfileHeader extends StatelessWidget {
           // ── Name ──
           const DisplayName(),
 
-          // ── Rating + orders row ──
+          // ── Rating ──
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -73,16 +73,6 @@ class OwnerProfileHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-
-          const SizedBox(height: 20),
-
-          Text(
-            "${(ownerProfile?.orderCount ?? 0).toString()} Order${ownerProfile?.orderCount == 1 ? "" : "s"} Completed",
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.75),
-              fontSize: 14,
-            ),
           ),
         ],
       ),

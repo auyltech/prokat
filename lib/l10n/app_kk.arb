@@ -828,6 +828,10 @@
       "count": { "type": "int" }
     }
   },
+  "statTotal": "барлығы",
+  "statOnline": "желіде",
+  "statActive": "белсенді",
+  "statCompleted": "аяқталған",
   "hello": "Сәлем!",
   "reviews": "пікір",
   "rentAnEquipment": "Техника жалдау",
@@ -1124,6 +1128,8 @@
   "youAreNowOnline": "Енді сіз онлайнсыз",
   "youAreNowOffline": "Енді сіз офлайнсыз",
   "failedToggleStatus": "Мәртебені жаңарту мүмкін болмады",
+  "cannotGoOnlineWithZeroBalance": "Баланс нөлде болғанда онлайн болуға болмайды",
+  "cannotRespondWithZeroBalance": "Баланс нөлде болғанда өтінімге жауап беруге болмайды",
   "countryKazakhstan": "Қазақстан",
   "modelStandard": "Стандарт",
   "modelHeavyDuty": "Ауыр",

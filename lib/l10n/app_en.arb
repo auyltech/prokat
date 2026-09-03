@@ -830,6 +830,10 @@
       "count": { "type": "int" }
     }
   },
+  "statTotal": "total",
+  "statOnline": "online",
+  "statActive": "active",
+  "statCompleted": "completed",
   "hello": "Hello!",
   "reviews": "reviews",
   "rentAnEquipment": "Rent an equipment",
@@ -1126,6 +1130,8 @@
   "youAreNowOnline": "You are now online",
   "youAreNowOffline": "You are now offline",
   "failedToggleStatus": "Failed to update status",
+  "cannotGoOnlineWithZeroBalance": "Cannot go online with a zero balance",
+  "cannotRespondWithZeroBalance": "Cannot respond to requests with a zero balance",
   "countryKazakhstan": "Kazakhstan",
   "modelStandard": "Standard",
   "modelHeavyDuty": "Heavy Duty",

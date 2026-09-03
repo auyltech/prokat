@@ -2301,6 +2301,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get statTotal => 'всего';
+
+  @override
+  String get statOnline => 'онлайн';
+
+  @override
+  String get statActive => 'активные';
+
+  @override
+  String get statCompleted => 'завершено';
+
+  @override
   String get hello => 'Привет!';
 
   @override
@@ -3160,6 +3172,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get failedToggleStatus => 'Не удалось обновить статус';
+
+  @override
+  String get cannotGoOnlineWithZeroBalance =>
+      'Нельзя быть онлайн при нулевом балансе';
+
+  @override
+  String get cannotRespondWithZeroBalance =>
+      'Нельзя откликаться на заявки при нулевом балансе';
 
   @override
   String get countryKazakhstan => 'Казахстан';

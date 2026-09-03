@@ -62,7 +62,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             // User Profile
             SliverAppBar(
               backgroundColor: theme.colorScheme.primary,
-              expandedHeight: 400,
+              expandedHeight: 320,
               actions: const [
                 NotificationBadge(color: Colors.white),
                 SizedBox(width: 16),

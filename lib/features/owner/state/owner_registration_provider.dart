@@ -141,12 +141,19 @@ class OwnerRegistrationMutationNotifier
   }
 
   Future<bool> updateOwnerStatus({required OwnerStatus ownerStatus}) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, error: null, errorCode: null);
     try {
       final result = await api.updateOwnerStatus(ownerStatus: ownerStatus);
       if (result) await ref.read(ownerProfileProvider.notifier).refresh();
       state = state.copyWith(isLoading: false);
       return result;
+    } on OwnerStatusApiException catch (error) {
+      state = state.copyWith(
+        isLoading: false,
+        error: error.message,
+        errorCode: error.code,
+      );
+      return false;
     } catch (error) {
       state = state.copyWith(isLoading: false, error: error.toString());
       return false;

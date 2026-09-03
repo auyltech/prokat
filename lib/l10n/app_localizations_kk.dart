@@ -2281,6 +2281,18 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String get statTotal => 'барлығы';
+
+  @override
+  String get statOnline => 'желіде';
+
+  @override
+  String get statActive => 'белсенді';
+
+  @override
+  String get statCompleted => 'аяқталған';
+
+  @override
   String get hello => 'Сәлем!';
 
   @override
@@ -3131,6 +3143,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get failedToggleStatus => 'Мәртебені жаңарту мүмкін болмады';
+
+  @override
+  String get cannotGoOnlineWithZeroBalance =>
+      'Баланс нөлде болғанда онлайн болуға болмайды';
+
+  @override
+  String get cannotRespondWithZeroBalance =>
+      'Баланс нөлде болғанда өтінімге жауап беруге болмайды';
 
   @override
   String get countryKazakhstan => 'Қазақстан';
