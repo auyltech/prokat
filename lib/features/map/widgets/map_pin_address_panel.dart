@@ -269,7 +269,9 @@ class _HouseField extends StatelessWidget {
         maxLines: 1,
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
-        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
         decoration: _pinFieldDecoration(context, hint: hint),
       ),
     );

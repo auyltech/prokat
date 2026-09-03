@@ -9,23 +9,26 @@ import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 
 void main() {
-  test('mediaCacheNamespace isolates guest, known users, and unknown users', () {
-    expect(mediaCacheNamespace(null), 'guest');
-    expect(mediaCacheNamespace(const AuthSession()), 'guest');
-    expect(
-      mediaCacheNamespace(const AuthSession(sessionToken: 'tok')),
-      'user:unknown',
-    );
-    expect(
-      mediaCacheNamespace(
-        const AuthSession(
-          sessionToken: 'tok',
-          user: UserModel(id: 'user-1'),
+  test(
+    'mediaCacheNamespace isolates guest, known users, and unknown users',
+    () {
+      expect(mediaCacheNamespace(null), 'guest');
+      expect(mediaCacheNamespace(const AuthSession()), 'guest');
+      expect(
+        mediaCacheNamespace(const AuthSession(sessionToken: 'tok')),
+        'user:unknown',
+      );
+      expect(
+        mediaCacheNamespace(
+          const AuthSession(
+            sessionToken: 'tok',
+            user: UserModel(id: 'user-1'),
+          ),
         ),
-      ),
-      'user:user-1',
-    );
-  });
+        'user:user-1',
+      );
+    },
+  );
 
   test('GET attaches the current Bearer and client metadata headers', () async {
     final inner = _RecordingFileService();
@@ -68,24 +71,27 @@ void main() {
     expect(inner.lastHeaders?['X-Client-Platform'], 'android');
   });
 
-  test('throws and does not fetch when the namespace already changed', () async {
-    final inner = _RecordingFileService();
-    final service = MediaHttpFileService(
-      secureStorage: _SessionStorage(
-        const AuthSession(sessionToken: 'session-token'),
-      ),
-      requestMetadata: _metadataService(),
-      namespace: 'user:a',
-      resolveNamespace: () async => 'user:b',
-      inner: inner,
-    );
+  test(
+    'throws and does not fetch when the namespace already changed',
+    () async {
+      final inner = _RecordingFileService();
+      final service = MediaHttpFileService(
+        secureStorage: _SessionStorage(
+          const AuthSession(sessionToken: 'session-token'),
+        ),
+        requestMetadata: _metadataService(),
+        namespace: 'user:a',
+        resolveNamespace: () async => 'user:b',
+        inner: inner,
+      );
 
-    await expectLater(
-      service.get('https://api.example/media/user-content/a.png'),
-      throwsA(isA<StateError>()),
-    );
-    expect(inner.calls, 0);
-  });
+      await expectLater(
+        service.get('https://api.example/media/user-content/a.png'),
+        throwsA(isA<StateError>()),
+      );
+      expect(inner.calls, 0);
+    },
+  );
 
   test('throws after GET if logout happens before bytes are stored', () async {
     final inner = _RecordingFileService();

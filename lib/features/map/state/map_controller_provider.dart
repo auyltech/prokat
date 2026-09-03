@@ -131,7 +131,8 @@ class MapController {
 
     try {
       final pixel = _pinTipPixel();
-      final origin = at ??
+      final origin =
+          at ??
           (pixel != null
               ? await map.coordinateForPixel(pixel)
               : (await map.getCameraState()).center);
@@ -152,14 +153,11 @@ class MapController {
           ),
           RenderedQueryOptions(layerIds: [housenumLabelLayerId]),
         );
-        final fromRendered = pickNearestHouseNumber(
-          [
-            for (final hit in rendered)
-              if (hit?.queriedFeature.feature != null)
-                hit!.queriedFeature.feature,
-          ],
-          origin,
-        );
+        final fromRendered = pickNearestHouseNumber([
+          for (final hit in rendered)
+            if (hit?.queriedFeature.feature != null)
+              hit!.queriedFeature.feature,
+        ], origin);
         if (fromRendered != null) return fromRendered;
       }
 

@@ -2,11 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/features/map/services/map_language.dart';
 
 void main() {
-  test('streetsLabelNameProperty maps app languages onto Streets v8 fields', () {
-    expect(streetsLabelNameProperty('ru'), 'name_ru');
-    expect(streetsLabelNameProperty('en'), 'name_en');
-    expect(streetsLabelNameProperty('kk'), 'name');
-  });
+  test(
+    'streetsLabelNameProperty maps app languages onto Streets v8 fields',
+    () {
+      expect(streetsLabelNameProperty('ru'), 'name_ru');
+      expect(streetsLabelNameProperty('en'), 'name_en');
+      expect(streetsLabelNameProperty('kk'), 'name');
+    },
+  );
 
   test('rewrites road-label coalesce from name_en to name_ru', () {
     const original = [
@@ -15,32 +18,29 @@ void main() {
       ['get', 'name'],
     ];
 
-    expect(
-      rewriteStreetsLabelExpression(original, 'name_ru'),
-      [
-        'coalesce',
-        ['get', 'name_ru'],
-        ['get', 'name'],
-      ],
-    );
+    expect(rewriteStreetsLabelExpression(original, 'name_ru'), [
+      'coalesce',
+      ['get', 'name_ru'],
+      ['get', 'name'],
+    ]);
   });
 
-  test('rewrites nested format/step expressions without touching name_script', () {
-    const original = [
-      'format',
-      [
-        'coalesce',
-        ['get', 'name_en'],
-        ['get', 'name'],
-      ],
-      {'text-font': 'DIN Pro Regular'},
-      ['get', 'name_script'],
-      {},
-    ];
+  test(
+    'rewrites nested format/step expressions without touching name_script',
+    () {
+      const original = [
+        'format',
+        [
+          'coalesce',
+          ['get', 'name_en'],
+          ['get', 'name'],
+        ],
+        {'text-font': 'DIN Pro Regular'},
+        ['get', 'name_script'],
+        {},
+      ];
 
-    expect(
-      rewriteStreetsLabelExpression(original, 'name_ru'),
-      [
+      expect(rewriteStreetsLabelExpression(original, 'name_ru'), [
         'format',
         [
           'coalesce',
@@ -50,9 +50,9 @@ void main() {
         {'text-font': 'DIN Pro Regular'},
         ['get', 'name_script'],
         {},
-      ],
-    );
-  });
+      ]);
+    },
+  );
 
   test('Kazakh falls back to the local OSM name field', () {
     const original = [
@@ -88,9 +88,6 @@ void main() {
   });
 
   test('rewrites token-style text fields', () {
-    expect(
-      rewriteStreetsLabelExpression('{name_en}', 'name_ru'),
-      '{name_ru}',
-    );
+    expect(rewriteStreetsLabelExpression('{name_en}', 'name_ru'), '{name_ru}');
   });
 }

@@ -145,7 +145,8 @@ class SelectAddressSheet extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final address = addresses[index];
                   final addressId = address.id;
-                  final isDeleting = addressId != null &&
+                  final isDeleting =
+                      addressId != null &&
                       locationState.isActionActive(
                         'location:$addressId:delete',
                       );
@@ -159,7 +160,9 @@ class SelectAddressSheet extends ConsumerWidget {
                             _confirmDeleteAddress(context, ref, addressId),
                           ),
                     onTap: () {
-                      ref.read(locationProvider.notifier).selectAddress(address);
+                      ref
+                          .read(locationProvider.notifier)
+                          .selectAddress(address);
 
                       if (from == 'profile' && (addressId ?? '').isNotEmpty) {
                         unawaited(

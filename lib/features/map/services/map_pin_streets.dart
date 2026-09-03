@@ -50,7 +50,8 @@ LocalizedNames? streetNamesFromFeature(Map<String?, Object?> feature) {
   final local = _trimProp(properties, 'name');
   if (ru == null && en == null && kkProp == null && local == null) return null;
 
-  final kk = kkProp ??
+  final kk =
+      kkProp ??
       ((local != null && ru != null && local != ru && local != en)
           ? local
           : null);
@@ -194,7 +195,8 @@ PinStreetChoice choosePinStreets({
   required List<LocalizedNames> tileStreets,
   String reverseFallback = '',
 }) {
-  final reverseNames = reverseStreet.isEmpty && reverseFallback.trim().isNotEmpty
+  final reverseNames =
+      reverseStreet.isEmpty && reverseFallback.trim().isNotEmpty
       ? LocalizedNames(ru: reverseFallback.trim())
       : reverseStreet;
 

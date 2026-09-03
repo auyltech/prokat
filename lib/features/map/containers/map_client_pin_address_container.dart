@@ -87,8 +87,9 @@ class _MapClientPinAddressContainerState
           reverseFallback: result.street,
         );
         final house = mapHouseNumber?.trim();
-        final resolvedHouse =
-            (house != null && house.isNotEmpty) ? house : result.houseNumber;
+        final resolvedHouse = (house != null && house.isNotEmpty)
+            ? house
+            : result.houseNumber;
         _streetOptions = choice.options;
         _houseController.text = resolvedHouse ?? '';
         setState(() {

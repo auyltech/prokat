@@ -152,7 +152,10 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
                 }),
                 interactionID: _mapTapInteractionId,
               );
-              mapController.attach(mapboxMap, initialItems: widget.equipmentList);
+              mapController.attach(
+                mapboxMap,
+                initialItems: widget.equipmentList,
+              );
               try {
                 if (await mapboxMap.style.isStyleLoaded()) {
                   await _localizeLoadedStyle(mapboxMap);

@@ -21,20 +21,14 @@ void main() {
   final origin = Point(coordinates: Position(51.922724, 47.097814));
 
   test('houseNumberFromFeature reads house_num', () {
-    expect(
-      houseNumberFromFeature(_feature(house: '57', lng: 0, lat: 0)),
-      '57',
-    );
+    expect(houseNumberFromFeature(_feature(house: '57', lng: 0, lat: 0)), '57');
   });
 
   test('pickNearestHouseNumber prefers closer geometry', () {
-    final picked = pickNearestHouseNumber(
-      [
-        _feature(house: '52', lng: 51.922981, lat: 47.097438),
-        _feature(house: '57', lng: 51.92273, lat: 47.09782),
-      ],
-      origin,
-    );
+    final picked = pickNearestHouseNumber([
+      _feature(house: '52', lng: 51.922981, lat: 47.097438),
+      _feature(house: '57', lng: 51.92273, lat: 47.09782),
+    ], origin);
     expect(picked, '57');
   });
 
@@ -51,16 +45,13 @@ void main() {
   });
 
   test('pickNearestHouseNumber falls back when geometry missing', () {
-    final picked = pickNearestHouseNumber(
-      [
-        {
-          'type': 'Feature',
-          'properties': {'house_num': '57'},
-          'geometry': null,
-        },
-      ],
-      origin,
-    );
+    final picked = pickNearestHouseNumber([
+      {
+        'type': 'Feature',
+        'properties': {'house_num': '57'},
+        'geometry': null,
+      },
+    ], origin);
     expect(picked, '57');
   });
 }
