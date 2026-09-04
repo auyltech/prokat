@@ -3160,6 +3160,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Заполните обязательные данные перед отправкой на проверку';
 
   @override
+  String get equipmentSubmitPhotoHint =>
+      'Не забудьте добавить реальные фотографии вашей техники (как минимум на одном из снимков должен быть виден ее гос. номер).';
+
+  @override
   String get youAreOnline => 'Вы онлайн';
 
   @override

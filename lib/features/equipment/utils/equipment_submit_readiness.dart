@@ -39,6 +39,79 @@ bool isEquipmentReadyForReview(Equipment equipment) {
       equipmentHasRequiredSpecs(equipment);
 }
 
+/// Stable snapshot of owner-editable fields used to detect a rejected resubmit.
+String equipmentReviewFingerprint(Equipment equipment) {
+  final images = <String>[
+    ...equipment.images.map((image) => image.imageUrl.trim()),
+    if (hasEquipmentText(equipment.imageUrl)) equipment.imageUrl!.trim(),
+  ];
+  final prices = equipment.prices
+      .map((entry) => '${entry.id}:${entry.price}:${entry.priceRate.value}')
+      .join(',');
+  final specs = (equipment.specs ?? [])
+      .map(
+        (spec) =>
+            '${spec.id}:${spec.numberValue ?? ''}:${spec.boolValue ?? ''}:'
+            '${spec.textValue ?? ''}:${spec.optionIds.join('+')}',
+      )
+      .join(',');
+  return [
+    equipment.name.trim(),
+    equipment.model.trim(),
+    (equipment.plateNumber ?? '').trim(),
+    (equipment.ownerComment ?? '').trim(),
+    (equipment.rentCondition ?? '').trim(),
+    (equipment.city ?? '').trim(),
+    images.join('|'),
+    prices,
+    specs,
+  ].join('\u001f');
+}
+
+class OwnerEquipmentReviewUi {
+  final bool showSaveAll;
+  final bool showSubmitForReview;
+  final bool showResubmit;
+
+  const OwnerEquipmentReviewUi({
+    required this.showSaveAll,
+    required this.showSubmitForReview,
+    required this.showResubmit,
+  });
+
+  factory OwnerEquipmentReviewUi.from({
+    required EquipmentStatus status,
+    required bool anyDirty,
+  }) {
+    if (status == EquipmentStatus.draft) {
+      return OwnerEquipmentReviewUi(
+        showSaveAll: anyDirty,
+        showSubmitForReview: !anyDirty,
+        showResubmit: false,
+      );
+    }
+    if (status == EquipmentStatus.rejected) {
+      return const OwnerEquipmentReviewUi(
+        showSaveAll: false,
+        showSubmitForReview: false,
+        showResubmit: true,
+      );
+    }
+    if (status == EquipmentStatus.created) {
+      return const OwnerEquipmentReviewUi(
+        showSaveAll: false,
+        showSubmitForReview: false,
+        showResubmit: false,
+      );
+    }
+    return OwnerEquipmentReviewUi(
+      showSaveAll: anyDirty,
+      showSubmitForReview: false,
+      showResubmit: false,
+    );
+  }
+}
+
 Map<String, dynamic> equipmentInfoPayload({
   required Equipment equipment,
   String? name,

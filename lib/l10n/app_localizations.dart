@@ -5938,6 +5938,12 @@ abstract class AppLocalizations {
   /// **'Please fill in the required information before submitting for review'**
   String get pleaseCompleteRequiredFields;
 
+  /// No description provided for @equipmentSubmitPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).'**
+  String get equipmentSubmitPhotoHint;
+
   /// No description provided for @youAreOnline.
   ///
   /// In en, this message translates to:

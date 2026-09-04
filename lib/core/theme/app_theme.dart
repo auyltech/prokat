@@ -57,6 +57,13 @@ class AppTheme {
   static Color successFg(Brightness brightness) =>
       _tone(brightness, lightSuccessFg, darkSuccessFg);
 
+  /// Filled-block dots: bright green that stays readable on light and dark.
+  static const Color lightValidBlockIndicator = Color(0xFF00C853);
+  static const Color darkValidBlockIndicator = Color(0xFF00E676);
+
+  static Color validBlockIndicator(Brightness brightness) =>
+      _tone(brightness, lightValidBlockIndicator, darkValidBlockIndicator);
+
   static Color dangerBg(Brightness brightness) =>
       _tone(brightness, lightDangerBg, darkDangerBg);
 

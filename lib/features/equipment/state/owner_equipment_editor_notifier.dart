@@ -113,22 +113,6 @@ class OwnerEquipmentEditorNotifier
     );
   }
 
-  void expandAll() {
-    var next = state;
-    for (final id in OwnerEquipmentBlockId.values) {
-      next = next.copyWithBlock(id, next.block(id).copyWith(isExpanded: true));
-    }
-    state = next;
-  }
-
-  void collapseAll() {
-    var next = state;
-    for (final id in OwnerEquipmentBlockId.values) {
-      next = next.copyWithBlock(id, next.block(id).copyWith(isExpanded: false));
-    }
-    state = next;
-  }
-
   Future<SaveAllResult> saveAll() async {
     final dirtyIds = OwnerEquipmentBlockId.values
         .where((id) => state.block(id).isDirty)

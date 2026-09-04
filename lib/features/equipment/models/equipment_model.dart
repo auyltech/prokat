@@ -89,11 +89,14 @@ class Equipment {
     EquipmentStatus.disabled,
   ].contains(status);
 
-  bool get isDraft => [
-    EquipmentStatus.draft,
-    EquipmentStatus.created,
-    EquipmentStatus.rejected,
-  ].contains(status);
+  /// Waiting for moderator after submit (`CREATED`). View-only.
+  bool get isPendingReview => status == EquipmentStatus.created;
+
+  bool get isRejected => status == EquipmentStatus.rejected;
+
+  /// First-fill draft or rejected resubmission — photos, registration, specs.
+  bool get isDraft =>
+      [EquipmentStatus.draft, EquipmentStatus.rejected].contains(status);
 
   String? get primaryImageUrl {
     for (final img in images) {

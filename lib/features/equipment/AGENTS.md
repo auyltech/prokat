@@ -8,7 +8,10 @@
 - Tapping the already-selected search category clears it: highlight off, spec filters hide, list is unfiltered.
 - Spec filters: label is `name, unit`. NUMBER is min/max fields; STRING is text; SELECT/BOOLEAN open a city-style sheet; MULTI_SELECT uses checkboxes + Apply. Search refetches `spec` after 500ms.
 - Owner list sends `itemsPerPage: 100`. Spec writes go to `PUT /equipment/:id/spec-values`.
-- Owner detail order: photos → category (read-only on edit) → general info → registration → specs → Save all / Submit → delete (`DRAFT` only). Documents and VIN/serial are not in the API — do not stub them.
-- General info (`name`, rent/comment, city, prices; after accept also online + AVAILABLE/BOOKED/MAINTENANCE) stays editable. Registration (`model`, `plateNumber`), specs, and the photo camera are only while `isDraft`. After `isModerated` those blocks are read-only (no focus).
+- Owner detail order: photos → category (read-only on edit) → pending/rejected banner → general info → registration → specs → Save all / Submit / Resubmit → delete (`DRAFT` only). Documents and VIN/serial are not in the API — do not stub them.
+- `CREATED` is pending review: the whole card is view-only (no photo camera, no field edits, no submit/resubmit).
+- `REJECTED` shows a status card under the category row and **Resubmit**, enabled only after at least one field differs from the values loaded at rejection (unsaved dirty or already saved). Resubmit saves dirty blocks then `PATCH .../status` → `CREATED`.
+- Submit (`PATCH .../status` → `CREATED`) shows when status is `DRAFT` and nothing is dirty. Completeness is persisted data: image (required), category, name, model, plate, city, price > 0, required specs. Without a photo the button stays disabled.
+- General info (`name`, rent/comment, city, prices; after accept also online + AVAILABLE/BOOKED/MAINTENANCE) stays editable except while pending. Registration (`model`, `plateNumber`), specs, and the photo camera are only while `DRAFT` or `REJECTED`. After `isModerated` those blocks are read-only (no focus) and Resubmit never appears.
 - `PATCH /equipment/:id` is not partial — always send current name/model/plate/comment together. The editor merges both info blocks before that PATCH.
-- Save-all runs dirty blocks (general, registration, specs). Submit (`PATCH .../status` → `CREATED`) shows when `isDraft` and nothing is dirty. Completeness is persisted data: image, category, name, model, plate, city, price > 0, required specs.
+- Save-all runs dirty blocks (general, registration, specs) for draft and approved cards. Rejected uses Resubmit instead of Save-all.
