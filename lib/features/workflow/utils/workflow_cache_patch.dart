@@ -2,6 +2,7 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status_buckets.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
+import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -147,6 +148,38 @@ WorkflowChatApplyResult applyWorkflowUpdateToChatItems({
   );
 }
 
+ChatModel applyWorkStatusEventToChat({
+  required ChatModel chat,
+  required String type,
+  Map<String, dynamic>? meta,
+}) {
+  if (type.toUpperCase() != 'EVENT') return chat;
+  if (meta == null || !meta.containsKey('workStatus')) return chat;
+  if (meta['workStatus'] == null) return chat;
+
+  final bookingId = meta['bookingId']?.toString().trim() ?? '';
+  final booking = chat.booking;
+  if (bookingId.isEmpty || booking == null || booking.id != bookingId) {
+    return chat;
+  }
+  if (isHistoryBookingStatus(booking.status)) return chat;
+
+  final nextWorkStatus = parseWorkStatus(meta['workStatus']);
+  if (!canTransition(booking.workStatus, nextWorkStatus)) return chat;
+
+  final summary =
+      chat.bookingSummary ??
+      BookingSummaryModel(id: booking.id, status: booking.status.name);
+
+  return chat.copyWith(
+    booking: booking.copyWith(workStatus: nextWorkStatus),
+    bookingSummary: summary.copyWith(
+      id: booking.id,
+      workStatus: nextWorkStatus,
+    ),
+  );
+}
+
 ChatModel mergeChatPreferringNewerWorkflow(
   ChatModel incoming,
   ChatModel previous,
@@ -154,10 +187,13 @@ ChatModel mergeChatPreferringNewerWorkflow(
   var merged = incoming;
 
   final previousBooking = previous.booking;
-  final incomingUpdatedAt =
-      incoming.booking?.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+  final incomingBookingUpdatedAt = incoming.booking?.updatedAt;
   if (previousBooking != null &&
-      isIncomingWorkflowStale(previousBooking.updatedAt, incomingUpdatedAt)) {
+      incomingBookingUpdatedAt != null &&
+      isIncomingWorkflowStale(
+        previousBooking.updatedAt,
+        incomingBookingUpdatedAt,
+      )) {
     merged = merged.copyWith(
       booking: previousBooking,
       bookingSummary: previous.bookingSummary ?? incoming.bookingSummary,
@@ -165,9 +201,9 @@ ChatModel mergeChatPreferringNewerWorkflow(
   }
 
   final previousRequest = previous.request;
-  final incomingRequestUpdatedAt =
-      incoming.request?.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+  final incomingRequestUpdatedAt = incoming.request?.updatedAt;
   if (previousRequest != null &&
+      incomingRequestUpdatedAt != null &&
       isIncomingWorkflowStale(
         previousRequest.updatedAt,
         incomingRequestUpdatedAt,

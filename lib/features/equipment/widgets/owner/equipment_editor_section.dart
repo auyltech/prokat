@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
 
@@ -109,14 +110,15 @@ class _IndicatorDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final Color fill;
     final Color border;
 
     switch (indicator) {
       case BlockIndicator.valid:
-        fill = colorScheme.tertiary;
-        border = colorScheme.tertiary;
+        fill = AppTheme.validBlockIndicator(theme.brightness);
+        border = fill;
       case BlockIndicator.invalid:
         fill = colorScheme.error;
         border = colorScheme.error;

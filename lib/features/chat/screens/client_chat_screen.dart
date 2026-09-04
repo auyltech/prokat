@@ -39,9 +39,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       unawaited(() async {
         try {
           await Future.wait([
-            ref
-                .read(currentChatProvider(widget.chatId).notifier)
-                .refreshIfStale(),
+            ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
             ref
                 .read(chatMessagesProvider(widget.chatId).notifier)
                 .refreshIfStale(),

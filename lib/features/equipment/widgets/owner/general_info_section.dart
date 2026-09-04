@@ -112,6 +112,8 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   bool get _isCityDirty => _city.trim() != _baselineCity;
 
+  bool get _canEdit => !widget.equipment.isPendingReview;
+
   bool get _isStatusDirty =>
       widget.equipment.isModerated && _tempStatus != _baselineStatus;
 
@@ -146,7 +148,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     );
     _editor.report(
       id: OwnerEquipmentBlockId.general,
-      isDirty: _isDirty,
+      isDirty: _canEdit && _isDirty,
       isSaving: _isSaving,
       indicator: blockIndicatorFor(
         complete: _isComplete,
@@ -167,7 +169,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   Future<bool> _handleSave({required bool notify}) async {
     final l10n = AppLocalizations.of(context)!;
-    if (_isSaving) return false;
+    if (!_canEdit || _isSaving) return false;
     if (!_validate()) {
       _publish();
       if (notify) {
@@ -243,12 +245,14 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   void _onChanged() {
+    if (!_canEdit) return;
     if (_saveAttempted) _validate();
     setState(() {});
     _publish();
   }
 
   Future<void> _pickCity() async {
+    if (!_canEdit) return;
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
@@ -293,6 +297,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   Future<void> _deletePrice(PriceEntry entry) async {
+    if (!_canEdit) return;
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
@@ -357,8 +362,8 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       onToggleExpanded: () =>
           _editor.toggleExpanded(OwnerEquipmentBlockId.general),
       saveLabel: l10n.save,
-      showSave: _isDirty,
-      saveEnabled: _isDirty && !_isSaving,
+      showSave: _canEdit && _isDirty,
+      saveEnabled: _canEdit && _isDirty && !_isSaving,
       saveLoading: _isSaving,
       onSave: () => _handleSave(notify: true),
       child: Column(
@@ -431,6 +436,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             onChanged: _onChanged,
             hint: l10n.equipmentNameHint,
             isRequired: true,
+            readOnly: !_canEdit,
             errorText: _nameError == null ? null : l10n.fieldRequired,
           ),
           const SizedBox(height: 12),
@@ -439,6 +445,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             controller: _rentConditionController,
             onChanged: _onChanged,
             hint: l10n.fullLoadOnly,
+            readOnly: !_canEdit,
           ),
           const SizedBox(height: 12),
           InputField(
@@ -446,10 +453,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             controller: _commentController,
             onChanged: _onChanged,
             hint: l10n.ownerCommentHint,
+            readOnly: !_canEdit,
           ),
           const SizedBox(height: 16),
           GestureDetector(
-            onTap: _pickCity,
+            onTap: _canEdit ? _pickCity : null,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
               decoration: BoxDecoration(
@@ -527,7 +535,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                 ),
               ),
               IconButton(
-                onPressed: canAddMore
+                onPressed: _canEdit && canAddMore
                     ? () async {
                         await PriceEntrySheet.show(
                           context,
@@ -538,7 +546,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                     : null,
                 icon: Icon(
                   canAddMore ? Icons.add : Icons.check,
-                  color: canAddMore
+                  color: _canEdit && canAddMore
                       ? colorScheme.primary
                       : colorScheme.onSurfaceVariant,
                 ),
@@ -557,6 +565,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                   .map(
                     (entry) => PriceEntryTile(
                       priceEntry: entry,
+                      canEdit: _canEdit,
                       onEdit: () async {
                         await PriceEntrySheet.show(
                           context,

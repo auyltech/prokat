@@ -42,9 +42,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               .read(chatMessagesProvider(widget.chatId).notifier)
               .dismissDisplayedPush();
           await Future.wait([
-            ref
-                .read(currentChatProvider(widget.chatId).notifier)
-                .refreshIfStale(),
+            ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
             ref
                 .read(chatMessagesProvider(widget.chatId).notifier)
                 .refreshIfStale(),

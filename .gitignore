@@ -77,3 +77,5 @@ android/app/*.jks
 .claude/
 .plans/
 .problems/
+# Widget Preview related
+.widget_preview/

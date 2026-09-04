@@ -9,12 +9,14 @@ class PriceEntryTile extends ConsumerStatefulWidget {
   final PriceEntry priceEntry;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool canEdit;
 
   const PriceEntryTile({
     super.key,
     required this.priceEntry,
     required this.onEdit,
     required this.onDelete,
+    this.canEdit = true,
   });
 
   @override
@@ -63,34 +65,38 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
             ),
           ),
 
-          /// EDIT ACTION
-          if (ref
-              .watch(equipmentMutationProvider)
-              .isActionActive("equipment:price:update:${widget.priceEntry.id}"))
-            const SizedBox(
-              height: 14,
-              width: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          else
-            IconButton(
-              onPressed: widget.onEdit,
-              icon: Icon(Icons.edit_rounded, color: accent, size: 20),
-            ),
-
-          if (ref
-              .watch(equipmentMutationProvider)
-              .isActionActive("equipment:price:delete:${widget.priceEntry.id}"))
-            const SizedBox(
-              height: 14,
-              width: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          else
-            IconButton(
-              onPressed: widget.onDelete,
-              icon: Icon(Icons.delete, color: colorScheme.error, size: 20),
-            ),
+          if (widget.canEdit) ...[
+            if (ref
+                .watch(equipmentMutationProvider)
+                .isActionActive(
+                  "equipment:price:update:${widget.priceEntry.id}",
+                ))
+              const SizedBox(
+                height: 14,
+                width: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              IconButton(
+                onPressed: widget.onEdit,
+                icon: Icon(Icons.edit_rounded, color: accent, size: 20),
+              ),
+            if (ref
+                .watch(equipmentMutationProvider)
+                .isActionActive(
+                  "equipment:price:delete:${widget.priceEntry.id}",
+                ))
+              const SizedBox(
+                height: 14,
+                width: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              IconButton(
+                onPressed: widget.onDelete,
+                icon: Icon(Icons.delete, color: colorScheme.error, size: 20),
+              ),
+          ],
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:prokat/features/billing/models/account_balance_model.dart';
 import 'package:prokat/features/billing/models/pricing_tier_model.dart';
 import 'package:prokat/features/billing/models/transaction_model.dart';
@@ -55,9 +56,8 @@ class BillingState {
   int get minutesRemaining =>
       ((accountBalance?.secondsRemaining ?? 0) / 60).floor();
 
-  /// Converts the backend burn rate (seconds/hr) to an intuitive UI display (minutes/hr)
-  int get burnRateMinutesPerHour =>
-      ((accountBalance?.burnRateSecondsPerHour ?? 0) / 60).round();
+  /// Backend `burnRateMinutesPerHour` is already minutes of balance per wall-clock hour.
+  int get burnRateMinutesPerHour => accountBalance?.burnRateMinutesPerHour ?? 0;
 
   int getDailyCost(num onlineCount) {
     final foundDiscount = volumeDiscounts
@@ -99,13 +99,13 @@ class BillingState {
     return Colors.blue; // Normal operational color
   }
 
-  /// Clock time when credit runs out, or null when nothing is burning.
-  String? get formattedExhaustionTime {
+  /// Estimated date and time when credit runs out, or null when nothing is burning.
+  String? formattedExhaustionTime([String? locale]) {
     final expiry = accountBalance?.estimatedExhaustionAt;
 
     if (expiry == null || !hasActiveBurn) return null;
 
-    return "${expiry.hour.toString().padLeft(2, '0')}:${expiry.minute.toString().padLeft(2, '0')}";
+    return DateFormat('d MMM, HH:mm', locale).format(expiry.toLocal());
   }
 
   /// Returns true if remaining seconds drop below your warning threshold (e.g., 30 minutes).

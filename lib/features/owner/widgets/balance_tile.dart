@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +17,25 @@ class BalanceTile extends ConsumerStatefulWidget {
 }
 
 class _BalanceTileState extends ConsumerState<BalanceTile> {
+  Timer? _balancePoll;
+
+  @override
+  void initState() {
+    super.initState();
+    _balancePoll = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (!mounted) return;
+      unawaited(
+        ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _balancePoll?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -193,7 +214,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                 _FooterMetric(
                   label: l10n.estimatedExhaustion,
                   value:
-                      billingState.formattedExhaustionTime ??
+                      billingState.formattedExhaustionTime(l10n.localeName) ??
                       l10n.noActiveDepletion,
                   align: CrossAxisAlignment.end,
                   valueColor: billingState.hasActiveBurn

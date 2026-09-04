@@ -3131,6 +3131,10 @@ class AppLocalizationsKk extends AppLocalizations {
       'Тексеруге жібермес бұрын міндетті деректерді толтырыңыз';
 
   @override
+  String get equipmentSubmitPhotoHint =>
+      'Техникаңыздың нақты фотосуреттерін қосуды ұмытпаңыз (кемінде бір суретте оның мемлекеттік нөмірі көрінуі керек).';
+
+  @override
   String get youAreOnline => 'Сіз онлайнсыз';
 
   @override
@@ -3154,6 +3158,10 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get cannotGoOnlineWithZeroBalance =>
       'Баланс нөлде болғанда онлайн болуға болмайды';
+
+  @override
+  String get cannotGoOnlineWithoutOnlineEquipment =>
+      'Алдымен кемінде бір техниканы онлайнға шығарыңыз';
 
   @override
   String get cannotRespondWithZeroBalance =>

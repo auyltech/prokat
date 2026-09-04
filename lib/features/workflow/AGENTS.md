@@ -10,11 +10,11 @@
 2. Fan-out: `WorkflowSocketService` — несколько слушателей на одно событие. Не вешать второй `AppSocketService.on('workflow:update')`: `on()` **перезаписывает** хендлер.
 3. Патч кэша: `WorkflowCacheCoordinator.apply`. Дубликаты режет LRU `eventId`.
 4. Ресинк REST: после reconnect (не на первом connect) и после возврата из фона (`paused`/`hidden`/`detached` → `resumed`). Сокет рвать только на эти три состояния, не на `inactive`.
-5. Обновление данных: сокет пока экран открыт; HTTP — ручной pull-to-refresh, вход на экран (`refreshIfStale`, TTL 30 с — не таймер), разворот приложения. Фоновых `Timer.periodic` нет.
+5. Обновление данных: сокет пока экран открыт (`workflow:update` + EVENT хода работ с совпавшим `bookingId` и валидным `canTransition`). HTTP — ручной pull-to-refresh, **вход в тред всегда `getChatById`**, списки — `refreshIfStale` (TTL 30 с), разворот приложения. Фоновых `Timer.periodic` нет.
 
 ## Что патчится
 
-- Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`). Если в payload оффер с новым id — ещё `currentChat.refresh()`.
+- Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`). Если в payload оффер с новым id — ещё `currentChat.refresh()`. HTTP-рефреш треда не затирает более новый сокет: `mergeChatPreferringNewerWorkflow` оставляет previous.booking только когда оба `updatedAt` есть и previous новее.
 - Списки чатов: `clientChatsByFilterProvider` / `ownerChatsByFilterProvider` (`ACTIVE` / `ARCHIVED`). Источник архива — `Chat.status` (`closed` / `archived`) из HTTP и из `payload.chat`. `SUPPORT` всегда в Active.
 - Заказы: active — патч или remove + decrement; history — патч или `invalidate()`. Guard по `updatedAt`; HTTP-рефреш не затирает более новый сокет.
 - Заявки участников: тот же канал и coordinator; `ACCEPTED` / `CANCELLED` / `EXPIRED` → убрать из active; history клиента — патч или `invalidate()`. Лента чужих тендеров у владельца — HTTP, не broadcast.

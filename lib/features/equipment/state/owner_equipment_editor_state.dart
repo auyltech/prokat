@@ -46,9 +46,6 @@ class OwnerEquipmentEditorState {
   bool get anySaving =>
       OwnerEquipmentBlockId.values.any((id) => block(id).isSaving);
 
-  bool get allExpanded =>
-      OwnerEquipmentBlockId.values.every((id) => block(id).isExpanded);
-
   OwnerEquipmentEditorState copyWithBlock(
     OwnerEquipmentBlockId id,
     BlockEditorView view,

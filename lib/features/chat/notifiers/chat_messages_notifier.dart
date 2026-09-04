@@ -305,7 +305,9 @@ class ChatMessagesNotifier
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
     if (ref.exists(currentChatProvider(chatId))) {
-      ref.read(currentChatProvider(chatId).notifier).setLastMessage(message);
+      final chatNotifier = ref.read(currentChatProvider(chatId).notifier);
+      chatNotifier.setLastMessage(message);
+      chatNotifier.applyWorkStatusEvent(message);
     }
 
     for (final filter in ChatListFilter.values) {

@@ -15,6 +15,7 @@ HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:jo
 - Карточка оффера только если `service: OFFER` и в `meta` есть `id` (DTO оффера). EVENT проигрыша тендера (`reason: NOT_SELECTED`, текст поддержки) рисуется как обычное сообщение; превью списка берёт `lastMessage.localizedContent(locale)`, не сырой `content`.
 - Системные EVENT: `meta.i18n = { ru, kk, en }` (тела) + `templateKey` + `params`. `content` — RU fallback для старых клиентов. Не затирать DTO в `meta` (оффер/бронь).
 - Ход работ (`workStatus`): в тред уходит EVENT на каждый валидный переход (в пути / на объекте / начал / отложил / пауза / возобновил / выполнена). Отмена задания — не workStatus, а `BookingStatus` reject/cancel.
+- EVENT с `meta.workStatus` патчит заказ открытого треда только если `meta.bookingId` совпадает с `currentChat.booking.id` и `canTransition` разрешает переход. Кнопка подтверждения считается из `currentChat.booking`, не из текста сообщения.
 - Кнопка Cancel Request только у клиента на `requestcreated`. У `requestaccepted` / `offernotselected` действий нет.
 - Архив списка и лок ввода: `Chat.status` (`closed` / `archived`). `SUPPORT` всегда Active и не лочится. `ChatParticipant.isArchived` не используется.
 
