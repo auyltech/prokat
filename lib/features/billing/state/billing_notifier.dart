@@ -16,8 +16,10 @@ class BillingNotifier extends StateNotifier<BillingState> {
     ]);
   }
 
-  Future<void> getOwnerBalance() async {
-    state = state.copyWith(isBalanceLoading: true);
+  Future<void> getOwnerBalance({bool silent = false}) async {
+    if (!silent) {
+      state = state.copyWith(isBalanceLoading: true);
+    }
 
     try {
       final result = await api.getOwnerBalance();
@@ -41,8 +43,6 @@ class BillingNotifier extends StateNotifier<BillingState> {
           errors: updatedErrors,
         );
       }
-
-      state = state.copyWith(isBalanceLoading: false);
     } catch (e) {
       final updatedErrors = Map<String, String>.from(state.errors)
         ..['balance'] = e.toString();

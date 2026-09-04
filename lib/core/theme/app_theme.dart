@@ -100,6 +100,16 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: lightBackground,
       cardColor: lightCard,
+      // Material 3 Switch uses onPrimary for the selected thumb; light
+      // onPrimary is the brand accent, so the thumb would match the track.
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return white;
+          }
+          return null;
+        }),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: lightCard,
         elevation: 0,

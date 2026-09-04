@@ -1131,6 +1131,7 @@
   "youAreNowOffline": "Вы теперь офлайн",
   "failedToggleStatus": "Не удалось обновить статус",
   "cannotGoOnlineWithZeroBalance": "Нельзя быть онлайн при нулевом балансе",
+  "cannotGoOnlineWithoutOnlineEquipment": "Сначала выведите в онлайн хотя бы одну единицу техники",
   "cannotRespondWithZeroBalance": "Нельзя откликаться на заявки при нулевом балансе",
   "countryKazakhstan": "Казахстан",
   "modelStandard": "Стандарт",

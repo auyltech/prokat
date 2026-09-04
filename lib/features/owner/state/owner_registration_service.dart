@@ -11,6 +11,7 @@ import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 
 const ownerOnlineZeroBalanceCode = 'CONFLICT:OWNER:STATUS:BALANCE';
+const ownerOnlineNoEquipmentCode = 'CONFLICT:OWNER:STATUS:NO_ONLINE_EQUIPMENT';
 
 class OwnerStatusApiException implements Exception {
   final String message;

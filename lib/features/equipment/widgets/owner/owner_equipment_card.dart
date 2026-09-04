@@ -79,7 +79,6 @@ class OwnerEquipmentCard extends ConsumerWidget {
                       const SizedBox(height: 4),
 
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
@@ -88,16 +87,17 @@ class OwnerEquipmentCard extends ConsumerWidget {
                             color: ghostGray,
                           ),
                           const SizedBox(width: 2),
-                          Text(
-                            locationText,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ghostGray,
+                          Expanded(
+                            child: Text(
+                              locationText,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: ghostGray,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 2),
-
-                          const Spacer(),
-
+                          const SizedBox(width: 8),
                           EquipmentStatusBadge(status: equipment.status),
                         ],
                       ),

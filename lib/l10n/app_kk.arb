@@ -1132,6 +1132,7 @@
   "youAreNowOffline": "Енді сіз офлайнсыз",
   "failedToggleStatus": "Мәртебені жаңарту мүмкін болмады",
   "cannotGoOnlineWithZeroBalance": "Баланс нөлде болғанда онлайн болуға болмайды",
+  "cannotGoOnlineWithoutOnlineEquipment": "Алдымен кемінде бір техниканы онлайнға шығарыңыз",
   "cannotRespondWithZeroBalance": "Баланс нөлде болғанда өтінімге жауап беруге болмайды",
   "countryKazakhstan": "Қазақстан",
   "modelStandard": "Стандарт",

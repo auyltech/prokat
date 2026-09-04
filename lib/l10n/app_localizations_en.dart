@@ -3158,6 +3158,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cannot go online with a zero balance';
 
   @override
+  String get cannotGoOnlineWithoutOnlineEquipment =>
+      'Publish at least one equipment unit online first';
+
+  @override
   String get cannotRespondWithZeroBalance =>
       'Cannot respond to requests with a zero balance';
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
@@ -64,6 +65,18 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
       return;
     }
 
+    final onlineEquipmentCount = ref
+        .read(ownerEquipmentProvider.notifier)
+        .onlineEquipmentCount;
+    if (turnOnline && onlineEquipmentCount == 0) {
+      AppSnackBar.show(
+        message: l10n.cannotGoOnlineWithoutOnlineEquipment,
+        isError: true,
+      );
+      setState(() {});
+      return;
+    }
+
     final newStatus = turnOnline ? OwnerStatus.online : OwnerStatus.offline;
 
     final result = await ref
@@ -74,12 +87,16 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     final errorCode = ref.read(ownerRegistrationMutationProvider).errorCode;
     final failedZeroBalance =
         !result && turnOnline && errorCode == ownerOnlineZeroBalanceCode;
+    final failedNoEquipment =
+        !result && turnOnline && errorCode == ownerOnlineNoEquipmentCode;
 
     AppSnackBar.show(
       message: result
           ? (turnOnline ? l10n.youAreNowOnline : l10n.youAreNowOffline)
           : (failedZeroBalance
                 ? l10n.cannotGoOnlineWithZeroBalance
+                : failedNoEquipment
+                ? l10n.cannotGoOnlineWithoutOnlineEquipment
                 : l10n.failedToggleStatus),
       isSuccess: result,
       isError: !result,

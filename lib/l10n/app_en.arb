@@ -1134,6 +1134,7 @@
   "youAreNowOffline": "You are now offline",
   "failedToggleStatus": "Failed to update status",
   "cannotGoOnlineWithZeroBalance": "Cannot go online with a zero balance",
+  "cannotGoOnlineWithoutOnlineEquipment": "Publish at least one equipment unit online first",
   "cannotRespondWithZeroBalance": "Cannot respond to requests with a zero balance",
   "countryKazakhstan": "Kazakhstan",
   "modelStandard": "Standard",

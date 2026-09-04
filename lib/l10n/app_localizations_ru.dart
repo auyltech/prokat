@@ -3189,6 +3189,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нельзя быть онлайн при нулевом балансе';
 
   @override
+  String get cannotGoOnlineWithoutOnlineEquipment =>
+      'Сначала выведите в онлайн хотя бы одну единицу техники';
+
+  @override
   String get cannotRespondWithZeroBalance =>
       'Нельзя откликаться на заявки при нулевом балансе';
 

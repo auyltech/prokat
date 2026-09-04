@@ -3160,6 +3160,10 @@ class AppLocalizationsKk extends AppLocalizations {
       'Баланс нөлде болғанда онлайн болуға болмайды';
 
   @override
+  String get cannotGoOnlineWithoutOnlineEquipment =>
+      'Алдымен кемінде бір техниканы онлайнға шығарыңыз';
+
+  @override
   String get cannotRespondWithZeroBalance =>
       'Баланс нөлде болғанда өтінімге жауап беруге болмайды';
 

@@ -15,6 +15,7 @@ import 'package:prokat/features/equipment/providers/owner_equipment_provider.dar
 import 'package:prokat/features/equipment/state/equipment_mutation_state.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 
 class EquipmentMutationNotifier
     extends MutationNotifier<EquipmentMutationState> {
@@ -333,6 +334,7 @@ class EquipmentMutationNotifier
         finishAction(actionId);
 
         unawaited(ref.read(billingProvider.notifier).getOwnerBalance());
+        unawaited(ref.read(ownerProfileProvider.notifier).refresh());
         await _refreshEquipmentCaches(equipmentId);
 
         return true;

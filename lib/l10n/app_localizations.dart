@@ -5992,6 +5992,12 @@ abstract class AppLocalizations {
   /// **'Cannot go online with a zero balance'**
   String get cannotGoOnlineWithZeroBalance;
 
+  /// No description provided for @cannotGoOnlineWithoutOnlineEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish at least one equipment unit online first'**
+  String get cannotGoOnlineWithoutOnlineEquipment;
+
   /// No description provided for @cannotRespondWithZeroBalance.
   ///
   /// In en, this message translates to:
