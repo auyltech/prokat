@@ -50,12 +50,25 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
 
   void applyWorkflowDelta(WorkflowUpdate update) {
     if (!_canMutateCurrentScope) return;
-    final chat = state.value;
+    final chat = state.valueOrNull;
     if (chat == null) return;
     state = AsyncData(applyWorkflowDeltaToChat(chat, update));
     if (workflowUpdateIntroducesUnknownOffer(chat, update)) {
       unawaited(refresh());
     }
+  }
+
+  void applyWorkStatusEvent(ChatMessageModel message) {
+    if (!_canMutateCurrentScope) return;
+    final chat = state.valueOrNull;
+    if (chat == null) return;
+    state = AsyncData(
+      applyWorkStatusEventToChat(
+        chat: chat,
+        type: message.type,
+        meta: message.meta,
+      ),
+    );
   }
 
   Future<void> refresh() {

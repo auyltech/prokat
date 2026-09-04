@@ -382,4 +382,94 @@ void main() {
 
     expect(workflowUpdateIntroducesUnknownOffer(withOffer, update), isFalse);
   });
+
+  test('keeps previous booking when its updatedAt is newer', () {
+    _expectMergedWorkStatus(
+      previous: _mergeBooking(
+        workStatus: WorkStatus.completed,
+        updatedAt: DateTime.parse('2026-08-20T13:00:00.000Z'),
+      ),
+      incoming: _mergeBooking(
+        workStatus: WorkStatus.started,
+        updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      ),
+      expected: WorkStatus.completed,
+    );
+  });
+
+  test('keeps incoming booking when its updatedAt is newer', () {
+    _expectMergedWorkStatus(
+      previous: _mergeBooking(
+        workStatus: WorkStatus.started,
+        updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      ),
+      incoming: _mergeBooking(
+        workStatus: WorkStatus.completed,
+        updatedAt: DateTime.parse('2026-08-20T13:00:00.000Z'),
+      ),
+      expected: WorkStatus.completed,
+    );
+  });
+
+  test('does not treat HTTP booking without updatedAt as older', () {
+    _expectMergedWorkStatus(
+      previous: _mergeBooking(
+        workStatus: WorkStatus.started,
+        updatedAt: DateTime.parse('2026-08-20T13:00:00.000Z'),
+      ),
+      incoming: _mergeBooking(workStatus: WorkStatus.completed),
+      expected: WorkStatus.completed,
+    );
+  });
+
+  test('does not treat cached booking without updatedAt as newer', () {
+    _expectMergedWorkStatus(
+      previous: _mergeBooking(workStatus: WorkStatus.started),
+      incoming: _mergeBooking(
+        workStatus: WorkStatus.completed,
+        updatedAt: DateTime.parse('2026-08-20T13:00:00.000Z'),
+      ),
+      expected: WorkStatus.completed,
+    );
+  });
+
+  test('late HTTP started loses to a newer socket completed', () {
+    _expectMergedWorkStatus(
+      previous: _mergeBooking(
+        workStatus: WorkStatus.completed,
+        updatedAt: DateTime.parse('2026-08-20T13:00:00.000Z'),
+      ),
+      incoming: _mergeBooking(
+        workStatus: WorkStatus.started,
+        updatedAt: DateTime.parse('2026-08-20T12:00:00.000Z'),
+      ),
+      expected: WorkStatus.completed,
+    );
+  });
+}
+
+BookingModel _mergeBooking({
+  required WorkStatus workStatus,
+  DateTime? updatedAt,
+}) {
+  return BookingModel(
+    id: 'booking-1',
+    status: BookingStatus.confirmed,
+    workStatus: workStatus,
+    price: 2000,
+    priceRate: parseRateOption('PER_TRIP'),
+    updatedAt: updatedAt,
+  );
+}
+
+void _expectMergedWorkStatus({
+  required BookingModel previous,
+  required BookingModel incoming,
+  required WorkStatus expected,
+}) {
+  final merged = mergeChatPreferringNewerWorkflow(
+    ChatModel(id: 'chat-1', booking: incoming),
+    ChatModel(id: 'chat-1', booking: previous),
+  );
+  expect(merged.booking?.workStatus, expected);
 }
