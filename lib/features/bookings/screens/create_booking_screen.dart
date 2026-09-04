@@ -116,8 +116,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final equipment = bookingState.selectedEquipment;
 
-    final notifier = ref.read(favoritesProvider.notifier);
-    final bool isFavorite = notifier.isFavorite(equipment?.id ?? '');
+    final bool isFavorite =
+        ref.watch(
+          favoritesProvider.select(
+            (s) => s.favoritesIds?.contains(equipment?.id),
+          ),
+        ) ??
+        false;
 
     final priceEntries = equipment?.prices;
 

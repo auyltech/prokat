@@ -18,10 +18,13 @@ class FavoriteTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    // Check favorite status to handle the "Un-favorite" action
-    final isFavorite = ref
-        .read(favoritesProvider.notifier)
-        .isFavorite(equipment.id);
+    final isFavorite =
+        ref.watch(
+          favoritesProvider.select(
+            (s) => s.favoritesIds?.contains(equipment.id),
+          ),
+        ) ??
+        false;
 
     final location = (equipment.location?.city ?? '').isEmpty
         ? l10n.unknownLocation

@@ -23,8 +23,13 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
     const cardColor = Color(0xFF1E2125);
     const accentColor = Color(0xFF4E73DF);
 
-    final notifier = ref.read(favoritesProvider.notifier);
-    final isFav = notifier.isFavorite(equipment.id);
+    final isFav =
+        ref.watch(
+          favoritesProvider.select(
+            (s) => s.favoritesIds?.contains(equipment.id),
+          ),
+        ) ??
+        false;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.4,
@@ -186,7 +191,9 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                     : Icons.favorite_border_rounded,
                                 onTap: () {
                                   unawaited(
-                                    notifier.toggleFavorite(equipment.id),
+                                    ref
+                                        .read(favoritesProvider.notifier)
+                                        .toggleFavorite(equipment.id),
                                   );
                                 },
                               ),

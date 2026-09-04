@@ -1,6 +1,7 @@
 # Favorites
 
 - `favoritesProvider` holds ids + equipment. Refresh via `getFavorites()`; heart toggles call `toggleFavorite`.
+- Hearts must `watch` `favoritesIds` (via `select`). `ref.read` + `isFavorite()` in `build` does not rebuild after toggle.
 - `GET /favorites` returns the same equipment DTO as catalog (`owner`, `prices`, images). Cards parse via `Equipment.fromJson` — do not treat the list as `{id,name,model,plateNumber,imageUrl}` stubs.
 - Catalog Search (`SearchEquipmentScreen`) pins `FavoritesOverlay` to the bottom of the body, above the nav. Do not put this section inside the catalog `ListView` — pagination would hide it.
 - Hidden when `favorites` is empty. Otherwise a collapsed header strip; header tap expands just enough for the horizontal card row plus paddings.
