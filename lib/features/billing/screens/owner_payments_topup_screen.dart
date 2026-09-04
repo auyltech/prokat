@@ -22,19 +22,11 @@ class _OwnerPaymentsTopupScreenState
     extends ConsumerState<OwnerPaymentsTopupScreen> {
   String? selectedTierId;
 
-  Future<void> submitTopUpRequest(String? id) async {
+  void submitTopUpRequest(String? id) {
     if (id == null) return;
     final l10n = AppLocalizations.of(context)!;
 
-    final result = await ref
-        .read(billingProvider.notifier)
-        .topUpBalance(id: id);
-
-    AppSnackBar.show(
-      message: result ? l10n.topUpAdded : l10n.failedToCompleteTopUp,
-      isSuccess: result,
-      isError: !result,
-    );
+    AppSnackBar.show(message: l10n.paymentFeatureComingSoon);
   }
 
   @override

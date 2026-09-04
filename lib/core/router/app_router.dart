@@ -14,11 +14,9 @@ import 'package:prokat/features/appstatic/screens/user_agreement_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/create_booking_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
-import 'package:prokat/features/chat/screens/client_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_screen.dart';
 import 'package:prokat/features/chat/screens/client_support_chat.dart';
-import 'package:prokat/features/chat/screens/owner_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_screen.dart';
 import 'package:prokat/features/support/screens/contact_support_screen.dart';
@@ -342,14 +340,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
                       return ClientChatScreen(chatId: chatId);
                     },
-                    routes: [
-                      GoRoute(
-                        path: AppRoutes.info,
-                        builder: (context, state) => ClientChatInfoScreen(
-                          chatId: state.pathParameters['id'] ?? "",
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -518,14 +508,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                         chatId: state.pathParameters['id'] ?? "",
                       );
                     },
-                    routes: [
-                      GoRoute(
-                        path: AppRoutes.info,
-                        builder: (context, state) => OwnerChatInfoScreen(
-                          chatId: state.pathParameters['id'] ?? "",
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

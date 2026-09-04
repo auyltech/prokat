@@ -16,6 +16,7 @@ class OwnerPaymentTile extends StatelessWidget {
 
     final isTopUp = transaction.type == TransactionType.topup;
     final isConsumption = transaction.type == TransactionType.consumption;
+    final isGift = transaction.type == TransactionType.freecredit;
 
     return Card(
       elevation: 0,
@@ -32,6 +33,8 @@ class OwnerPaymentTile extends StatelessWidget {
                 ? Colors.green[50]
                 : isConsumption
                 ? Colors.red[50]
+                : isGift
+                ? const Color(0xFFF3E8FF)
                 : Colors.grey[100],
             shape: BoxShape.circle,
           ),
@@ -40,12 +43,16 @@ class OwnerPaymentTile extends StatelessWidget {
                 ? Icons.account_balance_wallet_outlined
                 : isConsumption
                 ? Icons.receipt_long_outlined
+                : isGift
+                ? Icons.card_giftcard_outlined
                 : Icons.payment_outlined,
             size: 24,
             color: isTopUp
                 ? Colors.green[800]
                 : isConsumption
                 ? Colors.red[600]
+                : isGift
+                ? const Color(0xFF7C3AED)
                 : Colors.grey[800],
           ),
         ),
@@ -54,11 +61,13 @@ class OwnerPaymentTile extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Text(
-          formatDateTime(
-            transaction.createdAt,
-            transaction.createdAt,
-            locale: l10n.localeName,
-          ),
+          isGift
+              ? '${l10n.transactionGift} · ${formatDateTime(transaction.createdAt, transaction.createdAt, locale: l10n.localeName)}'
+              : formatDateTime(
+                  transaction.createdAt,
+                  transaction.createdAt,
+                  locale: l10n.localeName,
+                ),
           style: const TextStyle(fontSize: 12),
         ),
         trailing: transaction.type == TransactionType.topup

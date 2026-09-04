@@ -656,6 +656,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notSupportedYet => 'Пока не поддерживается';
 
   @override
+  String get paymentFeatureComingSoon =>
+      'Функционал оплаты и пополнения баланса сейчас в разработке и скоро будет добавлен.';
+
+  @override
+  String get transactionGift => 'Подарок';
+
+  @override
   String get errorLoadingProfile => 'Не удалось загрузить профиль';
 
   @override

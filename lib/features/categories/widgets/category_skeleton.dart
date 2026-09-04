@@ -10,18 +10,18 @@ class CategorySkeleton extends StatelessWidget {
       children: [
         // 1. Vehicle Image Block
         Container(
-          width: 80,
-          height: 60,
+          width: 128,
+          height: 80,
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         // 2. Service Label Text Line
         Container(
-          width: 70,
-          height: 12,
+          width: 128,
+          height: 18,
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(4),

@@ -6,4 +6,6 @@
 - `PENDING_REVIEW` locks the form until an admin accepts or rejects — no further edits (anti-spam).
 - Banner: pending / rejected / suspended only. Approved and incomplete show no plaque; documents are not collected.
 - Become-owner (`POST /owner/become-owner`) is a separate client-mode screen. After submit it pops back to the client profile CTA (`pending`). Pending/approved applications are read-only; rejected can resubmit.
+- First admin approval of become-owner sets `OwnerProfile` to `APPROVED` and credits **10 000 gift minutes** once (`FREECREDIT` / `WELCOME_OWNER_MINUTES`). The gift is a ledger row, not tied to profile status. Repeat approve after reject does not credit again.
+- Package submit on the top-up screen does not call `POST /billing`; it shows `paymentFeatureComingSoon`. Real top-up is not connected.
 - Online switch (`PATCH /owner/profile/status`): `ONLINE` needs paid minutes. Zero balance forces `OFFLINE` and the switch snaps back with `cannotGoOnlineWithZeroBalance`.

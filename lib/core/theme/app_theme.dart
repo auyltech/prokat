@@ -193,6 +193,12 @@ class AppTheme {
         ),
       ),
       iconTheme: const IconThemeData(color: darkTextSecondary),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: darkTextPrimary),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(foregroundColor: darkTextPrimary),
+      ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(color: darkTextPrimary),
         displayMedium: TextStyle(color: darkTextPrimary),

@@ -134,15 +134,15 @@ class _OwnerEquipmentDetailScreenState
                     canEditImages: equipment.isDraft,
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                     child: Column(
                       children: [
-                        GeneralInfoSection(equipment: equipment),
                         CategorySelectorTile(
                           mode: CategorySheetMode.editEquipment,
                           selectedCategoryId: equipment.categoryId,
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
+                        GeneralInfoSection(equipment: equipment),
                         RegistrationSection(equipment: equipment),
                         OwnerEquipmentSpecs(equipment: equipment),
                         if (showSaveAll) ...[

@@ -653,6 +653,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notSupportedYet => 'Not supported yet';
 
   @override
+  String get paymentFeatureComingSoon =>
+      'Payment and balance top-up is currently in development and will be added soon.';
+
+  @override
+  String get transactionGift => 'Gift';
+
+  @override
   String get errorLoadingProfile => 'Failed to load profile';
 
   @override

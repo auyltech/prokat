@@ -16,7 +16,7 @@ class OtpField extends StatelessWidget {
       height: 60,
       textStyle: TextStyle(
         fontSize: 24,
-        color: theme.colorScheme.primary,
+        color: theme.colorScheme.onPrimary,
         fontWeight: FontWeight.bold,
       ),
       decoration: BoxDecoration(

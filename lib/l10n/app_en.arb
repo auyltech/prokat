@@ -242,6 +242,8 @@
   "priceMustBePositive": "Price must be greater than zero",
   "priceMaximumExceeded": "Price cannot exceed 100,000",
   "notSupportedYet": "Not supported yet",
+  "paymentFeatureComingSoon": "Payment and balance top-up is currently in development and will be added soon.",
+  "transactionGift": "Gift",
   "errorLoadingProfile": "Failed to load profile",
   "tapToRetry": "Tap to retry",
   "announcements": "Announcements",

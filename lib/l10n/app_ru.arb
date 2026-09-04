@@ -235,6 +235,8 @@
   "priceMustBePositive": "Цена должна быть больше нуля",
   "priceMaximumExceeded": "Цена не может превышать 100 000",
   "notSupportedYet": "Пока не поддерживается",
+  "paymentFeatureComingSoon": "Функционал оплаты и пополнения баланса сейчас в разработке и скоро будет добавлен.",
+  "transactionGift": "Подарок",
   "errorLoadingProfile": "Не удалось загрузить профиль",
   "tapToRetry": "Нажмите, чтобы повторить",
   "announcements": "Объявления",

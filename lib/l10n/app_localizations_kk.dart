@@ -650,6 +650,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get notSupportedYet => 'Әзірге қолдау көрсетілмейді';
 
   @override
+  String get paymentFeatureComingSoon =>
+      'Төлем және балансты толықтыру функциясы әзірленуде және жақында қосылады.';
+
+  @override
+  String get transactionGift => 'Сыйлық';
+
+  @override
   String get errorLoadingProfile => 'Профильді жүктеу мүмкін болмады';
 
   @override

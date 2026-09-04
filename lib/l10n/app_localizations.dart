@@ -1282,6 +1282,18 @@ abstract class AppLocalizations {
   /// **'Not supported yet'**
   String get notSupportedYet;
 
+  /// No description provided for @paymentFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment and balance top-up is currently in development and will be added soon.'**
+  String get paymentFeatureComingSoon;
+
+  /// No description provided for @transactionGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get transactionGift;
+
   /// No description provided for @errorLoadingProfile.
   ///
   /// In en, this message translates to:

@@ -235,6 +235,8 @@
   "priceMustBePositive": "Баға нөлден жоғары болуы керек",
   "priceMaximumExceeded": "Баға 100 000-нан аспауы керек",
   "notSupportedYet": "Әзірге қолдау көрсетілмейді",
+  "paymentFeatureComingSoon": "Төлем және балансты толықтыру функциясы әзірленуде және жақында қосылады.",
+  "transactionGift": "Сыйлық",
   "errorLoadingProfile": "Профильді жүктеу мүмкін болмады",
   "tapToRetry": "Қайталау үшін басыңыз",
   "announcements": "Хабарландырулар",

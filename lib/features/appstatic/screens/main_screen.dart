@@ -228,7 +228,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             else if (items.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 40,
+                  ),
                   child: EmptyStateTile(
                     imageName: 'empty_equipment.png',
                     title: selectedCity.isNotEmpty
