@@ -426,7 +426,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             const SizedBox(height: 16),
           ],
           InputField(
-            label: l10n.name,
+            label: 'Название',
             controller: _nameController,
             onChanged: _onChanged,
             hint: l10n.equipmentNameHint,

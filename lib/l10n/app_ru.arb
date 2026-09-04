@@ -235,6 +235,8 @@
   "priceMustBePositive": "Цена должна быть больше нуля",
   "priceMaximumExceeded": "Цена не может превышать 100 000",
   "notSupportedYet": "Пока не поддерживается",
+  "paymentFeatureComingSoon": "Функционал оплаты и пополнения баланса сейчас в разработке и скоро будет добавлен.",
+  "transactionGift": "Подарок",
   "errorLoadingProfile": "Не удалось загрузить профиль",
   "tapToRetry": "Нажмите, чтобы повторить",
   "announcements": "Объявления",
@@ -336,6 +338,7 @@
   "username": "Имя пользователя",
   "city": "Город",
   "street": "Улица",
+  "houseNumber": "№",
   "address": "Адрес",
   "model": "Модель",
   "capacity": "Объём",
@@ -810,8 +813,26 @@
   "onlineStatus": "В сети",
   "offlineStatus": "Не в сети",
   "minutesBalance": "Баланс минут",
-  "minutesUnit": "Мин",
+  "minutesUnit": "мин",
   "burnRate": "Скорость расхода",
+  "burnRateValue": "~{rate} мин/ч",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "Нет активного расхода",
+  "zeroBalanceHiddenFromSearch": "При 0 оплаченных минут техника не видна заказчикам в поиске. Пополните баланс, чтобы снова появиться в выдаче.",
+  "equipmentOnlineCount": "{count, plural, one{{count} единица онлайн} few{{count} единицы онлайн} many{{count} единиц онлайн} other{{count} единиц онлайн}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "всего",
+  "statOnline": "онлайн",
+  "statActive": "активные",
+  "statCompleted": "завершено",
   "hello": "Привет!",
   "reviews": "отзывов",
   "rentAnEquipment": "Арендовать технику",
@@ -1108,6 +1129,8 @@
   "youAreNowOnline": "Вы теперь онлайн",
   "youAreNowOffline": "Вы теперь офлайн",
   "failedToggleStatus": "Не удалось обновить статус",
+  "cannotGoOnlineWithZeroBalance": "Нельзя быть онлайн при нулевом балансе",
+  "cannotRespondWithZeroBalance": "Нельзя откликаться на заявки при нулевом балансе",
   "countryKazakhstan": "Казахстан",
   "modelStandard": "Стандарт",
   "modelHeavyDuty": "Тяжёлый",

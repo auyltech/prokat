@@ -73,7 +73,6 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       titleWidget = ChatHeaderTile(
         chatId: chatId,
         currentUserId: currentUserId,
-        isOwner: isOwnerScreen,
       );
     } else {
       titleString = resolveAppBarTitle(currentPath, segments, l10n);

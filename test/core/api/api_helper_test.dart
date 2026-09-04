@@ -116,6 +116,19 @@ void main() {
     );
   });
 
+  test('extractBackendCode reads nested AppError code', () {
+    expect(
+      extractBackendCode({
+        'success': false,
+        'error': {
+          'code': 'CONFLICT:OWNER:STATUS:BALANCE',
+          'message': 'Cannot go online with zero balance',
+        },
+      }),
+      'CONFLICT:OWNER:STATUS:BALANCE',
+    );
+  });
+
   test('extractBackendCode prefers code over error', () {
     expect(
       extractBackendCode({

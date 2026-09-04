@@ -1,16 +1,33 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
+import 'package:prokat/features/catalog/models/localized_names.dart';
+import 'package:prokat/features/map/services/map_pin_housenum.dart';
+import 'package:prokat/features/map/services/map_pin_streets.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 
 const _equipmentMarkerImageId = 'equipment-icon';
 const _equipmentMarkerAsset = 'assets/icons/map_marker.png';
+
+class MapPinTarget {
+  const MapPinTarget({
+    required this.point,
+    this.houseNumber,
+    this.nearbyStreets = const [],
+  });
+
+  final Point point;
+  final String? houseNumber;
+  final List<LocalizedNames> nearbyStreets;
+}
 
 class MapController {
   MapController(this._ref);
@@ -23,6 +40,8 @@ class MapController {
   bool _styleReady = false;
   int _attachGeneration = 0;
   int _markerSyncGeneration = 0;
+  GlobalKey? _mapViewKey;
+  GlobalKey? _pinIconKey;
 
   bool _isCurrent(int attachGeneration) =>
       attachGeneration == _attachGeneration && _map != null;
@@ -55,6 +74,188 @@ class MapController {
     _styleReady = false;
     _map = map;
     if (initialItems != null) _equipments = initialItems;
+  }
+
+  void bindOverlayKeys({GlobalKey? mapViewKey, GlobalKey? pinIconKey}) {
+    _mapViewKey = mapViewKey;
+    _pinIconKey = pinIconKey;
+  }
+
+  ScreenCoordinate? _pinTipPixel() {
+    final mapBox =
+        _mapViewKey?.currentContext?.findRenderObject() as RenderBox?;
+    final pinBox =
+        _pinIconKey?.currentContext?.findRenderObject() as RenderBox?;
+    if (mapBox == null ||
+        pinBox == null ||
+        !mapBox.hasSize ||
+        !pinBox.hasSize) {
+      return null;
+    }
+
+    final tipGlobal = pinBox.localToGlobal(
+      Offset(pinBox.size.width / 2, pinBox.size.height),
+    );
+    final tipInMap = mapBox.globalToLocal(tipGlobal);
+    return ScreenCoordinate(x: tipInMap.dx, y: tipInMap.dy);
+  }
+
+  /// Geographic point under the overlay pin tip, not the camera/icon center.
+  Future<Point?> coordinateAtPinTip() async {
+    final map = _map;
+    if (map == null) return null;
+
+    try {
+      final pixel = _pinTipPixel();
+      if (pixel != null) {
+        return await map.coordinateForPixel(pixel);
+      }
+
+      final camera = await map.getCameraState();
+      return camera.center;
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+      return null;
+    }
+  }
+
+  /// House number from Streets tiles at the pin tip.
+  ///
+  /// Prefers the painted `housenum-label` (matches what the user sees). If the
+  /// label is decluttered but tile data is loaded (zoom ≥ 16), falls back to
+  /// the nearest `housenum_label` in the composite source. Miss → null so
+  /// reverse geocode keeps its own house number.
+  Future<String?> houseNumberAtPinTip([Point? at]) async {
+    final map = _map;
+    if (map == null) return null;
+
+    try {
+      final pixel = _pinTipPixel();
+      final origin =
+          at ??
+          (pixel != null
+              ? await map.coordinateForPixel(pixel)
+              : (await map.getCameraState()).center);
+
+      if (pixel != null) {
+        final rendered = await map.queryRenderedFeatures(
+          RenderedQueryGeometry.fromScreenBox(
+            ScreenBox(
+              min: ScreenCoordinate(
+                x: pixel.x - housenumQueryPadPx,
+                y: pixel.y - housenumQueryPadPx,
+              ),
+              max: ScreenCoordinate(
+                x: pixel.x + housenumQueryPadPx,
+                y: pixel.y + housenumQueryPadPx,
+              ),
+            ),
+          ),
+          RenderedQueryOptions(layerIds: [housenumLabelLayerId]),
+        );
+        final fromRendered = pickNearestHouseNumber([
+          for (final hit in rendered)
+            if (hit?.queriedFeature.feature != null)
+              hit!.queriedFeature.feature,
+        ], origin);
+        if (fromRendered != null) return fromRendered;
+      }
+
+      final sourced = await map.querySourceFeatures(
+        housenumCompositeSourceId,
+        SourceQueryOptions(
+          sourceLayerIds: [housenumSourceLayerId],
+          filter: '["has","house_num"]',
+        ),
+      );
+      return pickNearestHouseNumber(
+        [
+          for (final hit in sourced)
+            if (hit?.queriedFeature.feature != null)
+              hit!.queriedFeature.feature,
+        ],
+        origin,
+        maxDistanceSq: housenumMaxDistanceSq,
+      );
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+      return null;
+    }
+  }
+
+  Future<List<LocalizedNames>> streetsAtPinTip(Point origin) async {
+    final map = _map;
+    if (map == null) return const [];
+
+    try {
+      final features = <Map<String?, Object?>>[];
+
+      final sourced = await map.querySourceFeatures(
+        roadCompositeSourceId,
+        SourceQueryOptions(
+          sourceLayerIds: [roadSourceLayerId],
+          filter: '["has","name"]',
+        ),
+      );
+      for (final hit in sourced) {
+        final feature = hit?.queriedFeature.feature;
+        if (feature != null) features.add(feature);
+      }
+
+      final pixel = _pinTipPixel();
+      if (pixel != null) {
+        final pad = await _metersToPixels(map, origin, roadQueryRadiusMeters);
+        final rendered = await map.queryRenderedFeatures(
+          RenderedQueryGeometry.fromScreenBox(
+            ScreenBox(
+              min: ScreenCoordinate(x: pixel.x - pad, y: pixel.y - pad),
+              max: ScreenCoordinate(x: pixel.x + pad, y: pixel.y + pad),
+            ),
+          ),
+          RenderedQueryOptions(layerIds: [roadLabelLayerId]),
+        );
+        for (final hit in rendered) {
+          final feature = hit?.queriedFeature.feature;
+          if (feature != null) features.add(feature);
+        }
+      }
+
+      return pickNearbyStreets(features, origin);
+    } catch (error) {
+      if (_isDisposedChannel(error)) _clearAttachedMap();
+      return const [];
+    }
+  }
+
+  Future<double> _metersToPixels(
+    MapboxMap map,
+    Point origin,
+    double meters,
+  ) async {
+    const metersPerDegLat = 111320.0;
+    final north = Point(
+      coordinates: Position(
+        origin.coordinates.lng,
+        origin.coordinates.lat + meters / metersPerDegLat,
+      ),
+    );
+    final a = await map.pixelForCoordinate(origin);
+    final b = await map.pixelForCoordinate(north);
+    final dx = a.x - b.x;
+    final dy = a.y - b.y;
+    return math.sqrt(dx * dx + dy * dy).clamp(36.0, 220.0);
+  }
+
+  Future<MapPinTarget?> pinTarget() async {
+    final point = await coordinateAtPinTip();
+    if (point == null) return null;
+    final houseNumber = await houseNumberAtPinTip(point);
+    final nearbyStreets = await streetsAtPinTip(point);
+    return MapPinTarget(
+      point: point,
+      houseNumber: houseNumber,
+      nearbyStreets: nearbyStreets,
+    );
   }
 
   /// Drops Dart references to a native map that [MapWidget] already disposed.

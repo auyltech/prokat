@@ -124,8 +124,8 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
               color: hasError
                   ? errorColor
                   : hasCategory
-                  ? theme.colorScheme.onPrimary
-                  : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.3),
               size: 24,
             ),
           ),

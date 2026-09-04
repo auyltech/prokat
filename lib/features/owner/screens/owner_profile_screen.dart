@@ -52,15 +52,18 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
-    final ownerEquipmentCount =
-        ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
-
+    final equipmentItems =
+        ref.watch(ownerEquipmentProvider).value?.items ?? const [];
+    final ownerEquipmentCount = equipmentItems.length;
+    final onlineEquipmentCount = equipmentItems
+        .where((item) => item.isVisible)
+        .length;
     final activeOrders =
         ref.watch(ownerActiveBookingsProvider).value?.count ?? 0;
+    final completedOrders = ownerProfile?.orderCount ?? 0;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -78,7 +81,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
           slivers: [
             // Owner Profile
             SliverAppBar(
-              expandedHeight: 400,
+              expandedHeight: 320,
               pinned: false,
               elevation: 0,
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
@@ -94,28 +97,31 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         Expanded(
                           child: OwnerStatCard(
-                            value: ownerEquipmentCount.toString(),
-                            label: l10n.navEquipment,
-                            valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.truck,
+                            title: l10n.navEquipment,
+                            firstLabel: l10n.statTotal,
+                            firstValue: ownerEquipmentCount.toString(),
+                            secondLabel: l10n.statOnline,
+                            secondValue: onlineEquipmentCount.toString(),
                             onTap: () => context.go(AppRoutes.ownerEquipment),
                           ),
                         ),
-
                         const SizedBox(width: 10),
                         Expanded(
                           child: OwnerStatCard(
-                            value: activeOrders.toString(),
-                            label: l10n.ordersUnit,
-                            valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.package,
+                            title: l10n.navOrders,
+                            firstLabel: l10n.statActive,
+                            firstValue: activeOrders.toString(),
+                            secondLabel: l10n.statCompleted,
+                            secondValue: completedOrders.toString(),
                             onTap: () => context.go(AppRoutes.ownerBookings),
                           ),
                         ),

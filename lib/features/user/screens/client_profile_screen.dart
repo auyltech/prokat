@@ -62,7 +62,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             // User Profile
             SliverAppBar(
               backgroundColor: theme.colorScheme.primary,
-              expandedHeight: 400,
+              expandedHeight: 320,
               actions: const [
                 NotificationBadge(color: Colors.white),
                 SizedBox(width: 16),
@@ -101,18 +101,18 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    ProkatListTile(
-                      icon: Icons.favorite_outline,
-                      iconColor: theme.colorScheme.onPrimary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
-                      title: l10n.supportUsTitle,
-                      subtitle: l10n.donateOrHelp,
-                      onTap: () => context.push(AppRoutes.supportUs),
-                    ),
-
-                    const SizedBox(height: 20),
+                    // TODO(Vadim): Пока слишком сырое
+                    // ProkatListTile(
+                    //   icon: Icons.favorite_outline,
+                    //   iconColor: theme.colorScheme.onPrimary,
+                    //   iconBgColor: theme.colorScheme.primary.withValues(
+                    //     alpha: 0.2,
+                    //   ),
+                    //   title: l10n.supportUsTitle,
+                    //   subtitle: l10n.donateOrHelp,
+                    //   onTap: () => context.push(AppRoutes.supportUs),
+                    // ),
+                    // const SizedBox(height: 20),
 
                     ProkatListTile(
                       icon: LucideIcons.scrollText,
@@ -128,17 +128,6 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     const SizedBox(height: 20),
 
                     ProkatListTile(
-                      icon: LucideIcons.lifeBuoy,
-                      iconColor: Colors.red,
-                      iconBgColor: Colors.red.withValues(alpha: 0.15),
-                      title: l10n.helpSupportTitle,
-                      subtitle: l10n.helpSupportSubtitle,
-                      onTap: () => context.push(AppRoutes.helpSupport),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    ProkatListTile(
                       icon: LucideIcons.settings,
                       iconColor: theme.colorScheme.onPrimary,
                       iconBgColor: theme.colorScheme.primary.withValues(
@@ -147,6 +136,17 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       title: l10n.appSettings,
                       subtitle: l10n.appSettingsSubtitle,
                       onTap: () => context.push(AppRoutes.clientSettings),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.lifeBuoy,
+                      iconColor: Colors.red,
+                      iconBgColor: Colors.red.withValues(alpha: 0.15),
+                      title: l10n.helpSupportTitle,
+                      subtitle: l10n.helpSupportSubtitle,
+                      onTap: () => context.push(AppRoutes.helpSupport),
                     ),
 
                     const SizedBox(height: 40),

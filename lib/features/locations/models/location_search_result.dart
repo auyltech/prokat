@@ -45,6 +45,42 @@ class LocationSearchResult {
     ].where((part) => part.isNotEmpty).join(', ');
   }
 
+  LocationSearchResult withHouseNumber(String? houseNumber) {
+    final house = houseNumber?.trim();
+    return LocationSearchResult(
+      name: name,
+      street: street,
+      streetNames: streetNames,
+      houseNumber: (house == null || house.isEmpty) ? null : house,
+      city: city,
+      cityNames: cityNames,
+      country: country,
+      countryNames: countryNames,
+      region: region,
+      regionNames: regionNames,
+      longitude: longitude,
+      latitude: latitude,
+    );
+  }
+
+  LocationSearchResult withStreetNames(LocalizedNames streetNames) {
+    final street = streetNames.pickPreferRu('ru');
+    return LocationSearchResult(
+      name: street.isNotEmpty ? street : name,
+      street: street.isNotEmpty ? street : this.street,
+      streetNames: streetNames,
+      houseNumber: houseNumber,
+      city: city,
+      cityNames: cityNames,
+      country: country,
+      countryNames: countryNames,
+      region: region,
+      regionNames: regionNames,
+      longitude: longitude,
+      latitude: latitude,
+    );
+  }
+
   factory LocationSearchResult.fromJson(Map<String, dynamic> json) {
     final house = json['houseNumber']?.toString().trim();
 

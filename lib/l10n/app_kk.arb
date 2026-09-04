@@ -235,6 +235,8 @@
   "priceMustBePositive": "Баға нөлден жоғары болуы керек",
   "priceMaximumExceeded": "Баға 100 000-нан аспауы керек",
   "notSupportedYet": "Әзірге қолдау көрсетілмейді",
+  "paymentFeatureComingSoon": "Төлем және балансты толықтыру функциясы әзірленуде және жақында қосылады.",
+  "transactionGift": "Сыйлық",
   "errorLoadingProfile": "Профильді жүктеу мүмкін болмады",
   "tapToRetry": "Қайталау үшін басыңыз",
   "announcements": "Хабарландырулар",
@@ -337,6 +339,7 @@
   "username": "Пайдаланушы аты",
   "city": "Қала",
   "street": "Көше",
+  "houseNumber": "№",
   "address": "Мекен-жай",
   "model": "Модель",
   "capacity": "Сыйымдылық",
@@ -811,8 +814,26 @@
   "onlineStatus": "Желіде",
   "offlineStatus": "Желіде емес",
   "minutesBalance": "Минут балансы",
-  "minutesUnit": "Мин",
+  "minutesUnit": "мин",
   "burnRate": "Жұмсалу жылдамдығы",
+  "burnRateValue": "~{rate} мин/сағ",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "Белсенді жұмсалу жоқ",
+  "zeroBalanceHiddenFromSearch": "Төленген минуттар нөлде болғанда техника тапсырыс берушілердің іздеуінде көрінбейді. Қайта шығу үшін балансты толтырыңыз.",
+  "equipmentOnlineCount": "{count, plural, one{{count} техника желіде} other{{count} техника желіде}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "барлығы",
+  "statOnline": "желіде",
+  "statActive": "белсенді",
+  "statCompleted": "аяқталған",
   "hello": "Сәлем!",
   "reviews": "пікір",
   "rentAnEquipment": "Техника жалдау",
@@ -1109,6 +1130,8 @@
   "youAreNowOnline": "Енді сіз онлайнсыз",
   "youAreNowOffline": "Енді сіз офлайнсыз",
   "failedToggleStatus": "Мәртебені жаңарту мүмкін болмады",
+  "cannotGoOnlineWithZeroBalance": "Баланс нөлде болғанда онлайн болуға болмайды",
+  "cannotRespondWithZeroBalance": "Баланс нөлде болғанда өтінімге жауап беруге болмайды",
   "countryKazakhstan": "Қазақстан",
   "modelStandard": "Стандарт",
   "modelHeavyDuty": "Ауыр",

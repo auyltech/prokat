@@ -650,6 +650,13 @@ class AppLocalizationsKk extends AppLocalizations {
   String get notSupportedYet => 'Әзірге қолдау көрсетілмейді';
 
   @override
+  String get paymentFeatureComingSoon =>
+      'Төлем және балансты толықтыру функциясы әзірленуде және жақында қосылады.';
+
+  @override
+  String get transactionGift => 'Сыйлық';
+
+  @override
   String get errorLoadingProfile => 'Профильді жүктеу мүмкін болмады';
 
   @override
@@ -894,6 +901,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get street => 'Көше';
+
+  @override
+  String get houseNumber => '№';
 
   @override
   String get address => 'Мекен-жай';
@@ -2249,10 +2259,45 @@ class AppLocalizationsKk extends AppLocalizations {
   String get minutesBalance => 'Минут балансы';
 
   @override
-  String get minutesUnit => 'Мин';
+  String get minutesUnit => 'мин';
 
   @override
   String get burnRate => 'Жұмсалу жылдамдығы';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate мин/сағ';
+  }
+
+  @override
+  String get noActiveDepletion => 'Белсенді жұмсалу жоқ';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'Төленген минуттар нөлде болғанда техника тапсырыс берушілердің іздеуінде көрінбейді. Қайта шығу үшін балансты толтырыңыз.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count техника желіде',
+      one: '$count техника желіде',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statTotal => 'барлығы';
+
+  @override
+  String get statOnline => 'желіде';
+
+  @override
+  String get statActive => 'белсенді';
+
+  @override
+  String get statCompleted => 'аяқталған';
 
   @override
   String get hello => 'Сәлем!';
@@ -3105,6 +3150,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get failedToggleStatus => 'Мәртебені жаңарту мүмкін болмады';
+
+  @override
+  String get cannotGoOnlineWithZeroBalance =>
+      'Баланс нөлде болғанда онлайн болуға болмайды';
+
+  @override
+  String get cannotRespondWithZeroBalance =>
+      'Баланс нөлде болғанда өтінімге жауап беруге болмайды';
 
   @override
   String get countryKazakhstan => 'Қазақстан';

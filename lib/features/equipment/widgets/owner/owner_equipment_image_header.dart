@@ -299,7 +299,6 @@ class _OwnerEquipmentImageHeaderState
                   },
                 ),
         ),
-
         if (images.length > 1)
           Positioned(
             left: 0,

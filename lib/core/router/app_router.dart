@@ -14,18 +14,15 @@ import 'package:prokat/features/appstatic/screens/user_agreement_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/create_booking_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
-import 'package:prokat/features/chat/screens/client_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_screen.dart';
 import 'package:prokat/features/chat/screens/client_support_chat.dart';
-import 'package:prokat/features/chat/screens/owner_chat_info_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/owner_chat_screen.dart';
 import 'package:prokat/features/support/screens/contact_support_screen.dart';
 import 'package:prokat/features/equipment/screens/search_equipment_screen.dart';
 import 'package:prokat/features/layout/main_scaffold.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
-import 'package:prokat/features/locations/screens/client_addresses_screen.dart';
 import 'package:prokat/features/map/screens/map_owner_pin_location_screen.dart';
 import 'package:prokat/features/map/screens/map_client_equipment_screen.dart';
 import 'package:prokat/features/map/screens/map_client_pin_address_screen.dart';
@@ -261,8 +258,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: AppRoutes.clientAddresses,
-                builder: (context, state) {
-                  return const ClientAddressesScreen();
+                redirect: (context, state) {
+                  if (state.uri.path == AppRoutes.clientAddresses) {
+                    return AppRoutes.clientProfile;
+                  }
+                  return null;
                 },
                 routes: [
                   GoRoute(
@@ -340,14 +340,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
                       return ClientChatScreen(chatId: chatId);
                     },
-                    routes: [
-                      GoRoute(
-                        path: AppRoutes.info,
-                        builder: (context, state) => ClientChatInfoScreen(
-                          chatId: state.pathParameters['id'] ?? "",
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -516,14 +508,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                         chatId: state.pathParameters['id'] ?? "",
                       );
                     },
-                    routes: [
-                      GoRoute(
-                        path: AppRoutes.info,
-                        builder: (context, state) => OwnerChatInfoScreen(
-                          chatId: state.pathParameters['id'] ?? "",
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

@@ -5,7 +5,6 @@ class AppRoutes {
   static const String history = 'history';
   static const String map = 'map';
   static const String topUp = 'top-up';
-  static const String info = 'info';
   static const String directChat = 'direct';
   static const String supportChat = 'support';
   static const String sendOffer = 'send-offer';

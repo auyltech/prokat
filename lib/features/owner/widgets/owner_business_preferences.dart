@@ -48,15 +48,8 @@ class _OwnerBusinessPreferencesSectionState
     final l10n = AppLocalizations.of(context)!;
     final profile = ref.watch(ownerProfileProvider).valueOrNull;
 
-    final equipmentCount =
-        ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
-
     const accent = AppColors.teal800;
     final accentBackground = accent.withValues(alpha: 0.15);
-
-    final equipmentText = equipmentCount == 0
-        ? l10n.noEquipmentAdded
-        : l10n.fleetItemsCount(equipmentCount);
 
     final businessName = (profile?.companyName ?? '').trim().isNotEmpty
         ? profile!.companyName!.trim()
@@ -67,19 +60,9 @@ class _OwnerBusinessPreferencesSectionState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
-
-        Text(
-          l10n.businessPreferences,
-          style: Theme.of(context).textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w700),
-        ),
-
-        const SizedBox(height: 16),
-
         const OwnerStatusTile(),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 40),
 
         ProkatListTile(
           icon: LucideIcons.briefcase,
@@ -90,16 +73,17 @@ class _OwnerBusinessPreferencesSectionState
           onTap: () => context.push(AppRoutes.ownerRegistration),
         ),
 
-        const SizedBox(height: 20),
-
-        ProkatListTile(
-          icon: LucideIcons.truck,
-          iconColor: accent,
-          iconBgColor: accentBackground,
-          title: l10n.manageMyEquipment,
-          subtitle: equipmentText,
-          onTap: () => context.push(AppRoutes.ownerEquipment),
-        ),
+        // TODO(Vadim): дублирует имеющийся функционал
+        // const SizedBox(height: 20),
+        //
+        // ProkatListTile(
+        //   icon: LucideIcons.truck,
+        //   iconColor: accent,
+        //   iconBgColor: accentBackground,
+        //   title: l10n.manageMyEquipment,
+        //   subtitle: equipmentText,
+        //   onTap: () => context.push(AppRoutes.ownerEquipment),
+        // ),
       ],
     );
   }

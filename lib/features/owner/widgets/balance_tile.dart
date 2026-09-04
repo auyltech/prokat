@@ -101,9 +101,8 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             children: [
               Text(
                 l10n.accountBalance,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-                  letterSpacing: 0.3,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               if (onlineEquipment > 0)
@@ -117,7 +116,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    "$onlineEquipment Equipment online",
+                    l10n.equipmentOnlineCount(onlineEquipment),
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -135,8 +134,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                ((billingState.accountBalance?.secondsRemaining ?? 0) / 60)
-                    .toStringAsFixed(0),
+                billingState.minutesRemaining.toString(),
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w500,
@@ -147,7 +145,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  "min",
+                  l10n.minutesUnit,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
@@ -174,40 +172,48 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
           const SizedBox(height: 12),
 
-          // ── Row 3: burn rate + exhaustion footer ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _FooterMetric(
-                label: l10n.burnRate,
-                value: "~${burnRate.toStringAsFixed(0)} min/hr",
-                align: CrossAxisAlignment.start,
-                valueColor: theme.colorScheme.onSurface,
+          if (billingState.minutesRemaining <= 0)
+            Text(
+              l10n.zeroBalanceHiddenFromSearch,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+                fontWeight: FontWeight.w500,
               ),
-
-              _FooterMetric(
-                label: l10n.estimatedExhaustion,
-                value: billingState.formattedExhaustionTime,
-                align: CrossAxisAlignment.end,
-                valueColor: billingState.hasActiveBurn
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface,
+            )
+          else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _FooterMetric(
+                  label: l10n.burnRate,
+                  value: l10n.burnRateValue(burnRate.round()),
+                  align: CrossAxisAlignment.start,
+                  valueColor: theme.colorScheme.onSurface,
+                ),
+                _FooterMetric(
+                  label: l10n.estimatedExhaustion,
+                  value:
+                      billingState.formattedExhaustionTime ??
+                      l10n.noActiveDepletion,
+                  align: CrossAxisAlignment.end,
+                  valueColor: billingState.hasActiveBurn
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
+                ),
+              ],
+            ),
+            if (billingState.hasActiveBurn) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: null,
+                  minHeight: 3,
+                  backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ],
-          ),
-
-          // ── Active burn progress indicator (subtle, at bottom) ──
-          if (billingState.hasActiveBurn) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: null,
-                minHeight: 3,
-                backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
-                color: theme.colorScheme.primary,
-              ),
-            ),
           ],
         ],
       ),

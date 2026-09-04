@@ -63,7 +63,7 @@ class GuestEquipmentCard extends StatelessWidget {
               imageUrl: item.imageUrl ?? "",
               width: 120,
               height: height,
-              fit: BoxFit.contain,
+              fit: BoxFit.cover,
               fallbackIcon: Icons.inventory_2_outlined,
             ),
           ),

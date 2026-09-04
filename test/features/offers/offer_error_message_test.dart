@@ -39,4 +39,14 @@ void main() {
       'Not allowed to create offer for your own request',
     );
   });
+
+  test('maps CONFLICT:OFFERS:CREATE:BALANCE to the app locale', () {
+    expect(
+      offerCreateErrorMessage(
+        l10n: AppLocalizationsRu(),
+        errorCode: offerCreateZeroBalanceCode,
+      ),
+      'Нельзя откликаться на заявки при нулевом балансе',
+    );
+  });
 }

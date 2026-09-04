@@ -134,12 +134,10 @@ class ChatTile extends ConsumerWidget {
                             ),
                             if (showStatusBadge) ...[
                               const SizedBox(width: 8),
-                              Flexible(
-                                child: _StatusBadge(
-                                  label: statusLabel,
-                                  color: _getStatusColor(summary.status, theme),
-                                  theme: theme,
-                                ),
+                              _StatusBadge(
+                                label: statusLabel,
+                                color: _getStatusColor(summary.status, theme),
+                                theme: theme,
                               ),
                             ],
                           ],

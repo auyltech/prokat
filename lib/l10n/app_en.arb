@@ -242,6 +242,8 @@
   "priceMustBePositive": "Price must be greater than zero",
   "priceMaximumExceeded": "Price cannot exceed 100,000",
   "notSupportedYet": "Not supported yet",
+  "paymentFeatureComingSoon": "Payment and balance top-up is currently in development and will be added soon.",
+  "transactionGift": "Gift",
   "errorLoadingProfile": "Failed to load profile",
   "tapToRetry": "Tap to retry",
   "announcements": "Announcements",
@@ -338,6 +340,7 @@
   "username": "Username",
   "city": "City",
   "street": "Street",
+  "houseNumber": "No.",
   "address": "Address",
   "model": "Model",
   "capacity": "Capacity",
@@ -813,8 +816,26 @@
   "onlineStatus": "Online",
   "offlineStatus": "Offline",
   "minutesBalance": "Minutes Balance",
-  "minutesUnit": "Min",
+  "minutesUnit": "min",
   "burnRate": "Burn Rate",
+  "burnRateValue": "~{rate} min/hr",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "No active depletion",
+  "zeroBalanceHiddenFromSearch": "With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.",
+  "equipmentOnlineCount": "{count, plural, =1{{count} equipment online} other{{count} equipment online}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "total",
+  "statOnline": "online",
+  "statActive": "active",
+  "statCompleted": "completed",
   "hello": "Hello!",
   "reviews": "reviews",
   "rentAnEquipment": "Rent an equipment",
@@ -1111,6 +1132,8 @@
   "youAreNowOnline": "You are now online",
   "youAreNowOffline": "You are now offline",
   "failedToggleStatus": "Failed to update status",
+  "cannotGoOnlineWithZeroBalance": "Cannot go online with a zero balance",
+  "cannotRespondWithZeroBalance": "Cannot respond to requests with a zero balance",
   "countryKazakhstan": "Kazakhstan",
   "modelStandard": "Standard",
   "modelHeavyDuty": "Heavy Duty",

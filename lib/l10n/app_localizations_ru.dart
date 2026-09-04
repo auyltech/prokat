@@ -656,6 +656,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notSupportedYet => 'Пока не поддерживается';
 
   @override
+  String get paymentFeatureComingSoon =>
+      'Функционал оплаты и пополнения баланса сейчас в разработке и скоро будет добавлен.';
+
+  @override
+  String get transactionGift => 'Подарок';
+
+  @override
   String get errorLoadingProfile => 'Не удалось загрузить профиль';
 
   @override
@@ -910,6 +917,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get street => 'Улица';
+
+  @override
+  String get houseNumber => '№';
 
   @override
   String get address => 'Адрес';
@@ -2267,10 +2277,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get minutesBalance => 'Баланс минут';
 
   @override
-  String get minutesUnit => 'Мин';
+  String get minutesUnit => 'мин';
 
   @override
   String get burnRate => 'Скорость расхода';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate мин/ч';
+  }
+
+  @override
+  String get noActiveDepletion => 'Нет активного расхода';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'При 0 оплаченных минут техника не видна заказчикам в поиске. Пополните баланс, чтобы снова появиться в выдаче.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count единиц онлайн',
+      many: '$count единиц онлайн',
+      few: '$count единицы онлайн',
+      one: '$count единица онлайн',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statTotal => 'всего';
+
+  @override
+  String get statOnline => 'онлайн';
+
+  @override
+  String get statActive => 'активные';
+
+  @override
+  String get statCompleted => 'завершено';
 
   @override
   String get hello => 'Привет!';
@@ -3132,6 +3179,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get failedToggleStatus => 'Не удалось обновить статус';
+
+  @override
+  String get cannotGoOnlineWithZeroBalance =>
+      'Нельзя быть онлайн при нулевом балансе';
+
+  @override
+  String get cannotRespondWithZeroBalance =>
+      'Нельзя откликаться на заявки при нулевом балансе';
 
   @override
   String get countryKazakhstan => 'Казахстан';

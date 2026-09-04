@@ -46,7 +46,6 @@ String resolveAppBarTitle(
 
   if (path == AppRoutes.searchMap) return l10n.mapSearch;
 
-  if (path == AppRoutes.clientAddresses) return l10n.myAddresses;
   if (path == AppRoutes.clientPinAddress) return l10n.selectAddress;
   if (path == AppRoutes.clientCreateAddress) return l10n.addAddress;
 

@@ -1282,6 +1282,18 @@ abstract class AppLocalizations {
   /// **'Not supported yet'**
   String get notSupportedYet;
 
+  /// No description provided for @paymentFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment and balance top-up is currently in development and will be added soon.'**
+  String get paymentFeatureComingSoon;
+
+  /// No description provided for @transactionGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get transactionGift;
+
   /// No description provided for @errorLoadingProfile.
   ///
   /// In en, this message translates to:
@@ -1749,6 +1761,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Street'**
   String get street;
+
+  /// No description provided for @houseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No.'**
+  String get houseNumber;
 
   /// No description provided for @address.
   ///
@@ -4393,7 +4411,7 @@ abstract class AppLocalizations {
   /// No description provided for @minutesUnit.
   ///
   /// In en, this message translates to:
-  /// **'Min'**
+  /// **'min'**
   String get minutesUnit;
 
   /// No description provided for @burnRate.
@@ -4401,6 +4419,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Burn Rate'**
   String get burnRate;
+
+  /// No description provided for @burnRateValue.
+  ///
+  /// In en, this message translates to:
+  /// **'~{rate} min/hr'**
+  String burnRateValue(int rate);
+
+  /// No description provided for @noActiveDepletion.
+  ///
+  /// In en, this message translates to:
+  /// **'No active depletion'**
+  String get noActiveDepletion;
+
+  /// No description provided for @zeroBalanceHiddenFromSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.'**
+  String get zeroBalanceHiddenFromSearch;
+
+  /// No description provided for @equipmentOnlineCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} equipment online} other{{count} equipment online}}'**
+  String equipmentOnlineCount(int count);
+
+  /// No description provided for @statTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'total'**
+  String get statTotal;
+
+  /// No description provided for @statOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'online'**
+  String get statOnline;
+
+  /// No description provided for @statActive.
+  ///
+  /// In en, this message translates to:
+  /// **'active'**
+  String get statActive;
+
+  /// No description provided for @statCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'completed'**
+  String get statCompleted;
 
   /// No description provided for @hello.
   ///
@@ -5913,6 +5979,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to update status'**
   String get failedToggleStatus;
+
+  /// No description provided for @cannotGoOnlineWithZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot go online with a zero balance'**
+  String get cannotGoOnlineWithZeroBalance;
+
+  /// No description provided for @cannotRespondWithZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot respond to requests with a zero balance'**
+  String get cannotRespondWithZeroBalance;
 
   /// No description provided for @countryKazakhstan.
   ///

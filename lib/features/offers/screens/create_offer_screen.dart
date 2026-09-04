@@ -11,6 +11,7 @@ import 'package:prokat/core/widgets/drop_down_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
+import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/offers/offer_error_message.dart';
@@ -85,6 +86,14 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
       if (!(_formKey.currentState?.validate() ?? false)) {
         AppSnackBar.show(
           message: l10n.pleaseProvideRequiredInformation,
+          isError: true,
+        );
+        return;
+      }
+
+      if (ref.read(billingProvider).isOutOfPaidMinutes) {
+        AppSnackBar.show(
+          message: l10n.cannotRespondWithZeroBalance,
           isError: true,
         );
         return;

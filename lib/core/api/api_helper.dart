@@ -20,6 +20,14 @@ String? extractBackendCode(dynamic data) {
     }
   }
 
+  // Error middleware wraps AppError as `{ error: { code, message, ... } }`.
+  if (error is Map) {
+    final nested = error['code'];
+    if (nested is String && nested.trim().isNotEmpty) {
+      return nested.trim();
+    }
+  }
+
   return null;
 }
 
