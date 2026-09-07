@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
 
 class OfferTile extends ConsumerWidget {
   final OfferModel offer;
@@ -29,6 +30,7 @@ class OfferTile extends ConsumerWidget {
     }
 
     final notifier = ref.read(offerMutationProvider.notifier);
+    final navigation = TenderAcceptNavigation.capture(context);
 
     final result = await notifier.acceptOffer(
       offer.id,
@@ -36,13 +38,15 @@ class OfferTile extends ConsumerWidget {
       requestId: offer.requestId,
     );
 
-    if (!context.mounted) return;
-
     AppSnackBar.show(
       message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
       isSuccess: result.success,
       isError: !result.success,
     );
+
+    if (result.success) {
+      navigation.revealClientOrders();
+    }
   }
 
   Future<void> _handleReject(

@@ -6,10 +6,8 @@ import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
-import 'package:prokat/core/widgets/date_picker_component.dart';
 import 'package:prokat/core/widgets/drop_down_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
@@ -41,19 +39,8 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
       if (request == null) return;
 
-      // Price
       _price.text = request.offeredPrice.toString();
       ref.read(offerMutationProvider.notifier).setPrice(request.offeredPrice);
-
-      // Date
-      if (request.requiredOn != null) {
-        ref.read(offerMutationProvider.notifier).setDate(request.requiredOn!);
-      }
-
-      // Time
-      if (request.requiredAt != null) {
-        ref.read(offerMutationProvider.notifier).setTime(request.requiredAt!);
-      }
     });
   }
 
@@ -194,56 +181,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
               const SizedBox(height: 12),
 
-              SectionTitle(
-                title: l10n.selectDate,
-                trailing: offersState.selectedDate == null
-                    ? l10n.requiredHint
-                    : null,
-              ),
-
-              const SizedBox(height: 8),
-
-              DatePickerComponent(
-                daysRange: 7, // Pass your dynamic 'x' range here
-                isRequired: true, // Shows indicator text
-                selectedDate: offersState.selectedDate,
-                onDateSelected: (date) {
-                  offersNotifier.setDate(date);
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              SectionTitle(
-                title: l10n.selectTime,
-                trailing: offersState.selectedTime == null
-                    ? l10n.requiredHint
-                    : null,
-              ),
-
-              const SizedBox(height: 8),
-
-              TimePickerComponent(
-                slotLengthMinutes: 30, // 30 minute blocks
-                startHour: 9, // Start at 09:00
-                endHour: 17, // End at 17:00
-                isRequired: true,
-                selectedDateTime: offersState.selectedTime,
-                onTimeSelected: (updatedDateTime) {
-                  offersNotifier.setTime(
-                    updatedDateTime,
-                  ); // This emits a full DateTime object
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              SectionTitle(
-                title: l10n.comments,
-                trailing: offersState.selectedTime == null
-                    ? l10n.requiredHint
-                    : null,
-              ),
+              SectionTitle(title: l10n.comments),
 
               const SizedBox(height: 8),
 
@@ -252,7 +190,6 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                 label: l10n.comments,
                 controller: _comment,
                 hint: l10n.equipmentNameHint,
-                // validator: (v) => v == null || v.isEmpty ? l10n.required : null,
               ),
 
               const SizedBox(height: 24),

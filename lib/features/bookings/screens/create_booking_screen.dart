@@ -352,6 +352,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         startHour: 9, // Start at 09:00
                         endHour: 17, // End at 17:00
                         isRequired: true,
+                        referenceDate: bookingState.selectedDate,
                         selectedDateTime: bookingState.selectedTime,
                         onTimeSelected: (updatedDateTime) {
                           bookingNotifier.setTime(

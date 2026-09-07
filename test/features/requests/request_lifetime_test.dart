@@ -12,10 +12,7 @@ void main() {
   });
 
   test('counts 24 hours from publication and clamps clock skew', () {
-    expect(
-      requestLifetimeRemaining(now, now: now),
-      requestLifetime,
-    );
+    expect(requestLifetimeRemaining(now, now: now), requestLifetime);
     expect(
       requestLifetimeRemaining(
         now.subtract(const Duration(hours: 5)),
@@ -31,10 +28,7 @@ void main() {
       Duration.zero,
     );
     expect(
-      requestLifetimeRemaining(
-        now.add(const Duration(days: 400)),
-        now: now,
-      ),
+      requestLifetimeRemaining(now.add(const Duration(days: 400)), now: now),
       requestLifetime,
     );
   });
