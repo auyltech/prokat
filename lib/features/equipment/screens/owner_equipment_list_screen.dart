@@ -62,8 +62,8 @@ class _OwnerEquipmentListScreenState
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) => Shimmer.fromColors(
-                  baseColor: Colors.grey.shade200,
-                  highlightColor: Colors.grey.shade50,
+                  baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+                  highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
                   child: Container(
                     height: 140,
                     margin: const EdgeInsets.only(bottom: 12),
