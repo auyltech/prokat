@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:go_router/go_router.dart';
 
 class MapControls extends ConsumerWidget {
   final VoidCallback onZoomIn;
@@ -18,7 +15,8 @@ class MapControls extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = ref.watch(selectedCategoryProvider);
+    // TODO(Vadim): пока скрыл. Эта функциональность не проверена и плохо подходит для флоу выбора адреса.
+    // final selectedCategory = ref.watch(selectedCategoryProvider);
     const bgColor = Color(0xFF1E2125); // Card Charcoal
     const accentColor = Color(0xFF4E73DF); // Industrial Blue
 
@@ -30,16 +28,18 @@ class MapControls extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            /// 1. VIEW AS LIST (Catalog Icon)
-            _MapControlButton(
-              icon: Icons.view_agenda_rounded, // Much better "Catalog" feel
-              onPressed: () {
-                final id = selectedCategory?.id ?? '';
-                context.go('${AppRoutes.searchMap}?category=$id');
-              },
-              color: bgColor,
-              iconColor: Colors.white,
-            ),
+            // TODO(Vadim): пока скрыл. Эта функциональность не проверена и плохо подходит для флоу выбора адреса.
+            // TODO(Vadim): пока скрыл. Здесь был функционал отображения (предположительно) доступной техники на карте по категориям для выбора ее с целью создания заявки на аренду.
+            // /// 1. VIEW AS LIST (Catalog Icon)
+            // _MapControlButton(
+            //   icon: Icons.view_agenda_rounded, // Much better "Catalog" feel
+            //   onPressed: () {
+            //     final id = selectedCategory?.id ?? '';
+            //     context.go('${AppRoutes.searchMap}?category=$id');
+            //   },
+            //   color: bgColor,
+            //   iconColor: Colors.white,
+            // ),
 
             const SizedBox(height: 24),
 

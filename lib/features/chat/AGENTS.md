@@ -6,6 +6,10 @@
 
 HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:join` только для live. Отказ connect не роняет историю. Handshake `Not authorized` пишется в Crashlytics (`reason: socket_connect`). В нотифаере сообщений читать `AsyncValue.valueOrNull`, не `value`.
 
+## Список
+
+Тайл: имя/аватар **клиента** из `UserProfile`, **владельца** из `OwnerProfile` (как карточка техники), иначе простой профиль. Не собирать ФИО на клиенте из двух таблиц.
+
 ## Статус треда
 
 `getChatConfig` берёт booking (в списке — `bookingSummary`), иначе заявку **этого** треда.
