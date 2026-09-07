@@ -225,6 +225,13 @@ class WorkflowCacheCoordinator {
   }
 
   void _applyRequests(WorkflowUpdate update) {
+    if (update.reason == 'REQUEST_CREATED') {
+      if (ref.exists(ownerActiveRequestsProvider)) {
+        unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+      }
+      return;
+    }
+
     final request = update.request;
     if (request == null) return;
 

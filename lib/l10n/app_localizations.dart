@@ -2380,6 +2380,12 @@ abstract class AppLocalizations {
   /// **'{minutes} min left'**
   String minutesLeft(int minutes);
 
+  /// No description provided for @hoursLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h left'**
+  String hoursLeft(int hours);
+
   /// No description provided for @volume.
   ///
   /// In en, this message translates to:
@@ -2829,6 +2835,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You don\'t have any active requests'**
   String get noActiveRequests;
+
+  /// No description provided for @ownerEmptyRequestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'See current client requests here'**
+  String get ownerEmptyRequestsHint;
 
   /// No description provided for @createNewRequest.
   ///

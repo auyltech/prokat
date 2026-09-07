@@ -1238,6 +1238,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String hoursLeft(int hours) {
+    return '$hours ч осталось';
+  }
+
+  @override
   String get volume => 'Объём';
 
   @override
@@ -1461,6 +1466,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noActiveRequests => 'У вас нет активных заявок';
+
+  @override
+  String get ownerEmptyRequestsHint =>
+      'смотрите актуальные заявки клиентов здесь';
 
   @override
   String get createNewRequest => 'Создать новую заявку';

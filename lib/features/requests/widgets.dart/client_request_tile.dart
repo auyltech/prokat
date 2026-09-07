@@ -10,6 +10,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -72,13 +73,14 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    Text(
-                      request.capacity,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
+                    if (hasVisibleRequestCapacity(request.capacity))
+                      Text(
+                        request.capacity,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),

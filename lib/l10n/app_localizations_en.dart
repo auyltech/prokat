@@ -1233,6 +1233,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String hoursLeft(int hours) {
+    return '$hours h left';
+  }
+
+  @override
   String get volume => 'Volume';
 
   @override
@@ -1456,6 +1461,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noActiveRequests => 'You don\'t have any active requests';
+
+  @override
+  String get ownerEmptyRequestsHint => 'See current client requests here';
 
   @override
   String get createNewRequest => 'Create a new request';

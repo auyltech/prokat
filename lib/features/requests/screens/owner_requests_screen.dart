@@ -9,6 +9,7 @@ import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
+import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -23,12 +24,16 @@ class OwnerRequestsScreen extends ConsumerStatefulWidget {
 
 class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
   late final ScrollController _scrollController;
+  Timer? _lifetimeTicker;
 
   @override
   void initState() {
     super.initState();
 
     _scrollController = ScrollController();
+    _lifetimeTicker = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) setState(() {});
+    });
 
     _scrollController.addListener(() {
       if (!_scrollController.hasClients) return;
@@ -59,6 +64,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
 
   @override
   void dispose() {
+    _lifetimeTicker?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -114,7 +120,12 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
           ),
 
           data: (query) {
-            final requests = query.items;
+            final requests = query.items
+                .where(
+                  (item) =>
+                      requestLifetimeRemaining(item.createdAt) > Duration.zero,
+                )
+                .toList();
 
             return ListView(
               controller: _scrollController,
@@ -126,7 +137,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
                     child: EmptyStateTile(
                       imageName: 'empty_requests.png',
                       title: l10n.noRequestsAtMoment,
-                      subtitle: l10n.noActiveRequests,
+                      subtitle: l10n.ownerEmptyRequestsHint,
                     ),
                   )
                 else
