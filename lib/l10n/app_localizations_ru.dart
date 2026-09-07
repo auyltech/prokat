@@ -1472,7 +1472,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get capacityHint => '10 M3';
 
   @override
-  String get offeredRateHint => 'Цена, которую готовы заплатить';
+  String get offeredRateHint => 'Цена, которую Вы готовы заплатить';
 
   @override
   String get additionalDetails => 'опишите задачу или важные детали';

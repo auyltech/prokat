@@ -540,7 +540,7 @@
   "createNewRequest": "Создать новую заявку",
   "requiredCapacity": "Необходимый объём",
   "capacityHint": "10 M3",
-  "offeredRateHint": "Цена, которую готовы заплатить",
+  "offeredRateHint": "Цена, которую Вы готовы заплатить",
   "additionalDetails": "опишите задачу или важные детали",
   "newRequestBadge": "НОВЫЙ ЗАПРОС",
   "offerSentBadge": "ПРЕДЛОЖЕНИЕ ОТПРАВЛЕНО",

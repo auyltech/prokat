@@ -56,23 +56,27 @@ class AddressPickerCard extends ConsumerWidget {
                 children: [
                   // Top Row: Label and required validation indicator
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        l10n.deliveryLocation,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (isRequired == true)
-                        Text(
-                          l10n.requiredHint,
-                          style: TextStyle(
-                            color: colorScheme.error,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                      Flexible(
+                        child: Text.rich(
+                          TextSpan(
+                            text: l10n.deliveryLocation,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            children: [
+                              if (isRequired == true)
+                                TextSpan(
+                                  text: ' ${l10n.requiredHint}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.error,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
+                      ),
                     ],
                   ),
 

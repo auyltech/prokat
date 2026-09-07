@@ -185,7 +185,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
             service: "address",
             from: "create_request",
           ),
-          isRequired: requestState.selectedLocation == null,
+          isRequired: true,
         ),
 
         const SizedBox(height: 12),
@@ -193,13 +193,12 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         InputField(
           label: l10n.offeredRate,
           controller: rateController,
-          hint: '',
+          hint: l10n.offeredRateHint,
           icon: Icons.payments_outlined,
-          isRequired: !hasOfferedRate,
+          isRequired: true,
           isNumeric: true,
           iconBgColor: Colors.black12,
-          suffixText: l10n.currencyKzt,
-          helperText: l10n.priceMaximumExceeded,
+          requiredHintText: l10n.requiredHint,
           keyboardType: const TextInputType.numberWithOptions(decimal: false),
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
@@ -212,10 +211,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         InputField(
           label: l10n.comments,
           controller: commentController,
-          hint: '',
+          hint: l10n.additionalDetails,
           icon: Icons.chat_bubble_outline_rounded,
           iconBgColor: Colors.black12,
-          helperText: l10n.additionalDetails,
         ),
 
         const SizedBox(height: 12),
@@ -244,6 +242,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               ? l10n.requiredHint
               : null,
         ),
+
+        const SizedBox(height: 12),
 
         TimePickerComponent(
           slotLengthMinutes: 30,

@@ -17,6 +17,7 @@ class InputField extends StatelessWidget {
   final VoidCallback? onChanged;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final String? requiredHintText;
   final String? errorText;
   final String? helperText;
   final String? requiredMessage;
@@ -41,6 +42,7 @@ class InputField extends StatelessWidget {
     this.inputFormatters,
     this.errorText,
     this.helperText,
+    this.requiredHintText,
     this.readOnly = false,
   });
 
@@ -81,7 +83,15 @@ class InputField extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                   children: [
-                    if (isRequired)
+                    if (requiredHintText != null && requiredHintText!.isNotEmpty)
+                      TextSpan(
+                        text: ' $requiredHintText',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    else if (isRequired)
                       TextSpan(
                         text: ' *',
                         style: TextStyle(color: theme.colorScheme.error),
@@ -129,7 +139,8 @@ class InputField extends StatelessWidget {
                       ),
                       decoration: InputDecoration(
                         hintText: hint,
-                        hintStyle: theme.textTheme.labelLarge?.copyWith(
+                        hintMaxLines: 2,
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                           fontWeight: FontWeight.w400,
                         ),
