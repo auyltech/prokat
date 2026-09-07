@@ -97,6 +97,17 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       message = l10n.pleaseSelectDate;
     } else if (requestState.selectedTime == null) {
       message = l10n.pleaseSelectTime;
+    } else {
+      final merged = DateTime(
+        requestState.selectedDate!.year,
+        requestState.selectedDate!.month,
+        requestState.selectedDate!.day,
+        requestState.selectedTime!.hour,
+        requestState.selectedTime!.minute,
+      );
+      if (merged.isBefore(DateTime.now())) {
+        message = l10n.pleaseSelectTime;
+      }
     }
 
     if (message.isNotEmpty) {
@@ -152,12 +163,25 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final selectedCategoryId = requestState.selectedCategory?.id;
     final hasCategory = selectedCategoryId != null;
 
+    final hasValidSchedule = () {
+      final date = requestState.selectedDate;
+      final time = requestState.selectedTime;
+      if (date == null || time == null) return false;
+      final merged = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+      return !merged.isBefore(DateTime.now());
+    }();
+
     final canSubmit =
         hasCategory &&
         requestState.selectedLocation != null &&
         hasOfferedRate &&
-        requestState.selectedDate != null &&
-        requestState.selectedTime != null;
+        hasValidSchedule;
 
     final action = requestState.activeActions
         .where((item) => item.id == "request:create")
@@ -250,6 +274,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           startHour: 9,
           endHour: 17,
           isRequired: true,
+          referenceDate: requestState.selectedDate,
           selectedDateTime: requestState.selectedTime,
           onTimeSelected: (updatedDateTime) {
             requestNotifier.setTime(updatedDateTime);
