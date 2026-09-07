@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class InputField extends StatelessWidget {
+class InputField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final String hint;
@@ -47,24 +47,56 @@ class InputField extends StatelessWidget {
   });
 
   @override
+  State<InputField> createState() => _InputFieldState();
+}
+
+class _InputFieldState extends State<InputField> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant InputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final showRequiredHint =
+        widget.isRequired && widget.controller.text.trim().isEmpty;
 
     return Row(
-      crossAxisAlignment: helperText != null
+      crossAxisAlignment: widget.helperText != null
           ? CrossAxisAlignment.start
           : CrossAxisAlignment.center,
       children: [
-        if (icon != null) ...[
+        if (widget.icon != null) ...[
           Container(
             width: 45,
             height: 50,
             decoration: BoxDecoration(
-              color: iconBgColor,
+              color: widget.iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconColor, size: 25),
+            child: Icon(widget.icon, color: widget.iconColor, size: 25),
           ),
 
           const SizedBox(width: 12),
@@ -78,20 +110,22 @@ class InputField extends StatelessWidget {
               // Top row: Label and required indicator
               Text.rich(
                 TextSpan(
-                  text: label,
+                  text: widget.label,
                   style: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                   children: [
-                    if (requiredHintText != null && requiredHintText!.isNotEmpty)
+                    if (showRequiredHint &&
+                        widget.requiredHintText != null &&
+                        widget.requiredHintText!.isNotEmpty)
                       TextSpan(
-                        text: ' $requiredHintText',
+                        text: ' ${widget.requiredHintText}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.error,
                           fontWeight: FontWeight.w500,
                         ),
                       )
-                    else if (isRequired)
+                    else if (showRequiredHint)
                       TextSpan(
                         text: ' *',
                         style: TextStyle(color: theme.colorScheme.error),
@@ -106,47 +140,47 @@ class InputField extends StatelessWidget {
                   Expanded(
                     // Fixes layout crash by constraining the TextFormField width
                     child: TextFormField(
-                      controller: controller,
-                      readOnly: readOnly,
-                      enableInteractiveSelection: !readOnly,
-                      canRequestFocus: !readOnly,
+                      controller: widget.controller,
+                      readOnly: widget.readOnly,
+                      enableInteractiveSelection: !widget.readOnly,
+                      canRequestFocus: !widget.readOnly,
                       validator: (value) {
                         final text = value?.trim() ?? '';
 
-                        if (isRequired && text.isEmpty) {
-                          return requiredMessage ??
+                        if (widget.isRequired && text.isEmpty) {
+                          return widget.requiredMessage ??
                               AppLocalizations.of(context)?.fieldRequired;
                         }
 
-                        return validator?.call(value);
+                        return widget.validator?.call(value);
                       },
-                      onChanged: (_) => onChanged?.call(),
+                      onChanged: (_) => widget.onChanged?.call(),
                       onTapOutside: (_) {
                         FocusManager.instance.primaryFocus?.unfocus();
                       },
-                      keyboardType: isNumeric
+                      keyboardType: widget.isNumeric
                           ? TextInputType.number
-                          : keyboardType,
-                      inputFormatters: inputFormatters,
-                      textInputAction: isLast
+                          : widget.keyboardType,
+                      inputFormatters: widget.inputFormatters,
+                      textInputAction: widget.isLast
                           ? TextInputAction.done
                           : TextInputAction.next,
                       cursorColor: colorScheme.primary,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: readOnly
+                        color: widget.readOnly
                             ? colorScheme.onSurfaceVariant
                             : colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(
-                        hintText: hint,
+                        hintText: widget.hint,
                         hintMaxLines: 2,
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                           fontWeight: FontWeight.w400,
                         ),
                         isDense: true,
-                        filled: readOnly,
-                        fillColor: readOnly
+                        filled: widget.readOnly,
+                        fillColor: widget.readOnly
                             ? colorScheme.surfaceContainerHighest
                             : null,
                         contentPadding: const EdgeInsets.only(
@@ -167,11 +201,11 @@ class InputField extends StatelessWidget {
                     ),
                   ),
 
-                  if (suffixText != null)
+                  if (widget.suffixText != null)
                     Padding(
                       padding: const EdgeInsets.only(left: 12.0),
                       child: Text(
-                        suffixText!,
+                        widget.suffixText!,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w600,
@@ -181,10 +215,10 @@ class InputField extends StatelessWidget {
                 ],
               ),
 
-              if (helperText != null) ...[
+              if (widget.helperText != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  helperText!,
+                  widget.helperText!,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
                     height: 1.25,
@@ -192,10 +226,10 @@ class InputField extends StatelessWidget {
                 ),
               ],
 
-              if (errorText != null) ...[
+              if (widget.errorText != null) ...[
                 const SizedBox(height: 6),
                 Text(
-                  errorText!,
+                  widget.errorText!,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.error,
                     fontWeight: FontWeight.w600,
