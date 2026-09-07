@@ -1470,7 +1470,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offeredRateHint => 'Price you\'re willing to pay';
 
   @override
-  String get additionalDetails => 'Additional details...';
+  String get additionalDetails => 'describe the job or important details';
 
   @override
   String get newRequestBadge => 'NEW REQUEST';

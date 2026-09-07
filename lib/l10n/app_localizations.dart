@@ -2857,7 +2857,7 @@ abstract class AppLocalizations {
   /// No description provided for @additionalDetails.
   ///
   /// In en, this message translates to:
-  /// **'Additional details...'**
+  /// **'describe the job or important details'**
   String get additionalDetails;
 
   /// No description provided for @newRequestBadge.

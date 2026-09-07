@@ -1459,7 +1459,8 @@ class AppLocalizationsKk extends AppLocalizations {
   String get offeredRateHint => 'Төлеуге дайын бағаңыз';
 
   @override
-  String get additionalDetails => 'Қосымша мәліметтер...';
+  String get additionalDetails =>
+      'тапсырманы немесе маңызды детальдарды жазыңыз';
 
   @override
   String get newRequestBadge => 'ЖАҢА СҰРАНЫС';
