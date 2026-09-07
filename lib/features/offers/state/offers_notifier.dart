@@ -38,8 +38,6 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
   void selectRequest(RequestModel request) {
     state = state.copyWith(
       selectedRequest: request,
-      selectedDate: request.requiredOn,
-      selectedTime: request.requiredAt,
       price: request.offeredPrice,
     );
   }
@@ -49,8 +47,6 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
   void setPrice(int value) => state = state.copyWith(price: value);
   void setPriceRate(PriceRateOption value) =>
       state = state.copyWith(priceRate: value);
-  void setDate(DateTime value) => state = state.copyWith(selectedDate: value);
-  void setTime(DateTime value) => state = state.copyWith(selectedTime: value);
   void setComment(String value) => state = state.copyWith(comment: value);
 
   Future<void> _refreshOfferQuery({
@@ -146,9 +142,7 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
     if (state.selectedEquipment == null ||
         state.selectedRequest == null ||
         state.price == null ||
-        state.priceRate == null ||
-        state.selectedDate == null ||
-        state.selectedTime == null) {
+        state.priceRate == null) {
       return MutationResponse(
         success: false,
         message: 'Please provide required information',

@@ -13,9 +13,6 @@ class OffersState {
   final PriceRateOption? priceRate;
   final String? comment;
 
-  final DateTime? selectedDate;
-  final DateTime? selectedTime;
-
   OffersState({
     this.activeActions = const {},
     this.selectedRequest,
@@ -24,9 +21,6 @@ class OffersState {
     this.price,
     this.priceRate,
     this.comment,
-
-    this.selectedDate,
-    this.selectedTime,
   });
 
   bool get isSubmitting {
@@ -53,9 +47,6 @@ class OffersState {
     int? price,
     PriceRateOption? priceRate,
     String? comment,
-
-    DateTime? selectedDate,
-    DateTime? selectedTime,
   }) {
     return OffersState(
       activeActions: activeActions ?? this.activeActions,
@@ -64,9 +55,6 @@ class OffersState {
       price: price ?? this.price,
       priceRate: priceRate ?? this.priceRate,
       comment: comment ?? this.comment,
-
-      selectedDate: selectedDate ?? this.selectedDate,
-      selectedTime: selectedTime ?? this.selectedTime,
     );
   }
 }
