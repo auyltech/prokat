@@ -189,8 +189,9 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                       else
                         IconButton(
                           onPressed: () async {
-                            final navigation =
-                                TenderAcceptNavigation.capture(context);
+                            final navigation = TenderAcceptNavigation.capture(
+                              context,
+                            );
                             final result = await ref
                                 .read(offerMutationProvider.notifier)
                                 .acceptOffer(

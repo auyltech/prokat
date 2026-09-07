@@ -47,8 +47,7 @@ class TimePickerComponent extends StatelessWidget {
             spacing: 8.0,
             runSpacing: 8.0,
             children: timeSlots.map((slotDateTime) {
-              final bool isPast =
-                  disablePast && slotDateTime.isBefore(now);
+              final bool isPast = disablePast && slotDateTime.isBefore(now);
               final bool isSelected =
                   !isPast &&
                   selectedDateTime != null &&
