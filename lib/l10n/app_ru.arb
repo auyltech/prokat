@@ -541,7 +541,7 @@
   "requiredCapacity": "Необходимый объём",
   "capacityHint": "10 M3",
   "offeredRateHint": "Цена, которую готовы заплатить",
-  "additionalDetails": "Дополнительные детали...",
+  "additionalDetails": "опишите задачу или важные детали",
   "newRequestBadge": "НОВЫЙ ЗАПРОС",
   "offerSentBadge": "ПРЕДЛОЖЕНИЕ ОТПРАВЛЕНО",
   "cancelRequest": "Отменить заявку?",

@@ -542,7 +542,7 @@
   "requiredCapacity": "Қажетті сыйымдылық",
   "capacityHint": "10 M3",
   "offeredRateHint": "Төлеуге дайын бағаңыз",
-  "additionalDetails": "Қосымша мәліметтер...",
+  "additionalDetails": "тапсырманы немесе маңызды детальдарды жазыңыз",
   "newRequestBadge": "ЖАҢА СҰРАНЫС",
   "offerSentBadge": "ҰСЫНЫС ЖІБЕРІЛДІ",
   "cancelRequest": "Сұранысты жою?",

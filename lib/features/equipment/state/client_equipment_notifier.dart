@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
@@ -12,6 +14,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   Future<void>? _refreshing;
   int? _refreshingGeneration;
   AuthenticatedSessionScopeKey? _refreshingScope;
+  var _refreshAgain = false;
   AuthenticatedSessionScopeKey? _stateScope;
   AuthenticatedSessionScopeKey? _filterScope;
   int _requestGeneration = 0;
@@ -99,6 +102,7 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     if (active != null &&
         _refreshingGeneration == generation &&
         _refreshingScope == scope) {
+      _refreshAgain = true;
       return active;
     }
 
@@ -111,6 +115,10 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         _refreshing = null;
         _refreshingGeneration = null;
         _refreshingScope = null;
+        if (_refreshAgain) {
+          _refreshAgain = false;
+          unawaited(refresh());
+        }
       }
     });
   }

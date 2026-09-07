@@ -81,19 +81,21 @@ class RequestService {
   Future<ApiResponse<void>> createRequest({
     required String categoryId,
     required String locationId,
-    required String capacity,
+    String? capacity,
     required DateTime requiredOn,
     DateTime? requiredAt,
     String? comment,
     required int offeredRate,
   }) async {
     try {
+      final trimmedCapacity = capacity?.trim();
       final response = await _dio.post(
         '/requests',
         data: {
           "categoryId": categoryId,
           "locationId": locationId,
-          "capacity": capacity,
+          if (trimmedCapacity != null && trimmedCapacity.isNotEmpty)
+            "capacity": trimmedCapacity,
           // 1. Force UTC transformation before stringifying
           "requiredOn": requiredOn.toUtc().toIso8601String(),
           "requiredAt": requiredAt?.toUtc().toIso8601String(),

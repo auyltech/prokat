@@ -1475,7 +1475,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get offeredRateHint => 'Цена, которую готовы заплатить';
 
   @override
-  String get additionalDetails => 'Дополнительные детали...';
+  String get additionalDetails => 'опишите задачу или важные детали';
 
   @override
   String get newRequestBadge => 'НОВЫЙ ЗАПРОС';

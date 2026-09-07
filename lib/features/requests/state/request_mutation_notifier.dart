@@ -77,7 +77,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
   }
 
   Future<MutationResponse> createRequest({
-    required String capacity,
+    String? capacity,
     required int offeredRate,
     required String categoryId,
     String? comment,

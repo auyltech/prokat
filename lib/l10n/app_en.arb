@@ -543,7 +543,7 @@
   "requiredCapacity": "Required Capacity",
   "capacityHint": "10 M3",
   "offeredRateHint": "Price you're willing to pay",
-  "additionalDetails": "Additional details...",
+  "additionalDetails": "describe the job or important details",
   "newRequestBadge": "NEW REQUEST",
   "offerSentBadge": "OFFER SENT",
   "cancelRequest": "Cancel Request?",

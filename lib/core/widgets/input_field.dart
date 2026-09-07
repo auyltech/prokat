@@ -176,6 +176,7 @@ class InputField extends StatelessWidget {
                   helperText!,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    height: 1.25,
                   ),
                 ),
               ],
