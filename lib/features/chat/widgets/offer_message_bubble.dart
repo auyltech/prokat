@@ -7,6 +7,7 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
+import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/offer_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -188,13 +189,17 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                       else
                         IconButton(
                           onPressed: () async {
-                            await ref
+                            final navigation =
+                                TenderAcceptNavigation.capture(context);
+                            final result = await ref
                                 .read(offerMutationProvider.notifier)
                                 .acceptOffer(
                                   offer.id,
                                   chatId: widget.message.chatId,
                                   requestId: offer.requestId,
                                 );
+                            if (!result.success) return;
+                            navigation.revealClientOrders();
                           },
                           iconSize: 32,
                           padding: const EdgeInsets.all(0),

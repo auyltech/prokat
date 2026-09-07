@@ -96,7 +96,9 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
 
                 if (selectedMode == null) return;
 
-                ref.read(themeModeProvider.notifier).setThemeMode(selectedMode);
+                await ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(selectedMode);
               },
             ),
 

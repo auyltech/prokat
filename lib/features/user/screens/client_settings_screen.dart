@@ -91,7 +91,9 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
                 if (selectedMode == null) return;
 
-                ref.read(themeModeProvider.notifier).setThemeMode(selectedMode);
+                await ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(selectedMode);
               },
             ),
 
