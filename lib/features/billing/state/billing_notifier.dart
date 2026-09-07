@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/billing/models/account_balance_model.dart';
 import 'package:prokat/features/billing/state/billing_service.dart';
 import 'package:prokat/features/billing/state/billing_state.dart';
 
@@ -48,6 +49,15 @@ class BillingNotifier extends StateNotifier<BillingState> {
         ..['balance'] = e.toString();
       state = state.copyWith(isBalanceLoading: false, errors: updatedErrors);
     }
+  }
+
+  void applySocketBalance(AccountBalanceModel balance) {
+    final updatedErrors = Map<String, String>.from(state.errors)
+      ..remove('balance');
+    state = state.copyWith(
+      accountBalance: () => balance,
+      errors: updatedErrors,
+    );
   }
 
   Future<void> getOwnerTransactions() async {

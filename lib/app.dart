@@ -12,6 +12,7 @@ import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
 import 'package:prokat/features/map/services/map_language.dart';
 import 'package:prokat/features/equipment/providers/catalog_bootstrap_provider.dart';
+import 'package:prokat/features/billing/providers/billing_bootstrap_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_bootstrap_provider.dart';
 import 'package:prokat/features/workflow/providers/workflow_bootstrap_provider.dart';
 
@@ -51,6 +52,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     ref.watch(chatSidebarBootstrapProvider);
     ref.watch(workflowBootstrapProvider);
     ref.watch(catalogBootstrapProvider);
+    ref.watch(billingBootstrapProvider);
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);

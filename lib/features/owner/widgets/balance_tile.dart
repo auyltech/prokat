@@ -7,6 +7,8 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BalanceTile extends ConsumerStatefulWidget {
@@ -22,7 +24,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
   @override
   void initState() {
     super.initState();
-    _balancePoll = Timer.periodic(const Duration(seconds: 60), (_) {
+    _balancePoll = Timer.periodic(const Duration(seconds: 15), (_) {
       if (!mounted) return;
       unawaited(
         ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
@@ -41,14 +43,16 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final billingState = ref.watch(billingProvider);
+    final ownerOnline =
+        ref.watch(ownerProfileProvider).valueOrNull?.onlineStatus ==
+        OwnerStatus.online;
 
     final onlineEquipment = ref
         .watch(ownerEquipmentProvider.notifier)
         .onlineEquipmentCount;
 
-    final burnRate = onlineEquipment == 0
-        ? 0
-        : billingState.getDailyCost(onlineEquipment) / 24;
+    final billingActive = ownerOnline && billingState.hasActiveBurn;
+    final burnRate = billingActive ? billingState.burnRateMinutesPerHour : 0;
 
     // ── Loading state ──
     if (billingState.isBalanceLoading) {
@@ -126,7 +130,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                   color: theme.colorScheme.onSurface,
                 ),
               ),
-              if (onlineEquipment > 0)
+              if (ownerOnline && onlineEquipment > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -207,23 +211,26 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
               children: [
                 _FooterMetric(
                   label: l10n.burnRate,
-                  value: l10n.burnRateValue(burnRate.round()),
+                  value: l10n.burnRateValue(burnRate),
                   align: CrossAxisAlignment.start,
                   valueColor: theme.colorScheme.onSurface,
                 ),
                 _FooterMetric(
                   label: l10n.estimatedExhaustion,
-                  value:
-                      billingState.formattedExhaustionTime(l10n.localeName) ??
-                      l10n.noActiveDepletion,
+                  value: billingActive
+                      ? (billingState.formattedExhaustionTime(
+                              l10n.localeName,
+                            ) ??
+                            l10n.noActiveDepletion)
+                      : l10n.noActiveDepletion,
                   align: CrossAxisAlignment.end,
-                  valueColor: billingState.hasActiveBurn
+                  valueColor: billingActive
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onSurface,
                 ),
               ],
             ),
-            if (billingState.hasActiveBurn) ...[
+            if (billingActive) ...[
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),

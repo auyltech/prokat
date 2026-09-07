@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
@@ -144,7 +146,12 @@ class OwnerRegistrationMutationNotifier
     state = state.copyWith(isLoading: true, error: null, errorCode: null);
     try {
       final result = await api.updateOwnerStatus(ownerStatus: ownerStatus);
-      if (result) await ref.read(ownerProfileProvider.notifier).refresh();
+      if (result) {
+        await ref.read(ownerProfileProvider.notifier).refresh();
+        unawaited(
+          ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+        );
+      }
       state = state.copyWith(isLoading: false);
       return result;
     } on OwnerStatusApiException catch (error) {
