@@ -128,12 +128,12 @@ class _ImageShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final baseColor = backgroundColor ?? colorScheme.surfaceContainerHighest;
+    final baseColor =
+        backgroundColor ?? Colors.grey[500]!.withValues(alpha: 0.2);
 
     return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: colorScheme.surface.withValues(alpha: 0.65),
+      baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+      highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
       child: Container(color: baseColor),
     );
   }

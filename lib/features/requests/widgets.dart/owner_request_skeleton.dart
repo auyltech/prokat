@@ -16,8 +16,8 @@ class RequestTileSkeleton extends StatelessWidget {
       double radius = 4,
     }) {
       return Shimmer.fromColors(
-        baseColor: theme.hoverColor.withValues(alpha: 0.1),
-        highlightColor: theme.highlightColor.withValues(alpha: 0.1),
+        baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+        highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
         child: Container(
           width: width,
           height: height,

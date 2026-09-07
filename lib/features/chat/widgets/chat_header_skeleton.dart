@@ -6,13 +6,9 @@ class ChatHeaderSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Using simple defaults; adapt colors to your theme if needed
-    final baseColor = Colors.grey[300]!;
-    final highlightColor = Colors.grey[100]!;
-
     return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: highlightColor,
+      baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+      highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
       child: Row(
         children: [
           // 1. Avatar Circle

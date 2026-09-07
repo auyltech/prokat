@@ -189,8 +189,8 @@ class _ChatListPane extends ConsumerWidget {
                 itemCount: 5,
                 itemBuilder: (context, index) {
                   return Shimmer.fromColors(
-                    baseColor: Colors.black12,
-                    highlightColor: Colors.grey.shade50,
+                    baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+                    highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
                     child: ChatTileSkeleton(index: index),
                   );
                 },
@@ -279,17 +279,9 @@ Widget _ownerSkeleton(ScrollController controller) {
     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
     itemCount: 5,
     itemBuilder: (context, index) {
-      return Shimmer(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.grey.shade300,
-            Colors.grey.shade100,
-            Colors.grey.shade300,
-          ],
-          stops: const [0.3, 0.5, 0.7],
-        ),
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+        highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
         child: Container(
           height: 80,
           margin: const EdgeInsets.only(bottom: 16),
