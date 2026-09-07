@@ -462,6 +462,12 @@
       "minutes": { "type": "int" }
     }
   },
+  "hoursLeft": "{hours} h left",
+  "@hoursLeft": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
   "volume": "Volume",
   "specFilterFrom": "From",
   "specFilterTo": "To",
@@ -539,6 +545,7 @@
   "loginToViewRequests": "Login to create and view requests",
   "errorLoadingRequests": "Error loading requests",
   "noActiveRequests": "You don't have any active requests",
+  "ownerEmptyRequestsHint": "See current client requests here",
   "createNewRequest": "Create a new request",
   "requiredCapacity": "Required Capacity",
   "capacityHint": "10 M3",

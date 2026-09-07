@@ -12,6 +12,7 @@ import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
+import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -113,19 +114,21 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                     ),
                     Row(
                       children: [
-                        Icon(
-                          Icons.propane_outlined,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${request.capacity} ${l10n.unitCubicMeters}',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.5,
+                        if (hasVisibleRequestCapacity(request.capacity)) ...[
+                          Icon(
+                            Icons.propane_outlined,
+                            color: theme.colorScheme.onPrimary,
                           ),
-                        ),
-                        const SizedBox(width: 8),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${request.capacity} ${l10n.unitCubicMeters}',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                         Icon(
                           Icons.cable_outlined,
                           color: theme.colorScheme.onPrimary,

@@ -460,6 +460,12 @@
       "minutes": { "type": "int" }
     }
   },
+  "hoursLeft": "{hours} ч осталось",
+  "@hoursLeft": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
   "volume": "Объём",
   "specFilterFrom": "от",
   "specFilterTo": "до",
@@ -537,6 +543,7 @@
   "loginToViewRequests": "Войдите для просмотра заявок",
   "errorLoadingRequests": "Ошибка загрузки заявок",
   "noActiveRequests": "У вас нет активных заявок",
+  "ownerEmptyRequestsHint": "смотрите актуальные заявки клиентов здесь",
   "createNewRequest": "Создать новую заявку",
   "requiredCapacity": "Необходимый объём",
   "capacityHint": "10 M3",

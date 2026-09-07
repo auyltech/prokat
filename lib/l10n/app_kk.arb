@@ -461,6 +461,12 @@
       "minutes": { "type": "int" }
     }
   },
+  "hoursLeft": "{hours} сағ қалды",
+  "@hoursLeft": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
   "volume": "Көлем",
   "specFilterFrom": "бастап",
   "specFilterTo": "дейін",
@@ -538,6 +544,7 @@
   "loginToViewRequests": "Сұраныстарды көру үшін кіріңіз",
   "errorLoadingRequests": "Сұраныстарды жүктеу қатесі",
   "noActiveRequests": "Белсенді сұраныстарыңыз жоқ",
+  "ownerEmptyRequestsHint": "Клиенттердің өзекті өтінімдерін осында қараңыз",
   "createNewRequest": "Жаңа сұраныс жасау",
   "requiredCapacity": "Қажетті сыйымдылық",
   "capacityHint": "10 M3",

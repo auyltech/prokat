@@ -16,6 +16,7 @@ import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/view_offer_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
+import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/state/request_utils.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
@@ -46,7 +47,14 @@ class OwnerRequestTile extends ConsumerWidget {
 
     final activeOffer = offers.firstOrNull;
 
-    final minutesLeft = getRemainingMinutes(request.createdAt);
+    final remaining = requestLifetimeRemaining(request.createdAt);
+    if (remaining <= Duration.zero) {
+      return const SizedBox.shrink();
+    }
+
+    final lifetimeLabel = remaining >= const Duration(hours: 1)
+        ? l10n.hoursLeft(requestLifetimeHoursLeft(remaining))
+        : l10n.minutesLeft(requestLifetimeMinutesLeft(remaining));
 
     return Container(
       decoration: BoxDecoration(color: theme.cardColor),
@@ -110,13 +118,14 @@ class OwnerRequestTile extends ConsumerWidget {
                     ),
                   ),
 
-                  Text(
-                    request.capacity,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
+                  if (hasVisibleRequestCapacity(request.capacity))
+                    Text(
+                      request.capacity,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -128,13 +137,9 @@ class OwnerRequestTile extends ConsumerWidget {
               Icon(Icons.access_time, size: 20, color: theme.colorScheme.error),
               const SizedBox(width: 4),
               Text(
-                minutesLeft > 0
-                    ? l10n.minutesLeft(minutesLeft)
-                    : formatRequestTime(request.createdAt.toString(), l10n),
+                lifetimeLabel,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: minutesLeft > 0
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.error,
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

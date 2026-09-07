@@ -1222,6 +1222,11 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
+  String hoursLeft(int hours) {
+    return '$hours сағ қалды';
+  }
+
+  @override
   String get volume => 'Көлем';
 
   @override
@@ -1445,6 +1450,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get noActiveRequests => 'Белсенді сұраныстарыңыз жоқ';
+
+  @override
+  String get ownerEmptyRequestsHint =>
+      'Клиенттердің өзекті өтінімдерін осында қараңыз';
 
   @override
   String get createNewRequest => 'Жаңа сұраныс жасау';
