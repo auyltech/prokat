@@ -180,6 +180,12 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                                   .isNotEmpty // Check for empty string
                           ? mediaImageProvider(ref, widget.initialImageUrl)
                           : null),
+                onBackgroundImageError:
+                    (_selectedImage == null &&
+                        widget.initialImageUrl != null &&
+                        widget.initialImageUrl!.isNotEmpty)
+                    ? ignoreMediaImageLoadError
+                    : null,
                 child:
                     (_selectedImage == null &&
                         (widget.initialImageUrl == null ||

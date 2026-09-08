@@ -81,11 +81,7 @@ class UserAvatar extends ConsumerWidget {
           ? Colors.transparent
           : _getBackgroundColor(initials),
       backgroundImage: hasImage ? mediaImageProvider(ref, avatarUrl) : null,
-      onBackgroundImageError: hasImage
-          ? (exception, stackTrace) {
-              // Gracefully handles broken network URLs in production environments
-            }
-          : null,
+      onBackgroundImageError: hasImage ? ignoreMediaImageLoadError : null,
       child: hasImage
           ? null
           : Text(initials, style: textStyle ?? defaultTextStyle, maxLines: 1),

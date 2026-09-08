@@ -24,6 +24,9 @@ class UserInfoTile extends ConsumerWidget {
           backgroundImage: (user?.imageUrl ?? '').isNotEmpty
               ? mediaImageProvider(ref, user?.imageUrl)
               : null,
+          onBackgroundImageError: (user?.imageUrl ?? '').isNotEmpty
+              ? ignoreMediaImageLoadError
+              : null,
           child: (user?.imageUrl ?? '').isNotEmpty
               ? null
               : ClipOval(
