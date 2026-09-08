@@ -1809,6 +1809,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get failedToUploadPhoto => 'Не удалось загрузить фото';
 
   @override
+  String get mediaAccessDenied =>
+      'Нет доступа к камере или фото. Разрешите в настройках устройства.';
+
+  @override
   String get failedToDeletePhoto => 'Не удалось удалить фото';
 
   @override

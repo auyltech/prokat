@@ -3502,6 +3502,12 @@ abstract class AppLocalizations {
   /// **'Failed to upload photo'**
   String get failedToUploadPhoto;
 
+  /// No description provided for @mediaAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera or photo access was denied. Allow it in system settings.'**
+  String get mediaAccessDenied;
+
   /// No description provided for @failedToDeletePhoto.
   ///
   /// In en, this message translates to:

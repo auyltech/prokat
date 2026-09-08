@@ -1792,6 +1792,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get failedToUploadPhoto => 'Фотоны жүктеу сәтсіз аяқталды';
 
   @override
+  String get mediaAccessDenied =>
+      'Камераға немесе фотоға рұқсат жоқ. Құрылғы параметрлерінен рұқсат беріңіз.';
+
+  @override
   String get failedToDeletePhoto => 'Фотоны жою сәтсіз аяқталды';
 
   @override

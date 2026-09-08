@@ -97,6 +97,9 @@ class ChatTile extends ConsumerWidget {
                     backgroundImage: (avatarUrl ?? '').isNotEmpty
                         ? mediaImageProvider(ref, avatarUrl)
                         : null,
+                    onBackgroundImageError: (avatarUrl ?? '').isNotEmpty
+                        ? ignoreMediaImageLoadError
+                        : null,
                     child: (avatarUrl ?? '').isEmpty
                         ? Text(
                             title.isNotEmpty ? title[0].toUpperCase() : 'C',

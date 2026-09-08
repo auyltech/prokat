@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -77,64 +78,73 @@ class _OwnerEquipmentImageHeaderState
   }
 
   Future<void> _pickAndUpload(ImageSource source) async {
-    final picked = await _picker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 85,
-    );
+    try {
+      final picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
 
-    if (picked == null) return;
+      if (picked == null) return;
 
-    final cropped = await ImageCropper().cropImage(
-      sourcePath: picked.path,
-      aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
-      compressQuality: 85,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: _l10n.cropEquipmentPhoto,
-          initAspectRatio: CropAspectRatioPreset.ratio4x3,
-          lockAspectRatio: true,
-        ),
-        IOSUiSettings(
-          title: _l10n.cropEquipmentPhoto,
-          aspectRatioLockEnabled: true,
-          resetButtonHidden: true,
-        ),
-      ],
-    );
-
-    if (cropped == null) return;
-
-    final ok = await ref
-        .read(equipmentMutationProvider.notifier)
-        .uploadEquipmentImage(
-          equipmentId: widget.equipmentId,
-          imageFile: File(cropped.path),
-        );
-
-    if (!mounted) return;
-
-    if (!ok) {
-      final message =
-          ref
-              .read(equipmentMutationProvider.notifier)
-              .getActionError("equipment:image:create")
-              ?.message ??
-          _l10n.failedToUploadPhoto;
-
-      AppSnackBar.show(message: message, isError: true);
-    } else {
-      final count = _displayImages.length;
-      if (count > 0) {
-        unawaited(
-          _pageController.animateToPage(
-            count - 1,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
+      final cropped = await ImageCropper().cropImage(
+        sourcePath: picked.path,
+        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
+        compressQuality: 85,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: _l10n.cropEquipmentPhoto,
+            initAspectRatio: CropAspectRatioPreset.ratio4x3,
+            lockAspectRatio: true,
           ),
-        );
+          IOSUiSettings(
+            title: _l10n.cropEquipmentPhoto,
+            aspectRatioLockEnabled: true,
+            resetButtonHidden: true,
+          ),
+        ],
+      );
+
+      if (cropped == null) return;
+
+      final ok = await ref
+          .read(equipmentMutationProvider.notifier)
+          .uploadEquipmentImage(
+            equipmentId: widget.equipmentId,
+            imageFile: File(cropped.path),
+          );
+
+      if (!mounted) return;
+
+      if (!ok) {
+        final message =
+            ref
+                .read(equipmentMutationProvider.notifier)
+                .getActionError("equipment:image:create")
+                ?.message ??
+            _l10n.failedToUploadPhoto;
+
+        AppSnackBar.show(message: message, isError: true);
+      } else {
+        final count = _displayImages.length;
+        if (count > 0) {
+          unawaited(
+            _pageController.animateToPage(
+              count - 1,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+            ),
+          );
+        }
       }
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      final denied = e.code.contains('access_denied');
+      AppSnackBar.show(
+        message: denied ? _l10n.mediaAccessDenied : _l10n.somethingWentWrong,
+        isError: true,
+      );
     }
   }
 

@@ -1801,6 +1801,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToUploadPhoto => 'Failed to upload photo';
 
   @override
+  String get mediaAccessDenied =>
+      'Camera or photo access was denied. Allow it in system settings.';
+
+  @override
   String get failedToDeletePhoto => 'Failed to delete photo';
 
   @override

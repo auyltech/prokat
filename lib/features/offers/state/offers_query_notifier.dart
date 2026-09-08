@@ -94,7 +94,7 @@ abstract class OffersQueryNotifier
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     }
 
-    final previous = _stateScope == scope ? state.value : null;
+    final previous = _stateScope == scope ? state.valueOrNull : null;
     if (previous == null) {
       state = const AsyncLoading();
       final next = await AsyncValue.guard(() => _fetchPage(1, scope));
@@ -128,7 +128,8 @@ abstract class OffersQueryNotifier
       } catch (_) {}
     }
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
-    final current = state.value;
+    // AsyncError.value rethrows; unawaited screen init would mark it fatal.
+    final current = state.valueOrNull;
     if (_stateScope != scope || current == null || current.isStale) {
       await refresh();
     }
@@ -137,7 +138,7 @@ abstract class OffersQueryNotifier
   Future<void> invalidate() async {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null || _stateScope != scope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current == null) return;
     state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
@@ -146,7 +147,7 @@ abstract class OffersQueryNotifier
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null || _stateScope != scope) return;
 
-    final current = state.value;
+    final current = state.valueOrNull;
     if (current == null || !current.hasMore || current.isLoadingMore) return;
     state = AsyncData(current.copyWith(isLoadingMore: true));
     try {
