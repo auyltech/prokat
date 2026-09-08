@@ -660,6 +660,7 @@
   "deleteEquipmentQuestion": "Удалить технику?",
   "deleteEquipmentConfirmation": "Это удалит объявление с маркетплейса и всю историю аренды.",
   "failedToUploadPhoto": "Не удалось загрузить фото",
+  "mediaAccessDenied": "Нет доступа к камере или фото. Разрешите в настройках устройства.",
   "failedToDeletePhoto": "Не удалось удалить фото",
   "failedToSetCoverPhoto": "Не удалось установить обложку",
   "maxPhotosReached": "Достигнут лимит 5 фото",

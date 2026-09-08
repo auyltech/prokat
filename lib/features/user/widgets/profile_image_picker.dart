@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/media/media_image_provider.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -66,7 +68,14 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
         setState(() => _selectedImage = File(croppedFile.path));
         await onImageSelected(_selectedImage);
       }
-    } finally {}
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      final denied = e.code.contains('access_denied');
+      AppSnackBar.show(
+        message: denied ? l10n.mediaAccessDenied : l10n.somethingWentWrong,
+        isError: true,
+      );
+    }
   }
 
   void _showPickerOptions() {

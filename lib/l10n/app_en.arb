@@ -662,6 +662,7 @@
   "deleteEquipmentQuestion": "Delete Equipment?",
   "deleteEquipmentConfirmation": "This will remove the item from the marketplace and delete all its rental history.",
   "failedToUploadPhoto": "Failed to upload photo",
+  "mediaAccessDenied": "Camera or photo access was denied. Allow it in system settings.",
   "failedToDeletePhoto": "Failed to delete photo",
   "failedToSetCoverPhoto": "Failed to set cover photo",
   "maxPhotosReached": "Max 5 photos reached",
