@@ -257,8 +257,7 @@ class _OwnerEquipmentDetailScreenState
                             onPressed: reviewUi.showSubmitForReview
                                 ? (_submitting
                                       ? null
-                                      : () =>
-                                          _submitForReview(equipment, l10n))
+                                      : () => _submitForReview(equipment, l10n))
                                 : (canAttemptResubmit
                                       ? () => _submitForReview(
                                           equipment,
