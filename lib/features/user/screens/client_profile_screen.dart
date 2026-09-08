@@ -31,11 +31,17 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
     unawaited(
       Future.microtask(() async {
-        await ref.read(clientProfileProvider.notifier).refreshIfStale();
+        if (!mounted) return;
 
-        await ref
-            .read(ownerRegistrationRequestProvider.notifier)
-            .refreshIfStale();
+        final clientProfile = ref.read(clientProfileProvider.notifier);
+        final ownerRegistration = ref.read(
+          ownerRegistrationRequestProvider.notifier,
+        );
+
+        await clientProfile.refreshIfStale();
+
+        if (!mounted) return;
+        await ownerRegistration.refreshIfStale();
       }),
     );
   }
