@@ -66,10 +66,12 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     unawaited(() async {
       try {
         await appSocket.connect();
+        if (lifecyclePaused) return;
         attachSocketNotificationListener();
       } catch (error, stackTrace) {
-        // Handshake failures are recorded as Crashlytics fatals in
-        // AppSocketService. Swallow here so startup still opens the app.
+        // Timeout / cancel are expected; unauthorized is reported in
+        // AppSocketService. Allow a later startIfReady to retry.
+        started = false;
         Logger.log('notification socket connect failed: $error\n$stackTrace');
       }
     }());
