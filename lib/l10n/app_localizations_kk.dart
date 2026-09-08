@@ -3145,6 +3145,10 @@ class AppLocalizationsKk extends AppLocalizations {
       'Техникаңыздың нақты фотосуреттерін қосуды ұмытпаңыз (кемінде бір суретте оның мемлекеттік нөмірі көрінуі керек).';
 
   @override
+  String get equipmentSubmitPhotoRequired =>
+      'Кемінде бір техника фотосын қосыңыз, кадрлардың бірінде мемлекеттік нөмір көрінуі керек';
+
+  @override
   String get youAreOnline => 'Сіз онлайнсыз';
 
   @override

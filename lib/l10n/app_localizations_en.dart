@@ -3141,6 +3141,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).';
 
   @override
+  String get equipmentSubmitPhotoRequired =>
+      'Add at least one equipment photo so the license plate is visible in at least one shot';
+
+  @override
   String get youAreOnline => 'You are online';
 
   @override
