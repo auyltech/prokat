@@ -3173,6 +3173,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не забудьте добавить реальные фотографии вашей техники (как минимум на одном из снимков должен быть виден ее гос. номер).';
 
   @override
+  String get equipmentSubmitPhotoRequired =>
+      'Добавьте хотя бы одно фото техники, чтобы хотя бы на одном из кадров было видно госномер';
+
+  @override
   String get youAreOnline => 'Вы онлайн';
 
   @override

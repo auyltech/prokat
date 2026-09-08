@@ -5956,6 +5956,12 @@ abstract class AppLocalizations {
   /// **'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).'**
   String get equipmentSubmitPhotoHint;
 
+  /// No description provided for @equipmentSubmitPhotoRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one equipment photo so the license plate is visible in at least one shot'**
+  String get equipmentSubmitPhotoRequired;
+
   /// No description provided for @youAreOnline.
   ///
   /// In en, this message translates to:

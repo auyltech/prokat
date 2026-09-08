@@ -95,6 +95,15 @@ class _OwnerEquipmentDetailScreenState
     AppLocalizations l10n, {
     bool saveDirtyFirst = false,
   }) async {
+    if (!equipmentHasImage(equipment)) {
+      AppSnackBar.show(message: l10n.equipmentSubmitPhotoRequired);
+      return;
+    }
+    if (!isEquipmentReadyForReview(equipment)) {
+      AppSnackBar.show(message: l10n.pleaseCompleteRequiredFields);
+      return;
+    }
+
     setState(() => _submitting = true);
     if (saveDirtyFirst) {
       final saveResult = await ref
@@ -170,9 +179,8 @@ class _OwnerEquipmentDetailScreenState
                 status: equipment.status,
                 anyDirty: editor.anyDirty,
               );
-              final canResubmit =
+              final canAttemptResubmit =
                   reviewUi.showResubmit &&
-                  ready &&
                   !_submitting &&
                   _hasChangedSinceRejection(equipment, editor.anyDirty);
               final errorHintStyle = theme.textTheme.bodySmall?.copyWith(
@@ -247,10 +255,10 @@ class _OwnerEquipmentDetailScreenState
                                 ? l10n.submitForReview
                                 : l10n.resubmit,
                             onPressed: reviewUi.showSubmitForReview
-                                ? (ready && !_submitting
-                                      ? () => _submitForReview(equipment, l10n)
-                                      : null)
-                                : (canResubmit
+                                ? (_submitting
+                                      ? null
+                                      : () => _submitForReview(equipment, l10n))
+                                : (canAttemptResubmit
                                       ? () => _submitForReview(
                                           equipment,
                                           l10n,

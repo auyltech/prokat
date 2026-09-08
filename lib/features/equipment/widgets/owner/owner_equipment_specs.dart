@@ -82,13 +82,15 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     if (hasSpecsChanged()) {
       _disposeControllers();
       _rebuildControllers();
-      setState(() {
-        _isDirty = false;
-        _isSaving = false;
-        _saveAttempted = false;
-        _errorsByKey.clear();
+      _isDirty = false;
+      _isSaving = false;
+      _saveAttempted = false;
+      _errorsByKey.clear();
+      // Defer provider writes — mutating during didUpdateWidget rebuilds
+      // listeners mid-tree and corrupts the parent ListView.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _publish();
       });
-      _publish();
     }
   }
 
