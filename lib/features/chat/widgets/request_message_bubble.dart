@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -10,6 +12,7 @@ import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
+import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -43,7 +46,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -60,18 +63,18 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
             children: [
               Icon(
                 Icons.request_page_outlined,
-                color: theme.colorScheme.primary,
+                color: theme.colorScheme.onPrimary,
                 size: 26,
               ),
               const SizedBox(width: 8),
               Text(
-                'New Request',
+                l10n.newRequest,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
 
               RequestStatusBadge(status: request.status, mode: widget.mode),
             ],
@@ -106,25 +109,33 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
-                        color: Colors.black,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                     Row(
                       children: [
-                        Icon(Icons.propane_outlined, color: Colors.grey[900]),
-                        SizedBox(width: 4),
-                        Text(
-                          '${request.capacity} M3',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.5,
+                        if (hasVisibleRequestCapacity(request.capacity)) ...[
+                          Icon(
+                            Icons.propane_outlined,
+                            color: theme.colorScheme.onPrimary,
                           ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${request.capacity} ${l10n.unitCubicMeters}',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        Icon(
+                          Icons.cable_outlined,
+                          color: theme.colorScheme.onPrimary,
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.cable_outlined, color: Colors.grey[900]),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
-                          '${10} M',
+                          '${10} ${l10n.unitMeters}',
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5,
@@ -144,8 +155,16 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           InfoTile.secondary(
             icon: Icons.location_on_outlined,
             label: l10n.location,
-            value: request.location.street,
-            onTap: () => showLocationSheet(context, request.location),
+            value:
+                request.location?.streetLine(
+                  Localizations.localeOf(context).languageCode,
+                ) ??
+                l10n.unknownLocation,
+            onTap: () {
+              final location = request.location;
+              if (location == null) return;
+              showLocationSheet(context, location);
+            },
           ),
 
           const SizedBox(height: 8),
@@ -159,12 +178,11 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   icon: Icons.event_outlined,
                   label: l10n.date,
                   value: () {
-                    if (request.requiredOn == null) return "PENDING";
+                    if (request.requiredOn == null) return l10n.pending;
 
                     // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                    final dateStr = DateFormat(
-                      'dd MMM yyyy',
-                    ).format(request.requiredOn!.toLocal());
+                    final dateStr = DateFormat('dd MMM yyyy')
+                        .format(request.requiredOn!.toLocal());
 
                     // 3. Return just the date if no time was specified
                     return dateStr;
@@ -181,9 +199,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   value: () {
                     // 2. If a specific time exists, format and append it (e.g., "14:30")
                     if (request.requiredAt != null) {
-                      final timeStr = DateFormat(
-                        'HH:mm',
-                      ).format(request.requiredAt!.toLocal());
+                      final timeStr = DateFormat('HH:mm')
+                          .format(request.requiredAt!.toLocal());
                       return timeStr;
                     }
 
@@ -195,7 +212,13 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
           ),
 
           if (request.comment?.isNotEmpty ?? false)
-            InfoTile.secondary(label: l10n.comments, value: request.comment!),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: InfoTile.secondary(
+                label: l10n.comments,
+                value: request.comment!,
+              ),
+            ),
 
           const SizedBox(height: 8),
 
@@ -219,14 +242,14 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   Text(
                     "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: const Color(0xFF0D47A1),
+                      color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
               ),
 
-              Spacer(),
+              const Spacer(),
 
               if (widget.mode == AppMode.clientMode &&
                   [
@@ -236,7 +259,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                 if (ref
                     .watch(requestMutationProvider)
                     .isActionActive("request:${request.id}:cancel"))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(
@@ -270,45 +293,47 @@ void _showCancelConfirmation(
   String requestId,
   AppLocalizations l10n,
 ) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l10n.cancelRequest),
-      content: Text(l10n.cancelRequestContent),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            l10n.no,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            Navigator.pop(context);
-
-            final result = await ref
-                .read(requestMutationProvider.notifier)
-                .cancelRequest(requestId);
-
-            AppSnackBar.show(
-              message: result.success
-                  ? l10n.requestCancelled
-                  : l10n.failedToCancelRequest,
-              isSuccess: result.success,
-              isError: !result.success,
-            );
-          },
-          child: Text(
-            l10n.yesCancel,
-            style: const TextStyle(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.bold,
+  unawaited(
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.cancelRequest),
+        content: Text(l10n.cancelRequestContent),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              l10n.no,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final result = await ref
+                  .read(requestMutationProvider.notifier)
+                  .cancelRequest(requestId);
+
+              AppSnackBar.show(
+                message: result.success
+                    ? l10n.requestCancelled
+                    : l10n.failedToCancelRequest,
+                isSuccess: result.success,
+                isError: !result.success,
+              );
+            },
+            child: Text(
+              l10n.yesCancel,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

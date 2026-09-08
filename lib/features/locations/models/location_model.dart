@@ -1,10 +1,19 @@
+import 'package:prokat/features/catalog/models/localized_names.dart';
+import 'package:prokat/features/locations/models/location_search_result.dart';
+
 class LocationModel {
   final String? id;
   final String service; // "EQUIPMENT" | "ADDRESS"
 
   final String street;
+  final LocalizedNames streetNames;
+  final String? houseNumber;
   final String city;
+  final LocalizedNames cityNames;
   final String country;
+  final LocalizedNames countryNames;
+  final String? region;
+  final LocalizedNames regionNames;
 
   final String? comment;
   final String? instructions;
@@ -22,8 +31,14 @@ class LocationModel {
     this.id,
     required this.service,
     required this.street,
+    this.streetNames = const LocalizedNames(),
+    this.houseNumber,
     required this.city,
+    this.cityNames = const LocalizedNames(),
     required this.country,
+    this.countryNames = const LocalizedNames(),
+    this.region,
+    this.regionNames = const LocalizedNames(),
     required this.longitude,
     required this.latitude,
     this.createdAt,
@@ -34,12 +49,50 @@ class LocationModel {
     this.equipmentId,
   });
 
+  String labelStreet(String languageCode) =>
+      streetNames.pickPreferRu(languageCode, fallback: street);
+
+  String labelCity(String languageCode) =>
+      cityNames.pickPreferRu(languageCode, fallback: city);
+
+  String labelCountry(String languageCode) =>
+      countryNames.pickPreferRu(languageCode, fallback: country);
+
+  String streetLine(String languageCode) {
+    return [
+      labelStreet(languageCode),
+      houseNumber?.trim() ?? '',
+    ].where((part) => part.isNotEmpty).join(', ');
+  }
+
+  factory LocationModel.fromSearchResult(
+    LocationSearchResult result, {
+    required String service,
+    String? equipmentId,
+    double? latitude,
+    double? longitude,
+  }) {
+    return LocationModel(
+      service: service,
+      street: result.street,
+      streetNames: result.streetNames,
+      houseNumber: result.houseNumber,
+      city: result.city ?? '',
+      cityNames: result.cityNames,
+      country: result.country ?? '',
+      countryNames: result.countryNames,
+      region: result.region,
+      regionNames: result.regionNames,
+      latitude: latitude ?? result.latitude,
+      longitude: longitude ?? result.longitude,
+      equipmentId: equipmentId,
+    );
+  }
+
   factory LocationModel.fromJson(Map<String, dynamic> json) {
-    // Safe parsing with range validation
     final lat = double.tryParse(json['latitude']?.toString() ?? '');
     final lng = double.tryParse(json['longitude']?.toString() ?? '');
 
-    // Ensure coordinates are valid and within global geographic bounds
     if (lat == null || lat < -90 || lat > 90) {
       throw const FormatException("Invalid latitude");
     }
@@ -47,12 +100,20 @@ class LocationModel {
       throw const FormatException("Invalid longitude");
     }
 
+    final house = json['houseNumber']?.toString().trim();
+
     return LocationModel(
       id: json['id'],
       service: json['service'] ?? '',
       street: json['street'] ?? '',
+      streetNames: LocalizedNames.fromJson(json['streetNames']),
+      houseNumber: (house == null || house.isEmpty) ? null : house,
       city: json['city'] ?? '',
+      cityNames: LocalizedNames.fromJson(json['cityNames']),
       country: json['country'] ?? '',
+      countryNames: LocalizedNames.fromJson(json['countryNames']),
+      region: json['region']?.toString(),
+      regionNames: LocalizedNames.fromJson(json['regionNames']),
       comment: json['comment'] ?? '',
       instructions: json['instructions'] ?? '',
       latitude: lat,
@@ -72,8 +133,14 @@ class LocationModel {
     return {
       "service": service,
       "street": street,
+      "streetNames": streetNames.toJson(),
+      "houseNumber": houseNumber,
       "city": city,
+      "cityNames": cityNames.toJson(),
       "country": country,
+      "countryNames": countryNames.toJson(),
+      "region": region,
+      "regionNames": regionNames.toJson(),
       "comment": comment,
       "instructions": instructions,
       "longitude": longitude,

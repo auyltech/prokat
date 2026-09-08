@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -8,6 +10,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -70,13 +73,14 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    Text(
-                      request.capacity,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
+                    if (hasVisibleRequestCapacity(request.capacity))
+                      Text(
+                        request.capacity,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -96,9 +100,14 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
               Expanded(
                 child: InfoTile(
                   label: l10n.location,
-                  value: request.location.street,
+                  value:
+                      request.location?.streetLine(
+                        Localizations.localeOf(context).languageCode,
+                      ) ??
+                      l10n.unknownLocation,
                   onTap: () {
                     final location = request.location;
+                    if (location == null) return;
 
                     showLocationSheet(context, location);
                   },
@@ -112,7 +121,11 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 child: InfoTile(
                   icon: Icons.timelapse,
                   label: l10n.dateAndTime,
-                  value: formatDateTime(request.requiredOn, request.requiredAt),
+                  value: formatDateTime(
+                    request.requiredOn,
+                    request.requiredAt,
+                    locale: l10n.localeName,
+                  ),
                 ),
               ),
             ],
@@ -140,12 +153,12 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 ],
               ),
 
-              Spacer(),
+              const Spacer(),
 
               if (ref
                   .watch(requestMutationProvider)
                   .isActionActive("request:$id:cancel"))
-                SizedBox(
+                const SizedBox(
                   height: 14,
                   width: 14,
                   child: CircularProgressIndicator(
@@ -164,7 +177,7 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                   ),
                 ),
 
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
           ),
         ],
@@ -179,45 +192,47 @@ void _showCancelConfirmation(
   String requestId,
   AppLocalizations l10n,
 ) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l10n.cancelRequest),
-      content: Text(l10n.cancelRequestContent),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            l10n.no,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            Navigator.pop(context);
-
-            final result = await ref
-                .read(requestMutationProvider.notifier)
-                .cancelRequest(requestId);
-
-            AppSnackBar.show(
-              message: result.success
-                  ? l10n.requestCancelled
-                  : l10n.failedToCancelRequest,
-              isSuccess: result.success,
-              isError: !result.success,
-            );
-          },
-          child: Text(
-            l10n.yesCancel,
-            style: const TextStyle(
-              color: Colors.redAccent,
-              fontWeight: FontWeight.bold,
+  unawaited(
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.cancelRequest),
+        content: Text(l10n.cancelRequestContent),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              l10n.no,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final result = await ref
+                  .read(requestMutationProvider.notifier)
+                  .cancelRequest(requestId);
+
+              AppSnackBar.show(
+                message: result.success
+                    ? l10n.requestCancelled
+                    : l10n.failedToCancelRequest,
+                isSuccess: result.success,
+                isError: !result.success,
+              );
+            },
+            child: Text(
+              l10n.yesCancel,
+              style: const TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }

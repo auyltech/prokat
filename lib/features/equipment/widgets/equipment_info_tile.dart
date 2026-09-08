@@ -12,7 +12,7 @@ class EquipmentInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (equipment == null) return SizedBox.shrink();
+    if (equipment == null) return const SizedBox.shrink();
 
     final imageUrl = equipment?.imageUrl ?? "";
     final equipmentName = equipment?.name ?? "";
@@ -37,7 +37,6 @@ class EquipmentInfoTile extends StatelessWidget {
                 imageUrl: imageUrl,
                 fit: BoxFit.cover,
                 fallbackIcon: Icons.local_shipping,
-                backgroundColor: const Color(0xFFE0E0E0),
               ),
             ),
           ),
@@ -52,7 +51,7 @@ class EquipmentInfoTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF212121),
+                    color: theme.colorScheme.onSurface,
                     letterSpacing: 0.2,
                   ),
                 ),
@@ -62,7 +61,7 @@ class EquipmentInfoTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

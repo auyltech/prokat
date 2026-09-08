@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -20,28 +22,22 @@ class _OwnerPaymentsTopupScreenState
     extends ConsumerState<OwnerPaymentsTopupScreen> {
   String? selectedTierId;
 
-  Future<void> submitTopUpRequest(String? id) async {
+  void submitTopUpRequest(String? id) {
     if (id == null) return;
     final l10n = AppLocalizations.of(context)!;
 
-    final result = await ref
-        .read(billingProvider.notifier)
-        .topUpBalance(id: id);
-
-    AppSnackBar.show(
-      message: result ? l10n.topUpAdded : l10n.failedToCompleteTopUp,
-      isSuccess: result,
-      isError: !result,
-    );
+    AppSnackBar.show(message: l10n.paymentFeatureComingSoon);
   }
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(billingProvider.notifier).getPricingTiers();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(billingProvider.notifier).getPricingTiers();
+      }),
+    );
   }
 
   @override

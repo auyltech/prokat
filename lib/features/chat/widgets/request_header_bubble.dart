@@ -46,7 +46,10 @@ class RequestHeaderBubble extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            request.location.street,
+            request.location?.streetLine(
+                  Localizations.localeOf(context).languageCode,
+                ) ??
+                l10n.unknownLocation,
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),

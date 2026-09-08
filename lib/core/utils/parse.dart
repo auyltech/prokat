@@ -12,11 +12,8 @@ String parseString(dynamic value, {required String fieldName}) {
 }
 
 int parseInt(dynamic value, {required String fieldName}) {
-  if (value is int) return value;
-  if (value is String) {
-    final parsed = int.tryParse(value);
-    if (parsed != null) return parsed;
-  }
+  final parsed = parseNullableInt(value);
+  if (parsed != null) return parsed;
   throw FormatException(
     "Expected non-null Int for field '$fieldName', received: $value",
   );
@@ -26,9 +23,12 @@ int? parseNullableInt(dynamic value) {
   if (value == null) return null;
 
   if (value is int) return value;
+  if (value is num) return value.round();
 
   if (value is String) {
-    return int.tryParse(value);
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    return int.tryParse(trimmed) ?? double.tryParse(trimmed)?.round();
   }
 
   return null;

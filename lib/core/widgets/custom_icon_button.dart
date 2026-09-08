@@ -17,7 +17,7 @@ class CustomIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading == true) {
-      return SizedBox(
+      return const SizedBox(
         height: 14,
         width: 14,
         child: CircularProgressIndicator(

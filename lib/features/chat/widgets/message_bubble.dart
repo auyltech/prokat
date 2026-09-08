@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/utils/chat_message_utils.dart';
 import 'package:prokat/features/chat/widgets/booking_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/negotiation_message_bubble.dart';
 import 'package:prokat/features/chat/widgets/offer_message_bubble.dart';
@@ -54,7 +57,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         message: widget.message,
         mode: widget.mode,
       );
-    } else if (service == "OFFER") {
+    } else if (isOfferCardMessage(widget.message)) {
       return OfferMessageBubble(
         message: widget.message,
         isMe: widget.isMe,
@@ -108,19 +111,9 @@ class _MessageBubbleState extends State<MessageBubble> {
               ),
               padding: EdgeInsets.fromLTRB(16, 12, 16, widget.isMe ? 12 : 12),
               decoration: BoxDecoration(
-                gradient: widget.isMe
-                    ? LinearGradient(
-                        colors: [
-                          const Color.fromARGB(255, 222, 246, 255),
-                          const Color.fromARGB(255, 222, 246, 255),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
                 color: widget.isMe
-                    ? theme.cardColor
-                    : theme.dividerColor.withValues(alpha: 0.1),
+                    ? theme.colorScheme.surfaceContainerHigh
+                    : theme.colorScheme.surfaceContainerLow,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -133,23 +126,25 @@ class _MessageBubbleState extends State<MessageBubble> {
                   Padding(
                     padding: EdgeInsets.only(right: widget.isMe ? 20 : 0),
                     child: Text(
-                      widget.message.content,
+                      widget.message.localizedContent(
+                        Localizations.localeOf(context).languageCode,
+                      ),
                       style: theme.textTheme.bodyMedium?.copyWith(
+                        height: 1.3,
                         color: widget.isMe
                             ? theme.colorScheme.onSurfaceVariant
                             : theme.colorScheme.onSurfaceVariant,
-                        height: 1.3,
                       ),
                     ),
                   ),
                   if (widget.isMe)
                     Positioned(
-                      right: 0,
+                      right: -4,
                       bottom: 0,
                       child: _SendStatusIndicator(
                         isPending: widget.message.isPending,
                         isFailed: widget.message.isFailed,
-                        color: Colors.black,
+                        color: Colors.blueGrey,
                       ),
                     ),
                 ],
@@ -223,9 +218,8 @@ class _SendStatusIndicatorState extends State<_SendStatusIndicator>
 
     if (widget.isPending) {
       _hasFinishedSpins = false;
-      _controller
-        ..reset()
-        ..repeat();
+      _controller.reset();
+      unawaited(_controller.repeat());
 
       Future<void>.delayed(_controller.duration! * _spinCount, () {
         if (!mounted) {

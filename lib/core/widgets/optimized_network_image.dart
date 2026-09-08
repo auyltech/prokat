@@ -1,8 +1,13 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/media/media_providers.dart';
+import 'package:prokat/core/media/resolve_media_url.dart';
 import 'package:shimmer/shimmer.dart';
 
-class OptimizedNetworkImage extends StatelessWidget {
+class OptimizedNetworkImage extends ConsumerWidget {
   final String? imageUrl;
   final double? width;
   final double? height;
@@ -25,13 +30,13 @@ class OptimizedNetworkImage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final url = imageUrl?.trim() ?? '';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resolved = resolveMediaUrl(imageUrl);
     final child = LayoutBuilder(
       builder: (context, constraints) {
         final cacheSize = _cacheSize(context, constraints);
 
-        if (url.isEmpty) {
+        if (resolved == null || resolved.isEmpty) {
           return _ErrorImage(
             icon: fallbackIcon,
             backgroundColor: backgroundColor,
@@ -39,7 +44,10 @@ class OptimizedNetworkImage extends StatelessWidget {
         }
 
         return CachedNetworkImage(
-          imageUrl: url,
+          imageUrl: resolved,
+          cacheManager: isApiMediaUrl(resolved)
+              ? ref.watch(mediaCacheManagerProvider)
+              : null,
           fit: fit,
           width: double.infinity,
           height: double.infinity,
@@ -66,19 +74,28 @@ class OptimizedNetworkImage extends StatelessWidget {
   ) {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
 
-    final logicalWidth = _logicalSize(
-      explicitSize: width,
-      constrainedSize: constraints.maxWidth,
+    final widthPx = _toCachePixels(
+      _logicalSize(explicitSize: width, constrainedSize: constraints.maxWidth),
+      pixelRatio,
+      maxCacheWidth,
     );
-    final logicalHeight = _logicalSize(
-      explicitSize: height,
-      constrainedSize: constraints.maxHeight,
+    final heightPx = _toCachePixels(
+      _logicalSize(
+        explicitSize: height,
+        constrainedSize: constraints.maxHeight,
+      ),
+      pixelRatio,
+      maxCacheHeight,
     );
 
-    return (
-      width: _toCachePixels(logicalWidth, pixelRatio, maxCacheWidth),
-      height: _toCachePixels(logicalHeight, pixelRatio, maxCacheHeight),
-    );
+    if (widthPx != null && heightPx != null) {
+      if (widthPx >= heightPx) {
+        return (width: widthPx, height: null);
+      }
+      return (width: null, height: heightPx);
+    }
+
+    return (width: widthPx, height: heightPx);
   }
 
   double? _logicalSize({
@@ -111,12 +128,12 @@ class _ImageShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final baseColor = backgroundColor ?? colorScheme.surfaceContainerHighest;
+    final baseColor =
+        backgroundColor ?? Colors.grey[500]!.withValues(alpha: 0.2);
 
     return Shimmer.fromColors(
-      baseColor: baseColor,
-      highlightColor: colorScheme.surface.withValues(alpha: 0.65),
+      baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+      highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
       child: Container(color: baseColor),
     );
   }
@@ -132,14 +149,18 @@ class _ErrorImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      color: backgroundColor ?? colorScheme.surfaceContainerHighest,
-      alignment: Alignment.center,
-      child: Icon(
-        icon,
-        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
-        size: 40,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          color: backgroundColor ?? colorScheme.surfaceContainerHighest,
+          alignment: Alignment.center,
+          child: Icon(
+            icon,
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
+            size: 0.5 * min(constraints.maxHeight, constraints.maxHeight),
+          ),
+        );
+      },
     );
   }
 }

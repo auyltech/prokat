@@ -29,7 +29,7 @@ class ReviewSheet extends ConsumerStatefulWidget {
     final submitted = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -101,7 +101,12 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
     final state = ref.watch(reviewByBookingProvider(widget.bookingId));
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        12,
+        24,
+        24 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +144,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
             hint: "",
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           Row(
             children: [

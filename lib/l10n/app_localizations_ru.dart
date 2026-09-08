@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -20,6 +21,19 @@ class AppLocalizationsRu extends AppLocalizations {
       many: '$count предложений',
       few: '$count предложения',
       one: '1 предложение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String offersReceivedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Получено $count предложения',
+      many: 'Получено $count предложений',
+      few: 'Получено $count предложения',
+      one: 'Получено 1 предложение',
     );
     return '$_temp0';
   }
@@ -80,6 +94,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get offerCreated => 'Предложение создано';
 
   @override
+  String get offerCreateRequestNotFound => 'Заявка не найдена или уже удалена';
+
+  @override
   String get offerReceived => 'Предложение получено';
 
   @override
@@ -96,6 +113,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get waitingClientConfirmation => 'Ожидание подтверждения клиента';
+
+  @override
+  String get waitingForClientConfirm => 'Ждёт подтверждения';
 
   @override
   String get confirmWorkCompleted => 'Подтвердить завершение работы';
@@ -206,10 +226,58 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invalidEmail => 'Введите корректный email';
 
   @override
+  String get emailAddressRequiredLabel => 'Адрес электронной почты *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Номер телефона *';
+
+  @override
+  String get inquiryTopicValidation => 'Выберите тему обращения';
+
+  @override
   String get inquiryDetails => 'Сведения об обращении';
 
   @override
   String get inquiryTopicRequiredLabel => 'Тема обращения *';
+
+  @override
+  String get selectInquiryTopic => 'Выберите тему обращения';
+
+  @override
+  String get inquiryTopicGeneral => 'Общий вопрос';
+
+  @override
+  String get inquiryTopicSupport => 'Поддержка';
+
+  @override
+  String get inquiryTopicBugReport => 'Сообщение об ошибке';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Предложение функции';
+
+  @override
+  String get inquiryTopicSales => 'Продажи';
+
+  @override
+  String get inquiryTopicPartnership => 'Партнёрство';
+
+  @override
+  String get inquiryTopicBilling => 'Оплата и счета';
+
+  @override
+  String get inquiryTopicCallMe => 'Перезвоните мне';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Удаление аккаунта';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Восстановление аккаунта';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Проблема с аккаунтом';
+
+  @override
+  String get inquiryTopicOther => 'Другое';
 
   @override
   String get yourMessageRequiredLabel => 'Ваше сообщение *';
@@ -464,6 +532,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestAccepted => 'Запрос принят';
 
   @override
+  String get offerNotSelected => 'Выбран другой владелец';
+
+  @override
   String get requestRejected => 'Запрос отклонён';
 
   @override
@@ -551,6 +622,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noNotificationsYet => 'Уведомлений пока нет';
 
   @override
+  String get notificationOwnerApprovedTitle => 'Регистрация владельца одобрена';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Ваша регистрация в качестве владельца одобрена.';
+
+  @override
+  String get notificationOwnerRejectedTitle =>
+      'Регистрация владельца отклонена';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Ваша регистрация в качестве владельца отклонена.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Заказ завершён';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Ваш заказ отмечен как завершённый.';
+
+  @override
   String get errorLoadingEquipment => 'Ошибка загрузки техники';
 
   @override
@@ -561,6 +654,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notSupportedYet => 'Пока не поддерживается';
+
+  @override
+  String get paymentFeatureComingSoon =>
+      'Функционал оплаты и пополнения баланса сейчас в разработке и скоро будет добавлен.';
+
+  @override
+  String get transactionGift => 'Подарок';
 
   @override
   String get errorLoadingProfile => 'Не удалось загрузить профиль';
@@ -591,6 +691,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get priceOffer => 'Предложение цены';
+
+  @override
+  String get priceOfferStatusCreated => 'Создано';
+
+  @override
+  String get priceOfferStatusCancelled => 'Отменено';
 
   @override
   String offeredPrice(String price) {
@@ -708,6 +814,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get available => 'Доступно';
 
   @override
+  String get booked => 'Занята';
+
+  @override
   String get perDay => '/ день';
 
   @override
@@ -738,7 +847,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get retry => 'Повторить';
 
   @override
+  String get refresh => 'Обновить';
+
+  @override
   String get close => 'Закрыть';
+
+  @override
+  String get apply => 'Применить';
 
   @override
   String get send => 'Отправить';
@@ -802,6 +917,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get street => 'Улица';
+
+  @override
+  String get houseNumber => '№';
 
   @override
   String get address => 'Адрес';
@@ -1106,6 +1224,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get yesReject => 'Да, отклонить';
 
   @override
+  String get yes => 'Да';
+
+  @override
   String get no => 'Нет';
 
   @override
@@ -1117,7 +1238,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String hoursLeft(int hours) {
+    return '$hours ч осталось';
+  }
+
+  @override
   String get volume => 'Объём';
+
+  @override
+  String get specFilterFrom => 'от';
+
+  @override
+  String get specFilterTo => 'до';
 
   @override
   String get noOrderHistory => 'История заказов пуста';
@@ -1163,6 +1295,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get workStatusStopWork => 'Остановить работу';
+
+  @override
+  String get workStatusResumeWork => 'Возобновить работу';
 
   @override
   String get workStatusCompleteWork => 'Завершить работу';
@@ -1333,6 +1468,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noActiveRequests => 'У вас нет активных заявок';
 
   @override
+  String get ownerEmptyRequestsHint =>
+      'смотрите актуальные заявки клиентов здесь';
+
+  @override
   String get createNewRequest => 'Создать новую заявку';
 
   @override
@@ -1342,10 +1481,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get capacityHint => '10 M3';
 
   @override
-  String get offeredRateHint => 'Цена, которую готовы заплатить';
+  String get offeredRateHint => 'Цена, которую Вы готовы заплатить';
 
   @override
-  String get additionalDetails => 'Дополнительные детали...';
+  String get additionalDetails => 'опишите задачу или важные детали';
 
   @override
   String get newRequestBadge => 'НОВЫЙ ЗАПРОС';
@@ -1361,6 +1500,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noChats => 'Нет чатов';
+
+  @override
+  String get chatsActiveTab => 'Активные';
+
+  @override
+  String get chatsArchiveTab => 'Архив';
+
+  @override
+  String get noArchivedChats => 'Нет архивных чатов';
+
+  @override
+  String get youHaveNoArchivedChats =>
+      'Здесь появятся завершённые и отменённые чаты.';
 
   @override
   String get deliverTo => 'ДОСТАВИТЬ К';
@@ -1388,6 +1540,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Не удалось сохранить адрес';
+
+  @override
+  String get deleteAddress => 'Удалить адрес';
+
+  @override
+  String get deleteAddressQuestion => 'Удалить этот адрес?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'Адрес будет удалён из сохранённого списка.';
+
+  @override
+  String get failedToDeleteAddress => 'Не удалось удалить адрес';
 
   @override
   String get noEquipmentLocations => 'Адреса техники не добавлены';
@@ -1556,6 +1721,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get information => 'Информация';
 
   @override
+  String get generalInformation => 'Общая информация';
+
+  @override
+  String get registrationData => 'Регистрационные данные';
+
+  @override
+  String get saveAll => 'Сохранить все';
+
+  @override
+  String get expandAll => 'Развернуть все';
+
+  @override
+  String get collapseAll => 'Свернуть все';
+
+  @override
+  String get ownerCommentHint =>
+      'Возможна неполная загрузка, заметки по доступу…';
+
+  @override
   String get prices => 'Цены';
 
   @override
@@ -1678,6 +1862,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get selectTime => 'Выбрать время';
+
+  @override
+  String get requiredHint => '* Обязательно';
 
   @override
   String get requestCreated => 'Запрос создан';
@@ -1904,6 +2091,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateDocumentsHint => 'Обновите документы и повторите попытку.';
 
   @override
+  String get ownerProfileSuspended => 'Профиль приостановлен';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Размещение техники временно недоступно. Свяжитесь с поддержкой.';
+
+  @override
+  String get ownerProfilePendingReview => 'Ожидайте рассмотрения';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Отправленные данные снова проходят модерацию.';
+
+  @override
+  String get profileUpdateNeedsModeration =>
+      'Данные будут переданы на модерацию';
+
+  @override
   String get submitForVerification => 'Отправить на верификацию';
 
   @override
@@ -1947,6 +2152,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneNumberRequired => 'Номер телефона обязателен';
+
+  @override
+  String get ownerContactPhoneHint =>
+      'Этот номер увидят администратор и клиенты. По нему должны дозвониться.';
 
   @override
   String get cityRequired => 'Город обязателен';
@@ -2077,10 +2286,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get minutesBalance => 'Баланс минут';
 
   @override
-  String get minutesUnit => 'Мин';
+  String get minutesUnit => 'мин';
 
   @override
   String get burnRate => 'Скорость расхода';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate мин/ч';
+  }
+
+  @override
+  String get noActiveDepletion => 'Нет активного расхода';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'При 0 оплаченных минут техника не видна заказчикам в поиске. Пополните баланс, чтобы снова появиться в выдаче.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count единиц онлайн',
+      many: '$count единиц онлайн',
+      few: '$count единицы онлайн',
+      one: '$count единица онлайн',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statTotal => 'всего';
+
+  @override
+  String get statOnline => 'онлайн';
+
+  @override
+  String get statActive => 'активные';
+
+  @override
+  String get statCompleted => 'завершено';
 
   @override
   String get hello => 'Привет!';
@@ -2435,7 +2681,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get statusCanceled => 'Отменено';
 
   @override
+  String get statusFailed => 'Сбой';
+
+  @override
   String get statusCompleted => 'Завершено';
+
+  @override
+  String get statusReviewed => 'Оценено';
 
   @override
   String get statusRequestSent => 'Заявка отправлена';
@@ -2451,6 +2703,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get unknownRenter => 'Неизвестный арендатор';
+
+  @override
+  String get nameNotSpecified => 'Имя не указано';
 
   @override
   String get pendingDate => 'Дата не указана';
@@ -2807,6 +3062,245 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pleaseSelectYourCity => 'Выберите город';
+
+  @override
+  String get saveChanges => 'Сохранить';
+
+  @override
+  String get saving => 'Сохранение...';
+
+  @override
+  String get fieldRequired => 'Обязательное поле';
+
+  @override
+  String get justNow => 'Только что';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count мин назад';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count ч назад';
+  }
+
+  @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня',
+      many: '$count дней',
+      few: '$count дня',
+      one: '1 день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count часа',
+      many: '$count часов',
+      few: '$count часа',
+      one: '1 час',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мин',
+      many: '$count мин',
+      few: '$count мин',
+      one: '1 мин',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сек',
+      many: '$count сек',
+      few: '$count сек',
+      one: '1 сек',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invalidSecondsValue => 'Некорректное значение секунд';
+
+  @override
+  String get newOffer => 'Новое предложение';
+
+  @override
+  String get offerStatusViewed => 'Просмотрено';
+
+  @override
+  String get offerStatusCancelled => 'Отменено';
+
+  @override
+  String get offerStatusAccepted => 'Принято';
+
+  @override
+  String get offerStatusRejected => 'Отклонено';
+
+  @override
+  String get offerStatusExpired => 'Истекло';
+
+  @override
+  String get offerStatusClosed => 'Закрыто';
+
+  @override
+  String get dataProcessingTitle => 'Обработка данных';
+
+  @override
+  String get pleaseCompleteRequiredFields =>
+      'Заполните обязательные данные перед отправкой на проверку';
+
+  @override
+  String get equipmentSubmitPhotoHint =>
+      'Не забудьте добавить реальные фотографии вашей техники (как минимум на одном из снимков должен быть виден ее гос. номер).';
+
+  @override
+  String get youAreOnline => 'Вы онлайн';
+
+  @override
+  String get youAreOffline => 'Вы офлайн';
+
+  @override
+  String get readyToAcceptOrders => 'Готовы принимать заказы';
+
+  @override
+  String get notAcceptingOrders => 'Не принимаете заказы';
+
+  @override
+  String get youAreNowOnline => 'Вы теперь онлайн';
+
+  @override
+  String get youAreNowOffline => 'Вы теперь офлайн';
+
+  @override
+  String get failedToggleStatus => 'Не удалось обновить статус';
+
+  @override
+  String get cannotGoOnlineWithZeroBalance =>
+      'Нельзя быть онлайн при нулевом балансе';
+
+  @override
+  String get cannotGoOnlineWithoutOnlineEquipment =>
+      'Сначала выведите в онлайн хотя бы одну единицу техники';
+
+  @override
+  String get cannotRespondWithZeroBalance =>
+      'Нельзя откликаться на заявки при нулевом балансе';
+
+  @override
+  String get countryKazakhstan => 'Казахстан';
+
+  @override
+  String get modelStandard => 'Стандарт';
+
+  @override
+  String get modelHeavyDuty => 'Тяжёлый';
+
+  @override
+  String get modelIndustrial => 'Промышленный';
+
+  @override
+  String capacityKub(String capacity) {
+    return '$capacity м³';
+  }
+
+  @override
+  String get unitMeters => 'м';
+
+  @override
+  String get hoseLengthHint => 'шланг 15 м';
+
+  @override
+  String get priceKztHint => '10 000 ₸';
+
+  @override
+  String get ownerType => 'Тип владельца';
+
+  @override
+  String get companyInformation => 'Данные компании';
+
+  @override
+  String get companyName => 'Название компании';
+
+  @override
+  String get enterCompanyName => 'Введите название компании';
+
+  @override
+  String get legalEntityName => 'Юридическое название';
+
+  @override
+  String get legalEntityNameHint => 'Как в официальных документах';
+
+  @override
+  String get personalContactDetails => 'Контактные данные';
+
+  @override
+  String get enterFirstName => 'Введите имя';
+
+  @override
+  String get enterLastName => 'Введите фамилию';
+
+  @override
+  String get enterValidPhoneNumber => 'Введите корректный номер телефона';
+
+  @override
+  String get serviceDetails => 'Описание услуг';
+
+  @override
+  String get serviceDetailsHint =>
+      'Опишите товары, аренду или технику, которую вы предоставляете...';
+
+  @override
+  String get updateProfile => 'Обновить профиль';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Профиль успешно обновлён';
+
+  @override
+  String get failedToUpdateProfile => 'Не удалось обновить профиль';
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count заказа',
+      many: '$count заказов',
+      few: '$count заказа',
+      one: '$count заказ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratePerTrip => 'За рейс';
+
+  @override
+  String get ratePerCubicMeter => 'За м³';
+
+  @override
+  String get ratePerDay => 'За сутки';
+
+  @override
+  String get ratePerHour => 'За час';
 
   @override
   String get connectionTimedOut =>

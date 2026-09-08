@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
@@ -10,13 +13,17 @@ void openViewOfferSheet({
   required OfferModel offer,
   required VoidCallback onCancel,
 }) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  final theme = Theme.of(context);
+  unawaited(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => ViewOfferSheet(offer: offer, onCancel: onCancel),
     ),
-    builder: (context) => ViewOfferSheet(offer: offer, onCancel: onCancel),
   );
 }
 
@@ -33,7 +40,11 @@ class ViewOfferSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final nestedSurface = colorScheme.surfaceContainerHighest;
+    final mutedText = colorScheme.onSurfaceVariant;
+    final priceColor = AppTheme.brandTintFg(theme.brightness);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -53,7 +64,7 @@ class ViewOfferSheet extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: colorScheme.outline,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -61,9 +72,10 @@ class ViewOfferSheet extends StatelessWidget {
 
           Text(
             l10n.offerDetails,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -72,7 +84,7 @@ class ViewOfferSheet extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F7),
+              color: nestedSurface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -86,7 +98,6 @@ class ViewOfferSheet extends StatelessWidget {
                       imageUrl: offer.equipment?.imageUrl,
                       fit: BoxFit.cover,
                       fallbackIcon: Icons.local_shipping,
-                      backgroundColor: const Color(0xFFE0E0E0),
                     ),
                   ),
                 ),
@@ -103,7 +114,7 @@ class ViewOfferSheet extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF212121),
+                          color: colorScheme.onSurface,
                           letterSpacing: 0.2,
                         ),
                       ),
@@ -115,7 +126,7 @@ class ViewOfferSheet extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                          color: mutedText,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -136,10 +147,10 @@ class ViewOfferSheet extends StatelessWidget {
                   children: [
                     Text(
                       l10n.offeredRate.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Colors.grey,
+                        color: mutedText,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -147,7 +158,7 @@ class ViewOfferSheet extends StatelessWidget {
                     Text(
                       "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: const Color(0xFF0D47A1),
+                        color: priceColor,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -164,9 +175,9 @@ class ViewOfferSheet extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FB),
+                color: nestedSurface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: colorScheme.outlineVariant),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +187,7 @@ class ViewOfferSheet extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.grey[600],
+                      color: mutedText,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -184,7 +195,7 @@ class ViewOfferSheet extends StatelessWidget {
                   Text(
                     offer.comment ?? "",
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF424242),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ],

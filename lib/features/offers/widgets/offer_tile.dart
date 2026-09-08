@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
@@ -11,7 +11,9 @@ import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
 
 class OfferTile extends ConsumerWidget {
   final OfferModel offer;
@@ -28,6 +30,7 @@ class OfferTile extends ConsumerWidget {
     }
 
     final notifier = ref.read(offerMutationProvider.notifier);
+    final navigation = TenderAcceptNavigation.capture(context);
 
     final result = await notifier.acceptOffer(
       offer.id,
@@ -35,13 +38,15 @@ class OfferTile extends ConsumerWidget {
       requestId: offer.requestId,
     );
 
-    if (!context.mounted) return;
-
     AppSnackBar.show(
       message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
       isSuccess: result.success,
       isError: !result.success,
     );
+
+    if (result.success) {
+      navigation.revealClientOrders();
+    }
   }
 
   Future<void> _handleReject(
@@ -72,7 +77,10 @@ class OfferTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final mutedText = colorScheme.onSurfaceVariant;
+    final priceColor = AppTheme.brandTintFg(theme.brightness);
 
     final equipment = offer.equipment;
     final ownerComment = offer.comment?.trim();
@@ -83,39 +91,18 @@ class OfferTile extends ConsumerWidget {
         offer.status == OfferStatus.expired;
 
     return Container(
-      color: theme.cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16),
+
           /// OWNER HEADER
           Row(
             children: [
-              UserInfoTile(user: offer.owner),
-
-              Spacer(),
+              Expanded(child: UserInfoTile(user: offer.owner)),
 
               OfferStatusBadge(status: offer.status),
-
-              // Container(
-              //   padding: const EdgeInsets.symmetric(
-              //     horizontal: 12,
-              //     vertical: 6,
-              //   ),
-              //   decoration: BoxDecoration(
-              //     color: const Color(0xFFE8F5E9),
-              //     borderRadius: BorderRadius.circular(6),
-              //   ),
-              //   child: Text(
-              //     "NEW OFFER",
-              //     style: const TextStyle(
-              //       color: Color(0xFF2E7D32),
-              //       fontSize: 11,
-              //       fontWeight: FontWeight.w800,
-              //       letterSpacing: 0.3,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
 
@@ -134,9 +121,9 @@ class OfferTile extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FB),
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: colorScheme.outlineVariant),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +133,7 @@ class OfferTile extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.grey[600],
+                      color: mutedText,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -154,7 +141,7 @@ class OfferTile extends ConsumerWidget {
                   Text(
                     ownerComment,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF424242),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -171,10 +158,10 @@ class OfferTile extends ConsumerWidget {
                   children: [
                     Text(
                       l10n.offeredRate.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Colors.grey,
+                        color: mutedText,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -182,7 +169,7 @@ class OfferTile extends ConsumerWidget {
                     Text(
                       "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: const Color(0xFF0D47A1),
+                        color: priceColor,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

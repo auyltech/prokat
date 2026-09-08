@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
@@ -42,16 +42,16 @@ final ownerNavItems = [
   //   path: AppRoutes.ownerNotifications,
   // ),
   _NavItem(
-    icon: LucideIcons.send,
-    label: (l) => l.navRequests,
-    path: AppRoutes.ownerRequests,
-    base: AppRoutes.ownerRequests,
-  ),
-  _NavItem(
     icon: LucideIcons.truck,
     label: (l) => l.navMyFleet,
     path: AppRoutes.ownerEquipment,
     base: AppRoutes.ownerEquipment,
+  ),
+  _NavItem(
+    icon: LucideIcons.send,
+    label: (l) => l.navRequests,
+    path: AppRoutes.ownerRequests,
+    base: AppRoutes.ownerRequests,
   ),
   _NavItem(
     icon: LucideIcons.scrollText,
@@ -175,7 +175,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       // This forces the background color to bleed to the phone's bottom edge
       decoration: BoxDecoration(
         color: theme.cardColor,
-        border: Border(
+        border: const Border(
           top: BorderSide(
             color: Colors.black12, // Light gray color
             width: 1.0, // Border thickness
@@ -183,8 +183,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
         ),
       ),
       child: SafeArea(
-        top:
-            false, // Keeps layout restrictions focused exclusively on the bottom notch
+        top: false, // Keeps layout restrictions focused exclusively on the bottom notch
         child: Container(
           height: 64,
           decoration: BoxDecoration(color: theme.cardColor),
@@ -215,7 +214,10 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: IconTheme(
-                        data: IconThemeData(color: Colors.black87, size: 32),
+                        data: const IconThemeData(
+                          color: Colors.black87,
+                          size: 32,
+                        ),
                         child: Icon(
                           item.icon,
                           size: 28,

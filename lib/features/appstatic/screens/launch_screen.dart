@@ -1,11 +1,22 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/appstatic/widgets/background_glow.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+
+String _formatLaunchVersion(PackageInfo packageInfo) {
+  final version = packageInfo.version.trim();
+  final buildNumber = packageInfo.buildNumber.trim();
+
+  if (version.isEmpty) return '';
+  if (buildNumber.isEmpty) return 'v$version';
+  return 'v$version+$buildNumber';
+}
 
 String _startupStepLabel(AppStartupStep step, AppLocalizations l10n) {
   return switch (step) {
@@ -32,10 +43,12 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
   late final Animation<double> _fadeAnimation;
   bool _showWarmupMessage = false;
   Timer? _warmupTimer;
+  String _appVersionLabel = '';
 
   @override
   void initState() {
     super.initState();
+    unawaited(_loadAppVersion());
     _warmupTimer = Timer(const Duration(seconds: 6), () {
       if (mounted) setState(() => _showWarmupMessage = true);
     });
@@ -49,7 +62,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
       ),
     );
 
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
 
     _controller = AnimationController(
       vsync: this,
@@ -61,14 +74,26 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
       curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
     );
 
-    _controller.forward();
+    unawaited(_controller.forward());
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() => _appVersionLabel = _formatLaunchVersion(packageInfo));
+    } catch (_) {
+      // Version is informational; keep the splash usable if lookup fails.
+    }
   }
 
   @override
   void dispose() {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: SystemUiOverlay.values,
+    unawaited(
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      ),
     );
     _warmupTimer?.cancel();
     _controller.dispose();
@@ -78,11 +103,11 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accentColor = const Color(0xFF00489B);
+    const accentColor = Color(0xFF00489B);
     final textTheme = theme.textTheme;
 
     final startup = ref.watch(appStartupProvider);
-    final showDetails = !kReleaseMode;
+    const showDetails = !kReleaseMode;
     final progress = startup.progress.clamp(0.0, 1.0);
     final percentText = '${(progress * 100).round()}%';
 
@@ -136,8 +161,8 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                         fontFamily: 'Oswald',
                         letterSpacing: 6,
                       ),
-                      children: [
-                        const TextSpan(text: 'PRO'),
+                      children: const [
+                        TextSpan(text: 'PRO'),
                         TextSpan(
                           text: 'KAT',
                           style: TextStyle(color: accentColor),
@@ -182,7 +207,9 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
                     value: showDetails ? progress : null,
-                    valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      accentColor,
+                    ),
                     backgroundColor: accentColor.withValues(alpha: 0.1),
                     minHeight: 4,
                   ),
@@ -206,7 +233,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
                       ),
                     ),
                     Text(
-                      showDetails ? percentText : 'v1.0.4',
+                      showDetails ? percentText : _appVersionLabel,
                       style: textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.4,

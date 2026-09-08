@@ -1,12 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/kz_phone_mask.dart';
+import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
+import 'package:prokat/features/user/widgets/city_select_field.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 
@@ -22,29 +33,37 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _phoneController = TextEditingController(text: '+7');
   final _emailController = TextEditingController();
-  final _cityController = TextEditingController();
   final _messageController = TextEditingController();
 
+  String? _selectedCity;
   bool _prefilledFromRequest = false;
-  bool _prefilledFromProfile = false;
 
   void _clearFormForAccountChange() {
     _formKey.currentState?.reset();
 
     _firstNameController.clear();
     _lastNameController.clear();
-    _phoneController.clear();
+    _phoneController.value = kzPhoneEditingValue(null);
     _emailController.clear();
-    _cityController.clear();
     _messageController.clear();
 
-    _prefilledFromRequest = false;
-    _prefilledFromProfile = false;
+    if (!mounted) {
+      _selectedCity = null;
+      _prefilledFromRequest = false;
+      return;
+    }
+
+    setState(() {
+      _selectedCity = null;
+      _prefilledFromRequest = false;
+    });
   }
 
   Future<void> _loadCurrentAccount(String userId) async {
+    _tryPrefill();
+
     await ref.read(clientProfileProvider.notifier).refreshIfStale();
 
     if (!mounted || ref.read(authProvider).currentUserId != userId) {
@@ -52,6 +71,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     }
 
     await ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale();
+    if (mounted) _tryPrefill();
   }
 
   @override
@@ -64,7 +84,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       final userId = ref.read(authProvider).currentUserId;
 
       if (userId != null) {
-        _loadCurrentAccount(userId);
+        unawaited(_loadCurrentAccount(userId));
+      } else {
+        _tryPrefill();
       }
     });
   }
@@ -75,32 +97,80 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _lastNameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
-    _cityController.dispose();
     _messageController.dispose();
     super.dispose();
   }
 
-  void _prefillFromRequest(RegistrationRequestModel request) {
-    _firstNameController.text = request.firstName ?? _firstNameController.text;
-    _lastNameController.text = request.lastName ?? _lastNameController.text;
-    _phoneController.text = request.phoneNumber ?? _phoneController.text;
-    _emailController.text = request.email ?? _emailController.text;
-    _cityController.text = request.city ?? _cityController.text;
-    _messageController.text = request.message ?? _messageController.text;
+  String? _nonEmpty(String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? null : trimmed;
   }
 
-  void _prefillFromProfile(UserProfileModel profile) {
-    _firstNameController.text = profile.firstName ?? _firstNameController.text;
-    _lastNameController.text = profile.lastName ?? _lastNameController.text;
-    _phoneController.text = profile.phoneNumber ?? _phoneController.text;
-    _cityController.text = profile.city ?? _cityController.text;
+  void _setIfEmpty(TextEditingController controller, String? value) {
+    if (controller.text.trim().isNotEmpty) return;
+    final next = _nonEmpty(value);
+    if (next != null) controller.text = next;
+  }
+
+  void _applyPhone(String? value) {
+    _phoneController.value = kzPhoneEditingValue(value);
+  }
+
+  void _setPhoneIfEmpty(String? value) {
+    if (nationalKzPhoneDigits(_phoneController.text).isNotEmpty) return;
+    if (_nonEmpty(value) == null) return;
+    _applyPhone(value);
+  }
+
+  String? _canonicalCity(String? city) {
+    return canonicalCity(
+          city,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
+        _nonEmpty(city);
+  }
+
+  void _prefillFromRequest(RegistrationRequestModel request) {
+    _firstNameController.text = _nonEmpty(request.firstName) ?? '';
+    _lastNameController.text = _nonEmpty(request.lastName) ?? '';
+    _applyPhone(request.phoneNumber);
+    _emailController.text = _nonEmpty(request.email) ?? '';
+    _selectedCity = _canonicalCity(request.city);
+    _messageController.text = _nonEmpty(request.message) ?? '';
+  }
+
+  void _prefillFromProfile(UserProfileModel? profile, UserModel? user) {
+    _setIfEmpty(_firstNameController, profile?.firstName ?? user?.firstName);
+    _setIfEmpty(_lastNameController, profile?.lastName ?? user?.lastName);
+    _setPhoneIfEmpty(profile?.phoneNumber ?? user?.phoneNumber);
+    _selectedCity ??= _canonicalCity(profile?.city);
+  }
+
+  void _tryPrefill() {
+    if (!mounted) return;
+
+    final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
+    if (request != null) {
+      if (_prefilledFromRequest) return;
+      setState(() {
+        _prefillFromRequest(request);
+        _prefilledFromRequest = true;
+      });
+      return;
+    }
+
+    setState(() {
+      _prefillFromProfile(
+        ref.read(clientProfileProvider).userProfile,
+        ref.read(authProvider).session?.user,
+      );
+    });
   }
 
   Future<void> _submit() async {
     final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
 
-    final status = (request?.status ?? '').toLowerCase();
-    if (status == 'accepted') return;
+    if (request != null && !request.isRejected) return;
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
@@ -110,36 +180,25 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
-    final phoneNumber = _phoneController.text.trim();
+    final phoneNumber = normalizeKzPhone(_phoneController.text) ?? '';
     final email = _emailController.text.trim();
-    final city = _cityController.text.trim();
+    final city = _selectedCity?.trim() ?? '';
     final message = _messageController.text.trim();
 
-    final success = request == null
-        ? await notifier.createOwnerRegistrationRequest(
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber,
-            email: email,
-            city: city,
-            message: message,
-          )
-        : await notifier.updateOwnerRegistrationRequest(
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber,
-            email: email,
-            city: city,
-            message: message,
-          );
+    final success = await notifier.createOwnerRegistrationRequest(
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+      email: email,
+      city: city,
+      message: message,
+    );
 
     if (success && mounted) {
       final l10n = AppLocalizations.of(context)!;
 
-      AppSnackBar.show(
-        message: request == null ? l10n.requestSubmitted : l10n.requestUpdated,
-        isSuccess: true,
-      );
+      AppSnackBar.show(message: l10n.requestSubmitted, isSuccess: true);
+      if (context.canPop()) context.pop();
     }
   }
 
@@ -152,8 +211,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final request = ref.watch(ownerRegistrationRequestProvider).valueOrNull;
     final mutationState = ref.watch(ownerRegistrationMutationProvider);
 
-    final status = (request?.status ?? '').toLowerCase();
-    final isAccepted = status == 'accepted';
+    final isAccepted = request?.isApproved == true;
+    final isReadOnly = request != null && !request.isRejected;
+    final canSubmit = request == null || request.isRejected;
 
     ref.listen<String?>(authProvider.select((auth) => auth.currentUserId), (
       previousUserId,
@@ -164,11 +224,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       _clearFormForAccountChange();
 
       if (nextUserId != null) {
-        Future.microtask(() {
-          if (mounted) {
-            return _loadCurrentAccount(nextUserId);
-          }
-        });
+        unawaited(
+          Future.microtask(() {
+            if (mounted) {
+              return _loadCurrentAccount(nextUserId);
+            }
+          }),
+        );
       }
     });
 
@@ -178,204 +240,146 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
       if (previousRequest != null && request == null) {
         _clearFormForAccountChange();
-
-        final profile = ref.read(clientProfileProvider).userProfile;
-        if (profile != null) {
-          _prefillFromProfile(profile);
-          _prefilledFromProfile = true;
-        }
       }
 
-      if (!_prefilledFromRequest && request != null) {
-        _prefillFromRequest(request);
-        _prefilledFromRequest = true;
-      }
-
-      if (!_prefilledFromRequest && request != null) {
-        _prefillFromRequest(request);
-        _prefilledFromRequest = true;
-      }
-
-      if (request == null && !_prefilledFromProfile) {
-        final profile = ref.read(clientProfileProvider).userProfile;
-        if (profile != null) {
-          _prefillFromProfile(profile);
-          _prefilledFromProfile = true;
-        }
-      }
+      _tryPrefill();
     });
 
     ref.listen(clientProfileProvider, (previous, next) {
-      final hasRequest = ref.read(ownerRegistrationRequestProvider).valueOrNull;
-      if (hasRequest != null) return;
-
-      final profile = next.userProfile;
-      if (profile == null) return;
-
-      if (!_prefilledFromProfile) {
-        _prefillFromProfile(profile);
-        _prefilledFromProfile = true;
+      if (ref.read(ownerRegistrationRequestProvider).valueOrNull != null) {
+        return;
       }
+      _tryPrefill();
     });
 
-    final submitLabel = request == null
-        ? l10n.submitRequest
-        : (request.status ?? '').toLowerCase() == "rejected"
+    final submitLabel = request?.isRejected == true
         ? l10n.resubmitRequest
-        : l10n.updateRequest;
+        : l10n.submitRequest;
 
     return Scaffold(
-      backgroundColor: colors.primary,
+      backgroundColor: colors.surface,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(32),
-                  ),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                    children: [
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.joinTeamHint,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.requestReviewedHint,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 12),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            children: [
+              const SizedBox(height: 12),
+              Text(l10n.joinTeamHint, style: theme.textTheme.bodyMedium),
+              const SizedBox(height: 8),
+              Text(l10n.requestReviewedHint, style: theme.textTheme.bodySmall),
+              const SizedBox(height: 12),
 
-                      if (request != null) _StatusCard(request: request),
-                      if (request != null) const SizedBox(height: 16),
+              if (request != null) _StatusCard(request: request),
+              if (request != null) const SizedBox(height: 16),
 
-                      InputField(
-                        controller: _firstNameController,
-                        label: l10n.firstName,
-                        hint: l10n.firstNameHint,
-                        icon: Icons.person_outline,
-                        // enabled: !isAccepted,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.firstNameRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-
-                      InputField(
-                        controller: _lastNameController,
-                        label: l10n.lastName,
-                        hint: l10n.lastNameHint,
-                        icon: Icons.person_outline,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.lastNameRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _phoneController,
-                        label: l10n.phoneNumber,
-                        hint: l10n.phoneHint,
-                        icon: Icons.phone_outlined,
-                        keyboardType: TextInputType.phone,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.phoneNumberRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _emailController,
-                        label: l10n.email,
-                        hint: l10n.emailHint,
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) {
-                          final value = (v ?? '').trim();
-                          if (value.isEmpty) return null;
-                          if (!value.contains('@')) {
-                            return l10n.enterValidEmail;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _cityController,
-                        label: l10n.city,
-                        hint: l10n.cityInputHint,
-                        icon: Icons.location_city_outlined,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.cityRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-                      InputField(
-                        controller: _messageController,
-                        label: l10n.message,
-                        hint: l10n.messageHint,
-                        icon: Icons.message_outlined,
-                        // maxLines: 3,
-                        keyboardType: TextInputType.multiline,
-                        validator: (v) {
-                          if ((v ?? '').trim().isEmpty) {
-                            return l10n.messageRequired;
-                          }
-                          return null;
-                        },
-                      ),
-
-                      SizedBox(height: 8),
-
-                      if (request == null || !isAccepted) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          l10n.noteDescribeHint,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        PrimaryButton(
-                          label: submitLabel,
-                          isLoading: mutationState.isLoading,
-                          icon: Icons.send_rounded,
-                          onPressed: mutationState.isLoading ? null : _submit,
-                        ),
-                      ] else ...[
-                        _AcceptedInfo(theme: theme),
-                      ],
-
-                      SizedBox(height: 40),
-                    ],
-                  ),
-                ),
+              InputField(
+                controller: _firstNameController,
+                label: l10n.firstName,
+                hint: l10n.firstNameHint,
+                icon: Icons.person_outline,
+                readOnly: isReadOnly,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.firstNameRequired;
+                  }
+                  return null;
+                },
               ),
-            ),
-          ],
+
+              const SizedBox(height: 8),
+
+              InputField(
+                controller: _lastNameController,
+                label: l10n.lastName,
+                hint: l10n.lastNameHint,
+                icon: Icons.person_outline,
+                readOnly: isReadOnly,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.lastNameRequired;
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 8),
+              KzPhoneInputField(
+                controller: _phoneController,
+                label: l10n.phoneNumber,
+                hint: l10n.phoneHint,
+                icon: Icons.phone_outlined,
+                helperText: l10n.ownerContactPhoneHint,
+                readOnly: isReadOnly,
+              ),
+
+              const SizedBox(height: 8),
+              InputField(
+                controller: _emailController,
+                label: l10n.email,
+                hint: l10n.emailHint,
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                readOnly: isReadOnly,
+                validator: (v) {
+                  final value = (v ?? '').trim();
+                  if (value.isEmpty) return null;
+                  if (!value.contains('@')) {
+                    return l10n.enterValidEmail;
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 8),
+              CitySelectField(
+                city: _selectedCity,
+                isRequired: true,
+                enabled: !isReadOnly,
+                service: CitySelectorService.becomeowner,
+                onChanged: (city) => setState(() => _selectedCity = city),
+              ),
+
+              const SizedBox(height: 8),
+              InputField(
+                controller: _messageController,
+                label: l10n.message,
+                hint: l10n.messageHint,
+                icon: Icons.message_outlined,
+                keyboardType: TextInputType.multiline,
+                readOnly: isReadOnly,
+                validator: (v) {
+                  if ((v ?? '').trim().isEmpty) {
+                    return l10n.messageRequired;
+                  }
+                  return null;
+                },
+              ),
+
+              const SizedBox(height: 8),
+
+              if (canSubmit) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.noteDescribeHint,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                PrimaryButton(
+                  label: submitLabel,
+                  isLoading: mutationState.isLoading,
+                  icon: Icons.send_rounded,
+                  onPressed: mutationState.isLoading ? null : _submit,
+                ),
+              ] else if (isAccepted) ...[
+                _AcceptedInfo(theme: theme),
+              ],
+
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
@@ -393,23 +397,22 @@ class _StatusCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final status = (request.status ?? 'created').toLowerCase();
     final adminComment = (request.adminComment ?? '').trim();
 
-    final (title, subtitle, icon, color) = switch (status) {
-      'accepted' => (
+    final (title, subtitle, icon, color) = switch (request.parsedStatus) {
+      BecomeOwnerRequestStatus.approved => (
         l10n.statusAccepted,
         l10n.statusAcceptedSubtitle,
         Icons.verified_rounded,
         Colors.green,
       ),
-      'rejected' => (
+      BecomeOwnerRequestStatus.rejected => (
         l10n.statusRejected,
         l10n.statusRejectedSubtitle,
         Icons.error_outline_rounded,
         colors.error,
       ),
-      _ => (
+      BecomeOwnerRequestStatus.pending => (
         l10n.statusUnderReview,
         l10n.statusUnderReviewSubtitle,
         Icons.hourglass_top_rounded,

@@ -17,7 +17,7 @@ class RequestModel {
   final DateTime? requiredOn;
   final DateTime? requiredAt;
 
-  final LocationModel location;
+  final LocationModel? location;
   final UserModel? client;
 
   final Category? category;
@@ -37,7 +37,7 @@ class RequestModel {
     this.requiredOn,
     this.requiredAt,
 
-    required this.location,
+    this.location,
     this.client,
 
     this.category,
@@ -46,6 +46,40 @@ class RequestModel {
     this.createdAt,
     this.updatedAt,
   });
+
+  RequestModel copyWith({
+    String? id,
+    RequestStatus? status,
+    String? capacity,
+    int? offeredPrice,
+    PriceRateOption? offeredPriceRate,
+    String? comment,
+    DateTime? requiredOn,
+    DateTime? requiredAt,
+    LocationModel? location,
+    UserModel? client,
+    Category? category,
+    String? categoryId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return RequestModel(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      capacity: capacity ?? this.capacity,
+      offeredPrice: offeredPrice ?? this.offeredPrice,
+      offeredPriceRate: offeredPriceRate ?? this.offeredPriceRate,
+      comment: comment ?? this.comment,
+      requiredOn: requiredOn ?? this.requiredOn,
+      requiredAt: requiredAt ?? this.requiredAt,
+      location: location ?? this.location,
+      client: client ?? this.client,
+      category: category ?? this.category,
+      categoryId: categoryId ?? this.categoryId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   factory RequestModel.fromJson(Map<String, dynamic> json) {
     return RequestModel(
@@ -65,9 +99,7 @@ class RequestModel {
           ? Category.fromJson(json['category'])
           : null,
 
-      location: json['location'] != null
-          ? LocationModel.fromJson(json['location'])
-          : throw Exception("Location is required but missing"),
+      location: _tryParseLocation(json['location']),
 
       client: json["client"] != null
           ? UserModel.fromJson(json["client"])
@@ -91,10 +123,19 @@ class RequestModel {
       "capacity": capacity,
       "offeredPrice": offeredPrice,
       "comment": comment,
-      "location": location.toJson(),
+      "location": location?.toJson(),
       "client": client?.toJson(),
       "requiredOn": requiredOn?.toUtc().toIso8601String(),
       "requiredAt": requiredAt?.toUtc().toIso8601String(),
     };
+  }
+}
+
+LocationModel? _tryParseLocation(dynamic value) {
+  if (value is! Map) return null;
+  try {
+    return LocationModel.fromJson(Map<String, dynamic>.from(value));
+  } catch (_) {
+    return null;
   }
 }

@@ -20,6 +20,8 @@ class LoginTile extends StatelessWidget {
         ),
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
         iconAlignment: IconAlignment.end,
+        iconColor: Colors.white,
+        foregroundColor: Colors.white,
         splashFactory: InkRipple.splashFactory,
       ),
       icon: const Icon(Icons.arrow_forward_rounded, size: 20),

@@ -1,0 +1,11 @@
+# Owner
+
+- Business profile (`PATCH /owner/profile`) is individual contact fields only. Company / BUSINESS type stays hidden.
+- Saving a real field change sends `submitForReview: true` with `PATCH /owner/profile`. The API then sets `PENDING_REVIEW` even if trimmed values look unchanged (spaces, same city key). Unchanged saves without that flag keep the current status.
+- Update button is shown only while visible fields differ from the last saved profile; it hides after the PATCH finishes.
+- `PENDING_REVIEW` locks the form until an admin accepts or rejects — no further edits (anti-spam).
+- Banner: pending / rejected / suspended only. Approved and incomplete show no plaque; documents are not collected.
+- Become-owner (`POST /owner/become-owner`) is a separate client-mode screen. After submit it pops back to the client profile CTA (`pending`). Pending/approved applications are read-only; rejected can resubmit.
+- First admin approval of become-owner sets `OwnerProfile` to `APPROVED` and credits **10 000 gift minutes** once (`FREECREDIT` / `WELCOME_OWNER_MINUTES`). The gift is a ledger row, not tied to profile status. Repeat approve after reject does not credit again.
+- Package submit on the top-up screen does not call `POST /billing`; it shows `paymentFeatureComingSoon`. Real top-up is not connected.
+- Online switch (`PATCH /owner/profile/status`): `ONLINE` needs paid minutes **and** at least one visible unit. Zero balance → `cannotGoOnlineWithZeroBalance`. No online equipment → `cannotGoOnlineWithoutOnlineEquipment`. Hiding the last unit forces owner `OFFLINE`. Owner online does not burn minutes.

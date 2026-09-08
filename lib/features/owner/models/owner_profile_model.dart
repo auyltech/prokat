@@ -6,15 +6,21 @@ import 'package:prokat/features/owner/models/owner_notification_preferences.dart
 enum OwnerType { individual, organization }
 
 OwnerType? parseOwnerType(dynamic value) {
-  if (value?.toString().trim().toLowerCase() == "individual") {
-    return OwnerType.individual;
-  }
-
-  if (value?.toString().trim().toLowerCase() == "organization") {
+  final normalized = value?.toString().trim().toLowerCase();
+  if (normalized == 'individual') return OwnerType.individual;
+  // API uses BUSINESS; older clients may still say organization.
+  if (normalized == 'business' || normalized == 'organization') {
     return OwnerType.organization;
   }
-
   return null;
+}
+
+String? ownerTypeToApi(OwnerType? type) {
+  return switch (type) {
+    OwnerType.individual => 'INDIVIDUAL',
+    OwnerType.organization => 'BUSINESS',
+    null => null,
+  };
 }
 
 class OwnerProfileModel {
@@ -172,22 +178,29 @@ class OwnerProfileModel {
   }
 
   Map<String, dynamic> toPatchJson() {
+    // Backend: z.string().min(1).optional().nullable() — empty "" fails validation.
+    String? nonEmptyOrNull(String? value) {
+      final trimmed = value?.trim();
+      if (trimmed == null || trimmed.isEmpty) return null;
+      return trimmed;
+    }
+
     return {
-      'ownerType': ownerType?.name.toUpperCase(),
-      'companyName': companyName,
-      'legalName': legalName,
-      'firstName': firstName,
-      'lastName': lastName,
-      'phoneNumber': phoneNumber,
-      'city': city,
-      'serviceDescription': serviceDescription,
+      'ownerType': ownerTypeToApi(ownerType),
+      'companyName': nonEmptyOrNull(companyName),
+      'legalName': nonEmptyOrNull(legalName),
+      'firstName': nonEmptyOrNull(firstName),
+      'lastName': nonEmptyOrNull(lastName),
+      'phoneNumber': nonEmptyOrNull(phoneNumber),
+      'city': nonEmptyOrNull(city),
+      'serviceDescription': nonEmptyOrNull(serviceDescription),
     };
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'ownerType': ownerType?.name.toUpperCase(),
+      'ownerType': ownerTypeToApi(ownerType),
       'companyName': companyName,
       'legalName': legalName,
       'firstName': firstName,

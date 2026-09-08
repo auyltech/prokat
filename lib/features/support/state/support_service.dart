@@ -13,8 +13,8 @@ class SupportService {
 
   Future<ApiResponse<void>> submitInquiry({
     required String fullName,
-    required String? email,
-    required String? phoneNumber,
+    required String email,
+    required String phoneNumber,
     required String topic,
     required String message,
   }) async {

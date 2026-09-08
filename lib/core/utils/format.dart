@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-String formatRequestTime(String date) {
+String formatRequestTime(String date, AppLocalizations l10n) {
   final dt = DateTime.parse(date).toLocal();
   final now = DateTime.now();
 
   final diff = now.difference(dt);
 
-  if (diff.inMinutes < 1) return "Just now";
-  if (diff.inMinutes < 60) return "${diff.inMinutes} min ago";
-  if (diff.inHours < 24) return "${diff.inHours} h ago";
+  if (diff.inMinutes < 1) return l10n.justNow;
+  if (diff.inMinutes < 60) return l10n.minutesAgo(diff.inMinutes);
+  if (diff.inHours < 24) return l10n.hoursAgo(diff.inHours);
 
-  return DateFormat("d MMM, HH:mm").format(dt);
+  return DateFormat("d MMM, HH:mm", l10n.localeName).format(dt);
 }
 
 String formatDate({
@@ -39,10 +41,10 @@ String formatTime(BuildContext context, DateTime date) {
   return TimeOfDay.fromDateTime(date).format(context);
 }
 
-String formatDateTime(dynamic date, dynamic time) {
-  final dateStr = DateFormat('E dd MMM').format(date);
+String formatDateTime(dynamic date, dynamic time, {String? locale}) {
+  final dateStr = DateFormat('E dd MMM', locale).format(date);
   if (time != null) {
-    final timeStr = DateFormat('HH:mm').format(time!);
+    final timeStr = DateFormat('HH:mm', locale).format(time);
     return "$dateStr • $timeStr";
   }
   return dateStr;
@@ -54,6 +56,22 @@ String formatMinutes(int minutes) {
 
   if (days > 0) return "$days days $hours hours";
   return "$hours hours";
+}
+
+/// Kazakhstan contact number as E.164 (`+77051111111`).
+/// Accepts `8…`, `7…`, national 10 digits, and formatted input.
+String? normalizeKzPhone(String? input) {
+  final digits = (input ?? '').replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) return null;
+
+  String national = digits;
+  if (national.length == 11 &&
+      (national.startsWith('8') || national.startsWith('7'))) {
+    national = national.substring(1);
+  }
+
+  if (national.length != 10) return null;
+  return '+7$national';
 }
 
 String formatPhoneNumber(String phoneNumber) {
@@ -109,6 +127,62 @@ String getPriceRate(PriceRateOption? priceRate, {AppLocalizations? l10n}) {
   return temp;
 }
 
+String getPriceRateLabel(PriceRateOption rate, AppLocalizations l10n) {
+  switch (rate.value) {
+    case 'PER_TRIP':
+      return l10n.ratePerTrip;
+    case 'PER_CUBIC_METER':
+      return l10n.ratePerCubicMeter;
+    case 'PER_DAY':
+      return l10n.ratePerDay;
+    case 'PER_HOUR':
+      return l10n.ratePerHour;
+    default:
+      return rate.label;
+  }
+}
+
+String getOfferStatus(OfferStatus status, {AppLocalizations? l10n}) {
+  switch (status) {
+    case OfferStatus.created:
+      return l10n?.newOffer ?? "New Offer";
+    case OfferStatus.viewed:
+      return l10n?.offerStatusViewed ?? "Viewed";
+    case OfferStatus.cancelled:
+      return l10n?.offerStatusCancelled ?? "Cancelled";
+    case OfferStatus.accepted:
+      return l10n?.offerStatusAccepted ?? "Accepted";
+    case OfferStatus.rejected:
+      return l10n?.offerStatusRejected ?? "Rejected";
+    case OfferStatus.expired:
+      return l10n?.offerStatusExpired ?? "Expired";
+    case OfferStatus.closed:
+      return l10n?.offerStatusClosed ?? "Closed";
+  }
+}
+
+String getPriceNegotiationStatus(
+  PriceNegotiationStatus status, {
+  AppLocalizations? l10n,
+}) {
+  switch (status) {
+    case PriceNegotiationStatus.created:
+      return l10n?.priceOfferStatusCreated ?? "Created";
+    case PriceNegotiationStatus.accepted:
+      return l10n?.offerStatusAccepted ?? "Accepted";
+    case PriceNegotiationStatus.rejected:
+      return l10n?.offerStatusRejected ?? "Rejected";
+    case PriceNegotiationStatus.cancelled:
+      return l10n?.priceOfferStatusCancelled ?? "Cancelled";
+    case PriceNegotiationStatus.closed:
+      return l10n?.offerStatusClosed ?? "Closed";
+    case PriceNegotiationStatus.expired:
+      return l10n?.offerStatusExpired ?? "Expired";
+    case PriceNegotiationStatus.unknown:
+      return status.name;
+  }
+}
+
 String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {
   switch (status) {
     case BookingStatus.draft:
@@ -122,11 +196,11 @@ String getBookingStatus(BookingStatus status, {AppLocalizations? l10n}) {
     case BookingStatus.cancelled:
       return l10n?.statusCanceled ?? "Cancelled";
     case BookingStatus.failed:
-      return l10n?.statusCanceled ?? "Failed";
+      return l10n?.statusFailed ?? "Failed";
     case BookingStatus.completed:
       return l10n?.statusCompleted ?? "Completed";
-    default:
-      return "";
+    case BookingStatus.reviewed:
+      return l10n?.statusReviewed ?? "Reviewed";
   }
 }
 

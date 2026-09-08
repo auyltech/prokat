@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
@@ -36,9 +38,11 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(clientProfileProvider.notifier).refreshIfStale();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(clientProfileProvider.notifier).refreshIfStale();
+      }),
+    );
   }
 
   @override
@@ -64,7 +68,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
           children: [
             ProkatListTile(
               icon: LucideIcons.globe,
-              iconColor: theme.colorScheme.primary,
+              iconColor: theme.colorScheme.onPrimary,
               iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
               title: l10n.appLanguage,
               subtitle: langDisplay,
@@ -75,7 +79,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             ProkatListTile(
               icon: LucideIcons.palette,
-              iconColor: theme.colorScheme.primary,
+              iconColor: theme.colorScheme.onPrimary,
               iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
               title: l10n.applicationTheme,
               subtitle: _themeLabel(currentMode, l10n),
@@ -87,7 +91,9 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
                 if (selectedMode == null) return;
 
-                ref.read(themeModeProvider.notifier).setThemeMode(selectedMode);
+                await ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(selectedMode);
               },
             ),
 
@@ -121,8 +127,8 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             ProkatListTile(
               icon: Icons.security_outlined,
-              iconBgColor: Colors.black12,
-              iconColor: Colors.black,
+              iconBgColor: Colors.grey.withValues(alpha: 0.1),
+              iconColor: theme.colorScheme.onPrimary,
               title: l10n.serviceAndSafetyNotices,
               subtitle: l10n.serviceAndSafetyNoticesSubtitle,
               onTap: () {},
@@ -130,7 +136,7 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
 
             const SizedBox(height: 60),
 
-            DeleteAccountTile(),
+            const DeleteAccountTile(),
 
             const SizedBox(height: 140),
 

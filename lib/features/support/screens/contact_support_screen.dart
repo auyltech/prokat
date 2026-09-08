@@ -2,34 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/support/models/contact_inquiry_topic.dart';
 import 'package:prokat/features/support/state/support_provider.dart';
+import 'package:prokat/features/support/widgets/inquiry_topic_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-
-enum ContactInquiryTopic {
-  general,
-  support,
-  bugReport,
-  featureRequest,
-  sales,
-  partnership,
-  billing,
-  callMe,
-  accountDeletion,
-  accountRecovery,
-  accountIssue,
-  other,
-}
-
-extension ContactInquiryTopicExtension on ContactInquiryTopic {
-  String get displayName {
-    return name
-        .split('_')
-        .map((word) {
-          return word[0] + word.substring(1).toLowerCase();
-        })
-        .join(' ');
-  }
-}
 
 class ContactSupportScreen extends ConsumerStatefulWidget {
   const ContactSupportScreen({super.key});
@@ -40,14 +16,15 @@ class ContactSupportScreen extends ConsumerStatefulWidget {
 }
 
 class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
-  final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _messageController = TextEditingController();
 
-  ContactInquiryTopic _selectedTopic = ContactInquiryTopic.general;
+  ContactInquiryTopic? _selectedTopic;
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   bool _isLoading = false;
 
   @override
@@ -59,10 +36,34 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
     super.dispose();
   }
 
+  void _resetForm() {
+    _nameController.clear();
+    _emailController.clear();
+    _phoneController.clear();
+    _messageController.clear();
+    _selectedTopic = null;
+    _autovalidateMode = AutovalidateMode.disabled;
+    _formKey = GlobalKey<FormState>();
+  }
+
+  Future<void> _pickTopic(FormFieldState<ContactInquiryTopic> field) async {
+    FocusScope.of(context).unfocus();
+    final selected = await InquiryTopicSheet.show(
+      context,
+      selectedTopic: field.value ?? _selectedTopic,
+    );
+    if (selected == null || !mounted) return;
+    setState(() => _selectedTopic = selected);
+    field.didChange(selected);
+  }
+
   Future<void> _submitForm() async {
     final l10n = AppLocalizations.of(context)!;
     final curr = _formKey.currentState;
-    if (curr == null || !curr.validate()) {
+    if (curr == null || !curr.validate() || _selectedTopic == null) {
+      setState(() {
+        _autovalidateMode = AutovalidateMode.onUserInteraction;
+      });
       return;
     }
 
@@ -73,15 +74,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           .read(supportProvider.notifier)
           .submitInquiry(
             fullName: _nameController.text.trim(),
-            email: _emailController.text.trim().isEmpty
-                ? null
-                : _emailController.text.trim(),
-            phoneNumber: _phoneController.text.trim().isEmpty
-                ? null
-                : _phoneController.text.trim(),
-            topic: _selectedTopic.name,
+            email: _emailController.text.trim(),
+            phoneNumber: _phoneController.text.trim(),
+            topic: _selectedTopic!.apiValue,
             message: _messageController.text.trim(),
           );
+
+      if (!mounted) return;
 
       AppSnackBar.show(
         message: result.success ? l10n.supportTicketSubmitted : result.message,
@@ -89,9 +88,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
         isError: !result.success,
       );
 
-      _formKey.currentState?.reset();
-      _phoneController.clear();
-      _emailController.clear();
+      if (result.success) {
+        setState(_resetForm);
+      }
     } catch (error) {
       AppSnackBar.show(message: l10n.failedToSubmitTicket, isError: true);
     } finally {
@@ -165,6 +164,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                 ),
                 child: Form(
                   key: _formKey,
+                  autovalidateMode: _autovalidateMode,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -238,7 +238,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                   prefixIcon: Icons.account_circle_outlined,
                                 ),
                                 validator: (value) =>
-                                    (value == null || value.trim().isEmpty)
+                                    (value == null || value.trim().length < 2)
                                     ? l10n.fullNameValidation
                                     : null,
                               ),
@@ -249,28 +249,19 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: buildInputDecoration(
-                                  labelText: l10n.emailAddress,
+                                  labelText: l10n.emailAddressRequiredLabel,
                                   prefixIcon: Icons.email_outlined,
-                                  helperText: l10n.phoneRequiredIfEmailEmpty,
                                 ),
-                                onChanged: (_) =>
-                                    _formKey.currentState?.validate(),
                                 validator: (value) {
-                                  final phoneEmpty = _phoneController.text
-                                      .trim()
-                                      .isEmpty;
-                                  if (phoneEmpty &&
-                                      (value == null || value.trim().isEmpty)) {
-                                    return l10n.emailOrPhoneRequired;
+                                  final email = value?.trim() ?? '';
+                                  if (email.isEmpty) {
+                                    return l10n.pleaseEnterEmail;
                                   }
-                                  if (value != null &&
-                                      value.trim().isNotEmpty) {
-                                    final emailRegex = RegExp(
-                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                    );
-                                    if (!emailRegex.hasMatch(value.trim())) {
-                                      return l10n.invalidEmail;
-                                    }
+                                  final emailRegex = RegExp(
+                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                  );
+                                  if (!emailRegex.hasMatch(email)) {
+                                    return l10n.invalidEmail;
                                   }
                                   return null;
                                 },
@@ -282,22 +273,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                 controller: _phoneController,
                                 keyboardType: TextInputType.phone,
                                 decoration: buildInputDecoration(
-                                  labelText: l10n.phoneNumber,
+                                  labelText: l10n.phoneNumberRequiredLabel,
                                   prefixIcon: Icons.phone_outlined,
-                                  helperText: l10n.requiredIfEmailEmpty,
                                 ),
-                                onChanged: (_) =>
-                                    _formKey.currentState?.validate(),
-                                validator: (value) {
-                                  final emailEmpty = _emailController.text
-                                      .trim()
-                                      .isEmpty;
-                                  if (emailEmpty &&
-                                      (value == null || value.trim().isEmpty)) {
-                                    return l10n.emailOrPhoneRequired;
-                                  }
-                                  return null;
-                                },
+                                validator: (value) =>
+                                    (value == null || value.trim().isEmpty)
+                                    ? l10n.phoneNumberRequired
+                                    : null,
                               ),
 
                               const SizedBox(height: 32),
@@ -320,23 +302,45 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               ),
                               const Divider(height: 24, thickness: 0.8),
 
-                              // Topic Dropdown
-                              DropdownButtonFormField<ContactInquiryTopic>(
+                              FormField<ContactInquiryTopic>(
                                 initialValue: _selectedTopic,
-                                decoration: buildInputDecoration(
-                                  labelText: l10n.inquiryTopicRequiredLabel,
-                                  prefixIcon: Icons.unfold_more_rounded,
-                                ),
-                                items: ContactInquiryTopic.values.map((topic) {
-                                  return DropdownMenuItem(
-                                    value: topic,
-                                    child: Text(topic.displayName),
+                                validator: (value) => value == null
+                                    ? l10n.inquiryTopicValidation
+                                    : null,
+                                builder: (field) {
+                                  final selected = field.value;
+                                  return Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () => _pickTopic(field),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: InputDecorator(
+                                        isEmpty: selected == null,
+                                        decoration:
+                                            buildInputDecoration(
+                                              labelText: l10n
+                                                  .inquiryTopicRequiredLabel,
+                                              prefixIcon:
+                                                  Icons.unfold_more_rounded,
+                                            ).copyWith(
+                                              errorText: field.errorText,
+                                              suffixIcon: Icon(
+                                                Icons.keyboard_arrow_down,
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withValues(alpha: 0.6),
+                                              ),
+                                            ),
+                                        child: Text(
+                                          selected?.localizedLabel(l10n) ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.bodyLarge,
+                                        ),
+                                      ),
+                                    ),
                                   );
-                                }).toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    setState(() => _selectedTopic = value);
-                                  }
                                 },
                               ),
                               const SizedBox(height: 16),
@@ -350,7 +354,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                   prefixIcon: Icons.edit_note_rounded,
                                 ),
                                 validator: (value) =>
-                                    (value == null || value.trim().isEmpty)
+                                    (value == null || value.trim().length < 10)
                                     ? l10n.messageValidation
                                     : null,
                               ),

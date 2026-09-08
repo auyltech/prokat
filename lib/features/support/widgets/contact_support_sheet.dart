@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -7,9 +9,11 @@ class ContactSupportSheet extends StatelessWidget {
   const ContactSupportSheet({super.key});
 
   static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => ContactSupportSheet(),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        builder: (context) => const ContactSupportSheet(),
+      ),
     );
   }
 
@@ -44,10 +48,10 @@ class ContactSupportSheet extends StatelessWidget {
 
           GestureDetector(
             onTap: () {
-              context.push(AppRoutes.contactSupport);
+              unawaited(context.push(AppRoutes.contactSupport));
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black26),
                 borderRadius: BorderRadius.circular(12),
@@ -56,10 +60,10 @@ class ContactSupportSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Icon(Icons.email_outlined),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     l10n.submitInquiry,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                       color: Colors.black54,

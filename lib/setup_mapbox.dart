@@ -1,6 +1,7 @@
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import 'package:flutter/foundation.dart';
+
 // If your Mapbox SDK requires specific package imports, leave them here
 
 class MapboxConfig {
@@ -9,7 +10,7 @@ class MapboxConfig {
   static void ensureInitialized() {
     if (_initialized) return;
 
-    final token = const String.fromEnvironment('MAPBOX_TOKEN');
+    const token = String.fromEnvironment('MAPBOX_TOKEN');
     if (token.isEmpty) {
       throw StateError('Missing MAPBOX_TOKEN');
     }

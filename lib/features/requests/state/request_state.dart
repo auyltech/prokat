@@ -5,6 +5,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
+
 import '../models/request_model.dart';
 
 class Value<T> {
@@ -114,6 +115,7 @@ class RequestState {
     String? comment,
     DateTime? selectedDate,
     DateTime? selectedTime,
+    bool clearSelectedTime = false,
     LocationModel? selectedLocation,
     String? selectedLocationId,
     Category? selectedCategory,
@@ -133,7 +135,9 @@ class RequestState {
       offeredRate: offeredRate ?? this.offeredRate,
       comment: comment ?? this.comment,
       selectedDate: selectedDate ?? this.selectedDate,
-      selectedTime: selectedTime ?? this.selectedTime,
+      selectedTime: clearSelectedTime
+          ? null
+          : (selectedTime ?? this.selectedTime),
       selectedLocation: selectedLocation ?? this.selectedLocation,
       selectedLocationId: selectedLocationId ?? this.selectedLocationId,
       selectedCategory: selectedCategory ?? this.selectedCategory,

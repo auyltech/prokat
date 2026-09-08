@@ -7,6 +7,7 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
+import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/offer_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -74,7 +75,7 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.local_offer_outlined,
                     color: Colors.brown,
                     size: 26,
@@ -83,39 +84,39 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
 
                   Text(l10n.offer, style: theme.textTheme.bodyMedium),
 
-                  Spacer(),
+                  const Spacer(),
 
                   OfferStatusBadge(status: offer.status),
                 ],
               ),
 
-              SizedBox(height: 4),
+              const SizedBox(height: 8),
 
               if (offer.equipment != null)
                 EquipmentInfoTile(equipment: offer.equipment),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               Padding(
-                padding: EdgeInsets.only(left: 0),
+                padding: const EdgeInsets.only(left: 0),
                 child: Row(
                   children: [
                     Text(
                       "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
 
-                    Spacer(),
+                    const Spacer(),
 
                     if (offer.status == OfferStatus.created && widget.isMe) ...[
                       // Cancel Offer
                       if (ref
                           .watch(offerMutationProvider)
                           .isActionActive("offer:cancel:${offer.id}"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -137,15 +138,15 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                                 );
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.clear, color: Colors.red),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
                     ] else if (offer.status == OfferStatus.created) ...[
                       // Reject Offer
                       if (ref
                           .watch(offerMutationProvider)
                           .isActionActive("offer:reject:${offer.id}"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -167,15 +168,15 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                                 );
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.clear, color: Colors.red),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
 
                       // Accept Offer
                       if (ref
                           .watch(offerMutationProvider)
                           .isActionActive("offer:accept:${offer.id}"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -188,17 +189,22 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                       else
                         IconButton(
                           onPressed: () async {
-                            await ref
+                            final navigation = TenderAcceptNavigation.capture(
+                              context,
+                            );
+                            final result = await ref
                                 .read(offerMutationProvider.notifier)
                                 .acceptOffer(
                                   offer.id,
                                   chatId: widget.message.chatId,
                                   requestId: offer.requestId,
                                 );
+                            if (!result.success) return;
+                            navigation.revealClientOrders();
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.check, color: Colors.green),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.check, color: Colors.green),
                           // isEnabled: !submitState.isSubmitting,
                           // isLoading:
                           //     submitState.isSubmitting &&

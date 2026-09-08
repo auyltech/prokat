@@ -27,23 +27,33 @@ class EquipmentStatusBadge extends StatelessWidget {
         ? l10n.available
         : status == EquipmentStatus.rejected
         ? l10n.resubmit
+        : status == EquipmentStatus.booked
+        ? l10n.booked
         : status == EquipmentStatus.maintenance
         ? l10n.maintenance
         : '';
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: statusColor, // White background to show the shadow
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        statusString.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          letterSpacing: 0.5,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 120, minHeight: 24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: statusColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          statusString.toUpperCase(),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          textWidthBasis: TextWidthBasis.longestLine,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            height: 1.15,
+            color: Colors.white,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );

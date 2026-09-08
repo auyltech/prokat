@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
@@ -10,6 +12,7 @@ import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
@@ -34,20 +37,27 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Future<void> _fetchData() async {
     if (!mounted) return;
 
-    final categoryId = ref.read(selectedCategoryProvider)?.id;
-    final city = ref.read(locationProvider).city;
+    try {
+      final categoryId = ref.read(selectedCategoryProvider)?.id;
+      final city = ref.read(locationProvider).city;
 
-    await ref
-        .read(guestEquipmentProvider.notifier)
-        .setFilters(categoryId: categoryId, city: city);
+      await ref
+          .read(guestEquipmentProvider.notifier)
+          .setFilters(categoryId: categoryId, city: city);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    await ref.read(categoriesProvider.notifier).refreshIfStale();
+      await ref.read(categoriesProvider.notifier).refreshIfStale();
+      await ref.read(catalogProvider.notifier).refreshIfStale();
+    } catch (error, stackTrace) {
+      // Catalog failures already live in AsyncValue. Swallow them here so the
+      // unawaited initState/timer task is not reported as a Crashlytics fatal.
+      Logger.log('MainScreen._fetchData failed: $error\n$stackTrace');
+    }
   }
 
   void _loadMore() {
-    ref.read(guestEquipmentProvider.notifier).loadMore();
+    unawaited(ref.read(guestEquipmentProvider.notifier).loadMore());
   }
 
   void _onFiltersChanged() {
@@ -55,16 +65,21 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     _debounce = Timer(const Duration(seconds: 1), () {
       if (!mounted) return;
-      _fetchData();
+      unawaited(_fetchData());
     });
   }
 
   Future<void> _onRefresh() async {
-    await Future.wait([
-      ref.read(categoriesProvider.notifier).refresh(),
-      ref.read(guestEquipmentProvider.notifier).refresh(),
-      ref.read(demandConfigProvider.notifier).refresh(),
-    ]);
+    try {
+      await Future.wait([
+        ref.read(catalogProvider.notifier).refresh(),
+        ref.read(categoriesProvider.notifier).refresh(),
+        ref.read(guestEquipmentProvider.notifier).refresh(),
+        ref.read(demandConfigProvider.notifier).refresh(),
+      ]);
+    } catch (error, stackTrace) {
+      Logger.log('MainScreen._onRefresh failed: $error\n$stackTrace');
+    }
   }
 
   @override
@@ -213,16 +228,31 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             else if (items.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    bottom: 40,
+                  ),
                   child: EmptyStateTile(
                     imageName: 'empty_equipment.png',
                     title: selectedCity.isNotEmpty
                         ? l10n.noEquipmentListedInCity(
-                            selectedCategory?.name ?? l10n.navEquipment,
-                            selectedCity,
+                            selectedCategory?.localizedName(
+                                  locale.languageCode,
+                                ) ??
+                                l10n.navEquipment,
+                            catalogCityLabel(
+                              city: selectedCity,
+                              languageCode: locale.languageCode,
+                              catalog: ref.watch(catalogProvider).valueOrNull,
+                              fallback: (city) => localizedCityName(city, l10n),
+                            ),
                           )
                         : l10n.noEquipmentForCategory(
-                            selectedCategory?.name ?? l10n.navEquipment,
+                            selectedCategory?.localizedName(
+                                  locale.languageCode,
+                                ) ??
+                                l10n.navEquipment,
                           ),
                   ),
                 ),
@@ -232,7 +262,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverList.separated(
                   itemCount: items.length + (queryState!.isLoadingMore ? 1 : 0),
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     if (index == items.length) {
                       return const Padding(
@@ -244,7 +274,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     if (index == items.length - 1 &&
                         queryState.hasMore &&
                         !queryState.isLoadingMore) {
-                      Future.microtask(_loadMore);
+                      unawaited(Future.microtask(_loadMore));
                     }
 
                     return GuestEquipmentCard(item: items[index]);

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_status_badge.dart';
@@ -21,7 +24,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
-    final locationText = equipment.city ?? l10n.noLocationSet;
+    final locationText = (equipment.city == null || equipment.city!.isEmpty)
+        ? l10n.noLocationSet
+        : catalogCityLabelOf(ref, context, equipment.city);
     final priceEntry = equipment.prices.firstOrNull;
 
     final hasPrice = priceEntry != null;
@@ -39,7 +44,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
               ref
                   .read(equipmentMutationProvider.notifier)
                   .selectEditEquipment(equipment.id);
-              context.push('${AppRoutes.ownerEquipment}/${equipment.id}');
+              unawaited(
+                context.push('${AppRoutes.ownerEquipment}/${equipment.id}'),
+              );
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,10 +76,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Icon(
@@ -81,16 +87,17 @@ class OwnerEquipmentCard extends ConsumerWidget {
                             color: ghostGray,
                           ),
                           const SizedBox(width: 2),
-                          Text(
-                            locationText,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ghostGray,
+                          Expanded(
+                            child: Text(
+                              locationText,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: ghostGray,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 2),
-
-                          Spacer(),
-
+                          const SizedBox(width: 8),
                           EquipmentStatusBadge(status: equipment.status),
                         ],
                       ),
@@ -101,7 +108,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
             ),
           ),
 
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
 
           // ROW 2: Pricing Strategy & Online Switch
           Row(

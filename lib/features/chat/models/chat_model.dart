@@ -84,8 +84,9 @@ class ChatModel {
     required String ownerFallback,
     required String clientFallback,
   }) {
-    return _counterpart(currentUserId)?.displayName ??
-        (currentUserId == client?.id ? ownerFallback : clientFallback);
+    final name = _counterpart(currentUserId)?.displayName ?? '';
+    if (name.isNotEmpty) return name;
+    return currentUserId == client?.id ? ownerFallback : clientFallback;
   }
 
   String? displayImageUrl({String? currentUserId}) {

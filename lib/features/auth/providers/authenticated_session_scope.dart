@@ -21,16 +21,18 @@ class AuthenticatedSessionScopeKey {
   const AuthenticatedSessionScopeKey.forUser(
     String userId, {
     int generation = 0,
-  }) : _identity = userId,
-       _usesUserId = true,
-       _generation = generation;
+  }) : this._(userId, true, generation);
 
   const AuthenticatedSessionScopeKey.forSessionToken(
     String sessionToken, {
     int generation = 0,
-  }) : _identity = sessionToken,
-       _usesUserId = false,
-       _generation = generation;
+  }) : this._(sessionToken, false, generation);
+
+  const AuthenticatedSessionScopeKey._(
+    this._identity,
+    this._usesUserId,
+    this._generation,
+  );
 
   @override
   bool operator ==(Object other) {

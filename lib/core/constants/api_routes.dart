@@ -1,4 +1,6 @@
 class ApiRoutes {
+  static const catalog = "/catalog";
+  static const catalogFacets = "/catalog/facets";
   static const categories = "/categories";
   static const equipment = "/equipment";
   static const clientEquipment = "$equipment/client";
@@ -6,8 +8,11 @@ class ApiRoutes {
   static const ownerEquipment = "$equipment/owner";
   static const locations = "/locations";
   static const ownerLocations = "/locations/owner";
+  static const locationSearch = "$locations/search";
+  static const locationReverse = "$locations/reverse";
   // Client
   static const profile = "/user/profile";
+  static const userSettings = "/user/profile/settings";
   static const clientNotificationSettings =
       '/user/profile/settings/notifications';
   static const userCategory = "/user/profile/category";

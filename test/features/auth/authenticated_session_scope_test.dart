@@ -344,9 +344,10 @@ void main() {
     container.read(testSession.notifier).state = userA;
     await _settle();
     expect(
-      (await container.read(
-        clientOffersProvider(query).future,
-      )).items.single.id,
+      (await container.read(clientOffersProvider(query).future))
+          .items
+          .single
+          .id,
       'offer-A',
     );
 
@@ -362,9 +363,10 @@ void main() {
     container.read(testSession.notifier).state = userB;
     await _settle();
     expect(
-      (await container.read(
-        clientOffersProvider(query).future,
-      )).items.single.id,
+      (await container.read(clientOffersProvider(query).future))
+          .items
+          .single
+          .id,
       'offer-B',
     );
     expect(calls, 2);

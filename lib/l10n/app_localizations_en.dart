@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -18,6 +19,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count offers',
       one: '1 offer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String offersReceivedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Received $count offers',
+      one: 'Received 1 offer',
     );
     return '$_temp0';
   }
@@ -78,6 +90,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerCreated => 'Offer Created';
 
   @override
+  String get offerCreateRequestNotFound =>
+      'Request not found or already deleted';
+
+  @override
   String get offerReceived => 'Offer Received';
 
   @override
@@ -94,6 +110,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get waitingClientConfirmation => 'Waiting Client Confirmation';
+
+  @override
+  String get waitingForClientConfirm => 'Awaiting confirmation';
 
   @override
   String get confirmWorkCompleted => 'Confirm Work Completed';
@@ -203,10 +222,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidEmail => 'Enter a valid email';
 
   @override
+  String get emailAddressRequiredLabel => 'Email Address *';
+
+  @override
+  String get phoneNumberRequiredLabel => 'Phone Number *';
+
+  @override
+  String get inquiryTopicValidation => 'Please select an inquiry topic';
+
+  @override
   String get inquiryDetails => 'Inquiry Details';
 
   @override
   String get inquiryTopicRequiredLabel => 'Inquiry Topic *';
+
+  @override
+  String get selectInquiryTopic => 'Select inquiry topic';
+
+  @override
+  String get inquiryTopicGeneral => 'General';
+
+  @override
+  String get inquiryTopicSupport => 'Support';
+
+  @override
+  String get inquiryTopicBugReport => 'Bug report';
+
+  @override
+  String get inquiryTopicFeatureRequest => 'Feature request';
+
+  @override
+  String get inquiryTopicSales => 'Sales';
+
+  @override
+  String get inquiryTopicPartnership => 'Partnership';
+
+  @override
+  String get inquiryTopicBilling => 'Billing';
+
+  @override
+  String get inquiryTopicCallMe => 'Call me';
+
+  @override
+  String get inquiryTopicAccountDeletion => 'Account deletion';
+
+  @override
+  String get inquiryTopicAccountRecovery => 'Account recovery';
+
+  @override
+  String get inquiryTopicAccountIssue => 'Account issue';
+
+  @override
+  String get inquiryTopicOther => 'Other';
 
   @override
   String get yourMessageRequiredLabel => 'Your Message *';
@@ -462,6 +529,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestAccepted => 'Request Accepted';
 
   @override
+  String get offerNotSelected => 'Another owner was selected';
+
+  @override
   String get requestRejected => 'Request Rejected';
 
   @override
@@ -550,6 +620,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotificationsYet => 'No notifications yet';
 
   @override
+  String get notificationOwnerApprovedTitle => 'Owner registration approved';
+
+  @override
+  String get notificationOwnerApprovedBody =>
+      'Your owner registration has been approved.';
+
+  @override
+  String get notificationOwnerRejectedTitle => 'Owner registration rejected';
+
+  @override
+  String get notificationOwnerRejectedBody =>
+      'Your owner registration has been rejected.';
+
+  @override
+  String get notificationBookingCompletedTitle => 'Booking completed';
+
+  @override
+  String get notificationBookingCompletedBody =>
+      'Your booking was marked as completed.';
+
+  @override
   String get errorLoadingEquipment => 'Error Loading Equipment';
 
   @override
@@ -560,6 +651,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notSupportedYet => 'Not supported yet';
+
+  @override
+  String get paymentFeatureComingSoon =>
+      'Payment and balance top-up is currently in development and will be added soon.';
+
+  @override
+  String get transactionGift => 'Gift';
 
   @override
   String get errorLoadingProfile => 'Failed to load profile';
@@ -590,6 +688,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get priceOffer => 'Price Offer';
+
+  @override
+  String get priceOfferStatusCreated => 'Created';
+
+  @override
+  String get priceOfferStatusCancelled => 'Cancelled';
 
   @override
   String offeredPrice(String price) {
@@ -704,6 +808,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get available => 'Available';
 
   @override
+  String get booked => 'Booked';
+
+  @override
   String get perDay => '/ day';
 
   @override
@@ -734,7 +841,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retry => 'Retry';
 
   @override
+  String get refresh => 'Refresh';
+
+  @override
   String get close => 'Close';
+
+  @override
+  String get apply => 'Apply';
 
   @override
   String get send => 'Send';
@@ -798,6 +911,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get street => 'Street';
+
+  @override
+  String get houseNumber => 'No.';
 
   @override
   String get address => 'Address';
@@ -1103,6 +1219,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yesReject => 'Yes, Reject';
 
   @override
+  String get yes => 'Yes';
+
+  @override
   String get no => 'No';
 
   @override
@@ -1114,7 +1233,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String hoursLeft(int hours) {
+    return '$hours h left';
+  }
+
+  @override
   String get volume => 'Volume';
+
+  @override
+  String get specFilterFrom => 'From';
+
+  @override
+  String get specFilterTo => 'To';
 
   @override
   String get noOrderHistory => 'No order history yet';
@@ -1160,6 +1290,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workStatusStopWork => 'Stop work';
+
+  @override
+  String get workStatusResumeWork => 'Resume work';
 
   @override
   String get workStatusCompleteWork => 'Complete work';
@@ -1330,6 +1463,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noActiveRequests => 'You don\'t have any active requests';
 
   @override
+  String get ownerEmptyRequestsHint => 'See current client requests here';
+
+  @override
   String get createNewRequest => 'Create a new request';
 
   @override
@@ -1342,7 +1478,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offeredRateHint => 'Price you\'re willing to pay';
 
   @override
-  String get additionalDetails => 'Additional details...';
+  String get additionalDetails => 'describe the job or important details';
 
   @override
   String get newRequestBadge => 'NEW REQUEST';
@@ -1358,6 +1494,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noChats => 'No Chats';
+
+  @override
+  String get chatsActiveTab => 'Active';
+
+  @override
+  String get chatsArchiveTab => 'Archive';
+
+  @override
+  String get noArchivedChats => 'No archived chats';
+
+  @override
+  String get youHaveNoArchivedChats =>
+      'Completed and cancelled chats will appear here.';
 
   @override
   String get deliverTo => 'DELIVER TO';
@@ -1385,6 +1534,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedSaveAddress => 'Failed to save address';
+
+  @override
+  String get deleteAddress => 'Delete address';
+
+  @override
+  String get deleteAddressQuestion => 'Delete this address?';
+
+  @override
+  String get deleteAddressConfirmation =>
+      'This address will be removed from your saved list.';
+
+  @override
+  String get failedToDeleteAddress => 'Failed to delete address';
 
   @override
   String get noEquipmentLocations => 'No equipment locations yet';
@@ -1553,6 +1715,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get information => 'Information';
 
   @override
+  String get generalInformation => 'General information';
+
+  @override
+  String get registrationData => 'Registration details';
+
+  @override
+  String get saveAll => 'Save all';
+
+  @override
+  String get expandAll => 'Expand all';
+
+  @override
+  String get collapseAll => 'Collapse all';
+
+  @override
+  String get ownerCommentHint => 'Part load possible, access notes…';
+
+  @override
   String get prices => 'Prices';
 
   @override
@@ -1674,6 +1854,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectTime => 'Select Time';
+
+  @override
+  String get requiredHint => '* Required';
 
   @override
   String get requestCreated => 'Request created';
@@ -1897,6 +2080,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please update your documents and try again.';
 
   @override
+  String get ownerProfileSuspended => 'Profile suspended';
+
+  @override
+  String get ownerProfileSuspendedHint =>
+      'Listing equipment is temporarily unavailable. Contact support.';
+
+  @override
+  String get ownerProfilePendingReview => 'Waiting for review';
+
+  @override
+  String get ownerProfilePendingReviewHint =>
+      'Your updated details will be checked by an administrator.';
+
+  @override
+  String get profileUpdateNeedsModeration =>
+      'Your details will be sent for moderation';
+
+  @override
   String get submitForVerification => 'Submit for Verification';
 
   @override
@@ -1940,6 +2141,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneNumberRequired => 'Phone number is required';
+
+  @override
+  String get ownerContactPhoneHint =>
+      'Admins and clients will see this number. It should be reachable by phone.';
 
   @override
   String get cityRequired => 'City is required';
@@ -2070,10 +2275,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get minutesBalance => 'Minutes Balance';
 
   @override
-  String get minutesUnit => 'Min';
+  String get minutesUnit => 'min';
 
   @override
   String get burnRate => 'Burn Rate';
+
+  @override
+  String burnRateValue(int rate) {
+    return '~$rate min/hr';
+  }
+
+  @override
+  String get noActiveDepletion => 'No active depletion';
+
+  @override
+  String get zeroBalanceHiddenFromSearch =>
+      'With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.';
+
+  @override
+  String equipmentOnlineCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count equipment online',
+      one: '$count equipment online',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statTotal => 'total';
+
+  @override
+  String get statOnline => 'online';
+
+  @override
+  String get statActive => 'active';
+
+  @override
+  String get statCompleted => 'completed';
 
   @override
   String get hello => 'Hello!';
@@ -2423,7 +2663,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusCanceled => 'Canceled';
 
   @override
+  String get statusFailed => 'Failed';
+
+  @override
   String get statusCompleted => 'Completed';
+
+  @override
+  String get statusReviewed => 'Reviewed';
 
   @override
   String get statusRequestSent => 'Request Sent';
@@ -2439,6 +2685,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownRenter => 'Unknown Renter';
+
+  @override
+  String get nameNotSpecified => 'Name not specified';
 
   @override
   String get pendingDate => 'Pending Date';
@@ -2789,6 +3038,235 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseSelectYourCity => 'Please select your city';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get fieldRequired => 'This field is required';
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hrs',
+      one: '1 hr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min',
+      one: '1 min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sec',
+      one: '1 sec',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invalidSecondsValue => 'Invalid seconds value';
+
+  @override
+  String get newOffer => 'New Offer';
+
+  @override
+  String get offerStatusViewed => 'Viewed';
+
+  @override
+  String get offerStatusCancelled => 'Cancelled';
+
+  @override
+  String get offerStatusAccepted => 'Accepted';
+
+  @override
+  String get offerStatusRejected => 'Rejected';
+
+  @override
+  String get offerStatusExpired => 'Expired';
+
+  @override
+  String get offerStatusClosed => 'Closed';
+
+  @override
+  String get dataProcessingTitle => 'Data Processing';
+
+  @override
+  String get pleaseCompleteRequiredFields =>
+      'Please fill in the required information before submitting for review';
+
+  @override
+  String get equipmentSubmitPhotoHint =>
+      'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).';
+
+  @override
+  String get youAreOnline => 'You are online';
+
+  @override
+  String get youAreOffline => 'You are offline';
+
+  @override
+  String get readyToAcceptOrders => 'Ready to accept orders';
+
+  @override
+  String get notAcceptingOrders => 'Not accepting orders';
+
+  @override
+  String get youAreNowOnline => 'You are now online';
+
+  @override
+  String get youAreNowOffline => 'You are now offline';
+
+  @override
+  String get failedToggleStatus => 'Failed to update status';
+
+  @override
+  String get cannotGoOnlineWithZeroBalance =>
+      'Cannot go online with a zero balance';
+
+  @override
+  String get cannotGoOnlineWithoutOnlineEquipment =>
+      'Publish at least one equipment unit online first';
+
+  @override
+  String get cannotRespondWithZeroBalance =>
+      'Cannot respond to requests with a zero balance';
+
+  @override
+  String get countryKazakhstan => 'Kazakhstan';
+
+  @override
+  String get modelStandard => 'Standard';
+
+  @override
+  String get modelHeavyDuty => 'Heavy Duty';
+
+  @override
+  String get modelIndustrial => 'Industrial';
+
+  @override
+  String capacityKub(String capacity) {
+    return '$capacity m³';
+  }
+
+  @override
+  String get unitMeters => 'm';
+
+  @override
+  String get hoseLengthHint => '15 m hose';
+
+  @override
+  String get priceKztHint => '10,000 ₸';
+
+  @override
+  String get ownerType => 'Owner type';
+
+  @override
+  String get companyInformation => 'Company information';
+
+  @override
+  String get companyName => 'Company name';
+
+  @override
+  String get enterCompanyName => 'Enter company name';
+
+  @override
+  String get legalEntityName => 'Legal entity name';
+
+  @override
+  String get legalEntityNameHint => 'As written in official documents';
+
+  @override
+  String get personalContactDetails => 'Personal contact details';
+
+  @override
+  String get enterFirstName => 'Enter first name';
+
+  @override
+  String get enterLastName => 'Enter last name';
+
+  @override
+  String get enterValidPhoneNumber => 'Enter a valid phone number';
+
+  @override
+  String get serviceDetails => 'Service details';
+
+  @override
+  String get serviceDetailsHint =>
+      'Describe the goods, rentals or machinery you provide...';
+
+  @override
+  String get updateProfile => 'Update profile';
+
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully';
+
+  @override
+  String get failedToUpdateProfile => 'Failed to update profile';
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '$count order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ratePerTrip => 'Per trip';
+
+  @override
+  String get ratePerCubicMeter => 'Per cubic meter';
+
+  @override
+  String get ratePerDay => 'Per day';
+
+  @override
+  String get ratePerHour => 'Per hour';
 
   @override
   String get connectionTimedOut =>

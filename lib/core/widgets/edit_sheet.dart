@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class EditSheet extends StatelessWidget {
   final String title;
-  final String buttonText;
+  final String? buttonText;
   final VoidCallback onSubmit;
   final Widget child;
 
@@ -11,13 +14,15 @@ class EditSheet extends StatelessWidget {
     required this.title,
     required this.onSubmit,
     required this.child,
-    this.buttonText = "SAVE CHANGES",
+    this.buttonText,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bgColor = theme.colorScheme.surface;
+    final resolvedButtonText =
+        buttonText ?? AppLocalizations.of(context)!.saveChanges;
     final accentColor = theme.colorScheme.primary;
 
     return Container(
@@ -71,10 +76,10 @@ class EditSheet extends StatelessWidget {
             /// Custom Content (The Form Fields)
             child,
 
-            if (buttonText.isNotEmpty) const SizedBox(height: 16),
+            if (resolvedButtonText.isNotEmpty) const SizedBox(height: 16),
 
             /// Primary Action Button
-            if (buttonText.isNotEmpty)
+            if (resolvedButtonText.isNotEmpty)
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -91,7 +96,7 @@ class EditSheet extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    buttonText,
+                    resolvedButtonText,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
@@ -111,11 +116,17 @@ void showEditSheet({required BuildContext context, required Widget sheet}) {
   final theme = Theme.of(context);
   final bgColor = theme.colorScheme.surface;
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: bgColor,
-    barrierColor: Colors.black.withValues(alpha: 0.7),
-    builder: (_) => sheet,
+  FocusManager.instance.primaryFocus?.unfocus();
+
+  unawaited(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: bgColor,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
+      builder: (_) => sheet,
+    ).whenComplete(() {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }),
   );
 }

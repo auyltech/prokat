@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import '../../../core/constants/api_routes.dart';
 import '../models/category.dart';
+
 import 'package:prokat/core/api/api_helper.dart';
 
 class CategoryService {
@@ -26,12 +28,12 @@ class CategoryService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected category list");
+            throw const FormatException("Expected category list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid category item");
+              throw const FormatException("Invalid category item");
             }
 
             return Category.fromJson(item);

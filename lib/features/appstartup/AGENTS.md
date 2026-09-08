@@ -7,3 +7,4 @@
   - `ownerMode`
 - Owner users can switch modes and the last selected mode is stored locally.
 - Router behavior should continue to depend on `AppStartupState`, while mode-specific decisions should be resolved inside the startup controller.
+- Catalog bundle (`catalogProvider`) is loaded on first use and refreshed from guest/client pull-to-refresh, not from locale changes.

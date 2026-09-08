@@ -1,5 +1,6 @@
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/bookings/models/booking_summary_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
@@ -22,16 +23,47 @@ class ChatConfig {
 bool chatHasVisibleActions({
   required ChatStatusDetail status,
   required AppMode mode,
+  ChatStatus? threadStatus,
+  ChatType? chatType,
 }) {
+  if (chatType == ChatType.support) return false;
+  if (status == ChatStatusDetail.leaveReview) return true;
+  if (threadStatus == ChatStatus.closed ||
+      threadStatus == ChatStatus.archived) {
+    return false;
+  }
+
   switch (status) {
     case ChatStatusDetail.requestcreated:
-    case ChatStatusDetail.requestaccepted:
-    case ChatStatusDetail.leaveReview:
       return true;
     case ChatStatusDetail.bookingconfirmed:
       return mode == AppMode.ownerMode;
     case ChatStatusDetail.confirmcompleted:
       return mode == AppMode.clientMode;
+    default:
+      return false;
+  }
+}
+
+bool isChatInputLocked(
+  ChatStatusDetail status, {
+  ChatStatus? threadStatus,
+  ChatType? chatType,
+}) {
+  if (chatType == ChatType.support) return false;
+  if (threadStatus == ChatStatus.closed ||
+      threadStatus == ChatStatus.archived) {
+    return true;
+  }
+
+  switch (status) {
+    case ChatStatusDetail.workcompleted:
+    case ChatStatusDetail.leaveReview:
+    case ChatStatusDetail.bookingcancelled:
+    case ChatStatusDetail.bookingreviewed:
+    case ChatStatusDetail.requestcancelled:
+    case ChatStatusDetail.offernotselected:
+      return true;
     default:
       return false;
   }
@@ -53,7 +85,12 @@ ChatConfig getChatConfig({
   final isOfferPendingFromMe =
       mode == AppMode.clientMode && activeOffer != null;
 
-  switch (chat?.booking?.status) {
+  final bookingStatus =
+      chat?.booking?.status ?? _bookingStatusFromSummary(chat?.bookingSummary);
+  final workStatus =
+      chat?.booking?.workStatus ?? chat?.bookingSummary?.workStatus;
+
+  switch (bookingStatus) {
     case BookingStatus.reviewed:
       {
         return ChatConfig(
@@ -79,12 +116,12 @@ ChatConfig getChatConfig({
       }
 
     case BookingStatus.confirmed:
-      if (chat?.booking?.workStatus == WorkStatus.completed) {
+      if (workStatus == WorkStatus.completed) {
         return mode == AppMode.ownerMode
             ? ChatConfig(
                 status: ChatStatusDetail.workcompleted,
                 actionBartitle: l10n.waitingClientConfirmation,
-                statusLabel: l10n.workCompleted,
+                statusLabel: l10n.waitingForClientConfirm,
               )
             : ChatConfig(
                 status: ChatStatusDetail.confirmcompleted,
@@ -183,9 +220,9 @@ ChatConfig getChatConfig({
 
     case RequestStatus.accepted:
       return ChatConfig(
-        status: ChatStatusDetail.requestaccepted,
-        actionBartitle: l10n.requestAccepted,
-        statusLabel: l10n.requestAccepted,
+        status: ChatStatusDetail.offernotselected,
+        actionBartitle: l10n.offerNotSelected,
+        statusLabel: l10n.offerNotSelected,
       );
 
     case RequestStatus.cancelled:
@@ -206,4 +243,10 @@ ChatConfig getChatConfig({
     actionBartitle: "",
     statusLabel: "",
   );
+}
+
+BookingStatus? _bookingStatusFromSummary(BookingSummaryModel? summary) {
+  final raw = summary?.status.trim() ?? '';
+  if (raw.isEmpty) return null;
+  return parseBookingStatus(raw);
 }

@@ -56,12 +56,12 @@ class OffersService {
           final itemsJson = payload['items'] ?? payload['data'];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected offers list");
+            throw const FormatException("Expected offers list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid offer item");
+              throw const FormatException("Invalid offer item");
             }
 
             return OfferModel.fromJson(item);
@@ -134,20 +134,9 @@ class OffersService {
         fallbackMessage: "Offer created",
       );
     } on DioException catch (error) {
-      final exception = ApiException.fromDio(error);
-
-      return ApiResponse.failure(
-        message: exception.message.isNotEmpty
-            ? exception.message
-            : "Request failed",
-        error: (exception.data ?? error).toString(),
-        statusCode: exception.statusCode,
-      );
+      return handleDioException(error, fallbackMessage: "Request failed");
     } catch (e) {
-      return ApiResponse.failure(
-        message: "Unexpected error",
-        error: e.toString(),
-      );
+      return handleUnknownException(e, fallbackMessage: "Unexpected error");
     }
   }
 

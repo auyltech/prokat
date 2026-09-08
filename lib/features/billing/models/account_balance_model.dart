@@ -2,13 +2,13 @@ import 'package:prokat/core/utils/parse.dart';
 
 class AccountBalanceModel {
   final int secondsRemaining;
-  final int burnRateSecondsPerHour;
+  final int burnRateMinutesPerHour;
   final DateTime? estimatedExhaustionAt;
   final DateTime? lastCalculatedAt;
 
   AccountBalanceModel({
     required this.secondsRemaining,
-    this.burnRateSecondsPerHour = 0,
+    this.burnRateMinutesPerHour = 0,
     this.estimatedExhaustionAt,
     this.lastCalculatedAt,
   });
@@ -20,7 +20,7 @@ class AccountBalanceModel {
           json['secondsRemaining'],
           fieldName: 'secondsRemaining',
         ),
-        burnRateSecondsPerHour: parseInt(
+        burnRateMinutesPerHour: parseInt(
           json['burnRateMinutesPerHour'] ?? 0,
           fieldName: 'burnRateMinutesPerHour',
         ),

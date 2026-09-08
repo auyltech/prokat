@@ -14,6 +14,7 @@ import 'package:prokat/features/bookings/providers/owner_history_bookings_provid
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_mutation_state.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -109,9 +110,8 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
 
       final result = await api.createBooking({
         "equipmentId": state.selectedEquipment?.id,
-        "price": int.tryParse(
-          (state.selectedPriceEntry?.price ?? 0).toString(),
-        ).toString(),
+        "price": int.tryParse((state.selectedPriceEntry?.price ?? 0).toString())
+            .toString(),
         "priceRate": state.selectedPriceEntry?.priceRate.value ?? "",
         "locationId": state.selectedLocation?.id,
         "bookedOn": state.selectedDate!.toUtc().toIso8601String(),
@@ -136,6 +136,15 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         if (ref.exists(clientChatsProvider)) {
           unawaited(ref.read(clientChatsProvider.notifier).refresh());
         }
+        if (ref.exists(clientChatsByFilterProvider(ChatListFilter.archived))) {
+          unawaited(
+            ref
+                .read(
+                  clientChatsByFilterProvider(ChatListFilter.archived).notifier,
+                )
+                .refresh(),
+          );
+        }
       }
 
       return MutationResponse(
@@ -145,7 +154,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create order",
           code: "",
@@ -220,7 +229,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update booking",
           code: "",
@@ -269,7 +278,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to update order status",
           code: "",

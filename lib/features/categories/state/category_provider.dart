@@ -21,6 +21,10 @@ class SelectedCategoryNotifier extends Notifier<Category?> {
 
   void select(Category? category) => state = category;
 
+  void toggle(Category category) {
+    state = state?.id == category.id ? null : category;
+  }
+
   void selectById(String? id) {
     if (id == null) {
       state = null;

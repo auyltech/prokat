@@ -9,7 +9,7 @@ class SupportNotifier extends StateNotifier<SupportState> {
   final Ref ref;
 
   SupportNotifier({required this.service, required this.ref})
-    : super(SupportState());
+    : super(const SupportState());
 
   void _startAction(String actionId) {
     state = state.copyWith(
@@ -42,8 +42,8 @@ class SupportNotifier extends StateNotifier<SupportState> {
 
   Future<MutationResponse> submitInquiry({
     required String fullName,
-    required String? email,
-    required String? phoneNumber,
+    required String email,
+    required String phoneNumber,
     required String topic,
     required String message,
   }) async {
@@ -51,7 +51,8 @@ class SupportNotifier extends StateNotifier<SupportState> {
 
     try {
       if (fullName.isEmpty ||
-          (email == null && phoneNumber == null) ||
+          email.isEmpty ||
+          phoneNumber.isEmpty ||
           topic.isEmpty ||
           message.isEmpty) {
         return MutationResponse(
@@ -88,7 +89,7 @@ class SupportNotifier extends StateNotifier<SupportState> {
     } catch (error) {
       _finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to submit inquiry",
           code: "",

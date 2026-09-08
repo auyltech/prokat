@@ -6,8 +6,10 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientEquipmentTile extends ConsumerWidget {
@@ -30,6 +32,7 @@ class ClientEquipmentTile extends ConsumerWidget {
     final favoritesIds = ref.watch(favoritesProvider).favoritesIds;
     final bool isFavorite = favoritesIds?.contains(equipment.id) ?? false;
     final notifier = ref.read(favoritesProvider.notifier);
+    final catalog = ref.watch(catalogProvider).valueOrNull;
 
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
@@ -38,18 +41,8 @@ class ClientEquipmentTile extends ConsumerWidget {
     final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
 
     return BaseTile(
-      padding: EdgeInsets.all(0),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   borderRadius: BorderRadius.circular(24), // Softer corners
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.black.withValues(alpha: 0.4), // Much softer shadow
-      //       blurRadius: 2,
-      //       offset: const Offset(0, 2),
-      //     ),
-      //   ],
-      // ),
+      borderRadius: 16,
+      padding: const EdgeInsets.all(0),
       child: Column(
         children: [
           /// 1. IMAGE SECTION (Clean & Floating Elements)
@@ -61,7 +54,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                 ),
                 child: OptimizedNetworkImage(
                   imageUrl: equipment.imageUrl ?? "",
-                  height: 200, // Slightly taller for better presence
+                  height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   fallbackIcon: Icons.precision_manufacturing_outlined,
@@ -82,10 +75,15 @@ class ClientEquipmentTile extends ConsumerWidget {
                           ? Colors.green
                           : Colors.grey,
                     ),
-                    if (equipment.city!.isNotEmpty) ...[
+                    if ((equipment.city ?? '').isNotEmpty) ...[
                       const SizedBox(width: 8),
                       _badge(
-                        text: equipment.city ?? "",
+                        text: catalogCityLabel(
+                          city: equipment.city,
+                          languageCode: Localizations.localeOf(context)
+                              .languageCode,
+                          catalog: catalog,
+                        ),
                         color: Colors.black.withValues(alpha: 0.6),
                       ),
                     ],
@@ -128,7 +126,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     children: [
                       Text(
                         priceEntry == null
-                            ? "POA"
+                            ? l10n.poa
                             : formatPrice(priceEntry.price),
                         style: TextStyle(
                           fontSize: 18,
@@ -138,9 +136,9 @@ class ClientEquipmentTile extends ConsumerWidget {
                       ),
                       Text(
                         priceRate,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: const Color.fromARGB(255, 65, 65, 65),
+                          color: Color.fromARGB(255, 65, 65, 65),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -191,7 +189,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      "4.5",
+                      (equipment.owner?.rating ?? 0).toStringAsFixed(1),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         letterSpacing: -.5,
@@ -200,7 +198,8 @@ class ClientEquipmentTile extends ConsumerWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        equipment.owner?.displayName ?? l10n.owner,
+                        equipment.owner?.displayNameOr(l10n.nameNotSpecified) ??
+                            l10n.nameNotSpecified,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.6,
@@ -216,7 +215,12 @@ class ClientEquipmentTile extends ConsumerWidget {
                 const SizedBox(height: 10),
 
                 // Specs Row (Owner, Capacity, and Price integrated)
-                buildSpecsGrid(context, equipment.specs ?? [], theme),
+                buildSpecsGrid(
+                  context,
+                  equipment.specs ?? [],
+                  theme,
+                  catalog: catalog,
+                ),
 
                 const SizedBox(height: 20),
 
@@ -317,13 +321,17 @@ IconData _getIconData(String? library, String? name) {
 Widget buildSpecsGrid(
   BuildContext context,
   List<EquipmentSpec>? specs,
-  ThemeData theme,
-) {
-  // If the list is null or empty, don't allocate screen rendering space
+  ThemeData theme, {
+  CatalogBundle? catalog,
+}) {
   if (specs == null || specs.isEmpty) return const SizedBox.shrink();
+  final locale = Localizations.localeOf(context).languageCode;
 
-  // Take a maximum slice of 4 items to strictly honor your layout requirement
-  final displaySpecs = specs.take(4).toList();
+  final displaySpecs = specs
+      .where((spec) => spec.showInCard != false)
+      .take(4)
+      .toList();
+  if (displaySpecs.isEmpty) return const SizedBox.shrink();
 
   return Wrap(
     spacing: 12.0, // Horizontal gap spacing between spec pills
@@ -353,7 +361,7 @@ Widget buildSpecsGrid(
             // Constrain text blocks inside dynamically sizing horizontal arrays
             Flexible(
               child: Text(
-                "${spec.name}: ${spec.value ?? ""}",
+                "${spec.displayName(locale)}: ${spec.displayValue(languageCode: locale, catalog: catalog)}",
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),

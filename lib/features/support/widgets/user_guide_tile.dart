@@ -38,7 +38,7 @@ class UserGuideTile extends StatelessWidget {
                 ),
                 child: Icon(
                   guideIcon(guide.icon),
-                  color: theme.colorScheme.primary,
+                  color: theme.colorScheme.onPrimary,
                 ),
               ),
 

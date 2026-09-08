@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 
 class PageHeader extends StatelessWidget {
@@ -44,7 +46,7 @@ class PageHeader extends StatelessWidget {
                   if (context.canPop()) {
                     context.pop();
                   } else {
-                    context.push(AppRoutes.clientProfile);
+                    unawaited(context.push(AppRoutes.clientProfile));
                   }
                 },
                 constraints: const BoxConstraints(minWidth: 40, minHeight: 40),

@@ -8,6 +8,12 @@
       "count": { "type": "int" }
     }
   },
+  "offersReceivedCount": "{count, plural, =1{Received 1 offer} other{Received {count} offers}}",
+  "@offersReceivedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "activeRequestAlreadyExists": "You already have an active request.",
   "supportTicketSubmitted": "Support ticket submitted successfully!",
   "failedToSubmitTicket": "Failed to submit ticket",
@@ -26,12 +32,14 @@
   "topUpBalance": "Top Up Balance",
   "payments": "Payments",
   "offerCreated": "Offer Created",
+  "offerCreateRequestNotFound": "Request not found or already deleted",
   "offerReceived": "Offer Received",
   "counterOfferSent": "Counter Offer Sent",
   "respondToCounterOffer": "Respond to Counter Offer",
   "orderHasBeenCancelled": "Order has been cancelled",
   "waitingOwnerResponse": "Waiting Owner Response",
   "waitingClientConfirmation": "Waiting Client Confirmation",
+  "waitingForClientConfirm": "Awaiting confirmation",
   "confirmWorkCompleted": "Confirm Work Completed",
   "orderCompleted": "Order Completed",
   "reviewSent": "Review Sent",
@@ -67,8 +75,24 @@
   "emailOrPhoneRequired": "Provide either an email or phone number",
   "phoneRequiredIfEmailEmpty": "Required if phone number is empty",
   "invalidEmail": "Enter a valid email",
+  "emailAddressRequiredLabel": "Email Address *",
+  "phoneNumberRequiredLabel": "Phone Number *",
+  "inquiryTopicValidation": "Please select an inquiry topic",
   "inquiryDetails": "Inquiry Details",
   "inquiryTopicRequiredLabel": "Inquiry Topic *",
+  "selectInquiryTopic": "Select inquiry topic",
+  "inquiryTopicGeneral": "General",
+  "inquiryTopicSupport": "Support",
+  "inquiryTopicBugReport": "Bug report",
+  "inquiryTopicFeatureRequest": "Feature request",
+  "inquiryTopicSales": "Sales",
+  "inquiryTopicPartnership": "Partnership",
+  "inquiryTopicBilling": "Billing",
+  "inquiryTopicCallMe": "Call me",
+  "inquiryTopicAccountDeletion": "Account deletion",
+  "inquiryTopicAccountRecovery": "Account recovery",
+  "inquiryTopicAccountIssue": "Account issue",
+  "inquiryTopicOther": "Other",
   "yourMessageRequiredLabel": "Your Message *",
   "messageValidation": "Please enter your message",
   "counterOffer": "Counter offer",
@@ -178,6 +202,7 @@
   "reviewOwner": "Review owner",
   "reviewClient": "Review client",
   "requestAccepted": "Request Accepted",
+  "offerNotSelected": "Another owner was selected",
   "requestRejected": "Request Rejected",
   "requestPending": "Request Pending",
   "estimatedExhaustion": "Est. exhaustion",
@@ -207,10 +232,18 @@
   "review": "Review",
   "saved": "Saved",
   "noNotificationsYet": "No notifications yet",
+  "notificationOwnerApprovedTitle": "Owner registration approved",
+  "notificationOwnerApprovedBody": "Your owner registration has been approved.",
+  "notificationOwnerRejectedTitle": "Owner registration rejected",
+  "notificationOwnerRejectedBody": "Your owner registration has been rejected.",
+  "notificationBookingCompletedTitle": "Booking completed",
+  "notificationBookingCompletedBody": "Your booking was marked as completed.",
   "errorLoadingEquipment": "Error Loading Equipment",
   "priceMustBePositive": "Price must be greater than zero",
   "priceMaximumExceeded": "Price cannot exceed 100,000",
   "notSupportedYet": "Not supported yet",
+  "paymentFeatureComingSoon": "Payment and balance top-up is currently in development and will be added soon.",
+  "transactionGift": "Gift",
   "errorLoadingProfile": "Failed to load profile",
   "tapToRetry": "Tap to retry",
   "announcements": "Announcements",
@@ -221,6 +254,8 @@
   "failedToConfirmOrder": "Failed to confirm order",
   "chatLocked": "Chat locked",
   "priceOffer": "Price Offer",
+  "priceOfferStatusCreated": "Created",
+  "priceOfferStatusCancelled": "Cancelled",
   "offeredPrice": "Offered: {price}",
   "@offeredPrice": {
     "placeholders": {
@@ -268,6 +303,7 @@
   "selectLanguage": "Select Language",
   "topRated": "Top rated",
   "available": "Available",
+  "booked": "Booked",
   "perDay": "/ day",
   "heavyEquipmentRentals": "HEAVY EQUIPMENT RENTALS",
   "initializingSystems": "INITIALIZING SYSTEMS...",
@@ -279,7 +315,9 @@
   "delete": "Delete",
   "edit": "Edit",
   "retry": "Retry",
+  "refresh": "Refresh",
   "close": "Close",
+  "apply": "Apply",
   "send": "Send",
   "submit": "Submit",
   "upload": "Upload",
@@ -302,6 +340,7 @@
   "username": "Username",
   "city": "City",
   "street": "Street",
+  "houseNumber": "No.",
   "address": "Address",
   "model": "Model",
   "capacity": "Capacity",
@@ -414,6 +453,7 @@
     }
   },
   "yesReject": "Yes, Reject",
+  "yes": "Yes",
   "no": "No",
   "decline": "Decline",
   "minutesLeft": "{minutes} min left",
@@ -422,7 +462,15 @@
       "minutes": { "type": "int" }
     }
   },
+  "hoursLeft": "{hours} h left",
+  "@hoursLeft": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
   "volume": "Volume",
+  "specFilterFrom": "From",
+  "specFilterTo": "To",
   "noOrderHistory": "No order history yet",
   "cancelReasonClientNotRespond": "Client did not respond",
   "cancelReasonEquipUnavailable": "Equipment unavailable",
@@ -438,6 +486,7 @@
   "workStatusStartWork": "Start work",
   "workStatusPostpone": "Postpone",
   "workStatusStopWork": "Stop work",
+  "workStatusResumeWork": "Resume work",
   "workStatusCompleteWork": "Complete work",
   "workStatusCancelJob": "Cancel job",
 
@@ -496,17 +545,22 @@
   "loginToViewRequests": "Login to create and view requests",
   "errorLoadingRequests": "Error loading requests",
   "noActiveRequests": "You don't have any active requests",
+  "ownerEmptyRequestsHint": "See current client requests here",
   "createNewRequest": "Create a new request",
   "requiredCapacity": "Required Capacity",
   "capacityHint": "10 M3",
   "offeredRateHint": "Price you're willing to pay",
-  "additionalDetails": "Additional details...",
+  "additionalDetails": "describe the job or important details",
   "newRequestBadge": "NEW REQUEST",
   "offerSentBadge": "OFFER SENT",
   "cancelRequest": "Cancel Request?",
   "requestCancelled": "Request cancelled",
 
   "noChats": "No Chats",
+  "chatsActiveTab": "Active",
+  "chatsArchiveTab": "Archive",
+  "noArchivedChats": "No archived chats",
+  "youHaveNoArchivedChats": "Completed and cancelled chats will appear here.",
 
   "deliverTo": "DELIVER TO",
   "houseBuilding": "House / Building / Staircase",
@@ -517,6 +571,10 @@
   "confirmLocation": "Confirm Location",
   "failedCreateAddress": "Could not create address",
   "failedSaveAddress": "Failed to save address",
+  "deleteAddress": "Delete address",
+  "deleteAddressQuestion": "Delete this address?",
+  "deleteAddressConfirmation": "This address will be removed from your saved list.",
+  "failedToDeleteAddress": "Failed to delete address",
   "noEquipmentLocations": "No equipment locations yet",
   "equipmentLocations": "Equipment Locations",
   "searchAddress": "Search address",
@@ -576,6 +634,12 @@
   "reconnecting": "RECONNECTING...",
 
   "information": "Information",
+  "generalInformation": "General information",
+  "registrationData": "Registration details",
+  "saveAll": "Save all",
+  "expandAll": "Expand all",
+  "collapseAll": "Collapse all",
+  "ownerCommentHint": "Part load possible, access notes…",
   "prices": "Prices",
   "allRatingOptionsListed": "All Rating Options Listed",
   "pleaseEnterValidPrice": "Please enter a valid price",
@@ -617,6 +681,7 @@
   "equipmentSpecs": "Equipment Specs",
   "selectDate": "Select Date",
   "selectTime": "Select Time",
+  "requiredHint": "* Required",
   "requestCreated": "Request created",
   "noRequestsAtMoment": "No requests at the moment",
   "viewBooking": "View Booking",
@@ -696,6 +761,11 @@
   "canListEquipment": "You can now list and rent out equipment.",
   "verificationFailed": "Verification failed",
   "updateDocumentsHint": "Please update your documents and try again.",
+  "ownerProfileSuspended": "Profile suspended",
+  "ownerProfileSuspendedHint": "Listing equipment is temporarily unavailable. Contact support.",
+  "ownerProfilePendingReview": "Waiting for review",
+  "ownerProfilePendingReviewHint": "Your updated details will be checked by an administrator.",
+  "profileUpdateNeedsModeration": "Your details will be sent for moderation",
   "submitForVerification": "Submit for Verification",
   "underReview": "Under Review",
   "viewListings": "View Listings",
@@ -711,6 +781,7 @@
   "firstNameRequired": "First name is required",
   "lastNameRequired": "Last name is required",
   "phoneNumberRequired": "Phone number is required",
+  "ownerContactPhoneHint": "Admins and clients will see this number. It should be reachable by phone.",
   "cityRequired": "City is required",
   "messageRequired": "Please add a short message",
   "submitRequest": "Submit request",
@@ -752,8 +823,26 @@
   "onlineStatus": "Online",
   "offlineStatus": "Offline",
   "minutesBalance": "Minutes Balance",
-  "minutesUnit": "Min",
+  "minutesUnit": "min",
   "burnRate": "Burn Rate",
+  "burnRateValue": "~{rate} min/hr",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "No active depletion",
+  "zeroBalanceHiddenFromSearch": "With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.",
+  "equipmentOnlineCount": "{count, plural, =1{{count} equipment online} other{{count} equipment online}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "total",
+  "statOnline": "online",
+  "statActive": "active",
+  "statCompleted": "completed",
   "hello": "Hello!",
   "reviews": "reviews",
   "rentAnEquipment": "Rent an equipment",
@@ -863,12 +952,15 @@
   "statusDraft": "Draft",
   "statusConfirmed": "Confirmed",
   "statusCanceled": "Canceled",
+  "statusFailed": "Failed",
   "statusCompleted": "Completed",
+  "statusReviewed": "Reviewed",
   "statusRequestSent": "Request Sent",
   "statusOffersReceived": "Offers Received",
   "statusBookingCreated": "Booking Created",
   "statusExpired": "Expired",
   "unknownRenter": "Unknown Renter",
+  "nameNotSpecified": "Name not specified",
   "pendingDate": "Pending Date",
   "overdue": "Overdue",
   "details": "Details",
@@ -990,6 +1082,105 @@
   "negotiationIdMissing": "Negotiation id is missing",
   "actionFailed": "Action failed",
   "pleaseSelectYourCity": "Please select your city",
+  "saveChanges": "Save Changes",
+  "saving": "Saving...",
+  "fieldRequired": "This field is required",
+  "justNow": "Just now",
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} h ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 hr} other{{count} hrs}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count, plural, =1{1 min} other{{count} min}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationSeconds": "{count, plural, =1{1 sec} other{{count} sec}}",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "invalidSecondsValue": "Invalid seconds value",
+  "newOffer": "New Offer",
+  "offerStatusViewed": "Viewed",
+  "offerStatusCancelled": "Cancelled",
+  "offerStatusAccepted": "Accepted",
+  "offerStatusRejected": "Rejected",
+  "offerStatusExpired": "Expired",
+  "offerStatusClosed": "Closed",
+  "dataProcessingTitle": "Data Processing",
+  "pleaseCompleteRequiredFields": "Please fill in the required information before submitting for review",
+  "equipmentSubmitPhotoHint": "Don't forget to add real photos of your equipment (the license plate must be visible in at least one shot).",
+  "youAreOnline": "You are online",
+  "youAreOffline": "You are offline",
+  "readyToAcceptOrders": "Ready to accept orders",
+  "notAcceptingOrders": "Not accepting orders",
+  "youAreNowOnline": "You are now online",
+  "youAreNowOffline": "You are now offline",
+  "failedToggleStatus": "Failed to update status",
+  "cannotGoOnlineWithZeroBalance": "Cannot go online with a zero balance",
+  "cannotGoOnlineWithoutOnlineEquipment": "Publish at least one equipment unit online first",
+  "cannotRespondWithZeroBalance": "Cannot respond to requests with a zero balance",
+  "countryKazakhstan": "Kazakhstan",
+  "modelStandard": "Standard",
+  "modelHeavyDuty": "Heavy Duty",
+  "modelIndustrial": "Industrial",
+  "capacityKub": "{capacity} m³",
+  "@capacityKub": {
+    "placeholders": {
+      "capacity": { "type": "String" }
+    }
+  },
+  "unitMeters": "m",
+  "hoseLengthHint": "15 m hose",
+  "priceKztHint": "10,000 ₸",
+  "ownerType": "Owner type",
+  "companyInformation": "Company information",
+  "companyName": "Company name",
+  "enterCompanyName": "Enter company name",
+  "legalEntityName": "Legal entity name",
+  "legalEntityNameHint": "As written in official documents",
+  "personalContactDetails": "Personal contact details",
+  "enterFirstName": "Enter first name",
+  "enterLastName": "Enter last name",
+  "enterValidPhoneNumber": "Enter a valid phone number",
+  "serviceDetails": "Service details",
+  "serviceDetailsHint": "Describe the goods, rentals or machinery you provide...",
+  "updateProfile": "Update profile",
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "failedToUpdateProfile": "Failed to update profile",
+  "ordersCount": "{count, plural, =1{{count} order} other{{count} orders}}",
+  "@ordersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "ratePerTrip": "Per trip",
+  "ratePerCubicMeter": "Per cubic meter",
+  "ratePerDay": "Per day",
+  "ratePerHour": "Per hour",
 
   "connectionTimedOut": "Connection timed out. The server may be warming up — please try again.",
   "noConnectionCheckNetwork": "No connection. Check your network and try again.",

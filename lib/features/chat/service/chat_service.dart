@@ -4,6 +4,7 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/bookings/models/query_result.dart';
+import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 
@@ -20,11 +21,16 @@ class ChatService {
   Future<ApiResponse<QueryResult<ChatModel>>> getClientChats({
     int page = 1,
     int itemsPerPage = 20,
+    ChatListFilter filter = ChatListFilter.active,
   }) async {
     try {
       final response = await _dio.get(
         "/chats/client",
-        queryParameters: {"page": page, "itemsPerPage": itemsPerPage},
+        queryParameters: {
+          "page": page,
+          "itemsPerPage": itemsPerPage,
+          "filter": filter.apiValue,
+        },
       );
 
       return handleApiResponse<QueryResult<ChatModel>>(
@@ -37,12 +43,12 @@ class ChatService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected chat list");
+            throw const FormatException("Expected chat list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid chat item");
+              throw const FormatException("Invalid chat item");
             }
 
             return ChatModel.fromJson(item);
@@ -79,11 +85,16 @@ class ChatService {
   Future<ApiResponse<QueryResult<ChatModel>>> getOwnerChats({
     int page = 1,
     int itemsPerPage = 20,
+    ChatListFilter filter = ChatListFilter.active,
   }) async {
     try {
       final response = await _dio.get(
         "/chats/owner",
-        queryParameters: {"page": page, "itemsPerPage": itemsPerPage},
+        queryParameters: {
+          "page": page,
+          "itemsPerPage": itemsPerPage,
+          "filter": filter.apiValue,
+        },
       );
       return handleApiResponse<QueryResult<ChatModel>>(
         response: response,
@@ -95,12 +106,12 @@ class ChatService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected chat list");
+            throw const FormatException("Expected chat list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid chat item");
+              throw const FormatException("Invalid chat item");
             }
 
             return ChatModel.fromJson(item);
@@ -155,12 +166,12 @@ class ChatService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected messages list");
+            throw const FormatException("Expected messages list");
           }
 
           final items = itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid chat message item");
+              throw const FormatException("Invalid chat message item");
             }
 
             return ChatMessageModel.fromJson(item);

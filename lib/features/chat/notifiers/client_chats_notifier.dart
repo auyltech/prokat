@@ -1,5 +1,6 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
+import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
@@ -7,15 +8,19 @@ import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/chat/utils/chat_sidebar_update_utils.dart';
+import 'package:prokat/features/workflow/models/workflow_update.dart';
+import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
 
-class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
+class ClientChatsNotifier
+    extends FamilyAsyncNotifier<QueryState<ChatModel>, ChatListFilter> {
   ChatService get api => ref.read(chatServiceProvider);
+  ChatListFilter get filter => arg;
   Future<void>? _refreshing;
   AuthenticatedSessionScopeKey? _refreshingScope;
   AuthenticatedSessionScopeKey? _stateScope;
 
   @override
-  Future<QueryState<ChatModel>> build() async {
+  Future<QueryState<ChatModel>> build(ChatListFilter arg) async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
     if (scope == null) {
       _stateScope = null;
@@ -38,7 +43,11 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
       return const QueryState(itemsPerPage: 20, count: 0);
     }
 
-    final response = await api.getClientChats(page: page, itemsPerPage: 20);
+    final response = await api.getClientChats(
+      page: page,
+      itemsPerPage: 20,
+      filter: filter,
+    );
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       return const QueryState(itemsPerPage: 20, count: 0);
     }
@@ -48,8 +57,21 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
       throw Exception(response.message);
     }
 
+    var items = _sortChats(result.items);
+    final previous = _stateScope == scope ? state.value : null;
+    if (page == 1 && previous != null) {
+      final previousById = {for (final chat in previous.items) chat.id: chat};
+      items = _sortChats(
+        items.map((chat) {
+          final cached = previousById[chat.id];
+          if (cached == null) return chat;
+          return mergeChatPreferringNewerWorkflow(chat, cached);
+        }).toList(),
+      );
+    }
+
     return QueryState(
-      items: _sortChats(result.items),
+      items: items,
       page: result.page,
       itemsPerPage: result.itemsPerPage,
       count: result.count,
@@ -127,6 +149,7 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
       final response = await api.getClientChats(
         page: current.page + 1,
         itemsPerPage: current.itemsPerPage,
+        filter: filter,
       );
 
       final result = response.data;
@@ -264,6 +287,29 @@ class ClientChatsNotifier extends AsyncNotifier<QueryState<ChatModel>> {
 
     state = AsyncData(current.copyWith(items: result.items));
     return ChatSidebarApplyStatus.applied;
+  }
+
+  WorkflowChatApplyStatus applyWorkflowUpdate(WorkflowUpdate update) {
+    if (!_canMutateCurrentScope) return WorkflowChatApplyStatus.skipped;
+    final current = state.value;
+    if (current == null) return WorkflowChatApplyStatus.skipped;
+
+    final result = applyWorkflowUpdateToChatItems(
+      items: current.items,
+      count: current.count,
+      filter: filter,
+      update: update,
+    );
+
+    if (result.status == WorkflowChatApplyStatus.skipped ||
+        result.status == WorkflowChatApplyStatus.notFound) {
+      return result.status;
+    }
+
+    state = AsyncData(
+      current.copyWith(items: result.items, count: result.count),
+    );
+    return result.status;
   }
 
   void markChatRead(String chatId) {

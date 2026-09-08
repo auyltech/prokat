@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:prokat/features/catalog/models/localized_names.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/map/services/map_pin_streets.dart';
+import 'package:prokat/features/map/state/map_controller_provider.dart';
+import 'package:prokat/features/map/widgets/map_pin_address_panel.dart';
 import 'package:prokat/features/map/widgets/map_view.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -26,31 +30,56 @@ class _MapOwnerPinLocationContainerState
 
   LocationSearchResult? selectedAddress;
   bool loadingAddress = false;
+  List<LocalizedNames> _streetOptions = [];
+  final _houseController = TextEditingController();
+  final _houseFocusNode = FocusNode();
 
   Timer? idleDebounce;
+  bool _closed = false;
 
-  Future<void> reverseGeocode() async {
-    if (!mounted) return;
+  Future<void> reverseGeocode({
+    String? mapHouseNumber,
+    List<LocalizedNames> tileStreets = const [],
+  }) async {
+    if (_closed) return;
 
     setState(() {
       loadingAddress = true;
       selectedAddress = null;
+      _streetOptions = [];
     });
+    _houseController.clear();
 
     try {
-      final result = await ref
-          .read(locationApiProvider)
-          .reverseGeocode(longitude, latitude);
+      if (_closed) return;
+      final api = ref.read(locationApiProvider);
+      final result = await api.reverseGeocode(longitude, latitude);
 
-      if (!mounted) return;
+      if (_closed) return;
 
       if (result != null) {
+        final choice = choosePinStreets(
+          reverseStreet: result.streetNames,
+          tileStreets: tileStreets,
+          reverseFallback: result.street,
+        );
+        final house = mapHouseNumber?.trim();
+        final resolvedHouse = (house != null && house.isNotEmpty)
+            ? house
+            : result.houseNumber;
+        _streetOptions = choice.options;
+        _houseController.text = resolvedHouse ?? '';
         setState(() {
-          selectedAddress = result;
+          selectedAddress = result
+              .withStreetNames(choice.selected)
+              .withHouseNumber(resolvedHouse);
         });
       }
+    } catch (e) {
+      if (_closed) return;
+      debugPrint("Geocoding failed: $e");
     } finally {
-      if (mounted) {
+      if (!_closed) {
         setState(() {
           loadingAddress = false;
         });
@@ -58,20 +87,34 @@ class _MapOwnerPinLocationContainerState
     }
   }
 
-  void onCameraIdle(CameraChangedEventData data) {
+  bool get _keyboardOpen => MediaQuery.viewInsetsOf(context).bottom > 0;
+
+  void onCameraIdle(CameraChangedEventData _) {
     idleDebounce?.cancel();
-    if (!mounted) return;
+    if (_closed) return;
+    if (_houseFocusNode.hasFocus || _keyboardOpen) return;
 
-    setState(() {
-      selectedAddress = null;
-    });
+    if (selectedAddress != null) {
+      setState(() {
+        selectedAddress = null;
+      });
+    }
 
-    idleDebounce = Timer(const Duration(milliseconds: 600), () {
-      if (!mounted) return;
-      latitude = data.cameraState.center.coordinates.lat.toDouble();
-      longitude = data.cameraState.center.coordinates.lng.toDouble();
+    final controller = ref.read(mapControllerProvider);
 
-      reverseGeocode();
+    idleDebounce = Timer(const Duration(milliseconds: 600), () async {
+      if (_closed) return;
+      final target = await controller.pinTarget();
+      if (_closed || target == null) return;
+      latitude = target.point.coordinates.lat.toDouble();
+      longitude = target.point.coordinates.lng.toDouble();
+
+      unawaited(
+        reverseGeocode(
+          mapHouseNumber: target.houseNumber,
+          tileStreets: target.nearbyStreets,
+        ),
+      );
     });
   }
 
@@ -81,11 +124,9 @@ class _MapOwnerPinLocationContainerState
     final notifier = ref.read(locationProvider.notifier);
 
     try {
-      final location = LocationModel(
+      final location = LocationModel.fromSearchResult(
+        selectedAddress!.withHouseNumber(_houseController.text),
         service: "EQUIPMENT",
-        street: selectedAddress!.street,
-        city: selectedAddress!.city ?? "",
-        country: selectedAddress!.country ?? "",
         latitude: latitude,
         longitude: longitude,
         equipmentId: widget.equipmentId,
@@ -104,15 +145,29 @@ class _MapOwnerPinLocationContainerState
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
     }
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _closed = false;
+  }
+
+  @override
+  void deactivate() {
+    _closed = true;
+    idleDebounce?.cancel();
+    super.deactivate();
   }
 
   @override
   void dispose() {
     idleDebounce?.cancel();
+    _houseController.dispose();
+    _houseFocusNode.dispose();
     super.dispose();
   }
 
@@ -121,78 +176,34 @@ class _MapOwnerPinLocationContainerState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          /// MAP
-          MyMapView(
-            mode: MyMapMode.ownerPlaceEquipment,
-            onCameraIdle: onCameraIdle,
-          ),
-
-          /// CENTER PIN
-          const Center(
-            child: IgnorePointer(
-              child: Icon(Icons.location_pin, size: 50, color: Colors.red),
+          Positioned.fill(
+            child: MyMapView(
+              mode: MyMapMode.ownerPlaceEquipment,
+              onCameraIdle: onCameraIdle,
+              onMapTap: (_) => _houseFocusNode.unfocus(),
             ),
           ),
-
-          /// ADDRESS PANEL
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-                boxShadow: const [
-                  BoxShadow(blurRadius: 12, color: Colors.black12),
-                ],
-              ),
-              child: SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (loadingAddress)
-                      const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: CircularProgressIndicator(),
-                      )
-                    else if (selectedAddress != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            selectedAddress!.street,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            [selectedAddress!.city, selectedAddress!.country]
-                                .where((e) => e != null && e.isNotEmpty)
-                                .join(", "),
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-
-                    const SizedBox(height: 16),
-
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: selectedAddress == null
-                            ? null
-                            : confirmLocation,
-                        child: Text(l10n.confirmLocation),
-                      ),
-                    ),
-                  ],
-                ),
+          MapPinAddressPanel(
+            loading: loadingAddress,
+            address: selectedAddress,
+            streetOptions: _streetOptions,
+            houseController: _houseController,
+            houseFocusNode: _houseFocusNode,
+            onStreetSelected: (names) {
+              final current = selectedAddress;
+              if (current == null) return;
+              setState(() {
+                selectedAddress = current.withStreetNames(names);
+              });
+            },
+            confirmButton: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: selectedAddress == null ? null : confirmLocation,
+                child: Text(l10n.confirmLocation),
               ),
             ),
           ),

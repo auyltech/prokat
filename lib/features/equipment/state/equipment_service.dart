@@ -4,10 +4,12 @@ import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/api_exception.dart';
-import 'package:prokat/features/equipment/models/equipment_spec_update_input.dart';
+import 'package:prokat/features/equipment/models/equipment_spec_value_input.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
+
 import '../../../core/constants/api_routes.dart';
 import '../models/equipment_model.dart';
+
 import 'dart:io';
 
 class EquipmentService {
@@ -22,6 +24,7 @@ class EquipmentService {
     String? categoryId,
     String? query,
     String? city,
+    List<String>? spec,
     int page = 1,
     int itemsPerPage = 10,
   }) async {
@@ -33,6 +36,7 @@ class EquipmentService {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
         },
@@ -44,12 +48,12 @@ class EquipmentService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected equipment list");
+            throw const FormatException("Expected equipment list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid equipment item");
+              throw const FormatException("Invalid equipment item");
             }
 
             return Equipment.fromJson(item);
@@ -76,9 +80,11 @@ class EquipmentService {
   }
 
   Future<ApiResponse<List<Equipment>>> getClientEquipment({
+    required String locale,
     String? categoryId,
     String? query,
     String? city,
+    List<String>? spec,
     int page = 1,
     int itemsPerPage = 10,
   }) async {
@@ -86,9 +92,11 @@ class EquipmentService {
       final response = await _dio.get(
         ApiRoutes.clientEquipment,
         queryParameters: {
+          'locale': locale,
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
         },
@@ -100,12 +108,12 @@ class EquipmentService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected equipment list");
+            throw const FormatException("Expected equipment list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid equipment item");
+              throw const FormatException("Invalid equipment item");
             }
 
             return Equipment.fromJson(item);
@@ -160,9 +168,26 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<List<Equipment>>> getOwnerEquipment() async {
+  Future<ApiResponse<List<Equipment>>> getOwnerEquipment({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+    int page = 1,
+    int itemsPerPage = 100,
+  }) async {
     try {
-      final response = await _dio.get(ApiRoutes.ownerEquipment);
+      final response = await _dio.get(
+        ApiRoutes.ownerEquipment,
+        queryParameters: {
+          if (query?.isNotEmpty ?? false) 'query': query,
+          if (city?.isNotEmpty ?? false) 'city': city,
+          if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (spec != null && spec.isNotEmpty) 'spec': spec,
+          'page': page,
+          'itemsPerPage': itemsPerPage,
+        },
+      );
 
       return handleApiResponse<List<Equipment>>(
         response: response,
@@ -170,12 +195,12 @@ class EquipmentService {
           final itemsJson = data["data"];
 
           if (itemsJson is! List) {
-            throw FormatException("Expected equipment list");
+            throw const FormatException("Expected equipment list");
           }
 
           return itemsJson.map((item) {
             if (item is! Map<String, dynamic>) {
-              throw FormatException("Invalid equipment item");
+              throw const FormatException("Invalid equipment item");
             }
 
             return Equipment.fromJson(item);
@@ -429,14 +454,17 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> updateEquipmentSpecs({
+  Future<ApiResponse<void>> updateEquipmentSpecValues({
     required String equipmentId,
-    required List<EquipmentSpecUpdateInput> specs,
+    required List<EquipmentSpecValueInput> specs,
   }) async {
     try {
-      final response = await _dio.patch(
-        '/equipment/$equipmentId/specs',
-        data: {"id": equipmentId, "specs": specs},
+      final response = await _dio.put(
+        '/equipment/$equipmentId/spec-values',
+        data: {
+          'id': equipmentId,
+          'specs': specs.map((item) => item.toJson()).toList(),
+        },
       );
 
       return handleEmptyApiResponse(

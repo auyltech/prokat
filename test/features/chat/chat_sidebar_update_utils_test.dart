@@ -75,7 +75,7 @@ void main() {
     });
 
     test('does not increment unread for own messages or an open thread', () {
-      final chat = ChatModel(id: 'chat-1', newMessagesCount: 0);
+      const chat = ChatModel(id: 'chat-1', newMessagesCount: 0);
       final incoming = _message(
         id: 'msg-2',
         senderId: 'user-me',

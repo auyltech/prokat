@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,8 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BalanceTile extends ConsumerStatefulWidget {
@@ -15,24 +19,45 @@ class BalanceTile extends ConsumerStatefulWidget {
 }
 
 class _BalanceTileState extends ConsumerState<BalanceTile> {
+  Timer? _balancePoll;
+
+  @override
+  void initState() {
+    super.initState();
+    _balancePoll = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) return;
+      unawaited(
+        ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _balancePoll?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final billingState = ref.watch(billingProvider);
+    final ownerOnline =
+        ref.watch(ownerProfileProvider).valueOrNull?.onlineStatus ==
+        OwnerStatus.online;
 
     final onlineEquipment = ref
         .watch(ownerEquipmentProvider.notifier)
         .onlineEquipmentCount;
 
-    final burnRate = onlineEquipment == 0
-        ? 0
-        : billingState.getDailyCost(onlineEquipment) / 24;
+    final billingActive = ownerOnline && billingState.hasActiveBurn;
+    final burnRate = billingActive ? billingState.burnRateMinutesPerHour : 0;
 
     // ── Loading state ──
     if (billingState.isBalanceLoading) {
-      return BaseTile(
-        child: const SizedBox(
+      return const BaseTile(
+        child: SizedBox(
           height: 120,
           child: Center(child: CircularProgressIndicator()),
         ),
@@ -101,12 +126,11 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             children: [
               Text(
                 l10n.accountBalance,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-                  letterSpacing: 0.3,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
-              if (onlineEquipment > 0)
+              if (ownerOnline && onlineEquipment > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -117,8 +141,8 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    "$onlineEquipment Equipment online",
-                    style: TextStyle(
+                    l10n.equipmentOnlineCount(onlineEquipment),
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF0D5F5C),
@@ -135,8 +159,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                ((billingState.accountBalance?.secondsRemaining ?? 0) / 60)
-                    .toStringAsFixed(0),
+                billingState.minutesRemaining.toString(),
                 style: theme.textTheme.headlineLarge?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w500,
@@ -147,7 +170,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  "min",
+                  l10n.minutesUnit,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
@@ -174,40 +197,51 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
           const SizedBox(height: 12),
 
-          // ── Row 3: burn rate + exhaustion footer ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _FooterMetric(
-                label: l10n.burnRate,
-                value: "~${burnRate.toStringAsFixed(0)} min/hr",
-                align: CrossAxisAlignment.start,
-                valueColor: theme.colorScheme.onSurface,
+          if (billingState.minutesRemaining <= 0)
+            Text(
+              l10n.zeroBalanceHiddenFromSearch,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+                fontWeight: FontWeight.w500,
               ),
-
-              _FooterMetric(
-                label: l10n.estimatedExhaustion,
-                value: billingState.formattedExhaustionTime,
-                align: CrossAxisAlignment.end,
-                valueColor: billingState.hasActiveBurn
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface,
+            )
+          else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _FooterMetric(
+                  label: l10n.burnRate,
+                  value: l10n.burnRateValue(burnRate),
+                  align: CrossAxisAlignment.start,
+                  valueColor: theme.colorScheme.onSurface,
+                ),
+                _FooterMetric(
+                  label: l10n.estimatedExhaustion,
+                  value: billingActive
+                      ? (billingState.formattedExhaustionTime(
+                              l10n.localeName,
+                            ) ??
+                            l10n.noActiveDepletion)
+                      : l10n.noActiveDepletion,
+                  align: CrossAxisAlignment.end,
+                  valueColor: billingActive
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurface,
+                ),
+              ],
+            ),
+            if (billingActive) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: null,
+                  minHeight: 3,
+                  backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ],
-          ),
-
-          // ── Active burn progress indicator (subtle, at bottom) ──
-          if (billingState.hasActiveBurn) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: null,
-                minHeight: 3,
-                backgroundColor: theme.dividerColor.withValues(alpha: 0.3),
-                color: theme.colorScheme.primary,
-              ),
-            ),
           ],
         ],
       ),

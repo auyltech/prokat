@@ -169,6 +169,7 @@ class _SupportItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Card(
       elevation: 0,
       color: theme.colorScheme.surfaceBright,
@@ -205,10 +206,22 @@ class _SupportItem extends StatelessWidget {
                     subtitle,
                     style: TextStyle(color: Colors.grey[600], fontSize: 13),
                   ),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Transform.translate(
+                      offset: const Offset(-12, 6),
+                      child: TextButton(
+                        onPressed: onTap,
+                        child: Text(
+                          actionText,
+                          style: TextStyle(color: theme.colorScheme.onPrimary),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            TextButton(onPressed: onTap, child: Text(actionText)),
           ],
         ),
       ),

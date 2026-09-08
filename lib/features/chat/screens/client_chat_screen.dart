@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
+import 'package:prokat/features/chat/widgets/chat_thread_load_error.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -32,17 +36,28 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale();
-      ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale();
-      ref
-          .read(chatMessagesProvider(widget.chatId).notifier)
-          .dismissDisplayedPush();
+      unawaited(() async {
+        try {
+          await Future.wait([
+            ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
+            ref
+                .read(chatMessagesProvider(widget.chatId).notifier)
+                .refreshIfStale(),
+          ]);
+          ref
+              .read(chatMessagesProvider(widget.chatId).notifier)
+              .dismissDisplayedPush();
+        } catch (error, stackTrace) {
+          Logger.log('ClientChatScreen.initState: $error\n$stackTrace');
+        }
+      }());
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
@@ -50,6 +65,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     final chatAsync = ref.watch(currentChatProvider(widget.chatId));
     final messagesAsync = ref.watch(chatMessagesProvider(widget.chatId));
 
+    final messages = messagesAsync.valueOrNull?.items ?? const [];
     final loadError = chatAsync.error ?? messagesAsync.error;
 
     final currentChat = chatAsync.valueOrNull;
@@ -65,7 +81,9 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       _entryOfferQuery = offerQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(clientOffersProvider(offerQuery).notifier).refreshIfStale();
+        unawaited(
+          ref.read(clientOffersProvider(offerQuery).notifier).refreshIfStale(),
+        );
       });
     }
 
@@ -78,9 +96,11 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       _entryNegotiationQuery = negotiationQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref
-            .read(priceNegotiationsProvider(negotiationQuery).notifier)
-            .refreshIfStale();
+        unawaited(
+          ref
+              .read(priceNegotiationsProvider(negotiationQuery).notifier)
+              .refreshIfStale(),
+        );
       });
     }
     final negotiations = negotiationQuery == null
@@ -112,30 +132,20 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       mode: AppMode.clientMode,
     );
 
-    return Scaffold(
-      body: SafeArea(
-        child: chatAsync.when(
-          data: (data) => ChatMessageList(
-            chatId: widget.chatId,
-            currentUserId: currentUserId,
-            mode: AppMode.clientMode,
-            currentChat: data,
-          ),
-          error: (_, _) => ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              const SizedBox(height: 160),
-              const Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey),
-              const SizedBox(height: 16),
-              Text(
-                loadError.toString(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
+    return Theme(
+      data: theme.copyWith(
+        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+          backgroundColor: theme.colorScheme.surface,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: SafeArea(
+          child:
+              (chatAsync.hasError || messagesAsync.hasError) && messages.isEmpty
+              ? ChatThreadLoadError(
+                  error: loadError ?? '',
+                  onRetry: () async {
                     await ref
                         .read(currentChatProvider(widget.chatId).notifier)
                         .refresh();
@@ -143,22 +153,23 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
                         .read(chatMessagesProvider(widget.chatId).notifier)
                         .refresh();
                   },
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(l10n.retry),
+                )
+              : chatAsync.isLoading && currentChat == null
+              ? const Center(child: CircularProgressIndicator.adaptive())
+              : ChatMessageList(
+                  chatId: widget.chatId,
+                  currentUserId: currentUserId,
+                  mode: AppMode.clientMode,
+                  currentChat: currentChat,
                 ),
-              ),
-            ],
-          ),
-          loading: () =>
-              const Center(child: CircularProgressIndicator.adaptive()),
         ),
-      ),
-      bottomNavigationBar: SendMessageForm(
-        chatId: widget.chatId,
-        chatStatus: chatConfig.status,
-        mode: AppMode.clientMode,
-        currentChat: currentChat,
-        actionBarTitle: chatConfig.actionBartitle,
+        bottomNavigationBar: SendMessageForm(
+          chatId: widget.chatId,
+          chatStatus: chatConfig.status,
+          mode: AppMode.clientMode,
+          currentChat: currentChat,
+          actionBarTitle: chatConfig.actionBartitle,
+        ),
       ),
     );
   }

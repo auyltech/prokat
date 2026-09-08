@@ -8,6 +8,12 @@
       "count": { "type": "int" }
     }
   },
+  "offersReceivedCount": "{count, plural, =1{Получено 1 предложение} few{Получено {count} предложения} many{Получено {count} предложений} other{Получено {count} предложения}}",
+  "@offersReceivedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "activeRequestAlreadyExists": "У вас уже есть активный запрос.",
   "supportTicketSubmitted": "Обращение в поддержку успешно отправлено!",
   "failedToSubmitTicket": "Не удалось отправить обращение",
@@ -26,12 +32,14 @@
   "topUpBalance": "Пополнить баланс",
   "payments": "Платежи",
   "offerCreated": "Предложение создано",
+  "offerCreateRequestNotFound": "Заявка не найдена или уже удалена",
   "offerReceived": "Предложение получено",
   "counterOfferSent": "Встречное предложение отправлено",
   "respondToCounterOffer": "Ответьте на встречное предложение",
   "orderHasBeenCancelled": "Заказ отменён",
   "waitingOwnerResponse": "Ожидание ответа владельца",
   "waitingClientConfirmation": "Ожидание подтверждения клиента",
+  "waitingForClientConfirm": "Ждёт подтверждения",
   "confirmWorkCompleted": "Подтвердить завершение работы",
   "orderCompleted": "Заказ завершён",
   "reviewSent": "Отзыв отправлен",
@@ -67,8 +75,24 @@
   "emailOrPhoneRequired": "Укажите email или номер телефона",
   "phoneRequiredIfEmailEmpty": "Обязательно, если номер телефона не указан",
   "invalidEmail": "Введите корректный email",
+  "emailAddressRequiredLabel": "Адрес электронной почты *",
+  "phoneNumberRequiredLabel": "Номер телефона *",
+  "inquiryTopicValidation": "Выберите тему обращения",
   "inquiryDetails": "Сведения об обращении",
   "inquiryTopicRequiredLabel": "Тема обращения *",
+  "selectInquiryTopic": "Выберите тему обращения",
+  "inquiryTopicGeneral": "Общий вопрос",
+  "inquiryTopicSupport": "Поддержка",
+  "inquiryTopicBugReport": "Сообщение об ошибке",
+  "inquiryTopicFeatureRequest": "Предложение функции",
+  "inquiryTopicSales": "Продажи",
+  "inquiryTopicPartnership": "Партнёрство",
+  "inquiryTopicBilling": "Оплата и счета",
+  "inquiryTopicCallMe": "Перезвоните мне",
+  "inquiryTopicAccountDeletion": "Удаление аккаунта",
+  "inquiryTopicAccountRecovery": "Восстановление аккаунта",
+  "inquiryTopicAccountIssue": "Проблема с аккаунтом",
+  "inquiryTopicOther": "Другое",
   "yourMessageRequiredLabel": "Ваше сообщение *",
   "messageValidation": "Введите сообщение",
   "counterOffer": "Встречное предложение",
@@ -171,6 +195,7 @@
   "reviewOwner": "Отзыв о владельце",
   "reviewClient": "Отзыв о клиенте",
   "requestAccepted": "Запрос принят",
+  "offerNotSelected": "Выбран другой владелец",
   "requestRejected": "Запрос отклонён",
   "requestPending": "Запрос ожидает ответа",
   "estimatedExhaustion": "Прогноз исчерпания",
@@ -200,10 +225,18 @@
   "review": "Отзыв",
   "saved": "Сохранено",
   "noNotificationsYet": "Уведомлений пока нет",
+  "notificationOwnerApprovedTitle": "Регистрация владельца одобрена",
+  "notificationOwnerApprovedBody": "Ваша регистрация в качестве владельца одобрена.",
+  "notificationOwnerRejectedTitle": "Регистрация владельца отклонена",
+  "notificationOwnerRejectedBody": "Ваша регистрация в качестве владельца отклонена.",
+  "notificationBookingCompletedTitle": "Заказ завершён",
+  "notificationBookingCompletedBody": "Ваш заказ отмечен как завершённый.",
   "errorLoadingEquipment": "Ошибка загрузки техники",
   "priceMustBePositive": "Цена должна быть больше нуля",
   "priceMaximumExceeded": "Цена не может превышать 100 000",
   "notSupportedYet": "Пока не поддерживается",
+  "paymentFeatureComingSoon": "Функционал оплаты и пополнения баланса сейчас в разработке и скоро будет добавлен.",
+  "transactionGift": "Подарок",
   "errorLoadingProfile": "Не удалось загрузить профиль",
   "tapToRetry": "Нажмите, чтобы повторить",
   "announcements": "Объявления",
@@ -214,6 +247,8 @@
   "failedToConfirmOrder": "Не удалось подтвердить заказ",
   "chatLocked": "Чат заблокирован",
   "priceOffer": "Предложение цены",
+  "priceOfferStatusCreated": "Создано",
+  "priceOfferStatusCancelled": "Отменено",
   "offeredPrice": "Предложено: {price}",
   "@offeredPrice": {
     "placeholders": {
@@ -267,6 +302,7 @@
   "selectLanguage": "Выберите язык",
   "topRated": "Топ рейтинга",
   "available": "Доступно",
+  "booked": "Занята",
   "perDay": "/ день",
   "heavyEquipmentRentals": "ПРОКАТ ТЯЖЁЛОЙ ТЕХНИКИ",
   "initializingSystems": "ИНИЦИАЛИЗАЦИЯ...",
@@ -277,7 +313,9 @@
   "delete": "Удалить",
   "edit": "Изменить",
   "retry": "Повторить",
+  "refresh": "Обновить",
   "close": "Закрыть",
+  "apply": "Применить",
   "send": "Отправить",
   "submit": "Отправить",
   "upload": "Загрузить",
@@ -300,6 +338,7 @@
   "username": "Имя пользователя",
   "city": "Город",
   "street": "Улица",
+  "houseNumber": "№",
   "address": "Адрес",
   "model": "Модель",
   "capacity": "Объём",
@@ -412,6 +451,7 @@
     }
   },
   "yesReject": "Да, отклонить",
+  "yes": "Да",
   "no": "Нет",
   "decline": "Отклонить",
   "minutesLeft": "{minutes} мин осталось",
@@ -420,7 +460,15 @@
       "minutes": { "type": "int" }
     }
   },
+  "hoursLeft": "{hours} ч осталось",
+  "@hoursLeft": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
   "volume": "Объём",
+  "specFilterFrom": "от",
+  "specFilterTo": "до",
   "noOrderHistory": "История заказов пуста",
   "cancelReasonClientNotRespond": "Клиент не ответил",
   "cancelReasonEquipUnavailable": "Техника недоступна",
@@ -436,6 +484,7 @@
   "workStatusStartWork": "Начать работу",
   "workStatusPostpone": "Отложить",
   "workStatusStopWork": "Остановить работу",
+  "workStatusResumeWork": "Возобновить работу",
   "workStatusCompleteWork": "Завершить работу",
   "workStatusCancelJob": "Отменить задание",
 
@@ -494,17 +543,22 @@
   "loginToViewRequests": "Войдите для просмотра заявок",
   "errorLoadingRequests": "Ошибка загрузки заявок",
   "noActiveRequests": "У вас нет активных заявок",
+  "ownerEmptyRequestsHint": "смотрите актуальные заявки клиентов здесь",
   "createNewRequest": "Создать новую заявку",
   "requiredCapacity": "Необходимый объём",
   "capacityHint": "10 M3",
-  "offeredRateHint": "Цена, которую готовы заплатить",
-  "additionalDetails": "Дополнительные детали...",
+  "offeredRateHint": "Цена, которую Вы готовы заплатить",
+  "additionalDetails": "опишите задачу или важные детали",
   "newRequestBadge": "НОВЫЙ ЗАПРОС",
   "offerSentBadge": "ПРЕДЛОЖЕНИЕ ОТПРАВЛЕНО",
   "cancelRequest": "Отменить заявку?",
   "requestCancelled": "Заявка отменена",
 
   "noChats": "Нет чатов",
+  "chatsActiveTab": "Активные",
+  "chatsArchiveTab": "Архив",
+  "noArchivedChats": "Нет архивных чатов",
+  "youHaveNoArchivedChats": "Здесь появятся завершённые и отменённые чаты.",
 
   "deliverTo": "ДОСТАВИТЬ К",
   "houseBuilding": "Дом / Корпус / Подъезд",
@@ -515,6 +569,10 @@
   "confirmLocation": "Подтвердить местоположение",
   "failedCreateAddress": "Не удалось создать адрес",
   "failedSaveAddress": "Не удалось сохранить адрес",
+  "deleteAddress": "Удалить адрес",
+  "deleteAddressQuestion": "Удалить этот адрес?",
+  "deleteAddressConfirmation": "Адрес будет удалён из сохранённого списка.",
+  "failedToDeleteAddress": "Не удалось удалить адрес",
   "noEquipmentLocations": "Адреса техники не добавлены",
   "equipmentLocations": "Адреса техники",
   "searchAddress": "Поиск адреса",
@@ -574,6 +632,12 @@
   "reconnecting": "ПЕРЕПОДКЛЮЧЕНИЕ...",
 
   "information": "Информация",
+  "generalInformation": "Общая информация",
+  "registrationData": "Регистрационные данные",
+  "saveAll": "Сохранить все",
+  "expandAll": "Развернуть все",
+  "collapseAll": "Свернуть все",
+  "ownerCommentHint": "Возможна неполная загрузка, заметки по доступу…",
   "prices": "Цены",
   "allRatingOptionsListed": "Все тарифы добавлены",
   "pleaseEnterValidPrice": "Введите корректную цену",
@@ -615,6 +679,7 @@
   "equipmentSpecs": "Характеристики техники",
   "selectDate": "Выбрать дату",
   "selectTime": "Выбрать время",
+  "requiredHint": "* Обязательно",
   "requestCreated": "Запрос создан",
   "noRequestsAtMoment": "Запросов пока нет",
   "viewBooking": "Посмотреть бронирование",
@@ -694,6 +759,11 @@
   "canListEquipment": "Теперь вы можете размещать технику для аренды.",
   "verificationFailed": "Верификация не пройдена",
   "updateDocumentsHint": "Обновите документы и повторите попытку.",
+  "ownerProfileSuspended": "Профиль приостановлен",
+  "ownerProfileSuspendedHint": "Размещение техники временно недоступно. Свяжитесь с поддержкой.",
+  "ownerProfilePendingReview": "Ожидайте рассмотрения",
+  "ownerProfilePendingReviewHint": "Отправленные данные снова проходят модерацию.",
+  "profileUpdateNeedsModeration": "Данные будут переданы на модерацию",
   "submitForVerification": "Отправить на верификацию",
   "underReview": "На проверке",
   "viewListings": "Посмотреть объявления",
@@ -708,6 +778,7 @@
   "firstNameRequired": "Имя обязательно",
   "lastNameRequired": "Фамилия обязательна",
   "phoneNumberRequired": "Номер телефона обязателен",
+  "ownerContactPhoneHint": "Этот номер увидят администратор и клиенты. По нему должны дозвониться.",
   "cityRequired": "Город обязателен",
   "messageRequired": "Пожалуйста, добавьте короткое сообщение",
   "submitRequest": "Отправить заявку",
@@ -749,8 +820,26 @@
   "onlineStatus": "В сети",
   "offlineStatus": "Не в сети",
   "minutesBalance": "Баланс минут",
-  "minutesUnit": "Мин",
+  "minutesUnit": "мин",
   "burnRate": "Скорость расхода",
+  "burnRateValue": "~{rate} мин/ч",
+  "@burnRateValue": {
+    "placeholders": {
+      "rate": { "type": "int" }
+    }
+  },
+  "noActiveDepletion": "Нет активного расхода",
+  "zeroBalanceHiddenFromSearch": "При 0 оплаченных минут техника не видна заказчикам в поиске. Пополните баланс, чтобы снова появиться в выдаче.",
+  "equipmentOnlineCount": "{count, plural, one{{count} единица онлайн} few{{count} единицы онлайн} many{{count} единиц онлайн} other{{count} единиц онлайн}}",
+  "@equipmentOnlineCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "всего",
+  "statOnline": "онлайн",
+  "statActive": "активные",
+  "statCompleted": "завершено",
   "hello": "Привет!",
   "reviews": "отзывов",
   "rentAnEquipment": "Арендовать технику",
@@ -860,12 +949,15 @@
   "statusDraft": "Черновик",
   "statusConfirmed": "Подтверждено",
   "statusCanceled": "Отменено",
+  "statusFailed": "Сбой",
   "statusCompleted": "Завершено",
+  "statusReviewed": "Оценено",
   "statusRequestSent": "Заявка отправлена",
   "statusOffersReceived": "Предложения получены",
   "statusBookingCreated": "Бронирование создано",
   "statusExpired": "Истёк",
   "unknownRenter": "Неизвестный арендатор",
+  "nameNotSpecified": "Имя не указано",
   "pendingDate": "Дата не указана",
   "overdue": "Просрочено",
   "details": "Подробнее",
@@ -987,6 +1079,105 @@
   "negotiationIdMissing": "Не указан идентификатор переговоров",
   "actionFailed": "Не удалось выполнить действие",
   "pleaseSelectYourCity": "Выберите город",
+  "saveChanges": "Сохранить",
+  "saving": "Сохранение...",
+  "fieldRequired": "Обязательное поле",
+  "justNow": "Только что",
+  "minutesAgo": "{count} мин назад",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} ч назад",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationDays": "{count, plural, =1{1 день} few{{count} дня} many{{count} дней} other{{count} дня}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 час} few{{count} часа} many{{count} часов} other{{count} часа}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationMinutes": "{count, plural, =1{1 мин} few{{count} мин} many{{count} мин} other{{count} мин}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationSeconds": "{count, plural, =1{1 сек} few{{count} сек} many{{count} сек} other{{count} сек}}",
+  "@durationSeconds": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "invalidSecondsValue": "Некорректное значение секунд",
+  "newOffer": "Новое предложение",
+  "offerStatusViewed": "Просмотрено",
+  "offerStatusCancelled": "Отменено",
+  "offerStatusAccepted": "Принято",
+  "offerStatusRejected": "Отклонено",
+  "offerStatusExpired": "Истекло",
+  "offerStatusClosed": "Закрыто",
+  "dataProcessingTitle": "Обработка данных",
+  "pleaseCompleteRequiredFields": "Заполните обязательные данные перед отправкой на проверку",
+  "equipmentSubmitPhotoHint": "Не забудьте добавить реальные фотографии вашей техники (как минимум на одном из снимков должен быть виден ее гос. номер).",
+  "youAreOnline": "Вы онлайн",
+  "youAreOffline": "Вы офлайн",
+  "readyToAcceptOrders": "Готовы принимать заказы",
+  "notAcceptingOrders": "Не принимаете заказы",
+  "youAreNowOnline": "Вы теперь онлайн",
+  "youAreNowOffline": "Вы теперь офлайн",
+  "failedToggleStatus": "Не удалось обновить статус",
+  "cannotGoOnlineWithZeroBalance": "Нельзя быть онлайн при нулевом балансе",
+  "cannotGoOnlineWithoutOnlineEquipment": "Сначала выведите в онлайн хотя бы одну единицу техники",
+  "cannotRespondWithZeroBalance": "Нельзя откликаться на заявки при нулевом балансе",
+  "countryKazakhstan": "Казахстан",
+  "modelStandard": "Стандарт",
+  "modelHeavyDuty": "Тяжёлый",
+  "modelIndustrial": "Промышленный",
+  "capacityKub": "{capacity} м³",
+  "@capacityKub": {
+    "placeholders": {
+      "capacity": { "type": "String" }
+    }
+  },
+  "unitMeters": "м",
+  "hoseLengthHint": "шланг 15 м",
+  "priceKztHint": "10 000 ₸",
+  "ownerType": "Тип владельца",
+  "companyInformation": "Данные компании",
+  "companyName": "Название компании",
+  "enterCompanyName": "Введите название компании",
+  "legalEntityName": "Юридическое название",
+  "legalEntityNameHint": "Как в официальных документах",
+  "personalContactDetails": "Контактные данные",
+  "enterFirstName": "Введите имя",
+  "enterLastName": "Введите фамилию",
+  "enterValidPhoneNumber": "Введите корректный номер телефона",
+  "serviceDetails": "Описание услуг",
+  "serviceDetailsHint": "Опишите товары, аренду или технику, которую вы предоставляете...",
+  "updateProfile": "Обновить профиль",
+  "profileUpdatedSuccessfully": "Профиль успешно обновлён",
+  "failedToUpdateProfile": "Не удалось обновить профиль",
+  "ordersCount": "{count, plural, one{{count} заказ} few{{count} заказа} many{{count} заказов} other{{count} заказа}}",
+  "@ordersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "ratePerTrip": "За рейс",
+  "ratePerCubicMeter": "За м³",
+  "ratePerDay": "За сутки",
+  "ratePerHour": "За час",
 
   "connectionTimedOut": "Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.",
   "noConnectionCheckNetwork": "Нет соединения. Проверьте сеть и попробуйте снова.",

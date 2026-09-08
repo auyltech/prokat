@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -23,7 +27,7 @@ class _ClientRentalPreferencesSectionState
   void initState() {
     super.initState();
 
-    Future.microtask(_loadAddresses);
+    unawaited(Future.microtask(_loadAddresses));
   }
 
   Future<void> _loadAddresses() async {
@@ -46,13 +50,15 @@ class _ClientRentalPreferencesSectionState
     }
   }
 
-  String _formatAddress(LocationModel? address, AppLocalizations l10n) {
+  String _formatAddress(
+    LocationModel? address,
+    AppLocalizations l10n,
+    WidgetRef ref,
+    BuildContext context,
+  ) {
     if (address == null) return l10n.noAddressSelected;
 
-    return [
-      address.street,
-      address.city,
-    ].where((part) => part.trim().isNotEmpty).join(', ');
+    return formatLocationModel(ref, context, address);
   }
 
   @override
@@ -69,16 +75,14 @@ class _ClientRentalPreferencesSectionState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(selectedAddress?.city ?? ""),
-
-        const SizedBox(height: 16),
-
         ProkatListTile.secondary(
           icon: LucideIcons.building,
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           title: l10n.city,
-          subtitle: city.isEmpty ? l10n.selectCity : city,
+          subtitle: city.isEmpty
+              ? l10n.selectCity
+              : catalogCityLabelOf(ref, context, city),
           onTap: () => CityPickerSheet.show(
             context: context,
             service: CitySelectorService.clientcity,
@@ -112,7 +116,7 @@ class _ClientRentalPreferencesSectionState
           iconColor: theme.colorScheme.onSurface,
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           title: l10n.selectedAddress,
-          subtitle: _formatAddress(selectedAddress, l10n),
+          subtitle: _formatAddress(selectedAddress, l10n, ref, context),
           onTap: () => SelectAddressSheet.show(
             context,
             service: "select_primary",

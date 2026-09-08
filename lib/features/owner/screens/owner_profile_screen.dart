@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
@@ -16,7 +18,7 @@ import 'package:prokat/features/owner/widgets/owner_profile_header.dart';
 import 'package:prokat/features/owner/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/owner_stat_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class OwnerProfileScreen extends ConsumerStatefulWidget {
   const OwnerProfileScreen({super.key});
@@ -29,34 +31,39 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      await Future.wait([
-        ref.read(ownerProfileProvider.notifier).refreshIfStale(),
-        ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale(),
-        ref.read(ownerEquipmentProvider.notifier).refreshIfStale(),
-        ref.read(ownerActiveBookingsProvider.notifier).refreshIfStale(),
-      ]);
-      if (!mounted) return;
+    unawaited(
+      Future.microtask(() async {
+        await Future.wait([
+          ref.read(ownerProfileProvider.notifier).refreshIfStale(),
+          ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale(),
+          ref.read(ownerEquipmentProvider.notifier).refreshIfStale(),
+          ref.read(ownerActiveBookingsProvider.notifier).refreshIfStale(),
+        ]);
+        if (!mounted) return;
 
-      if (ref.read(billingProvider).accountBalance == null) {
-        ref.read(billingProvider.notifier).getOwnerBalance();
-      }
+        if (ref.read(billingProvider).accountBalance == null) {
+          await ref.read(billingProvider.notifier).getOwnerBalance();
+        }
 
-      ref.read(billingProvider.notifier).getVolumeDiscounts();
-    });
+        await ref.read(billingProvider.notifier).getVolumeDiscounts();
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
-    final ownerEquipmentCount =
-        ref.watch(ownerEquipmentProvider).value?.items.length ?? 0;
-
+    final equipmentItems =
+        ref.watch(ownerEquipmentProvider).value?.items ?? const [];
+    final ownerEquipmentCount = equipmentItems.length;
+    final onlineEquipmentCount = equipmentItems
+        .where((item) => item.isVisible)
+        .length;
     final activeOrders =
         ref.watch(ownerActiveBookingsProvider).value?.count ?? 0;
+    final completedOrders = ownerProfile?.orderCount ?? 0;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -66,22 +73,22 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
             ref.read(ownerRegistrationRequestProvider.notifier).refresh(),
             ref.read(ownerEquipmentProvider.notifier).refresh(),
             ref.read(ownerActiveBookingsProvider.notifier).refresh(),
+            ref.read(billingProvider.notifier).getOwnerBalance(),
+            ref.read(billingProvider.notifier).getVolumeDiscounts(),
           ]);
-          ref.read(billingProvider.notifier).getOwnerBalance();
-          ref.read(billingProvider.notifier).getVolumeDiscounts();
         },
         child: CustomScrollView(
           slivers: [
             // Owner Profile
             SliverAppBar(
-              expandedHeight: 400,
+              expandedHeight: 320,
               pinned: false,
               elevation: 0,
               backgroundColor: const Color.fromARGB(255, 240, 240, 240),
               automaticallyImplyLeading: false,
-              actions: [
+              actions: const [
                 NotificationBadge(color: Colors.white),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: OwnerProfileHeader(ownerProfile: ownerProfile),
@@ -90,28 +97,32 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         Expanded(
                           child: OwnerStatCard(
-                            value: ownerEquipmentCount
-                                .toString(), // wire up from billingProvider
-                            label: l10n.navEquipment,
-                            valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.truck,
+                            title: l10n.navEquipment,
+                            firstLabel: l10n.statTotal,
+                            firstValue: ownerEquipmentCount.toString(),
+                            secondLabel: l10n.statOnline,
+                            secondValue: onlineEquipmentCount.toString(),
+                            onTap: () => context.go(AppRoutes.ownerEquipment),
                           ),
                         ),
-
                         const SizedBox(width: 10),
                         Expanded(
                           child: OwnerStatCard(
-                            value: activeOrders.toString(),
-                            label: l10n.ordersUnit,
-                            valueColor: theme.colorScheme.primary,
                             icon: LucideIcons.package,
+                            title: l10n.navOrders,
+                            firstLabel: l10n.statActive,
+                            firstValue: activeOrders.toString(),
+                            secondLabel: l10n.statCompleted,
+                            secondValue: completedOrders.toString(),
+                            onTap: () => context.go(AppRoutes.ownerBookings),
                           ),
                         ),
                       ],
@@ -124,9 +135,18 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                     const SizedBox(height: 20),
 
                     const OwnerBusinessPreferencesSection(),
+                  ],
+                ),
+              ),
+            ),
 
-                    const SizedBox(height: 20),
+            const SliverToBoxAdapter(child: RentAnEquipmentTile()),
 
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
+                child: Column(
+                  children: [
                     ProkatListTile(
                       icon: LucideIcons.settings,
                       iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
@@ -145,16 +165,12 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                       subtitle: l10n.helpFaqsSubtitle,
                       onTap: () => context.push(AppRoutes.helpSupport),
                     ),
-
-                    const SizedBox(height: 22),
                   ],
                 ),
               ),
             ),
 
-            SliverToBoxAdapter(child: const RentAnEquipmentTile()),
-
-            SliverFillRemaining(
+            const SliverFillRemaining(
               hasScrollBody: false, // Prevents nested inner scrollbars
               fillOverscroll: true,
               child: Padding(
@@ -164,7 +180,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                   left: 16,
                   right: 16,
                 ),
-                child: const LogoutButton(),
+                child: LogoutButton(),
               ),
             ),
           ],

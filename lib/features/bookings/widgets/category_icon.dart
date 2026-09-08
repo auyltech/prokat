@@ -28,9 +28,8 @@ class CategoryIcon extends StatelessWidget {
         color: Colors.black.withValues(alpha: 0.3), // Deep recessed look
         borderRadius: BorderRadius.circular(14), // Matches small item radius
         border: Border.all(
-          color: const Color(
-            0xFF4E73DF,
-          ).withValues(alpha: 0.2), // Faint blue glow
+          color: const Color(0xFF4E73DF)
+              .withValues(alpha: 0.2), // Faint blue glow
           width: 1,
         ),
       ),

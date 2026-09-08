@@ -7,6 +7,7 @@ enum NotificationType {
   offerCancelled,
   offerAccepted,
   offerRejected,
+  offerNotSelected,
   offerExpired,
 
   bookingCreated,
@@ -14,6 +15,7 @@ enum NotificationType {
   bookingRejected,
   bookingConfirmed,
   bookingCancelled,
+  bookingWorkStatus,
   bookingCompleted,
   clientConfirmedCompletion,
 
@@ -68,6 +70,7 @@ extension NotificationTypeX on NotificationType {
     NotificationType.offerCancelled => 'OFFER_CANCELLED',
     NotificationType.offerAccepted => 'OFFER_ACCEPTED',
     NotificationType.offerRejected => 'OFFER_REJECTED',
+    NotificationType.offerNotSelected => 'OFFER_NOT_SELECTED',
     NotificationType.offerExpired => 'OFFER_EXPIRED',
 
     NotificationType.bookingCreated => 'BOOKING_CREATED',
@@ -75,6 +78,7 @@ extension NotificationTypeX on NotificationType {
     NotificationType.bookingRejected => 'BOOKING_REJECTED',
     NotificationType.bookingConfirmed => 'BOOKING_CONFIRMED',
     NotificationType.bookingCancelled => 'BOOKING_CANCELLED',
+    NotificationType.bookingWorkStatus => 'BOOKING_WORK_STATUS',
     NotificationType.bookingCompleted => 'BOOKING_COMPLETED',
     NotificationType.clientConfirmedCompletion => 'CLIENT_CONFIRMED_COMPLETION',
 

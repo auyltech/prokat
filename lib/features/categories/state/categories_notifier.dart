@@ -1,30 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/categories/models/category.dart';
-import 'package:prokat/features/categories/state/category_dependencies.dart';
-import 'package:prokat/features/categories/state/category_service.dart';
 
 class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
   static const staleAfter = Duration(hours: 24);
 
-  CategoryService get api => ref.read(categoryServiceProvider);
-  Future<void>? _refreshing;
-
   @override
   Future<QueryState<Category>> build() async {
-    return _fetch();
+    final catalog = await ref.watch(catalogProvider.future);
+    return _fromCatalog(catalog);
   }
 
-  Future<QueryState<Category>> _fetch() async {
-    final locale = ref.watch(localeProvider);
-
-    final result = await api.getCategories(locale.languageCode.toUpperCase());
-    if (!result.success || result.data == null) {
-      throw Exception(result.message);
-    }
-
-    final items = result.data!;
+  QueryState<Category> _fromCatalog(CatalogBundle catalog) {
+    final items = catalog.userCategories.map(Category.fromCatalog).toList();
     return QueryState(
       items: items,
       page: 1,
@@ -35,50 +25,10 @@ class CategoriesNotifier extends AsyncNotifier<QueryState<Category>> {
   }
 
   Future<void> refresh() {
-    final active = _refreshing;
-
-    if (active != null) return active;
-
-    final operation = _refresh();
-
-    _refreshing = operation;
-
-    return operation.whenComplete(() => _refreshing = null);
+    return ref.read(catalogProvider.notifier).refresh();
   }
 
-  Future<void> _refresh() async {
-    final previous = state.valueOrNull;
-    if (previous == null) {
-      if (state.isLoading) {
-        try {
-          await future;
-          return;
-        } catch (_) {}
-      }
-      state = const AsyncLoading();
-      state = await AsyncValue.guard(_fetch);
-      return;
-    }
-
-    state = AsyncData(previous.copyWith(isRefreshing: true));
-    try {
-      state = AsyncData(await _fetch());
-    } catch (error) {
-      state = AsyncData(previous.withRefreshError(error));
-    }
-  }
-
-  Future<void> refreshIfStale() async {
-    if (state.isLoading) {
-      try {
-        await future;
-      } catch (_) {}
-    }
-
-    final current = state.valueOrNull;
-
-    if (current == null || current.isStaleAfter(staleAfter)) {
-      await refresh();
-    }
+  Future<void> refreshIfStale() {
+    return ref.read(catalogProvider.notifier).refreshIfStale();
   }
 }

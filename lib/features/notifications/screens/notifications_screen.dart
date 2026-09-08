@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -18,9 +20,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(notificationProvider.notifier).loadInitial();
-    });
+    unawaited(
+      Future.microtask(() {
+        unawaited(ref.read(notificationProvider.notifier).loadInitial());
+      }),
+    );
   }
 
   Future<void> _onRefresh() async {
@@ -42,21 +46,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             builder: (context) {
               if (state.isLoading) {
                 return ListView(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   children: [EmptyStateTile(title: l10n.loading)],
                 );
               }
 
               if ((state.error ?? '').isNotEmpty) {
                 return ListView(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   children: [EmptyStateTile(title: state.error ?? l10n.error)],
                 );
               }
 
               if (state.items.isEmpty) {
                 return ListView(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   children: [
                     EmptyStateTile(
                       icon: Icons.notifications_none,
@@ -77,9 +81,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 itemBuilder: (context, index) {
                   if (index >= state.items.length) {
                     if (!state.isLoadingMore) {
-                      Future.microtask(
-                        () =>
-                            ref.read(notificationProvider.notifier).loadMore(),
+                      unawaited(
+                        Future.microtask(
+                          () => ref
+                              .read(notificationProvider.notifier)
+                              .loadMore(),
+                        ),
                       );
                     }
                     return Padding(
@@ -97,10 +104,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   return NotificationTile(
                     notification: item,
                     onTap: () async {
-                      // don't await read
-                      ref
-                          .read(notificationProvider.notifier)
-                          .markAsRead(item.id);
+                      // Fire-and-forget: navigation should not wait for the read.
+                      unawaited(
+                        ref
+                            .read(notificationProvider.notifier)
+                            .markAsRead(item.id),
+                      );
 
                       await ref
                           .read(notificationNavigationServiceProvider)

@@ -3,6 +3,7 @@ import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/services/client_request_metadata_service.dart';
 import 'package:prokat/core/services/installation_identity_service.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
+
 import 'api_client.dart';
 import '../providers/unauthorized_signal_provider.dart';
 

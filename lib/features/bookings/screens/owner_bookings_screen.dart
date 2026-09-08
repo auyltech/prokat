@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
@@ -31,12 +33,14 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
-        ref.read(ownerActiveBookingsProvider.notifier).loadMore();
+        unawaited(ref.read(ownerActiveBookingsProvider.notifier).loadMore());
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ownerActiveBookingsProvider.notifier).refreshIfStale();
+      unawaited(
+        ref.read(ownerActiveBookingsProvider.notifier).refreshIfStale(),
+      );
     });
   }
 
@@ -66,7 +70,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               Padding(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: l10n.errorLoadingOrders,
@@ -80,7 +84,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
             final bookings = query.items;
 
             if (bookingsAsync.isRefreshing) {
-              return OwnerBookingSkeleton();
+              return const OwnerBookingSkeleton();
             }
 
             return ListView(
@@ -89,13 +93,13 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
               children: [
                 if (bookings.isEmpty)
                   Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     child: EmptyStateTile(
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
                       subtitle: l10n.noActiveOrders,
                       actionButton: PrimaryButton(
-                        label: "Refresh",
+                        label: l10n.refresh,
                         isLoading: bookingsAsync.isRefreshing,
                         icon: LucideIcons.refreshCw,
                         onPressed: () async {

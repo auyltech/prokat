@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -52,7 +53,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
@@ -69,7 +70,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
             children: [
               Icon(
                 Icons.assignment_outlined,
-                color: theme.colorScheme.primary,
+                color: theme.colorScheme.onPrimary,
                 size: 22,
               ),
               const SizedBox(width: 6),
@@ -77,11 +78,11 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 l10n.newOrder,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
 
-              Spacer(),
+              const Spacer(),
 
               BookingStatusBadge(status: booking.status),
             ],
@@ -107,21 +108,11 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 if (equipment?.imageUrl != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
-                    child: Image.network(
-                      equipment!.imageUrl!,
+                    child: OptimizedNetworkImage(
+                      imageUrl: equipment!.imageUrl,
                       width: 80,
                       height: 50,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(
-                        width: 54,
-                        height: 40,
-                        color: const Color(0xFFE0E0E0),
-                        child: const Icon(
-                          Icons.image,
-                          size: 20,
-                          color: Colors.grey,
-                        ),
-                      ),
                     ),
                   )
                 else
@@ -175,7 +166,11 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
             InfoTile(
               icon: Icons.location_on_outlined,
               // label: "Location",
-              value: booking.location?.street ?? "",
+              value:
+                  booking.location?.streetLine(
+                    Localizations.localeOf(context).languageCode,
+                  ) ??
+                  "",
               onTap: () => showLocationSheet(context, location),
             ),
             const SizedBox(height: 8),
@@ -192,9 +187,8 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   if (booking.bookedOn == null) return "TBD";
 
                   // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                  final dateStr = DateFormat(
-                    'dd MMM yyyy',
-                  ).format(booking.bookedOn!.toLocal());
+                  final dateStr = DateFormat('dd MMM yyyy')
+                      .format(booking.bookedOn!.toLocal());
 
                   // 3. Return just the date if no time was specified
                   return dateStr;
@@ -225,7 +219,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
               ),
 
-              Spacer(),
+              const Spacer(),
 
               // Cancel Order
               if ([
@@ -239,7 +233,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ref
                         .watch(bookingMutationProvider)
                         .isActionActive("booking:${booking.id}:reject"))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(
@@ -276,7 +270,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 if (ref
                     .watch(bookingMutationProvider)
                     .isActionActive("price:create"))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(
@@ -312,7 +306,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     .isActionActive(
                       "booking:${booking.id}:update:${BookingStatus.confirmed}",
                     ))
-                  SizedBox(
+                  const SizedBox(
                     height: 14,
                     width: 14,
                     child: CircularProgressIndicator(

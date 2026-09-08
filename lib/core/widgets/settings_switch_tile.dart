@@ -44,11 +44,11 @@ class SettingsSwitchTile extends StatelessWidget {
             child: Icon(
               icon,
               size: 32,
-              color: iconColor ?? theme.colorScheme.primary,
+              color: iconColor ?? theme.colorScheme.onPrimary,
             ),
           ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
           Expanded(
             child: Column(
@@ -72,7 +72,7 @@ class SettingsSwitchTile extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
           isLoading == true
               ? const SizedBox.square(

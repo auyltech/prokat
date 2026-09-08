@@ -1,13 +1,34 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import 'api_response.dart';
 
 String? extractBackendCode(dynamic data) {
   if (data is! Map) return null;
 
   final code = data['code'];
-  if (code is! String || code.trim().isEmpty) return null;
-  return code.trim();
+  if (code is String && code.trim().isNotEmpty) {
+    return code.trim();
+  }
+
+  // Backend `fail()` puts the stable code in `error` (e.g. NOT_FOUND:OFFERS:CREATE).
+  final error = data['error'];
+  if (error is String) {
+    final trimmed = error.trim();
+    if (trimmed.isNotEmpty && !trimmed.contains(' ')) {
+      return trimmed;
+    }
+  }
+
+  // Error middleware wraps AppError as `{ error: { code, message, ... } }`.
+  if (error is Map) {
+    final nested = error['code'];
+    if (nested is String && nested.trim().isNotEmpty) {
+      return nested.trim();
+    }
+  }
+
+  return null;
 }
 
 DateTime? parseRetryAfter(String? value, {DateTime? now}) {
@@ -91,6 +112,13 @@ DateTime? extractRetryAt(Response response, {DateTime? now}) {
   return currentTime.add(Duration(seconds: seconds));
 }
 
+int? _extractListCount(dynamic data) {
+  if (data is! Map) return null;
+  final count = data['count'];
+  if (count is num) return count.toInt();
+  return int.tryParse(count?.toString() ?? '');
+}
+
 int? _parsePositiveSeconds(dynamic value) {
   final seconds = value is num
       ? value.toInt()
@@ -155,6 +183,7 @@ String extractDioExceptionMessage(DioException e) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
+    case DioExceptionType.transformTimeout:
       return "Connection timeout";
 
     case DioExceptionType.connectionError:
@@ -207,6 +236,7 @@ ApiResponse<T> handleApiResponse<T>({
       statusCode: statusCode,
       errorCode: errorCode,
       retryAt: retryAt,
+      count: _extractListCount(responseData),
     );
   } catch (error) {
     return ApiResponse.failure(

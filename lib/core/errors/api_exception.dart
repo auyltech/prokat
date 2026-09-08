@@ -78,6 +78,7 @@ class ApiException implements Exception {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
         return ApiException(message: "Connection timeout", data: error);
 
       case DioExceptionType.connectionError:

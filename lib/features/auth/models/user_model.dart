@@ -19,8 +19,10 @@ UserRole? parseUserRole(dynamic value) {
 class UserModel {
   final String? id;
   final String? phoneNumber;
+  final String? username;
   final String? firstName;
   final String? lastName;
+  final String? companyName;
   final int? rating;
   final int? orderCount;
   final UserRole? role;
@@ -29,8 +31,10 @@ class UserModel {
   const UserModel({
     this.id,
     this.phoneNumber,
+    this.username,
     this.firstName,
     this.lastName,
+    this.companyName,
     this.rating,
     this.orderCount,
     this.role,
@@ -39,20 +43,28 @@ class UserModel {
 
   @override
   String toString() {
-    return 'User(firstName: $firstName, lastName: $lastName, phoneNumber: $phoneNumber)';
+    return 'User(firstName: $firstName, lastName: $lastName, username: $username)';
   }
 
+  /// Given name, company name, or username. Phone is never a public label.
   String get displayName {
-    // Check if at least one name field has text
-    if ((firstName != null && firstName!.trim().isNotEmpty) ||
-        (lastName != null && lastName!.trim().isNotEmpty)) {
-      return '${firstName ?? ''} ${lastName ?? ''}'.trim();
+    final first = _publicLabel(firstName);
+    final last = _publicLabel(lastName);
+    if (first != null || last != null) {
+      return [first, last].whereType<String>().join(' ');
     }
 
-    // Fallback to phone, or "User" if phone is also missing
-    return (phoneNumber != null && phoneNumber!.trim().isNotEmpty)
-        ? phoneNumber!.trim()
-        : "User";
+    return _publicLabel(companyName) ?? _publicLabel(username) ?? '';
+  }
+
+  String displayNameOr(String fallback) {
+    final name = displayName;
+    return name.isEmpty ? fallback : name;
+  }
+
+  static String? _publicLabel(String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   bool get isOwner {
@@ -65,6 +77,8 @@ class UserModel {
         id: json['id']?.toString(),
         firstName: json['firstName']?.toString(),
         lastName: json['lastName']?.toString(),
+        username: json['username']?.toString(),
+        companyName: json['companyName']?.toString(),
         phoneNumber: json['phoneNumber']?.toString(),
         rating: parseNullableInt(json['rating'] ?? json['ratingAverage']),
         orderCount: parseNullableInt(json['orderCount']),
@@ -80,8 +94,10 @@ class UserModel {
     return {
       'id': id,
       'phoneNumber': phoneNumber,
+      'username': username,
       'firstName': firstName,
       'lastName': lastName,
+      'companyName': companyName,
       'role': role?.name.toUpperCase(),
       'imageUrl': imageUrl,
       'ratingAverage': rating,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -16,6 +18,7 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -34,8 +37,19 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(locationProvider.notifier).getClientLocations();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final address = await ref
+          .read(locationProvider.notifier)
+          .ensureSelectedClientAddress(
+            preferredId: ref
+                .read(clientProfileProvider)
+                .userProfile
+                ?.selectedAddressId,
+          );
+      if (!mounted) return;
+      if (address != null) {
+        ref.read(bookingMutationProvider.notifier).selectLocation(address);
+      }
     });
   }
 
@@ -73,7 +87,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     );
 
     if (result.success && mounted) {
-      context.push(AppRoutes.clientOrders);
+      unawaited(context.push(AppRoutes.clientOrders));
     }
   }
 
@@ -102,8 +116,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final equipment = bookingState.selectedEquipment;
 
-    final notifier = ref.read(favoritesProvider.notifier);
-    final bool isFavorite = notifier.isFavorite(equipment?.id ?? '');
+    final bool isFavorite =
+        ref.watch(
+          favoritesProvider.select(
+            (s) => s.favoritesIds?.contains(equipment?.id),
+          ),
+        ) ??
+        false;
 
     final priceEntries = equipment?.prices;
 
@@ -145,7 +164,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                 EquipmentImageHeader(imageUrl: displayUrl),
 
                 Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -186,7 +205,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           GestureDetector(
                             onTap: isClient
                                 ? () async {
-                                    ref
+                                    await ref
                                         .read(favoritesProvider.notifier)
                                         .toggleFavorite(equipment.id);
                                   }
@@ -214,7 +233,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       /// Pricing
                       SectionTitle(
                         title: l10n.servicePlan,
-                        trailing: isPriceEntrySelected ? null : "* Required",
+                        trailing: isPriceEntrySelected
+                            ? null
+                            : l10n.requiredHint,
                       ),
 
                       const SizedBox(height: 12),
@@ -256,10 +277,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 ),
                               ),
                               child: Text(
-                                "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate)}",
+                                "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate, l10n: l10n)}",
                                 style: theme.textTheme.labelLarge?.copyWith(
                                   color: isSelected
-                                      ? theme.colorScheme.onPrimary
+                                      ? Colors.white
                                       : theme.colorScheme.onSurface.withValues(
                                           alpha: 0.7,
                                         ),
@@ -278,7 +299,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       SectionTitle(
                         title: l10n.address,
                         trailing: bookingState.selectedLocation == null
-                            ? "* Required"
+                            ? l10n.requiredHint
                             : null,
                       ),
 
@@ -304,7 +325,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       SectionTitle(
                         title: l10n.selectDate,
                         trailing: bookingState.selectedDate == null
-                            ? "* Required"
+                            ? l10n.requiredHint
                             : null,
                       ),
 
@@ -320,7 +341,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       SectionTitle(
                         title: l10n.selectTime,
                         trailing: bookingState.selectedTime == null
-                            ? "* Required"
+                            ? l10n.requiredHint
                             : null,
                       ),
 
@@ -331,6 +352,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         startHour: 9, // Start at 09:00
                         endHour: 17, // End at 17:00
                         isRequired: true,
+                        referenceDate: bookingState.selectedDate,
                         selectedDateTime: bookingState.selectedTime,
                         onTimeSelected: (updatedDateTime) {
                           bookingNotifier.setTime(

@@ -31,39 +31,46 @@ class _ClientSupportChatState extends ConsumerState<ClientSupportChat> {
     final currentUserId = authState.session?.user?.id ?? "";
     final resolvedChat = ref.watch(chatResolverProvider(_lookup));
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: resolvedChat.when(
-          loading: () => _center(const CircularProgressIndicator.adaptive()),
-          error: (error, _) => _center(Text(error.toString())),
-          data: (resolved) {
-            return Column(
-              children: [
-                Text(resolvedChat.valueOrNull?.type.name ?? ""),
-                Expanded(
-                  child: ChatMessageList(
-                    chatId: resolved.id,
-                    currentUserId: currentUserId,
-                    mode: AppMode.clientMode,
-                    currentChat: ref
-                        .watch(currentChatProvider(resolved.id))
-                        .valueOrNull,
-                  ),
-                ),
-              ],
-            );
-          },
+    return Theme(
+      data: theme.copyWith(
+        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+          backgroundColor: theme.colorScheme.surface,
         ),
       ),
-      bottomNavigationBar: resolvedChat.maybeWhen(
-        data: (chat) => SendMessageForm(
-          chatId: chat.id,
-          chatStatus: ChatStatusDetail.unknown,
-          type: chat.type,
-          mode: AppMode.clientMode,
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: SafeArea(
+          child: resolvedChat.when(
+            loading: () => _center(const CircularProgressIndicator.adaptive()),
+            error: (error, _) => _center(Text(error.toString())),
+            data: (resolved) {
+              return Column(
+                children: [
+                  Text(resolvedChat.valueOrNull?.type.name ?? ""),
+                  Expanded(
+                    child: ChatMessageList(
+                      chatId: resolved.id,
+                      currentUserId: currentUserId,
+                      mode: AppMode.clientMode,
+                      currentChat: ref
+                          .watch(currentChatProvider(resolved.id))
+                          .valueOrNull,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
-        orElse: () => const SizedBox.shrink(),
+        bottomNavigationBar: resolvedChat.maybeWhen(
+          data: (chat) => SendMessageForm(
+            chatId: chat.id,
+            chatStatus: ChatStatusDetail.unknown,
+            type: chat.type,
+            mode: AppMode.clientMode,
+          ),
+          orElse: () => const SizedBox.shrink(),
+        ),
       ),
     );
   }

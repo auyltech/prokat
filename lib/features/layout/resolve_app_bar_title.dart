@@ -12,7 +12,7 @@ String resolveAppBarTitle(
   // Legal
   if (path == AppRoutes.privacyPolicy) return l10n.privacyPolicy;
   if (path == AppRoutes.userAgreement) return l10n.userAgreement;
-  if (path == AppRoutes.personalDataConsent) return "Data Processing";
+  if (path == AppRoutes.personalDataConsent) return l10n.dataProcessingTitle;
 
   // Exact Client Route Matches
   // Search Equipment Screen
@@ -46,7 +46,6 @@ String resolveAppBarTitle(
 
   if (path == AppRoutes.searchMap) return l10n.mapSearch;
 
-  if (path == AppRoutes.clientAddresses) return l10n.myAddresses;
   if (path == AppRoutes.clientPinAddress) return l10n.selectAddress;
   if (path == AppRoutes.clientCreateAddress) return l10n.addAddress;
 
@@ -71,7 +70,7 @@ String resolveAppBarTitle(
     if (path == AppRoutes.ownerProfile) return l10n.myProfile;
     if (path == AppRoutes.ownerSettings) return l10n.navSettings;
 
-    if (path == AppRoutes.ownerRegistration) return l10n.registration;
+    if (path == AppRoutes.ownerRegistration) return l10n.businessProfile;
 
     if (path == AppRoutes.ownerEquipment) return l10n.myEquipment;
     if (path == AppRoutes.ownerEquipmentCreate) return l10n.addEquipment;

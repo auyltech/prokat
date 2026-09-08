@@ -7,8 +7,6 @@ Equipment _equipment(String id) {
     id: id,
     name: id,
     model: 'model',
-    capacity: '1',
-    capacityUnit: 'unit',
     status: EquipmentStatus.available,
     isVisible: true,
     prices: const [],

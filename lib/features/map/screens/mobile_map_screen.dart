@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +32,7 @@ class MobileMapScreen extends ConsumerStatefulWidget {
 class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
   MapboxMap? _map;
   geo.Position? _userPosition;
-  CameraOptions? _initialCamera;
+  CameraViewportState? _initialViewport;
   PointAnnotationManager? _annotationManager;
 
   double _zoom = 14;
@@ -44,7 +46,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
 
     MapboxConfig.ensureInitialized();
 
-    _loadLocation();
+    unawaited(_loadLocation());
   }
 
   // -----------------------------
@@ -68,7 +70,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
 
     _userPosition = pos;
 
-    _initialCamera = CameraOptions(
+    _initialViewport = CameraViewportState(
       center: Point(coordinates: Position(pos.longitude, pos.latitude)),
       zoom: _zoom,
     );
@@ -83,8 +85,10 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
   void _onMapCreated(MapboxMap mapboxMap) {
     _map = mapboxMap;
 
-    _map!.location.updateSettings(
-      LocationComponentSettings(enabled: true, pulsingEnabled: true),
+    unawaited(
+      _map!.location.updateSettings(
+        LocationComponentSettings(enabled: true, pulsingEnabled: true),
+      ),
     );
   }
 
@@ -204,15 +208,17 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
   void _moveToUserOnce() {
     if (_map == null || _userPosition == null) return;
 
-    _map!.setCamera(
-      CameraOptions(
-        center: Point(
-          coordinates: Position(
-            _userPosition!.longitude,
-            _userPosition!.latitude,
+    unawaited(
+      _map!.setCamera(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(
+              _userPosition!.longitude,
+              _userPosition!.latitude,
+            ),
           ),
+          zoom: _zoom,
         ),
-        zoom: _zoom,
       ),
     );
   }
@@ -223,7 +229,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
     final state = await _map!.getCameraState();
     _zoom = newZoom;
 
-    _map!.flyTo(
+    await _map!.flyTo(
       CameraOptions(
         center: state.center,
         zoom: _zoom,
@@ -240,7 +246,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_initialCamera == null) {
+    if (_initialViewport == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -250,7 +256,7 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
           MapWidget(
             key: const ValueKey('map'),
             styleUri: MapboxStyles.MAPBOX_STREETS,
-            cameraOptions: _initialCamera,
+            viewport: _initialViewport,
             onMapCreated: _onMapCreated,
             onStyleLoadedListener: _onStyleLoaded,
             onCameraChangeListener: _onCameraChanged,

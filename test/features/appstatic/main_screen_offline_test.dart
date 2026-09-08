@@ -6,6 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
+import 'package:prokat/features/catalog/catalog_cache.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class _RecoveringApiClient implements ApiClient {
@@ -20,13 +23,40 @@ class _RecoveringApiClient implements ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
+          if (!isOnline) {
+            handler.resolve(
+              Response<dynamic>(
+                requestOptions: options,
+                statusCode: 503,
+                data: const {'message': 'Backend unavailable'},
+              ),
+            );
+            return;
+          }
+
+          final path = options.path;
+          final Object data;
+          if (path.contains('/catalog')) {
+            data = {
+              'data': {
+                'version': 'online',
+                'cities': <Map<String, dynamic>>[],
+                'categories': <Map<String, dynamic>>[],
+                'units': <Map<String, dynamic>>[],
+                'specs': <Map<String, dynamic>>[],
+                'specOptions': <Map<String, dynamic>>[],
+                'categorySpecs': <Map<String, dynamic>>[],
+              },
+            };
+          } else {
+            data = const {'success': true, 'data': <dynamic>[]};
+          }
+
           handler.resolve(
             Response<dynamic>(
               requestOptions: options,
-              statusCode: isOnline ? 200 : 503,
-              data: isOnline
-                  ? const {'success': true, 'data': <dynamic>[]}
-                  : const {'message': 'Backend unavailable'},
+              statusCode: 200,
+              data: data,
             ),
           );
         },
@@ -38,6 +68,26 @@ class _RecoveringApiClient implements ApiClient {
 
   @override
   Dio dio;
+}
+
+class _EmptyCatalogCache extends CatalogCache {
+  @override
+  Future<CatalogCacheEntry?> readDisk() async => null;
+
+  @override
+  Future<CatalogBundle> readAsset() async {
+    throw const FormatException('No bundled catalog in offline test');
+  }
+
+  @override
+  Future<void> write(CatalogBundle bundle, {DateTime? fetchedAt}) async {}
+}
+
+Future<void> _pumpUntilSettled(WidgetTester tester) async {
+  // Shimmer skeletons animate forever, so avoid pumpAndSettle.
+  for (var i = 0; i < 20; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
 }
 
 void main() {
@@ -53,7 +103,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(apiClient)],
+        overrides: [
+          apiClientProvider.overrideWithValue(apiClient),
+          catalogCacheProvider.overrideWithValue(_EmptyCatalogCache()),
+        ],
         child: const MaterialApp(
           locale: Locale('en'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -63,7 +116,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await _pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
     expect(find.text("Couldn't load equipment"), findsOneWidget);
@@ -72,7 +125,7 @@ void main() {
 
     apiClient.isOnline = true;
     await tester.tap(find.text('Retry Now'));
-    await tester.pumpAndSettle();
+    await _pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
     expect(find.text('Retry Now'), findsNothing);

@@ -1,7 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/features/auth/models/auth_session.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
+import 'package:prokat/features/notifications/services/push_notification_service.dart';
+import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/features/user/state/client_profile_service.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class LanguageSheet extends ConsumerStatefulWidget {
   const LanguageSheet({super.key});
@@ -10,25 +19,70 @@ class LanguageSheet extends ConsumerStatefulWidget {
   ConsumerState<LanguageSheet> createState() => LanguageSheetState();
 
   static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled:
-          true, // Allows sheet to wrap its content height dynamically
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled:
+            true, // Allows sheet to wrap its content height dynamically
+        backgroundColor: Theme.of(context).cardColor,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (sheetContext) {
+          return const LanguageSheet();
+        },
       ),
-      builder: (sheetContext) {
-        return const LanguageSheet();
-      },
     );
   }
 }
 
 class LanguageSheetState extends ConsumerState<LanguageSheet> {
   void _selectLocale(String langCode) {
-    ref.read(localeProvider.notifier).setLocale(Locale(langCode));
+    // Capture providers before closing the sheet. After pop the widget is
+    // disposed and `ref` must not be used (locale persist + API sync are async).
+    final localeNotifier = ref.read(localeProvider.notifier);
+    final session = ref.read(authProvider).session;
+    final profileService = ref.read(clientProfileServiceProvider);
+    final pushService = Env.pushNotificationsEnabled
+        ? ref.read(pushNotificationServiceProvider)
+        : null;
+
     Navigator.pop(context);
+    unawaited(
+      _persistLocale(
+        langCode: langCode,
+        localeNotifier: localeNotifier,
+        session: session,
+        profileService: profileService,
+        pushService: pushService,
+      ),
+    );
+  }
+
+  static Future<void> _persistLocale({
+    required String langCode,
+    required LocaleNotifier localeNotifier,
+    required AuthSession? session,
+    required ClientProfileService profileService,
+    required PushNotificationService? pushService,
+  }) async {
+    await localeNotifier.setLocale(Locale(langCode));
+
+    if (session == null) return;
+
+    try {
+      await profileService.updateUserSettings(language: langCode);
+    } catch (_) {}
+
+    if (pushService == null) return;
+
+    try {
+      await pushService.syncCurrentDevice(
+        session: session,
+        locale: langCode,
+        force: true,
+      );
+    } catch (_) {}
   }
 
   @override

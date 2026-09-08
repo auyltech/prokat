@@ -112,6 +112,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 offer} other{{count} offers}}'**
   String offerCount(int count);
 
+  /// No description provided for @offersReceivedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Received 1 offer} other{Received {count} offers}}'**
+  String offersReceivedCount(int count);
+
   /// No description provided for @activeRequestAlreadyExists.
   ///
   /// In en, this message translates to:
@@ -220,6 +226,12 @@ abstract class AppLocalizations {
   /// **'Offer Created'**
   String get offerCreated;
 
+  /// No description provided for @offerCreateRequestNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not found or already deleted'**
+  String get offerCreateRequestNotFound;
+
   /// No description provided for @offerReceived.
   ///
   /// In en, this message translates to:
@@ -255,6 +267,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting Client Confirmation'**
   String get waitingClientConfirmation;
+
+  /// No description provided for @waitingForClientConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting confirmation'**
+  String get waitingForClientConfirm;
 
   /// No description provided for @confirmWorkCompleted.
   ///
@@ -466,6 +484,24 @@ abstract class AppLocalizations {
   /// **'Enter a valid email'**
   String get invalidEmail;
 
+  /// No description provided for @emailAddressRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address *'**
+  String get emailAddressRequiredLabel;
+
+  /// No description provided for @phoneNumberRequiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number *'**
+  String get phoneNumberRequiredLabel;
+
+  /// No description provided for @inquiryTopicValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select an inquiry topic'**
+  String get inquiryTopicValidation;
+
   /// No description provided for @inquiryDetails.
   ///
   /// In en, this message translates to:
@@ -477,6 +513,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inquiry Topic *'**
   String get inquiryTopicRequiredLabel;
+
+  /// No description provided for @selectInquiryTopic.
+  ///
+  /// In en, this message translates to:
+  /// **'Select inquiry topic'**
+  String get selectInquiryTopic;
+
+  /// No description provided for @inquiryTopicGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get inquiryTopicGeneral;
+
+  /// No description provided for @inquiryTopicSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get inquiryTopicSupport;
+
+  /// No description provided for @inquiryTopicBugReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug report'**
+  String get inquiryTopicBugReport;
+
+  /// No description provided for @inquiryTopicFeatureRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature request'**
+  String get inquiryTopicFeatureRequest;
+
+  /// No description provided for @inquiryTopicSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get inquiryTopicSales;
+
+  /// No description provided for @inquiryTopicPartnership.
+  ///
+  /// In en, this message translates to:
+  /// **'Partnership'**
+  String get inquiryTopicPartnership;
+
+  /// No description provided for @inquiryTopicBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get inquiryTopicBilling;
+
+  /// No description provided for @inquiryTopicCallMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Call me'**
+  String get inquiryTopicCallMe;
+
+  /// No description provided for @inquiryTopicAccountDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion'**
+  String get inquiryTopicAccountDeletion;
+
+  /// No description provided for @inquiryTopicAccountRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Account recovery'**
+  String get inquiryTopicAccountRecovery;
+
+  /// No description provided for @inquiryTopicAccountIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Account issue'**
+  String get inquiryTopicAccountIssue;
+
+  /// No description provided for @inquiryTopicOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get inquiryTopicOther;
 
   /// No description provided for @yourMessageRequiredLabel.
   ///
@@ -928,6 +1042,12 @@ abstract class AppLocalizations {
   /// **'Request Accepted'**
   String get requestAccepted;
 
+  /// No description provided for @offerNotSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Another owner was selected'**
+  String get offerNotSelected;
+
   /// No description provided for @requestRejected.
   ///
   /// In en, this message translates to:
@@ -1102,6 +1222,42 @@ abstract class AppLocalizations {
   /// **'No notifications yet'**
   String get noNotificationsYet;
 
+  /// No description provided for @notificationOwnerApprovedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner registration approved'**
+  String get notificationOwnerApprovedTitle;
+
+  /// No description provided for @notificationOwnerApprovedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your owner registration has been approved.'**
+  String get notificationOwnerApprovedBody;
+
+  /// No description provided for @notificationOwnerRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner registration rejected'**
+  String get notificationOwnerRejectedTitle;
+
+  /// No description provided for @notificationOwnerRejectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your owner registration has been rejected.'**
+  String get notificationOwnerRejectedBody;
+
+  /// No description provided for @notificationBookingCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking completed'**
+  String get notificationBookingCompletedTitle;
+
+  /// No description provided for @notificationBookingCompletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your booking was marked as completed.'**
+  String get notificationBookingCompletedBody;
+
   /// No description provided for @errorLoadingEquipment.
   ///
   /// In en, this message translates to:
@@ -1125,6 +1281,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not supported yet'**
   String get notSupportedYet;
+
+  /// No description provided for @paymentFeatureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment and balance top-up is currently in development and will be added soon.'**
+  String get paymentFeatureComingSoon;
+
+  /// No description provided for @transactionGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get transactionGift;
 
   /// No description provided for @errorLoadingProfile.
   ///
@@ -1185,6 +1353,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price Offer'**
   String get priceOffer;
+
+  /// No description provided for @priceOfferStatusCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get priceOfferStatusCreated;
+
+  /// No description provided for @priceOfferStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get priceOfferStatusCancelled;
 
   /// No description provided for @offeredPrice.
   ///
@@ -1372,6 +1552,12 @@ abstract class AppLocalizations {
   /// **'Available'**
   String get available;
 
+  /// No description provided for @booked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get booked;
+
   /// No description provided for @perDay.
   ///
   /// In en, this message translates to:
@@ -1432,11 +1618,23 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get retry;
 
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
   /// No description provided for @close.
   ///
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
 
   /// No description provided for @send.
   ///
@@ -1563,6 +1761,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Street'**
   String get street;
+
+  /// No description provided for @houseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'No.'**
+  String get houseNumber;
 
   /// No description provided for @address.
   ///
@@ -2152,6 +2356,12 @@ abstract class AppLocalizations {
   /// **'Yes, Reject'**
   String get yesReject;
 
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
   /// No description provided for @no.
   ///
   /// In en, this message translates to:
@@ -2170,11 +2380,29 @@ abstract class AppLocalizations {
   /// **'{minutes} min left'**
   String minutesLeft(int minutes);
 
+  /// No description provided for @hoursLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h left'**
+  String hoursLeft(int hours);
+
   /// No description provided for @volume.
   ///
   /// In en, this message translates to:
   /// **'Volume'**
   String get volume;
+
+  /// No description provided for @specFilterFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get specFilterFrom;
+
+  /// No description provided for @specFilterTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get specFilterTo;
 
   /// No description provided for @noOrderHistory.
   ///
@@ -2265,6 +2493,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop work'**
   String get workStatusStopWork;
+
+  /// No description provided for @workStatusResumeWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume work'**
+  String get workStatusResumeWork;
 
   /// No description provided for @workStatusCompleteWork.
   ///
@@ -2602,6 +2836,12 @@ abstract class AppLocalizations {
   /// **'You don\'t have any active requests'**
   String get noActiveRequests;
 
+  /// No description provided for @ownerEmptyRequestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'See current client requests here'**
+  String get ownerEmptyRequestsHint;
+
   /// No description provided for @createNewRequest.
   ///
   /// In en, this message translates to:
@@ -2629,7 +2869,7 @@ abstract class AppLocalizations {
   /// No description provided for @additionalDetails.
   ///
   /// In en, this message translates to:
-  /// **'Additional details...'**
+  /// **'describe the job or important details'**
   String get additionalDetails;
 
   /// No description provided for @newRequestBadge.
@@ -2661,6 +2901,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No Chats'**
   String get noChats;
+
+  /// No description provided for @chatsActiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get chatsActiveTab;
+
+  /// No description provided for @chatsArchiveTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get chatsArchiveTab;
+
+  /// No description provided for @noArchivedChats.
+  ///
+  /// In en, this message translates to:
+  /// **'No archived chats'**
+  String get noArchivedChats;
+
+  /// No description provided for @youHaveNoArchivedChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed and cancelled chats will appear here.'**
+  String get youHaveNoArchivedChats;
 
   /// No description provided for @deliverTo.
   ///
@@ -2715,6 +2979,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to save address'**
   String get failedSaveAddress;
+
+  /// No description provided for @deleteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete address'**
+  String get deleteAddress;
+
+  /// No description provided for @deleteAddressQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this address?'**
+  String get deleteAddressQuestion;
+
+  /// No description provided for @deleteAddressConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'This address will be removed from your saved list.'**
+  String get deleteAddressConfirmation;
+
+  /// No description provided for @failedToDeleteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete address'**
+  String get failedToDeleteAddress;
 
   /// No description provided for @noEquipmentLocations.
   ///
@@ -3046,6 +3334,42 @@ abstract class AppLocalizations {
   /// **'Information'**
   String get information;
 
+  /// No description provided for @generalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'General information'**
+  String get generalInformation;
+
+  /// No description provided for @registrationData.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration details'**
+  String get registrationData;
+
+  /// No description provided for @saveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all'**
+  String get saveAll;
+
+  /// No description provided for @expandAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand all'**
+  String get expandAll;
+
+  /// No description provided for @collapseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse all'**
+  String get collapseAll;
+
+  /// No description provided for @ownerCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Part load possible, access notes…'**
+  String get ownerCommentHint;
+
   /// No description provided for @prices.
   ///
   /// In en, this message translates to:
@@ -3285,6 +3609,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Time'**
   String get selectTime;
+
+  /// No description provided for @requiredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'* Required'**
+  String get requiredHint;
 
   /// No description provided for @requestCreated.
   ///
@@ -3724,6 +4054,36 @@ abstract class AppLocalizations {
   /// **'Please update your documents and try again.'**
   String get updateDocumentsHint;
 
+  /// No description provided for @ownerProfileSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile suspended'**
+  String get ownerProfileSuspended;
+
+  /// No description provided for @ownerProfileSuspendedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing equipment is temporarily unavailable. Contact support.'**
+  String get ownerProfileSuspendedHint;
+
+  /// No description provided for @ownerProfilePendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get ownerProfilePendingReview;
+
+  /// No description provided for @ownerProfilePendingReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your updated details will be checked by an administrator.'**
+  String get ownerProfilePendingReviewHint;
+
+  /// No description provided for @profileUpdateNeedsModeration.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details will be sent for moderation'**
+  String get profileUpdateNeedsModeration;
+
   /// No description provided for @submitForVerification.
   ///
   /// In en, this message translates to:
@@ -3807,6 +4167,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Phone number is required'**
   String get phoneNumberRequired;
+
+  /// No description provided for @ownerContactPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins and clients will see this number. It should be reachable by phone.'**
+  String get ownerContactPhoneHint;
 
   /// No description provided for @cityRequired.
   ///
@@ -4057,7 +4423,7 @@ abstract class AppLocalizations {
   /// No description provided for @minutesUnit.
   ///
   /// In en, this message translates to:
-  /// **'Min'**
+  /// **'min'**
   String get minutesUnit;
 
   /// No description provided for @burnRate.
@@ -4065,6 +4431,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Burn Rate'**
   String get burnRate;
+
+  /// No description provided for @burnRateValue.
+  ///
+  /// In en, this message translates to:
+  /// **'~{rate} min/hr'**
+  String burnRateValue(int rate);
+
+  /// No description provided for @noActiveDepletion.
+  ///
+  /// In en, this message translates to:
+  /// **'No active depletion'**
+  String get noActiveDepletion;
+
+  /// No description provided for @zeroBalanceHiddenFromSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'With 0 paid minutes your equipment is hidden from customer search. Top up to appear in results again.'**
+  String get zeroBalanceHiddenFromSearch;
+
+  /// No description provided for @equipmentOnlineCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} equipment online} other{{count} equipment online}}'**
+  String equipmentOnlineCount(int count);
+
+  /// No description provided for @statTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'total'**
+  String get statTotal;
+
+  /// No description provided for @statOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'online'**
+  String get statOnline;
+
+  /// No description provided for @statActive.
+  ///
+  /// In en, this message translates to:
+  /// **'active'**
+  String get statActive;
+
+  /// No description provided for @statCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'completed'**
+  String get statCompleted;
 
   /// No description provided for @hello.
   ///
@@ -4720,11 +5134,23 @@ abstract class AppLocalizations {
   /// **'Canceled'**
   String get statusCanceled;
 
+  /// No description provided for @statusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get statusFailed;
+
   /// No description provided for @statusCompleted.
   ///
   /// In en, this message translates to:
   /// **'Completed'**
   String get statusCompleted;
+
+  /// No description provided for @statusReviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed'**
+  String get statusReviewed;
 
   /// No description provided for @statusRequestSent.
   ///
@@ -4755,6 +5181,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown Renter'**
   String get unknownRenter;
+
+  /// No description provided for @nameNotSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Name not specified'**
+  String get nameNotSpecified;
 
   /// No description provided for @pendingDate.
   ///
@@ -5397,6 +5829,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select your city'**
   String get pleaseSelectYourCity;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get fieldRequired;
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String minutesAgo(int count);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String hoursAgo(int count);
+
+  /// No description provided for @durationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String durationDays(int count);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hr} other{{count} hrs}}'**
+  String durationHours(int count);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 min} other{{count} min}}'**
+  String durationMinutes(int count);
+
+  /// No description provided for @durationSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 sec} other{{count} sec}}'**
+  String durationSeconds(int count);
+
+  /// No description provided for @invalidSecondsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid seconds value'**
+  String get invalidSecondsValue;
+
+  /// No description provided for @newOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'New Offer'**
+  String get newOffer;
+
+  /// No description provided for @offerStatusViewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewed'**
+  String get offerStatusViewed;
+
+  /// No description provided for @offerStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get offerStatusCancelled;
+
+  /// No description provided for @offerStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get offerStatusAccepted;
+
+  /// No description provided for @offerStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get offerStatusRejected;
+
+  /// No description provided for @offerStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get offerStatusExpired;
+
+  /// No description provided for @offerStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get offerStatusClosed;
+
+  /// No description provided for @dataProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Processing'**
+  String get dataProcessingTitle;
+
+  /// No description provided for @pleaseCompleteRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in the required information before submitting for review'**
+  String get pleaseCompleteRequiredFields;
+
+  /// No description provided for @equipmentSubmitPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).'**
+  String get equipmentSubmitPhotoHint;
+
+  /// No description provided for @youAreOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are online'**
+  String get youAreOnline;
+
+  /// No description provided for @youAreOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get youAreOffline;
+
+  /// No description provided for @readyToAcceptOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to accept orders'**
+  String get readyToAcceptOrders;
+
+  /// No description provided for @notAcceptingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepting orders'**
+  String get notAcceptingOrders;
+
+  /// No description provided for @youAreNowOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are now online'**
+  String get youAreNowOnline;
+
+  /// No description provided for @youAreNowOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are now offline'**
+  String get youAreNowOffline;
+
+  /// No description provided for @failedToggleStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update status'**
+  String get failedToggleStatus;
+
+  /// No description provided for @cannotGoOnlineWithZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot go online with a zero balance'**
+  String get cannotGoOnlineWithZeroBalance;
+
+  /// No description provided for @cannotGoOnlineWithoutOnlineEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish at least one equipment unit online first'**
+  String get cannotGoOnlineWithoutOnlineEquipment;
+
+  /// No description provided for @cannotRespondWithZeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot respond to requests with a zero balance'**
+  String get cannotRespondWithZeroBalance;
+
+  /// No description provided for @countryKazakhstan.
+  ///
+  /// In en, this message translates to:
+  /// **'Kazakhstan'**
+  String get countryKazakhstan;
+
+  /// No description provided for @modelStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get modelStandard;
+
+  /// No description provided for @modelHeavyDuty.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Duty'**
+  String get modelHeavyDuty;
+
+  /// No description provided for @modelIndustrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Industrial'**
+  String get modelIndustrial;
+
+  /// No description provided for @capacityKub.
+  ///
+  /// In en, this message translates to:
+  /// **'{capacity} m³'**
+  String capacityKub(String capacity);
+
+  /// No description provided for @unitMeters.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get unitMeters;
+
+  /// No description provided for @hoseLengthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'15 m hose'**
+  String get hoseLengthHint;
+
+  /// No description provided for @priceKztHint.
+  ///
+  /// In en, this message translates to:
+  /// **'10,000 ₸'**
+  String get priceKztHint;
+
+  /// No description provided for @ownerType.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner type'**
+  String get ownerType;
+
+  /// No description provided for @companyInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Company information'**
+  String get companyInformation;
+
+  /// No description provided for @companyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Company name'**
+  String get companyName;
+
+  /// No description provided for @enterCompanyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter company name'**
+  String get enterCompanyName;
+
+  /// No description provided for @legalEntityName.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal entity name'**
+  String get legalEntityName;
+
+  /// No description provided for @legalEntityNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As written in official documents'**
+  String get legalEntityNameHint;
+
+  /// No description provided for @personalContactDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal contact details'**
+  String get personalContactDetails;
+
+  /// No description provided for @enterFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter first name'**
+  String get enterFirstName;
+
+  /// No description provided for @enterLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter last name'**
+  String get enterLastName;
+
+  /// No description provided for @enterValidPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get enterValidPhoneNumber;
+
+  /// No description provided for @serviceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Service details'**
+  String get serviceDetails;
+
+  /// No description provided for @serviceDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the goods, rentals or machinery you provide...'**
+  String get serviceDetailsHint;
+
+  /// No description provided for @updateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Update profile'**
+  String get updateProfile;
+
+  /// No description provided for @profileUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdatedSuccessfully;
+
+  /// No description provided for @failedToUpdateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile'**
+  String get failedToUpdateProfile;
+
+  /// No description provided for @ordersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} order} other{{count} orders}}'**
+  String ordersCount(int count);
+
+  /// No description provided for @ratePerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Per trip'**
+  String get ratePerTrip;
+
+  /// No description provided for @ratePerCubicMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'Per cubic meter'**
+  String get ratePerCubicMeter;
+
+  /// No description provided for @ratePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Per day'**
+  String get ratePerDay;
+
+  /// No description provided for @ratePerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Per hour'**
+  String get ratePerHour;
 
   /// No description provided for @connectionTimedOut.
   ///

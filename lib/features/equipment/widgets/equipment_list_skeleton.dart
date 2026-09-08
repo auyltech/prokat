@@ -13,11 +13,11 @@ class EquipmentListSkeleton extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 0),
-      itemCount: 3, // Shows a realistic number of large cards
+      itemCount: 3,
       separatorBuilder: (_, _) => const SizedBox(height: 16),
       itemBuilder: (context, index) => Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
+        baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+        highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
         child: SingleEquipmentCardSkeleton(height: height),
       ),
     );

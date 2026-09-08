@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class EquipmentBrowseSheet extends StatelessWidget {
+class EquipmentBrowseSheet extends ConsumerWidget {
   const EquipmentBrowseSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     const bgColor = Color(0xFF121417);
     const accentColor = Color(0xFF4E73DF);
@@ -79,9 +81,9 @@ class EquipmentBrowseSheet extends StatelessWidget {
                                 letterSpacing: 1,
                               ),
                             ),
-                            const Text(
-                              "Atyrau, Kazakhstan",
-                              style: TextStyle(
+                            Text(
+                              '${catalogCityLabelOf(ref, context, 'Atyrau')}, ${l10n.countryKazakhstan}',
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -112,18 +114,18 @@ class EquipmentBrowseSheet extends StatelessWidget {
                         children: [
                           _ModelOptionCard(
                             icon: Icons.local_shipping,
-                            capacity: "10 Kub",
-                            model: "Standard",
+                            capacity: l10n.capacityKub('10'),
+                            model: l10n.modelStandard,
                           ),
                           _ModelOptionCard(
                             icon: Icons.fire_truck,
-                            capacity: "15 Kub",
-                            model: "Heavy Duty",
+                            capacity: l10n.capacityKub('15'),
+                            model: l10n.modelHeavyDuty,
                           ),
                           _ModelOptionCard(
                             icon: Icons.chair,
-                            capacity: "20 Kub",
-                            model: "Industrial",
+                            capacity: l10n.capacityKub('20'),
+                            model: l10n.modelIndustrial,
                           ),
                         ],
                       ),

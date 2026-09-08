@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/app_colors.dart';
@@ -28,9 +30,11 @@ class _OwnerEquipmentListScreenState
 
     WidgetsBinding.instance.addObserver(this);
 
-    Future.microtask(() {
-      ref.read(ownerEquipmentProvider.notifier).refreshIfStale();
-    });
+    unawaited(
+      Future.microtask(() {
+        unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
+      }),
+    );
   }
 
   @override
@@ -58,8 +62,8 @@ class _OwnerEquipmentListScreenState
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) => Shimmer.fromColors(
-                  baseColor: Colors.grey.shade200,
-                  highlightColor: Colors.grey.shade50,
+                  baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+                  highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
                   child: Container(
                     height: 140,
                     margin: const EdgeInsets.only(bottom: 12),
@@ -98,7 +102,7 @@ class _OwnerEquipmentListScreenState
                     const LinearProgressIndicator(minHeight: 2),
 
                   ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
+                    separatorBuilder: (context, index) => const Divider(
                       height: 1,
                       thickness: 1,
                       indent: 16,

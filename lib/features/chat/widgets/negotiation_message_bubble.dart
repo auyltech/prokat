@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
+import 'package:prokat/features/price_negotiations/widgets/price_negotiation_status_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class NegotiationMessageBubble extends ConsumerStatefulWidget {
@@ -81,48 +83,50 @@ class _NegotiationMessageBubbleState
             children: [
               // Top Status Info Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.balance_outlined,
-                    color: theme.colorScheme.primary,
+                    LucideIcons.coins,
+                    color: theme.colorScheme.onSurface,
                     size: 26,
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    l10n.priceOffer,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
+                  Expanded(
+                    child: Text(
+                      l10n.priceOffer,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                   ),
-
-                  Spacer(),
-
-                  Text(priceNegotiation.status.name),
+                  const SizedBox(width: 8),
+                  PriceNegotiationStatusBadge(status: priceNegotiation.status),
                 ],
               ),
               const SizedBox(height: 8),
 
               // Main Body: Price details and action buttons
               Padding(
-                padding: EdgeInsets.only(left: 0),
+                padding: const EdgeInsets.only(left: 0),
                 child: Row(
                   children: [
                     Text(
                       "${formatPrice(parsed.price)} ${getPriceRate(priceNegotiation.priceRate, l10n: l10n)}",
                       style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
 
                     if (priceNegotiation.status ==
                             PriceNegotiationStatus.created &&
                         widget.isMe) ...[
                       if (mutationState.isSubmitting)
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -149,15 +153,15 @@ class _NegotiationMessageBubbleState
                                 );
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.clear, color: Colors.red),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
                     ] else if (priceNegotiation.status ==
                         PriceNegotiationStatus.created) ...[
                       if (ref
                           .watch(priceNegotiationMutationProvider)
                           .isActionActive("price:reject"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -183,14 +187,14 @@ class _NegotiationMessageBubbleState
                             // chatId: widget.message.chatId,
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.clear, color: Colors.red),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
 
                       if (ref
                           .watch(priceNegotiationMutationProvider)
                           .isActionActive("price:accept"))
-                        SizedBox(
+                        const SizedBox(
                           height: 14,
                           width: 14,
                           child: CircularProgressIndicator(
@@ -214,8 +218,8 @@ class _NegotiationMessageBubbleState
                                 );
                           },
                           iconSize: 32,
-                          padding: EdgeInsets.all(0),
-                          icon: Icon(Icons.check, color: Colors.green),
+                          padding: const EdgeInsets.all(0),
+                          icon: const Icon(Icons.check, color: Colors.green),
                         ),
                     ],
                   ],
@@ -223,7 +227,11 @@ class _NegotiationMessageBubbleState
               ),
 
               Text(
-                formatDateTime(parsed.createdAt, parsed.createdAt),
+                formatDateTime(
+                  parsed.createdAt,
+                  parsed.createdAt,
+                  locale: l10n.localeName,
+                ),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w400,

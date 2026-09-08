@@ -24,35 +24,57 @@ class BaseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final content = Container(
-      width: width,
-      padding: padding,
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: borderColor ?? (theme.dividerColor).withValues(alpha: 0.4),
+    final resolvedColor = color ?? theme.cardColor;
+    final resolvedBorderColor =
+        borderColor ?? theme.dividerColor.withValues(alpha: 0.4);
+
+    final decoration = BoxDecoration(
+      color: resolvedColor,
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.all(color: resolvedBorderColor),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.2),
+          blurRadius: 2,
+          offset: const Offset(0, 4),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 2,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: child,
+      ],
     );
 
-    // If clickable → wrap with InkWell
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: content,
+      // Material + InkWell so splash paints above the card fill.
+      return Container(
+        width: width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: decoration.boxShadow,
+        ),
+        child: Material(
+          color: resolvedColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(borderRadius),
+            splashColor: theme.colorScheme.primary.withValues(alpha: 0.14),
+            highlightColor: theme.colorScheme.primary.withValues(alpha: 0.06),
+            child: Ink(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(color: resolvedBorderColor),
+              ),
+              child: Padding(padding: padding, child: child),
+            ),
+          ),
+        ),
       );
     }
 
-    return content;
+    return Container(
+      width: width,
+      padding: padding,
+      decoration: decoration,
+      child: child,
+    );
   }
 }

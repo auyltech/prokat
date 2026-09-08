@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
@@ -61,11 +62,11 @@ class ChatSocketNotifier {
   }
 
   void _refreshChat(String chatId) {
-    ref.read(currentChatProvider(chatId).notifier).refresh();
+    unawaited(ref.read(currentChatProvider(chatId).notifier).refresh());
 
-    ref.read(clientChatsProvider.notifier).refreshIfStale();
+    unawaited(ref.read(clientChatsProvider.notifier).refreshIfStale());
 
-    ref.read(ownerChatsProvider.notifier).refreshIfStale();
+    unawaited(ref.read(ownerChatsProvider.notifier).refreshIfStale());
   }
 
   Future<void> dispose() async {

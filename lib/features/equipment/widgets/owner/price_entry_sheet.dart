@@ -24,11 +24,12 @@ class PriceEntrySheet extends ConsumerStatefulWidget {
     required String equipmentId,
     PriceEntry? priceEntry,
   }) async {
-    return showModalBottomSheet(
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showModalBottomSheet(
       context: context,
       isScrollControlled:
           true, // Allows sheet to wrap its content height dynamically
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -39,6 +40,7 @@ class PriceEntrySheet extends ConsumerStatefulWidget {
         );
       },
     );
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   @override
@@ -184,7 +186,7 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           InputField(
             label: l10n.priceKZT,
             controller: _priceController,
-            hint: "10,000 KZT",
+            hint: l10n.priceKztHint,
             isNumeric: true,
           ),
           const SizedBox(height: 16),
@@ -204,7 +206,7 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
             width: double.infinity,
             child: PrimaryButton(
               label: _isSubmitting
-                  ? "Saving..."
+                  ? l10n.saving
                   : (isEditing ? l10n.save : l10n.add),
               // FIXED: Added submission pipeline execution
               onPressed: _isSubmitting ? null : () => submitPriceEntry(l10n),

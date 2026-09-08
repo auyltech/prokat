@@ -187,7 +187,7 @@ class BookingChatActionController
       onSuccess: () {
         return refreshAfterNegotiation(chatId: chatId, bookingId: bookingId);
       },
-      successMessage: 'Counter offer sent',
+      successMessage: AppLocalizations.of(context)!.counterOfferSent,
     );
   }
 

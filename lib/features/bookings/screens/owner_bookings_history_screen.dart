@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -30,12 +32,14 @@ class _OwnerBookingHistoryScreenState
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 300) {
-        ref.read(ownerHistoryBookingsProvider.notifier).loadMore();
+        unawaited(ref.read(ownerHistoryBookingsProvider.notifier).loadMore());
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ownerHistoryBookingsProvider.notifier).refreshIfStale();
+      unawaited(
+        ref.read(ownerHistoryBookingsProvider.notifier).refreshIfStale(),
+      );
     });
   }
 
@@ -64,7 +68,7 @@ class _OwnerBookingHistoryScreenState
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               Padding(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: l10n.errorLoadingOrders,
@@ -83,7 +87,7 @@ class _OwnerBookingHistoryScreenState
               children: [
                 if (bookings.isEmpty)
                   Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     child: EmptyStateTile(
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,

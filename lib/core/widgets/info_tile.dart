@@ -118,8 +118,12 @@ class InfoTile extends StatelessWidget {
                   Row(
                     children: [
                       if (icon != null) ...[
-                        Icon(icon, color: theme.colorScheme.primary, size: 20),
-                        SizedBox(width: 6),
+                        Icon(
+                          icon,
+                          color: theme.colorScheme.onPrimary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 6),
                       ],
 
                       Text(
@@ -133,7 +137,7 @@ class InfoTile extends StatelessWidget {
                     ],
                   ),
 
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
                   Text(
                     value,
@@ -142,7 +146,7 @@ class InfoTile extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       color: variant == InfoTileVariant.destructive
                           ? Colors.red[700]
-                          : Colors.black87,
+                          : theme.colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -156,7 +160,7 @@ class InfoTile extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (icon != null)
-                    Icon(icon, color: theme.colorScheme.primary, size: 20),
+                    Icon(icon, color: theme.colorScheme.onPrimary, size: 20),
 
                   Text(
                     value,
@@ -165,7 +169,7 @@ class InfoTile extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: variant == InfoTileVariant.destructive
                           ? Colors.red[700]
-                          : Colors.black,
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                 ],

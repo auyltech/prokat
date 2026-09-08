@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
+
 import '../models/auth_session.dart';
 
 class AuthApiService {
@@ -17,7 +18,7 @@ class AuthApiService {
         response: response,
         parser: (data) {
           if (data is! Map<String, dynamic>) {
-            throw FormatException("Invalid session item");
+            throw const FormatException("Invalid session item");
           }
 
           return AuthSession.fromJson(data);
@@ -71,7 +72,7 @@ class AuthApiService {
         response: response,
         parser: (data) {
           if (data is! Map<String, dynamic>) {
-            throw FormatException("Invalid session item");
+            throw const FormatException("Invalid session item");
           }
 
           return AuthSession.fromJson(data);

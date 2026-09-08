@@ -10,6 +10,19 @@ import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 
+const ownerOnlineZeroBalanceCode = 'CONFLICT:OWNER:STATUS:BALANCE';
+const ownerOnlineNoEquipmentCode = 'CONFLICT:OWNER:STATUS:NO_ONLINE_EQUIPMENT';
+
+class OwnerStatusApiException implements Exception {
+  final String message;
+  final String? code;
+
+  const OwnerStatusApiException(this.message, {this.code});
+
+  @override
+  String toString() => message;
+}
+
 class OwnerRegistrationService {
   final ApiClient apiClient;
 
@@ -157,11 +170,17 @@ class OwnerRegistrationService {
     }
   }
 
-  Future<bool> updateOwnerProfile(OwnerProfileModel profile) async {
+  Future<bool> updateOwnerProfile(
+    OwnerProfileModel profile, {
+    bool submitForReview = false,
+  }) async {
     try {
       final res = await _dio.patch(
         ApiRoutes.ownerProfile,
-        data: profile.toPatchJson(),
+        data: {
+          ...profile.toPatchJson(),
+          if (submitForReview) 'submitForReview': true,
+        },
       );
 
       final status = res.statusCode ?? 0;
@@ -205,7 +224,10 @@ class OwnerRegistrationService {
 
       return false;
     } on DioException catch (e) {
-      throw Exception(extractBackendMessage(e));
+      throw OwnerStatusApiException(
+        extractDioExceptionMessage(e),
+        code: extractBackendCode(e.response?.data),
+      );
     } catch (e) {
       throw Exception(e.toString());
     }

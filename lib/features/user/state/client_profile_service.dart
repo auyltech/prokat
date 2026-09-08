@@ -6,6 +6,7 @@ import 'package:prokat/core/constants/api_routes.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/user/models/client_notification_preferences.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
+
 import 'dart:io';
 
 class ClientProfileService {
@@ -14,6 +15,30 @@ class ClientProfileService {
   ClientProfileService(this.apiClient);
 
   Dio get _dio => apiClient.dio;
+
+  UserProfileModel? _profileFromBody(dynamic body) {
+    if (body is! Map) return null;
+    final data = body['data'];
+    if (data is! Map) return null;
+    try {
+      return UserProfileModel.fromJson(Map<String, dynamic>.from(data));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<UserProfileModel?> _profileAfterUpdate(Response res) async {
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      return null;
+    }
+
+    try {
+      return _profileFromBody(res.data) ?? await getUserProfile();
+    } catch (_) {
+      // PATCH already succeeded; caller refreshes the profile next.
+      return UserProfileModel();
+    }
+  }
 
   Future<UserProfileModel?> getUserProfile() async {
     try {
@@ -58,6 +83,14 @@ class ClientProfileService {
     }
   }
 
+  Future<void> updateUserSettings({required String language}) async {
+    try {
+      await _dio.patch(ApiRoutes.userSettings, data: {'language': language});
+    } on DioException catch (error) {
+      throw Exception(extractBackendMessage(error));
+    }
+  }
+
   Future<ApiResponse<void>> updateClientNotificationSettings(
     ClientNotificationPreferences preferences,
   ) async {
@@ -96,11 +129,7 @@ class ClientProfileService {
         data: {"selectedCategoryId": ?selectedCategoryId},
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return UserProfileModel.fromJson(res.data['data']);
-      }
-
-      return null;
+      return await _profileAfterUpdate(res);
     } catch (error) {
       return null;
     }
@@ -113,11 +142,7 @@ class ClientProfileService {
         data: {"addressId": ?addressId},
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return UserProfileModel.fromJson(res.data['data']);
-      }
-
-      return null;
+      return await _profileAfterUpdate(res);
     } catch (error) {
       return null;
     }
@@ -133,11 +158,7 @@ class ClientProfileService {
         data: {"city": ?city, "region": ?region},
       );
 
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return UserProfileModel.fromJson(res.data['data']);
-      }
-
-      return null;
+      return await _profileAfterUpdate(res);
     } catch (e) {
       return null;
     }

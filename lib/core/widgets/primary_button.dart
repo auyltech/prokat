@@ -22,13 +22,12 @@ class PrimaryButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
+        iconColor: Colors.white,
+        foregroundColor: Colors.white,
         disabledBackgroundColor: theme.colorScheme.primary.withValues(
           alpha: 0.8,
         ),
-        disabledForegroundColor: theme.colorScheme.onPrimary.withValues(
-          alpha: 0.8,
-        ),
+        disabledForegroundColor: Colors.white.withValues(alpha: 0.8),
         minimumSize: const Size(double.infinity, 46),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,

@@ -10,8 +10,8 @@ class OwnerBookingSkeleton extends StatelessWidget {
     final colors = theme.colorScheme;
 
     // Adjusted color alphas slightly for better shimmer visibility contrast
-    final base = colors.onSurface.withValues(alpha: 0.1);
-    final highlight = colors.onSurface.withValues(alpha: 0.2);
+    final base = Colors.grey[500]!.withValues(alpha: 0.2);
+    final highlight = Colors.grey[200]!.withValues(alpha: 0.2);
 
     return Container(
       decoration: BoxDecoration(
@@ -147,8 +147,7 @@ class _SkeletonBox extends StatelessWidget {
       width: size,
       height: height ?? size,
       decoration: BoxDecoration(
-        color: Colors
-            .white, // Colors here must be solid for the shimmer overlay mask to clip onto them properly
+        color: Colors.white, // Colors here must be solid for the shimmer overlay mask to clip onto them properly
         borderRadius: BorderRadius.circular(radius),
       ),
     );

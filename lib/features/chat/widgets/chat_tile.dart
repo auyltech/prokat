@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/media/media_image_provider.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class ChatTile extends StatelessWidget {
+class ChatTile extends ConsumerWidget {
   final ChatModel chat;
   final String currentUserId;
+  final AppMode mode;
   final VoidCallback onTap;
 
   const ChatTile({
@@ -13,6 +17,7 @@ class ChatTile extends StatelessWidget {
     required this.chat,
     required this.onTap,
     required this.currentUserId,
+    required this.mode,
   });
 
   Color _getStatusColor(String status, ThemeData theme) {
@@ -38,7 +43,7 @@ class ChatTile extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
@@ -47,8 +52,8 @@ class ChatTile extends StatelessWidget {
     final title = chat.type == ChatType.direct
         ? chat.displayTitle(
             currentUserId,
-            ownerFallback: l10n.owner,
-            clientFallback: l10n.clientRole,
+            ownerFallback: l10n.nameNotSpecified,
+            clientFallback: l10n.nameNotSpecified,
           )
         : chat.type == ChatType.support
         ? l10n.support
@@ -56,7 +61,11 @@ class ChatTile extends StatelessWidget {
         ? l10n.support
         : l10n.announcements;
 
-    final preview = chat.lastMessage?.content ?? l10n.noMessagesYet;
+    final preview =
+        chat.lastMessage?.localizedContent(
+          Localizations.localeOf(context).languageCode,
+        ) ??
+        l10n.noMessagesYet;
 
     final timestamp = _formatTimestamp(
       chat.lastMessage?.createdAt ?? chat.updatedAt,
@@ -66,7 +75,10 @@ class ChatTile extends StatelessWidget {
 
     final summary = chat.bookingSummary;
 
-    final chatStatus = getChatConfig(chat: chat, l10n: l10n);
+    final chatStatus = getChatConfig(chat: chat, l10n: l10n, mode: mode);
+    final statusLabel = chatStatus.statusLabel.trim();
+    final showStatusBadge =
+        summary != null && summary.status.isNotEmpty && statusLabel.isNotEmpty;
 
     return InkWell(
       onTap: onTap,
@@ -79,12 +91,11 @@ class ChatTile extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. Avatar Section
                   CircleAvatar(
-                    radius: 24, // Optimized sizing
+                    radius: 24,
                     backgroundColor: theme.colorScheme.primaryContainer,
                     backgroundImage: (avatarUrl ?? '').isNotEmpty
-                        ? NetworkImage(avatarUrl!)
+                        ? mediaImageProvider(ref, avatarUrl)
                         : null,
                     child: (avatarUrl ?? '').isEmpty
                         ? Text(
@@ -97,23 +108,41 @@ class ChatTile extends StatelessWidget {
                         : null,
                   ),
                   const SizedBox(width: 14),
-
-                  // 2. Main Content & Message Preview Section
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: title == l10n.nameNotSpecified
+                                      ? FontWeight.w400
+                                      : FontWeight.bold,
+                                  fontSize: 16,
+                                  color: title == l10n.nameNotSpecified
+                                      ? theme.colorScheme.onSurface.withValues(
+                                          alpha: 0.55,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ),
+                            if (showStatusBadge) ...[
+                              const SizedBox(width: 8),
+                              _StatusBadge(
+                                label: statusLabel,
+                                color: _getStatusColor(summary.status, theme),
+                                theme: theme,
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 6),
-                        // Row that keeps message text and badge cleanly aligned
                         Row(
                           children: [
                             Expanded(
@@ -131,8 +160,6 @@ class ChatTile extends StatelessWidget {
                                 ),
                               ),
                             ),
-
-                            // Clean, inline Unread Badge
                             if (unreadCount > 0) ...[
                               const SizedBox(width: 8),
                               Container(
@@ -142,9 +169,7 @@ class ChatTile extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(
-                                    12,
-                                  ), // Dynamic pill shape
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   '$unreadCount',
@@ -156,71 +181,67 @@ class ChatTile extends StatelessWidget {
                                 ),
                               ),
                             ],
+                            if (timestamp.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                timestamp,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.hintColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 16),
-
-                  // 3. Right Status & Time Section
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      if (summary != null && summary.status.isNotEmpty)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(
-                              summary.status,
-                              theme,
-                            ).withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: _getStatusColor(
-                                summary.status,
-                                theme,
-                              ).withValues(alpha: 0.25),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            chatStatus.statusLabel,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: _getStatusColor(summary.status, theme),
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-
-                      Text(
-                        timestamp,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.hintColor,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-            // Clean separator line matching standard chat lists
-            Padding(
-              padding: const EdgeInsets.only(left: 78, right: 16),
-              child: Divider(
-                height: 1,
-                thickness: 0.5,
-                color: theme.dividerColor.withValues(alpha: 0.4),
-              ),
+            Divider(
+              height: 1,
+              thickness: 0.5,
+              indent: 16,
+              endIndent: 16,
+              color: theme.dividerColor.withValues(alpha: 0.4),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String label;
+  final Color color;
+  final ThemeData theme;
+
+  const _StatusBadge({
+    required this.label,
+    required this.color,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: color,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+          fontSize: 10,
         ),
       ),
     );

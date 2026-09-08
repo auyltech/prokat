@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +27,7 @@ class _CategoryTileState extends ConsumerState<CategoryTile> {
         path: AppRoutes.searchList,
         queryParameters: {'category': category.id},
       ).toString();
-      context.push(uri);
+      unawaited(context.push(uri));
     }
   }
 
@@ -59,10 +62,9 @@ class _CategoryTileState extends ConsumerState<CategoryTile> {
                   child:
                       (widget.cat.imageUrl != null &&
                           widget.cat.imageUrl!.isNotEmpty)
-                      ? Image.network(
-                          widget.cat.imageUrl!,
+                      ? OptimizedNetworkImage(
+                          imageUrl: widget.cat.imageUrl,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => _fallbackImage(theme),
                         )
                       : _fallbackImage(theme),
                 ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
 import 'package:prokat/features/categories/models/category.dart';
@@ -36,7 +36,7 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     }
 
     if (widget.mode == "search") {
-      ref.read(selectedCategoryProvider.notifier).select(category);
+      ref.read(selectedCategoryProvider.notifier).toggle(category);
     }
   }
 

@@ -68,7 +68,7 @@ class BalanceSummaryTile extends StatelessWidget {
       );
     }
 
-    final timeString = getTimeString(secondsRemaining);
+    final timeString = getTimeString(secondsRemaining, l10n);
 
     return InkWell(
       onTap: onTap,

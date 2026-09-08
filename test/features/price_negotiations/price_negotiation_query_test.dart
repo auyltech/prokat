@@ -105,6 +105,6 @@ void main() {
       'negotiation-3',
     ]);
     expect(result.hasMore, isFalse);
-    expect(requestedPaths, everyElement('/price-negotiations/offer'));
+    expect(requestedPaths, everyElement('/price-negotiations/offer/offer-1'));
   });
 }

@@ -9,10 +9,11 @@ class FaqTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final tr = faq.translation(currentLocale);
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey, width: 1.2)),
       ),
       child: ExpansionTile(
@@ -22,10 +23,10 @@ class FaqTile extends StatelessWidget {
         collapsedIconColor: Colors.grey,
         title: Text(
           tr.question,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 16,
-            color: Colors.black,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         children: [

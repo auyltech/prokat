@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class AddressPickerCard extends StatelessWidget {
+class AddressPickerCard extends ConsumerWidget {
   final LocationModel? selectedAddress;
   final VoidCallback onTap;
   final bool? isRequired;
@@ -16,7 +18,7 @@ class AddressPickerCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
@@ -54,23 +56,27 @@ class AddressPickerCard extends StatelessWidget {
                 children: [
                   // Top Row: Label and required validation indicator
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        l10n.deliveryLocation,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (isRequired == true)
-                        Text(
-                          "* Required",
-                          style: TextStyle(
-                            color: colorScheme.error,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                      Flexible(
+                        child: Text.rich(
+                          TextSpan(
+                            text: l10n.deliveryLocation,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            children: [
+                              if (isRequired == true && selectedAddress == null)
+                                TextSpan(
+                                  text: ' ${l10n.requiredHint}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.error,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
+                      ),
                     ],
                   ),
 
@@ -82,7 +88,11 @@ class AddressPickerCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           selectedAddress != null
-                              ? "${selectedAddress?.street}, ${selectedAddress?.city}"
+                              ? formatLocationModel(
+                                  ref,
+                                  context,
+                                  selectedAddress!,
+                                )
                               : l10n.selectValue,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: selectedAddress != null

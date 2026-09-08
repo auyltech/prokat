@@ -8,15 +8,15 @@ class CategoryRowSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 90, // Wraps the visual bounds of the service items
+      height: 110,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 0),
         itemCount: 5, // Fills out the width of the screen row
         separatorBuilder: (_, _) => const SizedBox(width: 16),
         itemBuilder: (context, index) => Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
+          baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
+          highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
           child: const CategorySkeleton(),
         ),
       ),

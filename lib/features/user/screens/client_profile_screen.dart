@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -11,7 +13,7 @@ import 'package:prokat/features/user/widgets/become_owner_cta.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/widgets/client_profile_header.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/features/user/widgets/client_rental_preferences_section.dart';
 
 class ClientProfileScreen extends ConsumerStatefulWidget {
@@ -27,13 +29,15 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(clientProfileProvider.notifier).refreshIfStale();
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(clientProfileProvider.notifier).refreshIfStale();
 
-      await ref
-          .read(ownerRegistrationRequestProvider.notifier)
-          .refreshIfStale();
-    });
+        await ref
+            .read(ownerRegistrationRequestProvider.notifier)
+            .refreshIfStale();
+      }),
+    );
   }
 
   @override
@@ -58,8 +62,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             // User Profile
             SliverAppBar(
               backgroundColor: theme.colorScheme.primary,
-              expandedHeight: 400,
-              actions: [
+              expandedHeight: 320,
+              actions: const [
                 NotificationBadge(color: Colors.white),
                 SizedBox(width: 16),
               ],
@@ -73,67 +77,65 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
               ),
             ),
 
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
-
-                    //
-                    // ProkatListTile(
-                    //   icon: Icons.phone_android_rounded,
-                    //   iconColor: theme.colorScheme.primary,
-                    //   iconBgColor: theme.colorScheme.primary.withValues(
-                    //     alpha: 0.18,
-                    //   ),
-                    //   title: l10n.phoneNumber,
-                    //   subtitle: userProfile?.phoneNumber ?? "+7 234 ...",
-                    //   onTap: () {},
-                    //   // trailing: const Icon(Icons.edit, color: Colors.white54),
-                    // ),
-                    //
-                    // const SizedBox(height: 20),
+                    SizedBox(height: 40),
                     ClientRentalPreferencesSection(),
                   ],
                 ),
               ),
             ),
 
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
-                child: const BecomeOwnerCTA(),
+                child: BecomeOwnerCTA(),
               ),
             ),
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    ProkatListTile(
-                      icon: Icons.favorite_outline,
-                      iconColor: theme.colorScheme.primary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
-                      title: l10n.supportUsTitle,
-                      subtitle: l10n.donateOrHelp,
-                      onTap: () => context.push(AppRoutes.supportUs),
-                    ),
-
-                    const SizedBox(height: 20),
+                    // TODO(Vadim): Пока слишком сырое
+                    // ProkatListTile(
+                    //   icon: Icons.favorite_outline,
+                    //   iconColor: theme.colorScheme.onPrimary,
+                    //   iconBgColor: theme.colorScheme.primary.withValues(
+                    //     alpha: 0.2,
+                    //   ),
+                    //   title: l10n.supportUsTitle,
+                    //   subtitle: l10n.donateOrHelp,
+                    //   onTap: () => context.push(AppRoutes.supportUs),
+                    // ),
+                    // const SizedBox(height: 20),
 
                     ProkatListTile(
                       icon: LucideIcons.scrollText,
-                      iconColor: theme.colorScheme.primary,
+                      iconColor: theme.colorScheme.onPrimary,
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
                       ),
                       title: l10n.legalDocuments,
                       subtitle: l10n.legalDocumentsSubtitle,
                       onTap: () => context.push(AppRoutes.clientDocuments),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
+                      icon: LucideIcons.settings,
+                      iconColor: theme.colorScheme.onPrimary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: l10n.appSettings,
+                      subtitle: l10n.appSettingsSubtitle,
+                      onTap: () => context.push(AppRoutes.clientSettings),
                     ),
 
                     const SizedBox(height: 20),
@@ -147,26 +149,13 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       onTap: () => context.push(AppRoutes.helpSupport),
                     ),
 
-                    const SizedBox(height: 20),
-
-                    ProkatListTile(
-                      icon: LucideIcons.settings,
-                      iconColor: theme.colorScheme.primary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
-                      title: l10n.appSettings,
-                      subtitle: l10n.appSettingsSubtitle,
-                      onTap: () => context.push(AppRoutes.clientSettings),
-                    ),
-
                     const SizedBox(height: 40),
                   ],
                 ),
               ),
             ),
 
-            SliverFillRemaining(
+            const SliverFillRemaining(
               hasScrollBody: false, // Prevents nested inner scrollbars
               fillOverscroll: true,
               child: Padding(
@@ -176,7 +165,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                   left: 16,
                   right: 16,
                 ),
-                child: const LogoutButton(),
+                child: LogoutButton(),
               ),
             ),
           ],

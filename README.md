@@ -15,8 +15,10 @@ Local endpoint mapping:
   Use `adb reverse tcp:4000 tcp:4000` and override both Android URLs with
   `http://localhost:4000` when device testing is needed.
 
-Local Firebase services and push notifications are disabled. Socket.IO still
-connects to the local backend, so in-app real-time events remain testable.
+Local Firebase and push notifications stay enabled (`ENABLE_FIREBASE_SERVICES`
+and `ENABLE_PUSH_NOTIFICATIONS` in `.env`, `.env.local`, and `.env.ngrok.local`).
+Grant OS notification permission on first launch so the FCM token can register
+with the backend. Socket.IO still delivers in-app events while the app is open.
 Local and production auth sessions use separate secure-storage keys.
 
 ## Run

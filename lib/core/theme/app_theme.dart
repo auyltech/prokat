@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // A professional, deep and vibrant orange accent color
-  static const Color accent = Color.fromARGB(255, 0, 72, 155);
+  static const Color accent = Color(0xFF00489B);
   static const Color white = Color.fromARGB(255, 255, 255, 255);
 
   // Dark mode colors extracted from the current app
   static const Color darkBackground = Color(0xFF121417);
   static const Color darkCard = Color(0xFF1E2125);
+  static const Color darkBubbleMe = Color(0xFF163761);
+  static const Color darkBubbleHim = Color(0xFF3A3D43);
 
   // Light mode subtle colors
   static const Color lightBackground = white;
   static const Color lightCard = Colors.white;
+  static const Color lightBubbleMe = Color(0xFFC0DEF6);
+  static const Color lightBubbleHim = Color(0xFFE0E0E1);
 
   // ---------- Text Colors ----------
 
@@ -27,24 +31,85 @@ class AppTheme {
   static const Color darkTextTertiary = Color(0xFF8A8F98);
   static const Color darkTextDisabled = Color(0xFF5F6368);
 
+  // Semantic status: pale tinted surfaces + darker content in light,
+  // deep tinted surfaces (near darkCard) + lighter content in dark.
+  static const Color lightSuccessBg = Color(0xFFF2F9F3);
+  static const Color lightSuccessFg = Color(0xFF1B5E20);
+  static const Color darkSuccessBg = Color(0xFF17231C);
+  static const Color darkSuccessFg = Color(0xFFA8D5AB);
+
+  static const Color lightDangerBg = Color(0xFFFDF4F5);
+  static const Color lightDangerFg = Color(0xFFB71C1C);
+  static const Color darkDangerBg = Color(0xFF27181A);
+  static const Color darkDangerFg = Color(0xFFEF9A9A);
+
+  static const Color lightWarningBg = Color(0xFFFFF8F1);
+  static const Color lightWarningFg = Color(0xFFBF360C);
+  static const Color darkWarningBg = Color(0xFF271C14);
+  static const Color darkWarningFg = Color(0xFFFFCC80);
+
+  static Color _tone(Brightness brightness, Color light, Color dark) =>
+      brightness == Brightness.dark ? dark : light;
+
+  static Color successBg(Brightness brightness) =>
+      _tone(brightness, lightSuccessBg, darkSuccessBg);
+
+  static Color successFg(Brightness brightness) =>
+      _tone(brightness, lightSuccessFg, darkSuccessFg);
+
+  /// Filled-block dots: bright green that stays readable on light and dark.
+  static const Color lightValidBlockIndicator = Color(0xFF00C853);
+  static const Color darkValidBlockIndicator = Color(0xFF00E676);
+
+  static Color validBlockIndicator(Brightness brightness) =>
+      _tone(brightness, lightValidBlockIndicator, darkValidBlockIndicator);
+
+  static Color dangerBg(Brightness brightness) =>
+      _tone(brightness, lightDangerBg, darkDangerBg);
+
+  static Color dangerFg(Brightness brightness) =>
+      _tone(brightness, lightDangerFg, darkDangerFg);
+
+  static Color warningBg(Brightness brightness) =>
+      _tone(brightness, lightWarningBg, darkWarningBg);
+
+  static Color warningFg(Brightness brightness) =>
+      _tone(brightness, lightWarningFg, darkWarningFg);
+
+  /// Soft brand wash for invite-style surfaces (chat-bubble tokens).
+  static Color brandTintBg(Brightness brightness) =>
+      _tone(brightness, lightBubbleMe, darkBubbleMe);
+
+  static Color brandTintFg(Brightness brightness) =>
+      _tone(brightness, accent, lightBubbleMe);
+
   /// Light Theme Configuration
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme:
-          ColorScheme.fromSeed(
-            seedColor: accent,
-            primary: accent,
-            brightness: Brightness.light,
-            surface: lightCard,
-          ).copyWith(
-            surface: lightCard, // or darkCard
-            onSurface: lightTextPrimary, // or darkTextPrimary
-            onPrimary: white,
-          ),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: accent,
+        primary: accent,
+        brightness: Brightness.light,
+        surface: lightCard,
+        surfaceContainerHigh: lightBubbleMe,
+        surfaceContainerLow: lightBubbleHim,
+        onSurface: lightTextPrimary, // or darkTextPrimary
+        onPrimary: accent,
+      ),
       scaffoldBackgroundColor: lightBackground,
       cardColor: lightCard,
+      // Material 3 Switch uses onPrimary for the selected thumb; light
+      // onPrimary is the brand accent, so the thumb would match the track.
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return white;
+          }
+          return null;
+        }),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: lightCard,
         elevation: 0,
@@ -122,17 +187,16 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme:
-          ColorScheme.fromSeed(
-            seedColor: accent,
-            primary: accent,
-            brightness: Brightness.dark,
-            surface: darkCard,
-          ).copyWith(
-            surface: darkCard,
-            onSurface: darkTextPrimary,
-            onPrimary: white,
-          ),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: accent,
+        primary: accent,
+        brightness: Brightness.dark,
+        surface: darkCard,
+        surfaceContainerHigh: darkBubbleMe,
+        surfaceContainerLow: darkBubbleHim,
+        onSurface: darkTextPrimary,
+        onPrimary: white,
+      ),
       scaffoldBackgroundColor: darkBackground,
       cardColor: darkCard,
       appBarTheme: const AppBarTheme(
@@ -146,6 +210,12 @@ class AppTheme {
         ),
       ),
       iconTheme: const IconThemeData(color: darkTextSecondary),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: darkTextPrimary),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(foregroundColor: darkTextPrimary),
+      ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(color: darkTextPrimary),
         displayMedium: TextStyle(color: darkTextPrimary),

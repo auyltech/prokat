@@ -21,11 +21,11 @@ class RequestStatusBadge extends StatelessWidget {
       case RequestStatus.created:
       case RequestStatus.viewed:
       case RequestStatus.responded:
-        return Color.fromARGB(255, 32, 57, 141);
+        return const Color.fromARGB(255, 32, 57, 141);
       case RequestStatus.accepted:
         return const Color.fromARGB(255, 0, 121, 4);
       case RequestStatus.cancelled:
-        return Color.fromARGB(255, 179, 0, 0);
+        return const Color.fromARGB(255, 179, 0, 0);
       case RequestStatus.expired:
         return Colors.orange;
       default:
@@ -46,19 +46,31 @@ class RequestStatusBadge extends StatelessWidget {
       statusText = getRequestStatus(status, l10n: l10n);
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-        // border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        statusText,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 120, minHeight: 34),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              statusText,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              textWidthBasis: TextWidthBasis.longestLine,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );

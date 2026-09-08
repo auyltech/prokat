@@ -54,6 +54,46 @@ class BookingModel {
     this.updatedAt,
   });
 
+  BookingModel copyWith({
+    String? id,
+    BookingStatus? status,
+    WorkStatus? workStatus,
+    DateTime? bookedOn,
+    DateTime? bookedAt,
+    int? price,
+    PriceRateOption? priceRate,
+    String? comment,
+    String? instructions,
+    String? chatId,
+    UserModel? client,
+    UserModel? owner,
+    EquipmentSummaryModel? equipment,
+    LocationModel? location,
+    String? myReviewId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return BookingModel(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      workStatus: workStatus ?? this.workStatus,
+      bookedOn: bookedOn ?? this.bookedOn,
+      bookedAt: bookedAt ?? this.bookedAt,
+      price: price ?? this.price,
+      priceRate: priceRate ?? this.priceRate,
+      comment: comment ?? this.comment,
+      instructions: instructions ?? this.instructions,
+      chatId: chatId ?? this.chatId,
+      client: client ?? this.client,
+      owner: owner ?? this.owner,
+      equipment: equipment ?? this.equipment,
+      location: location ?? this.location,
+      myReviewId: myReviewId ?? this.myReviewId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
       id: json['id']?.toString() ?? '',

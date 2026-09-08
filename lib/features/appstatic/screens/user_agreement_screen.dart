@@ -74,7 +74,7 @@ class _UserAgreementScreenState extends ConsumerState<UserAgreementScreen> {
             ),
           ),
         ],
-        actionsPadding: EdgeInsets.only(right: 8),
+        actionsPadding: const EdgeInsets.only(right: 8),
       ),
       body: SafeArea(
         child: FutureBuilder<String>(

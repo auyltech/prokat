@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -16,12 +17,14 @@ class OwnerEquipmentImageHeader extends ConsumerStatefulWidget {
   final String equipmentId;
   final List<EquipmentImage> images;
   final String? legacyImageUrl;
+  final bool canEditImages;
 
   const OwnerEquipmentImageHeader({
     super.key,
     required this.equipmentId,
     required this.images,
     required this.legacyImageUrl,
+    this.canEditImages = true,
   });
 
   @override
@@ -124,10 +127,12 @@ class _OwnerEquipmentImageHeaderState
     } else {
       final count = _displayImages.length;
       if (count > 0) {
-        _pageController.animateToPage(
-          count - 1,
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
+        unawaited(
+          _pageController.animateToPage(
+            count - 1,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          ),
         );
       }
     }
@@ -213,20 +218,25 @@ class _OwnerEquipmentImageHeaderState
     required bool canSetCover,
     required bool canDelete,
   }) {
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (_) {
-        return EquipmentImageActionsSheet(
-          canAddMore: canAddMore,
-          isBusy: isBusy,
-          limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
-          onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
-          onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
-          onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
-          onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
-        );
-      },
+    FocusManager.instance.primaryFocus?.unfocus();
+    unawaited(
+      showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        builder: (_) {
+          return EquipmentImageActionsSheet(
+            canAddMore: canAddMore,
+            isBusy: isBusy,
+            limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
+            onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
+            onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
+            onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
+            onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
+          );
+        },
+      ).whenComplete(() {
+        FocusManager.instance.primaryFocus?.unfocus();
+      }),
     );
   }
 
@@ -237,7 +247,7 @@ class _OwnerEquipmentImageHeaderState
 
     final state = ref.watch(equipmentMutationProvider);
 
-    final actionId = "equipment:image";
+    const actionId = "equipment:image";
 
     final isBusy =
         state.activeActions
@@ -288,7 +298,6 @@ class _OwnerEquipmentImageHeaderState
                   },
                 ),
         ),
-
         if (images.length > 1)
           Positioned(
             left: 0,
@@ -297,21 +306,22 @@ class _OwnerEquipmentImageHeaderState
             child: _DotsIndicator(count: images.length, index: _currentIndex),
           ),
 
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: FloatingActionButton.small(
-            heroTag: 'editEquipmentImages_${widget.equipmentId}',
-            onPressed: () => _openActionsSheet(
-              isBusy: isBusy,
-              canAddMore: canAddMore,
-              current: current,
-              canSetCover: canSetCoverCurrent,
-              canDelete: canDeleteCurrent,
+        if (widget.canEditImages)
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton.small(
+              heroTag: 'editEquipmentImages_${widget.equipmentId}',
+              onPressed: () => _openActionsSheet(
+                isBusy: isBusy,
+                canAddMore: canAddMore,
+                current: current,
+                canSetCover: canSetCoverCurrent,
+                canDelete: canDeleteCurrent,
+              ),
+              child: const Icon(Icons.camera_alt),
             ),
-            child: const Icon(Icons.camera_alt),
           ),
-        ),
 
         if (isBusy)
           Positioned.fill(

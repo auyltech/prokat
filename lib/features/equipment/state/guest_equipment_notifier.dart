@@ -4,6 +4,7 @@ import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 
 class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
@@ -15,14 +16,16 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? _query;
   String? _city;
   String? _categoryId;
+  List<String> _spec = const [];
 
   @override
   Future<QueryState<Equipment>> build() async {
+    _city = _normalizeFilter(ref.watch(locationProvider.select((s) => s.city)));
     return _fetchPage(1);
   }
 
   Future<QueryState<Equipment>> _fetchPage(int page) async {
-    final locale = ref.watch(localeProvider);
+    final locale = ref.read(localeProvider);
 
     final response = await api.getGuestEquipment(
       locale: locale.languageCode.toUpperCase(),
@@ -31,6 +34,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       query: _query,
       city: _city,
       categoryId: _categoryId,
+      spec: _spec,
     );
 
     if (!response.success) {
@@ -43,9 +47,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       items: items,
       page: page,
       itemsPerPage: 10,
-      count: items.length < 10
-          ? ((page - 1) * 10) + items.length
-          : page * 10 + 1,
+      count: items.length,
       lastFetchedAt: DateTime.now(),
     );
   }
@@ -70,122 +72,93 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> _refresh(int generation) async {
-    final previous = state.valueOrNull;
-
-    if (previous == null) {
-      if (state.isLoading) {
+    try {
+      if (state.isLoading && state.valueOrNull == null) {
         try {
           await future;
-          return;
         } catch (_) {}
+        if (generation != _requestGeneration) return;
       }
-      if (generation != _requestGeneration) return;
-      state = const AsyncLoading();
-      final next = await AsyncValue.guard(() => _fetchPage(1));
-      if (generation == _requestGeneration) state = next;
-      return;
-    }
 
-    if (generation != _requestGeneration) return;
-    state = AsyncData(previous.copyWith(isRefreshing: true));
-    try {
-      final next = await _fetchPage(1);
-      if (generation == _requestGeneration) state = AsyncData(next);
-    } catch (error) {
-      if (generation == _requestGeneration) {
-        state = AsyncData(previous.withRefreshError(error));
+      final previous = state.valueOrNull;
+
+      if (previous == null) {
+        if (generation != _requestGeneration) return;
+        state = const AsyncLoading();
+        final next = await AsyncValue.guard(() => _fetchPage(1));
+        if (generation == _requestGeneration) state = next;
+        return;
       }
+
+      if (generation != _requestGeneration) return;
+      state = AsyncData(previous.copyWith(isRefreshing: true));
+      try {
+        final next = await _fetchPage(1);
+        if (generation == _requestGeneration) state = AsyncData(next);
+      } catch (error) {
+        if (generation == _requestGeneration) {
+          state = AsyncData(previous.withRefreshError(error));
+        }
+      }
+    } catch (_) {
+      // Keep failures inside AsyncValue so unawaited UI callers cannot crash.
     }
   }
 
   Future<void> loadMore() async {
-    final current = state.valueOrNull;
-    final generation = _requestGeneration;
-
-    if (current == null) return;
-
-    if (!current.hasMore) return;
-
-    if (current.isLoadingMore) return;
-
-    state = AsyncData(current.copyWith(isLoadingMore: true));
-
-    try {
-      final locale = ref.watch(localeProvider);
-
-      final nextPage = current.page + 1;
-
-      final response = await api.getGuestEquipment(
-        locale: locale.languageCode.toUpperCase(),
-        page: nextPage,
-        itemsPerPage: current.itemsPerPage,
-        query: _query,
-        city: _city,
-        categoryId: _categoryId,
-      );
-
-      if (generation != _requestGeneration) return;
-
-      if (!response.success || response.data == null) {
-        state = AsyncData(current.copyWith(isLoadingMore: false));
-        return;
-      }
-
-      final items = response.data!;
-
-      state = AsyncData(
-        current.copyWith(
-          items: [...current.items, ...items],
-          page: nextPage,
-          count: items.length < current.itemsPerPage
-              ? current.count + items.length
-              : current.count + current.itemsPerPage,
-          lastFetchedAt: DateTime.now,
-          isLoadingMore: false,
-        ),
-      );
-    } catch (_) {
-      if (generation == _requestGeneration) {
-        state = AsyncData(current.copyWith(isLoadingMore: false));
-      }
-    }
+    // Guest catalog is a demo slice of at most 10 items; never page further.
   }
 
   Future<void> setFilters({
     String? query,
     String? city,
     String? categoryId,
+    List<String>? spec,
   }) async {
-    final changed =
-        _query != query || _city != city || _categoryId != categoryId;
-    _query = query;
-    _city = city;
-    _categoryId = categoryId;
+    try {
+      final changed = _replaceFilters(
+        query: query,
+        city: city,
+        categoryId: categoryId,
+        spec: spec,
+      );
 
-    if (!changed) {
-      await refreshIfStale();
-      return;
+      if (!changed) {
+        await refreshIfStale();
+        return;
+      }
+      final generation = ++_requestGeneration;
+      if (state.isLoading) {
+        try {
+          await future;
+        } catch (_) {}
+      }
+      await _refreshForGeneration(generation);
+    } catch (_) {
+      // Network errors stay in provider state for the catalog error UI.
     }
-    final generation = ++_requestGeneration;
-    if (state.isLoading) {
-      try {
-        await future;
-      } catch (_) {}
-    }
-    await _refreshForGeneration(generation);
   }
 
   Future<void> clearFilters() async {
-    final changed = _query != null || _city != null || _categoryId != null;
-    _query = null;
-    _city = null;
-    _categoryId = null;
+    try {
+      final changed =
+          _query != null ||
+          _city != null ||
+          _categoryId != null ||
+          _spec.isNotEmpty;
+      _query = null;
+      _city = null;
+      _categoryId = null;
+      _spec = const [];
 
-    if (changed) {
-      final generation = ++_requestGeneration;
-      await _refreshForGeneration(generation);
-    } else {
-      await refreshIfStale();
+      if (changed) {
+        final generation = ++_requestGeneration;
+        await _refreshForGeneration(generation);
+      } else {
+        await refreshIfStale();
+      }
+    } catch (_) {
+      // Network errors stay in provider state for the catalog error UI.
     }
   }
 
@@ -198,20 +171,24 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   }
 
   Future<void> refreshIfStale() async {
-    if (state.isLoading) {
-      try {
-        await future;
-      } catch (_) {}
-    }
-    final current = state.valueOrNull;
+    try {
+      if (state.isLoading) {
+        try {
+          await future;
+        } catch (_) {}
+      }
+      final current = state.valueOrNull;
 
-    if (current == null) {
-      await refresh();
-      return;
-    }
+      if (current == null) {
+        await refresh();
+        return;
+      }
 
-    if (current.isStale) {
-      await refresh();
+      if (current.isStale) {
+        await refresh();
+      }
+    } catch (_) {
+      // AsyncError.value must not escape to unawaited MainScreen callers.
     }
   }
 
@@ -220,4 +197,40 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? get city => _city;
 
   String? get categoryId => _categoryId;
+
+  bool _replaceFilters({
+    String? query,
+    String? city,
+    String? categoryId,
+    List<String>? spec,
+  }) {
+    final nextQuery = _normalizeFilter(query);
+    final nextCity = _normalizeFilter(city);
+    final nextCategoryId = _normalizeFilter(categoryId);
+    final nextSpec = spec ?? _spec;
+    final changed =
+        _query != nextQuery ||
+        _city != nextCity ||
+        _categoryId != nextCategoryId ||
+        !_sameSpec(_spec, nextSpec);
+    _query = nextQuery;
+    _city = nextCity;
+    _categoryId = nextCategoryId;
+    _spec = List<String>.from(nextSpec);
+    return changed;
+  }
+}
+
+String? _normalizeFilter(String? value) {
+  final trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) return null;
+  return trimmed;
+}
+
+bool _sameSpec(List<String> left, List<String> right) {
+  if (left.length != right.length) return false;
+  for (var i = 0; i < left.length; i++) {
+    if (left[i] != right[i]) return false;
+  }
+  return true;
 }

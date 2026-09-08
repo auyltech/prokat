@@ -57,10 +57,40 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
   }
 
   void setDate(DateTime date) {
-    state = state.copyWith(selectedDate: date);
+    final time = state.selectedTime;
+    final shouldClearTime =
+        time != null &&
+        DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        ).isBefore(DateTime.now());
+
+    state = state.copyWith(
+      selectedDate: date,
+      clearSelectedTime: shouldClearTime,
+    );
   }
 
   void setTime(DateTime time) {
+    final date = state.selectedDate;
+    if (date != null) {
+      final merged = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+      if (merged.isBefore(DateTime.now())) {
+        return;
+      }
+    } else if (time.isBefore(DateTime.now())) {
+      return;
+    }
+
     state = state.copyWith(selectedTime: time);
   }
 
@@ -77,7 +107,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
   }
 
   Future<MutationResponse> createRequest({
-    required String capacity,
+    String? capacity,
     required int offeredRate,
     required String categoryId,
     String? comment,
@@ -116,6 +146,13 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
             )
           : null;
 
+      if (mergedTime == null || mergedTime.isBefore(DateTime.now())) {
+        return MutationResponse(
+          success: false,
+          message: "Please provide required information",
+        );
+      }
+
       // 3. Fire the request service
       final result = await api.createRequest(
         categoryId: categoryId,
@@ -150,7 +187,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
     } catch (error) {
       finishAction(
         actionId,
-        error: AppError(
+        error: const AppError(
           type: ErrorType.unknown,
           message: "Failed to create request",
           code: "",

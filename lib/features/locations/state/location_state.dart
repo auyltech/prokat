@@ -70,6 +70,7 @@ class LocationState {
     List<LocationModel>? ownerLocations,
     List<LocationSearchResult>? suggestions,
     LocationModel? selectedAddress,
+    bool clearSelectedAddress = false,
   }) {
     return LocationState(
       fetchStatus: fetchStatus ?? this.fetchStatus,
@@ -83,7 +84,9 @@ class LocationState {
       ownerLocations: ownerLocations ?? this.ownerLocations,
 
       suggestions: suggestions ?? this.suggestions,
-      selectedAddress: selectedAddress ?? this.selectedAddress,
+      selectedAddress: clearSelectedAddress
+          ? null
+          : selectedAddress ?? this.selectedAddress,
     );
   }
 }

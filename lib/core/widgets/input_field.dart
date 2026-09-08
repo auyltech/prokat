@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
-class InputField extends StatelessWidget {
+class InputField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final String hint;
@@ -14,8 +16,12 @@ class InputField extends StatelessWidget {
   final Color? iconColor;
   final VoidCallback? onChanged;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? requiredHintText;
   final String? errorText;
-  final String requiredMessage;
+  final String? helperText;
+  final String? requiredMessage;
+  final bool readOnly;
 
   const InputField({
     super.key,
@@ -25,7 +31,7 @@ class InputField extends StatelessWidget {
     this.isNumeric = false,
     this.isLast = false,
     this.isRequired = false, // Defaulted to false
-    this.requiredMessage = 'Field is required',
+    this.requiredMessage,
     this.validator,
     this.suffixText,
     this.icon,
@@ -33,26 +39,64 @@ class InputField extends StatelessWidget {
     this.iconColor,
     this.onChanged,
     this.keyboardType,
+    this.inputFormatters,
     this.errorText,
+    this.helperText,
+    this.requiredHintText,
+    this.readOnly = false,
   });
+
+  @override
+  State<InputField> createState() => _InputFieldState();
+}
+
+class _InputFieldState extends State<InputField> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant InputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final showRequiredHint =
+        widget.isRequired && widget.controller.text.trim().isEmpty;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: widget.helperText != null
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
       children: [
-        if (icon != null) ...[
+        if (widget.icon != null) ...[
           Container(
             width: 45,
             height: 50,
             decoration: BoxDecoration(
-              color: iconBgColor,
+              color: widget.iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconColor, size: 25),
+            child: Icon(widget.icon, color: widget.iconColor, size: 25),
           ),
 
           const SizedBox(width: 12),
@@ -66,12 +110,22 @@ class InputField extends StatelessWidget {
               // Top row: Label and required indicator
               Text.rich(
                 TextSpan(
-                  text: label,
+                  text: widget.label,
                   style: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                   children: [
-                    if (isRequired)
+                    if (showRequiredHint &&
+                        widget.requiredHintText != null &&
+                        widget.requiredHintText!.isNotEmpty)
+                      TextSpan(
+                        text: ' ${widget.requiredHintText}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    else if (showRequiredHint)
                       TextSpan(
                         text: ' *',
                         style: TextStyle(color: theme.colorScheme.error),
@@ -86,32 +140,49 @@ class InputField extends StatelessWidget {
                   Expanded(
                     // Fixes layout crash by constraining the TextFormField width
                     child: TextFormField(
-                      controller: controller,
+                      controller: widget.controller,
+                      readOnly: widget.readOnly,
+                      enableInteractiveSelection: !widget.readOnly,
+                      canRequestFocus: !widget.readOnly,
                       validator: (value) {
                         final text = value?.trim() ?? '';
 
-                        if (isRequired && text.isEmpty) {
-                          return requiredMessage;
+                        if (widget.isRequired && text.isEmpty) {
+                          return widget.requiredMessage ??
+                              AppLocalizations.of(context)?.fieldRequired;
                         }
 
-                        return validator?.call(value);
+                        return widget.validator?.call(value);
                       },
-                      onChanged: (_) => onChanged?.call(),
-                      keyboardType: isNumeric
+                      onChanged: (_) => widget.onChanged?.call(),
+                      onTapOutside: (_) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
+                      keyboardType: widget.isNumeric
                           ? TextInputType.number
-                          : keyboardType,
-                      textInputAction: isLast
+                          : widget.keyboardType,
+                      inputFormatters: widget.inputFormatters,
+                      textInputAction: widget.isLast
                           ? TextInputAction.done
                           : TextInputAction.next,
                       cursorColor: colorScheme.primary,
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: widget.readOnly
+                            ? colorScheme.onSurfaceVariant
+                            : colorScheme.onSurface,
+                      ),
                       decoration: InputDecoration(
-                        hintText: hint,
-                        hintStyle: theme.textTheme.labelLarge?.copyWith(
+                        hintText: widget.hint,
+                        hintMaxLines: 2,
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                           fontWeight: FontWeight.w400,
                         ),
                         isDense: true,
+                        filled: widget.readOnly,
+                        fillColor: widget.readOnly
+                            ? colorScheme.surfaceContainerHighest
+                            : null,
                         contentPadding: const EdgeInsets.only(
                           top: 4,
                           bottom: 4,
@@ -130,11 +201,11 @@ class InputField extends StatelessWidget {
                     ),
                   ),
 
-                  if (suffixText != null)
+                  if (widget.suffixText != null)
                     Padding(
                       padding: const EdgeInsets.only(left: 12.0),
                       child: Text(
-                        suffixText!,
+                        widget.suffixText!,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: colorScheme.primary,
                           fontWeight: FontWeight.w600,
@@ -144,10 +215,21 @@ class InputField extends StatelessWidget {
                 ],
               ),
 
-              if (errorText != null) ...[
+              if (widget.helperText != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  widget.helperText!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    height: 1.25,
+                  ),
+                ),
+              ],
+
+              if (widget.errorText != null) ...[
                 const SizedBox(height: 6),
                 Text(
-                  errorText!,
+                  widget.errorText!,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.error,
                     fontWeight: FontWeight.w600,

@@ -9,12 +9,14 @@ class PriceEntryTile extends ConsumerStatefulWidget {
   final PriceEntry priceEntry;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool canEdit;
 
   const PriceEntryTile({
     super.key,
     required this.priceEntry,
     required this.onEdit,
     required this.onDelete,
+    this.canEdit = true,
   });
 
   @override
@@ -30,71 +32,71 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
     final accent = colorScheme.primary;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(0),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(left: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.25)),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
           /// PRICE INFO
           Expanded(
-            child: Column(
+            child: Row(
+              spacing: 8,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
                   "${widget.priceEntry.price} ₸",
                   style: theme.textTheme.titleMedium?.copyWith(
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontSize: 16,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ],
             ),
           ),
 
-          /// EDIT ACTION
-          if (ref
-              .watch(equipmentMutationProvider)
-              .isActionActive("equipment:price:update:${widget.priceEntry.id}"))
-            SizedBox(
-              height: 14,
-              width: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+          if (widget.canEdit) ...[
+            if (ref
+                .watch(equipmentMutationProvider)
+                .isActionActive(
+                  "equipment:price:update:${widget.priceEntry.id}",
+                ))
+              const SizedBox(
+                height: 14,
+                width: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              IconButton(
+                onPressed: widget.onEdit,
+                icon: Icon(Icons.edit_rounded, color: accent, size: 20),
               ),
-            )
-          else
-            IconButton(
-              onPressed: widget.onEdit,
-              icon: Icon(Icons.edit_rounded, color: accent, size: 20),
-            ),
-
-          if (ref
-              .watch(equipmentMutationProvider)
-              .isActionActive("equipment:price:delete:${widget.priceEntry.id}"))
-            SizedBox(
-              height: 14,
-              width: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+            if (ref
+                .watch(equipmentMutationProvider)
+                .isActionActive(
+                  "equipment:price:delete:${widget.priceEntry.id}",
+                ))
+              const SizedBox(
+                height: 14,
+                width: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              IconButton(
+                onPressed: widget.onDelete,
+                icon: Icon(Icons.delete, color: colorScheme.error, size: 20),
               ),
-            )
-          else
-            IconButton(
-              onPressed: widget.onDelete,
-              icon: Icon(Icons.delete, color: Colors.red, size: 20),
-            ),
+          ],
         ],
       ),
     );

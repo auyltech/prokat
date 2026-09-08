@@ -1,5 +1,6 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/models/chat_lookup.dart';
+import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/notifiers/chat_messages_notifier.dart';
@@ -10,7 +11,12 @@ import 'package:prokat/features/auth/providers/authenticated_session_scope.dart'
 
 export 'chat_dependencies.dart'
     show chatServiceProvider, chatSocketServiceProvider;
-export 'chat_list_providers.dart' show clientChatsProvider, ownerChatsProvider;
+export 'chat_list_providers.dart'
+    show
+        clientChatsProvider,
+        ownerChatsProvider,
+        clientChatsByFilterProvider,
+        ownerChatsByFilterProvider;
 
 final chatMessagesProvider =
     AsyncNotifierProvider.family<
@@ -29,17 +35,23 @@ final chatResolverProvider = FutureProvider.family<ChatModel, ChatLookup>((
   }
 
   ChatModel? chat;
-  if (ref.exists(clientChatsProvider)) {
-    chat = _findCachedChat(
-      ref.read(clientChatsProvider.notifier).cachedItemsForScope(scope),
-      lookup,
-    );
-  }
-  if (chat == null && ref.exists(ownerChatsProvider)) {
-    chat = _findCachedChat(
-      ref.read(ownerChatsProvider.notifier).cachedItemsForScope(scope),
-      lookup,
-    );
+  for (final filter in ChatListFilter.values) {
+    if (chat == null && ref.exists(clientChatsByFilterProvider(filter))) {
+      chat = _findCachedChat(
+        ref
+            .read(clientChatsByFilterProvider(filter).notifier)
+            .cachedItemsForScope(scope),
+        lookup,
+      );
+    }
+    if (chat == null && ref.exists(ownerChatsByFilterProvider(filter))) {
+      chat = _findCachedChat(
+        ref
+            .read(ownerChatsByFilterProvider(filter).notifier)
+            .cachedItemsForScope(scope),
+        lookup,
+      );
+    }
   }
   if (chat != null) return chat;
 

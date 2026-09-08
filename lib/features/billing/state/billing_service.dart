@@ -25,7 +25,7 @@ class BillingService {
           final itemsJson = data["data"];
 
           if (itemsJson is! Map<String, dynamic>) {
-            throw FormatException("Invalid account balance");
+            throw const FormatException("Invalid account balance");
           }
 
           return AccountBalanceModel.fromJson(itemsJson);

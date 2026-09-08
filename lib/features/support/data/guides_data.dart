@@ -2,7 +2,7 @@ import 'package:prokat/features/support/models/guide_icon.dart';
 import 'package:prokat/features/support/models/user_guide.dart';
 
 final guides = [
-  UserGuide(
+  const UserGuide(
     id: 'getting_started',
     slug: 'getting-started',
     category: 'GETTING_STARTED',
@@ -91,7 +91,7 @@ Enable notifications to receive updates about your bookings, requests, and messa
     ],
   ),
 
-  UserGuide(
+  const UserGuide(
     id: 'renting',
     slug: 'renting-equipment',
     category: 'RENTING',
@@ -192,7 +192,7 @@ Prokat арқылы техниканы жалға алу жылдам әрі қ�
     ],
   ),
 
-  UserGuide(
+  const UserGuide(
     id: 'listing',
     slug: 'listing-equipment',
     category: 'LISTING',
@@ -281,7 +281,7 @@ Prokat-та кез келген пайдаланушы техника иесі �
     ],
   ),
 
-  UserGuide(
+  const UserGuide(
     id: 'payments',
     slug: 'payments-pricing',
     category: 'PAYMENTS',
@@ -358,7 +358,7 @@ Always verify the total cost before submitting your booking request.
     ],
   ),
 
-  UserGuide(
+  const UserGuide(
     id: 'safety',
     slug: 'safety-trust',
     category: 'SAFETY',
@@ -447,7 +447,7 @@ Use Prokat's communication tools whenever possible for rental-related discussion
     ],
   ),
 
-  UserGuide(
+  const UserGuide(
     id: 'account',
     slug: 'account-settings',
     category: 'ACCOUNT',

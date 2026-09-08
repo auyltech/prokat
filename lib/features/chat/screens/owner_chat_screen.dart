@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
+import 'package:prokat/features/chat/widgets/chat_thread_load_error.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
@@ -31,15 +35,25 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      ref
-          .read(chatMessagesProvider(widget.chatId).notifier)
-          .dismissDisplayedPush();
-      await Future.wait([
-        ref.read(currentChatProvider(widget.chatId).notifier).refreshIfStale(),
-        ref.read(chatMessagesProvider(widget.chatId).notifier).refreshIfStale(),
-      ]);
-    });
+    unawaited(
+      Future.microtask(() async {
+        try {
+          ref
+              .read(chatMessagesProvider(widget.chatId).notifier)
+              .dismissDisplayedPush();
+          await Future.wait([
+            ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
+            ref
+                .read(chatMessagesProvider(widget.chatId).notifier)
+                .refreshIfStale(),
+          ]);
+        } catch (error, stackTrace) {
+          // Socket handshake is recorded in AppSocketService. Do not let a
+          // leftover throw from this microtask become a second Crashlytics fatal.
+          Logger.log('OwnerChatScreen.initState: $error\n$stackTrace');
+        }
+      }),
+    );
   }
 
   @override
@@ -68,7 +82,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       _entryOfferQuery = offerQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(ownerOffersProvider(offerQuery).notifier).refreshIfStale();
+        unawaited(
+          ref.read(ownerOffersProvider(offerQuery).notifier).refreshIfStale(),
+        );
       });
     }
 
@@ -81,9 +97,11 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       _entryNegotiationQuery = negotiationQuery;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref
-            .read(priceNegotiationsProvider(negotiationQuery).notifier)
-            .refreshIfStale();
+        unawaited(
+          ref
+              .read(priceNegotiationsProvider(negotiationQuery).notifier)
+              .refreshIfStale(),
+        );
       });
     }
     final negotiations = negotiationQuery == null
@@ -114,78 +132,52 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       mode: AppMode.ownerMode,
     );
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Column(
-        children: [
-          if ((chatAsync.hasError || messagesAsync.hasError) &&
-              messages.isEmpty)
-            Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.wifi_off_rounded,
-                          size: 48,
-                          color: theme.colorScheme.error.withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          (chatAsync.error ?? messagesAsync.error).toString(),
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            await ref
-                                .read(
-                                  currentChatProvider(widget.chatId).notifier,
-                                )
-                                .refresh();
-
-                            await ref
-                                .read(
-                                  chatMessagesProvider(widget.chatId).notifier,
-                                )
-                                .refresh();
-                          },
-                          icon: const Icon(Icons.refresh_rounded),
-                          label: Text(l10n.retry),
-                        ),
-                      ],
-                    ),
+    return Theme(
+      data: theme.copyWith(
+        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+          backgroundColor: theme.colorScheme.surface,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: Column(
+          children: [
+            if ((chatAsync.hasError || messagesAsync.hasError) &&
+                messages.isEmpty)
+              Expanded(
+                child: ChatThreadLoadError(
+                  error: chatAsync.error ?? messagesAsync.error ?? '',
+                  onRetry: () async {
+                    await ref
+                        .read(currentChatProvider(widget.chatId).notifier)
+                        .refresh();
+                    await ref
+                        .read(chatMessagesProvider(widget.chatId).notifier)
+                        .refresh();
+                  },
+                ),
+              )
+            else
+              Expanded(
+                child: Container(
+                  color: theme.colorScheme.surface,
+                  child: ChatMessageList(
+                    chatId: widget.chatId,
+                    currentUserId: currentUserId,
+                    mode: AppMode.ownerMode,
+                    currentChat: currentChat,
                   ),
                 ),
               ),
-            )
-          else
-            Expanded(
-              child: Container(
-                color: theme.colorScheme.surface,
-                child: ChatMessageList(
-                  chatId: widget.chatId,
-                  currentUserId: currentUserId,
-                  mode: AppMode.ownerMode,
-                  currentChat: currentChat,
-                ),
-              ),
-            ),
-        ],
-      ),
-      bottomNavigationBar: SendMessageForm(
-        chatId: widget.chatId,
-        chatStatus: chatConfig.status,
-        mode: AppMode.ownerMode,
-        currentChat: currentChat,
-        actionBarTitle: chatConfig.actionBartitle,
+          ],
+        ),
+        bottomNavigationBar: SendMessageForm(
+          chatId: widget.chatId,
+          chatStatus: chatConfig.status,
+          mode: AppMode.ownerMode,
+          currentChat: currentChat,
+          actionBarTitle: chatConfig.actionBartitle,
+        ),
       ),
     );
   }

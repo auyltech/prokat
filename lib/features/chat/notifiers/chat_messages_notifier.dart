@@ -6,12 +6,14 @@ import 'package:prokat/features/auth/providers/authenticated_session_scope.dart'
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/providers/chat_list_providers.dart';
+import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/chat/utils/chat_resume_sync_observer.dart';
 import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,8 +90,9 @@ class ChatMessagesNotifier
       unawaited(socketService.leaveChat(chatId).catchError((_) {}));
     });
 
-    final activated = await _activateChatSession(scope, socketService, chatId);
-    if (!activated) {
+    await _tryActivateChatSession(scope, socketService, chatId);
+
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       return const QueryState(itemsPerPage: 50, count: 0);
     }
 
@@ -170,6 +173,18 @@ class ChatMessagesNotifier
     } catch (_) {}
   }
 
+  Future<void> _tryActivateChatSession(
+    AuthenticatedSessionScopeKey scope, [
+    ChatSocketService? requestedSocket,
+    String? requestedChatId,
+  ]) async {
+    try {
+      await _activateChatSession(scope, requestedSocket, requestedChatId);
+    } catch (error, stackTrace) {
+      Logger.log('Chat socket session failed for $chatId: $error\n$stackTrace');
+    }
+  }
+
   Future<bool> _activateChatSession(
     AuthenticatedSessionScopeKey scope, [
     ChatSocketService? requestedSocket,
@@ -247,7 +262,7 @@ class ChatMessagesNotifier
       return;
     }
 
-    final current = state.value;
+    final current = state.valueOrNull;
     if (_stateScope != scope || current == null) {
       _incomingBuffer.add(message);
       return;
@@ -270,7 +285,7 @@ class ChatMessagesNotifier
     if (!isAuthenticatedSessionScopeCurrent(ref, scope) ||
         _socketScope != scope ||
         !_shouldMaintainSession ||
-        state.value == null ||
+        state.valueOrNull == null ||
         _incomingBuffer.isEmpty) {
       return;
     }
@@ -290,19 +305,24 @@ class ChatMessagesNotifier
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
     if (ref.exists(currentChatProvider(chatId))) {
-      ref.read(currentChatProvider(chatId).notifier).setLastMessage(message);
+      final chatNotifier = ref.read(currentChatProvider(chatId).notifier);
+      chatNotifier.setLastMessage(message);
+      chatNotifier.applyWorkStatusEvent(message);
     }
 
-    if (ref.exists(clientChatsProvider)) {
-      ref
-          .read(clientChatsProvider.notifier)
-          .updatePreview(chatId: chatId, message: message);
-    }
-
-    if (ref.exists(ownerChatsProvider)) {
-      ref
-          .read(ownerChatsProvider.notifier)
-          .updatePreview(chatId: chatId, message: message);
+    for (final filter in ChatListFilter.values) {
+      final client = clientChatsByFilterProvider(filter);
+      if (ref.exists(client)) {
+        ref
+            .read(client.notifier)
+            .updatePreview(chatId: chatId, message: message);
+      }
+      final owner = ownerChatsByFilterProvider(filter);
+      if (ref.exists(owner)) {
+        ref
+            .read(owner.notifier)
+            .updatePreview(chatId: chatId, message: message);
+      }
     }
   }
 
@@ -447,16 +467,13 @@ class ChatMessagesNotifier
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
     }
 
-    final previous = _stateScope == scope ? state.value : null;
+    await _tryActivateChatSession(scope);
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+
+    final previous = _stateScope == scope ? state.valueOrNull : null;
     if (previous == null) {
       state = const AsyncLoading();
-      final next = await AsyncValue.guard(() async {
-        final activated = await _activateChatSession(scope);
-        if (!activated) {
-          return const QueryState<ChatMessageModel>(itemsPerPage: 50, count: 0);
-        }
-        return _fetchPage(1, scope);
-      });
+      final next = await AsyncValue.guard(() => _fetchPage(1, scope));
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
         _stateScope = scope;
         state = next;
@@ -466,12 +483,10 @@ class ChatMessagesNotifier
 
     state = AsyncData(previous.copyWith(isRefreshing: true));
     try {
-      final activated = await _activateChatSession(scope);
-      if (!activated) return;
       final fresh = await _fetchPage(1, scope);
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
         _stateScope = scope;
-        final latest = state.value ?? previous;
+        final latest = state.valueOrNull ?? previous;
         final mergedCount = fresh.count > latest.count
             ? fresh.count
             : latest.count;
@@ -498,7 +513,7 @@ class ChatMessagesNotifier
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null || _stateScope != scope) return;
 
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -512,7 +527,7 @@ class ChatMessagesNotifier
       final result = await _fetchPage(current.page + 1, scope);
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 
-      final latest = state.value ?? current;
+      final latest = state.valueOrNull ?? current;
       final mergedCount = result.count > latest.count
           ? result.count
           : latest.count;
@@ -528,7 +543,7 @@ class ChatMessagesNotifier
       );
     } catch (_) {
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
-        final latest = state.value ?? current;
+        final latest = state.valueOrNull ?? current;
         state = AsyncData(latest.copyWith(isLoadingMore: false));
       }
     }
@@ -536,7 +551,7 @@ class ChatMessagesNotifier
 
   void mergeFetchedMessages(List<ChatMessageModel> messages) {
     if (!_canMutateCurrentScope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -547,7 +562,7 @@ class ChatMessagesNotifier
 
   void mergeIncoming(ChatMessageModel message) {
     if (!_canMutateCurrentScope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -564,7 +579,7 @@ class ChatMessagesNotifier
 
   Future<void> invalidate() async {
     if (!_canMutateCurrentScope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -581,9 +596,9 @@ class ChatMessagesNotifier
       } catch (_) {}
     }
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
-    if (_stateScope != scope || current == null) {
+    if (state.hasError || _stateScope != scope || current == null) {
       await refresh();
       return;
     }
@@ -595,7 +610,7 @@ class ChatMessagesNotifier
 
   void insertPending(ChatMessageModel message) {
     if (!_canMutateCurrentScope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -608,7 +623,7 @@ class ChatMessagesNotifier
 
   bool replacePending(ChatMessageModel confirmed) {
     if (!_canMutateCurrentScope) return false;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) {
       return false;
@@ -639,7 +654,7 @@ class ChatMessagesNotifier
 
   void remove(String messageId) {
     if (!_canMutateCurrentScope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -654,7 +669,7 @@ class ChatMessagesNotifier
     if (!_canMutateCurrentScope) return;
     _pendingConfirmationTimers.remove(clientTempId)?.cancel();
 
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -671,7 +686,7 @@ class ChatMessagesNotifier
 
   void clear() {
     if (!_canMutateCurrentScope) return;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return;
 
@@ -689,7 +704,7 @@ class ChatMessagesNotifier
   // useful for reactions, edits, delete, read receipts, etc.
   ChatMessageModel? getMessage(String id) {
     if (!_canMutateCurrentScope) return null;
-    final current = state.value;
+    final current = state.valueOrNull;
 
     if (current == null) return null;
 

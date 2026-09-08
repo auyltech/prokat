@@ -41,7 +41,7 @@ class LogoTile extends StatelessWidget {
                   //   color: Color(0xFF1A1A2E),
                   // ),
                   children: [
-                    TextSpan(text: 'PRO'),
+                    const TextSpan(text: 'PRO'),
                     TextSpan(
                       text: 'KAT',
                       style: TextStyle(color: theme.colorScheme.primary),

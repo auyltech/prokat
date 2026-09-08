@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -28,11 +31,13 @@ class _CityPickerTriggerState extends ConsumerState<CityPickerTrigger> {
         size: 24,
       ),
       label: Text(
-        selectedCity ?? l10n.selectCity,
+        (selectedCity == null || selectedCity.isEmpty)
+            ? l10n.selectCity
+            : catalogCityLabelOf(ref, context, selectedCity),
         style: TextStyle(color: theme.colorScheme.onPrimary),
       ),
       onPressed: () {
-        CityPickerSheet.show(context: context);
+        unawaited(CityPickerSheet.show(context: context));
       },
     );
   }

@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -38,9 +40,11 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      await ref.read(ownerProfileProvider.notifier).refreshIfStale();
-    });
+    unawaited(
+      Future.microtask(() async {
+        await ref.read(ownerProfileProvider.notifier).refreshIfStale();
+      }),
+    );
   }
 
   @override
@@ -59,7 +63,7 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
         ownerProfile?.notificationSettings ??
         const OwnerNotificationPreferences();
 
-    final ownerColor = AppColors.teal800;
+    const ownerColor = AppColors.teal800;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -92,7 +96,9 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
 
                 if (selectedMode == null) return;
 
-                ref.read(themeModeProvider.notifier).setThemeMode(selectedMode);
+                await ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(selectedMode);
               },
             ),
 
