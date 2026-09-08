@@ -4,7 +4,7 @@
 
 ## Сообщения
 
-HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:join` только для live. Отказ connect не роняет историю. Handshake `Not authorized` пишется в Crashlytics (`reason: socket_connect`). В нотифаере сообщений читать `AsyncValue.valueOrNull`, не `value`.
+HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:join` только для live. Отказ connect не роняет историю. В Crashlytics (`reason: socket_connect`, non-fatal) только `Not authorized`; timeout и cancel при background/logout — только Logger. В нотифаере сообщений читать `AsyncValue.valueOrNull`, не `value`.
 
 ## Список
 

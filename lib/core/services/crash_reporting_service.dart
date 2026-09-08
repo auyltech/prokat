@@ -38,8 +38,9 @@ class CrashReportingService {
     _initialized = true;
   }
 
-  /// Records [error] in Crashlytics. Use [fatal] for handshake failures that
-  /// previously showed up only as a misleading `AsyncError.value` crash.
+  /// Records [error] in Crashlytics. Prefer [fatal]: false for recoverable
+  /// issues (e.g. socket `Not authorized`); reserve [fatal]: true for real
+  /// process crashes.
   static Future<void> recordError(
     Object error,
     StackTrace stackTrace, {
