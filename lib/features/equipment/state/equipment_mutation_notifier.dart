@@ -262,7 +262,9 @@ class EquipmentMutationNotifier
         finishAction(actionId);
 
         await _refreshEquipmentCaches(equipmentId);
-        unawaited(ref.read(billingProvider.notifier).getOwnerBalance());
+        unawaited(
+          ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+        );
 
         return true;
       }
@@ -333,7 +335,9 @@ class EquipmentMutationNotifier
       if (result.success) {
         finishAction(actionId);
 
-        unawaited(ref.read(billingProvider.notifier).getOwnerBalance());
+        unawaited(
+          ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+        );
         unawaited(ref.read(ownerProfileProvider.notifier).refresh());
         await _refreshEquipmentCaches(equipmentId);
 
