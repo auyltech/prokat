@@ -118,8 +118,10 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8 shrinks, optimizes, and obfuscates Java/Kotlin DEX.
+            // Required for Google Play's 25% obfuscation threshold (enforced Feb 2027).
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
 }
