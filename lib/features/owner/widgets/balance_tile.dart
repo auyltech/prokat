@@ -24,7 +24,13 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
   @override
   void initState() {
     super.initState();
-    _balancePoll = Timer.periodic(const Duration(seconds: 15), (_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (ref.read(billingProvider).accountBalance == null) {
+        unawaited(ref.read(billingProvider.notifier).getOwnerBalance());
+      }
+    });
+    _balancePoll = Timer.periodic(const Duration(seconds: 60), (_) {
       if (!mounted) return;
       unawaited(
         ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
@@ -47,25 +53,21 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
         ref.watch(ownerProfileProvider).valueOrNull?.onlineStatus ==
         OwnerStatus.online;
 
-    final onlineEquipment = ref
-        .watch(ownerEquipmentProvider.notifier)
-        .onlineEquipmentCount;
+    final onlineEquipment = ref.watch(
+      ownerEquipmentProvider.select(
+        (async) =>
+            async.valueOrNull?.items.where((item) => item.isVisible).length ??
+            0,
+      ),
+    );
 
     final billingActive = ownerOnline && billingState.hasActiveBurn;
     final burnRate = billingActive ? billingState.burnRateMinutesPerHour : 0;
+    final hasBalanceError = billingState.errors.containsKey('balance');
+    final balanceUnknown = billingState.accountBalance == null;
 
-    // ── Loading state ──
-    if (billingState.isBalanceLoading) {
-      return const BaseTile(
-        child: SizedBox(
-          height: 120,
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      );
-    }
-
-    // ── Error state ──
-    if (billingState.errors.containsKey('balance')) {
+    // ── Error state (only when we have nothing to show) ──
+    if (hasBalanceError && balanceUnknown) {
       return BaseTile(
         child: Row(
           children: [
@@ -111,6 +113,16 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                   ref.read(billingProvider.notifier).getOwnerBalance(),
             ),
           ],
+        ),
+      );
+    }
+
+    // ── Loading / unknown wallet ──
+    if (billingState.isBalanceLoading || balanceUnknown) {
+      return const BaseTile(
+        child: SizedBox(
+          height: 120,
+          child: Center(child: CircularProgressIndicator()),
         ),
       );
     }

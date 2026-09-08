@@ -46,9 +46,13 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
     final secondsRemaining = billingState.accountBalance?.secondsRemaining ?? 0;
     final humanReadableTime = getTimeString(secondsRemaining, l10n);
 
-    final onlineEquipment = ref
-        .watch(ownerEquipmentProvider.notifier)
-        .onlineEquipmentCount;
+    final onlineEquipment = ref.watch(
+      ownerEquipmentProvider.select(
+        (async) =>
+            async.valueOrNull?.items.where((item) => item.isVisible).length ??
+            0,
+      ),
+    );
 
     final volumeDiscountItems = billingState.volumeDiscounts;
 

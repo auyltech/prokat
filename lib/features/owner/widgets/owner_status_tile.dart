@@ -118,8 +118,14 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     final isOutOfPaidMinutes = ref.watch(
       billingProvider.select((state) => state.isOutOfPaidMinutes),
     );
+    final hasKnownBalance = ref.watch(
+      billingProvider.select((state) => state.accountBalance != null),
+    );
 
-    final isOnline = currentStatus == OwnerStatus.online && !isOutOfPaidMinutes;
+    final isOnline =
+        currentStatus == OwnerStatus.online &&
+        hasKnownBalance &&
+        !isOutOfPaidMinutes;
 
     return BaseTile(
       padding: EdgeInsets.zero,
