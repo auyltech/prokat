@@ -115,6 +115,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
         .watch(ownerProfileProvider)
         .valueOrNull
         ?.onlineStatus;
+    final hasProfile = ref.watch(ownerProfileProvider).valueOrNull != null;
     final isOutOfPaidMinutes = ref.watch(
       billingProvider.select((state) => state.isOutOfPaidMinutes),
     );
@@ -129,26 +130,39 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
 
     return BaseTile(
       padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 6,
-          backgroundColor: isOnline ? Colors.green : Colors.grey,
-        ),
-        title: Text(
-          isOnline ? l10n.youAreOnline : l10n.youAreOffline,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-        ),
-        subtitle: Text(
-          isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-        ),
-        trailing: Switch.adaptive(
-          value: isOnline,
-          activeThumbColor: const Color(0xFF0F5A56),
-          onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
-              ? null
-              : _onToggleMethod,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              radius: 6,
+              backgroundColor: isOnline ? Colors.green : Colors.grey,
+            ),
+            title: Text(
+              isOnline ? l10n.youAreOnline : l10n.youAreOffline,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            subtitle: Text(
+              isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            trailing: Switch.adaptive(
+              value: isOnline,
+              activeThumbColor: const Color(0xFF0F5A56),
+              onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
+                  ? null
+                  : _onToggleMethod,
+            ),
+          ),
+          if (!isOnline && hasProfile)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                l10n.ownerOfflineMustBeOnlineToAccept,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
+            ),
+        ],
       ),
     );
   }

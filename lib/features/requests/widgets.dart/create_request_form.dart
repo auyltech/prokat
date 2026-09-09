@@ -19,8 +19,8 @@ import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/time_picker_component.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
-import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -63,7 +63,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   }
 
   void _syncVacuumCategory() {
-    final vacuum = _vacuumCategory(ref.read(catalogProvider).valueOrNull);
+    final vacuum = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull);
     if (vacuum == null) return;
     ref.read(requestMutationProvider.notifier).selectCategory(vacuum);
   }
@@ -140,7 +140,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
     final locationState = ref.watch(locationProvider);
     final catalog = ref.watch(catalogProvider).valueOrNull;
-    final vacuum = _vacuumCategory(catalog);
+    final vacuum = vacuumTrucksCategory(catalog);
 
     final requestState = ref.watch(requestMutationProvider);
     final requestNotifier = ref.read(requestMutationProvider.notifier);
@@ -154,7 +154,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     });
 
     ref.listen(catalogProvider, (previous, next) {
-      final nextVacuum = _vacuumCategory(next.valueOrNull);
+      final nextVacuum = vacuumTrucksCategory(next.valueOrNull);
       if (nextVacuum == null) return;
       ref.read(requestMutationProvider.notifier).selectCategory(nextVacuum);
     });
@@ -291,14 +291,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       ],
     );
   }
-}
-
-Category? _vacuumCategory(CatalogBundle? catalog) {
-  final item = catalog?.categories
-      .where((category) => category.slug == 'vacuum_trucks')
-      .firstOrNull;
-  if (item == null) return null;
-  return Category.fromCatalog(item);
 }
 
 class _LockedVacuumServiceRow extends StatelessWidget {

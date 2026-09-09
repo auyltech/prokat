@@ -68,10 +68,10 @@ class ClientEquipmentTile extends ConsumerWidget {
                 child: Row(
                   children: [
                     _badge(
-                      text: equipment.status == EquipmentStatus.available
+                      text: equipment.owner?.isAccountOnline == true
                           ? "• ${l10n.online}"
                           : l10n.offline,
-                      color: equipment.status == EquipmentStatus.available
+                      color: equipment.owner?.isAccountOnline == true
                           ? Colors.green
                           : Colors.grey,
                     ),

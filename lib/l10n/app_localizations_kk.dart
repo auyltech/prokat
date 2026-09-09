@@ -2701,7 +2701,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get details => 'Толығырақ';
 
   @override
-  String get demandSurveyCardTitle => 'Басқа техника?';
+  String get demandSurveyCardTitle => 'Техника ұсыну';
 
   @override
   String get demandSurveyCardSubtitle => 'Қандай техника керегін айтыңыз';
@@ -3163,6 +3163,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get notAcceptingOrders => 'Тапсырыстар қабылданбайды';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAccept =>
+      'Клиенттің тікелей өтінімдерін қабылдау немесе ашық сұраныстарға жауап беру үшін сіз онлайн болуыңыз керек';
 
   @override
   String get youAreNowOnline => 'Енді сіз онлайнсыз';

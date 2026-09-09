@@ -2721,7 +2721,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get details => 'Подробнее';
 
   @override
-  String get demandSurveyCardTitle => 'Другая техника?';
+  String get demandSurveyCardTitle => 'Предложить технику';
 
   @override
   String get demandSurveyCardSubtitle => 'Расскажите, что вам нужно';
@@ -3191,6 +3191,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notAcceptingOrders => 'Не принимаете заказы';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAccept =>
+      'Чтобы принимать прямые заявки клиентов или откликаться на открытые запросы, вы должны быть онлайн';
 
   @override
   String get youAreNowOnline => 'Вы теперь онлайн';

@@ -5215,7 +5215,7 @@ abstract class AppLocalizations {
   /// No description provided for @demandSurveyCardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Other equipment?'**
+  /// **'Suggest equipment'**
   String get demandSurveyCardTitle;
 
   /// No description provided for @demandSurveyCardSubtitle.
@@ -5991,6 +5991,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not accepting orders'**
   String get notAcceptingOrders;
+
+  /// No description provided for @ownerOfflineMustBeOnlineToAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'To accept direct client requests or respond to open tenders, you must be online'**
+  String get ownerOfflineMustBeOnlineToAccept;
 
   /// No description provided for @youAreNowOnline.
   ///

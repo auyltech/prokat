@@ -2703,7 +2703,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get details => 'Details';
 
   @override
-  String get demandSurveyCardTitle => 'Other equipment?';
+  String get demandSurveyCardTitle => 'Suggest equipment';
 
   @override
   String get demandSurveyCardSubtitle => 'Tell us what you need';
@@ -3159,6 +3159,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notAcceptingOrders => 'Not accepting orders';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAccept =>
+      'To accept direct client requests or respond to open tenders, you must be online';
 
   @override
   String get youAreNowOnline => 'You are now online';

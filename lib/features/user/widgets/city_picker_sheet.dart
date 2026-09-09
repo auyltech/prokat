@@ -94,12 +94,7 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     final selectedCity =
         widget.highlightedCity ?? ref.watch(locationProvider).city;
     final title = l10n.selectCity;
-    final allLocationsLabel = l10n.allLocations;
     final cityKeys = catalogCityKeys(catalog);
-
-    final cityOptions = widget.service == CitySelectorService.guestcategory
-        ? ["", ...cityKeys]
-        : cityKeys;
 
     return SafeArea(
       top: false,
@@ -134,26 +129,21 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemCount: cityOptions.length,
+                  itemCount: cityKeys.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final option = cityOptions[index];
-                    final isSelected = option.isEmpty
-                        ? (selectedCity == null || selectedCity.isEmpty)
-                        : isSameCity(option, selectedCity);
+                    final option = cityKeys[index];
+                    final isSelected = isSameCity(option, selectedCity);
 
                     return ListTile(
                       leading: const Icon(Icons.location_city),
                       title: Text(
-                        option.isEmpty
-                            ? allLocationsLabel
-                            : catalogCityLabel(
-                                city: option,
-                                languageCode: locale,
-                                catalog: catalog,
-                                fallback: (city) =>
-                                    localizedCityName(city, l10n),
-                              ),
+                        catalogCityLabel(
+                          city: option,
+                          languageCode: locale,
+                          catalog: catalog,
+                          fallback: (city) => localizedCityName(city, l10n),
+                        ),
                       ),
                       trailing: isSelected
                           ? Icon(
