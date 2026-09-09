@@ -76,10 +76,17 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       );
     } else {
       titleString = resolveAppBarTitle(currentPath, segments, l10n);
-      titleWidget = Text(
-        titleString,
-        style: theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
+      final isBecomeOwner = currentPath == AppRoutes.becomeOwner;
+      titleWidget = FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(
+          titleString,
+          maxLines: isBecomeOwner ? 2 : 1,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: isBecomeOwner ? 18 : null,
+          ),
         ),
       );
     }

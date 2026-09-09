@@ -336,7 +336,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resendOtp => 'Resend OTP';
 
   @override
-  String get equipmentRenting => 'Equipment Renting';
+  String get equipmentRenting => 'special equipment rental';
+
+  @override
+  String get yourPhoneNumber => 'Your phone number';
+
+  @override
+  String get otpWhatsAppHint =>
+      'We\'ll send a code to WhatsApp. No password needed.';
 
   @override
   String get getStartedWithProkat => 'Get Started with Prokat';
@@ -344,6 +351,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guestSignInDescription =>
       'Sign in to browse equipment, contact owners directly, and place orders in a few taps.';
+
+  @override
+  String get guestOwnerInviteTitle => 'Do you have special equipment?';
+
+  @override
+  String get guestOwnerInviteSubtitle =>
+      'List your machines and get orders in your city';
 
   @override
   String get equipmentSubmittedForReview => 'Equipment submitted for review';
@@ -390,6 +404,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String noEquipmentListedInCity(String category, String city) {
     return 'There are no $category listed in $city at the moment.';
   }
+
+  @override
+  String get noActiveOffers => 'There are no active listings right now.';
 
   @override
   String equipmentIsNow(String status) {
@@ -775,16 +792,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveFailed => 'Failed to save';
 
   @override
-  String get heroPlatformTag => 'KAZAKHSTAN\'S #1 RENTAL PLATFORM';
+  String get heroPlatformTag => 'A CONVENIENT RENTAL PLATFORM IN KAZAKHSTAN';
 
   @override
-  String get heroTitle => 'Find & rent equipment\nin minutes';
+  String get heroTitle => 'Need special equipment?\nFind a machine nearby!';
 
   @override
   String get allLocations => 'All Locations';
 
   @override
   String get getStarted => 'Get Started';
+
+  @override
+  String get hireEquipment => 'Hire equipment';
+
+  @override
+  String get receiveOrders => 'Get orders';
 
   @override
   String get services => 'Services';
@@ -980,6 +1003,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registrationFailed => 'Registration failed. Try again.';
+
+  @override
+  String get enterCode => 'Enter the code';
 
   @override
   String get otpSubtitle => 'Enter the 6-digit code sent to';
@@ -1633,7 +1659,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerDashboard => 'Owner Dashboard';
 
   @override
-  String get becomeOwner => 'Become an Owner';
+  String get becomeOwner => 'Start listing equipment';
+
+  @override
+  String get placementApplicationTitle => 'Submit a listing application';
 
   @override
   String get registrationStatus => 'Registration Status';
@@ -1971,7 +2000,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownerDashboardSubtitle => 'Manage your assets and earnings';
 
   @override
-  String get becomeOwnerSubtitle => 'Start earning by listing your equipment';
+  String get becomeOwnerSubtitle => 'List equipment and get orders';
 
   @override
   String get requestStatus => 'Request';
@@ -2124,7 +2153,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinTeamHint =>
-      'Join our team and offer your equipment or services to clients.';
+      'Fill in a short form — our administrators will check that everything is in order and you can start working!';
+
+  @override
+  String get requiredInParens => '(required)';
 
   @override
   String get requestReviewedHint =>

@@ -41,7 +41,7 @@ String resolveAppBarTitle(
   if (path == AppRoutes.clientDocuments) return l10n.documents;
   if (path == AppRoutes.clientSettings) return l10n.navSettings;
 
-  if (path == AppRoutes.becomeOwner) return l10n.becomeOwner;
+  if (path == AppRoutes.becomeOwner) return l10n.placementApplicationTitle;
   if (path == AppRoutes.helpSupport) return l10n.helpCenter;
 
   if (path == AppRoutes.searchMap) return l10n.mapSearch;

@@ -141,23 +141,34 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
     final isTimerActive = _secondsRemaining > 0;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 20),
+        Text(
+          _l10n.enterCode,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            letterSpacing: -1,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
         Text(
           _l10n.otpSubtitle,
+          textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall?.copyWith(
             color: onSurface.withValues(alpha: 0.6),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           widget.phone,
+          textAlign: TextAlign.center,
           style: theme.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: onSurface,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         OtpField(controller: otpController),
         const SizedBox(height: 32),
         ListenableBuilder(
@@ -180,18 +191,19 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
 
         // Consolidated Resend Logic UI Section
         if (isTimerActive) ...[
-          // State A: Timer is ticking down
-          Text(
-            _l10n.otpRetryIn(_secondsRemaining),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: onSurface.withValues(alpha: 0.6),
-              fontWeight: FontWeight.w500,
+          Center(
+            child: Text(
+              _l10n.otpRetryIn(_secondsRemaining),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: onSurface.withValues(alpha: 0.6),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ] else ...[
-          // State B: Timer reached 0. Actionable Resend Link
-          TextButton(
+          Center(
+            child: TextButton(
             onPressed: authState.isLoading ? null : resendOtp,
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
@@ -204,6 +216,7 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
                 color: primary,
                 fontWeight: FontWeight.bold,
               ),
+            ),
             ),
           ),
         ],

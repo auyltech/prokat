@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:prokat/core/widgets/shake_on_tick.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class InputField extends StatefulWidget {
@@ -22,6 +23,12 @@ class InputField extends StatefulWidget {
   final String? helperText;
   final String? requiredMessage;
   final bool readOnly;
+  final bool showFieldErrors;
+  final bool requiredHintMuted;
+  final bool Function()? isBlank;
+  final int shakeTick;
+  final int? maxLines;
+  final int hintMaxLines;
 
   const InputField({
     super.key,
@@ -44,6 +51,12 @@ class InputField extends StatefulWidget {
     this.helperText,
     this.requiredHintText,
     this.readOnly = false,
+    this.showFieldErrors = true,
+    this.requiredHintMuted = false,
+    this.isBlank,
+    this.shakeTick = 0,
+    this.maxLines,
+    this.hintMaxLines = 2,
   });
 
   @override
@@ -80,11 +93,23 @@ class _InputFieldState extends State<InputField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final showRequiredHint =
-        widget.isRequired && widget.controller.text.trim().isEmpty;
+    final isBlank =
+        widget.isBlank?.call() ?? widget.controller.text.trim().isEmpty;
+    final showRequiredHint = widget.isRequired && isBlank;
+    final requiredHintStyle = widget.requiredHintMuted
+        ? theme.textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurface.withValues(alpha: 0.45),
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w400,
+          )
+        : theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.error,
+            fontWeight: FontWeight.w500,
+          );
 
     return Row(
-      crossAxisAlignment: widget.helperText != null
+      crossAxisAlignment:
+          widget.helperText != null || (widget.maxLines ?? 1) > 1
           ? CrossAxisAlignment.start
           : CrossAxisAlignment.center,
       children: [
@@ -108,29 +133,36 @@ class _InputFieldState extends State<InputField> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Top row: Label and required indicator
-              Text.rich(
-                TextSpan(
-                  text: widget.label,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  children: [
-                    if (showRequiredHint &&
-                        widget.requiredHintText != null &&
-                        widget.requiredHintText!.isNotEmpty)
-                      TextSpan(
-                        text: ' ${widget.requiredHintText}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.error,
-                          fontWeight: FontWeight.w500,
+              ShakeOnTick(
+                tick: widget.shakeTick,
+                child: Text.rich(
+                  TextSpan(
+                    text: widget.label,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    children: [
+                      if (showRequiredHint &&
+                          widget.requiredHintText != null &&
+                          widget.requiredHintText!.isNotEmpty)
+                        TextSpan(
+                          text: ' ${widget.requiredHintText}',
+                          style: requiredHintStyle,
+                        )
+                      else if (showRequiredHint)
+                        TextSpan(
+                          text: ' *',
+                          style: TextStyle(
+                            color: widget.requiredHintMuted
+                                ? colorScheme.onSurface.withValues(alpha: 0.45)
+                                : theme.colorScheme.error,
+                            fontStyle: widget.requiredHintMuted
+                                ? FontStyle.italic
+                                : FontStyle.normal,
+                          ),
                         ),
-                      )
-                    else if (showRequiredHint)
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(color: theme.colorScheme.error),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
@@ -144,10 +176,14 @@ class _InputFieldState extends State<InputField> {
                       readOnly: widget.readOnly,
                       enableInteractiveSelection: !widget.readOnly,
                       canRequestFocus: !widget.readOnly,
+                      maxLines: widget.maxLines,
                       validator: (value) {
-                        final text = value?.trim() ?? '';
+                        if (!widget.showFieldErrors) return null;
 
-                        if (widget.isRequired && text.isEmpty) {
+                        final text = value?.trim() ?? '';
+                        final isBlank = widget.isBlank?.call() ?? text.isEmpty;
+
+                        if (widget.isRequired && isBlank) {
                           return widget.requiredMessage ??
                               AppLocalizations.of(context)?.fieldRequired;
                         }
@@ -173,7 +209,7 @@ class _InputFieldState extends State<InputField> {
                       ),
                       decoration: InputDecoration(
                         hintText: widget.hint,
-                        hintMaxLines: 2,
+                        hintMaxLines: widget.hintMaxLines,
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.5),
                           fontWeight: FontWeight.w400,

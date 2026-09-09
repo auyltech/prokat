@@ -15,7 +15,6 @@ class LogoTile extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 1. Icon
           Container(
             padding: const EdgeInsets.all(16),
             child: Image.asset(
@@ -27,19 +26,12 @@ class LogoTile extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          // 2. Prokat (Brand Name)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               RichText(
                 text: TextSpan(
-                  style: theme.textTheme.displayLarge,
-                  // TextStyle(
-                  //   fontSize: 22,
-                  //   fontWeight: FontWeight.w800,
-                  //   letterSpacing: 0.04 * 22,
-                  //   color: Color(0xFF1A1A2E),
-                  // ),
+                  style: theme.textTheme.displayLarge?.copyWith(height: 0.92),
                   children: [
                     const TextSpan(text: 'PRO'),
                     TextSpan(
@@ -49,14 +41,15 @@ class LogoTile extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // 3. Slogan
+              const SizedBox(height: 2),
               Text(
-                AppLocalizations.of(context)!.equipmentRenting.toUpperCase(),
+                AppLocalizations.of(context)!.equipmentRenting,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.4,
+                  height: 1.0,
                 ),
               ),
             ],

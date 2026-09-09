@@ -148,7 +148,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
             ),
           ),
           const SizedBox(height: 24),
-          const LoginTile(),
+          LoginTile(label: l10n.hireEquipment),
         ],
       ),
     );

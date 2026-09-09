@@ -703,8 +703,20 @@ abstract class AppLocalizations {
   /// No description provided for @equipmentRenting.
   ///
   /// In en, this message translates to:
-  /// **'Equipment Renting'**
+  /// **'special equipment rental'**
   String get equipmentRenting;
+
+  /// No description provided for @yourPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone number'**
+  String get yourPhoneNumber;
+
+  /// No description provided for @otpWhatsAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send a code to WhatsApp. No password needed.'**
+  String get otpWhatsAppHint;
 
   /// No description provided for @getStartedWithProkat.
   ///
@@ -717,6 +729,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in to browse equipment, contact owners directly, and place orders in a few taps.'**
   String get guestSignInDescription;
+
+  /// No description provided for @guestOwnerInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you have special equipment?'**
+  String get guestOwnerInviteTitle;
+
+  /// No description provided for @guestOwnerInviteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'List your machines and get orders in your city'**
+  String get guestOwnerInviteSubtitle;
 
   /// No description provided for @equipmentSubmittedForReview.
   ///
@@ -795,6 +819,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There are no {category} listed in {city} at the moment.'**
   String noEquipmentListedInCity(String category, String city);
+
+  /// No description provided for @noActiveOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no active listings right now.'**
+  String get noActiveOffers;
 
   /// No description provided for @equipmentIsNow.
   ///
@@ -1489,13 +1519,13 @@ abstract class AppLocalizations {
   /// No description provided for @heroPlatformTag.
   ///
   /// In en, this message translates to:
-  /// **'KAZAKHSTAN\'S #1 RENTAL PLATFORM'**
+  /// **'A CONVENIENT RENTAL PLATFORM IN KAZAKHSTAN'**
   String get heroPlatformTag;
 
   /// No description provided for @heroTitle.
   ///
   /// In en, this message translates to:
-  /// **'Find & rent equipment\nin minutes'**
+  /// **'Need special equipment?\nFind a machine nearby!'**
   String get heroTitle;
 
   /// No description provided for @allLocations.
@@ -1509,6 +1539,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started'**
   String get getStarted;
+
+  /// No description provided for @hireEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Hire equipment'**
+  String get hireEquipment;
+
+  /// No description provided for @receiveOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Get orders'**
+  String get receiveOrders;
 
   /// No description provided for @services.
   ///
@@ -1899,6 +1941,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Registration failed. Try again.'**
   String get registrationFailed;
+
+  /// No description provided for @enterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get enterCode;
 
   /// No description provided for @otpSubtitle.
   ///
@@ -3175,8 +3223,14 @@ abstract class AppLocalizations {
   /// No description provided for @becomeOwner.
   ///
   /// In en, this message translates to:
-  /// **'Become an Owner'**
+  /// **'Start listing equipment'**
   String get becomeOwner;
+
+  /// No description provided for @placementApplicationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit a listing application'**
+  String get placementApplicationTitle;
 
   /// No description provided for @registrationStatus.
   ///
@@ -3841,7 +3895,7 @@ abstract class AppLocalizations {
   /// No description provided for @becomeOwnerSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Start earning by listing your equipment'**
+  /// **'List equipment and get orders'**
   String get becomeOwnerSubtitle;
 
   /// No description provided for @requestStatus.
@@ -4135,8 +4189,14 @@ abstract class AppLocalizations {
   /// No description provided for @joinTeamHint.
   ///
   /// In en, this message translates to:
-  /// **'Join our team and offer your equipment or services to clients.'**
+  /// **'Fill in a short form — our administrators will check that everything is in order and you can start working!'**
   String get joinTeamHint;
+
+  /// No description provided for @requiredInParens.
+  ///
+  /// In en, this message translates to:
+  /// **'(required)'**
+  String get requiredInParens;
 
   /// No description provided for @requestReviewedHint.
   ///

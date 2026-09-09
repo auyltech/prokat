@@ -335,7 +335,14 @@ class AppLocalizationsKk extends AppLocalizations {
   String get resendOtp => 'Кодты қайта жіберу';
 
   @override
-  String get equipmentRenting => 'Техника жалдау';
+  String get equipmentRenting => 'арнайы техниканы жалға беру';
+
+  @override
+  String get yourPhoneNumber => 'Телефон нөміріңіз';
+
+  @override
+  String get otpWhatsAppHint =>
+      'Кодты WhatsApp-қа жібереміз. Құпиясөз жасаудың қажеті жоқ.';
 
   @override
   String get getStartedWithProkat => 'Prokat-пен бастаңыз';
@@ -343,6 +350,13 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get guestSignInDescription =>
       'Техниканы көру, иелерімен байланысу және тапсырыс беру үшін жүйеге кіріңіз.';
+
+  @override
+  String get guestOwnerInviteTitle => 'Сізде арнайы техника бар ма?';
+
+  @override
+  String get guestOwnerInviteSubtitle =>
+      'Техниканызды орналастырып, өз қалаңызда тапсырыс алыңыз';
 
   @override
   String get equipmentSubmittedForReview => 'Техника тексеруге жіберілді';
@@ -389,6 +403,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String noEquipmentListedInCity(String category, String city) {
     return 'Қазір $city қаласында «$category» санатындағы техника жоқ.';
   }
+
+  @override
+  String get noActiveOffers => 'Қазір белсенді ұсыныстар жоқ';
 
   @override
   String equipmentIsNow(String status) {
@@ -765,16 +782,22 @@ class AppLocalizationsKk extends AppLocalizations {
   String get saveFailed => 'Сақтау мүмкін болмады';
 
   @override
-  String get heroPlatformTag => 'ҚАЗАҚСТАНДАҒЫ №1 ЖАЛДАУ ПЛАТФОРМАСЫ';
+  String get heroPlatformTag => 'ҚАЗАҚСТАНДАҒЫ ЫҢҒАЙЛЫ ЖАЛДАУ ПЛАТФОРМАСЫ';
 
   @override
-  String get heroTitle => 'Техниканы минуттар ішінде\nтауып, жалдаңыз';
+  String get heroTitle => 'Арнайы техника керек пе?\nЖақыннан машина табыңыз!';
 
   @override
   String get allLocations => 'Барлық қалалар';
 
   @override
   String get getStarted => 'Бастау';
+
+  @override
+  String get hireEquipment => 'Техника жалдау';
+
+  @override
+  String get receiveOrders => 'Тапсырыс алу';
 
   @override
   String get services => 'Қызметтер';
@@ -970,6 +993,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get registrationFailed => 'Тіркеу сәтсіз. Қайталаңыз.';
+
+  @override
+  String get enterCode => 'Кодты енгізіңіз';
 
   @override
   String get otpSubtitle => 'Жіберілген 6 санды кодты енгізіңіз';
@@ -1624,7 +1650,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get ownerDashboard => 'Иесінің тақтасы';
 
   @override
-  String get becomeOwner => 'Иесіне айналу';
+  String get becomeOwner => 'Техниканы жалға бере бастау';
+
+  @override
+  String get placementApplicationTitle => 'Орналастыруға өтінім беру';
 
   @override
   String get registrationStatus => 'Тіркелу күйі';
@@ -1963,7 +1992,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get ownerDashboardSubtitle => 'Активтер мен кірісті басқарыңыз';
 
   @override
-  String get becomeOwnerSubtitle => 'Техниканызды жалға беріп табыс табыңыз';
+  String get becomeOwnerSubtitle => 'Техниканы орналастырып, тапсырыс алыңыз';
 
   @override
   String get requestStatus => 'Сұраныс';
@@ -2118,7 +2147,10 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get joinTeamHint =>
-      'Біздің командаға қосылып, жабдықтарыңызды немесе қызметтеріңізді клиенттерге ұсыныңыз.';
+      'Қысқа нысанды толтырыңыз, әкімшілер бәрі дұрыс екенін тексеріп, жұмысты бастауға болады!';
+
+  @override
+  String get requiredInParens => '(міндетті)';
 
   @override
   String get requestReviewedHint =>

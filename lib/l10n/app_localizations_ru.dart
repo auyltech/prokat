@@ -340,7 +340,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get resendOtp => 'Отправить код повторно';
 
   @override
-  String get equipmentRenting => 'Аренда техники';
+  String get equipmentRenting => 'аренда спецтехники';
+
+  @override
+  String get yourPhoneNumber => 'Ваш номер телефона';
+
+  @override
+  String get otpWhatsAppHint =>
+      'Отправим код в WhatsApp. Пароль создавать не нужно.';
 
   @override
   String get getStartedWithProkat => 'Начните работу с Prokat';
@@ -348,6 +355,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get guestSignInDescription =>
       'Войдите, чтобы просматривать технику, связываться с владельцами и оформлять заказы в несколько нажатий.';
+
+  @override
+  String get guestOwnerInviteTitle => 'У Вас есть спецтехника?';
+
+  @override
+  String get guestOwnerInviteSubtitle =>
+      'Разместите технику и получайте заказы в своём городе';
 
   @override
   String get equipmentSubmittedForReview => 'Техника отправлена на проверку';
@@ -394,6 +408,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String noEquipmentListedInCity(String category, String city) {
     return 'Сейчас техника в категории «$category» в городе $city отсутствует.';
   }
+
+  @override
+  String get noActiveOffers => 'Сейчас нет активных предложений';
 
   @override
   String equipmentIsNow(String status) {
@@ -781,16 +798,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get saveFailed => 'Не удалось сохранить';
 
   @override
-  String get heroPlatformTag => 'ПЛАТФОРМА АРЕНДЫ №1 В КАЗАХСТАНЕ';
+  String get heroPlatformTag => 'УДОБНАЯ ПЛАТФОРМА АРЕНДЫ В КАЗАХСТАНЕ';
 
   @override
-  String get heroTitle => 'Найди и арендуй технику\nза минуты';
+  String get heroTitle => 'Нужна спецтехника?\nНайдите машину рядом!';
 
   @override
   String get allLocations => 'Все города';
 
   @override
   String get getStarted => 'Начать';
+
+  @override
+  String get hireEquipment => 'Нанять технику';
+
+  @override
+  String get receiveOrders => 'Получать заказы';
 
   @override
   String get services => 'Услуги';
@@ -986,6 +1009,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get registrationFailed => 'Ошибка регистрации. Повторите попытку.';
+
+  @override
+  String get enterCode => 'Введите код';
 
   @override
   String get otpSubtitle => 'Введите 6-значный код, отправленный на';
@@ -1639,7 +1665,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ownerDashboard => 'Панель владельца';
 
   @override
-  String get becomeOwner => 'Стать владельцем';
+  String get becomeOwner => 'Начать сдавать технику';
+
+  @override
+  String get placementApplicationTitle => 'Подать заявку на размещение';
 
   @override
   String get registrationStatus => 'Статус регистрации';
@@ -1980,7 +2009,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ownerDashboardSubtitle => 'Управляйте активами и доходами';
 
   @override
-  String get becomeOwnerSubtitle => 'Начните зарабатывать, размещая технику';
+  String get becomeOwnerSubtitle => 'Размещайте технику и получайте заказы';
 
   @override
   String get requestStatus => 'Запрос';
@@ -2135,7 +2164,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get joinTeamHint =>
-      'Присоединяйтесь к нашей команде и предлагайте своё оборудование или услуги клиентам.';
+      'Заполните короткую форму, наши администраторы убедятся, что все в порядке и можно начинать работу!';
+
+  @override
+  String get requiredInParens => '(обязательно)';
 
   @override
   String get requestReviewedHint =>

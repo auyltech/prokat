@@ -10,3 +10,8 @@ Category? vacuumTrucksCategory(CatalogBundle? catalog) {
   if (item == null) return null;
   return Category.fromCatalog(item);
 }
+
+List<Category> vacuumTrucksCategories(CatalogBundle? catalog) {
+  final vacuum = vacuumTrucksCategory(catalog);
+  return vacuum == null ? const [] : [vacuum];
+}
