@@ -1238,7 +1238,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get openInGoogleMaps => 'Открыть в Google Maps';
 
   @override
-  String get deliveryAddress => 'Адрес доставки';
+  String get deliveryAddress => 'Адрес подачи';
 
   @override
   String get noActiveOrders => 'Нет активных заказов';
@@ -1631,7 +1631,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get searchAddress => 'Поиск адреса';
 
   @override
-  String get setDeliveryAddress => 'Указать адрес доставки';
+  String get setDeliveryAddress => 'Указать адрес подачи';
 
   @override
   String get setEquipmentLocation => 'Указать адрес техники';
@@ -2012,16 +2012,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get newRequest => 'Новый запрос';
 
   @override
-  String get deliveryLocation => 'Адрес доставки';
+  String get deliveryLocation => 'Адрес подачи';
 
   @override
   String get equipmentSpecs => 'Характеристики техники';
 
   @override
-  String get selectDate => 'Выбрать дату';
+  String get selectDate => 'Дата подачи';
 
   @override
-  String get selectTime => 'Выбрать время';
+  String get selectTime => 'Время подачи';
 
   @override
   String get requiredHint => '* Обязательно';
@@ -2797,7 +2797,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentNotFound => 'Техника не найдена';
 
   @override
-  String get servicePlan => 'Тарифный план';
+  String get servicePlan => 'Тариф';
 
   @override
   String get addressAndSchedule => 'Адрес и расписание';

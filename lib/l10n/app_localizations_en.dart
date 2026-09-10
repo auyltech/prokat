@@ -1233,7 +1233,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInGoogleMaps => 'Open in Google Maps';
 
   @override
-  String get deliveryAddress => 'Delivery Address';
+  String get deliveryAddress => 'Dispatch address';
 
   @override
   String get noActiveOrders => 'No active orders';
@@ -1625,7 +1625,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchAddress => 'Search address';
 
   @override
-  String get setDeliveryAddress => 'Set Delivery Address';
+  String get setDeliveryAddress => 'Set dispatch address';
 
   @override
   String get setEquipmentLocation => 'Set Equipment Location';
@@ -2004,16 +2004,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newRequest => 'New Request';
 
   @override
-  String get deliveryLocation => 'Delivery Location';
+  String get deliveryLocation => 'Dispatch address';
 
   @override
   String get equipmentSpecs => 'Equipment Specs';
 
   @override
-  String get selectDate => 'Select Date';
+  String get selectDate => 'Dispatch date';
 
   @override
-  String get selectTime => 'Select Time';
+  String get selectTime => 'Dispatch time';
 
   @override
   String get requiredHint => '* Required';
@@ -2780,7 +2780,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentNotFound => 'Equipment not found';
 
   @override
-  String get servicePlan => 'Service Plan';
+  String get servicePlan => 'Rate';
 
   @override
   String get addressAndSchedule => 'Address & Schedule';

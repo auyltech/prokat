@@ -1223,7 +1223,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get openInGoogleMaps => 'Google Maps-та ашу';
 
   @override
-  String get deliveryAddress => 'Жеткізу мекен-жайы';
+  String get deliveryAddress => 'Беру мекенжайы';
 
   @override
   String get noActiveOrders => 'Белсенді тапсырыс жоқ';
@@ -1616,7 +1616,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get searchAddress => 'Мекен-жай іздеу';
 
   @override
-  String get setDeliveryAddress => 'Жеткізу мекен-жайын белгілеу';
+  String get setDeliveryAddress => 'Беру мекенжайын көрсету';
 
   @override
   String get setEquipmentLocation => 'Техника орнын белгілеу';
@@ -1995,16 +1995,16 @@ class AppLocalizationsKk extends AppLocalizations {
   String get newRequest => 'Жаңа сұраныс';
 
   @override
-  String get deliveryLocation => 'Жеткізу орны';
+  String get deliveryLocation => 'Беру мекенжайы';
 
   @override
   String get equipmentSpecs => 'Техника сипаттамалары';
 
   @override
-  String get selectDate => 'Күнді таңдаңыз';
+  String get selectDate => 'Беру күні';
 
   @override
-  String get selectTime => 'Уақытты таңдаңыз';
+  String get selectTime => 'Беру уақыты';
 
   @override
   String get requiredHint => '* Міндетті';
@@ -2777,7 +2777,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentNotFound => 'Техника табылмады';
 
   @override
-  String get servicePlan => 'Қызмет жоспары';
+  String get servicePlan => 'Тариф';
 
   @override
   String get addressAndSchedule => 'Мекен-жай және кесте';
