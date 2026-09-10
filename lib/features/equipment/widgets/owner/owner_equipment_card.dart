@@ -20,7 +20,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
   const OwnerEquipmentCard({super.key, required this.equipment});
 
   void _openEditor(BuildContext context, WidgetRef ref) {
-    ref.read(equipmentMutationProvider.notifier).selectEditEquipment(equipment.id);
+    ref
+        .read(equipmentMutationProvider.notifier)
+        .selectEditEquipment(equipment.id);
     unawaited(context.push('${AppRoutes.ownerEquipment}/${equipment.id}'));
   }
 

@@ -204,19 +204,19 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         ] else ...[
           Center(
             child: TextButton(
-            onPressed: authState.isLoading ? null : resendOtp,
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              _l10n.didntReceiveCodeResend,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: primary,
-                fontWeight: FontWeight.bold,
+              onPressed: authState.isLoading ? null : resendOtp,
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-            ),
+              child: Text(
+                _l10n.didntReceiveCodeResend,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],

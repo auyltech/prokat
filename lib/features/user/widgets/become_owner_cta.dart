@@ -197,11 +197,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         child: Row(
           children: [
             leading ??
-                Icon(
-                  icon ?? LucideIcons.truck,
-                  color: contentColor,
-                  size: 40,
-                ),
+                Icon(icon ?? LucideIcons.truck, color: contentColor, size: 40),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

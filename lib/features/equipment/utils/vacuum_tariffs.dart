@@ -33,16 +33,19 @@ bool equipmentIsVacuum(Equipment equipment, {String? vacuumCategoryId}) {
   return false;
 }
 
-String tariffServiceTitle(String key, String customName, AppLocalizations l10n) {
+String tariffServiceTitle(
+  String key,
+  String customName,
+  AppLocalizations l10n,
+) {
   return switch (key) {
     vacuumTariffSeptic => l10n.tariffSepticSewage,
     vacuumTariffWater => l10n.tariffWaterPumping,
     vacuumTariffCesspit => l10n.tariffCesspitPumping,
     vacuumTariffSewerCleaning => l10n.tariffSewerCleaning,
     vacuumTariffLiquidWaste => l10n.tariffLiquidWaste,
-    vacuumTariffOther => customName.trim().isEmpty
-        ? l10n.serviceOther
-        : customName.trim(),
+    vacuumTariffOther =>
+      customName.trim().isEmpty ? l10n.serviceOther : customName.trim(),
     _ => customName.trim().isNotEmpty ? customName.trim() : key,
   };
 }

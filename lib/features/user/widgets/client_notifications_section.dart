@@ -211,72 +211,72 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         ),
 
         if (showDetailedNotificationPreferences) ...[
-        const SizedBox(height: 16),
-        SettingsSwitchTile(
-          icon: Icons.notifications_outlined,
-          title: l10n.notifRentalRequestsAndOffers,
-          subtitle: l10n.notifRentalRequestsAndOffersSubtitle,
-          value: _preferences.requestsAndOffers,
-          onChanged: (value) => _updatePreference(
-            key: 'requests',
-            nextValue: _preferences.copyWith(requestsAndOffers: value),
+          const SizedBox(height: 16),
+          SettingsSwitchTile(
+            icon: Icons.notifications_outlined,
+            title: l10n.notifRentalRequestsAndOffers,
+            subtitle: l10n.notifRentalRequestsAndOffersSubtitle,
+            value: _preferences.requestsAndOffers,
+            onChanged: (value) => _updatePreference(
+              key: 'requests',
+              nextValue: _preferences.copyWith(requestsAndOffers: value),
+            ),
+            isLoading: _savingPreference == 'requests',
           ),
-          isLoading: _savingPreference == 'requests',
-        ),
 
-        const SizedBox(height: 16),
-        SettingsSwitchTile(
-          icon: Icons.notifications_outlined,
-          title: l10n.notifOrderUpdates,
-          subtitle: l10n.notifOrderUpdatesSubtitle,
-          value: _preferences.orderUpdates,
-          isLoading: _savingPreference == 'orders',
-          onChanged: (value) => _updatePreference(
-            key: 'orders',
-            nextValue: _preferences.copyWith(orderUpdates: value),
+          const SizedBox(height: 16),
+          SettingsSwitchTile(
+            icon: Icons.notifications_outlined,
+            title: l10n.notifOrderUpdates,
+            subtitle: l10n.notifOrderUpdatesSubtitle,
+            value: _preferences.orderUpdates,
+            isLoading: _savingPreference == 'orders',
+            onChanged: (value) => _updatePreference(
+              key: 'orders',
+              nextValue: _preferences.copyWith(orderUpdates: value),
+            ),
           ),
-        ),
 
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        SettingsSwitchTile(
-          icon: Icons.notifications_outlined,
-          title: l10n.notifWorkProgress,
-          subtitle: l10n.notifWorkProgressSubtitle,
-          value: _preferences.workProgress,
-          isLoading: _savingPreference == 'work',
-          onChanged: (value) => _updatePreference(
-            key: 'work',
-            nextValue: _preferences.copyWith(workProgress: value),
+          SettingsSwitchTile(
+            icon: Icons.notifications_outlined,
+            title: l10n.notifWorkProgress,
+            subtitle: l10n.notifWorkProgressSubtitle,
+            value: _preferences.workProgress,
+            isLoading: _savingPreference == 'work',
+            onChanged: (value) => _updatePreference(
+              key: 'work',
+              nextValue: _preferences.copyWith(workProgress: value),
+            ),
           ),
-        ),
 
-        const SizedBox(height: 16),
-        SettingsSwitchTile(
-          icon: Icons.notifications_outlined,
-          title: l10n.messages,
-          subtitle: l10n.notifMessagesSubtitle,
-          value: _preferences.messages,
-          isLoading: _savingPreference == 'messages',
-          onChanged: (value) => _updatePreference(
-            key: 'messages',
-            nextValue: _preferences.copyWith(messages: value),
+          const SizedBox(height: 16),
+          SettingsSwitchTile(
+            icon: Icons.notifications_outlined,
+            title: l10n.messages,
+            subtitle: l10n.notifMessagesSubtitle,
+            value: _preferences.messages,
+            isLoading: _savingPreference == 'messages',
+            onChanged: (value) => _updatePreference(
+              key: 'messages',
+              nextValue: _preferences.copyWith(messages: value),
+            ),
           ),
-        ),
 
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        SettingsSwitchTile(
-          icon: Icons.notifications_outlined,
-          title: l10n.notifRemindersAndReviews,
-          subtitle: l10n.notifRemindersAndReviewsSubtitle,
-          value: _preferences.remindersAndReviews,
-          isLoading: _savingPreference == 'reminders',
-          onChanged: (value) => _updatePreference(
-            key: 'reminders',
-            nextValue: _preferences.copyWith(remindersAndReviews: value),
+          SettingsSwitchTile(
+            icon: Icons.notifications_outlined,
+            title: l10n.notifRemindersAndReviews,
+            subtitle: l10n.notifRemindersAndReviewsSubtitle,
+            value: _preferences.remindersAndReviews,
+            isLoading: _savingPreference == 'reminders',
+            onChanged: (value) => _updatePreference(
+              key: 'reminders',
+              nextValue: _preferences.copyWith(remindersAndReviews: value),
+            ),
           ),
-        ),
         ],
       ],
     );

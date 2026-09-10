@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -64,7 +65,7 @@ void main() {
     expect(find.text('вакуум'), findsOneWidget);
     expect(find.text('Ерлан Садыков'), findsOneWidget);
     expect(find.textContaining('21 orders'), findsOneWidget);
-    expect(find.textContaining('1,500'), findsOneWidget);
+    expect(find.textContaining(formatPriceNumber(1500)), findsOneWidget);
     expect(find.text('No price'), findsNothing);
   });
 }

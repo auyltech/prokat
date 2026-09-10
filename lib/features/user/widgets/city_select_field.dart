@@ -103,9 +103,7 @@ class CitySelectField extends ConsumerWidget {
 
         Widget valueRow = Row(
           children: [
-            Expanded(
-              child: Text(label, style: valueStyle),
-            ),
+            Expanded(child: Text(label, style: valueStyle)),
             Icon(
               Icons.keyboard_arrow_down,
               color: colorScheme.onSurface.withValues(

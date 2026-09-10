@@ -16,6 +16,7 @@ import 'package:prokat/features/auth/providers/auth_state.dart';
 import 'package:prokat/features/auth/screens/login_screen.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/l10n/app_localizations_en.dart';
 
 void main() {
   testWidgets('confirmed logout opens the guest catalog immediately', (
@@ -61,9 +62,11 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Logout'));
+    final logoutLabel = AppLocalizationsEn().logout;
+
+    await tester.tap(find.text(logoutLabel));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Logout'));
+    await tester.tap(find.widgetWithText(TextButton, logoutLabel));
     await tester.pump();
     await tester.pump();
 
