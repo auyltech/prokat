@@ -1,0 +1,28 @@
+---
+description: Use Prokat ui_kit for new UI — buttons, inputs, selectors, sheets, icons
+globs: lib/**/*.dart
+alwaysApply: false
+---
+
+# UI Kit (Prokat)
+
+Before creating a new UI widget, search `lib/core/widgets/ui_kit/` **and** `lib/core/widgets/`.
+
+## New screens / widgets
+
+- Buttons → `AppElevatedButton` / `AppOutlinedButton` / `AppTextButton`
+- Fields → `AppTextField` / `AppTextArea` / `AppDropdownField` / `AppKzPhoneField`
+- Selectors → `AppCheckbox` / `AppRadio` / `AppSwitch`
+- Modals → bottom sheets only (`AppBottomSheet.show` / `showScrollable`) via a `*Sheet.show` class — no new `AlertDialog`
+- Icons → `AppIcons.*.call(...)`; images → `AppImages.*.call(...)`
+- Do not invent `FooButton`, `AuthTextField`, `IndustrialTextField`, or parallel inputs
+
+## Forms
+
+- `TextEditingController` + `Form` / `validator`
+- Do **not** port Vipitalia `FormField*` state machines
+
+## Legacy
+
+- Existing screens on `InputField` / `PrimaryButton` / etc. — do not mass-migrate “for free”
+- Do not import `package:shared_ui` / `shared_core` / Vipitalia paths

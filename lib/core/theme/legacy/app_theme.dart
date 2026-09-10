@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/colors/app_colors_theme.dart';
 
 class AppTheme {
   // A professional, deep and vibrant orange accent color
@@ -100,6 +101,7 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: lightBackground,
       cardColor: lightCard,
+      extensions: const <ThemeExtension<dynamic>>[LightColorTheme()],
       // Material 3 Switch uses onPrimary for the selected thumb; light
       // onPrimary is the brand accent, so the thumb would match the track.
       switchTheme: SwitchThemeData(
@@ -199,6 +201,7 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: darkBackground,
       cardColor: darkCard,
+      extensions: const <ThemeExtension<dynamic>>[DarkColorTheme()],
       appBarTheme: const AppBarTheme(
         backgroundColor: darkBackground,
         elevation: 0,

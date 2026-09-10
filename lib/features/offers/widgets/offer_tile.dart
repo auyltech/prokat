@@ -11,7 +11,7 @@ import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/theme/app_theme.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
 
