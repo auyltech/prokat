@@ -47,6 +47,7 @@ class _OwnerEquipmentDetailScreenState
         await ref.read(
           ownerEquipmentDetailsProvider(widget.equipmentId).future,
         );
+        if (!mounted) return;
 
         await ref.read(categoriesProvider.notifier).refreshIfStale();
       }),
