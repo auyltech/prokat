@@ -12,6 +12,7 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
+import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -159,7 +160,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final catalog = ref.read(catalogProvider).valueOrNull;
     for (var i = 0; i < _sortedSpecs.length; i++) {
       final spec = _sortedSpecs[i];
-      if (spec.isRequired != true) continue;
+      if (!equipmentSpecIsRequired(spec)) continue;
       final key = _controllerKey(spec, i);
       final type = spec.resolvedType(catalog?.specById(spec.specId));
       if (!type.isKnown) continue;
@@ -229,7 +230,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       final type = spec.resolvedType(catalog?.specById(spec.specId));
       if (!type.isKnown) continue;
 
-      final isRequired = spec.isRequired == true;
+      final isRequired = equipmentSpecIsRequired(spec);
       final value = _currentWireValue(spec, catalog, type, key: key);
 
       if (isRequired && value.isEmpty) {
@@ -434,7 +435,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
               ? spec.unit
               : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
                     spec.unit;
-          final isRequired = spec.isRequired == true;
+          final isRequired = equipmentSpecIsRequired(spec);
 
           if (type == CatalogSpecType.boolean) {
             return SwitchListTile(
@@ -550,7 +551,8 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
             label: label,
             controller: controller,
             hint: label,
-            isRequired: isRequired && !spec.hasFilledValue,
+            isRequired: isRequired,
+            requiredHintText: l10n.requiredInParens,
             suffixText: unit.trim().isEmpty ? null : unit.trim(),
             onChanged: _onFieldChanged,
             isNumeric: type == CatalogSpecType.number,

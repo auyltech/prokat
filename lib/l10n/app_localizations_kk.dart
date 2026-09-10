@@ -156,7 +156,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get uploadProfileImage => 'Профиль суретін жүктеу';
 
   @override
-  String get switchBackToClient => 'Клиент бөліміне оралу';
+  String get switchBackToClient => 'Клиент бөліміне өту';
 
   @override
   String get vehicleName => 'Техника атауы';
@@ -433,6 +433,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get privacyPolicy => 'Құпиялылық саясатымен';
 
   @override
+  String get privacyPolicyTitle => 'Құпиялылық саясаты';
+
+  @override
   String get legalNoticeAfterPrivacy => ' танысқаныңызды растайсыз және ';
 
   @override
@@ -449,6 +452,26 @@ class AppLocalizationsKk extends AppLocalizations {
   String get confirmDeletion => 'Жоюды растаңыз';
 
   @override
+  String get deleteAccountQuestion => 'Аккаунтты жою керек пе?';
+
+  @override
+  String get accountDeletionAccessStops =>
+      'Растағаннан кейін аккаунтқа қолжетімділік тоқтатылады.';
+
+  @override
+  String get accountDeletionDataWithinDays =>
+      'Негізгі деректер 30 күн ішінде жойылады. Толығы құжаттарда көрсетілген.';
+
+  @override
+  String get learnMoreAboutDeletion => 'Жою туралы толығырақ';
+
+  @override
+  String get keepAccount => 'Аккаунтты қалдыру';
+
+  @override
+  String get confirmAccountDeletion => 'Жоюды растау';
+
+  @override
   String get initiateAccountDeletion => 'Аккаунтты жоюды бастау';
 
   @override
@@ -457,18 +480,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get accountDeletionScheduledBody =>
-      'Аккаунтыңыз жоюға жоспарланды.\n\nСіз жүйеден дереу шығасыз. 14 күндік күту кезеңінде аккаунтқа қайта кіру жою сұрауын болдырмайды.';
+      'Аккаунтыңыз жоюға жоспарланды.\n\nСіз жүйеден дереу шығасыз. Негізгі деректер 30 күнтізбелік күн ішінде жойылады.';
 
   @override
   String get accountDeletionConfirmationBody =>
-      'Аккаунтыңыз дереу «Жойылуды күтуде» күйіне өтеді.\n\nДеректердің кездейсоқ жоғалуынан қорғау үшін олар 14 күндік күту кезеңінен кейін біржола жойылады.';
+      'Растағаннан кейін аккаунтқа қолжетімділік тоқтатылады.\n\nНегізгі деректер 30 күн ішінде жойылады. Толығы құжаттарда көрсетілген.';
 
   @override
   String get permanentlyDeleteAccount => 'Аккаунтты біржола жою';
 
   @override
   String get accountDeletionHoldDescription =>
-      '14 күндік күту кезеңі басталады. Ол аяқталғанға дейін қайта кіру арқылы жоюдан бас тарта аласыз.';
+      'Жою сұрауы алынған сәттен бастап аккаунтқа қолжетімділік тоқтатылады. Негізгі деректер 30 күнтізбелік күн ішінде жойылады.';
 
   @override
   String get failedToLoadVersion => 'Нұсқаны жүктеу мүмкін болмады';
@@ -519,6 +542,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get service => 'Қызмет';
+
+  @override
+  String get equipmentCategoryLabel => 'Техника санаты';
 
   @override
   String get deletePriceEntry => 'Тарифті жою';
@@ -1340,19 +1366,34 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentNameLabel => 'ТЕХНИКА АТЫ';
 
   @override
-  String get equipmentNameHint => 'мыс. Ассенизатор';
+  String get equipmentNameHint => 'Ассенизатор';
 
   @override
-  String get modelLabel => 'МОДЕЛЬ';
+  String get modelLabel => 'МАРКАСЫ МЕН ҮЛГІСІ';
 
   @override
-  String get modelHint => 'мыс. КАМАЗ-65115';
+  String get modelHint => 'Мысал: АВ-10 КамАЗ 65115';
 
   @override
   String get plateNumberLabel => 'МЕМЛЕКЕТТІК НӨМІР';
 
   @override
-  String get plateNumberHint => 'мыс. 777 ABC 01';
+  String get plateNumberHint => 'Мысал: 123ABC06';
+
+  @override
+  String get continueAction => 'Жалғастыру';
+
+  @override
+  String get draftWillBeCreated => 'Техниканың жобасы жасалады';
+
+  @override
+  String get draftNextStepsHint =>
+      'Одан кейін сипаттамаларды, жұмыс шарттарын толтырып, техниканы тексеруге жіберу керек.';
+
+  @override
+  String draftSectionsFilled(int filled, int total) {
+    return '$total бөлімнің $filled толтырылған';
+  }
 
   @override
   String get availableForRent => 'Жалдауға қолжетімді';
@@ -1602,7 +1643,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get termsConditions => 'Пайдалану шарттары';
 
   @override
-  String get helpSupportTitle => 'Анықтама және қолдау';
+  String get helpSupportTitle => 'Көмек';
 
   @override
   String get preferences => 'ПАРАМЕТРЛЕР';
@@ -1632,7 +1673,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get accountSection => 'АККАУНТ';
 
   @override
-  String get logout => 'Шығу';
+  String get logout => 'Аккаунттан шығу';
 
   @override
   String get deleteAccount => 'Аккаунтты жою';
@@ -1647,7 +1688,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get setUsername => 'Пайдаланушы атын орнату';
 
   @override
-  String get ownerDashboard => 'Иесінің тақтасы';
+  String get ownerDashboard => 'Менің техникам мен тапсырыстарым';
 
   @override
   String get becomeOwner => 'Техниканы жалға бере бастау';
@@ -1659,7 +1700,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get registrationStatus => 'Тіркелу күйі';
 
   @override
-  String get appSettings => 'Қолданба параметрлері';
+  String get appSettings => 'Параметрлер';
 
   @override
   String get paymentsBalance => 'Төлемдер және баланс';
@@ -1738,7 +1779,93 @@ class AppLocalizationsKk extends AppLocalizations {
   String get generalInformation => 'Жалпы ақпарат';
 
   @override
+  String get forClients => 'Клиенттерге';
+
+  @override
   String get registrationData => 'Тіркеу деректері';
+
+  @override
+  String get equipmentData => 'Техника деректері';
+
+  @override
+  String get workCity => 'Жұмыс қаласы';
+
+  @override
+  String get shortDescription => 'Қысқаша сипаттама';
+
+  @override
+  String get shortDescriptionHint =>
+      'Мысалы: тәулік бойы жұмыс істейміз, қаладан тыс шығамыз, шұғыл беру мүмкін.';
+
+  @override
+  String get shortDescriptionHelper =>
+      'Бұл мәтінді клиенттер көреді. Тек маңыздысын жазыңыз.';
+
+  @override
+  String get tariffs => 'Тарифтер';
+
+  @override
+  String get priceNotSpecified => 'Баға көрсетілмеген';
+
+  @override
+  String get priceFieldLabel => 'Баға';
+
+  @override
+  String get billingUnit => 'Есеп бірлігі';
+
+  @override
+  String get howToShowPrice => 'Бағаны қалай көрсету';
+
+  @override
+  String get priceFrom => 'Бастап';
+
+  @override
+  String get priceFixed => 'Бекітілген';
+
+  @override
+  String get priceFromPrefix => 'бастап';
+
+  @override
+  String get addTariff => 'Тариф қосу';
+
+  @override
+  String get serviceType => 'Қызмет түрі';
+
+  @override
+  String get serviceOther => 'Басқа';
+
+  @override
+  String get customServiceName => 'Қызмет атауы';
+
+  @override
+  String get customServiceNameHint => 'Қысқа атау';
+
+  @override
+  String get tariffSepticSewage => 'Септик / кәрізді сору';
+
+  @override
+  String get tariffWaterPumping => 'Су сору';
+
+  @override
+  String get tariffCesspitPumping => 'Шұңқырды сору';
+
+  @override
+  String get tariffSewerCleaning => 'Кәрізді тазалау';
+
+  @override
+  String get tariffLiquidWaste => 'Сұйық қалдықты шығару';
+
+  @override
+  String get rateUnitTrip => 'рейс';
+
+  @override
+  String get rateUnitCubicMeter => 'м³';
+
+  @override
+  String get rateUnitHour => 'сағат';
+
+  @override
+  String get rateUnitDay => 'күн';
 
   @override
   String get saveAll => 'Барлығын сақтау';
@@ -1985,11 +2112,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get addDisplayName => 'Атыңызды қосыңыз';
 
   @override
-  String get helpSupportSubtitle =>
-      'Көмек алу немесе қолдау қызметіне хабарласу';
+  String get helpSupportSubtitle => 'Сұрақтарға жауаптар және қолдау қызметі';
 
   @override
-  String get ownerDashboardSubtitle => 'Активтер мен кірісті басқарыңыз';
+  String get ownerDashboardSubtitle =>
+      'Техниканы, тапсырыстарды және кірісті басқарыңыз';
 
   @override
   String get becomeOwnerSubtitle => 'Техниканы орналастырып, тапсырыс алыңыз';
@@ -2057,7 +2184,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get verifiedOwner => 'Тексерілген иесі';
 
   @override
-  String get appSettingsSubtitle => 'Хабарландырулар, Құпиялылық, Тема';
+  String get appSettingsSubtitle => 'Хабарландырулар, тіл және рәсімдеу';
 
   @override
   String get helpFaqsSubtitle =>
@@ -2173,8 +2300,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get phoneNumberRequired => 'Телефон нөмірі міндетті';
 
   @override
-  String get ownerContactPhoneHint =>
-      'Бұл нөмірді әкімші мен клиенттер көреді. Оған қоңырау шалуға болуы керек.';
+  String get ownerContactPhoneHint => 'Бұл нөмірді тек әкімші көреді';
 
   @override
   String get cityRequired => 'Қала міндетті';
@@ -2352,7 +2478,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get reviews => 'пікір';
 
   @override
-  String get rentAnEquipment => 'Техника жалдау';
+  String get rentAnEquipment => 'Техника табу';
 
   @override
   String get findAndRent => 'Тауып жалдау';
@@ -2818,24 +2944,25 @@ class AppLocalizationsKk extends AppLocalizations {
       'Ауыр техника мен сенімді орындаушыларды бір қадамда табыңыз немесе жалға беріңіз.';
 
   @override
-  String get userConsent => 'Пайдаланушы келісімі';
+  String get userConsent => 'Деректерді өңдеуге келісім';
 
   @override
   String get privacyPolicySubtitle =>
-      'Деректеріңізді қалай жинаймыз және қолданамыз';
+      'Деректеріңізді қалай қолданамыз және қорғаймыз';
 
   @override
-  String get userAgreementSubtitle => 'Платформаны пайдалану ережелері';
+  String get userAgreementSubtitle => 'Қолданбаны пайдалану ережелері';
 
   @override
-  String get personalDataSharingSubtitle => 'Жеке деректерді бөлісу';
+  String get personalDataSharingSubtitle =>
+      'Дербес деректерді жинау және өңдеу';
 
   @override
-  String get legalDocuments => 'Заңды құжаттар';
+  String get legalDocuments => 'Құжаттар мен ережелер';
 
   @override
   String get legalDocumentsSubtitle =>
-      'Саясаттар, келісімдер, пайдалану шарттары';
+      'Пайдалану шарттары және құпиялылық саясаты';
 
   @override
   String get applicationTheme => 'Қолданба тақырыбы';
@@ -2980,7 +3107,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noAddressSelected => 'Мекенжай таңдалмаған';
 
   @override
-  String get selectedAddress => 'Таңдалған мекенжай';
+  String get selectedAddress => 'Менің мекенжайым';
 
   @override
   String get youHaveNoSavedAddresses => 'Сақталған мекенжайларыңыз жоқ.';
@@ -3003,7 +3130,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get businessPreferences => 'Бизнес параметрлері';
 
   @override
-  String get businessProfile => 'Бизнес профилі';
+  String get businessProfile => 'Сіздің профиліңіз';
 
   @override
   String get manageMyEquipment => 'Техниканы басқару';
@@ -3282,13 +3409,22 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get serviceDetailsHint =>
-      'Ұсынатын тауарлар, жалдау немесе техниканы сипаттаңыз...';
+      'Қызметті немесе жабдықты қысқаша сипаттаңыз, 100 таңбадан аспасын';
 
   @override
   String get updateProfile => 'Профильді жаңарту';
 
   @override
+  String get editProfileData => 'Деректерді өзгерту';
+
+  @override
+  String get submitChangesForReview => 'Тексеруге жіберу';
+
+  @override
   String get profileUpdatedSuccessfully => 'Профиль сәтті жаңартылды';
+
+  @override
+  String get profileSentForModeration => 'Модерацияға жіберілді';
 
   @override
   String get failedToUpdateProfile => 'Профильді жаңарту мүмкін болмады';
@@ -3305,16 +3441,16 @@ class AppLocalizationsKk extends AppLocalizations {
   }
 
   @override
-  String get ratePerTrip => 'Рейске';
+  String get ratePerTrip => 'рейске';
 
   @override
-  String get ratePerCubicMeter => 'М³-ге';
+  String get ratePerCubicMeter => 'м³';
 
   @override
-  String get ratePerDay => 'Күніне';
+  String get ratePerDay => 'күніне';
 
   @override
-  String get ratePerHour => 'Сағатына';
+  String get ratePerHour => 'сағатына';
 
   @override
   String get connectionTimedOut =>

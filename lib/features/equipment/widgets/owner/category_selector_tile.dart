@@ -144,7 +144,7 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.service,
+                  l10n.equipmentCategoryLabel,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: hasError ? errorColor : null,
                   ),

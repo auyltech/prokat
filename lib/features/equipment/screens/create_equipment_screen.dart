@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -62,7 +63,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             "city": city,
             "name": _name.text.trim(),
             "model": _model.text.trim(),
-            "plateNumber": _plateNumber.text.trim(),
+            "plateNumber": sanitizeKzPlate(_plateNumber.text).trim(),
           });
 
       if (result == true && mounted) {
@@ -193,12 +194,20 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       hint: l10n.plateNumberHint,
                       isRequired: true,
                       isLast: true,
+                      inputFormatters: const [KzPlateInputFormatter()],
                     ),
 
                     const SizedBox(height: 24),
 
+                    _DraftCreateInfo(
+                      title: l10n.draftWillBeCreated,
+                      body: l10n.draftNextStepsHint,
+                    ),
+
+                    const SizedBox(height: 16),
+
                     PrimaryButton(
-                      label: l10n.addEquipment,
+                      label: l10n.continueAction,
                       isLoading: _loading,
                       onPressed: _loading ? null : () => onSubmit(l10n),
                     ),
@@ -208,6 +217,49 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DraftCreateInfo extends StatelessWidget {
+  final String title;
+  final String body;
+
+  const _DraftCreateInfo({required this.title, required this.body});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.28)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            body,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.75),
+              height: 1.35,
+            ),
+          ),
+        ],
       ),
     );
   }

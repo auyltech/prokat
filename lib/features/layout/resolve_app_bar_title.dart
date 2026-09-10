@@ -10,7 +10,7 @@ String resolveAppBarTitle(
   if (path == AppRoutes.contactSupport) return l10n.getInTouch;
 
   // Legal
-  if (path == AppRoutes.privacyPolicy) return l10n.privacyPolicy;
+  if (path == AppRoutes.privacyPolicy) return l10n.privacyPolicyTitle;
   if (path == AppRoutes.userAgreement) return l10n.userAgreement;
   if (path == AppRoutes.personalDataConsent) return l10n.dataProcessingTitle;
 
@@ -38,7 +38,7 @@ String resolveAppBarTitle(
   if (path == AppRoutes.clientNotifications) return l10n.notifications;
 
   if (path == AppRoutes.clientProfile) return l10n.myProfile;
-  if (path == AppRoutes.clientDocuments) return l10n.documents;
+  if (path == AppRoutes.clientDocuments) return l10n.legalDocuments;
   if (path == AppRoutes.clientSettings) return l10n.navSettings;
 
   if (path == AppRoutes.becomeOwner) return l10n.placementApplicationTitle;
@@ -68,6 +68,7 @@ String resolveAppBarTitle(
     }
 
     if (path == AppRoutes.ownerProfile) return l10n.myProfile;
+    if (path == AppRoutes.ownerDocuments) return l10n.legalDocuments;
     if (path == AppRoutes.ownerSettings) return l10n.navSettings;
 
     if (path == AppRoutes.ownerRegistration) return l10n.businessProfile;

@@ -16,6 +16,7 @@ import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -317,6 +318,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 else
                   IconButton(
                     onPressed: () async {
+                      if (warnIfOwnerOffline(context, ref)) return;
                       await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -343,7 +345,11 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                                 AppSnackBar.show(
                                   message: result.success
                                       ? l10n.orderConfirmed
-                                      : l10n.failedToConfirmOrder,
+                                      : ownerOfflineActionErrorMessage(
+                                          l10n: l10n,
+                                          errorCode: result.errorCode,
+                                          fallback: l10n.failedToConfirmOrder,
+                                        ),
                                   isSuccess: result.success,
                                   isError: !result.success,
                                 );

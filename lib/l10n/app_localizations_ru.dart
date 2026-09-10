@@ -161,7 +161,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get uploadProfileImage => 'Загрузить фото профиля';
 
   @override
-  String get switchBackToClient => 'Вернуться в клиентский раздел';
+  String get switchBackToClient => 'Перейти в клиентский раздел';
 
   @override
   String get vehicleName => 'Название техники';
@@ -438,6 +438,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get privacyPolicy => 'Политикой конфиденциальности';
 
   @override
+  String get privacyPolicyTitle => 'Политика конфиденциальности';
+
+  @override
   String get legalNoticeAfterPrivacy => ' и даете ';
 
   @override
@@ -454,6 +457,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get confirmDeletion => 'Подтвердите удаление';
 
   @override
+  String get deleteAccountQuestion => 'Удалить аккаунт?';
+
+  @override
+  String get accountDeletionAccessStops =>
+      'После подтверждения доступ к аккаунту прекратится.';
+
+  @override
+  String get accountDeletionDataWithinDays =>
+      'Основные данные будут удалены в течение 30 дней. Подробности указаны в документах.';
+
+  @override
+  String get learnMoreAboutDeletion => 'Подробнее об удалении';
+
+  @override
+  String get keepAccount => 'Оставить аккаунт';
+
+  @override
+  String get confirmAccountDeletion => 'Подтвердить удаление';
+
+  @override
   String get initiateAccountDeletion => 'Начать удаление аккаунта';
 
   @override
@@ -462,18 +485,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get accountDeletionScheduledBody =>
-      'Ваш аккаунт поставлен в очередь на удаление.\n\nВы немедленно выйдете из системы. Вход в аккаунт в течение 14-дневного периода ожидания отменит запрос на удаление.';
+      'Ваш аккаунт поставлен в очередь на удаление.\n\nВы немедленно выйдете из системы. Основные данные будут удалены в течение 30 календарных дней.';
 
   @override
   String get accountDeletionConfirmationBody =>
-      'Ваш аккаунт немедленно получит статус «Ожидает удаления».\n\nДля защиты от случайной потери данных они будут окончательно удалены после 14-дневного периода ожидания.';
+      'После подтверждения доступ к аккаунту прекратится.\n\nОсновные данные будут удалены в течение 30 дней. Подробности указаны в документах.';
 
   @override
   String get permanentlyDeleteAccount => 'Удалить аккаунт навсегда';
 
   @override
   String get accountDeletionHoldDescription =>
-      'Начнётся 14-дневный период ожидания. Чтобы отменить удаление до его окончания, войдите в аккаунт снова.';
+      'С момента получения запроса на удаление, доступ к аккаунту прекращается. Основные данные аккаунта удаляются в течение 30 календарных дней.';
 
   @override
   String get failedToLoadVersion => 'Не удалось загрузить версию';
@@ -525,6 +548,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get service => 'Услуга';
+
+  @override
+  String get equipmentCategoryLabel => 'Категория техники';
 
   @override
   String get deletePriceEntry => 'Удалить тариф';
@@ -1356,19 +1382,34 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentNameLabel => 'НАЗВАНИЕ ТЕХНИКИ';
 
   @override
-  String get equipmentNameHint => 'напр. Ассенизатор';
+  String get equipmentNameHint => 'Ассенизатор';
 
   @override
-  String get modelLabel => 'МОДЕЛЬ';
+  String get modelLabel => 'МАРКА И МОДЕЛЬ';
 
   @override
-  String get modelHint => 'напр. КАМАЗ-65115';
+  String get modelHint => 'Пример: АВ-10 КамАЗ 65115';
 
   @override
-  String get plateNumberLabel => 'ГОСНОМЕР';
+  String get plateNumberLabel => 'ГОСУДАРСТВЕННЫЙ НОМЕР';
 
   @override
-  String get plateNumberHint => 'напр. 777 ABC 01';
+  String get plateNumberHint => 'Пример: 123ABC06';
+
+  @override
+  String get continueAction => 'Продолжить';
+
+  @override
+  String get draftWillBeCreated => 'Будет создан черновик техники';
+
+  @override
+  String get draftNextStepsHint =>
+      'После этого нужно заполнить характеристики, условия работы и отправить технику на проверку.';
+
+  @override
+  String draftSectionsFilled(int filled, int total) {
+    return 'Заполнено $filled из $total разделов';
+  }
 
   @override
   String get availableForRent => 'Доступна для аренды';
@@ -1617,7 +1658,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get termsConditions => 'Условия использования';
 
   @override
-  String get helpSupportTitle => 'Помощь и поддержка';
+  String get helpSupportTitle => 'Помощь';
 
   @override
   String get preferences => 'НАСТРОЙКИ';
@@ -1647,7 +1688,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get accountSection => 'АККАУНТ';
 
   @override
-  String get logout => 'Выйти';
+  String get logout => 'Выйти из аккаунта';
 
   @override
   String get deleteAccount => 'Удалить аккаунт';
@@ -1662,7 +1703,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setUsername => 'Установить имя пользователя';
 
   @override
-  String get ownerDashboard => 'Панель владельца';
+  String get ownerDashboard => 'Моя техника и заказы';
 
   @override
   String get becomeOwner => 'Начать сдавать технику';
@@ -1674,7 +1715,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get registrationStatus => 'Статус регистрации';
 
   @override
-  String get appSettings => 'Настройки приложения';
+  String get appSettings => 'Настройки';
 
   @override
   String get paymentsBalance => 'Платежи и баланс';
@@ -1753,7 +1794,93 @@ class AppLocalizationsRu extends AppLocalizations {
   String get generalInformation => 'Общая информация';
 
   @override
+  String get forClients => 'Для клиентов';
+
+  @override
   String get registrationData => 'Регистрационные данные';
+
+  @override
+  String get equipmentData => 'Данные техники';
+
+  @override
+  String get workCity => 'Город работы';
+
+  @override
+  String get shortDescription => 'Краткое описание';
+
+  @override
+  String get shortDescriptionHint =>
+      'Например: работаем круглосуточно, выезжаем за город, возможна срочная подача.';
+
+  @override
+  String get shortDescriptionHelper =>
+      'Этот текст увидят клиенты. Укажите только самое важное.';
+
+  @override
+  String get tariffs => 'Тарифы';
+
+  @override
+  String get priceNotSpecified => 'Цена не указана';
+
+  @override
+  String get priceFieldLabel => 'Цена';
+
+  @override
+  String get billingUnit => 'Единица расчёта';
+
+  @override
+  String get howToShowPrice => 'Как показывать цену';
+
+  @override
+  String get priceFrom => 'От';
+
+  @override
+  String get priceFixed => 'Фиксированная';
+
+  @override
+  String get priceFromPrefix => 'от';
+
+  @override
+  String get addTariff => 'Добавить тариф';
+
+  @override
+  String get serviceType => 'Вид услуги';
+
+  @override
+  String get serviceOther => 'Другое';
+
+  @override
+  String get customServiceName => 'Название услуги';
+
+  @override
+  String get customServiceNameHint => 'Короткое название';
+
+  @override
+  String get tariffSepticSewage => 'Откачка септика / канализации';
+
+  @override
+  String get tariffWaterPumping => 'Откачка воды';
+
+  @override
+  String get tariffCesspitPumping => 'Откачка выгребных ям';
+
+  @override
+  String get tariffSewerCleaning => 'Прочистка канализации';
+
+  @override
+  String get tariffLiquidWaste => 'Вывоз жидких отходов';
+
+  @override
+  String get rateUnitTrip => 'рейс';
+
+  @override
+  String get rateUnitCubicMeter => 'м³';
+
+  @override
+  String get rateUnitHour => 'час';
+
+  @override
+  String get rateUnitDay => 'день';
 
   @override
   String get saveAll => 'Сохранить все';
@@ -2002,11 +2129,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addDisplayName => 'Добавить имя';
 
   @override
-  String get helpSupportSubtitle =>
-      'Получить помощь или связаться с поддержкой';
+  String get helpSupportSubtitle => 'Ответы на вопросы и связь с поддержкой';
 
   @override
-  String get ownerDashboardSubtitle => 'Управляйте активами и доходами';
+  String get ownerDashboardSubtitle =>
+      'Управляйте техникой, заказами и доходом';
 
   @override
   String get becomeOwnerSubtitle => 'Размещайте технику и получайте заказы';
@@ -2074,7 +2201,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get verifiedOwner => 'Подтверждённый владелец';
 
   @override
-  String get appSettingsSubtitle => 'Уведомления, Конфиденциальность, Тема';
+  String get appSettingsSubtitle => 'Уведомления, язык и оформление';
 
   @override
   String get helpFaqsSubtitle => 'Часто задаваемые вопросы, связь с поддержкой';
@@ -2190,8 +2317,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get phoneNumberRequired => 'Номер телефона обязателен';
 
   @override
-  String get ownerContactPhoneHint =>
-      'Этот номер увидят администратор и клиенты. По нему должны дозвониться.';
+  String get ownerContactPhoneHint => 'Этот номер видит только администратор';
 
   @override
   String get cityRequired => 'Город обязателен';
@@ -2371,7 +2497,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reviews => 'отзывов';
 
   @override
-  String get rentAnEquipment => 'Арендовать технику';
+  String get rentAnEquipment => 'Найти технику';
 
   @override
   String get findAndRent => 'Найти и арендовать';
@@ -2837,24 +2963,25 @@ class AppLocalizationsRu extends AppLocalizations {
       'Находите или сдавайте технику и проверенных исполнителей в один шаг.';
 
   @override
-  String get userConsent => 'Согласие пользователя';
+  String get userConsent => 'Согласие на обработку данных';
 
   @override
   String get privacyPolicySubtitle =>
-      'Как мы собираем и используем ваши данные';
+      'Как мы используем и защищаем ваши данные';
 
   @override
-  String get userAgreementSubtitle => 'Правила пользования платформой';
+  String get userAgreementSubtitle => 'Правила использования приложения';
 
   @override
-  String get personalDataSharingSubtitle => 'Передача персональных данных';
+  String get personalDataSharingSubtitle =>
+      'Сбор и обработка персональных данных';
 
   @override
-  String get legalDocuments => 'Юридические документы';
+  String get legalDocuments => 'Документы и правила';
 
   @override
   String get legalDocumentsSubtitle =>
-      'Политики, соглашения, условия использования';
+      'Условия использования и политика конфиденциальности';
 
   @override
   String get applicationTheme => 'Тема приложения';
@@ -2998,7 +3125,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noAddressSelected => 'Адрес не выбран';
 
   @override
-  String get selectedAddress => 'Выбранный адрес';
+  String get selectedAddress => 'Мой адрес';
 
   @override
   String get youHaveNoSavedAddresses => 'У вас нет сохранённых адресов.';
@@ -3021,7 +3148,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get businessPreferences => 'Бизнес-настройки';
 
   @override
-  String get businessProfile => 'Бизнес-профиль';
+  String get businessProfile => 'Ваш профиль';
 
   @override
   String get manageMyEquipment => 'Управлять техникой';
@@ -3310,13 +3437,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get serviceDetailsHint =>
-      'Опишите товары, аренду или технику, которую вы предоставляете...';
+      'Кратко опишите услугу или оборудование, не более 100 символов';
 
   @override
   String get updateProfile => 'Обновить профиль';
 
   @override
+  String get editProfileData => 'Изменить данные';
+
+  @override
+  String get submitChangesForReview => 'Отправить на проверку';
+
+  @override
   String get profileUpdatedSuccessfully => 'Профиль успешно обновлён';
+
+  @override
+  String get profileSentForModeration => 'Отправлено на модерацию';
 
   @override
   String get failedToUpdateProfile => 'Не удалось обновить профиль';
@@ -3335,16 +3471,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get ratePerTrip => 'За рейс';
+  String get ratePerTrip => 'за рейс';
 
   @override
-  String get ratePerCubicMeter => 'За м³';
+  String get ratePerCubicMeter => 'за м³';
 
   @override
-  String get ratePerDay => 'За сутки';
+  String get ratePerDay => 'за день';
 
   @override
-  String get ratePerHour => 'За час';
+  String get ratePerHour => 'за час';
 
   @override
   String get connectionTimedOut =>

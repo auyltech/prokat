@@ -2,6 +2,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 const offerCreateRequestNotFoundCode = 'NOT_FOUND:OFFERS:CREATE';
 const offerCreateZeroBalanceCode = 'CONFLICT:OFFERS:CREATE:BALANCE';
+const offerCreateOwnerOfflineCode = 'CONFLICT:OFFERS:CREATE:OFFLINE';
 
 String offerCreateErrorMessage({
   required AppLocalizations l10n,
@@ -13,6 +14,8 @@ String offerCreateErrorMessage({
       return l10n.offerCreateRequestNotFound;
     case offerCreateZeroBalanceCode:
       return l10n.cannotRespondWithZeroBalance;
+    case offerCreateOwnerOfflineCode:
+      return l10n.ownerOfflineMustBeOnlineToAccept;
     default:
       final trimmed = fallback?.trim() ?? '';
       return trimmed.isEmpty ? l10n.somethingWentWrong : trimmed;

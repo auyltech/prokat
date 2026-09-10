@@ -14,6 +14,7 @@ import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/offers/offer_error_message.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 
@@ -85,6 +86,8 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         );
         return;
       }
+
+      if (warnIfOwnerOffline(context, ref)) return;
 
       setState(() => _submitError = null);
 

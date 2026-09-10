@@ -2,12 +2,14 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:prokat/core/widgets/app_snack_bar.dart";
 import "package:prokat/features/appstartup/app_mode_storage.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
 import "package:prokat/features/bookings/models/booking_status.dart";
 import "package:prokat/features/bookings/providers/booking_mutation_provider.dart";
 import "package:prokat/features/bookings/widgets/booking_status_sheet.dart";
 import "package:prokat/features/bookings/widgets/cancel_booking_sheet.dart";
+import "package:prokat/features/owner/owner_offline_guard.dart";
 import "package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart";
 import "package:prokat/l10n/app_localizations.dart";
 
@@ -22,6 +24,8 @@ class BookingActionRow extends ConsumerWidget {
   });
 
   void _handleAccept(BuildContext context, WidgetRef ref) {
+    if (warnIfOwnerOffline(context, ref)) return;
+
     final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingMutationProvider.notifier);
 
@@ -38,11 +42,24 @@ class BookingActionRow extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                await notifier.updateBookingStatus(
+                final result = await notifier.updateBookingStatus(
                   id: booking.id,
                   status: BookingStatus.confirmed,
                 );
-                if (context.mounted) Navigator.pop(context);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                AppSnackBar.show(
+                  message: result.success
+                      ? l10n.orderConfirmed
+                      : ownerOfflineActionErrorMessage(
+                          l10n: l10n,
+                          errorCode: result.errorCode,
+                          fallback: l10n.failedToConfirmOrder,
+                        ),
+                  isSuccess: result.success,
+                  isError: !result.success,
+                );
+                if (result.success) onActionCompleted?.call();
               },
               child: Text(l10n.confirm),
             ),

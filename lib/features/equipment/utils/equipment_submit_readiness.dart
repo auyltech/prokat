@@ -1,4 +1,5 @@
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/models/equipment_spec.dart';
 
 bool hasEquipmentText(String? value) => value?.trim().isNotEmpty == true;
 
@@ -24,9 +25,20 @@ bool equipmentHasCity(Equipment equipment) {
       hasEquipmentText(equipment.location?.city);
 }
 
+const vacuumRequiredSpecKeys = {
+  'tank_volume',
+  'hose_length',
+  'pump_power',
+  'max_depth',
+};
+
+bool equipmentSpecIsRequired(EquipmentSpec spec) {
+  return spec.isRequired == true || vacuumRequiredSpecKeys.contains(spec.key);
+}
+
 bool equipmentHasRequiredSpecs(Equipment equipment) {
   return equipment.specs
-          ?.where((spec) => spec.isRequired == true)
+          ?.where(equipmentSpecIsRequired)
           .every((spec) => spec.hasFilledValue) ??
       true;
 }
@@ -39,6 +51,30 @@ bool isEquipmentReadyForReview(Equipment equipment) {
       equipmentHasRequiredSpecs(equipment);
 }
 
+const ownerEquipmentSectionCount = 3;
+
+bool ownerGeneralSectionComplete(Equipment equipment) {
+  return equipmentHasCity(equipment) && equipmentHasPrice(equipment);
+}
+
+bool ownerRegistrationSectionComplete(Equipment equipment) {
+  return hasEquipmentText(equipment.name) &&
+      hasEquipmentText(equipment.model) &&
+      hasEquipmentText(equipment.plateNumber);
+}
+
+bool ownerSpecsSectionComplete(Equipment equipment) {
+  return equipmentHasRequiredSpecs(equipment);
+}
+
+int filledOwnerEquipmentSections(Equipment equipment) {
+  var filled = 0;
+  if (ownerGeneralSectionComplete(equipment)) filled++;
+  if (ownerRegistrationSectionComplete(equipment)) filled++;
+  if (ownerSpecsSectionComplete(equipment)) filled++;
+  return filled;
+}
+
 /// Stable snapshot of owner-editable fields used to detect a rejected resubmit.
 String equipmentReviewFingerprint(Equipment equipment) {
   final images = <String>[
@@ -46,7 +82,11 @@ String equipmentReviewFingerprint(Equipment equipment) {
     if (hasEquipmentText(equipment.imageUrl)) equipment.imageUrl!.trim(),
   ];
   final prices = equipment.prices
-      .map((entry) => '${entry.id}:${entry.price}:${entry.priceRate.value}')
+      .map(
+        (entry) =>
+            '${entry.id}:${entry.price}:${entry.priceRate.value}:'
+            '${entry.label ?? ''}:${entry.isStartingFrom ? 1 : 0}',
+      )
       .join(',');
   final specs = (equipment.specs ?? [])
       .map(

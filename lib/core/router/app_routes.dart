@@ -103,6 +103,7 @@ class AppRoutes {
   static const String ownerBookingsHistory = '$ownerBookings/$history';
 
   static const String ownerProfile = '$ownerMain/profile';
+  static const String ownerDocuments = '$ownerMain/documents';
   static const String ownerSettings = '$ownerMain/settings';
 
   static const String ownerPayment = '$ownerMain/payment';

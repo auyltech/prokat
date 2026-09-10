@@ -95,16 +95,31 @@ String formatPhoneNumber(String phoneNumber) {
 }
 
 String formatPrice(dynamic price) {
+  return "₸ ${formatPriceNumber(price)}";
+}
+
+String formatPriceNumber(dynamic price) {
   final number = (price is num)
       ? price
       : (double.tryParse(price.toString()) ?? 0);
-
-  // Custom pattern using space as a separator
   final formatter = NumberFormat("#,###", "en_US");
+  return formatter.format(number).replaceAll(',', ' ');
+}
 
-  String formatted = formatter.format(number).replaceAll(',', ',');
+int? parseGroupedInt(String raw) {
+  final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+  if (digits.isEmpty) return null;
+  return int.tryParse(digits);
+}
 
-  return "₸ $formatted";
+String rateUnitLabel(PriceRateOption? priceRate, AppLocalizations l10n) {
+  return switch (priceRate?.value) {
+    'PER_TRIP' => l10n.rateUnitTrip,
+    'PER_CUBIC_METER' => l10n.rateUnitCubicMeter,
+    'PER_HOUR' => l10n.rateUnitHour,
+    'PER_DAY' => l10n.rateUnitDay,
+    _ => '',
+  };
 }
 
 String getPriceRate(PriceRateOption? priceRate, {AppLocalizations? l10n}) {
