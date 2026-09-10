@@ -43,6 +43,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
         if (ref.read(billingProvider).accountBalance == null) {
           await ref.read(billingProvider.notifier).getOwnerBalance();
+          if (!mounted) return;
         }
 
         await ref.read(billingProvider.notifier).getVolumeDiscounts();

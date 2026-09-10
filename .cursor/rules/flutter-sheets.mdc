@@ -1,0 +1,13 @@
+---
+description: Modal UI — bottom sheets only; AppBottomSheet.show / showScrollable
+globs: lib/**/*.dart
+alwaysApply: false
+---
+
+# Sheets (Prokat)
+
+- Prefer modal bottom sheets (thumb reach). Do not add new centered `AlertDialog` UIs.
+- Open via `PurposeSheet.show` → `AppBottomSheet.show` (finite content) or `showScrollable` (long lists).
+- Do not call raw `showModalBottomSheet` outside a `*Sheet` class.
+- Buttons inside sheets → ui_kit elevated/outlined; destructive → `AppElevatedButton.destructive`.
+- Chrome tokens → `AppDimens.sheet*`.
