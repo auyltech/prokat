@@ -7,7 +7,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/core/theme/app_theme.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
 import 'package:prokat/features/map/services/map_language.dart';
