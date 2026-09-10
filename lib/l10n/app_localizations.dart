@@ -2293,7 +2293,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryAddress.
   ///
   /// In en, this message translates to:
-  /// **'Delivery Address'**
+  /// **'Dispatch address'**
   String get deliveryAddress;
 
   /// No description provided for @noActiveOrders.
@@ -3025,7 +3025,7 @@ abstract class AppLocalizations {
   /// No description provided for @setDeliveryAddress.
   ///
   /// In en, this message translates to:
-  /// **'Set Delivery Address'**
+  /// **'Set dispatch address'**
   String get setDeliveryAddress;
 
   /// No description provided for @setEquipmentLocation.
@@ -3595,7 +3595,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryLocation.
   ///
   /// In en, this message translates to:
-  /// **'Delivery Location'**
+  /// **'Dispatch address'**
   String get deliveryLocation;
 
   /// No description provided for @equipmentSpecs.
@@ -3607,13 +3607,13 @@ abstract class AppLocalizations {
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:
-  /// **'Select Date'**
+  /// **'Dispatch date'**
   String get selectDate;
 
   /// No description provided for @selectTime.
   ///
   /// In en, this message translates to:
-  /// **'Select Time'**
+  /// **'Dispatch time'**
   String get selectTime;
 
   /// No description provided for @requiredHint.
@@ -5053,7 +5053,7 @@ abstract class AppLocalizations {
   /// No description provided for @servicePlan.
   ///
   /// In en, this message translates to:
-  /// **'Service Plan'**
+  /// **'Rate'**
   String get servicePlan;
 
   /// No description provided for @addressAndSchedule.

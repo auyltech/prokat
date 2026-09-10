@@ -125,6 +125,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         false;
 
     final priceEntries = equipment?.prices;
+    final ownerComment = equipment?.ownerComment?.trim() ?? '';
 
     final displayUrl = equipment?.imageUrl ?? "";
 
@@ -229,6 +230,19 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       UserInfoTile(user: equipment.owner),
 
                       const SizedBox(height: 12),
+
+                      if (ownerComment.isNotEmpty) ...[
+                        Text(
+                          ownerComment,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.8,
+                            ),
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
 
                       /// Pricing
                       SectionTitle(
