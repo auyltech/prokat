@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/overlay_badge_icon.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -28,10 +29,11 @@ class RentAnEquipmentTile extends ConsumerWidget {
           color: Colors.blue.shade800.withValues(alpha: 0.15),
           child: Row(
             children: [
-              const Icon(
-                Icons.storefront_outlined,
-                size: 40,
-                color: Color(0xFF1B3E8C),
+              OverlayBadgeIcon(
+                icon: LucideIcons.truck,
+                badge: LucideIcons.search,
+                color: const Color(0xFF1B3E8C),
+                badgeBackground: theme.scaffoldBackgroundColor,
               ),
 
               const SizedBox(width: 18),

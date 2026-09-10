@@ -12,6 +12,8 @@ import 'package:prokat/features/owner/models/owner_notification_preferences.dart
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+const showDetailedNotificationPreferences = false;
+
 class OwnerNotificationsSection extends ConsumerStatefulWidget {
   final OwnerNotificationPreferences initialValue;
   final Future<void> Function()? onPushAuthorized;
@@ -221,7 +223,7 @@ class _OwnerNotificationsSectionState
           icon: Icons.notifications_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: l10n.pushNotifications,
+          title: l10n.notifications,
           subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           isLoading: _loadingPermission,
@@ -231,6 +233,7 @@ class _OwnerNotificationsSectionState
           },
         ),
 
+        if (showDetailedNotificationPreferences) ...[
         const SizedBox(height: 16),
 
         SettingsSwitchTile(
@@ -359,6 +362,7 @@ class _OwnerNotificationsSectionState
           color: _ownerColor,
           backgroundColor: _ownerBackground,
         ),
+        ],
       ],
     );
   }

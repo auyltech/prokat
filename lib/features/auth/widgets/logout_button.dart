@@ -80,26 +80,28 @@ class LogoutButton extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 45,
+                width: 50,
                 height: 50,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.error.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: authState.isLoading
-                      ? CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: theme.colorScheme.error,
-                        )
-                      : Icon(
-                          LucideIcons.logOut,
-                          color: theme.colorScheme.error,
-                          size: 28,
+                child: authState.isLoading
+                    ? Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.error,
+                          ),
                         ),
-                ),
+                      )
+                    : Icon(
+                        LucideIcons.logOut,
+                        color: theme.colorScheme.error,
+                        size: 25,
+                      ),
               ),
 
               const SizedBox(width: 20),

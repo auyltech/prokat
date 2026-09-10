@@ -464,11 +464,13 @@ class EquipmentMutationNotifier
     }
   }
 
-  Future<MutationResponse> createPriceEntry(
-    int price,
-    PriceRateOption priceRate,
-    String equipmentId,
-  ) async {
+  Future<MutationResponse> createPriceEntry({
+    required int price,
+    required PriceRateOption priceRate,
+    required String equipmentId,
+    String? label,
+    bool isStartingFrom = false,
+  }) async {
     if (equipmentId.toString().trim().isEmpty) {
       return MutationResponse(
         success: false,
@@ -481,7 +483,13 @@ class EquipmentMutationNotifier
     try {
       startAction(actionId);
 
-      final result = await api.createPriceEntry(price, priceRate, equipmentId);
+      final result = await api.createPriceEntry(
+        price: price,
+        priceRate: priceRate,
+        equipmentId: equipmentId,
+        label: label,
+        isStartingFrom: isStartingFrom,
+      );
 
       finishAction(
         actionId,

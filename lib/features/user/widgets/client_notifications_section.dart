@@ -9,6 +9,8 @@ import 'package:prokat/core/widgets/settings_switch_tile.dart';
 import 'package:prokat/features/user/models/client_notification_preferences.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+const showDetailedNotificationPreferences = false;
+
 class ClientNotificationsSection extends StatefulWidget {
   final ClientNotificationPreferences initialValue;
   final Future<void> Function()? onPushAuthorized;
@@ -199,7 +201,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         SettingsSwitchTile(
           onTap: _loadingPermission ? null : _manageNotificationPermission,
           icon: Icons.notifications_outlined,
-          title: l10n.pushNotifications,
+          title: l10n.notifications,
           subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           onChanged: (_) {
@@ -208,6 +210,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
           isLoading: _loadingPermission,
         ),
 
+        if (showDetailedNotificationPreferences) ...[
         const SizedBox(height: 16),
         SettingsSwitchTile(
           icon: Icons.notifications_outlined,
@@ -274,6 +277,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
             nextValue: _preferences.copyWith(remindersAndReviews: value),
           ),
         ),
+        ],
       ],
     );
   }

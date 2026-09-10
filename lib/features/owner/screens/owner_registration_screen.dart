@@ -42,15 +42,17 @@ class _OwnerRegistrationScreenState
         child: ListView(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (status != null &&
-                      shouldShowOwnerProfileStatusBanner(status))
-                    _buildStatusCard(l10n, status),
                   if (initialProfile != null)
                     OwnerProfileForm(initialProfile: initialProfile),
+                  if (status != null &&
+                      shouldShowOwnerProfileStatusBanner(status)) ...[
+                    const SizedBox(height: 20),
+                    _buildStatusCard(l10n, status),
+                  ],
                 ],
               ),
             ),

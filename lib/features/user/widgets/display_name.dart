@@ -28,15 +28,14 @@ class DisplayName extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(clientProfileProvider);
-    final name = (state.userProfile?.displayName ?? '').isNotEmpty
-        ? state.userProfile!.displayName
-        : l10n.hello;
+    final savedName = (state.userProfile?.displayName ?? '').trim();
+    final name = savedName.isNotEmpty ? savedName : l10n.myProfile;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: () => _openEditSheet(context, ref, name),
+          onTap: () => _openEditSheet(context, ref, savedName),
           child: Text(
             name,
             style: theme.textTheme.titleLarge?.copyWith(

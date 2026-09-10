@@ -1,4 +1,5 @@
 import 'package:prokat/core/utils/parse.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
 
 enum UserRole { client, owner }
 
@@ -27,6 +28,7 @@ class UserModel {
   final int? orderCount;
   final UserRole? role;
   final String? imageUrl;
+  final OwnerStatus? onlineStatus;
 
   const UserModel({
     this.id,
@@ -39,6 +41,7 @@ class UserModel {
     this.orderCount,
     this.role,
     this.imageUrl,
+    this.onlineStatus,
   });
 
   @override
@@ -71,6 +74,8 @@ class UserModel {
     return role == UserRole.owner;
   }
 
+  bool get isAccountOnline => onlineStatus == OwnerStatus.online;
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     try {
       return UserModel(
@@ -84,6 +89,9 @@ class UserModel {
         orderCount: parseNullableInt(json['orderCount']),
         role: parseUserRole(json['role']) ?? UserRole.client,
         imageUrl: json['imageUrl']?.toString(),
+        onlineStatus: json.containsKey('onlineStatus')
+            ? parseOwnerStatus(json['onlineStatus'])
+            : null,
       );
     } catch (e) {
       rethrow;
@@ -102,6 +110,7 @@ class UserModel {
       'imageUrl': imageUrl,
       'ratingAverage': rating,
       'orderCount': orderCount,
+      if (onlineStatus != null) 'onlineStatus': onlineStatus!.name.toUpperCase(),
     };
   }
 }

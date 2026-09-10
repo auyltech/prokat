@@ -14,6 +14,7 @@ import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/view_offer_sheet.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/state/request_lifetime.dart';
@@ -287,6 +288,8 @@ class OwnerRequestTile extends ConsumerWidget {
                     // Send Offer
                     IconButton(
                       onPressed: () {
+                        if (warnIfOwnerOffline(context, ref)) return;
+
                         ref
                             .read(offerMutationProvider.notifier)
                             .selectRequest(request);

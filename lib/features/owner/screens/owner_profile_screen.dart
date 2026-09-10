@@ -149,6 +149,16 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 child: Column(
                   children: [
                     ProkatListTile(
+                      icon: LucideIcons.fileText,
+                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
+                      iconColor: AppColors.teal800,
+                      title: l10n.legalDocuments,
+                      subtitle: l10n.legalDocumentsSubtitle,
+                      onTap: () => context.push(AppRoutes.ownerDocuments),
+                    ),
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
                       icon: LucideIcons.settings,
                       iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
                       iconColor: AppColors.teal800,
@@ -159,11 +169,11 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                     const SizedBox(height: 20),
 
                     ProkatListTile(
-                      icon: LucideIcons.lifeBuoy,
+                      icon: LucideIcons.headset,
                       iconColor: Colors.red,
                       iconBgColor: Colors.red.withValues(alpha: 0.15),
                       title: l10n.helpSupportTitle,
-                      subtitle: l10n.helpFaqsSubtitle,
+                      subtitle: l10n.helpSupportSubtitle,
                       onTap: () => context.push(AppRoutes.helpSupport),
                     ),
                   ],

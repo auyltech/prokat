@@ -5,6 +5,7 @@ import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_state.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -65,6 +66,10 @@ class BookingChatActionController
     required String chatId,
     required String bookingId,
   }) async {
+    if (warnIfOwnerOffline(context, ref)) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
     await _run(
       context: context,
       submitId: "booking:accept",
@@ -76,7 +81,16 @@ class BookingChatActionController
               status: BookingStatus.confirmed,
             );
 
-        return result.success;
+        if (!result.success) {
+          throw Exception(
+            ownerOfflineActionErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: result.message,
+            ),
+          );
+        }
+        return true;
       },
       onSuccess: () {
         return refreshAfterBookingAction(chatId: chatId, bookingId: bookingId);
