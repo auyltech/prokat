@@ -1792,6 +1792,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get failedToUploadPhoto => 'Фотоны жүктеу сәтсіз аяқталды';
 
   @override
+  String get mediaAccessDenied =>
+      'Камераға немесе фотоға рұқсат жоқ. Құрылғы параметрлерінен рұқсат беріңіз.';
+
+  @override
   String get failedToDeletePhoto => 'Фотоны жою сәтсіз аяқталды';
 
   @override
@@ -3143,6 +3147,10 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get equipmentSubmitPhotoHint =>
       'Техникаңыздың нақты фотосуреттерін қосуды ұмытпаңыз (кемінде бір суретте оның мемлекеттік нөмірі көрінуі керек).';
+
+  @override
+  String get equipmentSubmitPhotoRequired =>
+      'Кемінде бір техника фотосын қосыңыз, кадрлардың бірінде мемлекеттік нөмір көрінуі керек';
 
   @override
   String get youAreOnline => 'Сіз онлайнсыз';

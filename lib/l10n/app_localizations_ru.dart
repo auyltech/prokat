@@ -1809,6 +1809,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get failedToUploadPhoto => 'Не удалось загрузить фото';
 
   @override
+  String get mediaAccessDenied =>
+      'Нет доступа к камере или фото. Разрешите в настройках устройства.';
+
+  @override
   String get failedToDeletePhoto => 'Не удалось удалить фото';
 
   @override
@@ -3171,6 +3175,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get equipmentSubmitPhotoHint =>
       'Не забудьте добавить реальные фотографии вашей техники (как минимум на одном из снимков должен быть виден ее гос. номер).';
+
+  @override
+  String get equipmentSubmitPhotoRequired =>
+      'Добавьте хотя бы одно фото техники, чтобы хотя бы на одном из кадров было видно госномер';
 
   @override
   String get youAreOnline => 'Вы онлайн';

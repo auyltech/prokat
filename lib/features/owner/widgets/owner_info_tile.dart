@@ -24,6 +24,9 @@ class OwnerInfoTile extends ConsumerWidget {
           backgroundImage: (user?.imageUrl ?? '').isNotEmpty
               ? mediaImageProvider(ref, user?.imageUrl)
               : null,
+          onBackgroundImageError: (user?.imageUrl ?? '').isNotEmpty
+              ? ignoreMediaImageLoadError
+              : null,
           child: Icon(
             Icons.person_rounded,
             color: theme.colorScheme.primary,

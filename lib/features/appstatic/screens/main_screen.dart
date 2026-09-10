@@ -259,7 +259,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 40),
                 sliver: SliverList.separated(
                   itemCount: items.length + (queryState!.isLoadingMore ? 1 : 0),
                   separatorBuilder: (_, _) => const SizedBox(height: 16),

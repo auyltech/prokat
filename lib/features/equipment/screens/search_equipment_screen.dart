@@ -42,23 +42,36 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   ProviderSubscription? _specSub;
 
   Future<void> _fetchData() async {
+    if (!mounted) return;
+
     final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
     final query = ref.read(searchEquipmentProvider).query;
     final spec = ref.read(specFilterQueryProvider);
+    final equipment = ref.read(clientEquipmentProvider.notifier);
+    final favorites = ref.read(favoritesProvider.notifier);
+    final categories = ref.read(categoriesProvider.notifier);
+    final catalog = ref.read(catalogProvider.notifier);
 
-    await ref
-        .read(clientEquipmentProvider.notifier)
-        .search(categoryId: categoryId, city: city, query: query, spec: spec);
+    await equipment.search(
+      categoryId: categoryId,
+      city: city,
+      query: query,
+      spec: spec,
+    );
 
     if (!mounted) return;
-    await ref.read(favoritesProvider.notifier).getFavorites();
+    await favorites.getFavorites();
 
-    await ref.read(categoriesProvider.notifier).refreshIfStale();
-    await ref.read(catalogProvider.notifier).refreshIfStale();
+    if (!mounted) return;
+    await categories.refreshIfStale();
+
+    if (!mounted) return;
+    await catalog.refreshIfStale();
   }
 
   void _loadMore() {
+    if (!mounted) return;
     unawaited(ref.read(clientEquipmentProvider.notifier).loadMore());
   }
 
@@ -66,16 +79,24 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     _debounce?.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       unawaited(_fetchData());
     });
   }
 
   Future<void> _onRefresh() async {
+    if (!mounted) return;
+
+    final catalog = ref.read(catalogProvider.notifier);
+    final equipment = ref.read(clientEquipmentProvider.notifier);
+    final categories = ref.read(categoriesProvider.notifier);
+    final demand = ref.read(demandConfigProvider.notifier);
+
     await Future.wait([
-      ref.read(catalogProvider.notifier).refresh(),
-      ref.read(clientEquipmentProvider.notifier).refresh(),
-      ref.read(categoriesProvider.notifier).refresh(),
-      ref.read(demandConfigProvider.notifier).refresh(),
+      catalog.refresh(),
+      equipment.refresh(),
+      categories.refresh(),
+      demand.refresh(),
     ]);
   }
 
@@ -95,7 +116,10 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     _equipmentSub = ref.listenManual(
       searchEquipmentProvider.select((s) => s.query),
-      (_, _) => _fetchData(),
+      (_, _) {
+        if (!mounted) return;
+        unawaited(_fetchData());
+      },
     );
 
     _specSub = ref.listenManual(

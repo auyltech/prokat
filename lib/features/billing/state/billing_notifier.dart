@@ -34,19 +34,22 @@ class BillingNotifier extends StateNotifier<BillingState> {
           accountBalance: () => result.data,
           errors: updatedErrors,
         );
-      } else {
-        final updatedErrors = Map<String, String>.from(state.errors)
-          ..addEntries({"balance": result.message}.entries);
-
-        state = state.copyWith(
-          isBalanceLoading: false,
-          accountBalance: () => result.data,
-          errors: updatedErrors,
-        );
+        return;
       }
+
+      // Keep the last known wallet. A failed poll must not wipe
+      // secondsRemaining or flip online UI via a null balance.
+      final updatedErrors = Map<String, String>.from(state.errors);
+      if (state.accountBalance == null) {
+        updatedErrors['balance'] = result.message;
+      }
+
+      state = state.copyWith(isBalanceLoading: false, errors: updatedErrors);
     } catch (e) {
-      final updatedErrors = Map<String, String>.from(state.errors)
-        ..['balance'] = e.toString();
+      final updatedErrors = Map<String, String>.from(state.errors);
+      if (state.accountBalance == null) {
+        updatedErrors['balance'] = e.toString();
+      }
       state = state.copyWith(isBalanceLoading: false, errors: updatedErrors);
     }
   }

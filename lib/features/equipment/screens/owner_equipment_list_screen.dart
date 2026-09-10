@@ -93,9 +93,12 @@ class _OwnerEquipmentListScreenState
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 if (query.items.isEmpty)
-                  EmptyStateTile(
-                    title: l10n.noEquipmentListed,
-                    imageName: 'empty_equipment.png',
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: EmptyStateTile(
+                      title: l10n.noEquipmentListed,
+                      imageName: 'empty_equipment.png',
+                    ),
                   )
                 else ...[
                   if (query.isRefreshing)

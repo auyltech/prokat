@@ -199,7 +199,7 @@ class ClientActiveRequestsNotifier
       } catch (_) {}
     }
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
-    final current = _stateScope == scope ? state.value : null;
+    final current = _stateScope == scope ? state.valueOrNull : null;
 
     if (current == null) {
       await refresh();

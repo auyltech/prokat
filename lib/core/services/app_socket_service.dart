@@ -15,6 +15,7 @@ class AppSocketService {
 
   io.Socket? _socket;
   Future<void>? _connecting;
+  Completer<void>? _handshakeCompleter;
   int _connectionGeneration = 0;
 
   final Map<String, void Function(dynamic payload)> _eventHandlers = {};
@@ -78,22 +79,26 @@ class AppSocketService {
     }
 
     final completer = Completer<void>();
+    _handshakeCompleter = completer;
     var reportedConnectError = false;
 
-    void failHandshake(Object error, [StackTrace? stackTrace]) {
-      final exception = error is SocketConnectException
-          ? error
-          : SocketConnectException(
-              message: SocketConnectException.messageFrom(error),
-              cause: error,
-              hasToken: sessionToken.isNotEmpty,
-              tokenLength: sessionToken.length,
-              sessionExpiredOnClient: session?.isExpired ?? false,
-              socketUrl: Env.socketUrl,
-              userId: userId,
-            );
+    SocketConnectException wrapError(Object error) {
+      if (error is SocketConnectException) return error;
+      return SocketConnectException(
+        message: SocketConnectException.messageFrom(error),
+        cause: error,
+        hasToken: sessionToken.isNotEmpty,
+        tokenLength: sessionToken.length,
+        sessionExpiredOnClient: session?.isExpired ?? false,
+        socketUrl: Env.socketUrl,
+        userId: userId,
+      );
+    }
 
-      if (!reportedConnectError) {
+    void failHandshake(Object error, [StackTrace? stackTrace]) {
+      final exception = wrapError(error);
+
+      if (!reportedConnectError && exception.shouldReportToCrashlytics) {
         reportedConnectError = true;
         unawaited(
           CrashReportingService.recordError(
@@ -105,12 +110,17 @@ class AppSocketService {
               'app_env': Env.environment.name,
             },
             userId: userId,
-            fatal: true,
+            // App keeps running; do not mark as a process crash.
+            fatal: false,
           ),
         );
       }
 
-      Logger.log('Socket connect error: ${exception.message}');
+      if (exception.isExpectedDisconnect) {
+        Logger.log('Socket connect deferred: ${exception.message}');
+      } else {
+        Logger.log('Socket connect error: ${exception.message}');
+      }
 
       if (!completer.isCompleted) {
         completer.completeError(exception, stackTrace);
@@ -156,23 +166,20 @@ class AppSocketService {
         _socket = null;
       }
 
-      if (error is SocketConnectException) {
-        Error.throwWithStackTrace(error, stackTrace);
+      final exception = wrapError(error);
+      if (error is! SocketConnectException) {
+        // Timeout / transport errors land here; onConnectError already
+        // went through failHandshake and rethrows SocketConnectException.
+        failHandshake(exception, stackTrace);
+      } else if (exception.isExpectedDisconnect) {
+        // disconnectSocket aborted the wait — log once, no Crashlytics.
+        Logger.log('Socket connect deferred: ${exception.message}');
       }
-
-      failHandshake(error, stackTrace);
-      Error.throwWithStackTrace(
-        SocketConnectException(
-          message: SocketConnectException.messageFrom(error),
-          cause: error,
-          hasToken: sessionToken.isNotEmpty,
-          tokenLength: sessionToken.length,
-          sessionExpiredOnClient: session?.isExpired ?? false,
-          socketUrl: Env.socketUrl,
-          userId: userId,
-        ),
-        stackTrace,
-      );
+      Error.throwWithStackTrace(exception, stackTrace);
+    } finally {
+      if (identical(_handshakeCompleter, completer)) {
+        _handshakeCompleter = null;
+      }
     }
   }
 
@@ -250,6 +257,20 @@ class AppSocketService {
   // auth session is cleared
   // socket token is invalid
   void disconnectSocket() {
+    final handshake = _handshakeCompleter;
+    if (handshake != null && !handshake.isCompleted) {
+      handshake.completeError(
+        SocketConnectException(
+          message: 'Socket connection cancelled',
+          hasToken: true,
+          tokenLength: 0,
+          sessionExpiredOnClient: false,
+          socketUrl: Env.socketUrl,
+        ),
+      );
+    }
+    _handshakeCompleter = null;
+
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;

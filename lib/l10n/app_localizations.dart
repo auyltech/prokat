@@ -3502,6 +3502,12 @@ abstract class AppLocalizations {
   /// **'Failed to upload photo'**
   String get failedToUploadPhoto;
 
+  /// No description provided for @mediaAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera or photo access was denied. Allow it in system settings.'**
+  String get mediaAccessDenied;
+
   /// No description provided for @failedToDeletePhoto.
   ///
   /// In en, this message translates to:
@@ -5955,6 +5961,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).'**
   String get equipmentSubmitPhotoHint;
+
+  /// No description provided for @equipmentSubmitPhotoRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one equipment photo so the license plate is visible in at least one shot'**
+  String get equipmentSubmitPhotoRequired;
 
   /// No description provided for @youAreOnline.
   ///

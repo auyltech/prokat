@@ -46,10 +46,12 @@ class BillingState {
     return remaining > 0;
   }
 
-  /// True when remaining paid minutes are known and already 0.
+  /// True when remaining paid time is known and already 0 seconds.
+  /// Matches backend `secondsRemaining > 0` (not floored display minutes).
   bool get isOutOfPaidMinutes {
-    if (accountBalance == null) return false;
-    return minutesRemaining <= 0;
+    final remaining = accountBalance?.secondsRemaining;
+    if (remaining == null) return false;
+    return remaining <= 0;
   }
 
   /// Converts remaining seconds cleanly to full minutes for the main display counter

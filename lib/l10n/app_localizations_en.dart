@@ -1801,6 +1801,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToUploadPhoto => 'Failed to upload photo';
 
   @override
+  String get mediaAccessDenied =>
+      'Camera or photo access was denied. Allow it in system settings.';
+
+  @override
   String get failedToDeletePhoto => 'Failed to delete photo';
 
   @override
@@ -3139,6 +3143,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get equipmentSubmitPhotoHint =>
       'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).';
+
+  @override
+  String get equipmentSubmitPhotoRequired =>
+      'Add at least one equipment photo so the license plate is visible in at least one shot';
 
   @override
   String get youAreOnline => 'You are online';

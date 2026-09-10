@@ -101,4 +101,69 @@ void main() {
       expect(requestedPaths, containsAll(['/offers', '/offers/owner']));
     },
   );
+
+  test(
+    'refreshIfStale after initial AsyncError retries instead of rethrowing',
+    () async {
+      var failOnce = true;
+      final dio = Dio();
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (failOnce) {
+              failOnce = false;
+              handler.reject(
+                DioException(
+                  requestOptions: options,
+                  type: DioExceptionType.connectionTimeout,
+                  message: 'Connection timeout',
+                ),
+              );
+              return;
+            }
+            handler.resolve(
+              Response<dynamic>(
+                requestOptions: options,
+                statusCode: 200,
+                data: {
+                  'data': {
+                    'items': [_offer('offer-1', '2026-01-01T00:00:00.000Z')],
+                    'page': 1,
+                    'itemsPerPage': 20,
+                    'count': 1,
+                  },
+                },
+              ),
+            );
+          },
+        ),
+      );
+      final container = ProviderContainer(
+        overrides: [
+          authenticatedSessionScopeKeyProvider.overrideWithValue(
+            const AuthenticatedSessionScopeKey.forUser('test-user'),
+          ),
+          offersServiceProvider.overrideWithValue(
+            OffersService(_TestApiClient(dio)),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      const query = OfferQuery.active();
+      await expectLater(
+        container.read(clientOffersProvider(query).future),
+        throwsA(isA<Exception>()),
+      );
+      expect(container.read(clientOffersProvider(query)), isA<AsyncError>());
+
+      await container
+          .read(clientOffersProvider(query).notifier)
+          .refreshIfStale();
+
+      final state = container.read(clientOffersProvider(query));
+      expect(state, isA<AsyncData>());
+      expect(state.requireValue.items.single.id, 'offer-1');
+    },
+  );
 }
