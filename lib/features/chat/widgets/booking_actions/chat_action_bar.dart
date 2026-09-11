@@ -123,7 +123,7 @@ class ChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatusDetail.bookingconfirmed &&
                   mode == AppMode.ownerMode) ...[
-                if (booking != null)
+                if (booking != null) ...[
                   ActionBarButton.destructive(
                     label: l10n.rejectOrder,
                     isEnabled: !submitState.isSubmitting,
@@ -166,44 +166,69 @@ class ChatActionBar extends ConsumerWidget {
                       }
                     },
                   ),
-                const SizedBox(width: 6),
-                ActionBarButton(
-                  label: l10n.completeWork,
-                  isEnabled: !submitState.isSubmitting,
-                  isLoading:
-                      submitState.isSubmitting &&
-                      submitState.isActionActive("booking:workstatus"),
-                  onPressed: () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        backgroundColor: theme.colorScheme.surface,
-                        title: Text(l10n.markCompletedQuestion),
-                        content: Text(l10n.clientConfirmCompletion),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(l10n.cancel),
+                  const SizedBox(width: 6),
+                  if (canTransition(booking.workStatus, WorkStatus.completed))
+                    ActionBarButton(
+                      label: l10n.completeWork,
+                      isEnabled: !submitState.isSubmitting,
+                      isLoading:
+                          submitState.isSubmitting &&
+                          submitState.isActionActive("booking:workstatus"),
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: theme.colorScheme.surface,
+                            title: Text(l10n.markCompletedQuestion),
+                            content: Text(l10n.clientConfirmCompletion),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(l10n.cancel),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  Navigator.pop(context, true);
+                                  final result = await bookingMutation
+                                      .updateBookingWorkStatus(
+                                        id: booking.id,
+                                        workStatus: WorkStatus.completed,
+                                      );
+                                  if (result.success == true) {
+                                    await chatNotifier.refreshAll();
+                                  }
+                                },
+                                child: Text(l10n.markCompleted),
+                              ),
+                            ],
                           ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              Navigator.pop(context, true);
-                              await bookingMutation.updateBookingWorkStatus(
-                                id: booking?.id ?? "",
-                                workStatus: WorkStatus.completed,
-                              );
-                            },
-                            child: Text(l10n.markCompleted),
-                          ),
-                        ],
-                      ),
-                    );
+                        );
 
-                    if (confirmed != true) return;
-                  },
-                ),
-                const SizedBox(width: 6),
-                if (booking != null)
+                        if (confirmed != true) return;
+                      },
+                    )
+                  else if (canTransition(
+                    booking.workStatus,
+                    WorkStatus.started,
+                  ))
+                    ActionBarButton(
+                      label: l10n.startWork,
+                      isEnabled: !submitState.isSubmitting,
+                      isLoading:
+                          submitState.isSubmitting &&
+                          submitState.isActionActive("booking:workstatus"),
+                      onPressed: () async {
+                        final result = await bookingMutation
+                            .updateBookingWorkStatus(
+                              id: booking.id,
+                              workStatus: WorkStatus.started,
+                            );
+                        if (result.success == true) {
+                          await chatNotifier.refreshAll();
+                        }
+                      },
+                    ),
+                  const SizedBox(width: 6),
                   ActionBarButton.secondary(
                     label: l10n.updateStatus,
                     isEnabled: !submitState.isSubmitting,
@@ -221,6 +246,7 @@ class ChatActionBar extends ConsumerWidget {
                       }
                     },
                   ),
+                ],
               ] else if (chatStatus == ChatStatusDetail.confirmcompleted) ...[
                 ActionBarButton(
                   label: l10n.confirm,
