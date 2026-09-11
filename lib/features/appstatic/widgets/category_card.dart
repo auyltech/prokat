@@ -8,7 +8,9 @@ TextStyle _categoryTileLabelStyle(ThemeData theme, {bool selected = false}) {
     fontWeight: FontWeight.w400,
     height: 1.25,
     letterSpacing: 0,
-    color: selected ? theme.colorScheme.primary : theme.textTheme.bodyMedium?.color,
+    color: selected
+        ? theme.colorScheme.primary
+        : theme.textTheme.bodyMedium?.color,
   );
 }
 
@@ -33,8 +35,7 @@ class CategoryCard extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child:
-                (category.imageUrl != null && category.imageUrl!.isNotEmpty)
+            child: (category.imageUrl != null && category.imageUrl!.isNotEmpty)
                 ? OptimizedNetworkImage(
                     imageUrl: category.imageUrl,
                     height: 50,

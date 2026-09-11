@@ -245,7 +245,8 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                         label: l10n.priceFrom,
                         selected: draft.isStartingFrom,
                         enabled: widget.canEdit,
-                        onTap: () => _emit(draft.copyWith(isStartingFrom: true)),
+                        onTap: () =>
+                            _emit(draft.copyWith(isStartingFrom: true)),
                       ),
                       const SizedBox(width: 8),
                       _ModeChip(

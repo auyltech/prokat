@@ -154,10 +154,7 @@ class BookingService {
     } on DioException catch (error) {
       return handleDioException(error, fallbackMessage: "Request failed");
     } catch (error) {
-      return handleUnknownException(
-        error,
-        fallbackMessage: "Unexpected error",
-      );
+      return handleUnknownException(error, fallbackMessage: "Unexpected error");
     }
   }
 

@@ -79,8 +79,8 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   void _prefillCityIfNeeded() {
     if (_city.trim().isNotEmpty) return;
-    final profileCity =
-        (ref.read(ownerProfileProvider).valueOrNull?.city ?? '').trim();
+    final profileCity = (ref.read(ownerProfileProvider).valueOrNull?.city ?? '')
+        .trim();
     final sessionCity = (ref.read(locationProvider).city ?? '').trim();
     final next = profileCity.isNotEmpty ? profileCity : sessionCity;
     if (next.isEmpty) return;
@@ -121,9 +121,8 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   List<TariffDraft> _editorTariffs([Equipment? equipment]) {
-    final vacuumId = vacuumTrucksCategory(
-      ref.read(catalogProvider).valueOrNull,
-    )?.id;
+    final vacuumId = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull)
+        ?.id;
     return tariffsForEditor(
       equipment ?? widget.equipment,
       vacuumCategoryId: vacuumId,
@@ -205,11 +204,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
     for (final id in _deletedPriceIds) {
       final ok = await notifier.deletePriceEntry(
-        PriceEntry(
-          id: id,
-          price: 1,
-          priceRate: priceRateOptions.first,
-        ),
+        PriceEntry(id: id, price: 1, priceRate: priceRateOptions.first),
         equipmentId,
       );
       if (!ok) return false;
@@ -218,7 +213,8 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     for (final draft in _tariffs) {
       if (!draft.isSavable) continue;
       final label = draft.persistedLabel();
-      final unchanged = draft.id != null && baseline.contains(draft.fingerprint());
+      final unchanged =
+          draft.id != null && baseline.contains(draft.fingerprint());
       if (unchanged) continue;
       if (draft.id == null) {
         final result = await notifier.createPriceEntry(
@@ -497,7 +493,9 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
               child: Row(
                 children: [
                   Icon(
-                    hasLocation ? Icons.location_on : Icons.location_on_outlined,
+                    hasLocation
+                        ? Icons.location_on
+                        : Icons.location_on_outlined,
                     color: hasLocation
                         ? colorScheme.primary
                         : colorScheme.onSurfaceVariant,
@@ -510,7 +508,9 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                         Text(
                           l10n.workCity,
                           style: theme.textTheme.labelMedium?.copyWith(
-                            color: colorScheme.onSurface.withValues(alpha: 0.62),
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.62,
+                            ),
                             fontWeight: FontWeight.w600,
                           ),
                         ),

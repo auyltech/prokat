@@ -110,7 +110,8 @@ class UserModel {
       'imageUrl': imageUrl,
       'ratingAverage': rating,
       'orderCount': orderCount,
-      if (onlineStatus != null) 'onlineStatus': onlineStatus!.name.toUpperCase(),
+      if (onlineStatus != null)
+        'onlineStatus': onlineStatus!.name.toUpperCase(),
     };
   }
 }
