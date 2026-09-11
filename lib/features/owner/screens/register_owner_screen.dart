@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
@@ -11,6 +12,7 @@ import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/shake_on_tick.dart';
+import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
@@ -63,6 +65,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
   Future<void> _loadCurrentAccount(String userId) async {
     _tryPrefill();
+    if (_redirectIfOwnerApplicationResolved()) return;
 
     await ref.read(clientProfileProvider.notifier).refreshIfStale();
 
@@ -71,7 +74,32 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     }
 
     await ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale();
+    if (!mounted || ref.read(authProvider).currentUserId != userId) {
+      return;
+    }
+    if (_redirectIfOwnerApplicationResolved()) return;
     if (mounted) _tryPrefill();
+  }
+
+  bool _redirectIfOwnerApplicationResolved() {
+    if (!mounted) return false;
+
+    final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
+    final isAcceptedOwner =
+        ref.read(authProvider).isOwner || request?.isApproved == true;
+
+    if (isAcceptedOwner) {
+      unawaited(ref.read(appStartupProvider.notifier).setOwnerMode());
+      context.go(AppRoutes.ownerProfile);
+      return true;
+    }
+
+    if (request != null && request.isPending) {
+      context.go(AppRoutes.clientProfile);
+      return true;
+    }
+
+    return false;
   }
 
   @override
@@ -247,6 +275,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         _clearFormForAccountChange();
       }
 
+      if (_redirectIfOwnerApplicationResolved()) return;
       _tryPrefill();
     });
 
@@ -411,6 +440,7 @@ class _OwnerCityChip extends ConsumerWidget {
     final colors = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final hasCity = (city ?? '').trim().isNotEmpty;
+    final showError = shakeTick > 0 && !hasCity;
     final label = hasCity
         ? catalogCityLabelOf(ref, context, city)
         : l10n.selectCity;
@@ -421,12 +451,18 @@ class _OwnerCityChip extends ConsumerWidget {
         alignment: Alignment.centerLeft,
         child: GestureDetector(
           onTap: enabled ? () => _pickCity(context, ref) : null,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colors.outline.withValues(alpha: 0.6)),
+              border: Border.all(
+                color: showError
+                    ? colors.error
+                    : colors.outline.withValues(alpha: 0.6),
+                width: showError ? 1.5 : 1,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class GuestOwnerInviteCard extends ConsumerWidget {
+class GuestOwnerInviteCard extends StatelessWidget {
   const GuestOwnerInviteCard({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
@@ -41,7 +40,6 @@ class GuestOwnerInviteCard extends ConsumerWidget {
           LoginTile(
             afterLoginFrom: AppRoutes.becomeOwner,
             label: l10n.receiveOrders,
-            scrollToHeroIfNoCity: true,
           ),
         ],
       ),

@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
-class GuestEquipmentCard extends StatelessWidget {
+class GuestEquipmentCard extends ConsumerWidget {
   final Equipment item;
 
   const GuestEquipmentCard({super.key, required this.item});
@@ -32,7 +34,7 @@ class GuestEquipmentCard extends StatelessWidget {
               ElevatedButton(
                 child: Text(l10n.loginLink),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
+                  Navigator.of(context).pop();
 
                   context.go(AppRoutes.login);
                 },
@@ -45,110 +47,124 @@ class GuestEquipmentCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isTop = (item.owner?.rating ?? 0) >= 4.5;
+    final cityLabel = catalogCityLabelOf(ref, context, item.city);
 
-    return GestureDetector(
-      onTap: () => _showSignInDialog(context),
-      child: Row(
-        spacing: 12,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // ── Thumbnail ────────────────────────────────────────────────
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: OptimizedNetworkImage(
-              imageUrl: item.imageUrl ?? "",
-              width: 120,
-              height: height,
-              fit: BoxFit.cover,
-              fallbackIcon: Icons.inventory_2_outlined,
-            ),
-          ),
-
-          // ── Info ─────────────────────────────────────────────────────
-          Expanded(
-            child: SizedBox(
-              height: height,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _StatusBadge(isTop: isTop),
-                  const SizedBox(height: 3),
-
-                  Text(
-                    item.name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.primary,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  // TODO(Vadim): temp hided
-                  // Text(
-                  //   item.category?.name ?? "",
-                  //   style: theme.textTheme.bodyMedium,
-                  // ),
-                  //
-                  const Spacer(),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rate_rounded,
-                        size: 20,
-                        color: Color(0xFFF59E0B),
-                      ),
-                      const SizedBox(width: 3),
-                      Text(
-                        (item.owner?.rating ?? 0).toStringAsFixed(1),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: theme.textTheme.bodyLarge?.color,
-                        ),
-                      ),
-
-                      const Spacer(),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: formatPrice(
-                                item.prices.isEmpty
-                                    ? 0
-                                    : item.prices[0].price.floorToDouble(),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1D4ED8),
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' ${AppLocalizations.of(context)!.perDay}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF1D4ED8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showSignInDialog(context),
+        borderRadius: BorderRadius.circular(10),
+        child: Row(
+          spacing: 12,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: OptimizedNetworkImage(
+                imageUrl: item.imageUrl ?? "",
+                width: 120,
+                height: height,
+                fit: BoxFit.cover,
+                fallbackIcon: Icons.inventory_2_outlined,
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: SizedBox(
+                height: height,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _StatusBadge(isTop: isTop),
+                        if (cityLabel.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              cityLabel,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.primary,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star_rate_rounded,
+                          size: 20,
+                          color: Color(0xFFF59E0B),
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          (item.owner?.rating ?? 0).toStringAsFixed(1),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: theme.textTheme.bodyLarge?.color,
+                          ),
+                        ),
+                        const Spacer(),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: formatPrice(
+                                  item.prices.isEmpty
+                                      ? 0
+                                      : item.prices[0].price.floorToDouble(),
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF1D4ED8),
+                                ),
+                              ),
+                              TextSpan(
+                                text:
+                                    ' ${AppLocalizations.of(context)!.perDay}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF1D4ED8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

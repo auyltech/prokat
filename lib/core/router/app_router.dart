@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/appstatic/screens/about_prokat_screen.dart';
 import 'package:prokat/features/appstatic/screens/error_screen.dart';
 import 'package:prokat/features/appstatic/screens/help_screen.dart';
@@ -124,6 +125,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           startupState == AppStartupRouteState.owner;
 
       final isOwner = startupState == AppStartupRouteState.owner;
+      final jwtIsOwner = ref.read(authProvider).isOwner;
 
       // Client Routes
       final isClientRoute = location.startsWith(AppRoutes.clientMain);
@@ -153,6 +155,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         final from = state.uri.queryParameters['from'];
 
         if (from != null) {
+          if (from == AppRoutes.becomeOwner) {
+            return isOwner || jwtIsOwner ? AppRoutes.ownerProfile : from;
+          }
           if (from.startsWith(AppRoutes.clientMain) ||
               from.startsWith(AppRoutes.ownerMain)) {
             return from;

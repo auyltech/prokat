@@ -18,6 +18,23 @@ enum CitySelectorService {
   ownerprofile,
 }
 
+bool cityPickerIncludesAllCities(CitySelectorService? service) {
+  return service == null ||
+      service == CitySelectorService.guestcategory ||
+      service == CitySelectorService.clientcity;
+}
+
+List<String> cityPickerOptions({
+  required Iterable<String> cityKeys,
+  CitySelectorService? service,
+}) {
+  final keys = cityKeys.toList(growable: false);
+  if (cityPickerIncludesAllCities(service)) {
+    return ['', ...keys];
+  }
+  return keys;
+}
+
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
   final String? highlightedCity;
@@ -94,7 +111,10 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     final selectedCity =
         widget.highlightedCity ?? ref.watch(locationProvider).city;
     final title = l10n.selectCity;
-    final cityKeys = catalogCityKeys(catalog);
+    final options = cityPickerOptions(
+      cityKeys: catalogCityKeys(catalog),
+      service: widget.service,
+    );
 
     return SafeArea(
       top: false,
@@ -129,21 +149,29 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemCount: cityKeys.length,
+                  itemCount: options.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final option = cityKeys[index];
+                    final option = options[index];
+                    final isAllCities = option.trim().isEmpty;
                     final isSelected = isSameCity(option, selectedCity);
 
                     return ListTile(
-                      leading: const Icon(Icons.location_city),
+                      leading: Icon(
+                        isAllCities
+                            ? Icons.public_outlined
+                            : Icons.location_city,
+                      ),
                       title: Text(
-                        catalogCityLabel(
-                          city: option,
-                          languageCode: locale,
-                          catalog: catalog,
-                          fallback: (city) => localizedCityName(city, l10n),
-                        ),
+                        isAllCities
+                            ? l10n.allLocations
+                            : catalogCityLabel(
+                                city: option,
+                                languageCode: locale,
+                                catalog: catalog,
+                                fallback: (city) =>
+                                    localizedCityName(city, l10n),
+                              ),
                       ),
                       trailing: isSelected
                           ? Icon(
