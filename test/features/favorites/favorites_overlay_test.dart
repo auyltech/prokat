@@ -185,7 +185,7 @@ void main() {
     await tester.tap(find.byKey(const Key('favorites-section-header')));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('1,500'), findsOneWidget);
+    expect(find.textContaining('1 500'), findsOneWidget);
     expect(find.text('ПОЗ'), findsNothing);
     expect(find.text('5'), findsOneWidget);
   });

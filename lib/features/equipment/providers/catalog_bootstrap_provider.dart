@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/features/chat/providers/open_chat_id_provider.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
 
 const catalogVisibilityEvent = 'catalog:visibility';
 
@@ -22,9 +25,38 @@ final catalogBootstrapProvider = Provider<void>((ref) {
     }
   }
 
+  void patchOpenChatOwnerStatus(Object? raw) {
+    if (raw is! Map) return;
+
+    final ownerId = raw['ownerId']?.toString().trim() ?? '';
+    if (ownerId.isEmpty) return;
+
+    final onlineStatus = parseOwnerStatus(raw['onlineStatus']);
+    final openChatId = ref.read(openChatIdProvider);
+    if (openChatId == null || openChatId.isEmpty) return;
+
+    final chatProvider = currentChatProvider(openChatId);
+    if (!ref.exists(chatProvider)) return;
+
+    final chat = ref.read(chatProvider).valueOrNull;
+    final owner = chat?.owner;
+    if (chat == null || owner == null || owner.id != ownerId) return;
+
+    ref
+        .read(chatProvider.notifier)
+        .setChat(
+          chat.copyWith(owner: owner.copyWith(onlineStatus: onlineStatus)),
+        );
+  }
+
+  void onCatalogVisibility(Object? raw) {
+    refreshCatalog();
+    patchOpenChatOwnerStatus(raw);
+  }
+
   void attachListener() {
     appSocket.off(catalogVisibilityEvent);
-    appSocket.on(catalogVisibilityEvent, (_) => refreshCatalog());
+    appSocket.on(catalogVisibilityEvent, onCatalogVisibility);
   }
 
   void onConnected() {

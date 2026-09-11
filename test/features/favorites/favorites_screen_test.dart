@@ -64,7 +64,7 @@ void main() {
     expect(find.text('вакуум'), findsOneWidget);
     expect(find.text('Ерлан Садыков'), findsOneWidget);
     expect(find.textContaining('21 orders'), findsOneWidget);
-    expect(find.textContaining('1,500'), findsOneWidget);
+    expect(find.textContaining('1 500'), findsOneWidget);
     expect(find.text('No price'), findsNothing);
   });
 }

@@ -61,9 +61,9 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Logout'));
+    await tester.tap(find.text('Log out of account'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Logout'));
+    await tester.tap(find.widgetWithText(TextButton, 'Log out of account'));
     await tester.pump();
     await tester.pump();
 
