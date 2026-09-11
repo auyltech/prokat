@@ -57,13 +57,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
     final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
     final equipmentItems =
-        ref.watch(ownerEquipmentProvider).value?.items ?? const [];
+        ref.watch(ownerEquipmentProvider).valueOrNull?.items ?? const [];
     final ownerEquipmentCount = equipmentItems.length;
     final onlineEquipmentCount = equipmentItems
         .where((item) => item.isVisible)
         .length;
     final activeOrders =
-        ref.watch(ownerActiveBookingsProvider).value?.count ?? 0;
+        ref.watch(ownerActiveBookingsProvider).valueOrNull?.count ?? 0;
     final completedOrders = ownerProfile?.orderCount ?? 0;
 
     return Scaffold(
