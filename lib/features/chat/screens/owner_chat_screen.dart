@@ -7,6 +7,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/features/chat/providers/open_chat_id_provider.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
 import 'package:prokat/features/chat/widgets/chat_thread_load_error.dart';
@@ -58,6 +59,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(openChatRegistrationProvider(widget.chatId));
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 

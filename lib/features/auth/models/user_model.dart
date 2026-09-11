@@ -76,6 +76,37 @@ class UserModel {
 
   bool get isAccountOnline => onlineStatus == OwnerStatus.online;
 
+  UserModel copyWith({
+    String? id,
+    String? phoneNumber,
+    String? username,
+    String? firstName,
+    String? lastName,
+    String? companyName,
+    int? rating,
+    int? orderCount,
+    UserRole? role,
+    String? imageUrl,
+    OwnerStatus? onlineStatus,
+    bool clearOnlineStatus = false,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      username: username ?? this.username,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      companyName: companyName ?? this.companyName,
+      rating: rating ?? this.rating,
+      orderCount: orderCount ?? this.orderCount,
+      role: role ?? this.role,
+      imageUrl: imageUrl ?? this.imageUrl,
+      onlineStatus: clearOnlineStatus
+          ? null
+          : (onlineStatus ?? this.onlineStatus),
+    );
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     try {
       return UserModel(

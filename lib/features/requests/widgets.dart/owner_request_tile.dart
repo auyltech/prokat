@@ -287,8 +287,13 @@ class OwnerRequestTile extends ConsumerWidget {
 
                     // Send Offer
                     IconButton(
-                      onPressed: () {
-                        if (warnIfOwnerOffline(context, ref)) return;
+                      onPressed: () async {
+                        final online = await ensureOwnerOnline(
+                          context,
+                          ref,
+                          message: l10n.ownerOfflineMustBeOnlineForTender,
+                        );
+                        if (!online || !context.mounted) return;
 
                         ref
                             .read(offerMutationProvider.notifier)

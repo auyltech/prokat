@@ -3324,6 +3324,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'To accept direct client requests or respond to open tenders, you must be online';
 
   @override
+  String get ownerOfflineMustBeOnlineForTender =>
+      'To take part in this request tender you need to be Online';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAcceptOrder =>
+      'To accept the order you need to be Online';
+
+  @override
+  String get ownerOfflineMustBeOnlineToBargain =>
+      'To bargain with the customer you need to be Online';
+
+  @override
+  String get ownerOfflineChatClientBanner =>
+      'The equipment owner is offline right now, but they received your request';
+
+  @override
+  String get ownerOfflineChatOwnerBanner =>
+      'To continue, switch your status to Online';
+
+  @override
+  String get becomeOnline => 'Go Online';
+
+  @override
   String get youAreNowOnline => 'You are now online';
 
   @override

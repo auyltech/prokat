@@ -87,7 +87,14 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         return;
       }
 
-      if (warnIfOwnerOffline(context, ref)) return;
+      if (!await ensureOwnerOnline(
+        context,
+        ref,
+        message: l10n.ownerOfflineMustBeOnlineForTender,
+      )) {
+        return;
+      }
+      if (!context.mounted) return;
 
       setState(() => _submitError = null);
 

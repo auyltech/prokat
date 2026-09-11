@@ -3328,6 +3328,29 @@ class AppLocalizationsKk extends AppLocalizations {
       'Клиенттің тікелей өтінімдерін қабылдау немесе ашық сұраныстарға жауап беру үшін сіз онлайн болуыңыз керек';
 
   @override
+  String get ownerOfflineMustBeOnlineForTender =>
+      'Сұраныс тендеріне қатысу үшін «Онлайн» болуыңыз керек';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAcceptOrder =>
+      'Тапсырысты қабылдау үшін «Онлайн» болуыңыз керек';
+
+  @override
+  String get ownerOfflineMustBeOnlineToBargain =>
+      'Тапсырыс берушімен саудаласу үшін «Онлайн» болуыңыз керек';
+
+  @override
+  String get ownerOfflineChatClientBanner =>
+      'Техника иесі қазір офлайн, бірақ ол сіздің сұранысыңызды алды';
+
+  @override
+  String get ownerOfflineChatOwnerBanner =>
+      'Жалғастыру үшін мәртебені «Онлайн» етіп ауыстырыңыз';
+
+  @override
+  String get becomeOnline => '«Онлайн» болу';
+
+  @override
   String get youAreNowOnline => 'Енді сіз онлайнсыз';
 
   @override

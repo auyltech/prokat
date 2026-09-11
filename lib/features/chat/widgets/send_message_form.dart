@@ -2,12 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
+import 'package:prokat/features/chat/utils/owner_offline_chat_lock.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SendMessageForm extends ConsumerStatefulWidget {
@@ -36,6 +40,7 @@ class SendMessageForm extends ConsumerStatefulWidget {
 class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool _goingOnline = false;
 
   bool _isLockedFor(SendMessageForm target) {
     return isChatInputLocked(
@@ -63,7 +68,21 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   @override
   void didUpdateWidget(covariant SendMessageForm oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_isLockedFor(widget) && !_isLockedFor(oldWidget)) {
+    final nowLocked =
+        _isLockedFor(widget) ||
+        isDirectBookingOwnerOfflineLock(
+          ref: ref,
+          mode: widget.mode,
+          chat: widget.currentChat,
+        );
+    final wasLocked =
+        _isLockedFor(oldWidget) ||
+        isDirectBookingOwnerOfflineLock(
+          ref: ref,
+          mode: oldWidget.mode,
+          chat: oldWidget.currentChat,
+        );
+    if (nowLocked && !wasLocked) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           _dismissKeyboard();
@@ -83,6 +102,40 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     );
 
     _controller.clear();
+  }
+
+  Future<void> _becomeOnlineFromBanner() async {
+    if (_goingOnline) return;
+    final l10n = AppLocalizations.of(context)!;
+
+    setState(() => _goingOnline = true);
+    final preCheck = ownerGoOnlineBlockReason(ref);
+    if (preCheck != OwnerGoOnlineBlockReason.none) {
+      if (mounted) {
+        AppSnackBar.show(
+          message: ownerGoOnlineBlockMessage(l10n: l10n, reason: preCheck),
+          isError: true,
+        );
+        setState(() => _goingOnline = false);
+      }
+      return;
+    }
+
+    final ok = await requestOwnerGoOnline(ref);
+    if (!mounted) return;
+
+    if (!ok) {
+      AppSnackBar.show(
+        message: ownerGoOnlineFailureMessage(
+          ref: ref,
+          l10n: l10n,
+          preCheck: OwnerGoOnlineBlockReason.none,
+        ),
+        isError: true,
+      );
+    }
+
+    setState(() => _goingOnline = false);
   }
 
   @override
@@ -125,16 +178,69 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     );
   }
 
+  Widget _ownerOfflineBanner(AppLocalizations l10n, ThemeData theme) {
+    if (widget.mode == AppMode.clientMode) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+        child: Text(
+          l10n.ownerOfflineChatClientBanner,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.ownerOfflineChatOwnerBanner,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          TextButton(
+            onPressed: _goingOnline ? null : _becomeOnlineFromBanner,
+            child: _goingOnline
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.becomeOnline),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
+    if (widget.mode == AppMode.ownerMode) {
+      ref.watch(
+        ownerProfileProvider.select((async) => async.valueOrNull?.onlineStatus),
+      );
+    }
 
     final messages = ref.watch(chatMessagesProvider(widget.chatId));
     final isSendingAny =
         messages.valueOrNull?.items.any((e) => e.isPending) ?? false;
 
     final isLocked = _isLockedFor(widget);
+    final offlineLocked = isDirectBookingOwnerOfflineLock(
+      ref: ref,
+      mode: widget.mode,
+      chat: widget.currentChat,
+    );
     final showActions =
         widget.currentChat != null &&
         chatHasVisibleActions(
@@ -169,6 +275,10 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
           actionBarTitle: widget.actionBarTitle,
         ),
       );
+    }
+
+    if (offlineLocked) {
+      return _roundedPanel(child: _ownerOfflineBanner(l10n, theme));
     }
 
     return _roundedPanel(

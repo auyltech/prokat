@@ -66,9 +66,15 @@ class BookingChatActionController
     required String chatId,
     required String bookingId,
   }) async {
-    if (warnIfOwnerOffline(context, ref)) return;
-
     final l10n = AppLocalizations.of(context)!;
+    if (!await ensureOwnerOnline(
+      context,
+      ref,
+      message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
+    )) {
+      return;
+    }
+    if (!context.mounted) return;
 
     await _run(
       context: context,
