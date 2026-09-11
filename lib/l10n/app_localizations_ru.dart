@@ -3356,6 +3356,29 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы принимать прямые заявки клиентов или откликаться на открытые запросы, вы должны быть онлайн';
 
   @override
+  String get ownerOfflineMustBeOnlineForTender =>
+      'Чтобы участвовать в тендере запроса вам нужно быть «Онлайн»';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAcceptOrder =>
+      'Чтобы принять заказ, вам нужно быть «Онлайн»';
+
+  @override
+  String get ownerOfflineMustBeOnlineToBargain =>
+      'Чтобы поторговаться с заказчиком, вам нужно быть «Онлайн»';
+
+  @override
+  String get ownerOfflineChatClientBanner =>
+      'Собственник техники сейчас оффлайн, но он получил ваш запрос';
+
+  @override
+  String get ownerOfflineChatOwnerBanner =>
+      'Чтобы продолжить переключить статус на «Онлайн»';
+
+  @override
+  String get becomeOnline => 'Стать «Онлайн»';
+
+  @override
   String get youAreNowOnline => 'Вы теперь онлайн';
 
   @override

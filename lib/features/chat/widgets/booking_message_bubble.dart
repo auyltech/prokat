@@ -17,6 +17,7 @@ import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
+import 'package:prokat/features/chat/utils/owner_offline_chat_lock.dart';
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -38,6 +39,14 @@ class BookingMessageBubble extends ConsumerStatefulWidget {
 }
 
 class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
+  bool _isOfflineLockedForBubble() {
+    return isDirectBookingOwnerOfflineLock(
+      ref: ref,
+      mode: widget.mode,
+      chat: widget.currentChat,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -267,7 +276,9 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
               ],
 
               // Create Price Negotiation
-              if (booking.status == BookingStatus.created) ...[
+              if (booking.status == BookingStatus.created &&
+                  !(widget.mode == AppMode.clientMode &&
+                      _isOfflineLockedForBubble())) ...[
                 if (ref
                     .watch(bookingMutationProvider)
                     .isActionActive("price:create"))
@@ -282,6 +293,15 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 else
                   IconButton(
                     onPressed: () async {
+                      if (widget.mode == AppMode.ownerMode) {
+                        final online = await ensureOwnerOnline(
+                          context,
+                          ref,
+                          message: l10n.ownerOfflineMustBeOnlineToBargain,
+                        );
+                        if (!online || !context.mounted) return;
+                      }
+
                       await CounterOfferSheet.show(
                         context,
                         bookingId: booking.id,
@@ -318,7 +338,13 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                 else
                   IconButton(
                     onPressed: () async {
-                      if (warnIfOwnerOffline(context, ref)) return;
+                      final online = await ensureOwnerOnline(
+                        context,
+                        ref,
+                        message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
+                      );
+                      if (!online || !context.mounted) return;
+
                       await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -342,6 +368,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                                       status: BookingStatus.confirmed,
                                     );
 
+                                if (!context.mounted) return;
                                 AppSnackBar.show(
                                   message: result.success
                                       ? l10n.orderConfirmed

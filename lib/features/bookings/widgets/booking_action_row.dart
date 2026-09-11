@@ -23,10 +23,17 @@ class BookingActionRow extends ConsumerWidget {
     this.onActionCompleted,
   });
 
-  void _handleAccept(BuildContext context, WidgetRef ref) {
-    if (warnIfOwnerOffline(context, ref)) return;
-
+  void _handleAccept(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
+    if (!await ensureOwnerOnline(
+      context,
+      ref,
+      message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
+    )) {
+      return;
+    }
+    if (!context.mounted) return;
+
     final notifier = ref.read(bookingMutationProvider.notifier);
 
     unawaited(

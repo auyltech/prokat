@@ -6298,6 +6298,42 @@ abstract class AppLocalizations {
   /// **'To accept direct client requests or respond to open tenders, you must be online'**
   String get ownerOfflineMustBeOnlineToAccept;
 
+  /// No description provided for @ownerOfflineMustBeOnlineForTender.
+  ///
+  /// In en, this message translates to:
+  /// **'To take part in this request tender you need to be Online'**
+  String get ownerOfflineMustBeOnlineForTender;
+
+  /// No description provided for @ownerOfflineMustBeOnlineToAcceptOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'To accept the order you need to be Online'**
+  String get ownerOfflineMustBeOnlineToAcceptOrder;
+
+  /// No description provided for @ownerOfflineMustBeOnlineToBargain.
+  ///
+  /// In en, this message translates to:
+  /// **'To bargain with the customer you need to be Online'**
+  String get ownerOfflineMustBeOnlineToBargain;
+
+  /// No description provided for @ownerOfflineChatClientBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'The equipment owner is offline right now, but they received your request'**
+  String get ownerOfflineChatClientBanner;
+
+  /// No description provided for @ownerOfflineChatOwnerBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'To continue, switch your status to Online'**
+  String get ownerOfflineChatOwnerBanner;
+
+  /// No description provided for @becomeOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Online'**
+  String get becomeOnline;
+
   /// No description provided for @youAreNowOnline.
   ///
   /// In en, this message translates to:

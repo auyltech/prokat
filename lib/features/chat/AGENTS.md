@@ -27,4 +27,6 @@ HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:jo
 
 `isChatInputLocked` в `get_chat_status.dart`. Композер скрыт при `Chat.status` closed/archived и для `workcompleted`, `leaveReview`, `bookingcancelled`, `bookingreviewed`, `requestcancelled`, `offernotselected`. На `leaveReview` остаётся панель Review без поля ввода; клавиатура закрывается.
 
+Дополнительно: для прямой заявки `booking.status == created` и владельце оффлайн композер заменяется баннером (`owner_offline_chat_lock.dart`). Owner читает `ownerProfileProvider`; client — только явный `chat.owner.onlineStatus == offline` (`null` не лочит). Live-разлок клиента: `catalog:visibility` патчит `currentChat.owner` только для tracked open chat id (`openChatRegistrationProvider`). Тендерные и confirmed/terminal чаты этим локом не затрагиваются.
+
 Сервер режет `chat:message:send`, если `Chat.status` не `ACTIVE`. `SUPPORT` не блокируется.

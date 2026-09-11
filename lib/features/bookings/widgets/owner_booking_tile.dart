@@ -33,9 +33,16 @@ class OwnerBookingTile extends ConsumerWidget {
     WidgetRef ref,
     ThemeData theme,
   ) async {
-    if (warnIfOwnerOffline(context, ref)) return;
-
     final l10n = AppLocalizations.of(context)!;
+    if (!await ensureOwnerOnline(
+      context,
+      ref,
+      message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
+    )) {
+      return;
+    }
+    if (!context.mounted) return;
+
     unawaited(
       showDialog(
         context: context,
