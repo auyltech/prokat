@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Tracks the currently open chat screen id for live owner-status patches.
@@ -37,8 +39,10 @@ final openChatRegistrationProvider = Provider.autoDispose.family<void, String>((
     disposed = true;
     ref.read(openChatIdProvider.notifier).unregister(chatId);
   });
-  Future.microtask(() {
-    if (disposed) return;
-    ref.read(openChatIdProvider.notifier).register(chatId);
-  });
+  unawaited(
+    Future.microtask(() {
+      if (disposed) return;
+      ref.read(openChatIdProvider.notifier).register(chatId);
+    }),
+  );
 });
