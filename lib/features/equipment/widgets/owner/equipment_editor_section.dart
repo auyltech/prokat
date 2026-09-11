@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/theme/app_theme.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
 

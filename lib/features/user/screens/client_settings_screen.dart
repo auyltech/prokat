@@ -123,16 +123,17 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
                 },
               ),
 
-            const SizedBox(height: 16),
-
-            ProkatListTile(
-              icon: Icons.security_outlined,
-              iconBgColor: Colors.grey.withValues(alpha: 0.1),
-              iconColor: theme.colorScheme.onPrimary,
-              title: l10n.serviceAndSafetyNotices,
-              subtitle: l10n.serviceAndSafetyNoticesSubtitle,
-              onTap: () {},
-            ),
+            if (showDetailedNotificationPreferences) ...[
+              const SizedBox(height: 16),
+              ProkatListTile(
+                icon: Icons.security_outlined,
+                iconBgColor: Colors.grey.withValues(alpha: 0.1),
+                iconColor: theme.colorScheme.onPrimary,
+                title: l10n.serviceAndSafetyNotices,
+                subtitle: l10n.serviceAndSafetyNoticesSubtitle,
+                onTap: () {},
+              ),
+            ],
 
             const SizedBox(height: 60),
 

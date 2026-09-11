@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/theme/app_theme.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/overlay_badge_icon.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
@@ -116,7 +118,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     if (isOwnerRole || registrationRequest?.isApproved == true) {
       return _buildModernCTA(
         context,
-        icon: Icons.dashboard_customize_outlined,
+        icon: LucideIcons.truck,
         title: l10n.ownerDashboard,
         subtitle: l10n.ownerDashboardSubtitle,
         bgColor: AppTheme.accent,
@@ -127,13 +129,19 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     }
 
     final brightness = theme.brightness;
+    final contentColor = AppTheme.brandTintFg(brightness);
+    final bgColor = AppTheme.brandTintBg(brightness);
     return _buildModernCTA(
       context,
-      icon: Icons.add_business_outlined,
+      leading: OverlayBadgeIcon(
+        icon: LucideIcons.truck,
+        badge: LucideIcons.plus,
+        color: contentColor,
+      ),
       title: l10n.becomeOwner,
       subtitle: l10n.becomeOwnerSubtitle,
-      bgColor: AppTheme.brandTintBg(brightness),
-      contentColor: AppTheme.brandTintFg(brightness),
+      bgColor: bgColor,
+      contentColor: contentColor,
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
   }
@@ -166,12 +174,13 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
 
   Widget _buildModernCTA(
     BuildContext context, {
-    required IconData icon,
+    IconData? icon,
+    Widget? leading,
     required String title,
     required String subtitle,
     required Color bgColor,
     required Color contentColor,
-    IconData trailingIcon = Icons.chevron_right,
+    IconData trailingIcon = LucideIcons.chevronRight,
     bool isLoading = false,
     required VoidCallback onTap,
   }) {
@@ -187,7 +196,8 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         ),
         child: Row(
           children: [
-            Icon(icon, color: contentColor, size: 40),
+            leading ??
+                Icon(icon ?? LucideIcons.truck, color: contentColor, size: 40),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -233,24 +243,24 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         return _StatusConfig(
           bg: AppTheme.successBg(brightness),
           color: AppTheme.successFg(brightness),
-          icon: Icons.check,
-          trailing: Icons.chevron_right,
+          icon: LucideIcons.check,
+          trailing: LucideIcons.chevronRight,
           label: l10n.requestAccepted,
         );
       case BecomeOwnerRequestStatus.rejected:
         return _StatusConfig(
           bg: AppTheme.dangerBg(brightness),
           color: AppTheme.dangerFg(brightness),
-          icon: Icons.error,
-          trailing: Icons.chevron_right,
+          icon: LucideIcons.circleAlert,
+          trailing: LucideIcons.chevronRight,
           label: l10n.requestRejected,
         );
       case BecomeOwnerRequestStatus.pending:
         return _StatusConfig(
           bg: AppTheme.warningBg(brightness),
           color: AppTheme.warningFg(brightness),
-          icon: Icons.history_toggle_off_rounded,
-          trailing: Icons.refresh,
+          icon: LucideIcons.clock,
+          trailing: LucideIcons.refreshCw,
           label: l10n.requestPending,
         );
     }

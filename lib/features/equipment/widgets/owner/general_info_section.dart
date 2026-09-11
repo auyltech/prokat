@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/edit_sheet.dart';
-import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -12,11 +12,13 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
-import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
+import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/features/equipment/widgets/online_toggle.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
-import 'package:prokat/features/equipment/widgets/owner/price_entry_sheet.dart';
-import 'package:prokat/features/equipment/widgets/owner/price_entry_tile.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_tariff_card.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class GeneralInfoSection extends ConsumerStatefulWidget {
@@ -29,49 +31,60 @@ class GeneralInfoSection extends ConsumerStatefulWidget {
 }
 
 class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
-  late TextEditingController _nameController;
-  late TextEditingController _commentController;
-  late TextEditingController _rentConditionController;
+  late TextEditingController _descriptionController;
 
   late String _city;
   late EquipmentStatus _tempStatus;
-  late String _baselineName;
-  late String _baselineComment;
-  late String _baselineRent;
+  late String _baselineDescription;
   late String _baselineCity;
   late EquipmentStatus _baselineStatus;
+  late String _baselineTariffs;
+  late List<TariffDraft> _tariffs;
+  final Set<String> _deletedPriceIds = {};
 
   bool _saveAttempted = false;
   bool _isSaving = false;
-  String? _nameError;
   String? _cityError;
-
-  static const _maxRates = 3;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.equipment.name);
-    _commentController = TextEditingController(
-      text: widget.equipment.ownerComment ?? '',
-    );
-    _rentConditionController = TextEditingController(
-      text: widget.equipment.rentCondition ?? '',
+    _descriptionController = TextEditingController(
+      text: shortDescriptionOf(widget.equipment),
     );
     _city = widget.equipment.city ?? '';
     _tempStatus = widget.equipment.status;
+    _tariffs = _editorTariffs();
     _captureBaseline();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _publish();
+      if (!mounted) return;
+      _prefillCityIfNeeded();
+      final next = _editorTariffs();
+      if (_tariffFingerprint(next) != _tariffFingerprint(_tariffs)) {
+        setState(() {
+          _tariffs = next;
+          if (!_isDirty) _captureBaseline();
+        });
+      }
+      _publish();
     });
   }
 
   void _captureBaseline() {
-    _baselineName = _nameController.text.trim();
-    _baselineComment = _commentController.text.trim();
-    _baselineRent = _rentConditionController.text.trim();
+    _baselineDescription = _descriptionController.text.trim();
     _baselineCity = _city.trim();
     _baselineStatus = _tempStatus;
+    _baselineTariffs = _tariffFingerprint(_tariffs);
+  }
+
+  void _prefillCityIfNeeded() {
+    if (_city.trim().isNotEmpty) return;
+    final profileCity = (ref.read(ownerProfileProvider).valueOrNull?.city ?? '')
+        .trim();
+    final sessionCity = (ref.read(locationProvider).city ?? '').trim();
+    final next = profileCity.isNotEmpty ? profileCity : sessionCity;
+    if (next.isEmpty) return;
+    setState(() => _city = next);
   }
 
   @override
@@ -80,16 +93,15 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     if (!_isDirty) {
       final next = widget.equipment;
       final prev = oldWidget.equipment;
-      if (next.name != prev.name ||
-          (next.ownerComment ?? '') != (prev.ownerComment ?? '') ||
-          (next.rentCondition ?? '') != (prev.rentCondition ?? '') ||
+      if (shortDescriptionOf(next) != shortDescriptionOf(prev) ||
           next.city != prev.city ||
-          next.status != prev.status) {
-        _nameController.text = next.name;
-        _commentController.text = next.ownerComment ?? '';
-        _rentConditionController.text = next.rentCondition ?? '';
+          next.status != prev.status ||
+          _priceFingerprint(next) != _priceFingerprint(prev)) {
+        _descriptionController.text = shortDescriptionOf(next);
         _city = next.city ?? '';
         _tempStatus = next.status;
+        _tariffs = _editorTariffs(next);
+        _deletedPriceIds.clear();
         _captureBaseline();
       }
     }
@@ -100,14 +112,21 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _commentController.dispose();
-    _rentConditionController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   OwnerEquipmentEditorNotifier get _editor {
     return ref.read(ownerEquipmentEditorProvider(widget.equipment.id).notifier);
+  }
+
+  List<TariffDraft> _editorTariffs([Equipment? equipment]) {
+    final vacuumId = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull)
+        ?.id;
+    return tariffsForEditor(
+      equipment ?? widget.equipment,
+      vacuumCategoryId: vacuumId,
+    );
   }
 
   bool get _isCityDirty => _city.trim() != _baselineCity;
@@ -117,18 +136,31 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   bool get _isStatusDirty =>
       widget.equipment.isModerated && _tempStatus != _baselineStatus;
 
-  bool get _isDirty {
-    return _nameController.text.trim() != _baselineName ||
-        _commentController.text.trim() != _baselineComment ||
-        _rentConditionController.text.trim() != _baselineRent ||
-        _isCityDirty ||
-        _isStatusDirty;
+  String _tariffFingerprint(List<TariffDraft> items) {
+    return items.map((item) => item.fingerprint()).join('\n');
   }
 
+  String _priceFingerprint(Equipment equipment) {
+    return equipment.prices
+        .map(
+          (entry) =>
+              '${entry.id}:${entry.price}:${entry.priceRate.value}:${entry.label ?? ''}:${entry.isStartingFrom}',
+        )
+        .join(',');
+  }
+
+  bool get _isDirty {
+    return _descriptionController.text.trim() != _baselineDescription ||
+        _isCityDirty ||
+        _isStatusDirty ||
+        _tariffFingerprint(_tariffs) != _baselineTariffs ||
+        _deletedPriceIds.isNotEmpty;
+  }
+
+  bool get _hasPricedTariff => _tariffs.any((item) => item.hasPrice);
+
   bool get _isComplete {
-    return _nameController.text.trim().isNotEmpty &&
-        _city.trim().isNotEmpty &&
-        equipmentHasPrice(widget.equipment);
+    return _city.trim().isNotEmpty && _hasPricedTariff;
   }
 
   void _bind() {
@@ -140,11 +172,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   void _publish() {
+    final description = _descriptionController.text.trim();
     _bind();
     _editor.reportInfoDraft(
-      name: _nameController.text.trim(),
-      ownerComment: _commentController.text.trim(),
-      rentCondition: _rentConditionController.text.trim(),
+      ownerComment: description,
+      rentCondition: description,
     );
     _editor.report(
       id: OwnerEquipmentBlockId.general,
@@ -159,12 +191,55 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   bool _validate() {
     _saveAttempted = true;
-    _nameError = _nameController.text.trim().isEmpty ? 'required' : null;
     _cityError = _city.trim().isEmpty ? 'required' : null;
     setState(() {});
-    return _nameError == null &&
-        _cityError == null &&
-        equipmentHasPrice(widget.equipment);
+    return _cityError == null && _hasPricedTariff;
+  }
+
+  Future<bool> _persistTariffs() async {
+    final notifier = ref.read(equipmentMutationProvider.notifier);
+    final equipmentId = widget.equipment.id;
+
+    final baseline = _baselineTariffs.split('\n').toSet();
+
+    for (final id in _deletedPriceIds) {
+      final ok = await notifier.deletePriceEntry(
+        PriceEntry(id: id, price: 1, priceRate: priceRateOptions.first),
+        equipmentId,
+      );
+      if (!ok) return false;
+    }
+
+    for (final draft in _tariffs) {
+      if (!draft.isSavable) continue;
+      final label = draft.persistedLabel();
+      final unchanged =
+          draft.id != null && baseline.contains(draft.fingerprint());
+      if (unchanged) continue;
+      if (draft.id == null) {
+        final result = await notifier.createPriceEntry(
+          price: draft.price!,
+          priceRate: draft.priceRate,
+          equipmentId: equipmentId,
+          label: label,
+          isStartingFrom: draft.isStartingFrom,
+        );
+        if (!result.success) return false;
+      } else {
+        final result = await notifier.updatePriceEntry(
+          PriceEntry(
+            id: draft.id!,
+            price: draft.price!,
+            priceRate: draft.priceRate,
+            label: label,
+            isStartingFrom: draft.isStartingFrom,
+          ),
+          equipmentId,
+        );
+        if (!result.success) return false;
+      }
+    }
+    return true;
   }
 
   Future<bool> _handleSave({required bool notify}) async {
@@ -182,11 +257,23 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     _publish();
 
     try {
+      final description = _descriptionController.text.trim();
       _editor.reportInfoDraft(
-        name: _nameController.text.trim(),
-        ownerComment: _commentController.text.trim(),
-        rentCondition: _rentConditionController.text.trim(),
+        ownerComment: description,
+        rentCondition: description,
       );
+
+      final tariffsOk = await _persistTariffs();
+      if (!tariffsOk) {
+        if (!mounted) return false;
+        setState(() => _isSaving = false);
+        _publish();
+        if (notify) {
+          AppSnackBar.show(message: l10n.couldNotSaveEquipment, isError: true);
+        }
+        return false;
+      }
+
       final infoOk = await ref
           .read(equipmentMutationProvider.notifier)
           .updateEquipment(_editor.mergedInfoPayload(widget.equipment));
@@ -214,6 +301,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       setState(() => _isSaving = false);
 
       if (ok) {
+        _deletedPriceIds.clear();
         _captureBaseline();
         _editor.markSaved(
           OwnerEquipmentBlockId.general,
@@ -253,51 +341,20 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   Future<void> _pickCity() async {
     if (!_canEdit) return;
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final locale = Localizations.localeOf(context).languageCode;
-    final catalog = ref.read(catalogProvider).valueOrNull;
-    final cityKeys = catalogCityKeys(catalog);
-
-    showEditSheet(
+    final selected = await CityPickerSheet.show(
       context: context,
-      sheet: EditSheet(
-        title: l10n.selectCity,
-        buttonText: '',
-        onSubmit: () {},
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 10),
-            ...cityKeys.map(
-              (city) => ListTile(
-                title: Text(
-                  catalogCityLabel(
-                    city: city,
-                    languageCode: locale,
-                    catalog: catalog,
-                    fallback: (value) => localizedCityName(value, l10n),
-                  ),
-                ),
-                leading: const Icon(Icons.location_city),
-                trailing: isSameCity(_city, city)
-                    ? Icon(Icons.check_circle, color: colorScheme.primary)
-                    : null,
-                onTap: () {
-                  _city = city;
-                  Navigator.pop(context);
-                  _onChanged();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      service: CitySelectorService.createequipment,
+      highlightedCity: _city,
     );
+    if (selected == null || selected.isEmpty) return;
+    _city = selected;
+    _onChanged();
   }
 
-  Future<void> _deletePrice(PriceEntry entry) async {
+  Future<void> _deleteTariff(int index) async {
     if (!_canEdit) return;
+    final draft = _tariffs[index];
+    if (draft.isPreset) return;
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
@@ -325,18 +382,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       },
     );
     if (confirmed != true) return;
-
-    final result = await ref
-        .read(equipmentMutationProvider.notifier)
-        .deletePriceEntry(entry, widget.equipment.id);
-
-    if (!mounted) return;
-    AppSnackBar.show(
-      message: result ? l10n.priceEntryDeleted : l10n.failedToDeletePriceEntry,
-      isSuccess: result,
-      isError: !result,
-    );
-    _publish();
+    if (draft.id != null) {
+      _deletedPriceIds.add(draft.id!);
+    }
+    setState(() => _tariffs.removeAt(index));
+    _onChanged();
   }
 
   @override
@@ -351,12 +401,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
     final editor = ref.watch(ownerEquipmentEditorProvider(widget.equipment.id));
     final view = editor.block(OwnerEquipmentBlockId.general);
-    final prices = widget.equipment.prices;
-    final canAddMore = prices.length < _maxRates;
     final hasLocation = _city.trim().isNotEmpty;
 
     return EquipmentEditorSection(
-      title: l10n.generalInformation,
+      title: l10n.forClients,
       indicator: view.indicator,
       expanded: view.isExpanded,
       onToggleExpanded: () =>
@@ -430,38 +478,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             ),
             const SizedBox(height: 16),
           ],
-          InputField(
-            label: 'Название',
-            controller: _nameController,
-            onChanged: _onChanged,
-            hint: l10n.equipmentNameHint,
-            isRequired: true,
-            readOnly: !_canEdit,
-            errorText: _nameError == null ? null : l10n.fieldRequired,
-          ),
-          const SizedBox(height: 12),
-          InputField(
-            label: l10n.rentCondition,
-            controller: _rentConditionController,
-            onChanged: _onChanged,
-            hint: l10n.fullLoadOnly,
-            readOnly: !_canEdit,
-          ),
-          const SizedBox(height: 12),
-          InputField(
-            label: l10n.commentNotes,
-            controller: _commentController,
-            onChanged: _onChanged,
-            hint: l10n.ownerCommentHint,
-            readOnly: !_canEdit,
-          ),
-          const SizedBox(height: 16),
           GestureDetector(
             onTap: _canEdit ? _pickCity : null,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _cityError != null
@@ -472,10 +493,12 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
               child: Row(
                 children: [
                   Icon(
-                    hasLocation ? Icons.pin_drop : Icons.pin_drop_outlined,
+                    hasLocation
+                        ? Icons.location_on
+                        : Icons.location_on_outlined,
                     color: hasLocation
                         ? colorScheme.primary
-                        : colorScheme.tertiary,
+                        : colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -483,9 +506,12 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.city,
+                          l10n.workCity,
                           style: theme.textTheme.labelMedium?.copyWith(
-                            color: colorScheme.primary,
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.62,
+                            ),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -502,7 +528,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: hasLocation
                                 ? colorScheme.onSurface
-                                : colorScheme.tertiary,
+                                : colorScheme.onSurface.withValues(alpha: 0.5),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -519,75 +545,60 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                       ],
                     ),
                   ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.prices,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: _canEdit && canAddMore
-                    ? () async {
-                        await PriceEntrySheet.show(
-                          context,
-                          equipmentId: widget.equipment.id,
-                        );
-                        if (mounted) _publish();
-                      }
-                    : null,
-                icon: Icon(
-                  canAddMore ? Icons.add : Icons.check,
-                  color: _canEdit && canAddMore
-                      ? colorScheme.primary
-                      : colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+          InputField(
+            label: l10n.shortDescription,
+            controller: _descriptionController,
+            onChanged: _onChanged,
+            hint: l10n.shortDescriptionHint,
+            helperText: l10n.shortDescriptionHelper,
+            hintMaxLines: 3,
+            maxLines: 4,
+            minLines: 3,
+            maxLength: 200,
+            boxed: true,
+            readOnly: !_canEdit,
           ),
-          if (prices.isEmpty)
-            EmptyStateTile(
-              icon: Icons.payments_outlined,
-              title: l10n.noPricesListed,
-              color: colorScheme.error,
-            )
-          else
-            Column(
-              children: prices
-                  .map(
-                    (entry) => PriceEntryTile(
-                      priceEntry: entry,
-                      canEdit: _canEdit,
-                      onEdit: () async {
-                        await PriceEntrySheet.show(
-                          context,
-                          equipmentId: widget.equipment.id,
-                          priceEntry: entry,
-                        );
-                        if (mounted) _publish();
-                      },
-                      onDelete: () => _deletePrice(entry),
-                    ),
-                  )
-                  .toList(),
+          const SizedBox(height: 18),
+          Text(
+            l10n.tariffs,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
-          if (!canAddMore)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                l10n.allRatingOptionsListed,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.bold,
+          ),
+          const SizedBox(height: 10),
+          ...List.generate(_tariffs.length, (index) {
+            final draft = _tariffs[index];
+            return OwnerTariffCard(
+              draft: draft,
+              canEdit: _canEdit,
+              onChanged: (next) {
+                setState(() => _tariffs[index] = next);
+                _onChanged();
+              },
+              onDelete: draft.isPreset ? null : () => _deleteTariff(index),
+            );
+          }),
+          if (_canEdit)
+            TextButton.icon(
+              onPressed: () {
+                setState(() => _tariffs.add(TariffDraft.custom()));
+                _onChanged();
+              },
+              icon: Icon(Icons.add, color: colorScheme.primary),
+              label: Text(
+                l10n.addTariff,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

@@ -1,0 +1,25 @@
+---
+description: Theme tokens — context.colors, AppDimens, theme-aware AppFonts
+globs: lib/**/*.dart
+alwaysApply: false
+---
+
+# Theming (Prokat)
+
+## Colors
+
+- New UI: `context.colors` (`AppColorsTheme`) only
+- Never use raw `AppColors.*` / `AppColorsDark.*` in widgets
+- Never hardcode `Color(0xFF…)` in feature UI
+
+## Typography
+
+- Use `AppFonts.*(context)` — styles already include theme-aware text color
+- `copyWith(color:)` only for exceptions (error, onPrimary on filled button, accent)
+- Do not require VIP-style “colorless font + copyWith everywhere”
+
+## Metrics
+
+- Spacing / radius / button / input / sheet → `AppDimens`
+- No magic numbers; add a named token if missing
+- No feature-specific dimens in `app_dimens.dart`

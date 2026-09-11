@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -14,6 +16,7 @@ class ClientProfileNotifier extends AsyncNotifier<UserProfileModel?> {
   Future<void>? _refreshing;
   AuthenticatedSessionScopeKey? _refreshingScope;
   AuthenticatedSessionScopeKey? _stateScope;
+  String? _pendingCitySync;
 
   @override
   Future<UserProfileModel?> build() async {
@@ -21,6 +24,7 @@ class ClientProfileNotifier extends AsyncNotifier<UserProfileModel?> {
     if (scope == null) {
       _lastFetchedAt = null;
       _stateScope = null;
+      _pendingCitySync = null;
       return null;
     }
 
@@ -36,7 +40,23 @@ class ClientProfileNotifier extends AsyncNotifier<UserProfileModel?> {
 
     _lastFetchedAt = DateTime.now();
     if (profile != null) {
-      ref.read(locationProvider.notifier).selectCity(profile.city ?? '');
+      final profileCity = (profile.city ?? '').trim();
+      if (profileCity.isNotEmpty) {
+        ref.read(locationProvider.notifier).selectCity(profileCity);
+      } else {
+        final sessionCity = (ref.read(locationProvider).city ?? '').trim();
+        if (sessionCity.isNotEmpty && _pendingCitySync != sessionCity) {
+          _pendingCitySync = sessionCity;
+          unawaited(
+            Future.microtask(() async {
+              if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
+              await ref
+                  .read(clientProfileMutationProvider.notifier)
+                  .selectCityRegion(city: sessionCity);
+            }),
+          );
+        }
+      }
       ref
           .read(locationProvider.notifier)
           .selectAddressById(profile.selectedAddressId);

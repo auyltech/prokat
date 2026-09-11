@@ -121,7 +121,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     // const SizedBox(height: 20),
 
                     ProkatListTile(
-                      icon: LucideIcons.scrollText,
+                      icon: LucideIcons.fileText,
                       iconColor: theme.colorScheme.onPrimary,
                       iconBgColor: theme.colorScheme.primary.withValues(
                         alpha: 0.2,
@@ -147,7 +147,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     const SizedBox(height: 20),
 
                     ProkatListTile(
-                      icon: LucideIcons.lifeBuoy,
+                      icon: LucideIcons.headset,
                       iconColor: Colors.red,
                       iconBgColor: Colors.red.withValues(alpha: 0.15),
                       title: l10n.helpSupportTitle,

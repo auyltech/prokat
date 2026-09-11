@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/core/widgets/shake_on_tick.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -12,6 +13,11 @@ class CitySelectField extends ConsumerWidget {
   final bool enabled;
   final CitySelectorService? service;
   final ValueChanged<String> onChanged;
+  final String? requiredHintText;
+  final bool requiredHintMuted;
+  final bool showFieldErrors;
+  final int shakeTick;
+  final bool boxed;
 
   const CitySelectField({
     super.key,
@@ -21,6 +27,11 @@ class CitySelectField extends ConsumerWidget {
     this.showIcon = true,
     this.enabled = true,
     this.service,
+    this.requiredHintText,
+    this.requiredHintMuted = false,
+    this.showFieldErrors = true,
+    this.shakeTick = 0,
+    this.boxed = false,
   });
 
   Future<void> _pickCity(
@@ -61,27 +72,74 @@ class CitySelectField extends ConsumerWidget {
 
     return FormField<String>(
       validator: (_) {
+        if (!showFieldErrors) return null;
         if (isRequired && (city ?? '').trim().isEmpty) {
           return l10n.cityRequired;
         }
         return null;
       },
       builder: (state) {
+        final showRequiredHint = isRequired && !hasCity;
+        final requiredHintStyle = requiredHintMuted
+            ? theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.45),
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400,
+              )
+            : theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+                fontWeight: FontWeight.w500,
+              );
         final valueStyle = !enabled
             ? theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               )
             : hasCity
             ? theme.textTheme.bodyMedium
-            : theme.textTheme.labelLarge?.copyWith(
+            : theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w400,
               );
 
+        Widget valueRow = Row(
+          children: [
+            Expanded(child: Text(label, style: valueStyle)),
+            Icon(
+              Icons.keyboard_arrow_down,
+              color: colorScheme.onSurface.withValues(
+                alpha: enabled ? 0.6 : 0.35,
+              ),
+            ),
+          ],
+        );
+
+        if (boxed) {
+          valueRow = Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: colorScheme.outline.withValues(alpha: 0.45),
+              ),
+            ),
+            child: valueRow,
+          );
+        } else {
+          valueRow = Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 4),
+            child: valueRow,
+          );
+        }
+
         return InkWell(
           onTap: enabled ? () => _pickCity(context, ref, state) : null,
+          borderRadius: BorderRadius.circular(12),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: boxed
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
             children: [
               if (showIcon) ...[
                 const SizedBox(
@@ -96,37 +154,33 @@ class CitySelectField extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text.rich(
-                      TextSpan(
-                        text: l10n.city,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+                    ShakeOnTick(
+                      tick: shakeTick,
+                      child: Text.rich(
+                        TextSpan(
+                          text: l10n.city,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          children: [
+                            if (showRequiredHint &&
+                                requiredHintText != null &&
+                                requiredHintText!.isNotEmpty)
+                              TextSpan(
+                                text: ' $requiredHintText',
+                                style: requiredHintStyle,
+                              )
+                            else if (showRequiredHint)
+                              TextSpan(
+                                text: ' *',
+                                style: TextStyle(color: colorScheme.error),
+                              ),
+                          ],
                         ),
-                        children: [
-                          if (isRequired)
-                            TextSpan(
-                              text: ' *',
-                              style: TextStyle(color: colorScheme.error),
-                            ),
-                        ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 4, bottom: 4),
-                            child: Text(label, style: valueStyle),
-                          ),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: colorScheme.onSurface.withValues(
-                            alpha: enabled ? 0.6 : 0.35,
-                          ),
-                        ),
-                      ],
-                    ),
+                    if (boxed) const SizedBox(height: 6),
+                    valueRow,
                     if (state.errorText != null) ...[
                       const SizedBox(height: 6),
                       Text(

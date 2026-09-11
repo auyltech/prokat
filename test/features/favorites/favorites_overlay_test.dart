@@ -6,6 +6,7 @@ import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -185,7 +186,7 @@ void main() {
     await tester.tap(find.byKey(const Key('favorites-section-header')));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('1,500'), findsOneWidget);
+    expect(find.textContaining(formatPriceNumber(1500)), findsOneWidget);
     expect(find.text('ПОЗ'), findsNothing);
     expect(find.text('5'), findsOneWidget);
   });

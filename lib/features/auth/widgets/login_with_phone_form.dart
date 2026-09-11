@@ -133,12 +133,12 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.getStarted,
+          l10n.yourPhoneNumber,
           style: theme.textTheme.headlineSmall?.copyWith(letterSpacing: -1),
         ),
 
         Text(
-          l10n.loginSubtitle,
+          l10n.otpWhatsAppHint,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),

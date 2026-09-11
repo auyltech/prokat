@@ -12,6 +12,8 @@ import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+import '../../../core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+
 class ClientEquipmentTile extends ConsumerWidget {
   final Equipment equipment;
   final VoidCallback onTap;
@@ -68,10 +70,10 @@ class ClientEquipmentTile extends ConsumerWidget {
                 child: Row(
                   children: [
                     _badge(
-                      text: equipment.status == EquipmentStatus.available
+                      text: equipment.owner?.isAccountOnline == true
                           ? "• ${l10n.online}"
                           : l10n.offline,
-                      color: equipment.status == EquipmentStatus.available
+                      color: equipment.owner?.isAccountOnline == true
                           ? Colors.green
                           : Colors.grey,
                     ),
@@ -228,24 +230,9 @@ class ClientEquipmentTile extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   height: 54,
-                  child: ElevatedButton(
-                    onPressed: onTap,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.reserveNow.toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                      ),
-                    ),
+                  child: AppElevatedButton(
+                    onTap: onTap,
+                    title: l10n.reserveNow.toUpperCase(),
                   ),
                 ),
               ],

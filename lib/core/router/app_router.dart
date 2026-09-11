@@ -516,6 +516,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const NotificationsScreen(),
               ),
               GoRoute(
+                path: AppRoutes.ownerDocuments,
+                builder: (_, _) => const LegalDocumentsScreen(),
+              ),
+              GoRoute(
                 path: AppRoutes.ownerSettings,
                 builder: (_, _) => const OwnerSettingsScreen(),
               ),

@@ -192,7 +192,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
             ? null
             : AppError(
                 type: ErrorType.unknown,
-                code: "",
+                code: result.errorCode ?? "",
                 message: result.message,
               ),
       );
@@ -208,24 +208,13 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
             status == BookingStatus.reviewed) {
           _invalidateHistoryCaches();
         }
-
-        // final chatNotifier = ref.read(chatProvider.notifier);
-
-        // final booking = [
-        //   ...state.clientBookings,
-        //   ...state.ownerBookings,
-        // ].where((item) => item.id == id).firstOrNull;
-
-        // final chatId = booking != null && booking.chatId != null
-        //     ? booking.chatId ?? ""
-        //     : "";
-
-        // if (chatId.isNotEmpty) {
-        //   chatNotifier.reloadChat(chatId);
-        // }
       }
 
-      return MutationResponse(success: result.success, message: result.message);
+      return MutationResponse(
+        success: result.success,
+        message: result.message,
+        errorCode: result.errorCode,
+      );
     } catch (error) {
       finishAction(
         actionId,

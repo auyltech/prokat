@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
-import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/appstatic/widgets/guest_category_section.dart';
+import 'package:prokat/features/appstatic/widgets/guest_owner_invite_card.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
-import 'package:prokat/features/appstatic/widgets/login_tile.dart';
+import 'package:prokat/features/appstatic/state/guest_landing_scroll.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
@@ -30,6 +30,8 @@ class MainScreen extends ConsumerStatefulWidget {
 
 class _MainScreenState extends ConsumerState<MainScreen> {
   Timer? _debounce;
+  late final ScrollController _scrollController;
+  GuestLandingScroll? _landingScroll;
 
   ProviderSubscription? _categoriesSub;
   ProviderSubscription? _locationSub;
@@ -86,6 +88,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void initState() {
     super.initState();
 
+    _scrollController = ScrollController();
+    _landingScroll = ref.read(guestLandingScrollProvider);
+    _landingScroll!.attach(() async {
+      if (!_scrollController.hasClients) return;
+      if (_scrollController.offset <= 8) return;
+      await _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+    });
+
     _categoriesSub = ref.listenManual(
       selectedCategoryProvider.select((s) => s?.id),
       (_, _) => _onFiltersChanged(),
@@ -109,12 +123,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     _debounce?.cancel();
     _categoriesSub?.close();
     _locationSub?.close();
+    _landingScroll?.detach();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final locale = ref.watch(localeProvider);
@@ -125,8 +140,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final items = queryState?.items ?? [];
 
     final locationState = ref.watch(locationProvider);
-    ref.watch(categoriesProvider);
-    final selectedCategory = ref.watch(selectedCategoryProvider);
     final selectedCity = locationState.city ?? "";
 
     const Color darkBlueBg = Color(0xFF071D49);
@@ -136,6 +149,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverAppBar(
               primary: true,
@@ -235,25 +249,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                   ),
                   child: EmptyStateTile(
                     imageName: 'empty_equipment.png',
-                    title: selectedCity.isNotEmpty
-                        ? l10n.noEquipmentListedInCity(
-                            selectedCategory?.localizedName(
-                                  locale.languageCode,
-                                ) ??
-                                l10n.navEquipment,
-                            catalogCityLabel(
-                              city: selectedCity,
-                              languageCode: locale.languageCode,
-                              catalog: ref.watch(catalogProvider).valueOrNull,
-                              fallback: (city) => localizedCityName(city, l10n),
-                            ),
-                          )
-                        : l10n.noEquipmentForCategory(
-                            selectedCategory?.localizedName(
-                                  locale.languageCode,
-                                ) ??
-                                l10n.navEquipment,
-                          ),
+                    title: l10n.noActiveOffers,
                   ),
                 ),
               )
@@ -282,70 +278,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                 ),
               ),
 
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Container(
-                // 1. Solid surface background to cleanly alternate with your dark blue hero below
-                color: theme.colorScheme.surface,
-                child: Padding(
-                  // 2. Tall vertical padding to give the login block its own massive hero presence
-                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 80),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // 3. Ultra-clean minimalist icon wrapper with no heavy boarders
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.08,
-                          ),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.lock_person_outlined,
-                          size: 38,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-
-                      // 4. Bolder, larger headline that commands the screen
-                      Text(
-                        l10n.getStartedWithProkat,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          color: theme.colorScheme.onSurface,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // 5. Spacious, legible description paragraph
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          l10n.guestSignInDescription,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.6,
-                            ),
-                            fontWeight: FontWeight.w400,
-                            height: 1.55,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 36),
-                      const LoginTile(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            const SliverToBoxAdapter(child: GuestOwnerInviteCard()),
             // TODO(Vadim): temporarily hide
             // AboutProkatSection(),
           ],

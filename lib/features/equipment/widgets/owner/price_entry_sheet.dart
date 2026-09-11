@@ -82,9 +82,9 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
 
       if (widget.priceEntry == null) {
         final result = await notifier.createPriceEntry(
-          price,
-          _selectedRate,
-          widget.equipmentId,
+          price: price,
+          priceRate: _selectedRate,
+          equipmentId: widget.equipmentId,
         );
 
         AppSnackBar.show(
@@ -100,6 +100,8 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
             id: widget.priceEntry!.id,
             price: price,
             priceRate: _selectedRate,
+            label: widget.priceEntry!.label,
+            isStartingFrom: widget.priceEntry!.isStartingFrom,
           ),
           widget.equipmentId,
         );

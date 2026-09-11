@@ -4,7 +4,7 @@ description: "Equipment renting platform in Kazakhstan"
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.1+7
+version: 1.1.2+8
 
 environment:
   sdk: ^3.13.0
@@ -53,6 +53,7 @@ dependencies:
   uuid: ^4.6.0
   firebase_crashlytics: ^5.3.0
   path_provider: ^2.1.6
+  flutter_svg: ^2.2.1
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +82,27 @@ flutter:
     - assets/legal/
     - assets/media/
     - assets/catalog/catalog_bundle.json
+    - assets/ui_kit/icons/
+    - assets/ui_kit/icons/app_bar/
+    - assets/ui_kit/images/
+
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Manrope-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Manrope-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Manrope-ExtraBold.ttf
+          weight: 800
 
 flutter_launcher_icons:
   android: true

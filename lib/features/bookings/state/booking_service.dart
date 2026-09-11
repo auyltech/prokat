@@ -152,20 +152,9 @@ class BookingService {
         fallbackMessage: "Booking created",
       );
     } on DioException catch (error) {
-      final exception = ApiException.fromDio(error);
-
-      return ApiResponse.failure(
-        message: exception.message.isNotEmpty
-            ? exception.message
-            : "Request failed",
-        error: (exception.data ?? error).toString(),
-        statusCode: exception.statusCode,
-      );
+      return handleDioException(error, fallbackMessage: "Request failed");
     } catch (error) {
-      return ApiResponse.failure(
-        message: "Unexpected error",
-        error: error.toString(),
-      );
+      return handleUnknownException(error, fallbackMessage: "Unexpected error");
     }
   }
 
@@ -191,20 +180,9 @@ class BookingService {
         fallbackMessage: "Booking created",
       );
     } on DioException catch (error) {
-      final exception = ApiException.fromDio(error);
-
-      return ApiResponse.failure(
-        message: exception.message.isNotEmpty
-            ? exception.message
-            : "Request failed",
-        error: (exception.data ?? error).toString(),
-        statusCode: exception.statusCode,
-      );
+      return handleDioException(error, fallbackMessage: "Request failed");
     } catch (e) {
-      return ApiResponse.failure(
-        message: "Unexpected error",
-        error: e.toString(),
-      );
+      return handleUnknownException(e, fallbackMessage: "Unexpected error");
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
 
 void main() {
   test('AuthSession round-trip preserves user rating from persisted json', () {
@@ -12,6 +13,17 @@ void main() {
     final restored = AuthSession.fromJson(session.toJson());
 
     expect(restored.user?.rating, 4);
+  });
+
+  test('UserModel.fromJson reads owner account onlineStatus from catalog', () {
+    final user = UserModel.fromJson(const {
+      'id': 'owner-1',
+      'role': 'OWNER',
+      'onlineStatus': 'OFFLINE',
+    });
+
+    expect(user.onlineStatus, OwnerStatus.offline);
+    expect(user.isAccountOnline, isFalse);
   });
 
   test('UserModel.fromJson accepts backend rating field', () {
