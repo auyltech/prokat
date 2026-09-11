@@ -164,7 +164,6 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
               try {
                 await mapController.enableUserLocation();
                 if (_closed) {
-                  mapboxMap.removeInteraction(_mapTapInteractionId);
                   mapController.detach(mapboxMap);
                   return;
                 }
@@ -173,7 +172,6 @@ class _MyMapViewState extends ConsumerState<MyMapView> {
                 // Keep the map usable if location setup fails.
               }
               if (_closed) {
-                mapboxMap.removeInteraction(_mapTapInteractionId);
                 mapController.detach(mapboxMap);
                 return;
               }
