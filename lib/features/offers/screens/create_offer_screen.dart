@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +14,7 @@ import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_summary_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/offers/offer_error_message.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
@@ -60,7 +63,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
     final offersNotifier = ref.read(offerMutationProvider.notifier);
     final equipmentAsync = ref.watch(ownerEquipmentProvider);
 
-    final equipmentOptions = (equipmentAsync.value?.items ?? [])
+    final equipmentOptions = (equipmentAsync.valueOrNull?.items ?? [])
         .map((item) => EquipmentSummaryModel.fromJson(item.toJson()))
         .toList();
 
@@ -124,6 +127,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
       }
 
       setState(() => _submitError = message);
+    }
+
+    if (equipmentAsync.hasError && equipmentOptions.isEmpty) {
+      return Scaffold(
+        body: Center(
+          child: EquipmentErrorTile(
+            onRetry: () =>
+                unawaited(ref.read(ownerEquipmentProvider.notifier).refresh()),
+          ),
+        ),
+      );
     }
 
     return Scaffold(
