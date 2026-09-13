@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/features/offers/offer_error_message.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/l10n/app_localizations_en.dart';
 import 'package:prokat/l10n/app_localizations_kk.dart';
 import 'package:prokat/l10n/app_localizations_ru.dart';
@@ -47,6 +48,42 @@ void main() {
         errorCode: offerCreateZeroBalanceCode,
       ),
       'Нельзя откликаться на заявки при нулевом балансе',
+    );
+  });
+
+  test('maps CONFLICT:OFFERS:CREATE:OFFLINE to the app locale', () {
+    expect(
+      offerCreateErrorMessage(
+        l10n: AppLocalizationsRu(),
+        errorCode: offerCreateOwnerOfflineCode,
+      ),
+      'Чтобы принимать прямые заявки клиентов или откликаться на открытые запросы, вы должны быть онлайн',
+    );
+  });
+
+  test('maps booking and offer offline codes to the owner warning', () {
+    final l10n = AppLocalizationsRu();
+    expect(
+      ownerOfflineActionErrorMessage(
+        l10n: l10n,
+        errorCode: bookingOwnerOfflineCode,
+      ),
+      l10n.ownerOfflineMustBeOnlineToAccept,
+    );
+    expect(
+      ownerOfflineActionErrorMessage(
+        l10n: l10n,
+        errorCode: offerCreateOwnerOfflineCode,
+      ),
+      l10n.ownerOfflineMustBeOnlineToAccept,
+    );
+    expect(
+      ownerOfflineActionErrorMessage(
+        l10n: l10n,
+        errorCode: 'OTHER',
+        fallback: 'Не удалось подтвердить заказ',
+      ),
+      'Не удалось подтвердить заказ',
     );
   });
 }

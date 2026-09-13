@@ -77,8 +77,9 @@ class _GuideHeader extends StatelessWidget {
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  guideIcon(guide.icon),
+                alignment: Alignment.center,
+                child: guideIconWidget(
+                  guide.icon,
                   color: theme.colorScheme.onPrimary,
                 ),
               ),
@@ -109,16 +110,20 @@ class _GuideHeader extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            children: [
-              _GuideChip(
-                icon: Icons.schedule_outlined,
-                label: l10n.minutesRead(_readingTime(translation.content)),
-              ),
-              const SizedBox(width: 8),
-              _GuideChip(icon: Icons.menu_book_outlined, label: guide.category),
-            ],
-          ),
+          if (translation.content.trim().isNotEmpty)
+            Row(
+              children: [
+                _GuideChip(
+                  icon: Icons.schedule_outlined,
+                  label: l10n.minutesRead(_readingTime(translation.content)),
+                ),
+                const SizedBox(width: 8),
+                _GuideChip(
+                  icon: Icons.menu_book_outlined,
+                  label: guide.category,
+                ),
+              ],
+            ),
         ],
       ),
     );

@@ -81,7 +81,7 @@ class _ClientRentalPreferencesSectionState
           iconBgColor: theme.colorScheme.onSurface.withValues(alpha: 0.15),
           title: l10n.city,
           subtitle: city.isEmpty
-              ? l10n.selectCity
+              ? l10n.allLocations
               : catalogCityLabelOf(ref, context, city),
           onTap: () => CityPickerSheet.show(
             context: context,

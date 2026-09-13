@@ -515,11 +515,13 @@ class EquipmentService {
     }
   }
 
-  Future<ApiResponse<void>> createPriceEntry(
-    int price,
-    PriceRateOption priceRate,
-    String equipmentId,
-  ) async {
+  Future<ApiResponse<void>> createPriceEntry({
+    required int price,
+    required PriceRateOption priceRate,
+    required String equipmentId,
+    String? label,
+    bool isStartingFrom = false,
+  }) async {
     try {
       final response = await _dio.post(
         "/equipment/$equipmentId/priceEntry",
@@ -527,6 +529,8 @@ class EquipmentService {
           "equipmentId": equipmentId,
           "price": price,
           "priceRate": priceRate.value,
+          "label": label,
+          "isStartingFrom": isStartingFrom,
         },
       );
 
@@ -567,6 +571,8 @@ class EquipmentService {
           "priceEntryId": priceEntryId,
           "price": entry.price,
           "priceRate": entry.priceRate.value,
+          "label": entry.label,
+          "isStartingFrom": entry.isStartingFrom,
         },
       );
 

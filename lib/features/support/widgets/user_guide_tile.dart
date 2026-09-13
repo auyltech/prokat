@@ -32,12 +32,13 @@ class UserGuideTile extends StatelessWidget {
               Container(
                 width: 52,
                 height: 52,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  guideIcon(guide.icon),
+                child: guideIconWidget(
+                  guide.icon,
                   color: theme.colorScheme.onPrimary,
                 ),
               ),

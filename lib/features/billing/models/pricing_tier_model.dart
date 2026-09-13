@@ -21,8 +21,8 @@ class PricingTierModel {
     try {
       return PricingTierModel(
         id: parseString(json['id'], fieldName: 'id'),
-        name: parseString(json['name'], fieldName: 'name'),
-        label: parseString(json['label'], fieldName: 'label'),
+        name: (json['name'] as String?)?.trim() ?? '',
+        label: (json['label'] as String?)?.trim() ?? '',
         price: parseInt(json['price'], fieldName: 'price'),
         minutes: parseInt(json['minutes'], fieldName: 'minutes'),
         sortIndex: parseInt(json['sortIndex'], fieldName: 'sortIndex'),

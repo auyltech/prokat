@@ -60,7 +60,6 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               UserGuidesSection(guides: guides, currentLocale: currentLocale),
               const SizedBox(height: 24),
 
-              // Support Actions Header Title
               Text(
                 l10n.needMoreHelp,
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -68,7 +67,13 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                   fontSize: 18,
                 ),
               ),
-
+              const SizedBox(height: 6),
+              Text(
+                l10n.needMoreHelpHint,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                ),
+              ),
               const SizedBox(height: 12),
               // Primary Action Form Button Wrapper
               SizedBox(

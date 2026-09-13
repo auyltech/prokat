@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/theme/app_theme.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/profile_accent_cta.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
@@ -97,12 +98,15 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         case BecomeOwnerRequestStatus.rejected:
           final status = registrationRequest.parsedStatus;
           final config = _getStatusConfig(status, l10n, theme.brightness);
-          return _buildModernCTA(
-            context,
-            icon: config.icon,
+          return ProfileAccentCta(
+            leading: Icon(
+              config.icon,
+              color: config.color,
+              size: ProfileAccentCta.iconSize,
+            ),
             title: config.label,
             subtitle: _subtitleForRequest(registrationRequest, l10n),
-            bgColor: config.bg,
+            backgroundColor: config.bg,
             contentColor: config.color,
             trailingIcon: config.trailing,
             isLoading: _isRefreshing,
@@ -114,26 +118,19 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     }
 
     if (isOwnerRole || registrationRequest?.isApproved == true) {
-      return _buildModernCTA(
-        context,
-        icon: Icons.dashboard_customize_outlined,
+      return ProfileAccentCta(
+        leading: ProfileAccentCta.truck(),
         title: l10n.ownerDashboard,
         subtitle: l10n.ownerDashboardSubtitle,
-        bgColor: AppTheme.accent,
-        contentColor: AppTheme.white,
         isLoading: _isRefreshing,
         onTap: _enterOwnerMode,
       );
     }
 
-    final brightness = theme.brightness;
-    return _buildModernCTA(
-      context,
-      icon: Icons.add_business_outlined,
+    return ProfileAccentCta(
+      leading: ProfileAccentCta.truckPlus(),
       title: l10n.becomeOwner,
       subtitle: l10n.becomeOwnerSubtitle,
-      bgColor: AppTheme.brandTintBg(brightness),
-      contentColor: AppTheme.brandTintFg(brightness),
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
   }
@@ -143,12 +140,10 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     AppLocalizations l10n,
   ) {
     if (request.isRejected) {
-      final comment = (request.adminComment ?? '').trim();
-      if (comment.isNotEmpty) return comment;
       return l10n.statusRejectedSubtitle;
     }
 
-    return '${l10n.submittedOn} ${formatDate(date: request.createdAt)}';
+    return l10n.ownerApplicationPendingHint;
   }
 
   Future<void> _onRequestTap(BecomeOwnerRequestStatus status) async {
@@ -164,65 +159,6 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     }
   }
 
-  Widget _buildModernCTA(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color bgColor,
-    required Color contentColor,
-    IconData trailingIcon = Icons.chevron_right,
-    bool isLoading = false,
-    required VoidCallback onTap,
-  }) {
-    final mutedColor = contentColor.withValues(alpha: 0.8);
-    return InkWell(
-      onTap: isLoading ? null : onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(0),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: contentColor, size: 40),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge
-                        ?.copyWith(color: contentColor),
-                  ),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: mutedColor),
-                  ),
-                ],
-              ),
-            ),
-            if (isLoading)
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: contentColor,
-                ),
-              )
-            else
-              Icon(trailingIcon, color: mutedColor),
-          ],
-        ),
-      ),
-    );
-  }
-
   _StatusConfig _getStatusConfig(
     BecomeOwnerRequestStatus status,
     AppLocalizations l10n,
@@ -233,25 +169,25 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         return _StatusConfig(
           bg: AppTheme.successBg(brightness),
           color: AppTheme.successFg(brightness),
-          icon: Icons.check,
-          trailing: Icons.chevron_right,
+          icon: LucideIcons.check,
+          trailing: LucideIcons.chevronRight,
           label: l10n.requestAccepted,
         );
       case BecomeOwnerRequestStatus.rejected:
         return _StatusConfig(
           bg: AppTheme.dangerBg(brightness),
           color: AppTheme.dangerFg(brightness),
-          icon: Icons.error,
-          trailing: Icons.chevron_right,
+          icon: LucideIcons.circleAlert,
+          trailing: LucideIcons.chevronRight,
           label: l10n.requestRejected,
         );
       case BecomeOwnerRequestStatus.pending:
         return _StatusConfig(
           bg: AppTheme.warningBg(brightness),
           color: AppTheme.warningFg(brightness),
-          icon: Icons.history_toggle_off_rounded,
-          trailing: Icons.refresh,
-          label: l10n.requestPending,
+          icon: LucideIcons.clock,
+          trailing: LucideIcons.refreshCw,
+          label: l10n.ownerApplicationPending,
         );
     }
   }

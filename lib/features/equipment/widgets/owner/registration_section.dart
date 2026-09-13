@@ -1,5 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
+import 'package:prokat/core/utils/kz_plate_mask.dart';
+import 'package:prokat/features/equipment/utils/debounced_action.dart';
+import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -21,13 +27,17 @@ class RegistrationSection extends ConsumerStatefulWidget {
 }
 
 class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
+  late TextEditingController _nameController;
   late TextEditingController _modelController;
   late TextEditingController _plateController;
+  late String _baselineName;
   late String _baselineModel;
   late String _baselinePlate;
 
   bool _saveAttempted = false;
   bool _isSaving = false;
+  final _autosave = DebouncedAction();
+  String? _nameError;
   String? _modelError;
   String? _plateError;
 
@@ -36,6 +46,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController(text: widget.equipment.name);
     _modelController = TextEditingController(text: widget.equipment.model);
     _plateController = TextEditingController(
       text: widget.equipment.plateNumber ?? '',
@@ -47,6 +58,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   }
 
   void _captureBaseline() {
+    _baselineName = _nameController.text.trim();
     _baselineModel = _modelController.text.trim();
     _baselinePlate = _plateController.text.trim();
   }
@@ -55,8 +67,10 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   void didUpdateWidget(covariant RegistrationSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_isDirty) return;
-    if (widget.equipment.model != oldWidget.equipment.model ||
+    if (widget.equipment.name != oldWidget.equipment.name ||
+        widget.equipment.model != oldWidget.equipment.model ||
         widget.equipment.plateNumber != oldWidget.equipment.plateNumber) {
+      _nameController.text = widget.equipment.name;
       _modelController.text = widget.equipment.model;
       _plateController.text = widget.equipment.plateNumber ?? '';
       _captureBaseline();
@@ -65,6 +79,8 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
 
   @override
   void dispose() {
+    _autosave.dispose();
+    _nameController.dispose();
     _modelController.dispose();
     _plateController.dispose();
     super.dispose();
@@ -75,12 +91,14 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   }
 
   bool get _isDirty {
-    return _modelController.text.trim() != _baselineModel ||
+    return _nameController.text.trim() != _baselineName ||
+        _modelController.text.trim() != _baselineModel ||
         _plateController.text.trim() != _baselinePlate;
   }
 
   bool get _isComplete {
-    return _modelController.text.trim().isNotEmpty &&
+    return _nameController.text.trim().isNotEmpty &&
+        _modelController.text.trim().isNotEmpty &&
         _plateController.text.trim().isNotEmpty;
   }
 
@@ -95,6 +113,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   void _publish() {
     _bind();
     _editor.reportInfoDraft(
+      name: _nameController.text.trim(),
       model: _modelController.text.trim(),
       plateNumber: _plateController.text.trim(),
     );
@@ -111,20 +130,19 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
 
   bool _validate() {
     _saveAttempted = true;
+    _nameError = _nameController.text.trim().isEmpty ? 'required' : null;
     _modelError = _modelController.text.trim().isEmpty ? 'required' : null;
     _plateError = _plateController.text.trim().isEmpty ? 'required' : null;
     setState(() {});
-    return _modelError == null && _plateError == null;
+    return _nameError == null && _modelError == null && _plateError == null;
   }
 
   Future<bool> _handleSave({required bool notify}) async {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || _isSaving) return false;
-    if (!_validate()) {
+    if (notify && !_validate()) {
       _publish();
-      if (notify) {
-        AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
-      }
+      AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
       return false;
     }
 
@@ -133,6 +151,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
 
     try {
       _editor.reportInfoDraft(
+        name: _nameController.text.trim(),
         model: _modelController.text.trim(),
         plateNumber: _plateController.text.trim(),
       );
@@ -178,6 +197,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
     if (_saveAttempted) _validate();
     setState(() {});
     _publish();
+    _autosave.run(() => _handleSave(notify: false));
   }
 
   @override
@@ -190,26 +210,51 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
         .block(OwnerEquipmentBlockId.registration);
 
     return EquipmentEditorSection(
-      title: l10n.registrationData,
+      title: l10n.equipmentData,
       indicator: view.indicator,
       expanded: view.isExpanded,
-      onToggleExpanded: () =>
-          _editor.toggleExpanded(OwnerEquipmentBlockId.registration),
+      onToggleExpanded: () {
+        if (_canEdit && _isDirty) {
+          _autosave.cancel();
+          unawaited(_handleSave(notify: false));
+        }
+        _editor.toggleExpanded(OwnerEquipmentBlockId.registration);
+      },
       saveLabel: l10n.save,
-      showSave: _canEdit && _isDirty,
-      saveEnabled: _canEdit && _isDirty && !_isSaving,
-      saveLoading: _isSaving,
-      onSave: () => _handleSave(notify: true),
       child: Column(
         children: [
           InputField(
-            label: l10n.model,
+            label: l10n.equipmentNameLabel,
+            controller: _nameController,
+            onChanged: _onChanged,
+            hint: l10n.equipmentNameHint,
+            isRequired: true,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
+            readOnly: !_canEdit,
+            boxed: true,
+            filled: false,
+            maxLength: ownerEquipmentTextMaxLength,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
+            ],
+          ),
+          const SizedBox(height: 12),
+          InputField(
+            label: l10n.modelLabel,
             controller: _modelController,
             onChanged: _onChanged,
             hint: l10n.modelHint,
             isRequired: true,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
             readOnly: !_canEdit,
-            errorText: _modelError == null ? null : l10n.fieldRequired,
+            boxed: true,
+            filled: false,
+            maxLength: ownerEquipmentTextMaxLength,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
+            ],
           ),
           const SizedBox(height: 12),
           InputField(
@@ -218,9 +263,13 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
             onChanged: _onChanged,
             hint: l10n.plateNumberHint,
             isRequired: true,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
             isLast: true,
             readOnly: !_canEdit,
-            errorText: _plateError == null ? null : l10n.fieldRequired,
+            boxed: true,
+            filled: false,
+            inputFormatters: const [KzPlateInputFormatter()],
           ),
         ],
       ),

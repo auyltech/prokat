@@ -17,6 +17,7 @@ import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -33,6 +34,15 @@ class OwnerBookingTile extends ConsumerWidget {
     ThemeData theme,
   ) async {
     final l10n = AppLocalizations.of(context)!;
+    if (!await ensureOwnerOnline(
+      context,
+      ref,
+      message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
+    )) {
+      return;
+    }
+    if (!context.mounted) return;
+
     unawaited(
       showDialog(
         context: context,
@@ -54,12 +64,24 @@ class OwnerBookingTile extends ConsumerWidget {
                   if (context.mounted && context.canPop()) {
                     context.pop();
                   }
-                  await ref
+                  final result = await ref
                       .read(bookingMutationProvider.notifier)
                       .updateBookingStatus(
                         id: booking.id,
                         status: BookingStatus.confirmed,
                       );
+                  if (!context.mounted) return;
+                  AppSnackBar.show(
+                    message: result.success
+                        ? l10n.orderConfirmed
+                        : ownerOfflineActionErrorMessage(
+                            l10n: l10n,
+                            errorCode: result.errorCode,
+                            fallback: l10n.failedToConfirmOrder,
+                          ),
+                    isSuccess: result.success,
+                    isError: !result.success,
+                  );
                 },
                 child: Text(
                   l10n.confirm,

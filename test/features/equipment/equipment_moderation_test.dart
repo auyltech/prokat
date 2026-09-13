@@ -60,7 +60,7 @@ void main() {
   });
 
   group('OwnerEquipmentReviewUi', () {
-    test('draft shows submit when clean and save-all when dirty', () {
+    test('draft always shows submit, never save-all', () {
       expect(
         OwnerEquipmentReviewUi.from(
           status: EquipmentStatus.draft,
@@ -73,14 +73,14 @@ void main() {
           status: EquipmentStatus.draft,
           anyDirty: true,
         ).showSaveAll,
-        isTrue,
+        isFalse,
       );
       expect(
         OwnerEquipmentReviewUi.from(
           status: EquipmentStatus.draft,
           anyDirty: true,
         ).showSubmitForReview,
-        isFalse,
+        isTrue,
       );
     });
 
@@ -110,12 +110,12 @@ void main() {
       expect(dirty.showSaveAll, isFalse);
     });
 
-    test('approved shows save-all when dirty, never resubmit', () {
+    test('approved never shows save-all or submit', () {
       final ui = OwnerEquipmentReviewUi.from(
         status: EquipmentStatus.accepted,
         anyDirty: true,
       );
-      expect(ui.showSaveAll, isTrue);
+      expect(ui.showSaveAll, isFalse);
       expect(ui.showResubmit, isFalse);
       expect(ui.showSubmitForReview, isFalse);
     });

@@ -12,6 +12,8 @@ import 'package:prokat/features/owner/models/owner_notification_preferences.dart
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+const showDetailedNotificationPreferences = false;
+
 class OwnerNotificationsSection extends ConsumerStatefulWidget {
   final OwnerNotificationPreferences initialValue;
   final Future<void> Function()? onPushAuthorized;
@@ -221,7 +223,7 @@ class _OwnerNotificationsSectionState
           icon: Icons.notifications_outlined,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: l10n.pushNotifications,
+          title: l10n.notifications,
           subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           isLoading: _loadingPermission,
@@ -231,134 +233,136 @@ class _OwnerNotificationsSectionState
           },
         ),
 
-        const SizedBox(height: 16),
+        if (showDetailedNotificationPreferences) ...[
+          const SizedBox(height: 16),
 
-        SettingsSwitchTile(
-          icon: Icons.campaign_outlined,
-          iconColor: _ownerColor,
-          iconBgColor: _ownerBackground,
-          title: l10n.notifRequestsAndOffers,
-          subtitle: l10n.notifRequestsAndOffersSubtitle,
-          value: _preferences.requestsAndOffers,
-          isLoading: _savingPreference == 'requestsAndOffers',
-          onChanged: (value) {
-            unawaited(
-              _updatePreference(
-                key: 'requestsAndOffers',
-                nextValue: _preferences.copyWith(requestsAndOffers: value),
-              ),
-            );
-          },
-        ),
-
-        const SizedBox(height: 16),
-
-        SettingsSwitchTile(
-          icon: Icons.assignment_outlined,
-          iconColor: _ownerColor,
-          iconBgColor: _ownerBackground,
-          title: l10n.notifOrdersAndWorkProgress,
-          subtitle: l10n.notifOrdersAndWorkProgressSubtitle,
-          value: _preferences.ordersAndWork,
-          isLoading: _savingPreference == 'ordersAndWork',
-          onChanged: (value) {
-            unawaited(
-              _updatePreference(
-                key: 'ordersAndWork',
-                nextValue: _preferences.copyWith(ordersAndWork: value),
-              ),
-            );
-          },
-        ),
-
-        const SizedBox(height: 16),
-
-        SettingsSwitchTile(
-          icon: Icons.chat_bubble_outline,
-          iconColor: _ownerColor,
-          iconBgColor: _ownerBackground,
-          title: l10n.messages,
-          subtitle: l10n.notifOwnerMessagesSubtitle,
-          value: _preferences.messages,
-          isLoading: _savingPreference == 'messages',
-          onChanged: (value) {
-            unawaited(
-              _updatePreference(
-                key: 'messages',
-                nextValue: _preferences.copyWith(messages: value),
-              ),
-            );
-          },
-        ),
-
-        const SizedBox(height: 16),
-
-        SettingsSwitchTile(
-          icon: Icons.verified_outlined,
-          iconColor: _ownerColor,
-          iconBgColor: _ownerBackground,
-          title: l10n.notifEquipmentAndVerification,
-          subtitle: l10n.notifEquipmentAndVerificationSubtitle,
-          value: _preferences.equipmentAndVerification,
-          isLoading: _savingPreference == 'equipmentAndVerification',
-          onChanged: (value) {
-            unawaited(
-              _updatePreference(
-                key: 'equipmentAndVerification',
-                nextValue: _preferences.copyWith(
-                  equipmentAndVerification: value,
+          SettingsSwitchTile(
+            icon: Icons.campaign_outlined,
+            iconColor: _ownerColor,
+            iconBgColor: _ownerBackground,
+            title: l10n.notifRequestsAndOffers,
+            subtitle: l10n.notifRequestsAndOffersSubtitle,
+            value: _preferences.requestsAndOffers,
+            isLoading: _savingPreference == 'requestsAndOffers',
+            onChanged: (value) {
+              unawaited(
+                _updatePreference(
+                  key: 'requestsAndOffers',
+                  nextValue: _preferences.copyWith(requestsAndOffers: value),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          ),
 
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        SettingsSwitchTile(
-          icon: Icons.account_balance_wallet_outlined,
-          iconColor: _ownerColor,
-          iconBgColor: _ownerBackground,
-          title: l10n.notifBalanceAlerts,
-          subtitle: l10n.notifBalanceAlertsSubtitle,
-          value: _preferences.balanceAlerts,
-          isLoading: _savingPreference == 'balanceAlerts',
-          onChanged: (value) {
-            unawaited(
-              _updatePreference(
-                key: 'balanceAlerts',
-                nextValue: _preferences.copyWith(balanceAlerts: value),
-              ),
-            );
-          },
-        ),
+          SettingsSwitchTile(
+            icon: Icons.assignment_outlined,
+            iconColor: _ownerColor,
+            iconBgColor: _ownerBackground,
+            title: l10n.notifOrdersAndWorkProgress,
+            subtitle: l10n.notifOrdersAndWorkProgressSubtitle,
+            value: _preferences.ordersAndWork,
+            isLoading: _savingPreference == 'ordersAndWork',
+            onChanged: (value) {
+              unawaited(
+                _updatePreference(
+                  key: 'ordersAndWork',
+                  nextValue: _preferences.copyWith(ordersAndWork: value),
+                ),
+              );
+            },
+          ),
 
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        SettingsSwitchTile(
-          icon: Icons.event_available_outlined,
-          iconColor: _ownerColor,
-          iconBgColor: _ownerBackground,
-          title: l10n.notifRemindersAndReviews,
-          subtitle: l10n.notifRemindersAndReviewsSubtitle,
-          value: _preferences.remindersAndReviews,
-          isLoading: _savingPreference == 'remindersAndReviews',
-          onChanged: (value) {
-            unawaited(
-              _updatePreference(
-                key: 'remindersAndReviews',
-                nextValue: _preferences.copyWith(remindersAndReviews: value),
-              ),
-            );
-          },
-        ),
+          SettingsSwitchTile(
+            icon: Icons.chat_bubble_outline,
+            iconColor: _ownerColor,
+            iconBgColor: _ownerBackground,
+            title: l10n.messages,
+            subtitle: l10n.notifOwnerMessagesSubtitle,
+            value: _preferences.messages,
+            isLoading: _savingPreference == 'messages',
+            onChanged: (value) {
+              unawaited(
+                _updatePreference(
+                  key: 'messages',
+                  nextValue: _preferences.copyWith(messages: value),
+                ),
+              );
+            },
+          ),
 
-        const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-        _RequiredOwnerNoticesTile(
-          color: _ownerColor,
-          backgroundColor: _ownerBackground,
-        ),
+          SettingsSwitchTile(
+            icon: Icons.verified_outlined,
+            iconColor: _ownerColor,
+            iconBgColor: _ownerBackground,
+            title: l10n.notifEquipmentAndVerification,
+            subtitle: l10n.notifEquipmentAndVerificationSubtitle,
+            value: _preferences.equipmentAndVerification,
+            isLoading: _savingPreference == 'equipmentAndVerification',
+            onChanged: (value) {
+              unawaited(
+                _updatePreference(
+                  key: 'equipmentAndVerification',
+                  nextValue: _preferences.copyWith(
+                    equipmentAndVerification: value,
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          SettingsSwitchTile(
+            icon: Icons.account_balance_wallet_outlined,
+            iconColor: _ownerColor,
+            iconBgColor: _ownerBackground,
+            title: l10n.notifBalanceAlerts,
+            subtitle: l10n.notifBalanceAlertsSubtitle,
+            value: _preferences.balanceAlerts,
+            isLoading: _savingPreference == 'balanceAlerts',
+            onChanged: (value) {
+              unawaited(
+                _updatePreference(
+                  key: 'balanceAlerts',
+                  nextValue: _preferences.copyWith(balanceAlerts: value),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          SettingsSwitchTile(
+            icon: Icons.event_available_outlined,
+            iconColor: _ownerColor,
+            iconBgColor: _ownerBackground,
+            title: l10n.notifRemindersAndReviews,
+            subtitle: l10n.notifRemindersAndReviewsSubtitle,
+            value: _preferences.remindersAndReviews,
+            isLoading: _savingPreference == 'remindersAndReviews',
+            onChanged: (value) {
+              unawaited(
+                _updatePreference(
+                  key: 'remindersAndReviews',
+                  nextValue: _preferences.copyWith(remindersAndReviews: value),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 20),
+
+          _RequiredOwnerNoticesTile(
+            color: _ownerColor,
+            backgroundColor: _ownerBackground,
+          ),
+        ],
       ],
     );
   }

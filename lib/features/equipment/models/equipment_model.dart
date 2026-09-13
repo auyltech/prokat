@@ -41,6 +41,7 @@ class Equipment {
   final List<EquipmentSpec>? specs;
 
   final String? ownerComment;
+  final String? adminComment;
   final String? rentCondition;
 
   final EquipmentStatus status;
@@ -67,6 +68,7 @@ class Equipment {
     this.plateNumber,
     this.specs,
     this.ownerComment,
+    this.adminComment,
     this.rentCondition,
     required this.status,
     this.imageUrl,
@@ -134,6 +136,10 @@ class Equipment {
       data["ownerComment"] = ownerComment;
     }
 
+    if (adminComment != null) {
+      data["adminComment"] = adminComment;
+    }
+
     if (imageUrl != null) {
       data["imageUrl"] = imageUrl;
     }
@@ -173,6 +179,7 @@ class Equipment {
         specs: specs,
 
         ownerComment: json["ownerComment"] ?? "",
+        adminComment: json["adminComment"]?.toString(),
         rentCondition: json["rentCondition"],
 
         status: parseEquipmentStatus(json["status"]),
@@ -220,6 +227,7 @@ class Equipment {
     String? plateNumber,
     List<EquipmentSpec>? specs,
     String? ownerComment,
+    String? adminComment,
     String? rentCondition,
     EquipmentStatus? status,
     bool? isVisible,
@@ -240,6 +248,7 @@ class Equipment {
       plateNumber: plateNumber ?? this.plateNumber,
       specs: specs ?? this.specs,
       ownerComment: ownerComment ?? this.ownerComment,
+      adminComment: adminComment ?? this.adminComment,
       rentCondition: rentCondition ?? this.rentCondition,
       status: status ?? this.status,
       isVisible: isVisible ?? this.isVisible,

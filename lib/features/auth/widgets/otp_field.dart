@@ -36,6 +36,7 @@ class OtpField extends StatelessWidget {
     return Pinput(
       length: 6,
       controller: controller,
+      mainAxisAlignment: MainAxisAlignment.center,
       defaultPinTheme: defaultPinTheme,
       focusedPinTheme: focusedPinTheme,
       keyboardType: TextInputType.number,

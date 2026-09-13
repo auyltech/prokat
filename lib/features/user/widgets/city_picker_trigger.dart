@@ -32,12 +32,17 @@ class _CityPickerTriggerState extends ConsumerState<CityPickerTrigger> {
       ),
       label: Text(
         (selectedCity == null || selectedCity.isEmpty)
-            ? l10n.selectCity
+            ? l10n.allLocations
             : catalogCityLabelOf(ref, context, selectedCity),
         style: TextStyle(color: theme.colorScheme.onPrimary),
       ),
       onPressed: () {
-        unawaited(CityPickerSheet.show(context: context));
+        unawaited(
+          CityPickerSheet.show(
+            context: context,
+            service: CitySelectorService.clientcity,
+          ),
+        );
       },
     );
   }

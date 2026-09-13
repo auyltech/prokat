@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
-import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class HeroBanner extends ConsumerWidget {
@@ -14,6 +15,7 @@ class HeroBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const Color darkBlueBg = Color(0xFF071D49);
     final l10n = AppLocalizations.of(context)!;
+    final hasSpecificCity = selectedCity.trim().isNotEmpty;
 
     return Container(
       color: darkBlueBg,
@@ -22,7 +24,6 @@ class HeroBanner extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Middle Section: Headline Text
           Text(
             l10n.heroPlatformTag,
             style: TextStyle(
@@ -43,8 +44,6 @@ class HeroBanner extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Location Dropdown Selector
           GestureDetector(
             onTap: () => CityPickerSheet.show(
               context: context,
@@ -64,16 +63,13 @@ class HeroBanner extends ConsumerWidget {
                     size: 16,
                     color: Colors.white,
                   ),
-
                   const SizedBox(width: 6),
-
                   Text(
-                    selectedCity.isNotEmpty
+                    hasSpecificCity
                         ? catalogCityLabelOf(ref, context, selectedCity)
                         : l10n.allLocations,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
-
                   const SizedBox(width: 4),
                   const Icon(
                     Icons.keyboard_arrow_down,
@@ -85,7 +81,10 @@ class HeroBanner extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const LoginTile(),
+          LoginTile(
+            afterLoginFrom: AppRoutes.clientProfile,
+            label: l10n.hireEquipment,
+          ),
         ],
       ),
     );

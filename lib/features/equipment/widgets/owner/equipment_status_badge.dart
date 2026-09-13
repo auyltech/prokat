@@ -24,7 +24,7 @@ class EquipmentStatusBadge extends StatelessWidget {
         ? l10n.moderatorReview
         : status == EquipmentStatus.accepted ||
               status == EquipmentStatus.available
-        ? l10n.available
+        ? l10n.statusVerified
         : status == EquipmentStatus.rejected
         ? l10n.resubmit
         : status == EquipmentStatus.booked

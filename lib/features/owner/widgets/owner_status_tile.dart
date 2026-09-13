@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
-import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -54,27 +54,17 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
 
   Future<void> _onToggleMethod(bool turnOnline) async {
     final l10n = AppLocalizations.of(context)!;
-    final billing = ref.read(billingProvider);
 
-    if (turnOnline && billing.isOutOfPaidMinutes) {
-      AppSnackBar.show(
-        message: l10n.cannotGoOnlineWithZeroBalance,
-        isError: true,
-      );
-      setState(() {});
-      return;
-    }
-
-    final onlineEquipmentCount = ref
-        .read(ownerEquipmentProvider.notifier)
-        .onlineEquipmentCount;
-    if (turnOnline && onlineEquipmentCount == 0) {
-      AppSnackBar.show(
-        message: l10n.cannotGoOnlineWithoutOnlineEquipment,
-        isError: true,
-      );
-      setState(() {});
-      return;
+    if (turnOnline) {
+      final block = ownerGoOnlineBlockReason(ref);
+      if (block != OwnerGoOnlineBlockReason.none) {
+        AppSnackBar.show(
+          message: ownerGoOnlineBlockMessage(l10n: l10n, reason: block),
+          isError: true,
+        );
+        setState(() {});
+        return;
+      }
     }
 
     final newStatus = turnOnline ? OwnerStatus.online : OwnerStatus.offline;
@@ -115,6 +105,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
         .watch(ownerProfileProvider)
         .valueOrNull
         ?.onlineStatus;
+    final hasProfile = ref.watch(ownerProfileProvider).valueOrNull != null;
     final isOutOfPaidMinutes = ref.watch(
       billingProvider.select((state) => state.isOutOfPaidMinutes),
     );
@@ -129,26 +120,39 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
 
     return BaseTile(
       padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 6,
-          backgroundColor: isOnline ? Colors.green : Colors.grey,
-        ),
-        title: Text(
-          isOnline ? l10n.youAreOnline : l10n.youAreOffline,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-        ),
-        subtitle: Text(
-          isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-        ),
-        trailing: Switch.adaptive(
-          value: isOnline,
-          activeThumbColor: const Color(0xFF0F5A56),
-          onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
-              ? null
-              : _onToggleMethod,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              radius: 6,
+              backgroundColor: isOnline ? Colors.green : Colors.grey,
+            ),
+            title: Text(
+              isOnline ? l10n.youAreOnline : l10n.youAreOffline,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            subtitle: Text(
+              isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            trailing: Switch.adaptive(
+              value: isOnline,
+              activeThumbColor: const Color(0xFF0F5A56),
+              onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
+                  ? null
+                  : _onToggleMethod,
+            ),
+          ),
+          if (!isOnline && hasProfile)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Text(
+                l10n.ownerOfflineMustBeOnlineToAccept,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
+            ),
+        ],
       ),
     );
   }

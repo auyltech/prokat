@@ -52,7 +52,8 @@ class MapController {
       _styleReady;
 
   bool _isDisposedChannel(Object error) {
-    return error is PlatformException && error.code == 'channel-error';
+    return error is MissingPluginException ||
+        (error is PlatformException && error.code == 'channel-error');
   }
 
   void _clearAttachedMap() {

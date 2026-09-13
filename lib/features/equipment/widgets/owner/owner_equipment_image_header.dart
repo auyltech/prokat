@@ -48,10 +48,13 @@ class _OwnerEquipmentImageHeaderState
   }
 
   List<EquipmentImage> get _displayImages {
-    if (widget.images.isNotEmpty) return widget.images;
+    final withUrl = widget.images
+        .where((image) => image.imageUrl.trim().isNotEmpty)
+        .toList();
+    if (withUrl.isNotEmpty) return withUrl;
 
-    final legacy = widget.legacyImageUrl;
-    if (legacy != null && legacy.isNotEmpty) {
+    final legacy = widget.legacyImageUrl?.trim() ?? '';
+    if (legacy.isNotEmpty) {
       return [EquipmentImage(id: 'legacy', imageUrl: legacy, isPrimary: true)];
     }
 
@@ -346,28 +349,48 @@ class _OwnerEquipmentImageHeaderState
   }
 
   Widget _emptyState(BuildContext context) {
+    return const OwnerEquipmentPhotoPlaceholder();
+  }
+}
+
+class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final bool compact;
+
+  const OwnerEquipmentPhotoPlaceholder({
+    super.key,
+    this.width,
+    this.height,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
+      width: width,
+      height: height,
       color: colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.image_outlined,
-            size: 64,
-            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _l10n.noPhotosYet,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 32,
+        vertical: compact ? 6 : 12,
+      ),
+      child: Text(
+        l10n.equipmentPhotoRequiredPlaceholder,
+        textAlign: TextAlign.center,
+        maxLines: compact ? 4 : 3,
+        overflow: TextOverflow.ellipsis,
+        style: (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
+            ?.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.55),
+              fontWeight: FontWeight.w600,
+              height: 1.2,
             ),
-          ),
-        ],
       ),
     );
   }

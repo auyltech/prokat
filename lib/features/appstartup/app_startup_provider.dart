@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
+import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/router/post_login_location.dart';
 import 'package:prokat/core/providers/unauthorized_signal_provider.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -165,6 +167,12 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
       }
 
       state = _statusForStep(AppStartupStep.decideRoute);
+
+      _applyPostLoginMode(
+        from: ref.read(postLoginFromProvider),
+        accountIsOwner:
+            _isOwnerRole(profile.role) || ref.read(authProvider).isOwner,
+      );
 
       final route = _decideRouteFromRole(profile.role);
 
@@ -362,9 +370,31 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     );
   }
 
-  AppStartupRouteState _decideRouteFromRole(String? role) {
+  void _applyPostLoginMode({
+    required String? from,
+    required bool accountIsOwner,
+  }) {
+    if (from == null || from.isEmpty) return;
+
+    if (from == AppRoutes.becomeOwner && accountIsOwner) {
+      _currentMode = AppMode.ownerMode;
+    } else if (from == AppRoutes.becomeOwner ||
+        from == AppRoutes.clientProfile) {
+      _currentMode = AppMode.clientMode;
+    } else {
+      return;
+    }
+
+    unawaited(modeStorage.saveMode(_currentMode));
+  }
+
+  bool _isOwnerRole(String? role) {
     final normalized = role?.toLowerCase();
-    final isOwnerRole = normalized == 'owner' || normalized == 'admin';
+    return normalized == 'owner' || normalized == 'admin';
+  }
+
+  AppStartupRouteState _decideRouteFromRole(String? role) {
+    final isOwnerRole = _isOwnerRole(role);
 
     if (!isOwnerRole) {
       _currentMode = AppMode.clientMode;

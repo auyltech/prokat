@@ -9,11 +9,10 @@ Templates are available in `.env.example` and `.env.local.example`.
 
 Local endpoint mapping:
 
-- Windows and web: `http://localhost:4000`
-- Android Studio emulator: `http://10.0.2.2:4000`
-- Physical Android device: the stack is intentionally unavailable over LAN.
-  Use `adb reverse tcp:4000 tcp:4000` and override both Android URLs with
-  `http://localhost:4000` when device testing is needed.
+- Windows, web, Android emulator, and physical Android: `http://localhost:4000`
+- Physical phones and emulators both need `adb reverse tcp:4000 tcp:4000`
+  (`scripts/local-start.ps1` and `scripts/local-refresh.ps1` apply it to every
+  `adb devices` entry with status `device`). The stack is not published on LAN.
 
 Local Firebase and push notifications stay enabled (`ENABLE_FIREBASE_SERVICES`
 and `ENABLE_PUSH_NOTIFICATIONS` in `.env`, `.env.local`, and `.env.ngrok.local`).

@@ -7,7 +7,7 @@ import 'package:prokat/app.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/services/crash_reporting_service.dart';
-import 'package:prokat/core/theme/app_theme.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/firebase_options.dart';
