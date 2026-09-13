@@ -8,6 +8,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:shimmer/shimmer.dart';
@@ -83,11 +84,7 @@ class _OwnerEquipmentListScreenState
           error: (error, stackTrace) => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              EmptyStateTile(
-                imageName: 'empty_error.png',
-                title: l10n.errorLoadingEquipment,
-                subtitle: error.toString(),
-              ),
+              EquipmentErrorTile(onRetry: () => unawaited(loadData())),
             ],
           ),
 

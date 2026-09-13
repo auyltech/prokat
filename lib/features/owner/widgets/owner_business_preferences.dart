@@ -42,7 +42,7 @@ class _OwnerBusinessPreferencesSectionState
       if (!mounted) return;
     }
 
-    if (ref.read(ownerEquipmentProvider).value == null) {
+    if (ref.read(ownerEquipmentProvider).valueOrNull == null) {
       await ref.read(ownerEquipmentProvider.notifier).refresh();
     }
   }
