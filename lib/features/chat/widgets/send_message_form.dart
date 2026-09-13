@@ -133,8 +133,11 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
         ),
         isError: true,
       );
+      setState(() => _goingOnline = false);
+      return;
     }
 
+    AppSnackBar.show(message: l10n.accountSwitchedToOnline, isSuccess: true);
     setState(() => _goingOnline = false);
   }
 
@@ -205,15 +208,11 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
             ),
           ),
           const SizedBox(width: 12),
-          TextButton(
-            onPressed: _goingOnline ? null : _becomeOnlineFromBanner,
-            child: _goingOnline
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(l10n.becomeOnline),
+          BecomeOnlineOutlinedButton(
+            label: l10n.becomeOnline,
+            switchOn: _goingOnline,
+            busy: _goingOnline,
+            onPressed: _becomeOnlineFromBanner,
           ),
         ],
       ),

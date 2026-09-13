@@ -16,7 +16,6 @@ import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
-import 'package:prokat/features/equipment/widgets/spec_filter_panel.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
@@ -39,7 +38,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   ProviderSubscription? _categoriesSub;
   ProviderSubscription? _locationSub;
   ProviderSubscription? _equipmentSub;
-  ProviderSubscription? _specSub;
 
   Future<void> _fetchData() async {
     if (!mounted) return;
@@ -47,7 +45,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final categoryId = ref.read(selectedCategoryProvider)?.id;
     final city = ref.read(locationProvider).city;
     final query = ref.read(searchEquipmentProvider).query;
-    final spec = ref.read(specFilterQueryProvider);
     final equipment = ref.read(clientEquipmentProvider.notifier);
     final favorites = ref.read(favoritesProvider.notifier);
     final categories = ref.read(categoriesProvider.notifier);
@@ -57,7 +54,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
       categoryId: categoryId,
       city: city,
       query: query,
-      spec: spec,
+      spec: const [],
     );
 
     if (!mounted) return;
@@ -122,11 +119,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
       },
     );
 
-    _specSub = ref.listenManual(
-      specFilterQueryProvider,
-      (_, _) => _onFiltersChanged(),
-    );
-
     unawaited(
       Future.microtask(() async {
         if (!mounted) return;
@@ -141,7 +133,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     _categoriesSub?.close();
     _locationSub?.close();
     _equipmentSub?.close();
-    _specSub?.close();
     super.dispose();
   }
 
@@ -177,10 +168,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                   mode: "search",
                   selectedCategoryId: selectedCategoryId,
                 ),
-
-                const SizedBox(height: 12),
-
-                const SpecFilterPanel(),
 
                 const SizedBox(height: 12),
 

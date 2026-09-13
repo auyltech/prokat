@@ -60,7 +60,7 @@ class TopUpCtaTile extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              unawaited(context.push(AppRoutes.ownerPaymentTopUp));
+              unawaited(context.push(AppRoutes.ownerPayment));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,

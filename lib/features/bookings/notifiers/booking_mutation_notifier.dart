@@ -87,6 +87,10 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     state = state.copyWith(selectedTime: time);
   }
 
+  void setDateAndTime({required DateTime date, required DateTime time}) {
+    state = state.copyWith(selectedDate: date, selectedTime: time);
+  }
+
   void setComment(String comment) {
     state = state.copyWith(comment: comment);
   }

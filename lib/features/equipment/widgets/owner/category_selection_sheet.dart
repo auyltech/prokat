@@ -10,7 +10,6 @@ import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
-import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 enum CategorySheetMode {
@@ -41,7 +40,8 @@ class CategorySelectionSheet extends ConsumerWidget {
   }
 
   List<Category> _categoriesForSheet(WidgetRef ref) {
-    if (service == CategorySheetMode.createEquipment) {
+    if (service == CategorySheetMode.createEquipment ||
+        service == CategorySheetMode.createRequest) {
       final vacuum = vacuumTrucksCategory(
         ref.watch(catalogProvider).valueOrNull,
       );
@@ -83,8 +83,13 @@ class CategorySelectionSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final categories = _categoriesForSheet(ref);
-    final showSuggest = service == CategorySheetMode.createEquipment;
+    final showSuggest =
+        service == CategorySheetMode.createEquipment ||
+        service == CategorySheetMode.createRequest;
     final itemCount = categories.length + (showSuggest ? 1 : 0);
+    final sheetTitle = service == CategorySheetMode.createRequest
+        ? l10n.requestCategoryTitle
+        : l10n.selectService;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -106,7 +111,7 @@ class CategorySelectionSheet extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          Text(l10n.selectService, style: theme.textTheme.titleLarge),
+          Text(sheetTitle, style: theme.textTheme.titleLarge),
 
           const SizedBox(height: 16),
 
@@ -130,7 +135,7 @@ class CategorySelectionSheet extends ConsumerWidget {
                       ),
                       child: Icon(
                         Icons.add_rounded,
-                        color: theme.colorScheme.onPrimary,
+                        color: theme.colorScheme.primary,
                         size: 20,
                       ),
                     ),
@@ -157,7 +162,7 @@ class CategorySelectionSheet extends ConsumerWidget {
                     ),
                     child: Icon(
                       Icons.construction_rounded,
-                      color: theme.colorScheme.onPrimary,
+                      color: theme.colorScheme.primary,
                       size: 20,
                     ),
                   ),
@@ -167,20 +172,24 @@ class CategorySelectionSheet extends ConsumerWidget {
                     ),
                     style: theme.textTheme.bodyLarge,
                   ),
+                  trailing: service == CategorySheetMode.createRequest
+                      ? Icon(
+                          Icons.check_rounded,
+                          color: theme.colorScheme.primary,
+                        )
+                      : null,
                   onTap: () {
                     if (service == CategorySheetMode.createRequest) {
-                      // Update the Request Notifier
-                      ref
-                          .read(requestMutationProvider.notifier)
-                          .selectCategory(category);
-                    } else if (service == CategorySheetMode.createEquipment ||
+                      Navigator.pop(context, category);
+                      return;
+                    }
+                    if (service == CategorySheetMode.createEquipment ||
                         service == CategorySheetMode.editEquipment) {
                       ref
                           .read(equipmentMutationProvider.notifier)
                           .selectCategory(category);
                     }
 
-                    // Close the sheet and return the category to the form
                     Navigator.pop(context, category);
                   },
                 );

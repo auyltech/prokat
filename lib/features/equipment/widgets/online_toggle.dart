@@ -7,8 +7,14 @@ import 'package:prokat/l10n/app_localizations.dart';
 class OnlineToggle extends ConsumerWidget {
   final String id;
   final bool isVisible;
+  final bool canShow;
 
-  const OnlineToggle({super.key, required this.id, required this.isVisible});
+  const OnlineToggle({
+    super.key,
+    required this.id,
+    required this.isVisible,
+    this.canShow = true,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,36 +33,45 @@ class OnlineToggle extends ConsumerWidget {
         if (isSubmitting) const CircularProgressIndicator(),
 
         Text(
-          isVisible ? l10n.online : l10n.offline,
+          isVisible && canShow ? l10n.equipmentShown : l10n.equipmentHidden,
           style: theme.textTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: isVisible ? colorScheme.primary : colorScheme.error,
+            color: isVisible && canShow
+                ? colorScheme.primary
+                : colorScheme.error,
           ),
         ),
 
         Transform.scale(
           scale: 0.8,
           child: Switch(
-            value: isVisible,
-            onChanged: (val) async {
-              final result = await ref
-                  .read(equipmentMutationProvider.notifier)
-                  .toggleEquipmentOnline(id, val);
+            value: isVisible && canShow,
+            onChanged: !canShow
+                ? (val) {
+                    if (val) {
+                      AppSnackBar.show(
+                        message: l10n.equipmentNeedsTariffToShow,
+                        isError: true,
+                      );
+                    }
+                  }
+                : (val) async {
+                    final result = await ref
+                        .read(equipmentMutationProvider.notifier)
+                        .toggleEquipmentOnline(id, val);
 
-              if (context.mounted) {
-                AppSnackBar.show(
-                  message: result
-                      ? l10n.equipmentIsNow(
-                          val ? l10n.onlineStatus : l10n.offlineStatus,
-                        )
-                      : l10n.failedToToggleEquipment(
-                          val ? l10n.onlineStatus : l10n.offlineStatus,
-                        ),
-                  isSuccess: result,
-                  isError: !result,
-                );
-              }
-            },
+                    if (context.mounted) {
+                      AppSnackBar.show(
+                        message: result
+                            ? (val
+                                  ? l10n.equipmentNowShown
+                                  : l10n.equipmentNowHidden)
+                            : l10n.failedToToggleEquipmentVisibility,
+                        isSuccess: result,
+                        isError: !result,
+                      );
+                    }
+                  },
           ),
         ),
       ],

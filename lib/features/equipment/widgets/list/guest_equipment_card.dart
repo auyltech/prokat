@@ -8,6 +8,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class GuestEquipmentCard extends ConsumerWidget {
@@ -15,7 +16,7 @@ class GuestEquipmentCard extends ConsumerWidget {
 
   const GuestEquipmentCard({super.key, required this.item});
 
-  static const double height = 94;
+  static const double height = 104;
 
   void _showSignInDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -49,8 +50,13 @@ class GuestEquipmentCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isTop = (item.owner?.rating ?? 0) >= 4.5;
     final cityLabel = catalogCityLabelOf(ref, context, item.city);
+    final description = shortDescriptionOf(item);
+    final priceEntry = item.prices
+        .where((entry) => entry.price > 0)
+        .firstOrNull;
 
     return Material(
       color: Colors.transparent,
@@ -110,9 +116,23 @@ class GuestEquipmentCard extends ConsumerWidget {
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.primary,
                       ),
-                      maxLines: 2,
+                      maxLines: description.isEmpty ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 1.25,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
                     const Spacer(),
                     Row(
                       children: [
@@ -135,25 +155,24 @@ class GuestEquipmentCard extends ConsumerWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: formatPrice(
-                                  item.prices.isEmpty
-                                      ? 0
-                                      : item.prices[0].price.floorToDouble(),
-                                ),
+                                text: priceEntry == null
+                                    ? l10n.poa
+                                    : formatPrice(priceEntry.price),
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFF1D4ED8),
                                 ),
                               ),
-                              TextSpan(
-                                text:
-                                    ' ${AppLocalizations.of(context)!.perDay}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF1D4ED8),
+                              if (priceEntry != null)
+                                TextSpan(
+                                  text:
+                                      ' ${getPriceRate(priceEntry.priceRate, l10n: l10n)}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF1D4ED8),
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),

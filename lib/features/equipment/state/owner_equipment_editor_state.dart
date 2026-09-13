@@ -13,7 +13,7 @@ class BlockEditorView {
   const BlockEditorView({
     this.isDirty = false,
     this.isSaving = false,
-    this.isExpanded = true,
+    this.isExpanded = false,
     this.indicator = BlockIndicator.empty,
   });
 

@@ -96,10 +96,9 @@ String ownerGoOnlineFailureMessage({
   return l10n.failedToggleStatus;
 }
 
-/// Local offline action gate. Returns true when the owner is (or becomes) online.
-///
-/// On success of PATCH ONLINE closes the dialog and returns true so the caller
-/// can resume the original action without waiting for catalog:visibility.
+/// Local offline action gate. Returns true only if the owner is already online.
+/// Going online from the dialog closes it and leaves the original tap unsent
+/// so the owner can accept, bargain, or chat themselves.
 Future<bool> ensureOwnerOnline(
   BuildContext context,
   Object ref, {
@@ -156,7 +155,72 @@ Future<bool> ensureOwnerOnline(
     },
   );
 
-  return wentOnline == true;
+  if (wentOnline == true && context.mounted) {
+    AppSnackBar.show(message: l10n.accountSwitchedToOnline, isSuccess: true);
+  }
+
+  return false;
+}
+
+const _onlineSwitchThumb = Color(0xFF0F5A56);
+const _onlineSwitchTrack = Color(0xFF3D8B74);
+
+class BecomeOnlineOutlinedButton extends StatelessWidget {
+  const BecomeOnlineOutlinedButton({
+    super.key,
+    required this.label,
+    required this.switchOn,
+    required this.busy,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool switchOn;
+  final bool busy;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final border = theme.colorScheme.outline.withValues(alpha: 0.7);
+
+    return Material(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: border),
+      ),
+      child: InkWell(
+        onTap: busy ? null : onPressed,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Transform.scale(
+                scale: 0.9,
+                child: Switch.adaptive(
+                  value: switchOn,
+                  activeThumbColor: _onlineSwitchThumb,
+                  activeTrackColor: _onlineSwitchTrack,
+                  onChanged: busy ? null : (_) => onPressed(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _OwnerGoOnlineDialog extends StatefulWidget {
@@ -180,43 +244,73 @@ class _OwnerGoOnlineDialog extends StatefulWidget {
 
 class _OwnerGoOnlineDialogState extends State<_OwnerGoOnlineDialog> {
   bool _loading = false;
+  bool _switchOn = false;
 
   Future<void> _onBecomeOnline() async {
     if (_loading) return;
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _switchOn = true;
+    });
 
     final ok = await widget.onBecomeOnline();
     if (!mounted) return;
 
     if (ok) {
-      Navigator.of(context).pop(true);
+      await Future<void>.delayed(const Duration(milliseconds: 380));
+      if (mounted) Navigator.of(context).pop(true);
       return;
     }
 
-    setState(() => _loading = false);
+    setState(() {
+      _loading = false;
+      _switchOn = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final border = theme.colorScheme.outline.withValues(alpha: 0.7);
+
     return AlertDialog(
       backgroundColor: widget.backgroundColor,
-      content: Text(widget.message),
-      actions: [
-        TextButton(
-          onPressed: _loading ? null : () => Navigator.of(context).pop(false),
-          child: Text(widget.cancelLabel),
-        ),
-        TextButton(
-          onPressed: _loading ? null : _onBecomeOnline,
-          child: _loading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(widget.becomeOnlineLabel),
-        ),
-      ],
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.message),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _loading
+                      ? null
+                      : () => Navigator.of(context).pop(false),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: border),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(widget.cancelLabel),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: BecomeOnlineOutlinedButton(
+                  label: widget.becomeOnlineLabel,
+                  switchOn: _switchOn,
+                  busy: _loading,
+                  onPressed: _onBecomeOnline,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

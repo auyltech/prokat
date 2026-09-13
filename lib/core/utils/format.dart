@@ -98,6 +98,14 @@ String formatPrice(dynamic price) {
   return "₸ ${formatPriceNumber(price)}";
 }
 
+String formatRequestOfferedPrice(
+  int? price, {
+  required String waitOwnerLabel,
+}) {
+  if (price == null || price <= 0) return waitOwnerLabel;
+  return formatPrice(price);
+}
+
 String formatPriceNumber(dynamic price) {
   final number = (price is num)
       ? price

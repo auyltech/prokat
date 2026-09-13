@@ -74,17 +74,13 @@ class OwnerEquipmentEditorNotifier
       return;
     }
 
-    final expanded = isFirst
-        ? indicator != BlockIndicator.valid
-        : prev.isExpanded;
-
     state = state.copyWithBlock(
       id,
       prev.copyWith(
         isDirty: isDirty,
         isSaving: isSaving,
         indicator: indicator,
-        isExpanded: expanded,
+        isExpanded: prev.isExpanded,
       ),
     );
   }
@@ -100,7 +96,7 @@ class OwnerEquipmentEditorNotifier
         isDirty: false,
         isSaving: false,
         indicator: indicator,
-        isExpanded: indicator == BlockIndicator.valid ? false : prev.isExpanded,
+        isExpanded: prev.isExpanded,
       ),
     );
   }

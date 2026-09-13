@@ -57,41 +57,15 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
   }
 
   void setDate(DateTime date) {
-    final time = state.selectedTime;
-    final shouldClearTime =
-        time != null &&
-        DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        ).isBefore(DateTime.now());
-
-    state = state.copyWith(
-      selectedDate: date,
-      clearSelectedTime: shouldClearTime,
-    );
+    state = state.copyWith(selectedDate: date);
   }
 
   void setTime(DateTime time) {
-    final date = state.selectedDate;
-    if (date != null) {
-      final merged = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-      if (merged.isBefore(DateTime.now())) {
-        return;
-      }
-    } else if (time.isBefore(DateTime.now())) {
-      return;
-    }
-
     state = state.copyWith(selectedTime: time);
+  }
+
+  void setDateAndTime({required DateTime date, required DateTime time}) {
+    state = state.copyWith(selectedDate: date, selectedTime: time);
   }
 
   void setComment(String comment) {
@@ -108,9 +82,10 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
 
   Future<MutationResponse> createRequest({
     String? capacity,
-    required int offeredRate,
+    int? offeredRate,
     required String categoryId,
     String? comment,
+    bool allowPastSchedule = false,
   }) async {
     const actionId = "request:create";
 
@@ -146,7 +121,8 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
             )
           : null;
 
-      if (mergedTime == null || mergedTime.isBefore(DateTime.now())) {
+      if (mergedTime == null ||
+          (!allowPastSchedule && mergedTime.isBefore(DateTime.now()))) {
         return MutationResponse(
           success: false,
           message: "Please provide required information",

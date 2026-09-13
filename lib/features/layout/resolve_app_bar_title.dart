@@ -91,10 +91,11 @@ String resolveAppBarTitle(
       return l10n.addresses;
     }
 
-    if (path == AppRoutes.ownerPaymentTopUp) {
+    if (path == AppRoutes.ownerPaymentHistory) {
+      return l10n.operationHistory;
+    }
+    if (path == AppRoutes.ownerPaymentTopUp || path == AppRoutes.ownerPayment) {
       return l10n.topUpBalance;
-    } else if (path == AppRoutes.ownerPayment) {
-      return l10n.payments;
     }
 
     if (path.startsWith('/chat') || path.startsWith('/owner/chat')) {

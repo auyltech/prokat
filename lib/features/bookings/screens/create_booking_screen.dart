@@ -6,10 +6,11 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/date_picker_component.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/core/widgets/time_picker_component.dart';
+import 'package:prokat/core/widgets/form_choice.dart';
+import 'package:prokat/core/widgets/job_schedule_section.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
+import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
@@ -33,6 +34,8 @@ class CreateBookingScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
+  JobScheduleMode _scheduleMode = JobScheduleMode.none;
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +56,73 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     });
   }
 
+  void _selectAsap() {
+    final when = jobScheduleAsapWhen();
+    setState(() => _scheduleMode = JobScheduleMode.asap);
+    ref
+        .read(bookingMutationProvider.notifier)
+        .setDateAndTime(
+          date: DateTime(when.year, when.month, when.day),
+          time: when,
+        );
+  }
+
+  void _selectScheduled() {
+    final today = jobScheduleToday();
+    final bookingState = ref.read(bookingMutationProvider);
+    final date = bookingState.selectedDate ?? today;
+    final time = bookingState.selectedTime ?? jobScheduleDefaultTimeOn(date);
+    setState(() => _scheduleMode = JobScheduleMode.scheduled);
+    ref
+        .read(bookingMutationProvider.notifier)
+        .setDateAndTime(date: date, time: time);
+  }
+
+  Future<void> _pickDate() async {
+    final current = ref.read(bookingMutationProvider).selectedDate;
+    final picked = await showJobDatePicker(context: context, current: current);
+    if (!mounted || picked == null) return;
+
+    final existing = ref.read(bookingMutationProvider).selectedTime;
+    final time = existing ?? jobScheduleDefaultTimeOn(picked);
+    ref
+        .read(bookingMutationProvider.notifier)
+        .setDateAndTime(
+          date: DateTime(picked.year, picked.month, picked.day),
+          time: DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            time.hour,
+            time.minute,
+          ),
+        );
+  }
+
+  Future<void> _pickTime() async {
+    final bookingState = ref.read(bookingMutationProvider);
+    final date = bookingState.selectedDate ?? jobScheduleToday();
+    final picked = await showJobTimePicker(
+      context: context,
+      date: date,
+      current: bookingState.selectedTime,
+    );
+    if (!mounted || picked == null) return;
+
+    ref
+        .read(bookingMutationProvider.notifier)
+        .setDateAndTime(
+          date: date,
+          time: DateTime(
+            date.year,
+            date.month,
+            date.day,
+            picked.hour,
+            picked.minute,
+          ),
+        );
+  }
+
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
     final bookingState = ref.read(bookingMutationProvider);
@@ -64,16 +134,39 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       message = l10n.pleaseSelectPrice;
     } else if (bookingState.selectedLocation == null) {
       message = l10n.pleaseSelectLocation;
-    } else if (bookingState.selectedDate == null) {
+    } else if (_scheduleMode == JobScheduleMode.none) {
       message = l10n.pleaseSelectDate;
-    } else if (bookingState.selectedTime == null) {
+    } else if (_scheduleMode == JobScheduleMode.scheduled &&
+        (bookingState.selectedDate == null ||
+            bookingState.selectedTime == null)) {
       message = l10n.pleaseSelectTime;
+    } else if (_scheduleMode == JobScheduleMode.scheduled) {
+      final merged = DateTime(
+        bookingState.selectedDate!.year,
+        bookingState.selectedDate!.month,
+        bookingState.selectedDate!.day,
+        bookingState.selectedTime!.hour,
+        bookingState.selectedTime!.minute,
+      );
+      if (merged.isBefore(DateTime.now())) {
+        message = l10n.pleaseSelectTime;
+      }
     }
 
     if (message.isNotEmpty) {
       AppSnackBar.show(message: message, isSuccess: false, isError: true);
 
       return;
+    }
+
+    if (_scheduleMode == JobScheduleMode.asap) {
+      final when = jobScheduleAsapWhen();
+      ref
+          .read(bookingMutationProvider.notifier)
+          .setDateAndTime(
+            date: DateTime(when.year, when.month, when.day),
+            time: when,
+          );
     }
 
     final result = await ref
@@ -110,6 +203,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final bookingState = ref.watch(bookingMutationProvider);
     final bookingNotifier = ref.read(bookingMutationProvider.notifier);
+    final locale = l10n.localeName;
 
     final locationState = ref.watch(locationProvider);
     final selectedAddress = locationState.selectedAddress;
@@ -136,12 +230,17 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                 .firstOrNull !=
             null;
 
+    final hasSchedule = _scheduleMode == JobScheduleMode.asap
+        ? true
+        : _scheduleMode == JobScheduleMode.scheduled &&
+              bookingState.selectedDate != null &&
+              bookingState.selectedTime != null;
+
     final canSubmit =
         bookingState.selectedEquipment != null &&
         isPriceEntrySelected &&
         bookingState.selectedLocation != null &&
-        bookingState.selectedDate != null &&
-        bookingState.selectedTime != null;
+        hasSchedule;
 
     final isSubmitting = ref
         .watch(bookingMutationProvider)
@@ -227,7 +326,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       const SizedBox(height: 12),
 
-                      UserInfoTile(user: equipment.owner),
+                      UserInfoTile(user: equipment.owner, showPresence: true),
 
                       const SizedBox(height: 12),
 
@@ -244,180 +343,64 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         const SizedBox(height: 12),
                       ],
 
-                      /// Pricing
-                      SectionTitle(
-                        title: l10n.servicePlan,
-                        trailing: isPriceEntrySelected
-                            ? null
-                            : l10n.requiredHint,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: List.generate(priceEntries?.length ?? 0, (
-                          index,
-                        ) {
-                          final entry = priceEntries?[index];
-                          final isSelected =
-                              bookingState.selectedPriceEntry?.id == entry?.id;
-
-                          return GestureDetector(
-                            onTap: () {
-                              if (entry != null) {
-                                ref
-                                    .read(bookingMutationProvider.notifier)
-                                    .selectPriceEntry(entry);
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.surfaceBright,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? theme.colorScheme.primary
-                                      : theme.colorScheme.outline.withValues(
-                                          alpha: 0.4,
-                                        ),
-                                ),
-                              ),
-                              child: Text(
-                                "${formatPrice(entry?.price)} ${getPriceRate(entry?.priceRate, l10n: l10n)}",
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : theme.colorScheme.onSurface.withValues(
-                                          alpha: 0.7,
-                                        ),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      /// Address & Schedule
-                      SectionTitle(
-                        title: l10n.address,
-                        trailing: bookingState.selectedLocation == null
-                            ? l10n.requiredHint
-                            : null,
-                      ),
-
-                      const SizedBox(height: 12),
-
                       AddressPickerCard(
                         selectedAddress: selectedAddress,
-                        onTap: () => showModalBottomSheet(
-                          context: context,
-                          backgroundColor:
-                              Colors.transparent, // For rounded corners
-                          isScrollControlled: true,
-                          builder: (context) => SelectAddressSheet(
-                            equipmentId: equipment.id,
-                            service: "equipment",
-                            from: "create_booking",
-                          ),
+                        onTap: () => SelectAddressSheet.show(
+                          context,
+                          service: "address",
+                          from: "create_booking",
+                          equipmentId: equipment.id,
                         ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      SectionTitle(
-                        title: l10n.selectDate,
-                        trailing: bookingState.selectedDate == null
-                            ? l10n.requiredHint
-                            : null,
-                      ),
-
-                      DatePickerComponent(
-                        daysRange: 7, // Pass your dynamic 'x' range here
-                        isRequired: true, // Shows indicator text
-                        selectedDate: bookingState.selectedDate,
-                        onDateSelected: (date) {
-                          bookingNotifier.setDate(date);
-                        },
-                      ),
-
-                      SectionTitle(
-                        title: l10n.selectTime,
-                        trailing: bookingState.selectedTime == null
-                            ? l10n.requiredHint
-                            : null,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      TimePickerComponent(
-                        slotLengthMinutes: 30, // 30 minute blocks
-                        startHour: 9, // Start at 09:00
-                        endHour: 17, // End at 17:00
                         isRequired: true,
-                        referenceDate: bookingState.selectedDate,
-                        selectedDateTime: bookingState.selectedTime,
-                        onTimeSelected: (updatedDateTime) {
-                          bookingNotifier.setTime(
-                            updatedDateTime,
-                          ); // This emits a full DateTime object
-                        },
+                        emptyHint: l10n.requestSelectDeliveryAddress,
+                        requiredHintText: l10n.requestRequiredHint,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      RequiredFieldLabel(
+                        title: l10n.bookingSelectOfferedService,
+                        showRequired: !isPriceEntrySelected,
+                        requiredHint: l10n.requestRequiredHint,
                       ),
 
                       const SizedBox(height: 12),
 
-                      /// 4. ADDITIONAL NOTES
-                      SectionTitle(title: l10n.noteToOperator),
-
-                      const SizedBox(height: 12),
-
-                      TextField(
-                        maxLines: 3,
-                        style: theme.textTheme.bodyMedium,
-                        onChanged: (v) => bookingNotifier.setComment(v),
-                        decoration: InputDecoration(
-                          hintText: l10n.siteAccessHint,
-                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.4,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: theme.cardColor,
-
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.outline.withValues(
-                                alpha: 0.5,
-                              ),
-                            ),
-                          ),
-
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide(
-                              color: theme.colorScheme.primary,
-                              width: 1.5,
-                            ),
-                          ),
-
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
+                      ...?priceEntries?.map(
+                        (entry) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _ServiceTariffBlock(
+                            entry: entry,
+                            selected:
+                                bookingState.selectedPriceEntry?.id == entry.id,
+                            onTap: () {
+                              ref
+                                  .read(bookingMutationProvider.notifier)
+                                  .selectPriceEntry(entry);
+                            },
                           ),
                         ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      JobScheduleSection(
+                        mode: _scheduleMode,
+                        requiredHint: l10n.requestRequiredHint,
+                        selectedDate: bookingState.selectedDate,
+                        selectedTime: bookingState.selectedTime,
+                        locale: locale,
+                        onScheduled: _selectScheduled,
+                        onAsap: _selectAsap,
+                        onPickDate: _pickDate,
+                        onPickTime: _pickTime,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      JobCommentField(
+                        hint: l10n.requestCommentHint,
+                        onChanged: bookingNotifier.setComment,
                       ),
 
                       const SizedBox(height: 40),
@@ -442,6 +425,57 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
               ],
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _ServiceTariffBlock extends StatelessWidget {
+  const _ServiceTariffBlock({
+    required this.entry,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final PriceEntry entry;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final primary = theme.colorScheme.primary;
+    final priceText =
+        '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
+    final serviceName = TariffDraft.fromEntry(entry).title(l10n);
+
+    return Material(
+      color: selected ? primary : theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: selected
+              ? primary
+              : theme.colorScheme.outline.withValues(alpha: 0.4),
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Text(
+              '$priceText — $serviceName',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: selected ? Colors.white : theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

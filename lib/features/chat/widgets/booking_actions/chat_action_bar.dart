@@ -289,7 +289,7 @@ class ChatActionBar extends ConsumerWidget {
                 ),
               ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
                 ActionBarButton(
-                  label: l10n.review,
+                  label: l10n.leaveReviewAction,
                   isEnabled: !submitState.isSubmitting,
                   isLoading:
                       submitState.isSubmitting &&

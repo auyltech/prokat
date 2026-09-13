@@ -32,6 +32,7 @@ class InputField extends StatefulWidget {
   final int? maxLength;
   final int hintMaxLines;
   final bool boxed;
+  final bool? filled;
 
   const InputField({
     super.key,
@@ -63,6 +64,7 @@ class InputField extends StatefulWidget {
     this.maxLength,
     this.hintMaxLines = 2,
     this.boxed = false,
+    this.filled,
   });
 
   @override
@@ -112,6 +114,7 @@ class _InputFieldState extends State<InputField> {
             color: theme.colorScheme.error,
             fontWeight: FontWeight.w500,
           );
+    final useFill = widget.filled ?? (widget.boxed || widget.readOnly);
     final boxBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(
@@ -154,38 +157,57 @@ class _InputFieldState extends State<InputField> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Top row: Label and required indicator
-              ShakeOnTick(
-                tick: widget.shakeTick,
-                child: Text.rich(
-                  TextSpan(
-                    text: widget.label,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    children: [
-                      if (showRequiredHint &&
-                          widget.requiredHintText != null &&
-                          widget.requiredHintText!.isNotEmpty)
+              // Top row: label, required hint, character count
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: ShakeOnTick(
+                      tick: widget.shakeTick,
+                      child: Text.rich(
                         TextSpan(
-                          text: ' ${widget.requiredHintText}',
-                          style: requiredHintStyle,
-                        )
-                      else if (showRequiredHint)
-                        TextSpan(
-                          text: ' *',
-                          style: TextStyle(
-                            color: widget.requiredHintMuted
-                                ? colorScheme.onSurface.withValues(alpha: 0.45)
-                                : theme.colorScheme.error,
-                            fontStyle: widget.requiredHintMuted
-                                ? FontStyle.italic
-                                : FontStyle.normal,
+                          text: widget.label,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
+                          children: [
+                            if (showRequiredHint &&
+                                widget.requiredHintText != null &&
+                                widget.requiredHintText!.isNotEmpty)
+                              TextSpan(
+                                text: ' ${widget.requiredHintText}',
+                                style: requiredHintStyle,
+                              )
+                            else if (showRequiredHint)
+                              TextSpan(
+                                text: ' *',
+                                style: TextStyle(
+                                  color: widget.requiredHintMuted
+                                      ? colorScheme.onSurface.withValues(
+                                          alpha: 0.45,
+                                        )
+                                      : theme.colorScheme.error,
+                                  fontStyle: widget.requiredHintMuted
+                                      ? FontStyle.italic
+                                      : FontStyle.normal,
+                                ),
+                              ),
+                          ],
                         ),
-                    ],
+                      ),
+                    ),
                   ),
-                ),
+                  if (widget.maxLength != null) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      '${widget.controller.text.length}/${widget.maxLength}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.45),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
               ),
 
               if (widget.boxed) const SizedBox(height: 6),
@@ -208,8 +230,12 @@ class _InputFieldState extends State<InputField> {
 
                         final text = value?.trim() ?? '';
                         final isBlank = widget.isBlank?.call() ?? text.isEmpty;
+                        final hideRequiredError =
+                            widget.requiredHintText != null &&
+                            widget.requiredHintText!.isNotEmpty;
 
                         if (widget.isRequired && isBlank) {
+                          if (hideRequiredError) return '';
                           return widget.requiredMessage ??
                               AppLocalizations.of(context)?.fieldRequired;
                         }
@@ -243,8 +269,8 @@ class _InputFieldState extends State<InputField> {
                           fontWeight: FontWeight.w400,
                         ),
                         isDense: !widget.boxed,
-                        filled: widget.boxed || widget.readOnly,
-                        fillColor: widget.boxed || widget.readOnly
+                        filled: useFill,
+                        fillColor: useFill
                             ? colorScheme.surfaceContainerHighest
                             : null,
                         contentPadding: widget.boxed
@@ -270,10 +296,15 @@ class _InputFieldState extends State<InputField> {
                         disabledBorder: widget.boxed
                             ? boxBorder
                             : InputBorder.none,
-                        errorStyle: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.error,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        errorStyle:
+                            widget.isRequired &&
+                                widget.requiredHintText != null &&
+                                widget.requiredHintText!.isNotEmpty
+                            ? const TextStyle(height: 0, fontSize: 0)
+                            : theme.textTheme.labelSmall?.copyWith(
+                                color: colorScheme.error,
+                                fontWeight: FontWeight.bold,
+                              ),
                       ),
                     ),
                   ),
@@ -292,32 +323,14 @@ class _InputFieldState extends State<InputField> {
                 ],
               ),
 
-              if (widget.helperText != null || widget.maxLength != null) ...[
+              if (widget.helperText != null) ...[
                 const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (widget.helperText != null)
-                      Expanded(
-                        child: Text(
-                          widget.helperText!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurface.withValues(alpha: 0.7),
-                            height: 1.25,
-                          ),
-                        ),
-                      )
-                    else
-                      const Spacer(),
-                    if (widget.maxLength != null)
-                      Text(
-                        '${widget.controller.text.length}/${widget.maxLength}',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha: 0.45),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
+                Text(
+                  widget.helperText!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    height: 1.25,
+                  ),
                 ),
               ],
 

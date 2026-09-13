@@ -11,6 +11,7 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_status_badge.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
 import 'package:prokat/features/equipment/widgets/online_toggle.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -69,13 +70,22 @@ class OwnerEquipmentCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        equipment.name,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              equipment.name,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          EquipmentStatusBadge(status: equipment.status),
+                        ],
                       ),
                       Text(
                         "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
@@ -107,8 +117,6 @@ class OwnerEquipmentCard extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          EquipmentStatusBadge(status: equipment.status),
                         ],
                       ),
                     ],
@@ -151,7 +159,11 @@ class OwnerEquipmentCard extends ConsumerWidget {
 
               if (equipment.status == EquipmentStatus.available ||
                   equipment.status == EquipmentStatus.accepted)
-                OnlineToggle(id: equipment.id, isVisible: equipment.isVisible),
+                OnlineToggle(
+                  id: equipment.id,
+                  isVisible: equipment.isVisible,
+                  canShow: hasPrice,
+                ),
             ],
           ),
         ],
@@ -162,12 +174,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
   Widget _buildImage(String? url) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: OptimizedNetworkImage(
-        imageUrl: url ?? "",
-        width: 120,
-        height: 80,
-        fit: BoxFit.cover,
-      ),
+      child: _OwnerCardPhoto(imageUrl: url),
     );
   }
 }
@@ -204,12 +211,7 @@ class _DraftOwnerEquipmentCard extends ConsumerWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: OptimizedNetworkImage(
-                  imageUrl: equipment.imageUrl ?? '',
-                  width: 120,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
+                child: _OwnerCardPhoto(imageUrl: equipment.imageUrl),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -261,6 +263,31 @@ class _DraftOwnerEquipmentCard extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _OwnerCardPhoto extends StatelessWidget {
+  final String? imageUrl;
+
+  const _OwnerCardPhoto({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final url = imageUrl?.trim() ?? '';
+    if (url.isEmpty) {
+      return const OwnerEquipmentPhotoPlaceholder(
+        width: 120,
+        height: 80,
+        compact: true,
+      );
+    }
+
+    return OptimizedNetworkImage(
+      imageUrl: url,
+      width: 120,
+      height: 80,
+      fit: BoxFit.cover,
     );
   }
 }

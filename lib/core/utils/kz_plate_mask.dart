@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 /// Formats differ (old / 2012 / legal entity), so we only cap length.
 const kzPlateMaxLength = 12;
 
-final _allowedPlateChar = RegExp(r'[A-Za-zА-Яа-яЁё0-9 ]');
+final _allowedPlateChar = RegExp(r'[A-Za-z0-9 ]');
 
 String sanitizeKzPlate(String input) {
   final buffer = StringBuffer();

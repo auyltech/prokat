@@ -102,6 +102,7 @@ class AppTheme {
       scaffoldBackgroundColor: lightBackground,
       cardColor: lightCard,
       extensions: const <ThemeExtension<dynamic>>[LightColorTheme()],
+      datePickerTheme: _lightDatePickerTheme,
       // Material 3 Switch uses onPrimary for the selected thumb; light
       // onPrimary is the brand accent, so the thumb would match the track.
       switchTheme: SwitchThemeData(
@@ -183,7 +184,40 @@ class AppTheme {
     );
   }
 
-  /// Dark Theme Configuration
+  static final DatePickerThemeData _lightDatePickerTheme = DatePickerThemeData(
+    backgroundColor: white,
+    surfaceTintColor: Colors.transparent,
+    headerBackgroundColor: white,
+    headerForegroundColor: lightTextPrimary,
+    dividerColor: Colors.transparent,
+    weekdayStyle: const TextStyle(color: lightTextSecondary),
+    dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return white;
+      return lightTextPrimary;
+    }),
+    dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return accent;
+      return Colors.transparent;
+    }),
+    todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return white;
+      return accent;
+    }),
+    todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return accent;
+      return Colors.transparent;
+    }),
+    todayBorder: const BorderSide(color: accent),
+    yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return white;
+      return lightTextPrimary;
+    }),
+    yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return accent;
+      return Colors.transparent;
+    }),
+  );
+
   /// Dark Theme Configuration
   static ThemeData get darkTheme {
     return ThemeData(

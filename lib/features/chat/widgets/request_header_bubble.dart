@@ -39,7 +39,12 @@ class RequestHeaderBubble extends StatelessWidget {
           Text(request.comment ?? '', style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           Text(
-            l10n.offeredPrice(formatPrice(request.offeredPrice)),
+            l10n.offeredPrice(
+              formatRequestOfferedPrice(
+                request.offeredPrice,
+                waitOwnerLabel: l10n.requestWaitOwnerPrice,
+              ),
+            ),
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),

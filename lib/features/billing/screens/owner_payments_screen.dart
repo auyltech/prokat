@@ -2,15 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/app_colors.dart';
-import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/features/billing/widgets/active_equipment_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
-import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/widgets/owner_payment_tile.dart';
-import 'package:prokat/features/billing/widgets/volume_discount_tile.dart';
-import 'package:prokat/features/billing/widgets/top_up_cta_tile.dart';
-import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerPaymentsScreen extends ConsumerStatefulWidget {
@@ -28,10 +21,7 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
 
     unawaited(
       Future.microtask(() async {
-        await ref.read(billingProvider.notifier).getPricingTiers();
-        await ref.read(billingProvider.notifier).getVolumeDiscounts();
         await ref.read(billingProvider.notifier).getOwnerTransactions();
-        await ref.read(ownerEquipmentProvider.notifier).refresh();
       }),
     );
   }
@@ -40,163 +30,43 @@ class _OwnerPaymentsScreenState extends ConsumerState<OwnerPaymentsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-
     final billingState = ref.watch(billingProvider);
-
-    final secondsRemaining = billingState.accountBalance?.secondsRemaining ?? 0;
-    final humanReadableTime = getTimeString(secondsRemaining, l10n);
-
-    final onlineEquipment = ref.watch(
-      ownerEquipmentProvider.select(
-        (async) =>
-            async.valueOrNull?.items.where((item) => item.isVisible).length ??
-            0,
-      ),
-    );
-
-    final volumeDiscountItems = billingState.volumeDiscounts;
-
-    final dailyCost = billingState.getDailyCost(onlineEquipment);
-    final timeForOnlineEquipment = getTimeString(
-      billingState.getReminaingSeconds(onlineEquipment),
-      l10n,
-    );
-
-    final payments = ref.watch(billingProvider).transactions;
+    final payments = billingState.transactions;
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(billingProvider.notifier).getOwnerTransactions();
-          await ref.read(ownerEquipmentProvider.notifier).refresh();
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Main Balance Section
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: theme.dividerColor.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Column(
+        onRefresh: () =>
+            ref.read(billingProvider.notifier).getOwnerTransactions(),
+        child: billingState.isTransactionsLoading && payments.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.all(16),
                 children: [
-                  Text(l10n.totalBalance, style: theme.textTheme.titleLarge),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    humanReadableTime,
-                    style: theme.textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.teal800,
-                    ),
-                  ),
-
-                  const Divider(height: 32),
-
-                  Text(
-                    "≈ $timeForOnlineEquipment for $onlineEquipment equipment",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            ActiveEquipmentTile(
-              equipmentCount: onlineEquipment,
-              dailyCost: dailyCost,
-            ),
-
-            const SizedBox(height: 16),
-
-            const TopUpCtaTile(),
-
-            const SizedBox(height: 16),
-
-            Container(
-              height: 300, // Set your fixed height here
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: theme.dividerColor.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.billingTiers,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                  if (payments.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 48),
+                      child: Center(
+                        child: Text(
+                          l10n.noHistoryFound,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
                         ),
                       ),
-                      Badge(
-                        label: Text(
-                          l10n.save15Percent,
-                          style: const TextStyle(fontWeight: FontWeight.w400),
-                        ),
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Expanded makes the list fill the remaining fixed height of the container
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets
-                          .zero, // Removes default top/bottom ListView padding
-                      itemCount: volumeDiscountItems.length,
-                      itemBuilder: (context, index) {
-                        // Using the tile we built in the previous step
-                        return VolumeDiscountTile(
-                          volumeCase: volumeDiscountItems[index],
-                          isHighlighted: index == volumeDiscountItems.length - 1, // Highlight the best option (e.g., first item)
-                        );
-                      },
+                    )
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: payments.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 2),
+                      itemBuilder: (context, index) =>
+                          OwnerPaymentTile(transaction: payments[index]),
                     ),
-                  ),
                 ],
               ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // TODO: Fix Consumption Chart
-            // ConsumptionChart(),
-            SectionTitle(title: l10n.paymentHistory),
-
-            const SizedBox(height: 16),
-
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: payments.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 2),
-              itemBuilder: (context, index) =>
-                  OwnerPaymentTile(transaction: payments[index]),
-            ),
-          ],
-        ),
       ),
     );
   }

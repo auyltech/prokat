@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/max_int_input_formatter.dart';
+import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -31,7 +33,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   void initState() {
     super.initState();
     _priceController = TextEditingController(
-      text: widget.draft.hasPrice ? formatPriceNumber(widget.draft.price) : '',
+      text: widget.draft.hasPrice ? '${widget.draft.price}' : '',
     );
     _customNameController = TextEditingController(
       text: widget.draft.customName,
@@ -42,9 +44,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   void didUpdateWidget(covariant OwnerTariffCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.draft.price != widget.draft.price) {
-      final next = widget.draft.hasPrice
-          ? formatPriceNumber(widget.draft.price)
-          : '';
+      final next = widget.draft.hasPrice ? '${widget.draft.price}' : '';
       if (_priceController.text != next) {
         _priceController.text = next;
       }
@@ -176,21 +176,11 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                     enabled: widget.canEdit,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9\s]')),
+                      FilteringTextInputFormatter.digitsOnly,
+                      const MaxIntInputFormatter(ownerEquipmentPriceMax),
                     ],
                     onChanged: (value) {
-                      final parsed = parseGroupedInt(value);
-                      final formatted = parsed == null
-                          ? value
-                          : formatPriceNumber(parsed);
-                      if (formatted != value) {
-                        _priceController.value = TextEditingValue(
-                          text: formatted,
-                          selection: TextSelection.collapsed(
-                            offset: formatted.length,
-                          ),
-                        );
-                      }
+                      final parsed = int.tryParse(value);
                       _emit(
                         draft.copyWith(
                           price: parsed,
@@ -383,8 +373,7 @@ InputDecoration _boxDecoration(BuildContext context) {
   );
   return InputDecoration(
     isDense: true,
-    filled: true,
-    fillColor: colorScheme.surfaceContainerHighest,
+    filled: false,
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     border: border,
     enabledBorder: border,

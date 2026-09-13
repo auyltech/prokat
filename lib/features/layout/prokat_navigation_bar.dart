@@ -43,7 +43,7 @@ final ownerNavItems = [
   // ),
   _NavItem(
     icon: LucideIcons.truck,
-    label: (l) => l.navMyFleet,
+    label: (l) => l.navEquipment,
     path: AppRoutes.ownerEquipment,
     base: AppRoutes.ownerEquipment,
   ),
@@ -77,13 +77,13 @@ final clientNavItems = [
   ),
   _NavItem(
     icon: LucideIcons.search,
-    label: (l) => l.navSearch,
+    label: (l) => l.navEquipment,
     path: AppRoutes.searchList,
     base: AppRoutes.search,
   ),
   _NavItem(
     icon: LucideIcons.send,
-    label: (l) => l.navCreate,
+    label: (l) => l.navRequests,
     path: AppRoutes.clientRequests,
     base: AppRoutes.clientRequests,
   ),
@@ -146,6 +146,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final String location = GoRouterState.of(context).uri.path;
 
     int currentIndex = navItems.indexWhere(
@@ -185,46 +186,38 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       child: SafeArea(
         top: false, // Keeps layout restrictions focused exclusively on the bottom notch
         child: Container(
-          height: 64,
+          height: 60,
           decoration: BoxDecoration(color: theme.cardColor),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: navItems.asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
               final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
+              final color = isSelected ? primary : const Color(0xFF707E94);
 
               return Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => context.go(item.path),
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        // Only show the soft blue/teal pill behind the active tab
-                        color: isSelected
-                            ? primary.withValues(alpha: 0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: IconTheme(
-                        data: const IconThemeData(
-                          color: Colors.black87,
-                          size: 32,
-                        ),
-                        child: Icon(
-                          item.icon,
-                          size: 28,
-                          color: isSelected ? primary : const Color(0xFF707E94),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item.icon, size: 22, color: color),
+                      const SizedBox(height: 3),
+                      Text(
+                        item.label(l10n),
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          height: 1.1,
+                          color: color,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               );

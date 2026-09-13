@@ -17,6 +17,7 @@ import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -227,12 +228,21 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       message: message,
     );
 
-    if (success && mounted) {
-      final l10n = AppLocalizations.of(context)!;
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
+    if (success) {
       AppSnackBar.show(message: l10n.requestSubmitted, isSuccess: true);
       if (context.canPop()) context.pop();
+      return;
     }
+
+    AppSnackBar.show(
+      message:
+          ref.read(ownerRegistrationMutationProvider).error ??
+          l10n.somethingWentWrongTryAgain,
+      isError: true,
+    );
   }
 
   @override
@@ -384,6 +394,10 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
               ),
 
               if (canSubmit) ...[
+                if (request?.isRejected == true) ...[
+                  const SizedBox(height: 16),
+                  AdminCommentBlock(comment: request?.adminComment),
+                ],
                 const SizedBox(height: 16),
                 PrimaryButton(
                   label: submitLabel,
@@ -505,8 +519,6 @@ class _StatusCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
-    final adminComment = (request.adminComment ?? '').trim();
-
     final (title, subtitle, icon, color) = switch (request.parsedStatus) {
       BecomeOwnerRequestStatus.approved => (
         l10n.statusAccepted,
@@ -560,23 +572,6 @@ class _StatusCard extends StatelessWidget {
               color: colors.onSurface.withValues(alpha: 0.75),
             ),
           ),
-          if (adminComment.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              l10n.adminComment,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: colors.onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              adminComment,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.75),
-              ),
-            ),
-          ],
         ],
       ),
     );

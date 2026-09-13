@@ -11,6 +11,8 @@ import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+const _showHistoryButton = false;
+
 class BalanceTile extends ConsumerStatefulWidget {
   const BalanceTile({super.key});
 
@@ -189,16 +191,18 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                 ),
               ),
               const Spacer(),
-              _ActionButton(
-                icon: Icons.history_rounded,
-                filled: false,
-                onTap: () => context.push(AppRoutes.ownerPayment),
-              ),
-              const SizedBox(width: 8),
+              if (_showHistoryButton) ...[
+                _ActionButton(
+                  icon: Icons.history_rounded,
+                  filled: false,
+                  onTap: () => context.push(AppRoutes.ownerPaymentHistory),
+                ),
+                const SizedBox(width: 8),
+              ],
               _ActionButton(
                 icon: Icons.add_rounded,
                 filled: true,
-                onTap: () => context.push(AppRoutes.ownerPaymentTopUp),
+                onTap: () => context.push(AppRoutes.ownerPayment),
               ),
             ],
           ),

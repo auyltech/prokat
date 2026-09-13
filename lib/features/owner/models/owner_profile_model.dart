@@ -53,6 +53,7 @@ class OwnerProfileModel {
 
   final bool? isVerified;
   final DateTime? verifiedAt;
+  final String? adminComment;
 
   final OwnerNotificationPreferences notificationSettings;
 
@@ -81,6 +82,7 @@ class OwnerProfileModel {
     this.status,
     this.isVerified,
     this.verifiedAt,
+    this.adminComment,
 
     required this.onlineStatus,
     this.notificationSettings = const OwnerNotificationPreferences(),
@@ -108,6 +110,7 @@ class OwnerProfileModel {
     OwnerStatus? onlineStatus,
     bool? isVerified,
     DateTime? verifiedAt,
+    String? adminComment,
     OwnerNotificationPreferences? notificationSettings,
   }) {
     return OwnerProfileModel(
@@ -132,6 +135,7 @@ class OwnerProfileModel {
       onlineStatus: onlineStatus ?? this.onlineStatus,
       isVerified: isVerified ?? this.isVerified,
       verifiedAt: verifiedAt ?? this.verifiedAt,
+      adminComment: adminComment ?? this.adminComment,
       notificationSettings: notificationSettings ?? this.notificationSettings,
     );
   }
@@ -167,6 +171,7 @@ class OwnerProfileModel {
 
       isVerified: parseBoolean(json['isVerified']),
       verifiedAt: parseNullableDate(json['verifiedAt']),
+      adminComment: json['adminComment']?.toString(),
 
       onlineStatus: parseOwnerStatus(json['onlineStatus']),
       notificationSettings: json['notificationSettings'] is Map
@@ -220,6 +225,7 @@ class OwnerProfileModel {
       'status': status?.name,
       'onlineStatus': onlineStatus.name,
       'isVerified': isVerified,
+      'adminComment': adminComment,
       // Converts DateTime to an ISO 8601 string format
       'verifiedAt': verifiedAt?.toIso8601String(),
       // Calls toJson on the nested settings class

@@ -584,6 +584,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestPending => 'Запрос ожидает ответа';
 
   @override
+  String get ownerApplicationPending => 'Заявка на проверке';
+
+  @override
+  String get ownerApplicationPendingHint =>
+      'Данные проверяются администратором';
+
+  @override
   String get estimatedExhaustion => 'Прогноз исчерпания';
 
   @override
@@ -608,7 +615,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get applicationSettings => 'Настройки приложения';
 
   @override
-  String get userGuides => 'Руководства пользователя';
+  String get userGuides => 'Как пользоваться PROKAT';
 
   @override
   String get submitTopUpRequest => 'Отправить запрос на пополнение';
@@ -657,6 +664,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get review => 'Отзыв';
+
+  @override
+  String get leaveReviewAction => 'Оставить отзыв';
 
   @override
   String get saved => 'Сохранено';
@@ -861,6 +871,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get available => 'Доступно';
+
+  @override
+  String get statusVerified => 'Проверено';
 
   @override
   String get booked => 'Занята';
@@ -1373,25 +1386,45 @@ class AppLocalizationsRu extends AppLocalizations {
   String get offline => 'ОФЛАЙН';
 
   @override
+  String get equipmentShown => 'Показывается';
+
+  @override
+  String get equipmentHidden => 'Скрыто';
+
+  @override
+  String get equipmentNowShown => 'Техника теперь показывается';
+
+  @override
+  String get equipmentNowHidden => 'Техника скрыта';
+
+  @override
+  String get failedToToggleEquipmentVisibility =>
+      'Не удалось изменить видимость техники';
+
+  @override
+  String get equipmentNeedsTariffToShow =>
+      'Укажите тариф, чтобы техника показывалась';
+
+  @override
   String get repair => 'РЕМОНТ';
 
   @override
   String get couldNotAddEquipment => 'Не удалось добавить технику';
 
   @override
-  String get equipmentNameLabel => 'НАЗВАНИЕ ТЕХНИКИ';
+  String get equipmentNameLabel => 'Название техники';
 
   @override
-  String get equipmentNameHint => 'Ассенизатор';
+  String get equipmentNameHint => 'Пример: Ассенизатор';
 
   @override
-  String get modelLabel => 'МАРКА И МОДЕЛЬ';
+  String get modelLabel => 'Марка и модель';
 
   @override
   String get modelHint => 'Пример: АВ-10 КамАЗ 65115';
 
   @override
-  String get plateNumberLabel => 'ГОСУДАРСТВЕННЫЙ НОМЕР';
+  String get plateNumberLabel => 'Государственный номер';
 
   @override
   String get plateNumberHint => 'Пример: 123ABC06';
@@ -1418,7 +1451,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get operatingStatus => 'Статус работы';
 
   @override
-  String get submitForReview => 'Отправить на проверку';
+  String get submitForReview => 'Отправить на модерацию';
 
   @override
   String get submittedForReview => 'Техника отправлена на проверку';
@@ -1549,6 +1582,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get offeredRateHint => 'Цена, которую Вы готовы заплатить';
+
+  @override
+  String get requestSelectDeliveryAddress => 'Выберите адрес подачи техники';
+
+  @override
+  String get requestWaitOwnerPrice => 'Жду цену владельца';
+
+  @override
+  String get requestSetBudget => 'Укажу бюджет';
+
+  @override
+  String get requestMyBudget => 'Мой бюджет';
+
+  @override
+  String get requestCategoryTitle => 'Выбор категории';
+
+  @override
+  String get asSoonAsPossible => 'Как можно скорее';
+
+  @override
+  String get requestCommentHint => 'Опишите задачу или важные детали';
+
+  @override
+  String get requestRequiredHint => '(Обязательно)';
 
   @override
   String get additionalDetails => 'опишите задачу или важные детали';
@@ -1724,7 +1781,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get totalBalance => 'Общий баланс';
 
   @override
-  String get save15Percent => 'Сэкономьте 15%';
+  String get save15Percent => 'Сэкономьте до 22,5%';
 
   @override
   String get topUpMinutes => 'Пополнить минуты';
@@ -1981,6 +2038,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noPhotosYet => 'Фото пока нет';
 
   @override
+  String get equipmentPhotoRequiredPlaceholder =>
+      'Обязательное фото техники с читаемым номером';
+
+  @override
   String get selectLocation => 'Выберите местоположение';
 
   @override
@@ -2139,6 +2200,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get becomeOwnerSubtitle => 'Размещайте технику и получайте заказы';
 
   @override
+  String get rentAnEquipmentSubtitle => 'Смотрите предложения владельцев';
+
+  @override
   String get requestStatus => 'Запрос';
 
   @override
@@ -2223,6 +2287,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get recentPayments => 'Последние платежи';
+
+  @override
+  String get minuteConsumption => 'Расход минут';
+
+  @override
+  String get operationHistory => 'История операций';
+
+  @override
+  String get trialPackage => 'Пробный';
+
+  @override
+  String equipmentCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count техник',
+      many: '$count техник',
+      few: '$count техники',
+      one: '$count техника',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String remainingAtOnlineEquipment(String time, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count техниках онлайн',
+      many: '$count техниках онлайн',
+      few: '$count техниках онлайн',
+      one: '$count технике онлайн',
+    );
+    return '$time при $_temp0';
+  }
+
+  @override
+  String minutesPerHourValue(String rate) {
+    return '$rate мин/ч';
+  }
 
   @override
   String get completeRegistration => 'Завершите регистрацию';
@@ -2534,7 +2638,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get frequentlyAskedQuestions => 'Часто задаваемые вопросы';
 
   @override
-  String get needMoreHelp => 'Нужна дополнительная помощь?';
+  String get needMoreHelp => 'Не нашли ответ?';
+
+  @override
+  String get needMoreHelpHint => 'Напишите нам — поможем разобраться.';
 
   @override
   String get contactSupport => 'Связаться с поддержкой';
@@ -2573,39 +2680,67 @@ class AppLocalizationsRu extends AppLocalizations {
   String get callUs => 'Позвоните нам';
 
   @override
-  String get faq1Q => 'Как арендовать технику?';
+  String get faq1Q => 'Как найти нужную технику?';
 
   @override
   String get faq1A =>
-      'Просмотрите доступную технику, выберите даты и отправьте запрос на бронирование владельцу.';
+      'Откройте раздел «Техника», выберите подходящую машину и отправьте запрос владельцу. При необходимости сначала обсудите детали в чате.';
 
   @override
-  String get faq2Q => 'Как разместить свою технику?';
+  String get faq2Q => 'Что делать, если подходящей техники нет?';
 
   @override
   String get faq2A =>
-      'Перейдите в профиль и нажмите «Добавить технику». Заполните детали, цены и местоположение.';
+      'Создайте заявку в разделе «Заявки». Владельцы увидят её и смогут предложить подходящие варианты.';
 
   @override
-  String get faq3Q => 'Как работают платежи?';
+  String get faq3Q => 'Как связаться с владельцем?';
 
   @override
   String get faq3A =>
-      'Платежи обрабатываются безопасно через платформу. Итоговая сумма будет показана перед подтверждением.';
+      'Перейдите в чат после отправки запроса или получения предложения. Там можно обсудить цену, время, адрес и другие детали.';
 
   @override
-  String get faq4Q => 'Могу ли я отменить бронирование?';
+  String get faq4Q => 'Можно ли отменить заказ?';
 
   @override
   String get faq4A =>
-      'Да, в зависимости от политики отмены владельца, указанной на странице техники.';
+      'Если заказ ещё можно отменить, соответствующая кнопка будет доступна в его карточке.';
 
   @override
-  String get faq5Q => 'Что если техника повреждена?';
+  String get faq5Q => 'Что делать, если владелец не отвечает?';
 
   @override
   String get faq5A =>
-      'Немедленно сообщите о проблеме через приложение. Наша служба поддержки вам поможет.';
+      'Попробуйте выбрать другую технику или создайте открытую заявку, чтобы получить предложения от других владельцев.';
+
+  @override
+  String get faq6Q => 'Как начать сдавать свою технику?';
+
+  @override
+  String get faq6A =>
+      'Зарегистрируйтесь как владелец, добавьте технику и отправьте её на проверку. После одобрения включите статус «Онлайн» для принятия заказов.';
+
+  @override
+  String get faq7Q => 'Почему моя техника не показывается клиентам?';
+
+  @override
+  String get faq7A =>
+      'Убедитесь, что техника прошла проверку. Ваша техника показывается даже когда вы офлайн, если вы выставили статус «показывается» для Вашей техники.';
+
+  @override
+  String get faq8Q => 'Когда списываются минуты?';
+
+  @override
+  String get faq8A =>
+      'Минуты расходуются только когда владелец находится онлайн. В офлайн-режиме баланс сохраняется.';
+
+  @override
+  String get faq9Q => 'Как связаться с поддержкой?';
+
+  @override
+  String get faq9A =>
+      'Откройте раздел «Помощь» и выберите «Связаться с поддержкой». Кратко опишите вопрос или проблему.';
 
   @override
   String get helpUsGrow => 'Помогите нам расти';
@@ -2798,6 +2933,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get servicePlan => 'Тариф';
+
+  @override
+  String get bookingSelectOfferedService => 'Выберите предлагаемую услугу';
+
+  @override
+  String get accountOnline => 'Онлайн';
+
+  @override
+  String get accountOffline => 'Офлайн';
 
   @override
   String get addressAndSchedule => 'Адрес и расписание';
@@ -3333,7 +3477,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get equipmentSubmitPhotoHint =>
-      'Не забудьте добавить реальные фотографии вашей техники (как минимум на одном из снимков должен быть виден ее гос. номер).';
+      'Не забудьте добавить фотографию Вашей техники на которой четко виден номер';
 
   @override
   String get equipmentSubmitPhotoRequired =>
@@ -3377,6 +3521,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get becomeOnline => 'Стать «Онлайн»';
+
+  @override
+  String get accountSwitchedToOnline => 'Вы перевели аккаунт в «Онлайн»';
 
   @override
   String get youAreNowOnline => 'Вы теперь онлайн';

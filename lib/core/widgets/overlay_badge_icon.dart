@@ -4,6 +4,7 @@ class OverlayBadgeIcon extends StatelessWidget {
   final IconData icon;
   final IconData badge;
   final Color color;
+  final Color? badgeColor;
   final Color badgeBackground;
   final double size;
 
@@ -12,6 +13,7 @@ class OverlayBadgeIcon extends StatelessWidget {
     required this.icon,
     required this.badge,
     required this.color,
+    this.badgeColor,
     this.badgeBackground = Colors.white,
     this.size = 40,
   });
@@ -40,7 +42,7 @@ class OverlayBadgeIcon extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: color, width: 1.2),
               ),
-              child: Icon(badge, size: badgeSize, color: color),
+              child: Icon(badge, size: badgeSize, color: badgeColor ?? color),
             ),
           ),
         ],

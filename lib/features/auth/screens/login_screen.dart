@@ -23,6 +23,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   late final TapGestureRecognizer _personalDataRecognizer;
 
   String? errorMessage;
+  String? _heldOtpPhone;
 
   void setErrorMessage(String? msg) {
     setState(() => errorMessage = msg);
@@ -58,8 +59,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
     final error = authState.error;
 
-    final hasOtpSession =
-        authState.otpPhone != null && authState.otpRequestedAt != null;
+    ref.listen(authProvider, (previous, next) {
+      if (next.otpPhone != null) {
+        _heldOtpPhone = next.otpPhone;
+      }
+      if (next.session == null && next.otpPhone == null) {
+        _heldOtpPhone = null;
+      }
+    });
+
+    final otpPhone =
+        authState.otpPhone ??
+        (authState.session != null ? _heldOtpPhone : null);
+    final hasOtpSession = otpPhone != null;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.primary,
@@ -109,7 +121,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                           if (hasOtpSession)
                             OtpVerificationForm(
-                              phone: authState.otpPhone!,
+                              phone: otpPhone,
                               onError: setErrorMessage,
                             )
                           else

@@ -124,9 +124,9 @@ class OwnerEquipmentReviewUi {
     required bool anyDirty,
   }) {
     if (status == EquipmentStatus.draft) {
-      return OwnerEquipmentReviewUi(
-        showSaveAll: anyDirty,
-        showSubmitForReview: !anyDirty,
+      return const OwnerEquipmentReviewUi(
+        showSaveAll: false,
+        showSubmitForReview: true,
         showResubmit: false,
       );
     }
@@ -144,8 +144,8 @@ class OwnerEquipmentReviewUi {
         showResubmit: false,
       );
     }
-    return OwnerEquipmentReviewUi(
-      showSaveAll: anyDirty,
+    return const OwnerEquipmentReviewUi(
+      showSaveAll: false,
       showSubmitForReview: false,
       showResubmit: false,
     );

@@ -203,7 +203,10 @@ class OwnerRequestTile extends ConsumerWidget {
                 children: [
                   Text(l10n.offeredRate, style: theme.textTheme.labelSmall),
                   Text(
-                    formatPrice(request.offeredPrice),
+                    formatRequestOfferedPrice(
+                      request.offeredPrice,
+                      waitOwnerLabel: l10n.requestWaitOwnerPrice,
+                    ),
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,

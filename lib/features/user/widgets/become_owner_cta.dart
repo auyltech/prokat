@@ -6,9 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/overlay_badge_icon.dart';
+import 'package:prokat/core/widgets/profile_accent_cta.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
@@ -99,12 +98,15 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
         case BecomeOwnerRequestStatus.rejected:
           final status = registrationRequest.parsedStatus;
           final config = _getStatusConfig(status, l10n, theme.brightness);
-          return _buildModernCTA(
-            context,
-            icon: config.icon,
+          return ProfileAccentCta(
+            leading: Icon(
+              config.icon,
+              color: config.color,
+              size: ProfileAccentCta.iconSize,
+            ),
             title: config.label,
             subtitle: _subtitleForRequest(registrationRequest, l10n),
-            bgColor: config.bg,
+            backgroundColor: config.bg,
             contentColor: config.color,
             trailingIcon: config.trailing,
             isLoading: _isRefreshing,
@@ -116,32 +118,19 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     }
 
     if (isOwnerRole || registrationRequest?.isApproved == true) {
-      return _buildModernCTA(
-        context,
-        icon: LucideIcons.truck,
+      return ProfileAccentCta(
+        leading: ProfileAccentCta.truck(),
         title: l10n.ownerDashboard,
         subtitle: l10n.ownerDashboardSubtitle,
-        bgColor: AppTheme.accent,
-        contentColor: AppTheme.white,
         isLoading: _isRefreshing,
         onTap: _enterOwnerMode,
       );
     }
 
-    final brightness = theme.brightness;
-    final contentColor = AppTheme.brandTintFg(brightness);
-    final bgColor = AppTheme.brandTintBg(brightness);
-    return _buildModernCTA(
-      context,
-      leading: OverlayBadgeIcon(
-        icon: LucideIcons.truck,
-        badge: LucideIcons.plus,
-        color: contentColor,
-      ),
+    return ProfileAccentCta(
+      leading: ProfileAccentCta.truckPlus(),
       title: l10n.becomeOwner,
       subtitle: l10n.becomeOwnerSubtitle,
-      bgColor: bgColor,
-      contentColor: contentColor,
       onTap: () => context.push(AppRoutes.becomeOwner),
     );
   }
@@ -151,12 +140,10 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     AppLocalizations l10n,
   ) {
     if (request.isRejected) {
-      final comment = (request.adminComment ?? '').trim();
-      if (comment.isNotEmpty) return comment;
       return l10n.statusRejectedSubtitle;
     }
 
-    return '${l10n.submittedOn} ${formatDate(date: request.createdAt)}';
+    return l10n.ownerApplicationPendingHint;
   }
 
   Future<void> _onRequestTap(BecomeOwnerRequestStatus status) async {
@@ -170,67 +157,6 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       case BecomeOwnerRequestStatus.approved:
         await _enterOwnerMode();
     }
-  }
-
-  Widget _buildModernCTA(
-    BuildContext context, {
-    IconData? icon,
-    Widget? leading,
-    required String title,
-    required String subtitle,
-    required Color bgColor,
-    required Color contentColor,
-    IconData trailingIcon = LucideIcons.chevronRight,
-    bool isLoading = false,
-    required VoidCallback onTap,
-  }) {
-    final mutedColor = contentColor.withValues(alpha: 0.8);
-    return InkWell(
-      onTap: isLoading ? null : onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(0),
-        ),
-        child: Row(
-          children: [
-            leading ??
-                Icon(icon ?? LucideIcons.truck, color: contentColor, size: 40),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge
-                        ?.copyWith(color: contentColor),
-                  ),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: mutedColor),
-                  ),
-                ],
-              ),
-            ),
-            if (isLoading)
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: contentColor,
-                ),
-              )
-            else
-              Icon(trailingIcon, color: mutedColor),
-          ],
-        ),
-      ),
-    );
   }
 
   _StatusConfig _getStatusConfig(
@@ -261,7 +187,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
           color: AppTheme.warningFg(brightness),
           icon: LucideIcons.clock,
           trailing: LucideIcons.refreshCw,
-          label: l10n.requestPending,
+          label: l10n.ownerApplicationPending,
         );
     }
   }

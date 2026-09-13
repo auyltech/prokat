@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
@@ -80,7 +81,10 @@ class HeroBanner extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          LoginTile(label: l10n.hireEquipment),
+          LoginTile(
+            afterLoginFrom: AppRoutes.clientProfile,
+            label: l10n.hireEquipment,
+          ),
         ],
       ),
     );

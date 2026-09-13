@@ -18,7 +18,7 @@ class UserGuidesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: guides.map((guide) {
+      children: guides.where((guide) => guide.isPublished).map((guide) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: UserGuideTile(

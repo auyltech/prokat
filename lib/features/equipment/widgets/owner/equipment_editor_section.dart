@@ -73,29 +73,31 @@ class EquipmentEditorSection extends StatelessWidget {
               ),
             ),
           ),
-          AnimatedCrossFade(
-            firstChild: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  child,
-                  if (showSave) ...[
-                    const SizedBox(height: 16),
-                    PrimaryButton(
-                      label: saveLabel,
-                      onPressed: saveEnabled && !saveLoading ? onSave : null,
-                      isLoading: saveLoading,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            secondChild: const SizedBox(width: double.infinity),
-            crossFadeState: expanded
-                ? CrossFadeState.showFirst
-                : CrossFadeState.showSecond,
+          AnimatedSize(
             duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: expanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        child,
+                        if (showSave) ...[
+                          const SizedBox(height: 16),
+                          PrimaryButton(
+                            label: saveLabel,
+                            onPressed: saveEnabled && !saveLoading
+                                ? onSave
+                                : null,
+                            isLoading: saveLoading,
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
           ),
         ],
       ),

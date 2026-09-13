@@ -14,6 +14,7 @@ import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/features/user/widgets/city_select_field.dart';
@@ -80,6 +81,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   String _profileIdentity(OwnerProfileModel profile) {
     return [
       profile.status?.name,
+      profile.adminComment,
       profile.firstName,
       profile.lastName,
       profile.phoneNumber,
@@ -304,6 +306,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
               label: l10n.serviceDetails,
               value: widget.initialProfile.serviceDescription,
             ),
+            _OwnerProfileStatusBlock(profile: widget.initialProfile),
             if (!isLocked) ...[
               const SizedBox(height: 32),
               PrimaryButton(
@@ -426,6 +429,65 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _OwnerProfileStatusBlock extends StatelessWidget {
+  final OwnerProfileModel profile;
+
+  const _OwnerProfileStatusBlock({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final status = profile.status;
+    if (!shouldShowOwnerProfileStatusBanner(status)) {
+      return const SizedBox.shrink();
+    }
+
+    final (title, subtitle, color, icon) = switch (status) {
+      OwnerRegistrationStatus.pending => (
+        l10n.ownerProfilePendingReview,
+        l10n.ownerProfilePendingReviewHint,
+        Colors.blue,
+        Icons.hourglass_top,
+      ),
+      OwnerRegistrationStatus.rejected => (
+        l10n.verificationFailed,
+        l10n.statusRejectedSubtitle,
+        Colors.red,
+        Icons.error_outline,
+      ),
+      OwnerRegistrationStatus.suspended => (
+        l10n.ownerProfileSuspended,
+        l10n.ownerProfileSuspendedHint,
+        Colors.red,
+        Icons.block,
+      ),
+      OwnerRegistrationStatus.incomplete ||
+      OwnerRegistrationStatus.approved ||
+      null => ('', '', Colors.transparent, Icons.info_outline),
+    };
+
+    if (title.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        Card(
+          child: ListTile(
+            leading: Icon(icon, color: color),
+            title: Text(title),
+            subtitle: Text(subtitle),
+          ),
+        ),
+        if (status == OwnerRegistrationStatus.rejected) ...[
+          const SizedBox(height: 16),
+          AdminCommentBlock(comment: profile.adminComment),
+        ],
+      ],
     );
   }
 }

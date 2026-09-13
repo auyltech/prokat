@@ -108,6 +108,7 @@ class AppRoutes {
 
   static const String ownerPayment = '$ownerMain/payment';
   static const String ownerPaymentTopUp = '$ownerPayment/$topUp';
+  static const String ownerPaymentHistory = '$ownerPayment/$history';
 
   static const String ownerRegistration = '$ownerMain/registration';
 

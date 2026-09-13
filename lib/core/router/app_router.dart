@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/router/post_login_location.dart';
 import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -154,17 +155,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         // This value is already automatically decoded by GoRouter
         final from = state.uri.queryParameters['from'];
 
-        if (from != null) {
-          if (from == AppRoutes.becomeOwner) {
-            return isOwner || jwtIsOwner ? AppRoutes.ownerProfile : from;
-          }
-          if (from.startsWith(AppRoutes.clientMain) ||
-              from.startsWith(AppRoutes.ownerMain)) {
-            return from;
-          }
-        }
-
-        return isOwner ? AppRoutes.ownerProfile : AppRoutes.clientProfile;
+        return resolvePostLoginLocation(
+          from: from,
+          ownerModeActive: isOwner,
+          accountIsOwner: jwtIsOwner,
+        );
       }
 
       return null;
@@ -416,11 +411,15 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: AppRoutes.ownerPayment,
-                builder: (_, _) => const OwnerPaymentsScreen(),
+                builder: (_, _) => const OwnerPaymentsTopupScreen(),
                 routes: [
                   GoRoute(
                     path: AppRoutes.topUp,
-                    builder: (_, _) => const OwnerPaymentsTopupScreen(),
+                    redirect: (_, _) => AppRoutes.ownerPayment,
+                  ),
+                  GoRoute(
+                    path: AppRoutes.history,
+                    builder: (_, _) => const OwnerPaymentsScreen(),
                   ),
                 ],
               ),

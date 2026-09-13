@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
+import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -14,6 +16,7 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -36,7 +39,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
   Future<void> onSubmit(AppLocalizations l10n) async {
     final isValid = _formKey.currentState?.validate() ?? false;
-    if (!isValid) {
+    final nameOk = _name.text.trim().isNotEmpty;
+    final modelOk = _model.text.trim().isNotEmpty;
+    final plateOk = sanitizeKzPlate(_plateNumber.text).trim().isNotEmpty;
+    if (!isValid || !nameOk || !modelOk || !plateOk) {
       setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
       return;
     }
@@ -46,6 +52,9 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
       return;
     }
+
+    await ref.read(ownerProfileProvider.notifier).refreshIfStale();
+    if (!mounted) return;
 
     final city = _selectedCity();
     if (city.isEmpty) {
@@ -87,7 +96,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
     unawaited(
       Future.microtask(() async {
-        await ref.read(categoriesProvider.notifier).refreshIfStale();
+        await Future.wait([
+          ref.read(categoriesProvider.notifier).refreshIfStale(),
+          ref.read(ownerProfileProvider.notifier).refreshIfStale(),
+        ]);
         if (!mounted) return;
         _selectVacuumCategory();
       }),
@@ -101,9 +113,20 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   }
 
   String _selectedCity() {
-    final sessionCity = (ref.read(locationProvider).city ?? '').trim();
-    if (sessionCity.isNotEmpty) return sessionCity;
-    return (ref.read(clientProfileProvider).userProfile?.city ?? '').trim();
+    final ownerCity = (ref.read(ownerProfileProvider).valueOrNull?.city ?? '')
+        .trim();
+    if (ownerCity.isNotEmpty) return ownerCity;
+
+    final requestCity =
+        (ref.read(ownerRegistrationRequestProvider).valueOrNull?.city ?? '')
+            .trim();
+    if (requestCity.isNotEmpty) return requestCity;
+
+    final clientCity = (ref.read(clientProfileProvider).userProfile?.city ?? '')
+        .trim();
+    if (clientCity.isNotEmpty) return clientCity;
+
+    return (ref.read(locationProvider).city ?? '').trim();
   }
 
   @override
@@ -121,6 +144,11 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
     final equipmentState = ref.watch(equipmentMutationProvider);
     final category = equipmentState.category;
+    ref.watch(ownerProfileProvider);
+    ref.watch(ownerRegistrationRequestProvider);
+    ref.watch(clientProfileProvider);
+    ref.watch(locationProvider.select((state) => state.city));
+    final accountCity = _selectedCity();
 
     ref.listen(catalogProvider, (previous, next) {
       final vacuum = vacuumTrucksCategory(next.valueOrNull);
@@ -132,7 +160,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(categoriesProvider.notifier).refresh();
+          await Future.wait([
+            ref.read(categoriesProvider.notifier).refresh(),
+            ref.read(ownerProfileProvider.notifier).refresh(),
+          ]);
           if (!mounted) return;
           _selectVacuumCategory();
         },
@@ -167,12 +198,24 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     const SizedBox(height: 16),
 
+                    _AccountCityRow(city: accountCity),
+
+                    const SizedBox(height: 16),
+
                     InputField(
                       icon: Icons.badge_outlined,
                       label: l10n.equipmentNameLabel,
                       controller: _name,
                       hint: l10n.equipmentNameHint,
                       isRequired: true,
+                      requiredHintText: l10n.requiredInParens,
+                      showFieldErrors: false,
+                      maxLength: ownerEquipmentTextMaxLength,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(
+                          ownerEquipmentTextMaxLength,
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 8),
@@ -183,6 +226,14 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       controller: _model,
                       hint: l10n.modelHint,
                       isRequired: true,
+                      requiredHintText: l10n.requiredInParens,
+                      showFieldErrors: false,
+                      maxLength: ownerEquipmentTextMaxLength,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(
+                          ownerEquipmentTextMaxLength,
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 8),
@@ -193,6 +244,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
                       isRequired: true,
+                      requiredHintText: l10n.requiredInParens,
+                      showFieldErrors: false,
                       isLast: true,
                       inputFormatters: const [KzPlateInputFormatter()],
                     ),
@@ -218,6 +271,60 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AccountCityRow extends ConsumerWidget {
+  final String city;
+
+  const _AccountCityRow({required this.city});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final hasCity = city.trim().isNotEmpty;
+    final cityLabel = hasCity
+        ? catalogCityLabelOf(ref, context, city)
+        : l10n.selectCity;
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: hasCity
+                ? theme.colorScheme.primary
+                : theme.colorScheme.surfaceDim,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.location_on_outlined,
+            color: hasCity
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.3),
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.city, style: theme.textTheme.labelLarge),
+              Text(
+                cityLabel,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: hasCity
+                      ? null
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

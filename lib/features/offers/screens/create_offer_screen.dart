@@ -43,8 +43,10 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
       if (request == null) return;
 
-      _price.text = request.offeredPrice.toString();
-      ref.read(offerMutationProvider.notifier).setPrice(request.offeredPrice);
+      if (request.offeredPrice > 0) {
+        _price.text = request.offeredPrice.toString();
+        ref.read(offerMutationProvider.notifier).setPrice(request.offeredPrice);
+      }
     });
   }
 

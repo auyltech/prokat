@@ -117,7 +117,7 @@ class TariffDraft {
       price: entry.price > 0 ? entry.price : null,
       priceRate: entry.priceRate,
       isStartingFrom: entry.isStartingFrom,
-      isPreset: vacuumPresetTariffKeys.contains(raw),
+      isPreset: false,
     );
   }
 
@@ -164,14 +164,17 @@ class TariffDraft {
     return '$amount ₸ / $unit';
   }
 
-  String fingerprint() {
+  String contentKey() {
     return [
-      id ?? '',
       persistedLabel(),
       '${price ?? 0}',
       priceRate.value,
       isStartingFrom ? '1' : '0',
     ].join('|');
+  }
+
+  String fingerprint() {
+    return [id ?? '', contentKey()].join('|');
   }
 
   TariffDraft copyWith({
@@ -202,27 +205,35 @@ List<TariffDraft> tariffsForEditor(
   Equipment equipment, {
   String? vacuumCategoryId,
 }) {
-  final existing = equipment.prices.map(TariffDraft.fromEntry).toList();
-  if (!equipmentIsVacuum(equipment, vacuumCategoryId: vacuumCategoryId)) {
-    return existing;
-  }
+  return equipment.prices.map(TariffDraft.fromEntry).toList();
+}
 
-  final result = [...existing];
-  for (final key in vacuumPresetTariffKeys) {
-    if (!result.any((item) => item.labelKey == key && item.isPreset)) {
-      result.add(TariffDraft.preset(key));
-    }
-  }
-
-  result.sort((a, b) {
-    final ai = vacuumPresetTariffKeys.indexOf(a.labelKey);
-    final bi = vacuumPresetTariffKeys.indexOf(b.labelKey);
-    final aOrder = a.isPreset && ai >= 0 ? ai : 100;
-    final bOrder = b.isPreset && bi >= 0 ? bi : 100;
-    if (aOrder != bOrder) return aOrder.compareTo(bOrder);
-    return (a.id ?? a.labelKey).compareTo(b.id ?? b.labelKey);
-  });
-  return result;
+/// Keep only unfinished local drafts. Savable drafts without an id must not
+/// be appended after a create — that duplicated tariffs on every autosave.
+List<TariffDraft> adoptServerTariffs({
+  required List<TariffDraft> server,
+  required List<TariffDraft> local,
+}) {
+  final expandedById = <String, bool>{
+    for (final item in local)
+      if (item.id != null) item.id!: item.expanded,
+  };
+  final expandedByContent = <String, bool>{
+    for (final item in local) item.contentKey(): item.expanded,
+  };
+  final incomplete = local
+      .where((item) => item.id == null && !item.isSavable)
+      .toList();
+  return [
+    ...server.map((item) {
+      final expanded =
+          expandedById[item.id] ??
+          expandedByContent[item.contentKey()] ??
+          item.expanded;
+      return item.copyWith(expanded: expanded);
+    }),
+    ...incomplete,
+  ];
 }
 
 String shortDescriptionOf(Equipment equipment) {

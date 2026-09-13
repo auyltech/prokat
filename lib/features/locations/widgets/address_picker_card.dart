@@ -9,12 +9,16 @@ class AddressPickerCard extends ConsumerWidget {
   final LocationModel? selectedAddress;
   final VoidCallback onTap;
   final bool? isRequired;
+  final String? emptyHint;
+  final String? requiredHintText;
 
   const AddressPickerCard({
     super.key,
     required this.selectedAddress,
     required this.onTap,
     this.isRequired,
+    this.emptyHint,
+    this.requiredHintText,
   });
 
   @override
@@ -67,7 +71,7 @@ class AddressPickerCard extends ConsumerWidget {
                             children: [
                               if (isRequired == true && selectedAddress == null)
                                 TextSpan(
-                                  text: ' ${l10n.requiredHint}',
+                                  text: ' ${requiredHintText ?? l10n.requiredHint}',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: colorScheme.error,
                                     fontWeight: FontWeight.w500,
@@ -93,7 +97,7 @@ class AddressPickerCard extends ConsumerWidget {
                                   context,
                                   selectedAddress!,
                                 )
-                              : l10n.selectValue,
+                              : (emptyHint ?? l10n.selectValue),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: selectedAddress != null
                                 ? colorScheme.onSurface
