@@ -36,7 +36,7 @@ extension WorkStatusX on WorkStatus {
       case WorkStatus.postponed:
         return "Postpone";
       case WorkStatus.stopped:
-        return "Stop work";
+        return "Pause work";
       case WorkStatus.completed:
         return "Complete work";
       case WorkStatus.cancelled:

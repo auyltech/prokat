@@ -301,9 +301,7 @@ class _AccountCityRow extends ConsumerWidget {
           ),
           child: Icon(
             Icons.location_on_outlined,
-            color: hasCity
-                ? Colors.white
-                : Colors.white.withValues(alpha: 0.3),
+            color: hasCity ? Colors.white : Colors.white.withValues(alpha: 0.3),
             size: 24,
           ),
         ),

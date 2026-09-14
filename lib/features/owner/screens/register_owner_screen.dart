@@ -10,6 +10,7 @@ import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
+import 'package:prokat/core/widgets/moderation_status_card.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/shake_on_tick.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
@@ -17,7 +18,6 @@ import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
-import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -394,10 +394,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
               ),
 
               if (canSubmit) ...[
-                if (request?.isRejected == true) ...[
-                  const SizedBox(height: 16),
-                  AdminCommentBlock(comment: request?.adminComment),
-                ],
                 const SizedBox(height: 16),
                 PrimaryButton(
                   label: submitLabel,
@@ -515,66 +511,33 @@ class _StatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final comment = (request.adminComment ?? '').trim();
 
-    final (title, subtitle, icon, color) = switch (request.parsedStatus) {
-      BecomeOwnerRequestStatus.approved => (
-        l10n.statusAccepted,
-        l10n.statusAcceptedSubtitle,
-        Icons.verified_rounded,
-        Colors.green,
+    return switch (request.parsedStatus) {
+      BecomeOwnerRequestStatus.approved => ModerationStatusCard(
+        title: l10n.statusAccepted,
+        subtitle: l10n.statusAcceptedSubtitle,
+        icon: Icons.verified_rounded,
+        color: Colors.green,
       ),
-      BecomeOwnerRequestStatus.rejected => (
-        l10n.statusRejected,
-        l10n.statusRejectedSubtitle,
-        Icons.error_outline_rounded,
-        colors.error,
+      BecomeOwnerRequestStatus.rejected => ModerationStatusCard(
+        title: l10n.statusRejected,
+        subtitle: comment.isEmpty
+            ? l10n.statusRejectedNoComment
+            : l10n.statusRejectedReviewHint,
+        icon: Icons.error_outline_rounded,
+        color: colors.error,
+        detail: comment.isEmpty ? null : comment,
       ),
-      BecomeOwnerRequestStatus.pending => (
-        l10n.statusUnderReview,
-        l10n.statusUnderReviewSubtitle,
-        Icons.hourglass_top_rounded,
-        colors.primary,
+      BecomeOwnerRequestStatus.pending => ModerationStatusCard(
+        title: l10n.statusUnderReview,
+        subtitle: l10n.statusUnderReviewSubtitle,
+        icon: Icons.hourglass_top_rounded,
+        color: colors.primary,
       ),
     };
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colors.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.onSurface.withValues(alpha: 0.75),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

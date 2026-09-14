@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/localized_city.dart';
@@ -15,7 +16,6 @@ import 'package:prokat/features/equipment/providers/owner_equipment_editor_provi
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
-import 'package:prokat/features/equipment/utils/debounced_action.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
@@ -35,23 +35,26 @@ class GeneralInfoSection extends ConsumerStatefulWidget {
 }
 
 class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
+  late TextEditingController _nameController;
   late TextEditingController _descriptionController;
 
   late String _city;
+  late String _baselineName;
   late String _baselineDescription;
   late String _baselineCity;
   late String _baselineTariffs;
   late List<TariffDraft> _tariffs;
   final Set<String> _deletedPriceIds = {};
-  final _autosave = DebouncedAction();
 
   bool _saveAttempted = false;
   bool _isSaving = false;
+  String? _nameError;
   String? _cityError;
 
   @override
   void initState() {
     super.initState();
+    _nameController = TextEditingController(text: widget.equipment.name);
     _descriptionController = TextEditingController(
       text: shortDescriptionOf(widget.equipment),
     );
@@ -73,6 +76,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   void _captureBaseline() {
+    _baselineName = _nameController.text.trim();
     _baselineDescription = _descriptionController.text.trim();
     _baselineCity = _city.trim();
     _baselineTariffs = _tariffFingerprint(_tariffs);
@@ -87,18 +91,26 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     if (next.isEmpty) return;
     setState(() => _city = next);
     _onChanged();
+    _commitIfDirty();
   }
 
   @override
   void didUpdateWidget(covariant GeneralInfoSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_isDirty) {
+    if (!_isDirty && !_isSaving) {
       final next = widget.equipment;
       final prev = oldWidget.equipment;
-      if (shortDescriptionOf(next) != shortDescriptionOf(prev) ||
+      if (next.name != prev.name ||
+          shortDescriptionOf(next) != shortDescriptionOf(prev) ||
           next.city != prev.city ||
           _priceFingerprint(next) != _priceFingerprint(prev)) {
-        _descriptionController.text = shortDescriptionOf(next);
+        if (_nameController.text != next.name) {
+          _nameController.text = next.name;
+        }
+        final nextDescription = shortDescriptionOf(next);
+        if (_descriptionController.text != nextDescription) {
+          _descriptionController.text = nextDescription;
+        }
         _city = next.city ?? '';
         _tariffs = adoptServerTariffs(
           server: _editorTariffs(next),
@@ -115,7 +127,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   @override
   void dispose() {
-    _autosave.dispose();
+    _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -151,7 +163,8 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   bool get _isDirty {
-    return _descriptionController.text.trim() != _baselineDescription ||
+    return _nameController.text.trim() != _baselineName ||
+        _descriptionController.text.trim() != _baselineDescription ||
         _isCityDirty ||
         _tariffFingerprint(_tariffs) != _baselineTariffs ||
         _deletedPriceIds.isNotEmpty;
@@ -174,7 +187,9 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   bool get _isComplete {
-    return _city.trim().isNotEmpty && _hasPricedTariff;
+    return _nameController.text.trim().isNotEmpty &&
+        _city.trim().isNotEmpty &&
+        _hasPricedTariff;
   }
 
   void _bind() {
@@ -186,9 +201,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   void _publish() {
+    final name = _nameController.text.trim();
     final description = _descriptionController.text.trim();
     _bind();
     _editor.reportInfoDraft(
+      name: name,
       ownerComment: description,
       rentCondition: description,
     );
@@ -205,9 +222,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   bool _validate() {
     _saveAttempted = true;
+    _nameError = _nameController.text.trim().isEmpty ? 'required' : null;
     _cityError = _city.trim().isEmpty ? 'required' : null;
     setState(() {});
-    return _cityError == null && _hasPricedTariff;
+    return _nameError == null && _cityError == null && _hasPricedTariff;
   }
 
   Future<bool> _persistTariffs() async {
@@ -276,8 +294,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     _publish();
 
     try {
+      final name = _nameController.text.trim();
       final description = _descriptionController.text.trim();
       _editor.reportInfoDraft(
+        name: name,
         ownerComment: description,
         rentCondition: description,
       );
@@ -357,7 +377,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     if (_saveAttempted) _validate();
     setState(() {});
     _publish();
-    _autosave.run(() => _handleSave(notify: false));
+  }
+
+  void _commitIfDirty() {
+    if (!_canEdit || !_isDirty || _isSaving) return;
+    unawaited(_handleSave(notify: false));
   }
 
   Future<void> _pickCity() async {
@@ -370,6 +394,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     if (selected == null || selected.isEmpty) return;
     _city = selected;
     _onChanged();
+    _commitIfDirty();
   }
 
   Future<void> _deleteTariff(int index) async {
@@ -406,7 +431,6 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       _deletedPriceIds.add(draft.id!);
     }
     setState(() => _tariffs.removeAt(index));
-    _autosave.cancel();
     _publish();
     unawaited(_handleSave(notify: false));
   }
@@ -431,7 +455,6 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       expanded: view.isExpanded,
       onToggleExpanded: () {
         if (_canEdit && _isDirty) {
-          _autosave.cancel();
           unawaited(_handleSave(notify: false));
         }
         _editor.toggleExpanded(OwnerEquipmentBlockId.general);
@@ -440,56 +463,57 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: _canEdit ? _pickCity : null,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _cityError != null
-                      ? colorScheme.error
-                      : colorScheme.outlineVariant,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text.rich(
+                TextSpan(
+                  text: l10n.workCity,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    if (!hasLocation)
+                      TextSpan(
+                        text: ' ${l10n.requiredInParens}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.error,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    hasLocation
-                        ? Icons.location_on
-                        : Icons.location_on_outlined,
-                    color: hasLocation
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: _canEdit ? _pickCity : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            text: l10n.workCity,
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.62,
-                              ),
-                              fontWeight: FontWeight.w600,
-                            ),
-                            children: [
-                              if (!hasLocation)
-                                TextSpan(
-                                  text: ' ${l10n.requiredInParens}',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.error,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _cityError != null
+                          ? colorScheme.error
+                          : colorScheme.outline.withValues(alpha: 0.45),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        hasLocation
+                            ? Icons.location_on
+                            : Icons.location_on_outlined,
+                        color: hasLocation
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
                           hasLocation
                               ? catalogCityLabel(
                                   city: _city,
@@ -503,35 +527,53 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                             color: hasLocation
                                 ? colorScheme.onSurface
                                 : colorScheme.onSurface.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (_cityError != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.fieldRequired,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ],
                   ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ],
+                ),
               ),
-            ),
+              if (_cityError != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  l10n.fieldRequired,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          InputField(
+            label: l10n.equipmentNameLabel,
+            controller: _nameController,
+            onChanged: _onChanged,
+            onFocusLost: _commitIfDirty,
+            hint: l10n.equipmentNameHint,
+            isRequired: true,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
+            boxed: true,
+            filled: false,
+            readOnly: !_canEdit,
+            maxLength: ownerEquipmentTextMaxLength,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
+            ],
           ),
           const SizedBox(height: 16),
           InputField(
             label: l10n.shortDescription,
             controller: _descriptionController,
             onChanged: _onChanged,
+            onFocusLost: _commitIfDirty,
             hint: l10n.shortDescriptionHelper,
             hintMaxLines: 3,
             maxLines: 4,
@@ -570,6 +612,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                 setState(() => _tariffs[index] = next);
                 _onChanged();
               },
+              onCommit: _commitIfDirty,
               onDelete: () => _deleteTariff(index),
             );
           }),

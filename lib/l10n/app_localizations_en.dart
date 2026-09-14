@@ -1354,7 +1354,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workStatusPostpone => 'Postpone';
 
   @override
-  String get workStatusStopWork => 'Stop work';
+  String get workStatusStopWork => 'Pause work';
 
   @override
   String get workStatusResumeWork => 'Resume work';
@@ -2439,6 +2439,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please review the admin comment and update your request.';
 
   @override
+  String get statusRejectedReviewHint =>
+      'Please review the administrator\'s comment and fix the issues.';
+
+  @override
+  String get statusRejectedNoComment =>
+      'The administrator rejected your request without providing a reason.';
+
+  @override
   String get statusUnderReview => 'Under review';
 
   @override
@@ -3448,6 +3456,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get equipmentSubmitPhotoRequired =>
       'Add at least one equipment photo so the license plate is visible in at least one shot';
+
+  @override
+  String get equipmentResubmitConfirmMessage =>
+      'Make sure all moderator remarks have been fixed.';
 
   @override
   String get youAreOnline => 'You are online';

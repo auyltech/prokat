@@ -101,19 +101,29 @@ class Equipment {
       [EquipmentStatus.draft, EquipmentStatus.rejected].contains(status);
 
   String? get primaryImageUrl {
-    for (final img in images) {
-      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty) {
-        return img.imageUrl;
-      }
+    final urls = displayImageUrls;
+    return urls.isEmpty ? null : urls.first;
+  }
+
+  /// Cover first, then remaining photos by `order`. Falls back to legacy
+  /// `imageUrl` when `images` is empty.
+  List<String> get displayImageUrls {
+    final withUrl = images
+        .where((img) => img.imageUrl.trim().isNotEmpty)
+        .toList();
+    if (withUrl.isEmpty) {
+      final legacy = imageUrl?.trim() ?? '';
+      return legacy.isEmpty ? const [] : [legacy];
     }
 
-    final sorted = [...images]
-      ..sort((a, b) => (a.order ?? 999999).compareTo(b.order ?? 999999));
-    for (final img in sorted) {
-      if (img.imageUrl.isNotEmpty) return img.imageUrl;
-    }
+    withUrl.sort((a, b) {
+      final aPrimary = a.isPrimary ?? false;
+      final bPrimary = b.isPrimary ?? false;
+      if (aPrimary != bPrimary) return aPrimary ? -1 : 1;
+      return (a.order ?? 999999).compareTo(b.order ?? 999999);
+    });
 
-    return imageUrl;
+    return withUrl.map((img) => img.imageUrl.trim()).toList();
   }
 
   Map<String, dynamic> toJson() {

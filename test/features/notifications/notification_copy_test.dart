@@ -38,4 +38,27 @@ void main() {
     expect(notification.localizedTitle('ru'), 'Кастомный заголовок');
     expect(notification.localizedBody('ru'), 'Кастомный текст');
   });
+
+  test('raw PriceRate enums in body are localized for display', () {
+    const notification = AppNotification(
+      id: 'n2',
+      type: NotificationType.counterOfferAccepted,
+      category: 'REQUESTS',
+      title: 'accepted',
+      body: 'принял ваше встречное предложение 1000/PER_HOUR',
+      data: {
+        'i18n': {
+          'ru': {
+            'title': 'принял ваше встречное предложение',
+            'body': 'принял ваше встречное предложение 1000/PER_HOUR',
+          },
+        },
+      },
+    );
+
+    expect(
+      notification.localizedBody('ru'),
+      'принял ваше встречное предложение 1000/ час',
+    );
+  });
 }

@@ -91,9 +91,14 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final today = jobScheduleToday();
     final requestState = ref.read(requestMutationProvider);
     final date = requestState.selectedDate ?? today;
-    final time = requestState.selectedTime ?? jobScheduleDefaultTimeOn(date);
+    final time = jobScheduleResolveTimeOn(
+      date,
+      requestState.selectedTime ?? jobScheduleDefaultTimeOn(date),
+    );
     setState(() => _scheduleMode = JobScheduleMode.scheduled);
-    ref.read(requestMutationProvider.notifier).setDateAndTime(date: date, time: time);
+    ref
+        .read(requestMutationProvider.notifier)
+        .setDateAndTime(date: date, time: time);
   }
 
   Future<void> _openCategorySheet() async {
@@ -108,20 +113,15 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final picked = await showJobDatePicker(context: context, current: current);
     if (!mounted || picked == null) return;
 
+    final day = DateTime(picked.year, picked.month, picked.day);
     final existing = ref.read(requestMutationProvider).selectedTime;
-    final time = existing ?? jobScheduleDefaultTimeOn(picked);
+    final time = jobScheduleResolveTimeOn(
+      day,
+      existing ?? jobScheduleDefaultTimeOn(day),
+    );
     ref
         .read(requestMutationProvider.notifier)
-        .setDateAndTime(
-          date: DateTime(picked.year, picked.month, picked.day),
-          time: DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            time.hour,
-            time.minute,
-          ),
-        );
+        .setDateAndTime(date: day, time: time);
   }
 
   Future<void> _pickTime() async {
@@ -138,7 +138,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         .read(requestMutationProvider.notifier)
         .setDateAndTime(
           date: date,
-          time: DateTime(date.year, date.month, date.day, picked.hour, picked.minute),
+          time: jobScheduleResolveTimeOn(date, picked),
         );
   }
 

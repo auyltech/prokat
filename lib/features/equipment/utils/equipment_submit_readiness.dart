@@ -54,12 +54,13 @@ bool isEquipmentReadyForReview(Equipment equipment) {
 const ownerEquipmentSectionCount = 3;
 
 bool ownerGeneralSectionComplete(Equipment equipment) {
-  return equipmentHasCity(equipment) && equipmentHasPrice(equipment);
+  return hasEquipmentText(equipment.name) &&
+      equipmentHasCity(equipment) &&
+      equipmentHasPrice(equipment);
 }
 
 bool ownerRegistrationSectionComplete(Equipment equipment) {
-  return hasEquipmentText(equipment.name) &&
-      hasEquipmentText(equipment.model) &&
+  return hasEquipmentText(equipment.model) &&
       hasEquipmentText(equipment.plateNumber);
 }
 

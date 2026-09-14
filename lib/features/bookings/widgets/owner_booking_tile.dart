@@ -11,7 +11,6 @@ import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
-import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
@@ -353,55 +352,6 @@ class OwnerBookingTile extends ConsumerWidget {
                         size: 25,
                         color: Colors.green[800],
                       ),
-                    ),
-                  ] else if (booking.status == BookingStatus.confirmed &&
-                      booking.workStatus != WorkStatus.completed) ...[
-                    ActionButton(
-                      label: l10n.completeWork,
-                      isLoading: ref
-                          .watch(bookingMutationProvider)
-                          .isActionActive("booking:workstatus:${booking.id}"),
-                      onPressed: () async {
-                        await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: theme.colorScheme.surface,
-                            title: Text(l10n.markCompletedQuestion),
-                            content: Text(l10n.clientConfirmCompletion),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  if (context.mounted && context.canPop()) {
-                                    context.pop();
-                                  }
-                                },
-                                child: Text(l10n.cancel),
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (context.canPop()) {
-                                    context.pop();
-                                  }
-
-                                  final result = await ref
-                                      .read(bookingMutationProvider.notifier)
-                                      .updateBookingWorkStatus(
-                                        id: booking.id,
-                                        workStatus: WorkStatus.completed,
-                                      );
-
-                                  AppSnackBar.show(
-                                    message: result.message,
-                                    isSuccess: result.success,
-                                    isError: !result.success,
-                                  );
-                                },
-                                child: Text(l10n.markCompleted),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
                     ),
                   ] else if (canReview) ...[
                     ActionButton(

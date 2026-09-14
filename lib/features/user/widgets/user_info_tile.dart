@@ -53,9 +53,7 @@ class UserInfoTile extends ConsumerWidget {
                   Flexible(child: UserDisplayName(user: user)),
                   if (showPresence) ...[
                     const SizedBox(width: 8),
-                    _OwnerPresenceChip(
-                      isOnline: user?.isAccountOnline == true,
-                    ),
+                    _OwnerPresenceChip(isOnline: user?.isAccountOnline == true),
                   ],
                 ],
               ),

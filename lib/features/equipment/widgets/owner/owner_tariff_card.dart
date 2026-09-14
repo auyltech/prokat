@@ -11,6 +11,7 @@ class OwnerTariffCard extends StatefulWidget {
   final TariffDraft draft;
   final bool canEdit;
   final ValueChanged<TariffDraft> onChanged;
+  final VoidCallback? onCommit;
   final VoidCallback? onDelete;
 
   const OwnerTariffCard({
@@ -18,6 +19,7 @@ class OwnerTariffCard extends StatefulWidget {
     required this.draft,
     required this.canEdit,
     required this.onChanged,
+    this.onCommit,
     this.onDelete,
   });
 
@@ -28,6 +30,8 @@ class OwnerTariffCard extends StatefulWidget {
 class _OwnerTariffCardState extends State<OwnerTariffCard> {
   late TextEditingController _priceController;
   late TextEditingController _customNameController;
+  late FocusNode _priceFocus;
+  late FocusNode _customNameFocus;
 
   @override
   void initState() {
@@ -38,6 +42,8 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
     _customNameController = TextEditingController(
       text: widget.draft.customName,
     );
+    _priceFocus = FocusNode()..addListener(_onPriceFocusChange);
+    _customNameFocus = FocusNode()..addListener(_onCustomNameFocusChange);
   }
 
   @override
@@ -45,24 +51,44 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.draft.price != widget.draft.price) {
       final next = widget.draft.hasPrice ? '${widget.draft.price}' : '';
-      if (_priceController.text != next) {
+      if (_priceController.text != next && !_priceFocus.hasFocus) {
         _priceController.text = next;
       }
     }
     if (oldWidget.draft.customName != widget.draft.customName &&
-        _customNameController.text != widget.draft.customName) {
+        _customNameController.text != widget.draft.customName &&
+        !_customNameFocus.hasFocus) {
       _customNameController.text = widget.draft.customName;
     }
   }
 
   @override
   void dispose() {
+    _priceFocus
+      ..removeListener(_onPriceFocusChange)
+      ..dispose();
+    _customNameFocus
+      ..removeListener(_onCustomNameFocusChange)
+      ..dispose();
     _priceController.dispose();
     _customNameController.dispose();
     super.dispose();
   }
 
   void _emit(TariffDraft next) => widget.onChanged(next);
+
+  void _emitAndCommit(TariffDraft next) {
+    _emit(next);
+    widget.onCommit?.call();
+  }
+
+  void _onPriceFocusChange() {
+    if (!_priceFocus.hasFocus) widget.onCommit?.call();
+  }
+
+  void _onCustomNameFocusChange() {
+    if (!_customNameFocus.hasFocus) widget.onCommit?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +173,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                           .toList(),
                       onChanged: (value) {
                         if (value == null) return;
-                        _emit(draft.copyWith(labelKey: value));
+                        _emitAndCommit(draft.copyWith(labelKey: value));
                       },
                     ),
                     if (draft.labelKey == vacuumTariffOther) ...[
@@ -156,6 +182,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                       const SizedBox(height: 6),
                       TextField(
                         controller: _customNameController,
+                        focusNode: _customNameFocus,
                         enabled: widget.canEdit,
                         maxLength: 40,
                         onChanged: (value) =>
@@ -173,6 +200,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                   const SizedBox(height: 6),
                   TextField(
                     controller: _priceController,
+                    focusNode: _priceFocus,
                     enabled: widget.canEdit,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
@@ -223,7 +251,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                         .toList(),
                     onChanged: (value) {
                       if (value == null) return;
-                      _emit(draft.copyWith(priceRate: value));
+                      _emitAndCommit(draft.copyWith(priceRate: value));
                     },
                   ),
                   const SizedBox(height: 14),
@@ -235,16 +263,18 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                         label: l10n.priceFrom,
                         selected: draft.isStartingFrom,
                         enabled: widget.canEdit,
-                        onTap: () =>
-                            _emit(draft.copyWith(isStartingFrom: true)),
+                        onTap: () => _emitAndCommit(
+                          draft.copyWith(isStartingFrom: true),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       _ModeChip(
                         label: l10n.priceFixed,
                         selected: !draft.isStartingFrom,
                         enabled: widget.canEdit,
-                        onTap: () =>
-                            _emit(draft.copyWith(isStartingFrom: false)),
+                        onTap: () => _emitAndCommit(
+                          draft.copyWith(isStartingFrom: false),
+                        ),
                       ),
                     ],
                   ),

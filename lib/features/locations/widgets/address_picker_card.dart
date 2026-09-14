@@ -71,7 +71,8 @@ class AddressPickerCard extends ConsumerWidget {
                             children: [
                               if (isRequired == true && selectedAddress == null)
                                 TextSpan(
-                                  text: ' ${requiredHintText ?? l10n.requiredHint}',
+                                  text:
+                                      ' ${requiredHintText ?? l10n.requiredHint}',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: colorScheme.error,
                                     fontWeight: FontWeight.w500,

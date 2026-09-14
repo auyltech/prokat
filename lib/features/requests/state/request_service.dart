@@ -100,7 +100,7 @@ class RequestService {
           "requiredOn": requiredOn.toUtc().toIso8601String(),
           "requiredAt": requiredAt?.toUtc().toIso8601String(),
           "comment": comment,
-          if (offeredRate != null) "offeredRate": offeredRate,
+          "offeredRate": ?offeredRate,
         },
       );
 

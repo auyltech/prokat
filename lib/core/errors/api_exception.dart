@@ -28,6 +28,11 @@ class ApiException implements Exception {
         extracted = message;
       } else if (error is String && error.trim().isNotEmpty) {
         extracted = error;
+      } else if (error is Map) {
+        final nestedMessage = error["message"];
+        if (nestedMessage is String && nestedMessage.trim().isNotEmpty) {
+          extracted = nestedMessage;
+        }
       } else if (detail is String && detail.trim().isNotEmpty) {
         extracted = detail;
       } else if (message is List && message.isNotEmpty) {
