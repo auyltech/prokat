@@ -16,6 +16,8 @@ class InputField extends StatefulWidget {
   final Color? iconBgColor;
   final Color? iconColor;
   final VoidCallback? onChanged;
+  final VoidCallback? onFocusLost;
+  final FocusNode? focusNode;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final String? requiredHintText;
@@ -49,6 +51,8 @@ class InputField extends StatefulWidget {
     this.iconBgColor,
     this.iconColor,
     this.onChanged,
+    this.onFocusLost,
+    this.focusNode,
     this.keyboardType,
     this.inputFormatters,
     this.errorText,
@@ -72,10 +76,14 @@ class InputField extends StatefulWidget {
 }
 
 class _InputFieldState extends State<InputField> {
+  late FocusNode _focusNode;
+  bool _ownsFocusNode = false;
+
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onControllerChanged);
+    _attachFocusNode(widget.focusNode);
   }
 
   @override
@@ -85,12 +93,39 @@ class _InputFieldState extends State<InputField> {
       oldWidget.controller.removeListener(_onControllerChanged);
       widget.controller.addListener(_onControllerChanged);
     }
+    if (oldWidget.focusNode != widget.focusNode) {
+      _detachFocusNode();
+      _attachFocusNode(widget.focusNode);
+    }
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerChanged);
+    _detachFocusNode();
     super.dispose();
+  }
+
+  void _attachFocusNode(FocusNode? node) {
+    if (node != null) {
+      _focusNode = node;
+      _ownsFocusNode = false;
+    } else {
+      _focusNode = FocusNode();
+      _ownsFocusNode = true;
+    }
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _detachFocusNode() {
+    _focusNode.removeListener(_onFocusChange);
+    if (_ownsFocusNode) _focusNode.dispose();
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus) {
+      widget.onFocusLost?.call();
+    }
   }
 
   void _onControllerChanged() {
@@ -219,6 +254,7 @@ class _InputFieldState extends State<InputField> {
                     // Fixes layout crash by constraining the TextFormField width
                     child: TextFormField(
                       controller: widget.controller,
+                      focusNode: _focusNode,
                       readOnly: widget.readOnly,
                       enableInteractiveSelection: !widget.readOnly,
                       canRequestFocus: !widget.readOnly,

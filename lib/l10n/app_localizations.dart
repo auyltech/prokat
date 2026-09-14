@@ -2611,7 +2611,7 @@ abstract class AppLocalizations {
   /// No description provided for @workStatusStopWork.
   ///
   /// In en, this message translates to:
-  /// **'Stop work'**
+  /// **'Pause work'**
   String get workStatusStopWork;
 
   /// No description provided for @workStatusResumeWork.
@@ -4690,6 +4690,18 @@ abstract class AppLocalizations {
   /// **'Please review the admin comment and update your request.'**
   String get statusRejectedSubtitle;
 
+  /// No description provided for @statusRejectedReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please review the administrator\'s comment and fix the issues.'**
+  String get statusRejectedReviewHint;
+
+  /// No description provided for @statusRejectedNoComment.
+  ///
+  /// In en, this message translates to:
+  /// **'The administrator rejected your request without providing a reason.'**
+  String get statusRejectedNoComment;
+
   /// No description provided for @statusUnderReview.
   ///
   /// In en, this message translates to:
@@ -6495,6 +6507,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add at least one equipment photo so the license plate is visible in at least one shot'**
   String get equipmentSubmitPhotoRequired;
+
+  /// No description provided for @equipmentResubmitConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure all moderator remarks have been fixed.'**
+  String get equipmentResubmitConfirmMessage;
 
   /// No description provided for @youAreOnline.
   ///

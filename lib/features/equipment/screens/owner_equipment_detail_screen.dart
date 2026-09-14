@@ -11,6 +11,7 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
+import 'package:prokat/features/equipment/equipment_status_error_message.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -20,7 +21,6 @@ import 'package:prokat/features/equipment/widgets/owner/general_info_section.dar
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_specs.dart';
 import 'package:prokat/features/equipment/widgets/owner/registration_section.dart';
-import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentDetailScreen extends ConsumerStatefulWidget {
@@ -36,8 +36,6 @@ class OwnerEquipmentDetailScreen extends ConsumerStatefulWidget {
 class _OwnerEquipmentDetailScreenState
     extends ConsumerState<OwnerEquipmentDetailScreen> {
   bool _submitting = false;
-  String? _rejectedBaselineId;
-  String? _rejectedBaselineFingerprint;
 
   @override
   void initState() {
@@ -45,9 +43,11 @@ class _OwnerEquipmentDetailScreenState
 
     unawaited(
       Future.microtask(() async {
-        await ref.read(
-          ownerEquipmentDetailsProvider(widget.equipmentId).future,
-        );
+        // Always refetch: list can already show a newer moderation status while
+        // this family cache still holds CREATED from a previous visit.
+        await ref
+            .read(ownerEquipmentDetailsProvider(widget.equipmentId).notifier)
+            .refresh();
         if (!mounted) return;
 
         await ref.read(categoriesProvider.notifier).refreshIfStale();
@@ -55,25 +55,53 @@ class _OwnerEquipmentDetailScreenState
     );
   }
 
-  void _rememberRejectedBaseline(Equipment equipment) {
-    if (equipment.status != EquipmentStatus.rejected) {
-      _rejectedBaselineId = null;
-      _rejectedBaselineFingerprint = null;
-      return;
-    }
-    if (_rejectedBaselineId == equipment.id &&
-        _rejectedBaselineFingerprint != null) {
-      return;
-    }
-    _rejectedBaselineId = equipment.id;
-    _rejectedBaselineFingerprint = equipmentReviewFingerprint(equipment);
-  }
+  Future<bool> _confirmResubmit(
+    Equipment equipment,
+    AppLocalizations l10n,
+  ) async {
+    final comment = equipment.adminComment?.trim() ?? '';
+    final remarks = comment.isEmpty ? l10n.statusRejectedNoComment : comment;
 
-  bool _hasChangedSinceRejection(Equipment equipment, bool anyDirty) {
-    if (anyDirty) return true;
-    final baseline = _rejectedBaselineFingerprint;
-    if (baseline == null) return false;
-    return equipmentReviewFingerprint(equipment) != baseline;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          title: Text(l10n.resubmit),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.equipmentResubmitConfirmMessage),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: theme.colorScheme.error.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Text(remarks, style: theme.textTheme.bodyMedium),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.submit),
+            ),
+          ],
+        );
+      },
+    );
+    return confirmed == true;
   }
 
   Future<void> _submitForReview(
@@ -129,9 +157,15 @@ class _OwnerEquipmentDetailScreenState
     if (!mounted) return;
     setState(() => _submitting = false);
     AppSnackBar.show(
-      message: res ? l10n.equipmentSubmittedForReview : l10n.failedToSubmit,
-      isSuccess: res,
-      isError: !res,
+      message: res.success
+          ? l10n.equipmentSubmittedForReview
+          : equipmentStatusErrorMessage(
+              l10n: l10n,
+              errorCode: res.errorCode,
+              fallback: l10n.failedToSubmit,
+            ),
+      isSuccess: res.success,
+      isError: !res.success,
     );
   }
 
@@ -154,9 +188,9 @@ class _OwnerEquipmentDetailScreenState
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         behavior: HitTestBehavior.translucent,
         child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(ownerEquipmentDetailsProvider(widget.equipmentId));
-          },
+          onRefresh: () => ref
+              .read(ownerEquipmentDetailsProvider(widget.equipmentId).notifier)
+              .refresh(),
           child: equipmentAsync.when(
             skipLoadingOnReload: true,
             skipLoadingOnRefresh: true,
@@ -167,7 +201,6 @@ class _OwnerEquipmentDetailScreenState
               subtitle: l10n.equipmentDataNotLocated,
             ),
             data: (equipment) {
-              _rememberRejectedBaseline(equipment);
               final editor = ref.watch(
                 ownerEquipmentEditorProvider(widget.equipmentId),
               );
@@ -175,10 +208,6 @@ class _OwnerEquipmentDetailScreenState
                 status: equipment.status,
                 anyDirty: editor.anyDirty,
               );
-              final canAttemptResubmit =
-                  reviewUi.showResubmit &&
-                  !_submitting &&
-                  _hasChangedSinceRejection(equipment, editor.anyDirty);
 
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -204,6 +233,7 @@ class _OwnerEquipmentDetailScreenState
                           const SizedBox(height: 16),
                           EquipmentModerationStatusCard(
                             status: equipment.status,
+                            adminComment: equipment.adminComment,
                           ),
                         ],
                         const SizedBox(height: 16),
@@ -227,27 +257,24 @@ class _OwnerEquipmentDetailScreenState
                             label: reviewUi.showSubmitForReview
                                 ? l10n.submitForReview
                                 : l10n.resubmit,
-                            onPressed: reviewUi.showSubmitForReview
-                                ? (_submitting
-                                      ? null
-                                      : () => _submitForReview(
-                                          equipment,
-                                          l10n,
-                                          saveDirtyFirst: editor.anyDirty,
-                                        ))
-                                : (canAttemptResubmit
-                                      ? () => _submitForReview(
-                                          equipment,
-                                          l10n,
-                                          saveDirtyFirst: editor.anyDirty,
-                                        )
-                                      : null),
+                            onPressed: _submitting
+                                ? null
+                                : () async {
+                                    if (reviewUi.showResubmit) {
+                                      final confirmed = await _confirmResubmit(
+                                        equipment,
+                                        l10n,
+                                      );
+                                      if (!confirmed || !mounted) return;
+                                    }
+                                    await _submitForReview(
+                                      equipment,
+                                      l10n,
+                                      saveDirtyFirst: editor.anyDirty,
+                                    );
+                                  },
                             isLoading: _submitting,
                           ),
-                        ],
-                        if (equipment.isRejected) ...[
-                          const SizedBox(height: 16),
-                          AdminCommentBlock(comment: equipment.adminComment),
                         ],
                         if (equipment.status != EquipmentStatus.booked) ...[
                           const SizedBox(height: 20),

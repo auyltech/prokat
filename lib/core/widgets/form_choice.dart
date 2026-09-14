@@ -20,7 +20,9 @@ class RequiredFieldLabel extends StatelessWidget {
     return Text.rich(
       TextSpan(
         text: title,
-        style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+        style: theme.textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
         children: [
           if (showRequired)
             TextSpan(
@@ -174,9 +176,16 @@ class OutlinePickerField extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(value ?? '—', style: theme.textTheme.bodyMedium),
+                    child: Text(
+                      value ?? '—',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                   ),
-                  Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    icon,
+                    size: 18,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ],
               ),
             ),

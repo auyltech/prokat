@@ -162,20 +162,15 @@ Future<bool> ensureOwnerOnline(
   return false;
 }
 
-const _onlineSwitchThumb = Color(0xFF0F5A56);
-const _onlineSwitchTrack = Color(0xFF3D8B74);
-
 class BecomeOnlineOutlinedButton extends StatelessWidget {
   const BecomeOnlineOutlinedButton({
     super.key,
     required this.label,
-    required this.switchOn,
     required this.busy,
     required this.onPressed,
   });
 
   final String label;
-  final bool switchOn;
   final bool busy;
   final VoidCallback onPressed;
 
@@ -184,41 +179,30 @@ class BecomeOnlineOutlinedButton extends StatelessWidget {
     final theme = Theme.of(context);
     final border = theme.colorScheme.outline.withValues(alpha: 0.7);
 
-    return Material(
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return OutlinedButton(
+      onPressed: busy ? null : onPressed,
+      style: OutlinedButton.styleFrom(
         side: BorderSide(color: border),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: InkWell(
-        onTap: busy ? null : onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+      child: busy
+          ? SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: theme.colorScheme.primary,
               ),
-              Transform.scale(
-                scale: 0.9,
-                child: Switch.adaptive(
-                  value: switchOn,
-                  activeThumbColor: _onlineSwitchThumb,
-                  activeTrackColor: _onlineSwitchTrack,
-                  onChanged: busy ? null : (_) => onPressed(),
-                ),
+            )
+          : Text(
+              label,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
@@ -244,28 +228,20 @@ class _OwnerGoOnlineDialog extends StatefulWidget {
 
 class _OwnerGoOnlineDialogState extends State<_OwnerGoOnlineDialog> {
   bool _loading = false;
-  bool _switchOn = false;
 
   Future<void> _onBecomeOnline() async {
     if (_loading) return;
-    setState(() {
-      _loading = true;
-      _switchOn = true;
-    });
+    setState(() => _loading = true);
 
     final ok = await widget.onBecomeOnline();
     if (!mounted) return;
 
     if (ok) {
-      await Future<void>.delayed(const Duration(milliseconds: 380));
-      if (mounted) Navigator.of(context).pop(true);
+      Navigator.of(context).pop(true);
       return;
     }
 
-    setState(() {
-      _loading = false;
-      _switchOn = false;
-    });
+    setState(() => _loading = false);
   }
 
   @override
@@ -302,7 +278,6 @@ class _OwnerGoOnlineDialogState extends State<_OwnerGoOnlineDialog> {
               Expanded(
                 child: BecomeOnlineOutlinedButton(
                   label: widget.becomeOnlineLabel,
-                  switchOn: _switchOn,
                   busy: _loading,
                   onPressed: _onBecomeOnline,
                 ),

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/page_dots_indicator.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
@@ -316,7 +317,10 @@ class _OwnerEquipmentImageHeaderState
             left: 0,
             right: 0,
             bottom: 12,
-            child: _DotsIndicator(count: images.length, index: _currentIndex),
+            child: PageDotsIndicator(
+              count: images.length,
+              index: _currentIndex,
+            ),
           ),
 
         if (widget.canEditImages)
@@ -385,46 +389,14 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: compact ? 4 : 3,
         overflow: TextOverflow.ellipsis,
-        style: (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
-            ?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.55),
-              fontWeight: FontWeight.w600,
-              height: 1.2,
-            ),
+        style:
+            (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
+                ?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.55),
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
       ),
-    );
-  }
-}
-
-class _DotsIndicator extends StatelessWidget {
-  final int count;
-  final int index;
-
-  const _DotsIndicator({required this.count, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final active = colorScheme.onSurface.withValues(alpha: 0.9);
-    final inactive = colorScheme.onSurface.withValues(alpha: 0.35);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (i) {
-        final isActive = i == index;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          width: isActive ? 10 : 6,
-          height: 6,
-          decoration: BoxDecoration(
-            color: isActive ? active : inactive,
-            borderRadius: BorderRadius.circular(99),
-          ),
-        );
-      }),
     );
   }
 }

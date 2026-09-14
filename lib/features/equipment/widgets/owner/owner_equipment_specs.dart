@@ -14,7 +14,6 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
-import 'package:prokat/features/equipment/utils/debounced_action.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -43,7 +42,6 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   bool _saveAttempted = false;
 
   bool _didInit = false;
-  final _autosave = DebouncedAction();
 
   bool get _canEdit => widget.equipment.isDraft;
 
@@ -246,10 +244,16 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     if (_saveAttempted) _validate();
     setState(() => _isDirty = dirty);
     _publish();
-    _autosave.run(
-      () => _handleSave(notify: false),
-      delay: const Duration(milliseconds: 1500),
-    );
+  }
+
+  void _commitIfDirty() {
+    if (!_canEdit || !_isDirty || _isSaving) return;
+    unawaited(_handleSave(notify: false));
+  }
+
+  void _onDiscreteChanged() {
+    _onFieldChanged();
+    _commitIfDirty();
   }
 
   bool _computeIsDirty() {
@@ -433,7 +437,6 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
   @override
   void dispose() {
-    _autosave.dispose();
     _disposeControllers();
     super.dispose();
   }
@@ -493,7 +496,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                   ? null
                   : (value) {
                       _boolByKey[key] = value;
-                      _onFieldChanged();
+                      _onDiscreteChanged();
                     },
             );
           }
@@ -536,7 +539,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                         ? null
                         : (value) {
                             _optionsByKey[key] = value == null ? [] : [value];
-                            _onFieldChanged();
+                            _onDiscreteChanged();
                           },
                   ),
                 ),
@@ -571,7 +574,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                                   selected.remove(option.id);
                                 }
                                 _optionsByKey[key] = selected.toList();
-                                _onFieldChanged();
+                                _onDiscreteChanged();
                               },
                       );
                     }).toList(),
@@ -600,6 +603,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
             requiredHintText: l10n.requiredInParens,
             showFieldErrors: false,
             onChanged: _onFieldChanged,
+            onFocusLost: _commitIfDirty,
             isNumeric: type == CatalogSpecType.number,
             errorText: errorText,
             readOnly: !_canEdit,
@@ -616,7 +620,6 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       expanded: view.isExpanded,
       onToggleExpanded: () {
         if (_canEdit && _isDirty) {
-          _autosave.cancel();
           unawaited(_handleSave(notify: false));
         }
         _editor.toggleExpanded(OwnerEquipmentBlockId.specs);

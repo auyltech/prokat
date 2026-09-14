@@ -13,6 +13,28 @@ AppLocalizations notificationL10n(String languageCode) {
   }
 }
 
+/// Replaces raw backend PriceRate enums left in already-rendered copy.
+///
+/// New notifications should get localized fragments from the API; this covers
+/// older rows that still contain `/PER_HOUR` etc.
+String localizePriceRateInNotificationText(String text, AppLocalizations l10n) {
+  if (text.isEmpty) return text;
+  return text
+      .replaceAll(
+        RegExp(r'/?\s*PER_HOUR\b', caseSensitive: false),
+        l10n.perHour,
+      )
+      .replaceAll(
+        RegExp(r'/?\s*PER_TRIP\b', caseSensitive: false),
+        l10n.perTrip,
+      )
+      .replaceAll(RegExp(r'/?\s*PER_DAY\b', caseSensitive: false), l10n.perDay)
+      .replaceAll(
+        RegExp(r'/?\s*PER_CUBIC_METER\b', caseSensitive: false),
+        l10n.perM3,
+      );
+}
+
 String? fallbackNotificationTitle(NotificationType type, String languageCode) {
   final l10n = notificationL10n(languageCode);
   return switch (type) {

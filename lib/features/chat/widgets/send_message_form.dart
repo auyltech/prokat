@@ -210,7 +210,6 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
           const SizedBox(width: 12),
           BecomeOnlineOutlinedButton(
             label: l10n.becomeOnline,
-            switchOn: _goingOnline,
             busy: _goingOnline,
             onPressed: _becomeOnlineFromBanner,
           ),

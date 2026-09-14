@@ -40,6 +40,7 @@ bool notificationOpensOwnerShell({
     case NotificationType.offerCreated:
     case NotificationType.offerCancelled:
     case NotificationType.offerExpired:
+    case NotificationType.ownerRejected:
       return false;
 
     case NotificationType.bookingCreated:
@@ -52,7 +53,6 @@ bool notificationOpensOwnerShell({
     case NotificationType.equipmentSuspended:
     case NotificationType.ownerProfileSubmitted:
     case NotificationType.ownerApproved:
-    case NotificationType.ownerRejected:
     case NotificationType.documentRequired:
     case NotificationType.adminWarning:
     case NotificationType.balanceToppedUp:

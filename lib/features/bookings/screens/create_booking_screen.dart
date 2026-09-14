@@ -71,7 +71,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final today = jobScheduleToday();
     final bookingState = ref.read(bookingMutationProvider);
     final date = bookingState.selectedDate ?? today;
-    final time = bookingState.selectedTime ?? jobScheduleDefaultTimeOn(date);
+    final time = jobScheduleResolveTimeOn(
+      date,
+      bookingState.selectedTime ?? jobScheduleDefaultTimeOn(date),
+    );
     setState(() => _scheduleMode = JobScheduleMode.scheduled);
     ref
         .read(bookingMutationProvider.notifier)
@@ -83,20 +86,15 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final picked = await showJobDatePicker(context: context, current: current);
     if (!mounted || picked == null) return;
 
+    final day = DateTime(picked.year, picked.month, picked.day);
     final existing = ref.read(bookingMutationProvider).selectedTime;
-    final time = existing ?? jobScheduleDefaultTimeOn(picked);
+    final time = jobScheduleResolveTimeOn(
+      day,
+      existing ?? jobScheduleDefaultTimeOn(day),
+    );
     ref
         .read(bookingMutationProvider.notifier)
-        .setDateAndTime(
-          date: DateTime(picked.year, picked.month, picked.day),
-          time: DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            time.hour,
-            time.minute,
-          ),
-        );
+        .setDateAndTime(date: day, time: time);
   }
 
   Future<void> _pickTime() async {
@@ -113,13 +111,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .read(bookingMutationProvider.notifier)
         .setDateAndTime(
           date: date,
-          time: DateTime(
-            date.year,
-            date.month,
-            date.day,
-            picked.hour,
-            picked.minute,
-          ),
+          time: jobScheduleResolveTimeOn(date, picked),
         );
   }
 
@@ -221,7 +213,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final priceEntries = equipment?.prices;
     final ownerComment = equipment?.ownerComment?.trim() ?? '';
 
-    final displayUrl = equipment?.imageUrl ?? "";
+    final imageUrls = equipment?.displayImageUrls ?? const <String>[];
 
     final isPriceEntrySelected =
         bookingState.selectedPriceEntry != null &&
@@ -261,7 +253,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 /// 1. ASSET HEADER CARD
-                EquipmentImageHeader(imageUrl: displayUrl),
+                EquipmentImageHeader(imageUrls: imageUrls),
 
                 Padding(
                   padding: const EdgeInsets.all(16),

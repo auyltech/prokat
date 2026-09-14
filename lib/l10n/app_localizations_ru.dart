@@ -1359,7 +1359,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get workStatusPostpone => 'Отложить';
 
   @override
-  String get workStatusStopWork => 'Остановить работу';
+  String get workStatusStopWork => 'Приостановить работу';
 
   @override
   String get workStatusResumeWork => 'Возобновить работу';
@@ -2453,6 +2453,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пожалуйста, просмотрите комментарий администратора и обновите свой запрос.';
 
   @override
+  String get statusRejectedReviewHint =>
+      'Ознакомьтесь с комментарием администратора и исправьте замечания.';
+
+  @override
+  String get statusRejectedNoComment =>
+      'Администратор отклонил ваш запрос без указания причин.';
+
+  @override
   String get statusUnderReview => 'На рассмотрении';
 
   @override
@@ -3482,6 +3490,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get equipmentSubmitPhotoRequired =>
       'Добавьте хотя бы одно фото техники, чтобы хотя бы на одном из кадров было видно госномер';
+
+  @override
+  String get equipmentResubmitConfirmMessage =>
+      'Убедитесь, что все замечания модератора исправлены.';
 
   @override
   String get youAreOnline => 'Вы онлайн';

@@ -1342,7 +1342,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get workStatusPostpone => 'Кейінге қалдыру';
 
   @override
-  String get workStatusStopWork => 'Жұмысты тоқтату';
+  String get workStatusStopWork => 'Жұмысты уақытша тоқтату';
 
   @override
   String get workStatusResumeWork => 'Жұмысты жалғастыру';
@@ -2433,6 +2433,14 @@ class AppLocalizationsKk extends AppLocalizations {
       'Әкімшінің пікірін қарап, өтінішіңізді жаңартыңыз.';
 
   @override
+  String get statusRejectedReviewHint =>
+      'Әкімші пікірімен танысып, ескертулерді түзетіңіз.';
+
+  @override
+  String get statusRejectedNoComment =>
+      'Әкімші өтінішіңізді себебін көрсетпей қабылдамады.';
+
+  @override
   String get statusUnderReview => 'Қаралуда';
 
   @override
@@ -3451,6 +3459,10 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get equipmentSubmitPhotoRequired =>
       'Кемінде бір техника фотосын қосыңыз, кадрлардың бірінде мемлекеттік нөмір көрінуі керек';
+
+  @override
+  String get equipmentResubmitConfirmMessage =>
+      'Модератордың барлық ескертулері түзетілгеніне көз жеткізіңіз.';
 
   @override
   String get youAreOnline => 'Сіз онлайнсыз';
