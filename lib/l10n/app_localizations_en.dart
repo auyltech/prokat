@@ -285,6 +285,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get counterOffer => 'Counter offer';
 
   @override
+  String get proposeYourPrice => 'Propose your price';
+
+  @override
+  String get currentPrice => 'Current price';
+
+  @override
+  String get yourPrice => 'Your price';
+
+  @override
+  String get sendPriceProposal => 'Send offer';
+
+  @override
   String get legalDocumentLoadError =>
       'Error loading document. Please try again later.';
 

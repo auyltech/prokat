@@ -284,6 +284,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get counterOffer => 'Қарсы ұсыныс';
 
   @override
+  String get proposeYourPrice => 'Өз бағаңызды ұсыну';
+
+  @override
+  String get currentPrice => 'Ағымдағы баға';
+
+  @override
+  String get yourPrice => 'Сіздің бағаңыз';
+
+  @override
+  String get sendPriceProposal => 'Ұсыныс жіберу';
+
+  @override
   String get legalDocumentLoadError =>
       'Құжатты жүктеу мүмкін болмады. Кейінірек қайталап көріңіз.';
 

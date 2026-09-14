@@ -610,6 +610,30 @@ abstract class AppLocalizations {
   /// **'Counter offer'**
   String get counterOffer;
 
+  /// No description provided for @proposeYourPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose your price'**
+  String get proposeYourPrice;
+
+  /// No description provided for @currentPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Current price'**
+  String get currentPrice;
+
+  /// No description provided for @yourPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your price'**
+  String get yourPrice;
+
+  /// No description provided for @sendPriceProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'Send offer'**
+  String get sendPriceProposal;
+
   /// No description provided for @legalDocumentLoadError.
   ///
   /// In en, this message translates to:

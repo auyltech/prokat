@@ -289,6 +289,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get counterOffer => 'Встречное предложение';
 
   @override
+  String get proposeYourPrice => 'Предложить свою цену';
+
+  @override
+  String get currentPrice => 'Текущая цена';
+
+  @override
+  String get yourPrice => 'Ваша цена';
+
+  @override
+  String get sendPriceProposal => 'Отправить предложение';
+
+  @override
   String get legalDocumentLoadError =>
       'Не удалось загрузить документ. Попробуйте позже.';
 
