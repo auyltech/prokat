@@ -40,7 +40,7 @@ void main() {
   });
 
   test('raw PriceRate enums in body are localized for display', () {
-    final notification = AppNotification(
+    const notification = AppNotification(
       id: 'n2',
       type: NotificationType.counterOfferAccepted,
       category: 'REQUESTS',

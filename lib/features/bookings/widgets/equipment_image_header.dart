@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/widgets/fullscreen_image_gallery.dart';
@@ -55,10 +57,12 @@ class _EquipmentImageHeaderState extends State<EquipmentImageHeader> {
   void _openGallery(int index) {
     final urls = _urls;
     if (urls.isEmpty) return;
-    FullscreenImageGallery.show(
-      context: context,
-      imageUrls: urls,
-      initialIndex: index,
+    unawaited(
+      FullscreenImageGallery.show(
+        context: context,
+        imageUrls: urls,
+        initialIndex: index,
+      ),
     );
   }
 
