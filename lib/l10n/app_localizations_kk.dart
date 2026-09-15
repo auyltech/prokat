@@ -3516,14 +3516,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get becomeOnline => '«Онлайн» болу';
 
   @override
-  String get accountSwitchedToOnline =>
-      'Сіз аккаунтты «Онлайн» режиміне аудардыңыз';
+  String get youAreNowOnline =>
+      '«Онлайн» режимі қосылды.\nЕнді сіз тапсырыстарды қабылдай аласыз.';
 
   @override
-  String get youAreNowOnline => 'Енді сіз онлайнсыз';
-
-  @override
-  String get youAreNowOffline => 'Енді сіз офлайнсыз';
+  String get youAreNowOffline =>
+      '«Онлайн» режимі өшірілді.\nСіз тапсырыстарды қабылдай алмайсыз.';
 
   @override
   String get failedToggleStatus => 'Мәртебені жаңарту мүмкін болмады';

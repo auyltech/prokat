@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
@@ -33,7 +33,7 @@ class _OwnerPaymentsTopupScreenState
     if (id == null) return;
     final l10n = AppLocalizations.of(context)!;
 
-    AppSnackBar.show(message: l10n.paymentFeatureComingSoon);
+    AppToast.show(message: l10n.paymentFeatureComingSoon);
   }
 
   @override

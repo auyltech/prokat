@@ -6604,22 +6604,16 @@ abstract class AppLocalizations {
   /// **'Go Online'**
   String get becomeOnline;
 
-  /// No description provided for @accountSwitchedToOnline.
-  ///
-  /// In en, this message translates to:
-  /// **'You switched the account to Online'**
-  String get accountSwitchedToOnline;
-
   /// No description provided for @youAreNowOnline.
   ///
   /// In en, this message translates to:
-  /// **'You are now online'**
+  /// **'Online mode is on.\nYou can accept orders now.'**
   String get youAreNowOnline;
 
   /// No description provided for @youAreNowOffline.
   ///
   /// In en, this message translates to:
-  /// **'You are now offline'**
+  /// **'Online mode is off.\nYou cannot accept orders.'**
   String get youAreNowOffline;
 
   /// No description provided for @failedToggleStatus.

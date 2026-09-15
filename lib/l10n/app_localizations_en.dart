@@ -3513,13 +3513,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get becomeOnline => 'Go Online';
 
   @override
-  String get accountSwitchedToOnline => 'You switched the account to Online';
+  String get youAreNowOnline =>
+      'Online mode is on.\nYou can accept orders now.';
 
   @override
-  String get youAreNowOnline => 'You are now online';
-
-  @override
-  String get youAreNowOffline => 'You are now offline';
+  String get youAreNowOffline =>
+      'Online mode is off.\nYou cannot accept orders.';
 
   @override
   String get failedToggleStatus => 'Failed to update status';

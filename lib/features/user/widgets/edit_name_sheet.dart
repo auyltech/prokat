@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -45,10 +45,9 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
     if (mounted) {
       Navigator.pop(context);
 
-      AppSnackBar.show(
+      AppToast.show(
         message: success ? l10n.nameUpdated : l10n.failedSaveName,
-        isSuccess: success,
-        isError: !success,
+        type: success ? AppToastType.success : AppToastType.error,
       );
     }
   }

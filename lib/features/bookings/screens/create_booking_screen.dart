@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
@@ -146,7 +146,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     }
 
     if (message.isNotEmpty) {
-      AppSnackBar.show(message: message, isSuccess: false, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
 
       return;
     }
@@ -165,10 +165,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .read(bookingMutationProvider.notifier)
         .createBooking();
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.message,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
 
     if (result.success && mounted) {

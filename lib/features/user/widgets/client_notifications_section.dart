@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:prokat/core/config/env.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
 import 'package:prokat/features/user/models/client_notification_preferences.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -161,10 +161,10 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
     });
 
     if (!saved) {
-      AppSnackBar.show(
+      AppToast.show(
         message: AppLocalizations.of(context)!
             .failedToSaveNotificationPreferences,
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }

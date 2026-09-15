@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -62,44 +63,12 @@ class _OwnerEquipmentDetailScreenState
     final comment = equipment.adminComment?.trim() ?? '';
     final remarks = comment.isEmpty ? l10n.statusRejectedNoComment : comment;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          title: Text(l10n.resubmit),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.equipmentResubmitConfirmMessage),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: theme.colorScheme.error.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Text(remarks, style: theme.textTheme.bodyMedium),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(l10n.submit),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.resubmit,
+      description: '${l10n.equipmentResubmitConfirmMessage}\n\n$remarks',
+      primaryLabel: l10n.submit,
+      secondaryLabel: l10n.cancel,
     );
     return confirmed == true;
   }
@@ -119,11 +88,11 @@ class _OwnerEquipmentDetailScreenState
         setState(() => _submitting = false);
         switch (saveResult) {
           case SaveAllResult.invalid:
-            AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+            AppToast.show(message: l10n.pleaseFillMissingInfo);
           case SaveAllResult.failed:
-            AppSnackBar.show(
+            AppToast.show(
               message: l10n.couldNotSaveEquipment,
-              isError: true,
+              type: AppToastType.error,
             );
           case SaveAllResult.success:
             break;
@@ -142,12 +111,12 @@ class _OwnerEquipmentDetailScreenState
     if (!mounted) return;
     if (!equipmentHasImage(latest)) {
       setState(() => _submitting = false);
-      AppSnackBar.show(message: l10n.equipmentSubmitPhotoRequired);
+      AppToast.show(message: l10n.equipmentSubmitPhotoRequired);
       return;
     }
     if (!isEquipmentReadyForReview(latest)) {
       setState(() => _submitting = false);
-      AppSnackBar.show(message: l10n.pleaseCompleteRequiredFields);
+      AppToast.show(message: l10n.pleaseCompleteRequiredFields);
       return;
     }
 
@@ -156,7 +125,7 @@ class _OwnerEquipmentDetailScreenState
         .updateEquipmentStatus(latest.id, EquipmentStatus.created);
     if (!mounted) return;
     setState(() => _submitting = false);
-    AppSnackBar.show(
+    AppToast.show(
       message: res.success
           ? l10n.equipmentSubmittedForReview
           : equipmentStatusErrorMessage(
@@ -164,8 +133,7 @@ class _OwnerEquipmentDetailScreenState
               errorCode: res.errorCode,
               fallback: l10n.failedToSubmit,
             ),
-      isSuccess: res.success,
-      isError: !res.success,
+      type: res.success ? AppToastType.success : AppToastType.error,
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
@@ -58,17 +58,17 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
     final price = int.tryParse(_priceController.text.trim());
 
     if (price == null) {
-      AppSnackBar.show(message: l10n.pleaseEnterValidPrice);
+      AppToast.show(message: l10n.pleaseEnterValidPrice);
       return;
     }
 
     if (price <= 0) {
-      AppSnackBar.show(message: l10n.priceMustBePositive);
+      AppToast.show(message: l10n.priceMustBePositive);
       return;
     }
 
     if (price > 100000) {
-      AppSnackBar.show(message: l10n.priceMaximumExceeded);
+      AppToast.show(message: l10n.priceMaximumExceeded);
       return;
     }
 
@@ -87,12 +87,11 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           equipmentId: widget.equipmentId,
         );
 
-        AppSnackBar.show(
+        AppToast.show(
           message: result.success
               ? l10n.priceEntryAdded
               : l10n.failedAddPriceEntry,
-          isSuccess: result.success,
-          isError: !result.success,
+          type: result.success ? AppToastType.success : AppToastType.error,
         );
       } else {
         final result = await notifier.updatePriceEntry(
@@ -109,17 +108,19 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
         if (!mounted) return;
         Navigator.pop(context);
 
-        AppSnackBar.show(
+        AppToast.show(
           message: result.success
               ? l10n.priceEntrySaved
               : l10n.failedUpdatePriceEntry,
-          isSuccess: result.success,
-          isError: !result.success,
+          type: result.success ? AppToastType.success : AppToastType.error,
         );
       }
     } catch (error) {
       if (mounted) {
-        AppSnackBar.show(message: l10n.failedSavePriceEntry, isError: true);
+        AppToast.show(
+          message: l10n.failedSavePriceEntry,
+          type: AppToastType.error,
+        );
       }
     } finally {
       if (mounted) {
