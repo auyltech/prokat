@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -62,44 +63,12 @@ class _OwnerEquipmentDetailScreenState
     final comment = equipment.adminComment?.trim() ?? '';
     final remarks = comment.isEmpty ? l10n.statusRejectedNoComment : comment;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          title: Text(l10n.resubmit),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.equipmentResubmitConfirmMessage),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: theme.colorScheme.error.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Text(remarks, style: theme.textTheme.bodyMedium),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(l10n.submit),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.resubmit,
+      description: '${l10n.equipmentResubmitConfirmMessage}\n\n$remarks',
+      primaryLabel: l10n.submit,
+      secondaryLabel: l10n.cancel,
     );
     return confirmed == true;
   }

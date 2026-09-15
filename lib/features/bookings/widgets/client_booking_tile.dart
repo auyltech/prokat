@@ -8,6 +8,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -248,32 +249,13 @@ Future<void> _handleCancel(
   final theme = Theme.of(context);
   final notifier = ref.read(bookingMutationProvider.notifier);
 
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.cancelBooking, style: theme.textTheme.titleLarge),
-        content: Text(
-          l10n.cancelOrderQuestion,
-          style: theme.textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.no),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              l10n.yesCancel,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      );
-    },
+  final confirmed = await AppAlertBottomSheet.show(
+    context,
+    title: l10n.cancelBooking,
+    description: l10n.cancelOrderQuestion,
+    primaryLabel: l10n.yesCancel,
+    secondaryLabel: l10n.no,
+    isDestructivePrimary: true,
   );
 
   if (confirmed != true) return;

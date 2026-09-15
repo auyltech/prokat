@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:prokat/core/widgets/app_snack_bar.dart";
+import "package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart";
 import "package:prokat/features/appstartup/app_mode_storage.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
 import "package:prokat/features/bookings/models/booking_status.dart";
@@ -23,7 +24,7 @@ class BookingActionRow extends ConsumerWidget {
     this.onActionCompleted,
   });
 
-  void _handleAccept(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleAccept(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     if (!await ensureOwnerOnline(
       context,
@@ -34,46 +35,32 @@ class BookingActionRow extends ConsumerWidget {
     }
     if (!context.mounted) return;
 
-    final notifier = ref.read(bookingMutationProvider.notifier);
-
-    unawaited(
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(l10n.confirmOrder),
-          content: Text(l10n.acceptBookingFor(booking.equipment?.name ?? '')),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final result = await notifier.updateBookingStatus(
-                  id: booking.id,
-                  status: BookingStatus.confirmed,
-                );
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                AppSnackBar.show(
-                  message: result.success
-                      ? l10n.orderConfirmed
-                      : ownerOfflineActionErrorMessage(
-                          l10n: l10n,
-                          errorCode: result.errorCode,
-                          fallback: l10n.failedToConfirmOrder,
-                        ),
-                  isSuccess: result.success,
-                  isError: !result.success,
-                );
-                if (result.success) onActionCompleted?.call();
-              },
-              child: Text(l10n.confirm),
-            ),
-          ],
-        ),
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.confirmOrder,
+      description: l10n.acceptBookingFor(booking.equipment?.name ?? ''),
+      primaryLabel: l10n.confirm,
+      secondaryLabel: l10n.cancel,
     );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final result = await ref
+        .read(bookingMutationProvider.notifier)
+        .updateBookingStatus(id: booking.id, status: BookingStatus.confirmed);
+    if (!context.mounted) return;
+    AppSnackBar.show(
+      message: result.success
+          ? l10n.orderConfirmed
+          : ownerOfflineActionErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: l10n.failedToConfirmOrder,
+            ),
+      isSuccess: result.success,
+      isError: !result.success,
+    );
+    if (result.success) onActionCompleted?.call();
   }
 
   @override
@@ -122,7 +109,7 @@ class BookingActionRow extends ConsumerWidget {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: () => _handleAccept(context, ref),
+                onPressed: () => unawaited(_handleAccept(context, ref)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -191,28 +178,13 @@ class BookingActionRow extends ConsumerWidget {
         ? l10n.yesReject
         : l10n.yesCancel;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(modalTitle, style: theme.textTheme.titleMedium),
-          content: Text(modalText, style: theme.textTheme.bodyMedium),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l10n.no),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(submitButton),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: modalTitle,
+      description: modalText,
+      primaryLabel: submitButton,
+      secondaryLabel: l10n.no,
+      isDestructivePrimary: true,
     );
 
     if (confirmed != true) return;

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/location_tile.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -50,29 +51,14 @@ class SelectAddressSheet extends ConsumerWidget {
     WidgetRef ref,
     String addressId,
   ) async {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.deleteAddressQuestion),
-        content: Text(l10n.deleteAddressConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: TextButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-            ),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.deleteAddressQuestion,
+      description: l10n.deleteAddressConfirmation,
+      primaryLabel: l10n.delete,
+      secondaryLabel: l10n.cancel,
+      isDestructivePrimary: true,
     );
 
     if (confirmed != true || !context.mounted) return;

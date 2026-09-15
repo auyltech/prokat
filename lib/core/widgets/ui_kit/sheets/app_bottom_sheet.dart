@@ -11,6 +11,8 @@ abstract final class AppBottomSheet {
     required String title,
     String? subtitle,
     bool useRootNavigator = false,
+    bool isDismissible = true,
+    bool enableDrag = true,
     required WidgetBuilder contentBuilder,
   }) {
     final colors = context.colors;
@@ -19,9 +21,12 @@ abstract final class AppBottomSheet {
       context: context,
       useRootNavigator: useRootNavigator,
       isScrollControlled: true,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
       barrierColor: colors.barrierColor,
       backgroundColor: Colors.transparent,
       builder: (context) => AppBottomSheetBarrier(
+        dismissOnBarrierTap: isDismissible,
         child: AppBottomSheetLayout(
           title: title,
           subtitle: subtitle,
@@ -66,8 +71,13 @@ abstract final class AppBottomSheet {
 
 class AppBottomSheetBarrier extends StatelessWidget {
   final Widget child;
+  final bool dismissOnBarrierTap;
 
-  const AppBottomSheetBarrier({super.key, required this.child});
+  const AppBottomSheetBarrier({
+    super.key,
+    required this.child,
+    this.dismissOnBarrierTap = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +85,7 @@ class AppBottomSheetBarrier extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.of(context).pop(),
+      onTap: dismissOnBarrierTap ? () => Navigator.of(context).pop() : null,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [

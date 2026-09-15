@@ -14,4 +14,5 @@ export 'package:prokat/core/widgets/ui_kit/inputs/app_input_field_style.dart';
 export 'package:prokat/core/widgets/ui_kit/inputs/app_kz_phone_field.dart';
 export 'package:prokat/core/widgets/ui_kit/inputs/app_text_area.dart';
 export 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
+export 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 export 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';

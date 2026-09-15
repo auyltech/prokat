@@ -8,6 +8,7 @@ import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -401,30 +402,14 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     if (!_canEdit) return;
     final draft = _tariffs[index];
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(l10n.deletePriceEntry),
-          content: Text(l10n.deletePriceEntryConfirmation),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.error,
-                foregroundColor: colorScheme.onError,
-              ),
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(l10n.delete),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.deletePriceEntry,
+      description: l10n.deletePriceEntryConfirmation,
+      primaryLabel: l10n.delete,
+      secondaryLabel: l10n.cancel,
+      isDestructivePrimary: true,
+      isDismissible: false,
     );
     if (confirmed != true) return;
     if (draft.id != null) {

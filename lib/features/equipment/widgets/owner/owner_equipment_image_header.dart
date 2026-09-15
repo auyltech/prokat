@@ -10,6 +10,7 @@ import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/page_dots_indicator.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
@@ -153,27 +154,13 @@ class _OwnerEquipmentImageHeaderState
   }
 
   Future<void> _confirmAndDelete(EquipmentImage image) async {
-    final theme = Theme.of(context);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(_l10n.deletePhotoQuestion),
-        content: Text(_l10n.deletePhotoConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(_l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-            ),
-            child: Text(_l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: _l10n.deletePhotoQuestion,
+      description: _l10n.deletePhotoConfirmation,
+      primaryLabel: _l10n.delete,
+      secondaryLabel: _l10n.cancel,
+      isDestructivePrimary: true,
     );
 
     if (confirmed != true) return;

@@ -8,6 +8,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/action_button.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -27,11 +28,7 @@ class OwnerBookingTile extends ConsumerWidget {
 
   const OwnerBookingTile({super.key, required this.booking});
 
-  void handleAccept(
-    BuildContext context,
-    WidgetRef ref,
-    ThemeData theme,
-  ) async {
+  Future<void> handleAccept(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     if (!await ensureOwnerOnline(
       context,
@@ -42,58 +39,30 @@ class OwnerBookingTile extends ConsumerWidget {
     }
     if (!context.mounted) return;
 
-    unawaited(
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(l10n.acceptOrderQuestion),
-            content: Text(l10n.acceptOrderConfirmation),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  if (context.mounted && context.canPop()) {
-                    context.pop();
-                  }
-                },
-                child: Text(l10n.cancel),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (context.mounted && context.canPop()) {
-                    context.pop();
-                  }
-                  final result = await ref
-                      .read(bookingMutationProvider.notifier)
-                      .updateBookingStatus(
-                        id: booking.id,
-                        status: BookingStatus.confirmed,
-                      );
-                  if (!context.mounted) return;
-                  AppSnackBar.show(
-                    message: result.success
-                        ? l10n.orderConfirmed
-                        : ownerOfflineActionErrorMessage(
-                            l10n: l10n,
-                            errorCode: result.errorCode,
-                            fallback: l10n.failedToConfirmOrder,
-                          ),
-                    isSuccess: result.success,
-                    isError: !result.success,
-                  );
-                },
-                child: Text(
-                  l10n.confirm,
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.acceptOrderQuestion,
+      description: l10n.acceptOrderConfirmation,
+      primaryLabel: l10n.confirm,
+      secondaryLabel: l10n.cancel,
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final result = await ref
+        .read(bookingMutationProvider.notifier)
+        .updateBookingStatus(id: booking.id, status: BookingStatus.confirmed);
+    if (!context.mounted) return;
+    AppSnackBar.show(
+      message: result.success
+          ? l10n.orderConfirmed
+          : ownerOfflineActionErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: l10n.failedToConfirmOrder,
+            ),
+      isSuccess: result.success,
+      isError: !result.success,
     );
   }
 
@@ -112,32 +81,13 @@ class OwnerBookingTile extends ConsumerWidget {
         : l10n.cancelOrderQuestion;
     final submitButton = isCreatedStatus ? l10n.yesReject : l10n.yesCancel;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(modalTitle, style: theme.textTheme.titleLarge),
-        content: Text(modalText, style: theme.textTheme.bodyMedium),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, false),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: theme.colorScheme.primary,
-              elevation: 0,
-            ),
-            child: Text(l10n.no),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-              elevation: 0,
-            ),
-            child: Text(submitButton),
-          ),
-        ],
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: modalTitle,
+      description: modalText,
+      primaryLabel: submitButton,
+      secondaryLabel: l10n.no,
+      isDestructivePrimary: true,
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -309,11 +259,13 @@ class OwnerBookingTile extends ConsumerWidget {
                       const SizedBox(width: 8),
                     ] else
                       IconButton(
-                        onPressed: () => _handleCancel(
-                          context,
-                          ref,
-                          theme,
-                          booking.status == BookingStatus.created,
+                        onPressed: () => unawaited(
+                          _handleCancel(
+                            context,
+                            ref,
+                            theme,
+                            booking.status == BookingStatus.created,
+                          ),
                         ),
                         icon: Icon(
                           LucideIcons.x,
@@ -345,7 +297,7 @@ class OwnerBookingTile extends ConsumerWidget {
                       onPressed: () =>
                           ref.watch(bookingMutationProvider).isSubmitting
                           ? null
-                          : handleAccept(context, ref, theme),
+                          : unawaited(handleAccept(context, ref)),
                       tooltip: l10n.acceptOrder,
                       icon: Icon(
                         LucideIcons.check,

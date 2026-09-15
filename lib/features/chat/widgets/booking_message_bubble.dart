@@ -6,6 +6,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -345,46 +346,34 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                       );
                       if (!online || !context.mounted) return;
 
-                      await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: theme.colorScheme.surface,
-                          title: Text(l10n.acceptOrderQuestion),
-                          content: Text(l10n.acceptOrderConfirmation),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: Text(l10n.cancel),
-                            ),
+                      final confirmed = await AppAlertBottomSheet.show(
+                        context,
+                        title: l10n.acceptOrderQuestion,
+                        description: l10n.acceptOrderConfirmation,
+                        primaryLabel: l10n.accept,
+                        secondaryLabel: l10n.cancel,
+                      );
 
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.pop(context, true);
+                      if (confirmed != true || !context.mounted) return;
 
-                                final result = await ref
-                                    .read(bookingMutationProvider.notifier)
-                                    .updateBookingStatus(
-                                      id: booking.id,
-                                      status: BookingStatus.confirmed,
-                                    );
+                      final result = await ref
+                          .read(bookingMutationProvider.notifier)
+                          .updateBookingStatus(
+                            id: booking.id,
+                            status: BookingStatus.confirmed,
+                          );
 
-                                if (!context.mounted) return;
-                                AppSnackBar.show(
-                                  message: result.success
-                                      ? l10n.orderConfirmed
-                                      : ownerOfflineActionErrorMessage(
-                                          l10n: l10n,
-                                          errorCode: result.errorCode,
-                                          fallback: l10n.failedToConfirmOrder,
-                                        ),
-                                  isSuccess: result.success,
-                                  isError: !result.success,
-                                );
-                              },
-                              child: Text(l10n.accept),
-                            ),
-                          ],
-                        ),
+                      if (!context.mounted) return;
+                      AppSnackBar.show(
+                        message: result.success
+                            ? l10n.orderConfirmed
+                            : ownerOfflineActionErrorMessage(
+                                l10n: l10n,
+                                errorCode: result.errorCode,
+                                fallback: l10n.failedToConfirmOrder,
+                              ),
+                        isSuccess: result.success,
+                        isError: !result.success,
                       );
                     },
                     icon: Icon(

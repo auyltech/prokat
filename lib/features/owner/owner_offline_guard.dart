@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
+import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/offers/offer_error_message.dart';
@@ -97,7 +102,7 @@ String ownerGoOnlineFailureMessage({
 }
 
 /// Local offline action gate. Returns true only if the owner is already online.
-/// Going online from the dialog closes it and leaves the original tap unsent
+/// Going online from the sheet closes it and leaves the original tap unsent
 /// so the owner can accept, bargain, or chat themselves.
 Future<bool> ensureOwnerOnline(
   BuildContext context,
@@ -108,21 +113,21 @@ Future<bool> ensureOwnerOnline(
   if (!context.mounted) return false;
 
   final l10n = AppLocalizations.of(context)!;
-  final theme = Theme.of(context);
 
-  final wentOnline = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) {
-      return _OwnerGoOnlineDialog(
+  final wentOnline = await AppBottomSheet.show<bool>(
+    context,
+    title: l10n.becomeOnline,
+    isDismissible: false,
+    enableDrag: false,
+    contentBuilder: (sheetContext) {
+      return _OwnerGoOnlineSheetContent(
         message: message,
         cancelLabel: l10n.cancel,
         becomeOnlineLabel: l10n.becomeOnline,
-        backgroundColor: theme.colorScheme.surface,
         onBecomeOnline: () async {
           final preCheck = ownerGoOnlineBlockReason(ref);
           if (preCheck != OwnerGoOnlineBlockReason.none) {
-            if (dialogContext.mounted) {
+            if (sheetContext.mounted) {
               AppSnackBar.show(
                 message: ownerGoOnlineBlockMessage(
                   l10n: l10n,
@@ -135,7 +140,7 @@ Future<bool> ensureOwnerOnline(
           }
 
           final ok = await requestOwnerGoOnline(ref);
-          if (!dialogContext.mounted) return false;
+          if (!sheetContext.mounted) return false;
 
           if (!ok) {
             AppSnackBar.show(
@@ -207,26 +212,26 @@ class BecomeOnlineOutlinedButton extends StatelessWidget {
   }
 }
 
-class _OwnerGoOnlineDialog extends StatefulWidget {
+class _OwnerGoOnlineSheetContent extends StatefulWidget {
   final String message;
   final String cancelLabel;
   final String becomeOnlineLabel;
-  final Color backgroundColor;
   final Future<bool> Function() onBecomeOnline;
 
-  const _OwnerGoOnlineDialog({
+  const _OwnerGoOnlineSheetContent({
     required this.message,
     required this.cancelLabel,
     required this.becomeOnlineLabel,
-    required this.backgroundColor,
     required this.onBecomeOnline,
   });
 
   @override
-  State<_OwnerGoOnlineDialog> createState() => _OwnerGoOnlineDialogState();
+  State<_OwnerGoOnlineSheetContent> createState() =>
+      _OwnerGoOnlineSheetContentState();
 }
 
-class _OwnerGoOnlineDialogState extends State<_OwnerGoOnlineDialog> {
+class _OwnerGoOnlineSheetContentState
+    extends State<_OwnerGoOnlineSheetContent> {
   bool _loading = false;
 
   Future<void> _onBecomeOnline() async {
@@ -246,46 +251,26 @@ class _OwnerGoOnlineDialogState extends State<_OwnerGoOnlineDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final border = theme.colorScheme.outline.withValues(alpha: 0.7);
-
-    return AlertDialog(
-      backgroundColor: widget.backgroundColor,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(widget.message),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _loading
-                      ? null
-                      : () => Navigator.of(context).pop(false),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: border),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(widget.cancelLabel),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: BecomeOnlineOutlinedButton(
-                  label: widget.becomeOnlineLabel,
-                  busy: _loading,
-                  onPressed: _onBecomeOnline,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppDimens.s12$md,
+      children: [
+        Text(
+          widget.message,
+          textAlign: TextAlign.center,
+          style: AppFonts.body14(context),
+        ),
+        AppOutlinedButton(
+          title: widget.cancelLabel,
+          onTap: _loading ? null : () => Navigator.of(context).pop(false),
+        ),
+        AppElevatedButton(
+          title: widget.becomeOnlineLabel,
+          isLoading: _loading,
+          onTap: _loading ? null : _onBecomeOnline,
+        ),
+      ],
     );
   }
 }

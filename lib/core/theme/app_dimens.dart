@@ -10,6 +10,7 @@ abstract final class AppDimens {
 
   static const double r08$md = 8;
   static const double r10$base = 10;
+  static const double r16$xl = 16;
   static const double r20$xxl = 20;
   static const double r999$full = 999;
 
@@ -36,9 +37,9 @@ abstract final class AppDimens {
   static const double sheetHandleRadius = 2;
   static const double sheetTopPadding = s12$md;
   static const double sheetHorizontalPadding = s12$md;
-  static const double sheetHandleToTitleGap = 28;
+  static const double sheetHandleToTitleGap = s20$lg;
   static const double sheetTitleToSubtitleGap = s08$sm;
-  static const double sheetTitleToContentGap = 28;
+  static const double sheetTitleToContentGap = s20$lg;
   static const double sheetBottomPadding = 40;
 
   static const double defaultIconSize = 16;
