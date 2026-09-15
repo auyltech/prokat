@@ -87,6 +87,22 @@ class BillingState {
         .round());
   }
 
+  /// Wall-clock seconds the current balance lasts at [onlineCount] machines.
+  /// Uses the 1-machine rate when nothing is online or the curve row is missing.
+  int remainingWallClockSeconds({required int onlineCount}) {
+    final seconds = accountBalance?.secondsRemaining ?? 0;
+    if (seconds <= 0) return 0;
+
+    final count = onlineCount < 1 ? 1 : onlineCount;
+    final foundDiscount = volumeDiscounts
+        .where((item) => item.onlineCount == count)
+        .firstOrNull;
+    final costPerHour = foundDiscount?.costPerMinute ?? 60;
+    if (costPerHour <= 0) return 0;
+
+    return ((seconds * 60) / costPerHour).round();
+  }
+
   int getBurnRate(num onlineCount) {
     return 0;
   }

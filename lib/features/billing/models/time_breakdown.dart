@@ -35,6 +35,17 @@ class TimeBreakdown {
 
     return parts.join(', ');
   }
+
+  /// Days and hours only, so the balance subtitle stays on one line.
+  String formatCompact(AppLocalizations l10n) {
+    if (days > 0 || hours > 0) {
+      final parts = <String>[];
+      if (days > 0) parts.add(l10n.durationDays(days));
+      if (hours > 0) parts.add(l10n.durationHours(hours));
+      return parts.join(' ');
+    }
+    return format(l10n);
+  }
 }
 
 TimeBreakdown getTimeBreakDown(int? totalSeconds) {
@@ -58,4 +69,12 @@ String getTimeString(int? totalSeconds, AppLocalizations l10n) {
   }
 
   return getTimeBreakDown(totalSeconds).format(l10n);
+}
+
+String getCompactTimeString(int? totalSeconds, AppLocalizations l10n) {
+  if (totalSeconds == null || totalSeconds < 0) {
+    return l10n.invalidSecondsValue;
+  }
+
+  return getTimeBreakDown(totalSeconds).formatCompact(l10n);
 }

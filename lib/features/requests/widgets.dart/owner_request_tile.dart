@@ -14,6 +14,7 @@ import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/widgets/view_offer_sheet.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/features/requests/state/request_lifetime.dart';
@@ -202,7 +203,10 @@ class OwnerRequestTile extends ConsumerWidget {
                 children: [
                   Text(l10n.offeredRate, style: theme.textTheme.labelSmall),
                   Text(
-                    formatPrice(request.offeredPrice),
+                    formatRequestOfferedPrice(
+                      request.offeredPrice,
+                      waitOwnerLabel: l10n.requestWaitOwnerPrice,
+                    ),
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -286,7 +290,14 @@ class OwnerRequestTile extends ConsumerWidget {
 
                     // Send Offer
                     IconButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        final online = await ensureOwnerOnline(
+                          context,
+                          ref,
+                          message: l10n.ownerOfflineMustBeOnlineForTender,
+                        );
+                        if (!online || !context.mounted) return;
+
                         ref
                             .read(offerMutationProvider.notifier)
                             .selectRequest(request);

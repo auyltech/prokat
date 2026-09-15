@@ -32,13 +32,17 @@ class _OwnerBusinessPreferencesSectionState
   }
 
   Future<void> _loadBusinessData() async {
+    if (!mounted) return;
+
     await ref.read(ownerProfileProvider.notifier).refreshIfStale();
+    if (!mounted) return;
 
     if (ref.read(locationProvider).ownerLocations.isEmpty) {
       await ref.read(locationProvider.notifier).getOwnerLocations();
+      if (!mounted) return;
     }
 
-    if (ref.read(ownerEquipmentProvider).value == null) {
+    if (ref.read(ownerEquipmentProvider).valueOrNull == null) {
       await ref.read(ownerEquipmentProvider.notifier).refresh();
     }
   }

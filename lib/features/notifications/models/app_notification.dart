@@ -44,11 +44,15 @@ class AppNotification {
   }
 
   String localizedBody(String languageCode) {
-    return pickLocalizedText(
+    final raw = pickLocalizedText(
       data['i18n'],
       languageCode: languageCode,
       field: 'body',
       fallback: fallbackNotificationBody(type, languageCode) ?? body,
+    );
+    return localizePriceRateInNotificationText(
+      raw,
+      notificationL10n(languageCode),
     );
   }
 

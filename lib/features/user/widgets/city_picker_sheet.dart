@@ -18,6 +18,23 @@ enum CitySelectorService {
   ownerprofile,
 }
 
+bool cityPickerIncludesAllCities(CitySelectorService? service) {
+  return service == null ||
+      service == CitySelectorService.guestcategory ||
+      service == CitySelectorService.clientcity;
+}
+
+List<String> cityPickerOptions({
+  required Iterable<String> cityKeys,
+  CitySelectorService? service,
+}) {
+  final keys = cityKeys.toList(growable: false);
+  if (cityPickerIncludesAllCities(service)) {
+    return ['', ...keys];
+  }
+  return keys;
+}
+
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
   final String? highlightedCity;
@@ -94,12 +111,10 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
     final selectedCity =
         widget.highlightedCity ?? ref.watch(locationProvider).city;
     final title = l10n.selectCity;
-    final allLocationsLabel = l10n.allLocations;
-    final cityKeys = catalogCityKeys(catalog);
-
-    final cityOptions = widget.service == CitySelectorService.guestcategory
-        ? ["", ...cityKeys]
-        : cityKeys;
+    final options = cityPickerOptions(
+      cityKeys: catalogCityKeys(catalog),
+      service: widget.service,
+    );
 
     return SafeArea(
       top: false,
@@ -134,19 +149,22 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
-                  itemCount: cityOptions.length,
+                  itemCount: options.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final option = cityOptions[index];
-                    final isSelected = option.isEmpty
-                        ? (selectedCity == null || selectedCity.isEmpty)
-                        : isSameCity(option, selectedCity);
+                    final option = options[index];
+                    final isAllCities = option.trim().isEmpty;
+                    final isSelected = isSameCity(option, selectedCity);
 
                     return ListTile(
-                      leading: const Icon(Icons.location_city),
+                      leading: Icon(
+                        isAllCities
+                            ? Icons.public_outlined
+                            : Icons.location_city,
+                      ),
                       title: Text(
-                        option.isEmpty
-                            ? allLocationsLabel
+                        isAllCities
+                            ? l10n.allLocations
                             : catalogCityLabel(
                                 city: option,
                                 languageCode: locale,

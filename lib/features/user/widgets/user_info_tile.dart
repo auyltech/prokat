@@ -7,8 +7,9 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class UserInfoTile extends ConsumerWidget {
   final UserModel? user;
+  final bool showPresence;
 
-  const UserInfoTile({super.key, this.user});
+  const UserInfoTile({super.key, this.user, this.showPresence = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +48,15 @@ class UserInfoTile extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              UserDisplayName(user: user),
+              Row(
+                children: [
+                  Flexible(child: UserDisplayName(user: user)),
+                  if (showPresence) ...[
+                    const SizedBox(width: 8),
+                    _OwnerPresenceChip(isOnline: user?.isAccountOnline == true),
+                  ],
+                ],
+              ),
 
               Row(
                 children: [
@@ -67,6 +76,41 @@ class UserInfoTile extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _OwnerPresenceChip extends StatelessWidget {
+  const _OwnerPresenceChip({required this.isOnline});
+
+  final bool isOnline;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final isDark = theme.brightness == Brightness.dark;
+    final background = isOnline
+        ? const Color(0xFF2D5A3F)
+        : (isDark ? const Color(0xFF3A3F4A) : const Color(0xFFE5E7EB));
+    final foreground = isOnline
+        ? Colors.white
+        : (isDark ? const Color(0xFFD1D5DB) : const Color(0xFF4B5563));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isOnline ? l10n.accountOnline : l10n.accountOffline,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: foreground,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.1,
+        ),
+      ),
     );
   }
 }

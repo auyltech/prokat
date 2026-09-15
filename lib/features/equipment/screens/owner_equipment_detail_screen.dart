@@ -11,6 +11,7 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
+import 'package:prokat/features/equipment/equipment_status_error_message.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -35,8 +36,6 @@ class OwnerEquipmentDetailScreen extends ConsumerStatefulWidget {
 class _OwnerEquipmentDetailScreenState
     extends ConsumerState<OwnerEquipmentDetailScreen> {
   bool _submitting = false;
-  String? _rejectedBaselineId;
-  String? _rejectedBaselineFingerprint;
 
   @override
   void initState() {
@@ -44,50 +43,65 @@ class _OwnerEquipmentDetailScreenState
 
     unawaited(
       Future.microtask(() async {
-        await ref.read(
-          ownerEquipmentDetailsProvider(widget.equipmentId).future,
-        );
+        // Always refetch: list can already show a newer moderation status while
+        // this family cache still holds CREATED from a previous visit.
+        await ref
+            .read(ownerEquipmentDetailsProvider(widget.equipmentId).notifier)
+            .refresh();
+        if (!mounted) return;
 
         await ref.read(categoriesProvider.notifier).refreshIfStale();
       }),
     );
   }
 
-  Future<void> _saveAll(AppLocalizations l10n) async {
-    final editor = ref.read(
-      ownerEquipmentEditorProvider(widget.equipmentId).notifier,
+  Future<bool> _confirmResubmit(
+    Equipment equipment,
+    AppLocalizations l10n,
+  ) async {
+    final comment = equipment.adminComment?.trim() ?? '';
+    final remarks = comment.isEmpty ? l10n.statusRejectedNoComment : comment;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final theme = Theme.of(dialogContext);
+        return AlertDialog(
+          title: Text(l10n.resubmit),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.equipmentResubmitConfirmMessage),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: theme.colorScheme.error.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Text(remarks, style: theme.textTheme.bodyMedium),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.submit),
+            ),
+          ],
+        );
+      },
     );
-    final result = await editor.saveAll();
-    if (!mounted) return;
-    switch (result) {
-      case SaveAllResult.success:
-        AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
-      case SaveAllResult.invalid:
-        AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
-      case SaveAllResult.failed:
-        AppSnackBar.show(message: l10n.couldNotSaveEquipment, isError: true);
-    }
-  }
-
-  void _rememberRejectedBaseline(Equipment equipment) {
-    if (equipment.status != EquipmentStatus.rejected) {
-      _rejectedBaselineId = null;
-      _rejectedBaselineFingerprint = null;
-      return;
-    }
-    if (_rejectedBaselineId == equipment.id &&
-        _rejectedBaselineFingerprint != null) {
-      return;
-    }
-    _rejectedBaselineId = equipment.id;
-    _rejectedBaselineFingerprint = equipmentReviewFingerprint(equipment);
-  }
-
-  bool _hasChangedSinceRejection(Equipment equipment, bool anyDirty) {
-    if (anyDirty) return true;
-    final baseline = _rejectedBaselineFingerprint;
-    if (baseline == null) return false;
-    return equipmentReviewFingerprint(equipment) != baseline;
+    return confirmed == true;
   }
 
   Future<void> _submitForReview(
@@ -95,15 +109,6 @@ class _OwnerEquipmentDetailScreenState
     AppLocalizations l10n, {
     bool saveDirtyFirst = false,
   }) async {
-    if (!equipmentHasImage(equipment)) {
-      AppSnackBar.show(message: l10n.equipmentSubmitPhotoRequired);
-      return;
-    }
-    if (!isEquipmentReadyForReview(equipment)) {
-      AppSnackBar.show(message: l10n.pleaseCompleteRequiredFields);
-      return;
-    }
-
     setState(() => _submitting = true);
     if (saveDirtyFirst) {
       final saveResult = await ref
@@ -126,15 +131,41 @@ class _OwnerEquipmentDetailScreenState
         return;
       }
     }
+    if (!mounted) return;
+
+    var latest = equipment;
+    try {
+      latest = await ref.read(
+        ownerEquipmentDetailsProvider(widget.equipmentId).future,
+      );
+    } catch (_) {}
+    if (!mounted) return;
+    if (!equipmentHasImage(latest)) {
+      setState(() => _submitting = false);
+      AppSnackBar.show(message: l10n.equipmentSubmitPhotoRequired);
+      return;
+    }
+    if (!isEquipmentReadyForReview(latest)) {
+      setState(() => _submitting = false);
+      AppSnackBar.show(message: l10n.pleaseCompleteRequiredFields);
+      return;
+    }
+
     final res = await ref
         .read(equipmentMutationProvider.notifier)
-        .updateEquipmentStatus(equipment.id, EquipmentStatus.created);
+        .updateEquipmentStatus(latest.id, EquipmentStatus.created);
     if (!mounted) return;
     setState(() => _submitting = false);
     AppSnackBar.show(
-      message: res ? l10n.equipmentSubmittedForReview : l10n.failedToSubmit,
-      isSuccess: res,
-      isError: !res,
+      message: res.success
+          ? l10n.equipmentSubmittedForReview
+          : equipmentStatusErrorMessage(
+              l10n: l10n,
+              errorCode: res.errorCode,
+              fallback: l10n.failedToSubmit,
+            ),
+      isSuccess: res.success,
+      isError: !res.success,
     );
   }
 
@@ -157,9 +188,9 @@ class _OwnerEquipmentDetailScreenState
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         behavior: HitTestBehavior.translucent,
         child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(ownerEquipmentDetailsProvider(widget.equipmentId));
-          },
+          onRefresh: () => ref
+              .read(ownerEquipmentDetailsProvider(widget.equipmentId).notifier)
+              .refresh(),
           child: equipmentAsync.when(
             skipLoadingOnReload: true,
             skipLoadingOnRefresh: true,
@@ -170,26 +201,12 @@ class _OwnerEquipmentDetailScreenState
               subtitle: l10n.equipmentDataNotLocated,
             ),
             data: (equipment) {
-              _rememberRejectedBaseline(equipment);
               final editor = ref.watch(
                 ownerEquipmentEditorProvider(widget.equipmentId),
               );
-              final ready = isEquipmentReadyForReview(equipment);
               final reviewUi = OwnerEquipmentReviewUi.from(
                 status: equipment.status,
                 anyDirty: editor.anyDirty,
-              );
-              final canAttemptResubmit =
-                  reviewUi.showResubmit &&
-                  !_submitting &&
-                  _hasChangedSinceRejection(equipment, editor.anyDirty);
-              final errorHintStyle = theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              );
-              final photoHintStyle = theme.textTheme.bodySmall?.copyWith(
-                color: equipmentHasImage(equipment)
-                    ? theme.colorScheme.onSurfaceVariant
-                    : theme.colorScheme.error,
               );
 
               return ListView(
@@ -216,59 +233,50 @@ class _OwnerEquipmentDetailScreenState
                           const SizedBox(height: 16),
                           EquipmentModerationStatusCard(
                             status: equipment.status,
+                            adminComment: equipment.adminComment,
                           ),
                         ],
                         const SizedBox(height: 16),
                         GeneralInfoSection(equipment: equipment),
                         RegistrationSection(equipment: equipment),
                         OwnerEquipmentSpecs(equipment: equipment),
-                        if (reviewUi.showSaveAll) ...[
-                          const SizedBox(height: 8),
-                          PrimaryButton(
-                            label: l10n.saveAll,
-                            isLoading: editor.anySaving,
-                            onPressed: editor.anySaving
-                                ? null
-                                : () => _saveAll(l10n),
-                          ),
-                        ] else if (reviewUi.showSubmitForReview ||
+                        if (reviewUi.showSubmitForReview ||
                             reviewUi.showResubmit) ...[
-                          const SizedBox(height: 8),
-                          if (!ready)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                l10n.pleaseCompleteRequiredFields,
-                                style: errorHintStyle,
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.equipmentSubmitPhotoHint,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
                               ),
+                              height: 1.35,
                             ),
-                          if (reviewUi.showSubmitForReview)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                l10n.equipmentSubmitPhotoHint,
-                                style: photoHintStyle,
-                              ),
-                            ),
+                          ),
+                          const SizedBox(height: 12),
                           PrimaryButton(
                             label: reviewUi.showSubmitForReview
                                 ? l10n.submitForReview
                                 : l10n.resubmit,
-                            onPressed: reviewUi.showSubmitForReview
-                                ? (_submitting
-                                      ? null
-                                      : () => _submitForReview(equipment, l10n))
-                                : (canAttemptResubmit
-                                      ? () => _submitForReview(
-                                          equipment,
-                                          l10n,
-                                          saveDirtyFirst: editor.anyDirty,
-                                        )
-                                      : null),
+                            onPressed: _submitting
+                                ? null
+                                : () async {
+                                    if (reviewUi.showResubmit) {
+                                      final confirmed = await _confirmResubmit(
+                                        equipment,
+                                        l10n,
+                                      );
+                                      if (!confirmed || !mounted) return;
+                                    }
+                                    await _submitForReview(
+                                      equipment,
+                                      l10n,
+                                      saveDirtyFirst: editor.anyDirty,
+                                    );
+                                  },
                             isLoading: _submitting,
                           ),
                         ],
-                        if (equipment.status == EquipmentStatus.draft) ...[
+                        if (equipment.status != EquipmentStatus.booked) ...[
                           const SizedBox(height: 20),
                           DeleteEquipmentSection(equipmentId: equipment.id),
                         ],

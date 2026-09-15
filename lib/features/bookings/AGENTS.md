@@ -18,6 +18,8 @@
 - `postponed` → `onMyWay` | `onSite` | `started`
 - `started` → `stopped` | `completed`
 - `stopped` → `started` (возобновить) | `completed`
-- `completed` — конец работ; клиент подтверждает заказ. В списке заказов «Завершить работу» скрыта (`CONFIRMED` + `completed`).
+- `completed` — конец работ; клиент подтверждает заказ.
+
+На карточках «Мои заказы» у владельца нет кнопок хода работ («Начать/Завершить работу» и т.п.) — только принять/отклонить заказ или чат. Операционный пульт выполняемого заказа — чат (`ChatActionBar` / `BookingStatusSheet`).
 
 Шит: `BookingStatusSheet` берёт `nextWorkStatuses`. Кнопки — ARB. Тела EVENT и пушей — бэкенд `meta.i18n` / `data.i18n`, не ARB.

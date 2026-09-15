@@ -150,6 +150,14 @@ String extractBackendMessage(
       return error;
     }
 
+    // Error middleware wraps AppError as `{ error: { code, message, ... } }`.
+    if (error is Map) {
+      final nestedMessage = error["message"];
+      if (nestedMessage is String && nestedMessage.trim().isNotEmpty) {
+        return nestedMessage;
+      }
+    }
+
     if (detail is String && detail.trim().isNotEmpty) {
       return detail;
     }

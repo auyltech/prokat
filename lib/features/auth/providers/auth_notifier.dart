@@ -220,23 +220,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (result.success && result.data != null) {
         await storage.saveSession(result.data!);
 
-        await storage.clearOtpSession();
-        await storage.clearOtpCooldown();
-
+        // Keep the OTP form mounted until the post-auth route is ready.
+        // Clearing OTP here briefly shows the phone screen before redirect.
         state = state.copyWith(
           session: result.data,
-          isLoading: false,
-          error: result.success ? null : result.message,
+          isLoading: true,
+          error: null,
           errorCode: null,
-          clearOtp: true,
         );
 
-        // Keep the login route mounted while the authenticated profile is
-        // resolved. A full startup reload would route through /launch and
-        // make a successful sign-in look like an application restart.
-        unawaited(
-          ref.read(appStartupProvider.notifier).reloadAfterAuthChanged(),
-        );
+        unawaited(_finishPostOtpLogin());
 
         return true;
       }
@@ -256,6 +249,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       return false;
+    }
+  }
+
+  Future<void> _finishPostOtpLogin() async {
+    try {
+      // Keep the login route mounted while the authenticated profile is
+      // resolved. A full startup reload would route through /launch and
+      // make a successful sign-in look like an application restart.
+      await ref.read(appStartupProvider.notifier).reloadAfterAuthChanged();
+    } finally {
+      await storage.clearOtpSession();
+      await storage.clearOtpCooldown();
+      if (mounted) {
+        state = state.copyWith(isLoading: false, clearOtp: true);
+      }
     }
   }
 

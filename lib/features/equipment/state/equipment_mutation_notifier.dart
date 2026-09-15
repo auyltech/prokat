@@ -234,7 +234,7 @@ class EquipmentMutationNotifier
   }
 
   // This function uses optimistic update with a revert to original
-  Future<bool> updateEquipmentStatus(
+  Future<MutationResponse> updateEquipmentStatus(
     String equipmentId,
     EquipmentStatus status,
   ) async {
@@ -266,7 +266,7 @@ class EquipmentMutationNotifier
           ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
         );
 
-        return true;
+        return MutationResponse(success: true, message: result.message);
       }
 
       if (original != null) {
@@ -276,13 +276,17 @@ class EquipmentMutationNotifier
       finishAction(
         actionId,
         error: AppError(
-          type: ErrorType.unknown,
-          code: "",
+          type: ErrorType.conflict,
+          code: result.errorCode ?? '',
           message: result.message,
         ),
       );
 
-      return false;
+      return MutationResponse(
+        success: false,
+        message: result.message,
+        errorCode: result.errorCode,
+      );
     } catch (_) {
       if (original != null) {
         await ownerNotifier.replaceItem(equipmentId, (_) => original);
@@ -297,7 +301,10 @@ class EquipmentMutationNotifier
         ),
       );
 
-      return false;
+      return MutationResponse(
+        success: false,
+        message: 'Failed to update equipment.',
+      );
     }
   }
 
@@ -464,11 +471,13 @@ class EquipmentMutationNotifier
     }
   }
 
-  Future<MutationResponse> createPriceEntry(
-    int price,
-    PriceRateOption priceRate,
-    String equipmentId,
-  ) async {
+  Future<MutationResponse> createPriceEntry({
+    required int price,
+    required PriceRateOption priceRate,
+    required String equipmentId,
+    String? label,
+    bool isStartingFrom = false,
+  }) async {
     if (equipmentId.toString().trim().isEmpty) {
       return MutationResponse(
         success: false,
@@ -481,7 +490,13 @@ class EquipmentMutationNotifier
     try {
       startAction(actionId);
 
-      final result = await api.createPriceEntry(price, priceRate, equipmentId);
+      final result = await api.createPriceEntry(
+        price: price,
+        priceRate: priceRate,
+        equipmentId: equipmentId,
+        label: label,
+        isStartingFrom: isStartingFrom,
+      );
 
       finishAction(
         actionId,

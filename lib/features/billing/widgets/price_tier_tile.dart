@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/billing/models/pricing_tier_model.dart';
+import 'package:prokat/features/billing/utils/billing_display.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class PriceTierTile extends StatelessWidget {
   final bool isSelected;
@@ -16,10 +18,14 @@ class PriceTierTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final titleColor = isSelected ? Colors.white : theme.colorScheme.onSurface;
+    final minutesColor = isSelected ? Colors.white : theme.colorScheme.primary;
 
     return GestureDetector(
       onTap: onSelect,
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           color: isSelected ? theme.colorScheme.primary : theme.cardColor,
           borderRadius: BorderRadius.circular(16),
@@ -33,27 +39,26 @@ class PriceTierTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              pricingTier.name,
+              packageTitle(pricingTier, l10n),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: isSelected ? Colors.white : null,
+                color: titleColor,
                 fontWeight: FontWeight.bold,
-                fontSize: 28,
+                fontSize: 22,
               ),
             ),
-            // Text(
-            // "${formatPrice(pricingTier.price)} KZT",
-            //   style: TextStyle(
-            //     color: isSelected ? Colors.white70 : Colors.grey,
-            //     fontSize: 14,
-            //   ),
-            // ),
-            // SizedBox(height: 12),
+            const SizedBox(height: 6),
             Text(
-              pricingTier.label,
+              packageMinutesLabel(pricingTier, l10n),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: isSelected ? Colors.white : theme.colorScheme.primary,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+                color: minutesColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

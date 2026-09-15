@@ -83,5 +83,24 @@ void main() {
         isTrue,
       );
     });
+
+    test('OWNER_APPROVED opens owner shell; OWNER_REJECTED opens client', () {
+      expect(
+        notificationOpensOwnerShell(
+          type: NotificationType.ownerApproved,
+          data: const {},
+          isOwnerMode: false,
+        ),
+        isTrue,
+      );
+      expect(
+        notificationOpensOwnerShell(
+          type: NotificationType.ownerRejected,
+          data: const {},
+          isOwnerMode: true,
+        ),
+        isFalse,
+      );
+    });
   });
 }

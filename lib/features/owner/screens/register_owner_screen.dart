@@ -3,21 +3,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
+import 'package:prokat/core/widgets/moderation_status_card.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/shake_on_tick.dart';
+import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/models/registration_request_model.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
-import 'package:prokat/features/user/widgets/city_select_field.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 
@@ -34,11 +38,11 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController(text: '+7');
-  final _emailController = TextEditingController();
   final _messageController = TextEditingController();
 
   String? _selectedCity;
   bool _prefilledFromRequest = false;
+  int _shakeTick = 0;
 
   void _clearFormForAccountChange() {
     _formKey.currentState?.reset();
@@ -46,7 +50,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _firstNameController.clear();
     _lastNameController.clear();
     _phoneController.value = kzPhoneEditingValue(null);
-    _emailController.clear();
     _messageController.clear();
 
     if (!mounted) {
@@ -63,6 +66,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
   Future<void> _loadCurrentAccount(String userId) async {
     _tryPrefill();
+    if (_redirectIfOwnerApplicationResolved()) return;
 
     await ref.read(clientProfileProvider.notifier).refreshIfStale();
 
@@ -71,7 +75,32 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     }
 
     await ref.read(ownerRegistrationRequestProvider.notifier).refreshIfStale();
+    if (!mounted || ref.read(authProvider).currentUserId != userId) {
+      return;
+    }
+    if (_redirectIfOwnerApplicationResolved()) return;
     if (mounted) _tryPrefill();
+  }
+
+  bool _redirectIfOwnerApplicationResolved() {
+    if (!mounted) return false;
+
+    final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
+    final isAcceptedOwner =
+        ref.read(authProvider).isOwner || request?.isApproved == true;
+
+    if (isAcceptedOwner) {
+      unawaited(ref.read(appStartupProvider.notifier).setOwnerMode());
+      context.go(AppRoutes.ownerProfile);
+      return true;
+    }
+
+    if (request != null && request.isPending) {
+      context.go(AppRoutes.clientProfile);
+      return true;
+    }
+
+    return false;
   }
 
   @override
@@ -96,7 +125,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
-    _emailController.dispose();
     _messageController.dispose();
     super.dispose();
   }
@@ -134,7 +162,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _firstNameController.text = _nonEmpty(request.firstName) ?? '';
     _lastNameController.text = _nonEmpty(request.lastName) ?? '';
     _applyPhone(request.phoneNumber);
-    _emailController.text = _nonEmpty(request.email) ?? '';
     _selectedCity = _canonicalCity(request.city);
     _messageController.text = _nonEmpty(request.message) ?? '';
   }
@@ -144,6 +171,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _setIfEmpty(_lastNameController, profile?.lastName ?? user?.lastName);
     _setPhoneIfEmpty(profile?.phoneNumber ?? user?.phoneNumber);
     _selectedCity ??= _canonicalCity(profile?.city);
+    _selectedCity ??= _canonicalCity(ref.read(locationProvider).city);
   }
 
   void _tryPrefill() {
@@ -172,34 +200,49 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
     if (request != null && !request.isRejected) return;
 
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final phoneNumber = normalizeKzPhone(_phoneController.text);
+    final city = _selectedCity?.trim() ?? '';
+    final message = _messageController.text.trim();
+
+    final hasMissing =
+        firstName.isEmpty ||
+        lastName.isEmpty ||
+        phoneNumber == null ||
+        city.isEmpty ||
+        message.isEmpty;
+
+    if (hasMissing) {
+      setState(() => _shakeTick++);
       return;
     }
 
     final notifier = ref.read(ownerRegistrationMutationProvider.notifier);
 
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-    final phoneNumber = normalizeKzPhone(_phoneController.text) ?? '';
-    final email = _emailController.text.trim();
-    final city = _selectedCity?.trim() ?? '';
-    final message = _messageController.text.trim();
-
     final success = await notifier.createOwnerRegistrationRequest(
       firstName: firstName,
       lastName: lastName,
       phoneNumber: phoneNumber,
-      email: email,
       city: city,
       message: message,
     );
 
-    if (success && mounted) {
-      final l10n = AppLocalizations.of(context)!;
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
 
+    if (success) {
       AppSnackBar.show(message: l10n.requestSubmitted, isSuccess: true);
       if (context.canPop()) context.pop();
+      return;
     }
+
+    AppSnackBar.show(
+      message:
+          ref.read(ownerRegistrationMutationProvider).error ??
+          l10n.somethingWentWrongTryAgain,
+      isError: true,
+    );
   }
 
   @override
@@ -242,6 +285,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         _clearFormForAccountChange();
       }
 
+      if (_redirectIfOwnerApplicationResolved()) return;
       _tryPrefill();
     });
 
@@ -266,9 +310,16 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
             children: [
               const SizedBox(height: 12),
               Text(l10n.joinTeamHint, style: theme.textTheme.bodyMedium),
-              const SizedBox(height: 8),
-              Text(l10n.requestReviewedHint, style: theme.textTheme.bodySmall),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+              _OwnerCityChip(
+                city: _selectedCity,
+                enabled: !isReadOnly,
+                shakeTick: (_selectedCity ?? '').trim().isEmpty
+                    ? _shakeTick
+                    : 0,
+                onChanged: (city) => setState(() => _selectedCity = city),
+              ),
+              const SizedBox(height: 16),
 
               if (request != null) _StatusCard(request: request),
               if (request != null) const SizedBox(height: 16),
@@ -279,12 +330,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 hint: l10n.firstNameHint,
                 icon: Icons.person_outline,
                 readOnly: isReadOnly,
-                validator: (v) {
-                  if ((v ?? '').trim().isEmpty) {
-                    return l10n.firstNameRequired;
-                  }
-                  return null;
-                },
+                isRequired: true,
+                requiredHintText: l10n.requiredInParens,
+                requiredHintMuted: true,
+                showFieldErrors: false,
+                shakeTick: _firstNameController.text.trim().isEmpty
+                    ? _shakeTick
+                    : 0,
               ),
 
               const SizedBox(height: 8),
@@ -295,12 +347,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 hint: l10n.lastNameHint,
                 icon: Icons.person_outline,
                 readOnly: isReadOnly,
-                validator: (v) {
-                  if ((v ?? '').trim().isEmpty) {
-                    return l10n.lastNameRequired;
-                  }
-                  return null;
-                },
+                isRequired: true,
+                requiredHintText: l10n.requiredInParens,
+                requiredHintMuted: true,
+                showFieldErrors: false,
+                shakeTick: _lastNameController.text.trim().isEmpty
+                    ? _shakeTick
+                    : 0,
               ),
 
               const SizedBox(height: 8),
@@ -311,33 +364,13 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 icon: Icons.phone_outlined,
                 helperText: l10n.ownerContactPhoneHint,
                 readOnly: isReadOnly,
-              ),
-
-              const SizedBox(height: 8),
-              InputField(
-                controller: _emailController,
-                label: l10n.email,
-                hint: l10n.emailHint,
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                readOnly: isReadOnly,
-                validator: (v) {
-                  final value = (v ?? '').trim();
-                  if (value.isEmpty) return null;
-                  if (!value.contains('@')) {
-                    return l10n.enterValidEmail;
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 8),
-              CitySelectField(
-                city: _selectedCity,
                 isRequired: true,
-                enabled: !isReadOnly,
-                service: CitySelectorService.becomeowner,
-                onChanged: (city) => setState(() => _selectedCity = city),
+                requiredHintText: l10n.requiredInParens,
+                requiredHintMuted: true,
+                showFieldErrors: false,
+                shakeTick: normalizeKzPhone(_phoneController.text) == null
+                    ? _shakeTick
+                    : 0,
               ),
 
               const SizedBox(height: 8),
@@ -347,25 +380,20 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 hint: l10n.messageHint,
                 icon: Icons.message_outlined,
                 keyboardType: TextInputType.multiline,
+                isLast: true,
                 readOnly: isReadOnly,
-                validator: (v) {
-                  if ((v ?? '').trim().isEmpty) {
-                    return l10n.messageRequired;
-                  }
-                  return null;
-                },
+                isRequired: true,
+                requiredHintText: l10n.requiredInParens,
+                requiredHintMuted: true,
+                showFieldErrors: false,
+                maxLines: 4,
+                hintMaxLines: 4,
+                shakeTick: _messageController.text.trim().isEmpty
+                    ? _shakeTick
+                    : 0,
               ),
 
-              const SizedBox(height: 8),
-
               if (canSubmit) ...[
-                const SizedBox(height: 12),
-                Text(
-                  l10n.noteDescribeHint,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
                 const SizedBox(height: 16),
                 PrimaryButton(
                   label: submitLabel,
@@ -386,6 +414,96 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   }
 }
 
+class _OwnerCityChip extends ConsumerWidget {
+  final String? city;
+  final bool enabled;
+  final int shakeTick;
+  final ValueChanged<String> onChanged;
+
+  const _OwnerCityChip({
+    required this.city,
+    required this.enabled,
+    required this.shakeTick,
+    required this.onChanged,
+  });
+
+  Future<void> _pickCity(BuildContext context, WidgetRef ref) async {
+    final selected = await CityPickerSheet.show(
+      context: context,
+      service: CitySelectorService.becomeowner,
+      highlightedCity: city,
+    );
+    if (selected == null || selected.isEmpty) return;
+
+    final next =
+        canonicalCity(
+          selected,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
+        selected;
+    onChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final hasCity = (city ?? '').trim().isNotEmpty;
+    final showError = shakeTick > 0 && !hasCity;
+    final label = hasCity
+        ? catalogCityLabelOf(ref, context, city)
+        : l10n.selectCity;
+
+    return ShakeOnTick(
+      tick: shakeTick,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: GestureDetector(
+          onTap: enabled ? () => _pickCity(context, ref) : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: showError
+                    ? colors.error
+                    : colors.outline.withValues(alpha: 0.6),
+                width: showError ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                  size: 16,
+                  color: colors.onSurface,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurface,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: colors.onSurface.withValues(alpha: 0.6),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StatusCard extends StatelessWidget {
   final RegistrationRequestModel request;
 
@@ -393,85 +511,33 @@ class _StatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final comment = (request.adminComment ?? '').trim();
 
-    final adminComment = (request.adminComment ?? '').trim();
-
-    final (title, subtitle, icon, color) = switch (request.parsedStatus) {
-      BecomeOwnerRequestStatus.approved => (
-        l10n.statusAccepted,
-        l10n.statusAcceptedSubtitle,
-        Icons.verified_rounded,
-        Colors.green,
+    return switch (request.parsedStatus) {
+      BecomeOwnerRequestStatus.approved => ModerationStatusCard(
+        title: l10n.statusAccepted,
+        subtitle: l10n.statusAcceptedSubtitle,
+        icon: Icons.verified_rounded,
+        color: Colors.green,
       ),
-      BecomeOwnerRequestStatus.rejected => (
-        l10n.statusRejected,
-        l10n.statusRejectedSubtitle,
-        Icons.error_outline_rounded,
-        colors.error,
+      BecomeOwnerRequestStatus.rejected => ModerationStatusCard(
+        title: l10n.statusRejected,
+        subtitle: comment.isEmpty
+            ? l10n.statusRejectedNoComment
+            : l10n.statusRejectedReviewHint,
+        icon: Icons.error_outline_rounded,
+        color: colors.error,
+        detail: comment.isEmpty ? null : comment,
       ),
-      BecomeOwnerRequestStatus.pending => (
-        l10n.statusUnderReview,
-        l10n.statusUnderReviewSubtitle,
-        Icons.hourglass_top_rounded,
-        colors.primary,
+      BecomeOwnerRequestStatus.pending => ModerationStatusCard(
+        title: l10n.statusUnderReview,
+        subtitle: l10n.statusUnderReviewSubtitle,
+        icon: Icons.hourglass_top_rounded,
+        color: colors.primary,
       ),
     };
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colors.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.onSurface.withValues(alpha: 0.75),
-            ),
-          ),
-          if (adminComment.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              l10n.adminComment,
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: colors.onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              adminComment,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.75),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
   }
 }
 

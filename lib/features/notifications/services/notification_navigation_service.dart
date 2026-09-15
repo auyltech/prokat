@@ -8,11 +8,13 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
-import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
 import 'package:prokat/features/notifications/utils/notification_audience.dart';
+import 'package:prokat/features/notifications/utils/notification_route_resolver.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
+
+export 'package:prokat/features/notifications/utils/notification_route_resolver.dart';
 
 // TODO: fix route reslove
 // Backend should send event, type, targetId,
@@ -42,130 +44,22 @@ class NotificationNavigationService {
   }
 
   String resolveRoute(AppNotification notification) {
-    final opensOwner = _opensOwnerShell(notification);
+    return resolveNotificationRoute(
+      notification: notification,
+      opensOwner: _opensOwnerShell(notification),
+      notificationsHome: notificationsHomeRoute(),
+    );
+  }
 
-    switch (notification.type) {
-      // ===========================
-      // Requests
-      // ===========================
+  Future<void> _applyShellForRoute(String route) async {
+    final startup = ref.read(appStartupProvider).routeState;
 
-      case NotificationType.requestCreated:
-      case NotificationType.requestCancelled:
-      case NotificationType.requestExpired:
-        return opensOwner ? AppRoutes.ownerRequests : AppRoutes.clientRequests;
-
-      // ===========================
-      // Offers / Negotiation
-      // ===========================
-
-      case NotificationType.offerCreated:
-      case NotificationType.offerCancelled:
-      case NotificationType.offerExpired:
-        return AppRoutes.clientRequests;
-
-      case NotificationType.offerAccepted:
-      case NotificationType.offerRejected:
-      case NotificationType.offerNotSelected:
-        return AppRoutes.ownerRequests;
-
-      case NotificationType.counterOfferCreated:
-      case NotificationType.counterOfferAccepted:
-      case NotificationType.counterOfferRejected:
-      case NotificationType.negotiationExpired:
-      case NotificationType.negotiationClosed:
-        return opensOwner ? AppRoutes.ownerChatList : AppRoutes.clientChatList;
-
-      // ===========================
-      // Bookings
-      // ===========================
-
-      case NotificationType.bookingCreated:
-      case NotificationType.bookingAccepted:
-      case NotificationType.bookingRejected:
-      case NotificationType.bookingConfirmed:
-      case NotificationType.bookingCancelled:
-      case NotificationType.bookingWorkStatus:
-      case NotificationType.bookingCompleted:
-      case NotificationType.clientConfirmedCompletion:
-      case NotificationType.clientConfirmationRequired:
-      case NotificationType.workOnTheWay:
-      case NotificationType.workOnSite:
-      case NotificationType.workStarted:
-      case NotificationType.workPaused:
-      case NotificationType.workFailed:
-      case NotificationType.workCompleted:
-        return opensOwner ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
-
-      // ===========================
-      // Chats
-      // ===========================
-
-      case NotificationType.chatMessageCreated:
-      case NotificationType.bookingEventMessageCreated:
-      case NotificationType.priceNegotiationMessageCreated:
-      case NotificationType.adminMessageCreated:
-        final chatId = notification.data["chatId"] as String?;
-
-        if (chatId != null && chatId.isNotEmpty) {
-          return opensOwner
-              ? '${AppRoutes.ownerChatList}/direct/$chatId'
-              : '${AppRoutes.clientChatList}/direct/$chatId';
-        }
-
-        return notificationsHomeRoute();
-
-      // ===========================
-      // Reviews
-      // ===========================
-
-      case NotificationType.reviewAvailable:
-      case NotificationType.reviewSubmitted:
-      case NotificationType.reviewReminder:
-        return opensOwner ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
-
-      // ===========================
-      // Equipment
-      // ===========================
-
-      case NotificationType.equipmentApproved:
-      case NotificationType.equipmentRejected:
-      case NotificationType.equipmentSuspended:
-        final equipmentId = notification.data["equipmentId"] as String?;
-
-        if (opensOwner && equipmentId != null && equipmentId.isNotEmpty) {
-          return '${AppRoutes.ownerEquipment}/$equipmentId';
-        }
-
-        return opensOwner ? AppRoutes.ownerEquipment : AppRoutes.searchList;
-
-      // ===========================
-      // Owner Registration
-      // ===========================
-
-      case NotificationType.ownerProfileSubmitted:
-      case NotificationType.ownerApproved:
-      case NotificationType.ownerRejected:
-      case NotificationType.documentRequired:
-      case NotificationType.adminWarning:
-        return opensOwner ? AppRoutes.ownerRegistration : AppRoutes.becomeOwner;
-
-      // ===========================
-      // Billing
-      // ===========================
-
-      case NotificationType.balanceToppedUp:
-      case NotificationType.lowBalanceWarning:
-      case NotificationType.equipmentOfflineInsufficientBalance:
-      case NotificationType.paymentFailed:
-      case NotificationType.minutesPackageUsed:
-        return AppRoutes.ownerPayment;
-
-      // ===========================
-      // Generic
-      // ===========================
-
-      case NotificationType.systemNotice:
-        return notificationsHomeRoute();
+    if (route.startsWith(AppRoutes.ownerMain) &&
+        startup == AppStartupRouteState.client) {
+      await ref.read(appStartupProvider.notifier).setOwnerMode();
+    } else if (route.startsWith(AppRoutes.clientMain) &&
+        startup == AppStartupRouteState.owner) {
+      await ref.read(appStartupProvider.notifier).setClientMode();
     }
   }
 
@@ -206,13 +100,7 @@ class NotificationNavigationService {
       return;
     }
 
-    if (goingOwner && startup == AppStartupRouteState.client) {
-      await ref.read(appStartupProvider.notifier).setOwnerMode();
-    } else if (route.startsWith(AppRoutes.clientMain) &&
-        startup == AppStartupRouteState.owner) {
-      await ref.read(appStartupProvider.notifier).setClientMode();
-    }
-
+    await _applyShellForRoute(route);
     router.go(route);
   }
 
@@ -220,6 +108,10 @@ class NotificationNavigationService {
     await storage.savePendingRoute(route);
   }
 
+  /// Applies a pending route saved while the shell was not ready.
+  ///
+  /// Only navigates routes previously built by [resolveRoute] (`/client…` or
+  /// `/owner…`). Backend `route` / `deepLink` are never flushed.
   Future<void> flushPendingRouteIfAny() async {
     final route = await storage.readPendingRoute();
 
@@ -227,10 +119,19 @@ class NotificationNavigationService {
 
     await storage.clearPendingRoute();
 
-    // if (_isSafeBackendRoute(route!)) {
-    //   ref.read(routerProvider).go(route);
-    // } else {
-    //   ref.read(routerProvider).go(notificationsHomeRoute());
-    // }
+    if (!isTrustedNotificationAppRoute(route!)) return;
+
+    final startup = ref.read(appStartupProvider).routeState;
+    final isReady =
+        startup == AppStartupRouteState.client ||
+        startup == AppStartupRouteState.owner;
+
+    if (!isReady) {
+      await storage.savePendingRoute(route);
+      return;
+    }
+
+    await _applyShellForRoute(route);
+    ref.read(routerProvider).go(route);
   }
 }

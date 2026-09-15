@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
@@ -12,6 +14,7 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
+import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -79,24 +82,64 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       return false;
     }
 
-    if (hasSpecsChanged()) {
-      _disposeControllers();
-      _rebuildControllers();
-      _isDirty = false;
-      _isSaving = false;
-      _saveAttempted = false;
-      _errorsByKey.clear();
-      // Defer provider writes — mutating during didUpdateWidget rebuilds
-      // listeners mid-tree and corrupts the parent ListView.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _publish();
-      });
+    if (!hasSpecsChanged()) return;
+    if (_isDirty || _isSaving) return;
+
+    if (_sameSpecIdentities(oldSpecs, newSpecs)) {
+      _syncOriginalsFromWidget();
+      return;
+    }
+
+    _disposeControllers();
+    _rebuildControllers();
+    _isDirty = false;
+    _isSaving = false;
+    _saveAttempted = false;
+    _errorsByKey.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _publish();
+    });
+  }
+
+  bool _sameSpecIdentities(
+    List<EquipmentSpec> left,
+    List<EquipmentSpec> right,
+  ) {
+    if (left.length != right.length) return false;
+    for (var i = 0; i < left.length; i++) {
+      if (left[i].id != right[i].id) return false;
+      if ((left[i].specId ?? '') != (right[i].specId ?? '')) return false;
+      if ((left[i].inputType ?? '') != (right[i].inputType ?? '')) return false;
+      if ((left[i].sortIndex ?? 0) != (right[i].sortIndex ?? 0)) return false;
+    }
+    return true;
+  }
+
+  void _syncOriginalsFromWidget() {
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    for (var i = 0; i < _sortedSpecs.length; i++) {
+      final spec = _sortedSpecs[i];
+      final key = _controllerKey(spec, i);
+      final type = spec.resolvedType(catalog?.specById(spec.specId));
+      if (!type.isKnown) continue;
+      _originalValuesByKey[key] = _currentWireValue(
+        spec,
+        catalog,
+        type,
+        key: key,
+      );
     }
   }
 
   void _rebuildControllers() {
+    final catalog = ref.read(catalogProvider).valueOrNull;
     _sortedSpecs = [...(widget.equipment.specs ?? const <EquipmentSpec>[])]
-      ..sort((a, b) => (a.sortIndex ?? 0).compareTo(b.sortIndex ?? 0));
+      ..sort((a, b) {
+        final aPump = _isPumpPowerSpec(a, catalog?.specById(a.specId)) ? 1 : 0;
+        final bPump = _isPumpPowerSpec(b, catalog?.specById(b.specId)) ? 1 : 0;
+        if (aPump != bPump) return aPump.compareTo(bPump);
+        return (a.sortIndex ?? 0).compareTo(b.sortIndex ?? 0);
+      });
 
     for (var i = 0; i < _sortedSpecs.length; i++) {
       final spec = _sortedSpecs[i];
@@ -159,7 +202,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final catalog = ref.read(catalogProvider).valueOrNull;
     for (var i = 0; i < _sortedSpecs.length; i++) {
       final spec = _sortedSpecs[i];
-      if (spec.isRequired != true) continue;
+      if (!equipmentSpecIsRequired(spec)) continue;
       final key = _controllerKey(spec, i);
       final type = spec.resolvedType(catalog?.specById(spec.specId));
       if (!type.isKnown) continue;
@@ -203,6 +246,16 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     _publish();
   }
 
+  void _commitIfDirty() {
+    if (!_canEdit || !_isDirty || _isSaving) return;
+    unawaited(_handleSave(notify: false));
+  }
+
+  void _onDiscreteChanged() {
+    _onFieldChanged();
+    _commitIfDirty();
+  }
+
   bool _computeIsDirty() {
     final catalog = ref.read(catalogProvider).valueOrNull;
     for (var i = 0; i < _sortedSpecs.length; i++) {
@@ -229,7 +282,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       final type = spec.resolvedType(catalog?.specById(spec.specId));
       if (!type.isKnown) continue;
 
-      final isRequired = spec.isRequired == true;
+      final isRequired = equipmentSpecIsRequired(spec);
       final value = _currentWireValue(spec, catalog, type, key: key);
 
       if (isRequired && value.isEmpty) {
@@ -256,14 +309,14 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || !_isDirty || _isSaving) return false;
 
-    final valid = _validate();
-    if (!valid) {
-      setState(() {});
-      _publish();
-      if (notify) {
+    if (notify) {
+      final valid = _validate();
+      if (!valid) {
+        setState(() {});
+        _publish();
         AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+        return false;
       }
-      return false;
     }
 
     setState(() => _isSaving = true);
@@ -424,9 +477,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           }
 
           final errorKey = _errorsByKey[key];
-          final String? errorText = errorKey == 'required'
-              ? l10n.required
-              : errorKey == 'invalidNumber'
+          final String? errorText = errorKey == 'invalidNumber'
               ? l10n.invalidNumber
               : null;
           final label = spec.displayName(locale);
@@ -434,7 +485,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
               ? spec.unit
               : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
                     spec.unit;
-          final isRequired = spec.isRequired == true;
+          final isRequired = equipmentSpecIsRequired(spec);
 
           if (type == CatalogSpecType.boolean) {
             return SwitchListTile(
@@ -445,7 +496,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                   ? null
                   : (value) {
                       _boolByKey[key] = value;
-                      _onFieldChanged();
+                      _onDiscreteChanged();
                     },
             );
           }
@@ -468,10 +519,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                 decoration: InputDecoration(
                   labelText: label,
                   errorText: errorText,
-                  filled: !_canEdit,
-                  fillColor: !_canEdit
-                      ? colorScheme.surfaceContainerHighest
-                      : null,
+                  filled: false,
                   border: const OutlineInputBorder(),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -491,7 +539,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                         ? null
                         : (value) {
                             _optionsByKey[key] = value == null ? [] : [value];
-                            _onFieldChanged();
+                            _onDiscreteChanged();
                           },
                   ),
                 ),
@@ -526,7 +574,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                                   selected.remove(option.id);
                                 }
                                 _optionsByKey[key] = selected.toList();
-                                _onFieldChanged();
+                                _onDiscreteChanged();
                               },
                       );
                     }).toList(),
@@ -546,16 +594,21 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           final controller = _controllersByKey[key];
           if (controller == null) return const SizedBox.shrink();
 
+          final unitText = unit.trim();
           return InputField(
-            label: label,
+            label: unitText.isEmpty ? label : '$label, $unitText',
             controller: controller,
-            hint: label,
-            isRequired: isRequired && !spec.hasFilledValue,
-            suffixText: unit.trim().isEmpty ? null : unit.trim(),
+            hint: '',
+            isRequired: isRequired,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
             onChanged: _onFieldChanged,
+            onFocusLost: _commitIfDirty,
             isNumeric: type == CatalogSpecType.number,
             errorText: errorText,
             readOnly: !_canEdit,
+            boxed: true,
+            filled: false,
           );
         }),
       );
@@ -565,16 +618,22 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       title: l10n.technicalSpecs,
       indicator: view.indicator,
       expanded: view.isExpanded,
-      onToggleExpanded: () =>
-          _editor.toggleExpanded(OwnerEquipmentBlockId.specs),
+      onToggleExpanded: () {
+        if (_canEdit && _isDirty) {
+          unawaited(_handleSave(notify: false));
+        }
+        _editor.toggleExpanded(OwnerEquipmentBlockId.specs);
+      },
       saveLabel: l10n.save,
-      showSave: _canEdit && _isDirty,
-      saveEnabled: _canEdit && _isDirty && !_isSaving,
-      saveLoading: _isSaving,
-      onSave: () => _handleSave(notify: true),
       child: specFields(),
     );
   }
+}
+
+bool _isPumpPowerSpec(EquipmentSpec spec, CatalogSpec? catalogSpec) {
+  final key = spec.key.trim().toLowerCase();
+  final slug = (catalogSpec?.slug ?? '').trim().toLowerCase();
+  return key == 'pump_power' || slug == 'pump_power';
 }
 
 bool _sameIds(List<String> left, List<String> right) {

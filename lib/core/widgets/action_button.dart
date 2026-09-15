@@ -188,7 +188,7 @@ class ActionButton extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ] else if (icon != null) ...[
-            Icon(icon, size: label == null ? 30 : 20),
+            Icon(icon, size: label == null ? 30 : 20, color: Colors.white),
             const SizedBox(width: 8),
           ],
           if (label != null)

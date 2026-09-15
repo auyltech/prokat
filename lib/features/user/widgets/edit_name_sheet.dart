@@ -93,10 +93,21 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
             decoration: InputDecoration(
               hintText: l10n.enterName,
               filled: true,
-              fillColor: theme.cardColor,
+              fillColor: theme.colorScheme.surfaceContainerHighest,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: theme.colorScheme.outline),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: 1.5,
+                ),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: theme.colorScheme.outline),
               ),
             ),
           ),

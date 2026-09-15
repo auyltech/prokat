@@ -158,7 +158,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadProfileImage => 'Upload Profile Image';
 
   @override
-  String get switchBackToClient => 'Switch back to client section dashboard';
+  String get switchBackToClient => 'Go to the client section';
 
   @override
   String get vehicleName => 'Vehicle Name';
@@ -285,6 +285,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get counterOffer => 'Counter offer';
 
   @override
+  String get proposeYourPrice => 'Propose your price';
+
+  @override
+  String get currentPrice => 'Current price';
+
+  @override
+  String get yourPrice => 'Your price';
+
+  @override
+  String get sendPriceProposal => 'Send offer';
+
+  @override
   String get legalDocumentLoadError =>
       'Error loading document. Please try again later.';
 
@@ -336,7 +348,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resendOtp => 'Resend OTP';
 
   @override
-  String get equipmentRenting => 'Equipment Renting';
+  String get equipmentRenting => 'special equipment rental';
+
+  @override
+  String get yourPhoneNumber => 'Your phone number';
+
+  @override
+  String get otpWhatsAppHint =>
+      'We\'ll send a code to WhatsApp. No password needed.';
 
   @override
   String get getStartedWithProkat => 'Get Started with Prokat';
@@ -344,6 +363,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guestSignInDescription =>
       'Sign in to browse equipment, contact owners directly, and place orders in a few taps.';
+
+  @override
+  String get guestOwnerInviteTitle => 'Do you have special equipment?';
+
+  @override
+  String get guestOwnerInviteSubtitle =>
+      'List your machines and get orders in your city';
 
   @override
   String get equipmentSubmittedForReview => 'Equipment submitted for review';
@@ -392,6 +418,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get noActiveOffers => 'There are no active listings right now.';
+
+  @override
   String equipmentIsNow(String status) {
     return 'Equipment is now $status';
   }
@@ -417,6 +446,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyPolicy => 'Privacy Policy';
 
   @override
+  String get privacyPolicyTitle => 'Privacy Policy';
+
+  @override
   String get legalNoticeAfterPrivacy => ', and consent to the ';
 
   @override
@@ -433,6 +465,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmDeletion => 'Confirm Deletion';
 
   @override
+  String get deleteAccountQuestion => 'Delete account?';
+
+  @override
+  String get accountDeletionAccessStops =>
+      'After confirmation, access to the account will stop.';
+
+  @override
+  String get accountDeletionDataWithinDays =>
+      'Core account data will be deleted within 30 days. Details are in the documents.';
+
+  @override
+  String get learnMoreAboutDeletion => 'Learn more about deletion';
+
+  @override
+  String get keepAccount => 'Keep account';
+
+  @override
+  String get confirmAccountDeletion => 'Confirm deletion';
+
+  @override
   String get initiateAccountDeletion => 'Initiate Account Deletion';
 
   @override
@@ -441,18 +493,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeletionScheduledBody =>
-      'Your account is now safely scheduled for deletion.\n\nYou will be signed out immediately. Logging back in during the 14-day hold period will cancel the deletion request.';
+      'Your account is now scheduled for deletion.\n\nYou will be signed out immediately. Core account data will be deleted within 30 calendar days.';
 
   @override
   String get accountDeletionConfirmationBody =>
-      'Your account will immediately enter Pending Deletion status.\n\nTo protect against accidental data loss, your data will be permanently deleted after a 14-day hold period.';
+      'After confirmation, access to the account will stop.\n\nCore account data will be deleted within 30 days. Details are in the documents.';
 
   @override
   String get permanentlyDeleteAccount => 'Permanently Delete Account';
 
   @override
   String get accountDeletionHoldDescription =>
-      'This starts a 14-day hold period. You can cancel deletion by logging back in before it ends.';
+      'From the moment the deletion request is received, access to the account stops. Core account data is deleted within 30 calendar days.';
 
   @override
   String get failedToLoadVersion => 'Failed to load version';
@@ -506,6 +558,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get service => 'Service';
 
   @override
+  String get equipmentCategoryLabel => 'Equipment category';
+
+  @override
   String get deletePriceEntry => 'Delete Price Entry';
 
   @override
@@ -538,6 +593,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestPending => 'Request Pending';
 
   @override
+  String get ownerApplicationPending => 'Application under review';
+
+  @override
+  String get ownerApplicationPendingHint =>
+      'An administrator is checking the details';
+
+  @override
   String get estimatedExhaustion => 'Est. exhaustion';
 
   @override
@@ -563,7 +625,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get applicationSettings => 'Application Settings';
 
   @override
-  String get userGuides => 'User Guides';
+  String get userGuides => 'How to use PROKAT';
 
   @override
   String get submitTopUpRequest => 'Submit Top Up Request';
@@ -612,6 +674,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get review => 'Review';
+
+  @override
+  String get leaveReviewAction => 'Leave a review';
 
   @override
   String get saved => 'Saved';
@@ -775,16 +840,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveFailed => 'Failed to save';
 
   @override
-  String get heroPlatformTag => 'KAZAKHSTAN\'S #1 RENTAL PLATFORM';
+  String get heroPlatformTag => 'A CONVENIENT RENTAL PLATFORM IN KAZAKHSTAN';
 
   @override
-  String get heroTitle => 'Find & rent equipment\nin minutes';
+  String get heroTitle => 'Need special equipment?\nFind a machine nearby!';
 
   @override
   String get allLocations => 'All Locations';
 
   @override
   String get getStarted => 'Get Started';
+
+  @override
+  String get hireEquipment => 'Hire equipment';
+
+  @override
+  String get receiveOrders => 'Get orders';
 
   @override
   String get services => 'Services';
@@ -806,6 +877,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get available => 'Available';
+
+  @override
+  String get statusVerified => 'Verified';
 
   @override
   String get booked => 'Booked';
@@ -980,6 +1054,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registrationFailed => 'Registration failed. Try again.';
+
+  @override
+  String get enterCode => 'Enter the code';
 
   @override
   String get otpSubtitle => 'Enter the 6-digit code sent to';
@@ -1181,7 +1258,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInGoogleMaps => 'Open in Google Maps';
 
   @override
-  String get deliveryAddress => 'Delivery Address';
+  String get deliveryAddress => 'Dispatch address';
 
   @override
   String get noActiveOrders => 'No active orders';
@@ -1289,7 +1366,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workStatusPostpone => 'Postpone';
 
   @override
-  String get workStatusStopWork => 'Stop work';
+  String get workStatusStopWork => 'Pause work';
 
   @override
   String get workStatusResumeWork => 'Resume work';
@@ -1316,28 +1393,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offline => 'OFFLINE';
 
   @override
+  String get equipmentShown => 'Shown';
+
+  @override
+  String get equipmentHidden => 'Hidden';
+
+  @override
+  String get equipmentNowShown => 'Equipment is now shown';
+
+  @override
+  String get equipmentNowHidden => 'Equipment is hidden';
+
+  @override
+  String get failedToToggleEquipmentVisibility =>
+      'Could not change equipment visibility';
+
+  @override
+  String get equipmentNeedsTariffToShow =>
+      'Add a tariff before showing this equipment';
+
+  @override
   String get repair => 'REPAIR';
 
   @override
   String get couldNotAddEquipment => 'Could not add equipment';
 
   @override
-  String get equipmentNameLabel => 'EQUIPMENT NAME';
+  String get equipmentNameLabel => 'Equipment name';
 
   @override
-  String get equipmentNameHint => 'e.g. Septic Truck';
+  String get equipmentNameHint => 'Example: Septic truck';
 
   @override
-  String get modelLabel => 'MODEL';
+  String get modelLabel => 'Make and model';
 
   @override
-  String get modelHint => 'e.g. KAMAZ-65115';
+  String get modelHint => 'Example: AV-10 KAMAZ 65115';
 
   @override
-  String get plateNumberLabel => 'PLATE NUMBER';
+  String get plateNumberLabel => 'State registration number';
 
   @override
-  String get plateNumberHint => 'e.g. 777 ABC 01';
+  String get plateNumberHint => 'Example: 123ABC06';
+
+  @override
+  String get continueAction => 'Continue';
+
+  @override
+  String get draftWillBeCreated => 'An equipment draft will be created';
+
+  @override
+  String get draftNextStepsHint =>
+      'Then fill in the specs, working conditions, and submit the equipment for review.';
+
+  @override
+  String draftSectionsFilled(int filled, int total) {
+    return '$filled of $total sections completed';
+  }
 
   @override
   String get availableForRent => 'Available for rent';
@@ -1346,7 +1458,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operatingStatus => 'Operating status';
 
   @override
-  String get submitForReview => 'Submit for Review';
+  String get submitForReview => 'Submit for moderation';
 
   @override
   String get submittedForReview => 'Equipment submitted for review';
@@ -1478,6 +1590,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offeredRateHint => 'Price you\'re willing to pay';
 
   @override
+  String get requestSelectDeliveryAddress =>
+      'Choose the equipment delivery address';
+
+  @override
+  String get requestWaitOwnerPrice => 'Waiting for owner price';
+
+  @override
+  String get requestSetBudget => 'I\'ll set a budget';
+
+  @override
+  String get requestMyBudget => 'My budget';
+
+  @override
+  String get requestCategoryTitle => 'Category';
+
+  @override
+  String get asSoonAsPossible => 'As soon as possible';
+
+  @override
+  String get requestCommentHint => 'Describe the job or important details';
+
+  @override
+  String get requestRequiredHint => '(Required)';
+
+  @override
   String get additionalDetails => 'describe the job or important details';
 
   @override
@@ -1558,7 +1695,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchAddress => 'Search address';
 
   @override
-  String get setDeliveryAddress => 'Set Delivery Address';
+  String get setDeliveryAddress => 'Set dispatch address';
 
   @override
   String get setEquipmentLocation => 'Set Equipment Location';
@@ -1585,7 +1722,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsConditions => 'Terms & Conditions';
 
   @override
-  String get helpSupportTitle => 'Help & Support';
+  String get helpSupportTitle => 'Help';
 
   @override
   String get preferences => 'PREFERENCES';
@@ -1615,7 +1752,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountSection => 'ACCOUNT';
 
   @override
-  String get logout => 'Logout';
+  String get logout => 'Log out of account';
 
   @override
   String get deleteAccount => 'Delete Account';
@@ -1630,16 +1767,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setUsername => 'Set Username';
 
   @override
-  String get ownerDashboard => 'Owner Dashboard';
+  String get ownerDashboard => 'My equipment and orders';
 
   @override
-  String get becomeOwner => 'Become an Owner';
+  String get becomeOwner => 'Start listing equipment';
+
+  @override
+  String get placementApplicationTitle => 'Submit a listing application';
 
   @override
   String get registrationStatus => 'Registration Status';
 
   @override
-  String get appSettings => 'App Settings';
+  String get appSettings => 'Settings';
 
   @override
   String get paymentsBalance => 'Payments & Balance';
@@ -1648,7 +1788,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalBalance => 'Total Balance';
 
   @override
-  String get save15Percent => 'Save 15%';
+  String get save15Percent => 'Save up to 22.5%';
 
   @override
   String get topUpMinutes => 'Top Up Minutes';
@@ -1718,7 +1858,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generalInformation => 'General information';
 
   @override
+  String get forClients => 'For clients';
+
+  @override
   String get registrationData => 'Registration details';
+
+  @override
+  String get equipmentData => 'Equipment details';
+
+  @override
+  String get workCity => 'Work city';
+
+  @override
+  String get shortDescription => 'Short description';
+
+  @override
+  String get shortDescriptionHint =>
+      'For example: we work around the clock, travel out of town, urgent dispatch available.';
+
+  @override
+  String get shortDescriptionHelper =>
+      'Clients will see this text. Include only what matters most.';
+
+  @override
+  String get tariffs => 'Rates';
+
+  @override
+  String get priceNotSpecified => 'Price not set';
+
+  @override
+  String get priceFieldLabel => 'Price';
+
+  @override
+  String get billingUnit => 'Billing unit';
+
+  @override
+  String get howToShowPrice => 'How to show the price';
+
+  @override
+  String get priceFrom => 'From';
+
+  @override
+  String get priceFixed => 'Fixed';
+
+  @override
+  String get priceFromPrefix => 'from';
+
+  @override
+  String get addTariff => 'Add rate';
+
+  @override
+  String get serviceType => 'Service type';
+
+  @override
+  String get serviceOther => 'Other';
+
+  @override
+  String get customServiceName => 'Service name';
+
+  @override
+  String get customServiceNameHint => 'Short name of the service';
+
+  @override
+  String get tariffSepticSewage => 'Septic / sewer pumping';
+
+  @override
+  String get tariffWaterPumping => 'Water pumping';
+
+  @override
+  String get tariffCesspitPumping => 'Cesspit pumping';
+
+  @override
+  String get tariffSewerCleaning => 'Sewer cleaning';
+
+  @override
+  String get tariffLiquidWaste => 'Liquid waste removal';
+
+  @override
+  String get rateUnitTrip => 'trip';
+
+  @override
+  String get rateUnitCubicMeter => 'm³';
+
+  @override
+  String get rateUnitHour => 'hour';
+
+  @override
+  String get rateUnitDay => 'day';
 
   @override
   String get saveAll => 'Save all';
@@ -1817,6 +2043,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noPhotosYet => 'No photos yet';
 
   @override
+  String get equipmentPhotoRequiredPlaceholder =>
+      'A required photo of the equipment with a readable plate number';
+
+  @override
   String get selectLocation => 'Select Location';
 
   @override
@@ -1848,16 +2078,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newRequest => 'New Request';
 
   @override
-  String get deliveryLocation => 'Delivery Location';
+  String get deliveryLocation => 'Dispatch address';
 
   @override
   String get equipmentSpecs => 'Equipment Specs';
 
   @override
-  String get selectDate => 'Select Date';
+  String get selectDate => 'Dispatch date';
 
   @override
-  String get selectTime => 'Select Time';
+  String get selectTime => 'Dispatch time';
 
   @override
   String get requiredHint => '* Required';
@@ -1965,13 +2195,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addDisplayName => 'Add Display Name';
 
   @override
-  String get helpSupportSubtitle => 'Get help or contact support';
+  String get helpSupportSubtitle => 'Answers and contact support';
 
   @override
-  String get ownerDashboardSubtitle => 'Manage your assets and earnings';
+  String get ownerDashboardSubtitle => 'Manage equipment, orders, and income';
 
   @override
-  String get becomeOwnerSubtitle => 'Start earning by listing your equipment';
+  String get becomeOwnerSubtitle => 'List equipment and get orders';
+
+  @override
+  String get rentAnEquipmentSubtitle => 'Browse owner listings';
 
   @override
   String get requestStatus => 'Request';
@@ -2034,7 +2267,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifiedOwner => 'Verified Owner';
 
   @override
-  String get appSettingsSubtitle => 'Notifications, Privacy, Theme';
+  String get appSettingsSubtitle => 'Notifications, language, and appearance';
 
   @override
   String get helpFaqsSubtitle => 'FAQs, Contact Support';
@@ -2056,6 +2289,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentPayments => 'Recent Payments';
+
+  @override
+  String get minuteConsumption => 'Minute usage';
+
+  @override
+  String get operationHistory => 'Operation history';
+
+  @override
+  String get trialPackage => 'Trial';
+
+  @override
+  String equipmentCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count machines',
+      one: '$count machine',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String remainingAtOnlineEquipment(String time, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count machines online',
+      one: '$count machine online',
+    );
+    return '$time with $_temp0';
+  }
+
+  @override
+  String minutesPerHourValue(String rate) {
+    return '$rate min/h';
+  }
 
   @override
   String get completeRegistration => 'Complete your registration';
@@ -2124,7 +2393,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinTeamHint =>
-      'Join our team and offer your equipment or services to clients.';
+      'Fill in a short form — our administrators will check that everything is in order and you can start working!';
+
+  @override
+  String get requiredInParens => '(required)';
 
   @override
   String get requestReviewedHint =>
@@ -2147,8 +2419,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneNumberRequired => 'Phone number is required';
 
   @override
-  String get ownerContactPhoneHint =>
-      'Admins and clients will see this number. It should be reachable by phone.';
+  String get ownerContactPhoneHint => 'Only the administrator sees this number';
 
   @override
   String get cityRequired => 'City is required';
@@ -2178,6 +2449,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get statusRejectedSubtitle =>
       'Please review the admin comment and update your request.';
+
+  @override
+  String get statusRejectedReviewHint =>
+      'Please review the administrator\'s comment and fix the issues.';
+
+  @override
+  String get statusRejectedNoComment =>
+      'The administrator rejected your request without providing a reason.';
 
   @override
   String get statusUnderReview => 'Under review';
@@ -2326,7 +2605,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviews => 'reviews';
 
   @override
-  String get rentAnEquipment => 'Rent an equipment';
+  String get rentAnEquipment => 'Find equipment';
 
   @override
   String get findAndRent => 'Find & Rent';
@@ -2362,7 +2641,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get frequentlyAskedQuestions => 'Frequently Asked Questions';
 
   @override
-  String get needMoreHelp => 'Need more help?';
+  String get needMoreHelp => 'Didn\'t find an answer?';
+
+  @override
+  String get needMoreHelpHint =>
+      'Write to us — we will help you figure it out.';
 
   @override
   String get contactSupport => 'Contact Support';
@@ -2401,39 +2684,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get callUs => 'Call Us';
 
   @override
-  String get faq1Q => 'How do I rent equipment?';
+  String get faq1Q => 'How do I find the right equipment?';
 
   @override
   String get faq1A =>
-      'Browse available equipment, select your dates, and send a booking request to the owner.';
+      'Open Equipment, choose a suitable machine, and send a request to the owner. If needed, discuss the details in chat first.';
 
   @override
-  String get faq2Q => 'How do I list my equipment?';
+  String get faq2Q => 'What if I cannot find suitable equipment?';
 
   @override
   String get faq2A =>
-      'Go to your profile and tap \'Add Equipment\'. Fill in details, pricing, and location.';
+      'Create a request in Requests. Owners will see it and can offer suitable options.';
 
   @override
-  String get faq3Q => 'How do payments work?';
+  String get faq3Q => 'How do I contact the owner?';
 
   @override
   String get faq3A =>
-      'Payments are handled securely through the platform. You\'ll see the total before confirming.';
+      'Open chat after sending a request or receiving an offer. There you can discuss price, time, address, and other details.';
 
   @override
-  String get faq4Q => 'Can I cancel a booking?';
+  String get faq4Q => 'Can I cancel an order?';
 
   @override
   String get faq4A =>
-      'Yes, depending on the owner\'s cancellation policy shown on the equipment page.';
+      'If the order can still be cancelled, the button will be available on its card.';
 
   @override
-  String get faq5Q => 'What if equipment is damaged?';
+  String get faq5Q => 'What if the owner does not reply?';
 
   @override
   String get faq5A =>
-      'Report the issue through the app immediately. Our support team will assist you.';
+      'Try another machine or create an open request to get offers from other owners.';
+
+  @override
+  String get faq6Q => 'How do I start listing my equipment?';
+
+  @override
+  String get faq6A =>
+      'Register as an owner, add equipment, and send it for review. After approval, turn on Online to accept orders.';
+
+  @override
+  String get faq7Q => 'Why is my equipment not shown to clients?';
+
+  @override
+  String get faq7A =>
+      'Make sure the equipment has passed review. It can still appear while you are offline if you set the listing to visible.';
+
+  @override
+  String get faq8Q => 'When are minutes deducted?';
+
+  @override
+  String get faq8A =>
+      'Minutes are used only while the owner is online. Offline, the balance is kept.';
+
+  @override
+  String get faq9Q => 'How do I contact support?';
+
+  @override
+  String get faq9A =>
+      'Open Help and tap Contact Support. Briefly describe the question or problem.';
 
   @override
   String get helpUsGrow => 'Help Us Grow';
@@ -2622,7 +2933,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentNotFound => 'Equipment not found';
 
   @override
-  String get servicePlan => 'Service Plan';
+  String get servicePlan => 'Rate';
+
+  @override
+  String get bookingSelectOfferedService => 'Choose the offered service';
+
+  @override
+  String get accountOnline => 'Online';
+
+  @override
+  String get accountOffline => 'Offline';
 
   @override
   String get addressAndSchedule => 'Address & Schedule';
@@ -2703,7 +3023,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get details => 'Details';
 
   @override
-  String get demandSurveyCardTitle => 'Other equipment?';
+  String get demandSurveyCardTitle => 'Suggest equipment';
 
   @override
   String get demandSurveyCardSubtitle => 'Tell us what you need';
@@ -2787,22 +3107,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Find or rent heavy equipment and trusted service providers instantly in one tap.';
 
   @override
-  String get userConsent => 'User Consent';
+  String get userConsent => 'Consent to data processing';
 
   @override
-  String get privacyPolicySubtitle => 'How we collect and use your data';
+  String get privacyPolicySubtitle => 'How we use and protect your data';
 
   @override
-  String get userAgreementSubtitle => 'Rules for using the platform';
+  String get userAgreementSubtitle => 'App usage rules';
 
   @override
-  String get personalDataSharingSubtitle => 'Sharing of personal data';
+  String get personalDataSharingSubtitle =>
+      'Collection and processing of personal data';
 
   @override
-  String get legalDocuments => 'Legal documents';
+  String get legalDocuments => 'Documents and rules';
 
   @override
-  String get legalDocumentsSubtitle => 'Policies, agreements, and terms of use';
+  String get legalDocumentsSubtitle => 'Terms of use and privacy policy';
 
   @override
   String get applicationTheme => 'Application theme';
@@ -2944,7 +3265,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noAddressSelected => 'No address selected';
 
   @override
-  String get selectedAddress => 'Selected address';
+  String get selectedAddress => 'My address';
 
   @override
   String get youHaveNoSavedAddresses => 'You have no saved addresses.';
@@ -2967,7 +3288,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessPreferences => 'Business preferences';
 
   @override
-  String get businessProfile => 'Business profile';
+  String get businessProfile => 'Your profile';
 
   @override
   String get manageMyEquipment => 'Manage my equipment';
@@ -3142,11 +3463,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get equipmentSubmitPhotoHint =>
-      'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).';
+      'Don\'t forget to add a photo of your equipment where the plate number is clearly visible';
 
   @override
   String get equipmentSubmitPhotoRequired =>
       'Add at least one equipment photo so the license plate is visible in at least one shot';
+
+  @override
+  String get equipmentResubmitConfirmMessage =>
+      'Make sure all moderator remarks have been fixed.';
 
   @override
   String get youAreOnline => 'You are online';
@@ -3159,6 +3484,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notAcceptingOrders => 'Not accepting orders';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAccept =>
+      'To accept direct client requests or respond to open tenders, you must be online';
+
+  @override
+  String get ownerOfflineMustBeOnlineForTender =>
+      'To take part in this request tender you need to be Online';
+
+  @override
+  String get ownerOfflineMustBeOnlineToAcceptOrder =>
+      'To accept the order you need to be Online';
+
+  @override
+  String get ownerOfflineMustBeOnlineToBargain =>
+      'To bargain with the customer you need to be Online';
+
+  @override
+  String get ownerOfflineChatClientBanner =>
+      'The equipment owner is offline right now, but they received your request';
+
+  @override
+  String get ownerOfflineChatOwnerBanner =>
+      'To continue, switch your status to Online';
+
+  @override
+  String get becomeOnline => 'Go Online';
+
+  @override
+  String get accountSwitchedToOnline => 'You switched the account to Online';
 
   @override
   String get youAreNowOnline => 'You are now online';
@@ -3242,13 +3597,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serviceDetailsHint =>
-      'Describe the goods, rentals or machinery you provide...';
+      'Briefly describe the service or equipment, no more than 100 characters';
 
   @override
   String get updateProfile => 'Update profile';
 
   @override
+  String get editProfileData => 'Edit details';
+
+  @override
+  String get submitChangesForReview => 'Submit for review';
+
+  @override
   String get profileUpdatedSuccessfully => 'Profile updated successfully';
+
+  @override
+  String get profileSentForModeration => 'Sent for moderation';
 
   @override
   String get failedToUpdateProfile => 'Failed to update profile';
@@ -3265,16 +3629,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get ratePerTrip => 'Per trip';
+  String get ratePerTrip => 'per trip';
 
   @override
-  String get ratePerCubicMeter => 'Per cubic meter';
+  String get ratePerCubicMeter => 'per m³';
 
   @override
-  String get ratePerDay => 'Per day';
+  String get ratePerDay => 'per day';
 
   @override
-  String get ratePerHour => 'Per hour';
+  String get ratePerHour => 'per hour';
 
   @override
   String get connectionTimedOut =>

@@ -41,6 +41,7 @@ class Equipment {
   final List<EquipmentSpec>? specs;
 
   final String? ownerComment;
+  final String? adminComment;
   final String? rentCondition;
 
   final EquipmentStatus status;
@@ -67,6 +68,7 @@ class Equipment {
     this.plateNumber,
     this.specs,
     this.ownerComment,
+    this.adminComment,
     this.rentCondition,
     required this.status,
     this.imageUrl,
@@ -99,19 +101,29 @@ class Equipment {
       [EquipmentStatus.draft, EquipmentStatus.rejected].contains(status);
 
   String? get primaryImageUrl {
-    for (final img in images) {
-      if ((img.isPrimary ?? false) && img.imageUrl.isNotEmpty) {
-        return img.imageUrl;
-      }
+    final urls = displayImageUrls;
+    return urls.isEmpty ? null : urls.first;
+  }
+
+  /// Cover first, then remaining photos by `order`. Falls back to legacy
+  /// `imageUrl` when `images` is empty.
+  List<String> get displayImageUrls {
+    final withUrl = images
+        .where((img) => img.imageUrl.trim().isNotEmpty)
+        .toList();
+    if (withUrl.isEmpty) {
+      final legacy = imageUrl?.trim() ?? '';
+      return legacy.isEmpty ? const [] : [legacy];
     }
 
-    final sorted = [...images]
-      ..sort((a, b) => (a.order ?? 999999).compareTo(b.order ?? 999999));
-    for (final img in sorted) {
-      if (img.imageUrl.isNotEmpty) return img.imageUrl;
-    }
+    withUrl.sort((a, b) {
+      final aPrimary = a.isPrimary ?? false;
+      final bPrimary = b.isPrimary ?? false;
+      if (aPrimary != bPrimary) return aPrimary ? -1 : 1;
+      return (a.order ?? 999999).compareTo(b.order ?? 999999);
+    });
 
-    return imageUrl;
+    return withUrl.map((img) => img.imageUrl.trim()).toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -132,6 +144,10 @@ class Equipment {
 
     if (ownerComment != null) {
       data["ownerComment"] = ownerComment;
+    }
+
+    if (adminComment != null) {
+      data["adminComment"] = adminComment;
     }
 
     if (imageUrl != null) {
@@ -173,6 +189,7 @@ class Equipment {
         specs: specs,
 
         ownerComment: json["ownerComment"] ?? "",
+        adminComment: json["adminComment"]?.toString(),
         rentCondition: json["rentCondition"],
 
         status: parseEquipmentStatus(json["status"]),
@@ -220,6 +237,7 @@ class Equipment {
     String? plateNumber,
     List<EquipmentSpec>? specs,
     String? ownerComment,
+    String? adminComment,
     String? rentCondition,
     EquipmentStatus? status,
     bool? isVisible,
@@ -240,6 +258,7 @@ class Equipment {
       plateNumber: plateNumber ?? this.plateNumber,
       specs: specs ?? this.specs,
       ownerComment: ownerComment ?? this.ownerComment,
+      adminComment: adminComment ?? this.adminComment,
       rentCondition: rentCondition ?? this.rentCondition,
       status: status ?? this.status,
       isVisible: isVisible ?? this.isVisible,

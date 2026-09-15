@@ -157,4 +157,39 @@ void main() {
     expect(result.errorCode, 'NOT_FOUND:OFFERS:CREATE');
     expect(result.message, 'Request not found');
   });
+
+  test('extractBackendMessage reads nested AppError message', () {
+    expect(
+      extractBackendMessage({
+        'success': false,
+        'error': {
+          'code': 'CONFLICT:EQUIPMENT:STATUS:PHOTO',
+          'message': 'Add equipment photo',
+        },
+      }),
+      'Add equipment photo',
+    );
+  });
+
+  test('handleEmptyApiResponse keeps nested conflict code and message', () {
+    final response = Response<dynamic>(
+      requestOptions: RequestOptions(path: '/equipment/1/status'),
+      statusCode: 409,
+      data: {
+        'success': false,
+        'error': {
+          'code': 'CONFLICT:EQUIPMENT:STATUS:PHOTO',
+          'category': 'CONFLICT',
+          'message': 'Add equipment photo',
+          'requestId': 'req-1',
+        },
+      },
+    );
+
+    final result = handleEmptyApiResponse(response: response);
+
+    expect(result.success, isFalse);
+    expect(result.errorCode, 'CONFLICT:EQUIPMENT:STATUS:PHOTO');
+    expect(result.message, 'Add equipment photo');
+  });
 }

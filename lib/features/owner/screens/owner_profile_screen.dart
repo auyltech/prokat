@@ -43,6 +43,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
         if (ref.read(billingProvider).accountBalance == null) {
           await ref.read(billingProvider.notifier).getOwnerBalance();
+          if (!mounted) return;
         }
 
         await ref.read(billingProvider.notifier).getVolumeDiscounts();
@@ -56,13 +57,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
     final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
     final equipmentItems =
-        ref.watch(ownerEquipmentProvider).value?.items ?? const [];
+        ref.watch(ownerEquipmentProvider).valueOrNull?.items ?? const [];
     final ownerEquipmentCount = equipmentItems.length;
     final onlineEquipmentCount = equipmentItems
         .where((item) => item.isVisible)
         .length;
     final activeOrders =
-        ref.watch(ownerActiveBookingsProvider).value?.count ?? 0;
+        ref.watch(ownerActiveBookingsProvider).valueOrNull?.count ?? 0;
     final completedOrders = ownerProfile?.orderCount ?? 0;
 
     return Scaffold(
@@ -148,6 +149,16 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 child: Column(
                   children: [
                     ProkatListTile(
+                      icon: LucideIcons.fileText,
+                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
+                      iconColor: AppColors.teal800,
+                      title: l10n.legalDocuments,
+                      subtitle: l10n.legalDocumentsSubtitle,
+                      onTap: () => context.push(AppRoutes.ownerDocuments),
+                    ),
+                    const SizedBox(height: 20),
+
+                    ProkatListTile(
                       icon: LucideIcons.settings,
                       iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
                       iconColor: AppColors.teal800,
@@ -158,11 +169,11 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                     const SizedBox(height: 20),
 
                     ProkatListTile(
-                      icon: LucideIcons.lifeBuoy,
+                      icon: LucideIcons.headset,
                       iconColor: Colors.red,
                       iconBgColor: Colors.red.withValues(alpha: 0.15),
                       title: l10n.helpSupportTitle,
-                      subtitle: l10n.helpFaqsSubtitle,
+                      subtitle: l10n.helpSupportSubtitle,
                       onTap: () => context.push(AppRoutes.helpSupport),
                     ),
                   ],

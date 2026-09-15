@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
+import 'package:prokat/core/utils/kz_plate_mask.dart';
+import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -54,13 +59,18 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   @override
   void didUpdateWidget(covariant RegistrationSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_isDirty) return;
+    if (_isDirty || _isSaving) return;
     if (widget.equipment.model != oldWidget.equipment.model ||
         widget.equipment.plateNumber != oldWidget.equipment.plateNumber) {
-      _modelController.text = widget.equipment.model;
-      _plateController.text = widget.equipment.plateNumber ?? '';
+      _setControllerText(_modelController, widget.equipment.model);
+      _setControllerText(_plateController, widget.equipment.plateNumber ?? '');
       _captureBaseline();
     }
+  }
+
+  void _setControllerText(TextEditingController controller, String value) {
+    if (controller.text == value) return;
+    controller.text = value;
   }
 
   @override
@@ -120,11 +130,9 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   Future<bool> _handleSave({required bool notify}) async {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || _isSaving) return false;
-    if (!_validate()) {
+    if (notify && !_validate()) {
       _publish();
-      if (notify) {
-        AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
-      }
+      AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
       return false;
     }
 
@@ -180,6 +188,11 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
     _publish();
   }
 
+  void _commitIfDirty() {
+    if (!_canEdit || !_isDirty || _isSaving) return;
+    unawaited(_handleSave(notify: false));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -190,37 +203,50 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
         .block(OwnerEquipmentBlockId.registration);
 
     return EquipmentEditorSection(
-      title: l10n.registrationData,
+      title: l10n.equipmentData,
       indicator: view.indicator,
       expanded: view.isExpanded,
-      onToggleExpanded: () =>
-          _editor.toggleExpanded(OwnerEquipmentBlockId.registration),
+      onToggleExpanded: () {
+        if (_canEdit && _isDirty) {
+          unawaited(_handleSave(notify: false));
+        }
+        _editor.toggleExpanded(OwnerEquipmentBlockId.registration);
+      },
       saveLabel: l10n.save,
-      showSave: _canEdit && _isDirty,
-      saveEnabled: _canEdit && _isDirty && !_isSaving,
-      saveLoading: _isSaving,
-      onSave: () => _handleSave(notify: true),
       child: Column(
         children: [
           InputField(
-            label: l10n.model,
+            label: l10n.modelLabel,
             controller: _modelController,
             onChanged: _onChanged,
+            onFocusLost: _commitIfDirty,
             hint: l10n.modelHint,
             isRequired: true,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
             readOnly: !_canEdit,
-            errorText: _modelError == null ? null : l10n.fieldRequired,
+            boxed: true,
+            filled: false,
+            maxLength: ownerEquipmentTextMaxLength,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
+            ],
           ),
           const SizedBox(height: 12),
           InputField(
             label: l10n.plateNumberLabel,
             controller: _plateController,
             onChanged: _onChanged,
+            onFocusLost: _commitIfDirty,
             hint: l10n.plateNumberHint,
             isRequired: true,
+            requiredHintText: l10n.requiredInParens,
+            showFieldErrors: false,
             isLast: true,
             readOnly: !_canEdit,
-            errorText: _plateError == null ? null : l10n.fieldRequired,
+            boxed: true,
+            filled: false,
+            inputFormatters: const [KzPlateInputFormatter()],
           ),
         ],
       ),

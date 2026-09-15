@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/page_dots_indicator.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
@@ -48,10 +49,13 @@ class _OwnerEquipmentImageHeaderState
   }
 
   List<EquipmentImage> get _displayImages {
-    if (widget.images.isNotEmpty) return widget.images;
+    final withUrl = widget.images
+        .where((image) => image.imageUrl.trim().isNotEmpty)
+        .toList();
+    if (withUrl.isNotEmpty) return withUrl;
 
-    final legacy = widget.legacyImageUrl;
-    if (legacy != null && legacy.isNotEmpty) {
+    final legacy = widget.legacyImageUrl?.trim() ?? '';
+    if (legacy.isNotEmpty) {
       return [EquipmentImage(id: 'legacy', imageUrl: legacy, isPrimary: true)];
     }
 
@@ -313,7 +317,10 @@ class _OwnerEquipmentImageHeaderState
             left: 0,
             right: 0,
             bottom: 12,
-            child: _DotsIndicator(count: images.length, index: _currentIndex),
+            child: PageDotsIndicator(
+              count: images.length,
+              index: _currentIndex,
+            ),
           ),
 
         if (widget.canEditImages)
@@ -346,62 +353,50 @@ class _OwnerEquipmentImageHeaderState
   }
 
   Widget _emptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      color: colorScheme.surfaceContainerHighest,
-      alignment: Alignment.center,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.image_outlined,
-            size: 64,
-            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _l10n.noPhotosYet,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const OwnerEquipmentPhotoPlaceholder();
   }
 }
 
-class _DotsIndicator extends StatelessWidget {
-  final int count;
-  final int index;
+class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final bool compact;
 
-  const _DotsIndicator({required this.count, required this.index});
+  const OwnerEquipmentPhotoPlaceholder({
+    super.key,
+    this.width,
+    this.height,
+    this.compact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
-    final active = colorScheme.onSurface.withValues(alpha: 0.9);
-    final inactive = colorScheme.onSurface.withValues(alpha: 0.35);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (i) {
-        final isActive = i == index;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          width: isActive ? 10 : 6,
-          height: 6,
-          decoration: BoxDecoration(
-            color: isActive ? active : inactive,
-            borderRadius: BorderRadius.circular(99),
-          ),
-        );
-      }),
+    return Container(
+      width: width,
+      height: height,
+      color: colorScheme.surfaceContainerHighest,
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8 : 32,
+        vertical: compact ? 6 : 12,
+      ),
+      child: Text(
+        l10n.equipmentPhotoRequiredPlaceholder,
+        textAlign: TextAlign.center,
+        maxLines: compact ? 4 : 3,
+        overflow: TextOverflow.ellipsis,
+        style:
+            (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
+                ?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.55),
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                ),
+      ),
     );
   }
 }

@@ -361,7 +361,7 @@ abstract class AppLocalizations {
   /// No description provided for @switchBackToClient.
   ///
   /// In en, this message translates to:
-  /// **'Switch back to client section dashboard'**
+  /// **'Go to the client section'**
   String get switchBackToClient;
 
   /// No description provided for @vehicleName.
@@ -610,6 +610,30 @@ abstract class AppLocalizations {
   /// **'Counter offer'**
   String get counterOffer;
 
+  /// No description provided for @proposeYourPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose your price'**
+  String get proposeYourPrice;
+
+  /// No description provided for @currentPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Current price'**
+  String get currentPrice;
+
+  /// No description provided for @yourPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your price'**
+  String get yourPrice;
+
+  /// No description provided for @sendPriceProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'Send offer'**
+  String get sendPriceProposal;
+
   /// No description provided for @legalDocumentLoadError.
   ///
   /// In en, this message translates to:
@@ -703,8 +727,20 @@ abstract class AppLocalizations {
   /// No description provided for @equipmentRenting.
   ///
   /// In en, this message translates to:
-  /// **'Equipment Renting'**
+  /// **'special equipment rental'**
   String get equipmentRenting;
+
+  /// No description provided for @yourPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone number'**
+  String get yourPhoneNumber;
+
+  /// No description provided for @otpWhatsAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll send a code to WhatsApp. No password needed.'**
+  String get otpWhatsAppHint;
 
   /// No description provided for @getStartedWithProkat.
   ///
@@ -717,6 +753,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in to browse equipment, contact owners directly, and place orders in a few taps.'**
   String get guestSignInDescription;
+
+  /// No description provided for @guestOwnerInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you have special equipment?'**
+  String get guestOwnerInviteTitle;
+
+  /// No description provided for @guestOwnerInviteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'List your machines and get orders in your city'**
+  String get guestOwnerInviteSubtitle;
 
   /// No description provided for @equipmentSubmittedForReview.
   ///
@@ -796,6 +844,12 @@ abstract class AppLocalizations {
   /// **'There are no {category} listed in {city} at the moment.'**
   String noEquipmentListedInCity(String category, String city);
 
+  /// No description provided for @noActiveOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no active listings right now.'**
+  String get noActiveOffers;
+
   /// No description provided for @equipmentIsNow.
   ///
   /// In en, this message translates to:
@@ -838,6 +892,12 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get privacyPolicy;
 
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicyTitle;
+
   /// No description provided for @legalNoticeAfterPrivacy.
   ///
   /// In en, this message translates to:
@@ -868,6 +928,42 @@ abstract class AppLocalizations {
   /// **'Confirm Deletion'**
   String get confirmDeletion;
 
+  /// No description provided for @deleteAccountQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account?'**
+  String get deleteAccountQuestion;
+
+  /// No description provided for @accountDeletionAccessStops.
+  ///
+  /// In en, this message translates to:
+  /// **'After confirmation, access to the account will stop.'**
+  String get accountDeletionAccessStops;
+
+  /// No description provided for @accountDeletionDataWithinDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Core account data will be deleted within 30 days. Details are in the documents.'**
+  String get accountDeletionDataWithinDays;
+
+  /// No description provided for @learnMoreAboutDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more about deletion'**
+  String get learnMoreAboutDeletion;
+
+  /// No description provided for @keepAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep account'**
+  String get keepAccount;
+
+  /// No description provided for @confirmAccountDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get confirmAccountDeletion;
+
   /// No description provided for @initiateAccountDeletion.
   ///
   /// In en, this message translates to:
@@ -883,13 +979,13 @@ abstract class AppLocalizations {
   /// No description provided for @accountDeletionScheduledBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account is now safely scheduled for deletion.\n\nYou will be signed out immediately. Logging back in during the 14-day hold period will cancel the deletion request.'**
+  /// **'Your account is now scheduled for deletion.\n\nYou will be signed out immediately. Core account data will be deleted within 30 calendar days.'**
   String get accountDeletionScheduledBody;
 
   /// No description provided for @accountDeletionConfirmationBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account will immediately enter Pending Deletion status.\n\nTo protect against accidental data loss, your data will be permanently deleted after a 14-day hold period.'**
+  /// **'After confirmation, access to the account will stop.\n\nCore account data will be deleted within 30 days. Details are in the documents.'**
   String get accountDeletionConfirmationBody;
 
   /// No description provided for @permanentlyDeleteAccount.
@@ -901,7 +997,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountDeletionHoldDescription.
   ///
   /// In en, this message translates to:
-  /// **'This starts a 14-day hold period. You can cancel deletion by logging back in before it ends.'**
+  /// **'From the moment the deletion request is received, access to the account stops. Core account data is deleted within 30 calendar days.'**
   String get accountDeletionHoldDescription;
 
   /// No description provided for @failedToLoadVersion.
@@ -1000,6 +1096,12 @@ abstract class AppLocalizations {
   /// **'Service'**
   String get service;
 
+  /// No description provided for @equipmentCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment category'**
+  String get equipmentCategoryLabel;
+
   /// No description provided for @deletePriceEntry.
   ///
   /// In en, this message translates to:
@@ -1060,6 +1162,18 @@ abstract class AppLocalizations {
   /// **'Request Pending'**
   String get requestPending;
 
+  /// No description provided for @ownerApplicationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Application under review'**
+  String get ownerApplicationPending;
+
+  /// No description provided for @ownerApplicationPendingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator is checking the details'**
+  String get ownerApplicationPendingHint;
+
   /// No description provided for @estimatedExhaustion.
   ///
   /// In en, this message translates to:
@@ -1111,7 +1225,7 @@ abstract class AppLocalizations {
   /// No description provided for @userGuides.
   ///
   /// In en, this message translates to:
-  /// **'User Guides'**
+  /// **'How to use PROKAT'**
   String get userGuides;
 
   /// No description provided for @submitTopUpRequest.
@@ -1209,6 +1323,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Review'**
   String get review;
+
+  /// No description provided for @leaveReviewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a review'**
+  String get leaveReviewAction;
 
   /// No description provided for @saved.
   ///
@@ -1489,13 +1609,13 @@ abstract class AppLocalizations {
   /// No description provided for @heroPlatformTag.
   ///
   /// In en, this message translates to:
-  /// **'KAZAKHSTAN\'S #1 RENTAL PLATFORM'**
+  /// **'A CONVENIENT RENTAL PLATFORM IN KAZAKHSTAN'**
   String get heroPlatformTag;
 
   /// No description provided for @heroTitle.
   ///
   /// In en, this message translates to:
-  /// **'Find & rent equipment\nin minutes'**
+  /// **'Need special equipment?\nFind a machine nearby!'**
   String get heroTitle;
 
   /// No description provided for @allLocations.
@@ -1509,6 +1629,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started'**
   String get getStarted;
+
+  /// No description provided for @hireEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Hire equipment'**
+  String get hireEquipment;
+
+  /// No description provided for @receiveOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Get orders'**
+  String get receiveOrders;
 
   /// No description provided for @services.
   ///
@@ -1551,6 +1683,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Available'**
   String get available;
+
+  /// No description provided for @statusVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get statusVerified;
 
   /// No description provided for @booked.
   ///
@@ -1899,6 +2037,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Registration failed. Try again.'**
   String get registrationFailed;
+
+  /// No description provided for @enterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get enterCode;
 
   /// No description provided for @otpSubtitle.
   ///
@@ -2293,7 +2437,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryAddress.
   ///
   /// In en, this message translates to:
-  /// **'Delivery Address'**
+  /// **'Dispatch address'**
   String get deliveryAddress;
 
   /// No description provided for @noActiveOrders.
@@ -2491,7 +2635,7 @@ abstract class AppLocalizations {
   /// No description provided for @workStatusStopWork.
   ///
   /// In en, this message translates to:
-  /// **'Stop work'**
+  /// **'Pause work'**
   String get workStatusStopWork;
 
   /// No description provided for @workStatusResumeWork.
@@ -2542,6 +2686,42 @@ abstract class AppLocalizations {
   /// **'OFFLINE'**
   String get offline;
 
+  /// No description provided for @equipmentShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown'**
+  String get equipmentShown;
+
+  /// No description provided for @equipmentHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get equipmentHidden;
+
+  /// No description provided for @equipmentNowShown.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment is now shown'**
+  String get equipmentNowShown;
+
+  /// No description provided for @equipmentNowHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment is hidden'**
+  String get equipmentNowHidden;
+
+  /// No description provided for @failedToToggleEquipmentVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change equipment visibility'**
+  String get failedToToggleEquipmentVisibility;
+
+  /// No description provided for @equipmentNeedsTariffToShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tariff before showing this equipment'**
+  String get equipmentNeedsTariffToShow;
+
   /// No description provided for @repair.
   ///
   /// In en, this message translates to:
@@ -2557,38 +2737,62 @@ abstract class AppLocalizations {
   /// No description provided for @equipmentNameLabel.
   ///
   /// In en, this message translates to:
-  /// **'EQUIPMENT NAME'**
+  /// **'Equipment name'**
   String get equipmentNameLabel;
 
   /// No description provided for @equipmentNameHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Septic Truck'**
+  /// **'Example: Septic truck'**
   String get equipmentNameHint;
 
   /// No description provided for @modelLabel.
   ///
   /// In en, this message translates to:
-  /// **'MODEL'**
+  /// **'Make and model'**
   String get modelLabel;
 
   /// No description provided for @modelHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. KAMAZ-65115'**
+  /// **'Example: AV-10 KAMAZ 65115'**
   String get modelHint;
 
   /// No description provided for @plateNumberLabel.
   ///
   /// In en, this message translates to:
-  /// **'PLATE NUMBER'**
+  /// **'State registration number'**
   String get plateNumberLabel;
 
   /// No description provided for @plateNumberHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. 777 ABC 01'**
+  /// **'Example: 123ABC06'**
   String get plateNumberHint;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAction;
+
+  /// No description provided for @draftWillBeCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'An equipment draft will be created'**
+  String get draftWillBeCreated;
+
+  /// No description provided for @draftNextStepsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Then fill in the specs, working conditions, and submit the equipment for review.'**
+  String get draftNextStepsHint;
+
+  /// No description provided for @draftSectionsFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'{filled} of {total} sections completed'**
+  String draftSectionsFilled(int filled, int total);
 
   /// No description provided for @availableForRent.
   ///
@@ -2605,7 +2809,7 @@ abstract class AppLocalizations {
   /// No description provided for @submitForReview.
   ///
   /// In en, this message translates to:
-  /// **'Submit for Review'**
+  /// **'Submit for moderation'**
   String get submitForReview;
 
   /// No description provided for @submittedForReview.
@@ -2866,6 +3070,54 @@ abstract class AppLocalizations {
   /// **'Price you\'re willing to pay'**
   String get offeredRateHint;
 
+  /// No description provided for @requestSelectDeliveryAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the equipment delivery address'**
+  String get requestSelectDeliveryAddress;
+
+  /// No description provided for @requestWaitOwnerPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for owner price'**
+  String get requestWaitOwnerPrice;
+
+  /// No description provided for @requestSetBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll set a budget'**
+  String get requestSetBudget;
+
+  /// No description provided for @requestMyBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'My budget'**
+  String get requestMyBudget;
+
+  /// No description provided for @requestCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get requestCategoryTitle;
+
+  /// No description provided for @asSoonAsPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as possible'**
+  String get asSoonAsPossible;
+
+  /// No description provided for @requestCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the job or important details'**
+  String get requestCommentHint;
+
+  /// No description provided for @requestRequiredHint.
+  ///
+  /// In en, this message translates to:
+  /// **'(Required)'**
+  String get requestRequiredHint;
+
   /// No description provided for @additionalDetails.
   ///
   /// In en, this message translates to:
@@ -3025,7 +3277,7 @@ abstract class AppLocalizations {
   /// No description provided for @setDeliveryAddress.
   ///
   /// In en, this message translates to:
-  /// **'Set Delivery Address'**
+  /// **'Set dispatch address'**
   String get setDeliveryAddress;
 
   /// No description provided for @setEquipmentLocation.
@@ -3079,7 +3331,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpSupportTitle.
   ///
   /// In en, this message translates to:
-  /// **'Help & Support'**
+  /// **'Help'**
   String get helpSupportTitle;
 
   /// No description provided for @preferences.
@@ -3139,7 +3391,7 @@ abstract class AppLocalizations {
   /// No description provided for @logout.
   ///
   /// In en, this message translates to:
-  /// **'Logout'**
+  /// **'Log out of account'**
   String get logout;
 
   /// No description provided for @deleteAccount.
@@ -3169,14 +3421,20 @@ abstract class AppLocalizations {
   /// No description provided for @ownerDashboard.
   ///
   /// In en, this message translates to:
-  /// **'Owner Dashboard'**
+  /// **'My equipment and orders'**
   String get ownerDashboard;
 
   /// No description provided for @becomeOwner.
   ///
   /// In en, this message translates to:
-  /// **'Become an Owner'**
+  /// **'Start listing equipment'**
   String get becomeOwner;
+
+  /// No description provided for @placementApplicationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit a listing application'**
+  String get placementApplicationTitle;
 
   /// No description provided for @registrationStatus.
   ///
@@ -3187,7 +3445,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettings.
   ///
   /// In en, this message translates to:
-  /// **'App Settings'**
+  /// **'Settings'**
   String get appSettings;
 
   /// No description provided for @paymentsBalance.
@@ -3205,7 +3463,7 @@ abstract class AppLocalizations {
   /// No description provided for @save15Percent.
   ///
   /// In en, this message translates to:
-  /// **'Save 15%'**
+  /// **'Save up to 22.5%'**
   String get save15Percent;
 
   /// No description provided for @topUpMinutes.
@@ -3340,11 +3598,179 @@ abstract class AppLocalizations {
   /// **'General information'**
   String get generalInformation;
 
+  /// No description provided for @forClients.
+  ///
+  /// In en, this message translates to:
+  /// **'For clients'**
+  String get forClients;
+
   /// No description provided for @registrationData.
   ///
   /// In en, this message translates to:
   /// **'Registration details'**
   String get registrationData;
+
+  /// No description provided for @equipmentData.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment details'**
+  String get equipmentData;
+
+  /// No description provided for @workCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Work city'**
+  String get workCity;
+
+  /// No description provided for @shortDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Short description'**
+  String get shortDescription;
+
+  /// No description provided for @shortDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: we work around the clock, travel out of town, urgent dispatch available.'**
+  String get shortDescriptionHint;
+
+  /// No description provided for @shortDescriptionHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients will see this text. Include only what matters most.'**
+  String get shortDescriptionHelper;
+
+  /// No description provided for @tariffs.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates'**
+  String get tariffs;
+
+  /// No description provided for @priceNotSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Price not set'**
+  String get priceNotSpecified;
+
+  /// No description provided for @priceFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get priceFieldLabel;
+
+  /// No description provided for @billingUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing unit'**
+  String get billingUnit;
+
+  /// No description provided for @howToShowPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'How to show the price'**
+  String get howToShowPrice;
+
+  /// No description provided for @priceFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get priceFrom;
+
+  /// No description provided for @priceFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get priceFixed;
+
+  /// No description provided for @priceFromPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'from'**
+  String get priceFromPrefix;
+
+  /// No description provided for @addTariff.
+  ///
+  /// In en, this message translates to:
+  /// **'Add rate'**
+  String get addTariff;
+
+  /// No description provided for @serviceType.
+  ///
+  /// In en, this message translates to:
+  /// **'Service type'**
+  String get serviceType;
+
+  /// No description provided for @serviceOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get serviceOther;
+
+  /// No description provided for @customServiceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Service name'**
+  String get customServiceName;
+
+  /// No description provided for @customServiceNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Short name of the service'**
+  String get customServiceNameHint;
+
+  /// No description provided for @tariffSepticSewage.
+  ///
+  /// In en, this message translates to:
+  /// **'Septic / sewer pumping'**
+  String get tariffSepticSewage;
+
+  /// No description provided for @tariffWaterPumping.
+  ///
+  /// In en, this message translates to:
+  /// **'Water pumping'**
+  String get tariffWaterPumping;
+
+  /// No description provided for @tariffCesspitPumping.
+  ///
+  /// In en, this message translates to:
+  /// **'Cesspit pumping'**
+  String get tariffCesspitPumping;
+
+  /// No description provided for @tariffSewerCleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Sewer cleaning'**
+  String get tariffSewerCleaning;
+
+  /// No description provided for @tariffLiquidWaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquid waste removal'**
+  String get tariffLiquidWaste;
+
+  /// No description provided for @rateUnitTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'trip'**
+  String get rateUnitTrip;
+
+  /// No description provided for @rateUnitCubicMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'m³'**
+  String get rateUnitCubicMeter;
+
+  /// No description provided for @rateUnitHour.
+  ///
+  /// In en, this message translates to:
+  /// **'hour'**
+  String get rateUnitHour;
+
+  /// No description provided for @rateUnitDay.
+  ///
+  /// In en, this message translates to:
+  /// **'day'**
+  String get rateUnitDay;
 
   /// No description provided for @saveAll.
   ///
@@ -3532,6 +3958,12 @@ abstract class AppLocalizations {
   /// **'No photos yet'**
   String get noPhotosYet;
 
+  /// No description provided for @equipmentPhotoRequiredPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'A required photo of the equipment with a readable plate number'**
+  String get equipmentPhotoRequiredPlaceholder;
+
   /// No description provided for @selectLocation.
   ///
   /// In en, this message translates to:
@@ -3595,7 +4027,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryLocation.
   ///
   /// In en, this message translates to:
-  /// **'Delivery Location'**
+  /// **'Dispatch address'**
   String get deliveryLocation;
 
   /// No description provided for @equipmentSpecs.
@@ -3607,13 +4039,13 @@ abstract class AppLocalizations {
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:
-  /// **'Select Date'**
+  /// **'Dispatch date'**
   String get selectDate;
 
   /// No description provided for @selectTime.
   ///
   /// In en, this message translates to:
-  /// **'Select Time'**
+  /// **'Dispatch time'**
   String get selectTime;
 
   /// No description provided for @requiredHint.
@@ -3829,20 +4261,26 @@ abstract class AppLocalizations {
   /// No description provided for @helpSupportSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Get help or contact support'**
+  /// **'Answers and contact support'**
   String get helpSupportSubtitle;
 
   /// No description provided for @ownerDashboardSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage your assets and earnings'**
+  /// **'Manage equipment, orders, and income'**
   String get ownerDashboardSubtitle;
 
   /// No description provided for @becomeOwnerSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Start earning by listing your equipment'**
+  /// **'List equipment and get orders'**
   String get becomeOwnerSubtitle;
+
+  /// No description provided for @rentAnEquipmentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse owner listings'**
+  String get rentAnEquipmentSubtitle;
 
   /// No description provided for @requestStatus.
   ///
@@ -3967,7 +4405,7 @@ abstract class AppLocalizations {
   /// No description provided for @appSettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Notifications, Privacy, Theme'**
+  /// **'Notifications, language, and appearance'**
   String get appSettingsSubtitle;
 
   /// No description provided for @helpFaqsSubtitle.
@@ -4011,6 +4449,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent Payments'**
   String get recentPayments;
+
+  /// No description provided for @minuteConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'Minute usage'**
+  String get minuteConsumption;
+
+  /// No description provided for @operationHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation history'**
+  String get operationHistory;
+
+  /// No description provided for @trialPackage.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get trialPackage;
+
+  /// No description provided for @equipmentCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} machine} other{{count} machines}}'**
+  String equipmentCountLabel(int count);
+
+  /// No description provided for @remainingAtOnlineEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} with {count, plural, one{{count} machine online} other{{count} machines online}}'**
+  String remainingAtOnlineEquipment(String time, int count);
+
+  /// No description provided for @minutesPerHourValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate} min/h'**
+  String minutesPerHourValue(String rate);
 
   /// No description provided for @completeRegistration.
   ///
@@ -4135,8 +4609,14 @@ abstract class AppLocalizations {
   /// No description provided for @joinTeamHint.
   ///
   /// In en, this message translates to:
-  /// **'Join our team and offer your equipment or services to clients.'**
+  /// **'Fill in a short form — our administrators will check that everything is in order and you can start working!'**
   String get joinTeamHint;
+
+  /// No description provided for @requiredInParens.
+  ///
+  /// In en, this message translates to:
+  /// **'(required)'**
+  String get requiredInParens;
 
   /// No description provided for @requestReviewedHint.
   ///
@@ -4177,7 +4657,7 @@ abstract class AppLocalizations {
   /// No description provided for @ownerContactPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'Admins and clients will see this number. It should be reachable by phone.'**
+  /// **'Only the administrator sees this number'**
   String get ownerContactPhoneHint;
 
   /// No description provided for @cityRequired.
@@ -4233,6 +4713,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please review the admin comment and update your request.'**
   String get statusRejectedSubtitle;
+
+  /// No description provided for @statusRejectedReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please review the administrator\'s comment and fix the issues.'**
+  String get statusRejectedReviewHint;
+
+  /// No description provided for @statusRejectedNoComment.
+  ///
+  /// In en, this message translates to:
+  /// **'The administrator rejected your request without providing a reason.'**
+  String get statusRejectedNoComment;
 
   /// No description provided for @statusUnderReview.
   ///
@@ -4501,7 +4993,7 @@ abstract class AppLocalizations {
   /// No description provided for @rentAnEquipment.
   ///
   /// In en, this message translates to:
-  /// **'Rent an equipment'**
+  /// **'Find equipment'**
   String get rentAnEquipment;
 
   /// No description provided for @findAndRent.
@@ -4573,8 +5065,14 @@ abstract class AppLocalizations {
   /// No description provided for @needMoreHelp.
   ///
   /// In en, this message translates to:
-  /// **'Need more help?'**
+  /// **'Didn\'t find an answer?'**
   String get needMoreHelp;
+
+  /// No description provided for @needMoreHelpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write to us — we will help you figure it out.'**
+  String get needMoreHelpHint;
 
   /// No description provided for @contactSupport.
   ///
@@ -4651,62 +5149,110 @@ abstract class AppLocalizations {
   /// No description provided for @faq1Q.
   ///
   /// In en, this message translates to:
-  /// **'How do I rent equipment?'**
+  /// **'How do I find the right equipment?'**
   String get faq1Q;
 
   /// No description provided for @faq1A.
   ///
   /// In en, this message translates to:
-  /// **'Browse available equipment, select your dates, and send a booking request to the owner.'**
+  /// **'Open Equipment, choose a suitable machine, and send a request to the owner. If needed, discuss the details in chat first.'**
   String get faq1A;
 
   /// No description provided for @faq2Q.
   ///
   /// In en, this message translates to:
-  /// **'How do I list my equipment?'**
+  /// **'What if I cannot find suitable equipment?'**
   String get faq2Q;
 
   /// No description provided for @faq2A.
   ///
   /// In en, this message translates to:
-  /// **'Go to your profile and tap \'Add Equipment\'. Fill in details, pricing, and location.'**
+  /// **'Create a request in Requests. Owners will see it and can offer suitable options.'**
   String get faq2A;
 
   /// No description provided for @faq3Q.
   ///
   /// In en, this message translates to:
-  /// **'How do payments work?'**
+  /// **'How do I contact the owner?'**
   String get faq3Q;
 
   /// No description provided for @faq3A.
   ///
   /// In en, this message translates to:
-  /// **'Payments are handled securely through the platform. You\'ll see the total before confirming.'**
+  /// **'Open chat after sending a request or receiving an offer. There you can discuss price, time, address, and other details.'**
   String get faq3A;
 
   /// No description provided for @faq4Q.
   ///
   /// In en, this message translates to:
-  /// **'Can I cancel a booking?'**
+  /// **'Can I cancel an order?'**
   String get faq4Q;
 
   /// No description provided for @faq4A.
   ///
   /// In en, this message translates to:
-  /// **'Yes, depending on the owner\'s cancellation policy shown on the equipment page.'**
+  /// **'If the order can still be cancelled, the button will be available on its card.'**
   String get faq4A;
 
   /// No description provided for @faq5Q.
   ///
   /// In en, this message translates to:
-  /// **'What if equipment is damaged?'**
+  /// **'What if the owner does not reply?'**
   String get faq5Q;
 
   /// No description provided for @faq5A.
   ///
   /// In en, this message translates to:
-  /// **'Report the issue through the app immediately. Our support team will assist you.'**
+  /// **'Try another machine or create an open request to get offers from other owners.'**
   String get faq5A;
+
+  /// No description provided for @faq6Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I start listing my equipment?'**
+  String get faq6Q;
+
+  /// No description provided for @faq6A.
+  ///
+  /// In en, this message translates to:
+  /// **'Register as an owner, add equipment, and send it for review. After approval, turn on Online to accept orders.'**
+  String get faq6A;
+
+  /// No description provided for @faq7Q.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is my equipment not shown to clients?'**
+  String get faq7Q;
+
+  /// No description provided for @faq7A.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure the equipment has passed review. It can still appear while you are offline if you set the listing to visible.'**
+  String get faq7A;
+
+  /// No description provided for @faq8Q.
+  ///
+  /// In en, this message translates to:
+  /// **'When are minutes deducted?'**
+  String get faq8Q;
+
+  /// No description provided for @faq8A.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes are used only while the owner is online. Offline, the balance is kept.'**
+  String get faq8A;
+
+  /// No description provided for @faq9Q.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I contact support?'**
+  String get faq9Q;
+
+  /// No description provided for @faq9A.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Help and tap Contact Support. Briefly describe the question or problem.'**
+  String get faq9A;
 
   /// No description provided for @helpUsGrow.
   ///
@@ -5053,8 +5599,26 @@ abstract class AppLocalizations {
   /// No description provided for @servicePlan.
   ///
   /// In en, this message translates to:
-  /// **'Service Plan'**
+  /// **'Rate'**
   String get servicePlan;
+
+  /// No description provided for @bookingSelectOfferedService.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the offered service'**
+  String get bookingSelectOfferedService;
+
+  /// No description provided for @accountOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get accountOnline;
+
+  /// No description provided for @accountOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get accountOffline;
 
   /// No description provided for @addressAndSchedule.
   ///
@@ -5215,7 +5779,7 @@ abstract class AppLocalizations {
   /// No description provided for @demandSurveyCardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Other equipment?'**
+  /// **'Suggest equipment'**
   String get demandSurveyCardTitle;
 
   /// No description provided for @demandSurveyCardSubtitle.
@@ -5371,37 +5935,37 @@ abstract class AppLocalizations {
   /// No description provided for @userConsent.
   ///
   /// In en, this message translates to:
-  /// **'User Consent'**
+  /// **'Consent to data processing'**
   String get userConsent;
 
   /// No description provided for @privacyPolicySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'How we collect and use your data'**
+  /// **'How we use and protect your data'**
   String get privacyPolicySubtitle;
 
   /// No description provided for @userAgreementSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Rules for using the platform'**
+  /// **'App usage rules'**
   String get userAgreementSubtitle;
 
   /// No description provided for @personalDataSharingSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Sharing of personal data'**
+  /// **'Collection and processing of personal data'**
   String get personalDataSharingSubtitle;
 
   /// No description provided for @legalDocuments.
   ///
   /// In en, this message translates to:
-  /// **'Legal documents'**
+  /// **'Documents and rules'**
   String get legalDocuments;
 
   /// No description provided for @legalDocumentsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Policies, agreements, and terms of use'**
+  /// **'Terms of use and privacy policy'**
   String get legalDocumentsSubtitle;
 
   /// No description provided for @applicationTheme.
@@ -5659,7 +6223,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectedAddress.
   ///
   /// In en, this message translates to:
-  /// **'Selected address'**
+  /// **'My address'**
   String get selectedAddress;
 
   /// No description provided for @youHaveNoSavedAddresses.
@@ -5701,7 +6265,7 @@ abstract class AppLocalizations {
   /// No description provided for @businessProfile.
   ///
   /// In en, this message translates to:
-  /// **'Business profile'**
+  /// **'Your profile'**
   String get businessProfile;
 
   /// No description provided for @manageMyEquipment.
@@ -5959,7 +6523,7 @@ abstract class AppLocalizations {
   /// No description provided for @equipmentSubmitPhotoHint.
   ///
   /// In en, this message translates to:
-  /// **'Don\'t forget to add real photos of your equipment (the license plate must be visible in at least one shot).'**
+  /// **'Don\'t forget to add a photo of your equipment where the plate number is clearly visible'**
   String get equipmentSubmitPhotoHint;
 
   /// No description provided for @equipmentSubmitPhotoRequired.
@@ -5967,6 +6531,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add at least one equipment photo so the license plate is visible in at least one shot'**
   String get equipmentSubmitPhotoRequired;
+
+  /// No description provided for @equipmentResubmitConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure all moderator remarks have been fixed.'**
+  String get equipmentResubmitConfirmMessage;
 
   /// No description provided for @youAreOnline.
   ///
@@ -5991,6 +6561,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not accepting orders'**
   String get notAcceptingOrders;
+
+  /// No description provided for @ownerOfflineMustBeOnlineToAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'To accept direct client requests or respond to open tenders, you must be online'**
+  String get ownerOfflineMustBeOnlineToAccept;
+
+  /// No description provided for @ownerOfflineMustBeOnlineForTender.
+  ///
+  /// In en, this message translates to:
+  /// **'To take part in this request tender you need to be Online'**
+  String get ownerOfflineMustBeOnlineForTender;
+
+  /// No description provided for @ownerOfflineMustBeOnlineToAcceptOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'To accept the order you need to be Online'**
+  String get ownerOfflineMustBeOnlineToAcceptOrder;
+
+  /// No description provided for @ownerOfflineMustBeOnlineToBargain.
+  ///
+  /// In en, this message translates to:
+  /// **'To bargain with the customer you need to be Online'**
+  String get ownerOfflineMustBeOnlineToBargain;
+
+  /// No description provided for @ownerOfflineChatClientBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'The equipment owner is offline right now, but they received your request'**
+  String get ownerOfflineChatClientBanner;
+
+  /// No description provided for @ownerOfflineChatOwnerBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'To continue, switch your status to Online'**
+  String get ownerOfflineChatOwnerBanner;
+
+  /// No description provided for @becomeOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Online'**
+  String get becomeOnline;
+
+  /// No description provided for @accountSwitchedToOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'You switched the account to Online'**
+  String get accountSwitchedToOnline;
 
   /// No description provided for @youAreNowOnline.
   ///
@@ -6145,7 +6763,7 @@ abstract class AppLocalizations {
   /// No description provided for @serviceDetailsHint.
   ///
   /// In en, this message translates to:
-  /// **'Describe the goods, rentals or machinery you provide...'**
+  /// **'Briefly describe the service or equipment, no more than 100 characters'**
   String get serviceDetailsHint;
 
   /// No description provided for @updateProfile.
@@ -6154,11 +6772,29 @@ abstract class AppLocalizations {
   /// **'Update profile'**
   String get updateProfile;
 
+  /// No description provided for @editProfileData.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editProfileData;
+
+  /// No description provided for @submitChangesForReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for review'**
+  String get submitChangesForReview;
+
   /// No description provided for @profileUpdatedSuccessfully.
   ///
   /// In en, this message translates to:
   /// **'Profile updated successfully'**
   String get profileUpdatedSuccessfully;
+
+  /// No description provided for @profileSentForModeration.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent for moderation'**
+  String get profileSentForModeration;
 
   /// No description provided for @failedToUpdateProfile.
   ///
@@ -6175,25 +6811,25 @@ abstract class AppLocalizations {
   /// No description provided for @ratePerTrip.
   ///
   /// In en, this message translates to:
-  /// **'Per trip'**
+  /// **'per trip'**
   String get ratePerTrip;
 
   /// No description provided for @ratePerCubicMeter.
   ///
   /// In en, this message translates to:
-  /// **'Per cubic meter'**
+  /// **'per m³'**
   String get ratePerCubicMeter;
 
   /// No description provided for @ratePerDay.
   ///
   /// In en, this message translates to:
-  /// **'Per day'**
+  /// **'per day'**
   String get ratePerDay;
 
   /// No description provided for @ratePerHour.
   ///
   /// In en, this message translates to:
-  /// **'Per hour'**
+  /// **'per hour'**
   String get ratePerHour;
 
   /// No description provided for @connectionTimedOut.

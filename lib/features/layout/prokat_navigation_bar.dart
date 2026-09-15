@@ -24,43 +24,32 @@ class _NavItem {
 }
 
 final ownerNavItems = [
-  // _NavItem(
-  //   icon: Icons.home_filled,
-  //   label: l.navHome,
-  //   path: AppRoutes.ownerDashboard,
-  // ),
   _NavItem(
-    icon: LucideIcons.user2,
+    icon: LucideIcons.user2400,
     label: (l) => l.navProfile,
     path: AppRoutes.ownerProfile,
     base: AppRoutes.ownerProfile,
   ),
-
-  // _NavItem(
-  //   icon: Icons.notifications_rounded,
-  //   label: (l) => 'Alerts',
-  //   path: AppRoutes.ownerNotifications,
-  // ),
   _NavItem(
-    icon: LucideIcons.truck,
-    label: (l) => l.navMyFleet,
+    icon: LucideIcons.truck400,
+    label: (l) => l.navEquipment,
     path: AppRoutes.ownerEquipment,
     base: AppRoutes.ownerEquipment,
   ),
   _NavItem(
-    icon: LucideIcons.send,
+    icon: LucideIcons.radar400,
     label: (l) => l.navRequests,
     path: AppRoutes.ownerRequests,
     base: AppRoutes.ownerRequests,
   ),
   _NavItem(
-    icon: LucideIcons.scrollText,
+    icon: LucideIcons.scrollText400,
     label: (l) => l.navOrders,
     path: AppRoutes.ownerBookings,
     base: AppRoutes.ownerBookings,
   ),
   _NavItem(
-    icon: LucideIcons.messageCircle,
+    icon: LucideIcons.messageCircle400,
     label: (l) => l.navChats,
     path: AppRoutes.ownerChatList,
     base: AppRoutes.ownerChatList,
@@ -68,43 +57,32 @@ final ownerNavItems = [
 ];
 
 final clientNavItems = [
-  // _NavItem(icon: Icons.home_rounded, label: l.navHome, path: AppRoutes.dashboard),
   _NavItem(
-    icon: LucideIcons.user2,
+    icon: LucideIcons.user2400,
     label: (l) => l.navProfile,
     path: AppRoutes.clientProfile,
     base: AppRoutes.clientProfile,
   ),
   _NavItem(
-    icon: LucideIcons.search,
-    label: (l) => l.navSearch,
+    icon: LucideIcons.search400,
+    label: (l) => l.navEquipment,
     path: AppRoutes.searchList,
     base: AppRoutes.search,
   ),
   _NavItem(
-    icon: LucideIcons.send,
-    label: (l) => l.navCreate,
+    icon: LucideIcons.megaphone400,
+    label: (l) => l.navRequests,
     path: AppRoutes.clientRequests,
     base: AppRoutes.clientRequests,
   ),
-  // _NavItem(
-  //   icon: Icons.description_outlined,
-  //   label: (l) => 'Requests',
-  //   path: AppRoutes.clientRequests,
-  // ),
-  // _NavItem(
-  //   icon: Icons.notifications_rounded,
-  //   label: (l) => 'Alerts',
-  //   path: AppRoutes.notifications,
-  // ),
   _NavItem(
-    icon: LucideIcons.scrollText,
+    icon: LucideIcons.scrollText400,
     label: (l) => l.navOrders,
     path: AppRoutes.clientOrders,
     base: AppRoutes.clientOrders,
   ),
   _NavItem(
-    icon: LucideIcons.messageCircle,
+    icon: LucideIcons.messageCircle400,
     label: (l) => l.navChats,
     path: AppRoutes.clientChatList,
     base: AppRoutes.clientChatList,
@@ -146,6 +124,7 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       return const SizedBox.shrink();
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final String location = GoRouterState.of(context).uri.path;
 
     int currentIndex = navItems.indexWhere(
@@ -185,46 +164,38 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
       child: SafeArea(
         top: false, // Keeps layout restrictions focused exclusively on the bottom notch
         child: Container(
-          height: 64,
+          height: 60,
           decoration: BoxDecoration(color: theme.cardColor),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: navItems.asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
               final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
+              final color = isSelected ? primary : const Color(0xFF707E94);
 
               return Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => context.go(item.path),
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        // Only show the soft blue/teal pill behind the active tab
-                        color: isSelected
-                            ? primary.withValues(alpha: 0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: IconTheme(
-                        data: const IconThemeData(
-                          color: Colors.black87,
-                          size: 32,
-                        ),
-                        child: Icon(
-                          item.icon,
-                          size: 28,
-                          color: isSelected ? primary : const Color(0xFF707E94),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item.icon, size: 26, color: color),
+                      const SizedBox(height: 3),
+                      Text(
+                        item.label(l10n),
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          height: 1.1,
+                          color: color,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               );

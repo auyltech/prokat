@@ -240,7 +240,9 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   const SizedBox(height: 2),
 
                   Text(
-                    "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
+                    request.offeredPrice <= 0
+                        ? l10n.requestWaitOwnerPrice
+                        : "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w800,

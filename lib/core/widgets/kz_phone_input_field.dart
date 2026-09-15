@@ -11,6 +11,12 @@ class KzPhoneInputField extends StatefulWidget {
   final String? helperText;
   final IconData? icon;
   final bool readOnly;
+  final bool isRequired;
+  final String? requiredHintText;
+  final bool requiredHintMuted;
+  final bool showFieldErrors;
+  final int shakeTick;
+  final bool boxed;
 
   const KzPhoneInputField({
     super.key,
@@ -20,6 +26,12 @@ class KzPhoneInputField extends StatefulWidget {
     this.helperText,
     this.icon,
     this.readOnly = false,
+    this.isRequired = false,
+    this.requiredHintText,
+    this.requiredHintMuted = false,
+    this.showFieldErrors = true,
+    this.shakeTick = 0,
+    this.boxed = false,
   });
 
   @override
@@ -67,6 +79,13 @@ class _KzPhoneInputFieldState extends State<KzPhoneInputField> {
       icon: widget.icon,
       helperText: widget.helperText,
       readOnly: widget.readOnly,
+      isRequired: widget.isRequired,
+      requiredHintText: widget.requiredHintText,
+      requiredHintMuted: widget.requiredHintMuted,
+      showFieldErrors: widget.showFieldErrors,
+      shakeTick: widget.shakeTick,
+      boxed: widget.boxed,
+      isBlank: () => nationalKzPhoneDigits(widget.controller.text).isEmpty,
       keyboardType: TextInputType.phone,
       inputFormatters: [_formatter],
       validator: (value) {

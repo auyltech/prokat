@@ -26,3 +26,7 @@ alwaysApply: true
 Плохо: копипаст плана, длинные таблицы «шаг 1…N», цитаты расследования.
 
 Корневой / always-on rule — только то, что нужно в каждом чате. Детали фичи живут в её `AGENTS.md`.
+
+## UI
+
+Новые экраны/виджеты: сначала `.cursor/rules/ui-kit.mdc`, `flutter-theming.mdc`, `flutter-sheets.mdc`. Не плодить параллельные кнопки/инпуты вне `lib/core/widgets/ui_kit/`.

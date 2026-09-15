@@ -85,7 +85,7 @@ class RequestService {
     required DateTime requiredOn,
     DateTime? requiredAt,
     String? comment,
-    required int offeredRate,
+    int? offeredRate,
   }) async {
     try {
       final trimmedCapacity = capacity?.trim();
@@ -100,7 +100,7 @@ class RequestService {
           "requiredOn": requiredOn.toUtc().toIso8601String(),
           "requiredAt": requiredAt?.toUtc().toIso8601String(),
           "comment": comment,
-          "offeredRate": offeredRate,
+          "offeredRate": ?offeredRate,
         },
       );
 

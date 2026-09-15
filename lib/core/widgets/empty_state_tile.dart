@@ -6,6 +6,8 @@ class EmptyStateTile extends StatelessWidget {
   final String? subtitle;
   final IconData? icon;
   final String? imageName;
+  final double imageHeight;
+  final BoxFit imageFit;
   final Color? color;
   final Widget? actionButton;
 
@@ -15,6 +17,8 @@ class EmptyStateTile extends StatelessWidget {
     this.subtitle,
     this.icon,
     this.imageName,
+    this.imageHeight = 200,
+    this.imageFit = BoxFit.cover,
     this.color,
     this.actionButton,
   });
@@ -38,14 +42,14 @@ class EmptyStateTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
                   'assets/media/$imageName',
-                  height: 200,
+                  height: imageHeight,
                   width: 340,
-                  fit: BoxFit.cover,
+                  fit: imageFit,
                   excludeFromSemantics: true,
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: actionButton != null ? 4 : 12),
           ] else if (icon != null) ...[
             Icon(icon, color: displayColor, size: 32),
             const SizedBox(height: 12),
