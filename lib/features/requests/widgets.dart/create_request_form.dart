@@ -9,7 +9,7 @@ import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
 import 'package:prokat/core/utils/parse.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -193,7 +193,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     }
 
     if (message.isNotEmpty) {
-      AppSnackBar.show(message: message, isSuccess: false, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
       return;
     }
 
@@ -216,10 +216,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           allowPastSchedule: _scheduleMode == JobScheduleMode.asap,
         );
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.requestCreated : result.message,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
 
     if (result.success && mounted) {

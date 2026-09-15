@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_text_button.dart';
@@ -40,9 +40,9 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
     if (result && mounted) {
       await _showSuccessAndLogoutDialog(context);
     } else if (mounted) {
-      AppSnackBar.show(
+      AppToast.show(
         message: l10n.failedToRequestAccountDeletion,
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -87,30 +87,41 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppDimens.s12$md,
           children: [
             Text(
               l10n.accountDeletionAccessStops,
               textAlign: TextAlign.center,
-              style: AppFonts.body14(sheetContext),
+              style: AppFonts.body16(sheetContext),
             ),
+            const SizedBox(height: AppDimens.s12$md),
             Text(
               l10n.accountDeletionDataWithinDays,
               textAlign: TextAlign.center,
-              style: AppFonts.body14(sheetContext),
+              style: AppFonts.body16(sheetContext),
             ),
+            const SizedBox(height: AppDimens.s12$md),
             AppTextButton(
               title: l10n.learnMoreAboutDeletion,
               isExpanded: false,
               onTap: () => unawaited(_openAccountDeletionHelp()),
             ),
-            AppOutlinedButton(
-              title: l10n.keepAccount,
-              onTap: () => Navigator.of(sheetContext).pop(false),
-            ),
-            AppElevatedButton.destructive(
-              title: l10n.confirmAccountDeletion,
-              onTap: () => Navigator.of(sheetContext).pop(true),
+            const SizedBox(height: AppDimens.s20$lg),
+            Row(
+              spacing: AppDimens.s12$md,
+              children: [
+                Expanded(
+                  child: AppElevatedButton.destructive(
+                    title: l10n.confirmAccountDeletion,
+                    onTap: () => Navigator.of(sheetContext).pop(true),
+                  ),
+                ),
+                Expanded(
+                  child: AppOutlinedButton(
+                    title: l10n.keepAccount,
+                    onTap: () => Navigator.of(sheetContext).pop(false),
+                  ),
+                ),
+              ],
             ),
           ],
         );

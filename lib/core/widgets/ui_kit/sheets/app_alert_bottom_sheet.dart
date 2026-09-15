@@ -17,12 +17,10 @@ abstract final class AppAlertBottomSheet {
     String? secondaryLabel,
     bool isDestructivePrimary = false,
     bool isDismissible = true,
-    bool useRootNavigator = false,
   }) {
     return AppBottomSheet.show<bool>(
       context,
       title: title,
-      useRootNavigator: useRootNavigator,
       isDismissible: isDismissible,
       enableDrag: isDismissible,
       contentBuilder: (sheetContext) {

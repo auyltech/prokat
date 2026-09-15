@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/support/models/contact_inquiry_topic.dart';
 import 'package:prokat/features/support/state/support_provider.dart';
 import 'package:prokat/features/support/widgets/inquiry_topic_sheet.dart';
@@ -82,17 +82,19 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
       if (!mounted) return;
 
-      AppSnackBar.show(
+      AppToast.show(
         message: result.success ? l10n.supportTicketSubmitted : result.message,
-        isSuccess: result.success,
-        isError: !result.success,
+        type: result.success ? AppToastType.success : AppToastType.error,
       );
 
       if (result.success) {
         setState(_resetForm);
       }
     } catch (error) {
-      AppSnackBar.show(message: l10n.failedToSubmitTicket, isError: true);
+      AppToast.show(
+        message: l10n.failedToSubmitTicket,
+        type: AppToastType.error,
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -132,7 +132,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
     if (!_canEdit || _isSaving) return false;
     if (notify && !_validate()) {
       _publish();
-      AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+      AppToast.show(message: l10n.pleaseFillMissingInfo);
       return false;
     }
 
@@ -161,12 +161,18 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
           ),
         );
         if (notify) {
-          AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
+          AppToast.show(
+            message: l10n.equipmentUpdated,
+            type: AppToastType.success,
+          );
         }
       } else {
         _publish();
         if (notify) {
-          AppSnackBar.show(message: l10n.couldNotSaveEquipment, isError: true);
+          AppToast.show(
+            message: l10n.couldNotSaveEquipment,
+            type: AppToastType.error,
+          );
         }
       }
       return ok;
@@ -175,7 +181,10 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       setState(() => _isSaving = false);
       _publish();
       if (notify) {
-        AppSnackBar.show(message: l10n.somethingWentWrong, isError: true);
+        AppToast.show(
+          message: l10n.somethingWentWrong,
+          type: AppToastType.error,
+        );
       }
       return false;
     }

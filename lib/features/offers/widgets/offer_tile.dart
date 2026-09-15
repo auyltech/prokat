@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -38,10 +38,9 @@ class OfferTile extends ConsumerWidget {
       requestId: offer.requestId,
     );
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
 
     if (result.success) {
@@ -67,10 +66,9 @@ class OfferTile extends ConsumerWidget {
 
     if (!context.mounted) return;
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
   }
 

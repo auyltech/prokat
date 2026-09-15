@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -49,9 +49,9 @@ class OnlineToggle extends ConsumerWidget {
             onChanged: !canShow
                 ? (val) {
                     if (val) {
-                      AppSnackBar.show(
+                      AppToast.show(
                         message: l10n.equipmentNeedsTariffToShow,
-                        isError: true,
+                        type: AppToastType.error,
                       );
                     }
                   }
@@ -61,14 +61,15 @@ class OnlineToggle extends ConsumerWidget {
                         .toggleEquipmentOnline(id, val);
 
                     if (context.mounted) {
-                      AppSnackBar.show(
+                      AppToast.show(
                         message: result
                             ? (val
                                   ? l10n.equipmentNowShown
                                   : l10n.equipmentNowHidden)
                             : l10n.failedToToggleEquipmentVisibility,
-                        isSuccess: result,
-                        isError: !result,
+                        type: result
+                            ? AppToastType.success
+                            : AppToastType.error,
                       );
                     }
                   },

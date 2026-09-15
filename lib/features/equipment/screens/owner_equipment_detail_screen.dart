@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
@@ -88,11 +88,11 @@ class _OwnerEquipmentDetailScreenState
         setState(() => _submitting = false);
         switch (saveResult) {
           case SaveAllResult.invalid:
-            AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+            AppToast.show(message: l10n.pleaseFillMissingInfo);
           case SaveAllResult.failed:
-            AppSnackBar.show(
+            AppToast.show(
               message: l10n.couldNotSaveEquipment,
-              isError: true,
+              type: AppToastType.error,
             );
           case SaveAllResult.success:
             break;
@@ -111,12 +111,12 @@ class _OwnerEquipmentDetailScreenState
     if (!mounted) return;
     if (!equipmentHasImage(latest)) {
       setState(() => _submitting = false);
-      AppSnackBar.show(message: l10n.equipmentSubmitPhotoRequired);
+      AppToast.show(message: l10n.equipmentSubmitPhotoRequired);
       return;
     }
     if (!isEquipmentReadyForReview(latest)) {
       setState(() => _submitting = false);
-      AppSnackBar.show(message: l10n.pleaseCompleteRequiredFields);
+      AppToast.show(message: l10n.pleaseCompleteRequiredFields);
       return;
     }
 
@@ -125,7 +125,7 @@ class _OwnerEquipmentDetailScreenState
         .updateEquipmentStatus(latest.id, EquipmentStatus.created);
     if (!mounted) return;
     setState(() => _submitting = false);
-    AppSnackBar.show(
+    AppToast.show(
       message: res.success
           ? l10n.equipmentSubmittedForReview
           : equipmentStatusErrorMessage(
@@ -133,8 +133,7 @@ class _OwnerEquipmentDetailScreenState
               errorCode: res.errorCode,
               fallback: l10n.failedToSubmit,
             ),
-      isSuccess: res.success,
-      isError: !res.success,
+      type: res.success ? AppToastType.success : AppToastType.error,
     );
   }
 

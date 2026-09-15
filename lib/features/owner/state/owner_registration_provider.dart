@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
@@ -13,6 +15,7 @@ import 'package:prokat/features/owner/state/owner_registration_dependencies.dart
 import 'package:prokat/features/owner/state/owner_registration_request_notifier.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/features/owner/state/owner_registration_state.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 export 'owner_registration_dependencies.dart'
     show ownerRegistrationServiceProvider;
@@ -142,7 +145,10 @@ class OwnerRegistrationMutationNotifier
     }
   }
 
-  Future<bool> updateOwnerStatus({required OwnerStatus ownerStatus}) async {
+  Future<bool> updateOwnerStatus({
+    required OwnerStatus ownerStatus,
+    bool notify = true,
+  }) async {
     state = state.copyWith(isLoading: true, error: null, errorCode: null);
     try {
       final result = await api.updateOwnerStatus(ownerStatus: ownerStatus);
@@ -151,6 +157,15 @@ class OwnerRegistrationMutationNotifier
         unawaited(
           ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
         );
+        if (notify) {
+          final l10n = lookupAppLocalizations(ref.read(localeProvider));
+          AppToast.show(
+            message: ownerStatus == OwnerStatus.online
+                ? l10n.youAreNowOnline
+                : l10n.youAreNowOffline,
+            type: AppToastType.success,
+          );
+        }
       }
       state = state.copyWith(isLoading: false);
       return result;

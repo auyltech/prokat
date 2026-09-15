@@ -10,7 +10,6 @@ abstract final class AppBottomSheet {
     BuildContext context, {
     required String title,
     String? subtitle,
-    bool useRootNavigator = false,
     bool isDismissible = true,
     bool enableDrag = true,
     required WidgetBuilder contentBuilder,
@@ -19,7 +18,7 @@ abstract final class AppBottomSheet {
 
     return showModalBottomSheet<T>(
       context: context,
-      useRootNavigator: useRootNavigator,
+      useRootNavigator: true,
       isScrollControlled: true,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
@@ -51,6 +50,7 @@ abstract final class AppBottomSheet {
 
     return showModalBottomSheet<T>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       barrierColor: colors.barrierColor,
       backgroundColor: Colors.transparent,

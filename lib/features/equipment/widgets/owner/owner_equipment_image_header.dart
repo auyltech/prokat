@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/page_dots_indicator.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
@@ -130,7 +130,7 @@ class _OwnerEquipmentImageHeaderState
                 ?.message ??
             _l10n.failedToUploadPhoto;
 
-        AppSnackBar.show(message: message, isError: true);
+        AppToast.show(message: message, type: AppToastType.error);
       } else {
         final count = _displayImages.length;
         if (count > 0) {
@@ -146,9 +146,9 @@ class _OwnerEquipmentImageHeaderState
     } on PlatformException catch (e) {
       if (!mounted) return;
       final denied = e.code.contains('access_denied');
-      AppSnackBar.show(
+      AppToast.show(
         message: denied ? _l10n.mediaAccessDenied : _l10n.somethingWentWrong,
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -184,7 +184,7 @@ class _OwnerEquipmentImageHeaderState
               ?.message ??
           _l10n.failedToDeletePhoto;
 
-      AppSnackBar.show(message: message, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
     }
   }
 
@@ -208,7 +208,7 @@ class _OwnerEquipmentImageHeaderState
               ?.message ??
           _l10n.failedToSetCoverPhoto;
 
-      AppSnackBar.show(message: message, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
     }
   }
 

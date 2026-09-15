@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -23,8 +24,10 @@ Future<void> updateEquipmentDetails(
   final rentCondition = rentConditionController.text.trim();
 
   if (name.isEmpty) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.pleaseEnterValidValues)));
+    AppToast.show(
+      message: l10n.pleaseEnterValidValues,
+      type: AppToastType.error,
+    );
     return;
   }
 
@@ -40,14 +43,17 @@ Future<void> updateEquipmentDetails(
     if (context.mounted) {
       Navigator.pop(context);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.equipmentUpdatedSuccessfully)),
+      AppToast.show(
+        message: l10n.equipmentUpdatedSuccessfully,
+        type: AppToastType.success,
       );
     }
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.failedToUpdateEquipment)));
+      AppToast.show(
+        message: l10n.failedToUpdateEquipment,
+        type: AppToastType.error,
+      );
     }
   }
 }

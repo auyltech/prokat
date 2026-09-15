@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/core/widgets/drop_down_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
@@ -77,17 +77,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
     Future<void> onSubmit() async {
       if (!(_formKey.currentState?.validate() ?? false)) {
-        AppSnackBar.show(
+        AppToast.show(
           message: l10n.pleaseProvideRequiredInformation,
-          isError: true,
+          type: AppToastType.error,
         );
         return;
       }
 
       if (ref.read(billingProvider).isOutOfPaidMinutes) {
-        AppSnackBar.show(
+        AppToast.show(
           message: l10n.cannotRespondWithZeroBalance,
-          isError: true,
+          type: AppToastType.error,
         );
         return;
       }
@@ -117,10 +117,9 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               fallback: result.message,
             );
 
-      AppSnackBar.show(
+      AppToast.show(
         message: message,
-        isSuccess: result.success,
-        isError: !result.success,
+        type: result.success ? AppToastType.success : AppToastType.error,
       );
 
       if (result.success) {

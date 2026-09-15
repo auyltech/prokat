@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -118,9 +118,8 @@ Future<void> _confirmDelete(
     context.pop();
   }
 
-  AppSnackBar.show(
+  AppToast.show(
     message: result ? l10n.equipmentDeleted : l10n.failedToDeleteEquipment,
-    isSuccess: result,
-    isError: !result,
+    type: result ? AppToastType.success : AppToastType.error,
   );
 }

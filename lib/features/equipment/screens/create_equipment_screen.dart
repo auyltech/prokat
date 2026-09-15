@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -58,7 +58,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
     final city = _selectedCity();
     if (city.isEmpty) {
-      AppSnackBar.show(message: l10n.cityRequired, isError: true);
+      AppToast.show(message: l10n.cityRequired, type: AppToastType.error);
       return;
     }
 
@@ -77,13 +77,19 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
       if (result == true && mounted) {
         context.pop();
-        AppSnackBar.show(message: l10n.equipmentAdded, isSuccess: true);
+        AppToast.show(message: l10n.equipmentAdded, type: AppToastType.success);
       } else if (mounted) {
-        AppSnackBar.show(message: l10n.couldNotAddEquipment, isError: true);
+        AppToast.show(
+          message: l10n.couldNotAddEquipment,
+          type: AppToastType.error,
+        );
       }
     } catch (error) {
       if (mounted) {
-        AppSnackBar.show(message: l10n.somethingWentWrong, isError: true);
+        AppToast.show(
+          message: l10n.somethingWentWrong,
+          type: AppToastType.error,
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);

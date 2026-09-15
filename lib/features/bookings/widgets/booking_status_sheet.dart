@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -77,12 +77,13 @@ class BookingStatusSheet extends ConsumerWidget {
 
                   Navigator.pop(context, result.success);
 
-                  AppSnackBar.show(
+                  AppToast.show(
                     message: result.success
                         ? l10n.statusUpdated
                         : l10n.failedSaveStatus,
-                    isSuccess: result.success,
-                    isError: !result.success,
+                    type: result.success
+                        ? AppToastType.success
+                        : AppToastType.error,
                   );
                 },
               );

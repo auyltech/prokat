@@ -16,3 +16,4 @@ export 'package:prokat/core/widgets/ui_kit/inputs/app_text_area.dart';
 export 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
 export 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 export 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
+export 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';

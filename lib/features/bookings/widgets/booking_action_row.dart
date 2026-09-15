@@ -2,7 +2,7 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:prokat/core/widgets/app_snack_bar.dart";
+import "package:prokat/core/widgets/ui_kit/toasts/app_toast.dart";
 import "package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart";
 import "package:prokat/features/appstartup/app_mode_storage.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
@@ -49,7 +49,7 @@ class BookingActionRow extends ConsumerWidget {
         .read(bookingMutationProvider.notifier)
         .updateBookingStatus(id: booking.id, status: BookingStatus.confirmed);
     if (!context.mounted) return;
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success
           ? l10n.orderConfirmed
           : ownerOfflineActionErrorMessage(
@@ -57,8 +57,7 @@ class BookingActionRow extends ConsumerWidget {
               errorCode: result.errorCode,
               fallback: l10n.failedToConfirmOrder,
             ),
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
     if (result.success) onActionCompleted?.call();
   }
@@ -206,8 +205,7 @@ class BookingActionRow extends ConsumerWidget {
         Navigator.pop(context);
 
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.orderCancelled)));
+        AppToast.show(message: l10n.orderCancelled, type: AppToastType.success);
       }
       return;
     }

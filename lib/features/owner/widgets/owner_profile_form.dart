@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
@@ -225,13 +225,12 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       setState(() => _isEditing = false);
     }
 
-    AppSnackBar.show(
+    AppToast.show(
       message: success
           ? l10n.profileSentForModeration
           : ref.read(ownerRegistrationMutationProvider).error ??
                 l10n.failedToUpdateProfile,
-      isSuccess: success,
-      isError: !success,
+      type: success ? AppToastType.success : AppToastType.error,
     );
   }
 

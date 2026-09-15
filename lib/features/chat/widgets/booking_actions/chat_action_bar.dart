@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -93,12 +93,13 @@ class ChatActionBar extends ConsumerWidget {
                         request?.id ?? "",
                       );
 
-                      AppSnackBar.show(
+                      AppToast.show(
                         message: result.success
                             ? l10n.requestCancelled
                             : l10n.failedToCancelRequest,
-                        isSuccess: result.success,
-                        isError: !result.success,
+                        type: result.success
+                            ? AppToastType.success
+                            : AppToastType.error,
                       );
                     },
                   ),

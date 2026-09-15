@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
@@ -114,11 +114,9 @@ Future<bool> ensureOwnerOnline(
 
   final l10n = AppLocalizations.of(context)!;
 
-  final wentOnline = await AppBottomSheet.show<bool>(
+  await AppBottomSheet.show<bool>(
     context,
     title: l10n.becomeOnline,
-    isDismissible: false,
-    enableDrag: false,
     contentBuilder: (sheetContext) {
       return _OwnerGoOnlineSheetContent(
         message: message,
@@ -128,12 +126,12 @@ Future<bool> ensureOwnerOnline(
           final preCheck = ownerGoOnlineBlockReason(ref);
           if (preCheck != OwnerGoOnlineBlockReason.none) {
             if (sheetContext.mounted) {
-              AppSnackBar.show(
+              AppToast.show(
                 message: ownerGoOnlineBlockMessage(
                   l10n: l10n,
                   reason: preCheck,
                 ),
-                isError: true,
+                type: AppToastType.error,
               );
             }
             return false;
@@ -143,13 +141,13 @@ Future<bool> ensureOwnerOnline(
           if (!sheetContext.mounted) return false;
 
           if (!ok) {
-            AppSnackBar.show(
+            AppToast.show(
               message: ownerGoOnlineFailureMessage(
                 ref: ref,
                 l10n: l10n,
                 preCheck: OwnerGoOnlineBlockReason.none,
               ),
-              isError: true,
+              type: AppToastType.error,
             );
             return false;
           }
@@ -160,10 +158,7 @@ Future<bool> ensureOwnerOnline(
     },
   );
 
-  if (wentOnline == true && context.mounted) {
-    AppSnackBar.show(message: l10n.accountSwitchedToOnline, isSuccess: true);
-  }
-
+  // Success toast comes from updateOwnerStatus. Original tap is not resumed.
   return false;
 }
 
@@ -254,21 +249,30 @@ class _OwnerGoOnlineSheetContentState
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: AppDimens.s12$md,
+      spacing: AppDimens.s24$xl,
       children: [
         Text(
           widget.message,
           textAlign: TextAlign.center,
-          style: AppFonts.body14(context),
+          style: AppFonts.body16(context),
         ),
-        AppOutlinedButton(
-          title: widget.cancelLabel,
-          onTap: _loading ? null : () => Navigator.of(context).pop(false),
-        ),
-        AppElevatedButton(
-          title: widget.becomeOnlineLabel,
-          isLoading: _loading,
-          onTap: _loading ? null : _onBecomeOnline,
+        Row(
+          spacing: AppDimens.s12$md,
+          children: [
+            Expanded(
+              child: AppOutlinedButton(
+                title: widget.cancelLabel,
+                onTap: _loading ? null : () => Navigator.of(context).pop(false),
+              ),
+            ),
+            Expanded(
+              child: AppElevatedButton(
+                title: widget.becomeOnlineLabel,
+                isLoading: _loading,
+                onTap: _loading ? null : _onBecomeOnline,
+              ),
+            ),
+          ],
         ),
       ],
     );

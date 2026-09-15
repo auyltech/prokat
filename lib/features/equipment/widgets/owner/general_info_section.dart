@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -287,7 +287,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     if (!_canEdit || _isSaving) return false;
     if (notify && !_validate()) {
       _publish();
-      AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+      AppToast.show(message: l10n.pleaseFillMissingInfo);
       return false;
     }
 
@@ -309,7 +309,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
         setState(() => _isSaving = false);
         _publish();
         if (notify) {
-          AppSnackBar.show(message: l10n.couldNotSaveEquipment, isError: true);
+          AppToast.show(
+            message: l10n.couldNotSaveEquipment,
+            type: AppToastType.error,
+          );
         }
         return false;
       }
@@ -352,10 +355,16 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
           ),
         );
         if (notify) {
-          AppSnackBar.show(message: l10n.equipmentUpdated, isSuccess: true);
+          AppToast.show(
+            message: l10n.equipmentUpdated,
+            type: AppToastType.success,
+          );
         }
       } else if (notify) {
-        AppSnackBar.show(message: l10n.couldNotSaveEquipment, isError: true);
+        AppToast.show(
+          message: l10n.couldNotSaveEquipment,
+          type: AppToastType.error,
+        );
         _publish();
       } else {
         _publish();
@@ -367,7 +376,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       setState(() => _isSaving = false);
       _publish();
       if (notify) {
-        AppSnackBar.show(message: l10n.somethingWentWrong, isError: true);
+        AppToast.show(
+          message: l10n.somethingWentWrong,
+          type: AppToastType.error,
+        );
       }
       return false;
     }

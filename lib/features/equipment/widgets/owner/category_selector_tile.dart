@@ -89,21 +89,6 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
 
       if (widget.mode == CategorySheetMode.editEquipment) {
         return null;
-
-        // picked?.id != null &&
-        //     equipment?.categoryId != picked?.id &&
-        // final result = await ref
-        //     .read(equipmentMutationProvider.notifier)
-        //     .updateEquipmentCategory(
-        //       equipmentId: equipment?.id ?? "",
-        //       categoryId: picked?.id ?? "",
-        //     );
-
-        // AppSnackBar.show(
-        //   message: result ? l10n.equipmentUpdated : l10n.updateFailed,
-        //   isSuccess: result,
-        //   isError: !result,
-        // );
       }
     }
 
