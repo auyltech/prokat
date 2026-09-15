@@ -13,6 +13,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
@@ -44,8 +45,19 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
 
   Future<void> _openSuggestEquipment() async {
     final l10n = AppLocalizations.of(context)!;
-    final campaignId = ref.read(demandConfigProvider).valueOrNull?.campaignId;
-    if (campaignId == null || campaignId.isEmpty) {
+    DemandConfig? config = ref.read(demandConfigProvider).valueOrNull;
+    if (config == null || !config.shouldShow) {
+      try {
+        config = await ref.read(demandConfigProvider.future);
+      } catch (_) {
+        config = null;
+      }
+    }
+    if (!mounted) return;
+    final campaignId = config?.campaignId;
+    if (campaignId == null ||
+        campaignId.isEmpty ||
+        !(config?.shouldShow ?? false)) {
       AppSnackBar.show(message: l10n.demandSurveyLoadError, isError: true);
       return;
     }
@@ -57,6 +69,8 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     final l10n = AppLocalizations.of(context)!;
     final catalogAsync = ref.watch(catalogProvider);
     final categories = vacuumTrucksCategories(catalogAsync.valueOrNull);
+    final showDemand =
+        ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,11 +88,11 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
             height: 132,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: categories.length + 1,
+              itemCount: categories.length + (showDemand ? 1 : 0),
               padding: const EdgeInsets.symmetric(horizontal: 4),
               separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
-                if (index == categories.length) {
+                if (showDemand && index == categories.length) {
                   return SizedBox(
                     width: 140,
                     child: DemandCategoryCard(

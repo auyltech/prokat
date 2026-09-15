@@ -12,6 +12,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
 class GuestCategorySection extends ConsumerStatefulWidget {
@@ -27,9 +28,19 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
 
   Future<void> _openSuggestEquipment() async {
     final l10n = AppLocalizations.of(context)!;
-    final config = ref.read(demandConfigProvider).valueOrNull;
+    DemandConfig? config = ref.read(demandConfigProvider).valueOrNull;
+    if (config == null || !config.shouldShow) {
+      try {
+        config = await ref.read(demandConfigProvider.future);
+      } catch (_) {
+        config = null;
+      }
+    }
+    if (!mounted) return;
     final campaignId = config?.campaignId;
-    if (campaignId == null || campaignId.isEmpty) {
+    if (campaignId == null ||
+        campaignId.isEmpty ||
+        !(config?.shouldShow ?? false)) {
       AppSnackBar.show(message: l10n.demandSurveyLoadError, isError: true);
       return;
     }
@@ -43,7 +54,9 @@ class _GuestCategorySectionState extends ConsumerState<GuestCategorySection> {
     final catalogAsync = ref.watch(catalogProvider);
     final categories = vacuumTrucksCategories(catalogAsync.valueOrNull);
     final selectedCategory = ref.watch(selectedCategoryProvider);
-    final totalItemCount = categories.length + 1;
+    final showDemand =
+        ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false;
+    final totalItemCount = categories.length + (showDemand ? 1 : 0);
 
     const int columns = 2;
     final int rowCount = (totalItemCount / columns).ceil();

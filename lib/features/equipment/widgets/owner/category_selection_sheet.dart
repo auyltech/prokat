@@ -58,7 +58,7 @@ class CategorySelectionSheet extends ConsumerWidget {
     final router = GoRouter.of(context);
 
     DemandConfig? config = ref.read(demandConfigProvider).valueOrNull;
-    if (config == null) {
+    if (config == null || !config.shouldShow) {
       try {
         config = await ref.read(demandConfigProvider.future);
       } catch (_) {
@@ -70,7 +70,9 @@ class CategorySelectionSheet extends ConsumerWidget {
     Navigator.of(context).pop();
 
     final campaignId = config?.campaignId;
-    if (campaignId == null || campaignId.isEmpty) {
+    if (campaignId == null ||
+        campaignId.isEmpty ||
+        !(config?.shouldShow ?? false)) {
       AppSnackBar.show(message: l10n.demandSurveyLoadError, isError: true);
       return;
     }
@@ -83,9 +85,12 @@ class CategorySelectionSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final categories = _categoriesForSheet(ref);
-    final showSuggest =
+    final demandEligible =
         service == CategorySheetMode.createEquipment ||
         service == CategorySheetMode.createRequest;
+    final showSuggest =
+        demandEligible &&
+        (ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false);
     final itemCount = categories.length + (showSuggest ? 1 : 0);
     final sheetTitle = service == CategorySheetMode.createRequest
         ? l10n.requestCategoryTitle
