@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/ui_kit/app_image.dart';
 import 'package:prokat/features/categories/models/category.dart';
+
+import '../../../core/theme/app_images.dart';
 
 TextStyle _categoryTileLabelStyle(ThemeData theme, {bool selected = false}) {
   return TextStyle(
@@ -80,58 +83,24 @@ class DemandCategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Semantics(
-      button: true,
-      label: title,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Column(
-          children: [
-            Expanded(
-              child: ClipRect(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const SizedBox.expand(),
-                    Positioned(
-                      top: -6,
-                      child: Icon(
-                        Icons.agriculture_outlined,
-                        size: 110,
-                        color: theme.colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.1,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '?',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 60,
-                        height: 1,
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.45,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Expanded(child: AppImages.demand.call()),
+          const SizedBox(height: 4),
+          SizedBox(
+            height: 40,
+            child: Text(
+              title,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.clip,
+              softWrap: true,
+              style: _categoryTileLabelStyle(theme),
             ),
-            const SizedBox(height: 4),
-            SizedBox(
-              height: 40,
-              child: Text(
-                title,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.clip,
-                softWrap: true,
-                style: _categoryTileLabelStyle(theme),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

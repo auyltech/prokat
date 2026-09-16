@@ -34,7 +34,8 @@ class AppIcon {
                   ? const SizedBox.shrink()
                   : SvgPicture.asset(
                       _svgAsset,
-                      package: kPackageName,
+                      //Не используется т.к. UIkit не в отдельном пакете
+                      //package: kPackageName,
                       colorFilter: color != null
                           ? ColorFilter.mode(color, BlendMode.srcIn)
                           : null,

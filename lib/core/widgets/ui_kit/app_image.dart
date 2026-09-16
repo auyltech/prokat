@@ -26,7 +26,8 @@ class AppImage {
           padding: EdgeInsets.all(padding),
           child: Image.asset(
             iconKey,
-            package: kPackageName,
+            //Не используется т.к. UIkit не в отдельном пакете
+            //package: kPackageName,
             fit: fit ?? BoxFit.contain,
             height: size,
             width: size,
