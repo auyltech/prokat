@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
@@ -56,7 +56,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
     if (_stars <= 0) {
-      AppSnackBar.show(message: l10n.selectStars, isError: true);
+      AppToast.show(message: l10n.selectStars, type: AppToastType.error);
       return;
     }
     try {
@@ -73,16 +73,16 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           );
 
       if (mounted) {
-        AppSnackBar.show(
+        AppToast.show(
           message: result ? l10n.reviewSubmitted : l10n.failedToSubmitReview,
-          isError: true,
+          type: AppToastType.error,
         );
       }
     } catch (e) {
       if (mounted) {
-        AppSnackBar.show(
+        AppToast.show(
           message: e.toString().replaceFirst('Exception: ', ''),
-          isError: true,
+          type: AppToastType.error,
         );
       }
     }

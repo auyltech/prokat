@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
@@ -145,8 +146,10 @@ class _MapOwnerPinLocationContainerState
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
+      AppToast.show(
+        message: l10n.failedCreateLocation,
+        type: AppToastType.error,
+      );
     }
   }
 

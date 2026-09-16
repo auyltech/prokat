@@ -6,7 +6,7 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -73,7 +73,7 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
     final price = int.tryParse(_priceController.text.trim());
 
     if (price == null || price <= 0) {
-      AppSnackBar.show(message: l10n.enterValidPrice, isError: true);
+      AppToast.show(message: l10n.enterValidPrice, type: AppToastType.error);
       return;
     }
 
@@ -97,9 +97,9 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
       }
     } catch (e) {
       if (mounted && context.canPop()) {
-        AppSnackBar.show(
+        AppToast.show(
           message: e.toString().replaceFirst('Exception: ', ''),
-          isError: true,
+          type: AppToastType.error,
         );
       }
     }

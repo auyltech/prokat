@@ -3547,13 +3547,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get becomeOnline => 'Стать «Онлайн»';
 
   @override
-  String get accountSwitchedToOnline => 'Вы перевели аккаунт в «Онлайн»';
+  String get youAreNowOnline =>
+      'Включен режим «Онлайн».\nТеперь вы можете принимать заказы.';
 
   @override
-  String get youAreNowOnline => 'Вы теперь онлайн';
-
-  @override
-  String get youAreNowOffline => 'Вы теперь офлайн';
+  String get youAreNowOffline =>
+      'Режим «Онлайн» отключен.\nВы не сможете принимать заказы.';
 
   @override
   String get failedToggleStatus => 'Не удалось обновить статус';

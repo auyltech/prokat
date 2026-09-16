@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -12,44 +13,16 @@ class LogoutButton extends ConsumerWidget {
   const LogoutButton({super.key});
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final router = GoRouter.of(context);
 
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          l10n.logout,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        content: Text(
-          l10n.logoutConfirmation,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => context.pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-            ),
-            child: Text(
-              l10n.logout,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
-      ),
+    final confirm = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.logout,
+      description: l10n.logoutConfirmation,
+      primaryLabel: l10n.logout,
+      secondaryLabel: l10n.cancel,
+      isDestructivePrimary: true,
     );
 
     if (confirm != true) return;

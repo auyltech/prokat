@@ -15,10 +15,18 @@ Local endpoint mapping:
   `adb devices` entry with status `device`). The stack is not published on LAN.
 
 Local Firebase and push notifications stay enabled (`ENABLE_FIREBASE_SERVICES`
-and `ENABLE_PUSH_NOTIFICATIONS` in `.env`, `.env.local`, and `.env.ngrok.local`).
+and `ENABLE_PUSH_NOTIFICATIONS` in `.env`, `.env.local`, `.env.ngrok.local`,
+and `.env.hoster`).
 Grant OS notification permission on first launch so the FCM token can register
 with the backend. Socket.IO still delivers in-app events while the app is open.
 Local and production auth sessions use separate secure-storage keys.
+
+Hoster lab (own VPS in KZ): copy `.env.hoster.example` → `.env.hoster`, set the
+VPS IP (API on port `4000`), then run the **Prokat Hoster** configuration or:
+
+```powershell
+flutter run --dart-define-from-file=.env.hoster
+```
 
 ## Run
 

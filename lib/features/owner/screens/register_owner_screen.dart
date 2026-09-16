@@ -7,7 +7,7 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/moderation_status_card.dart';
@@ -232,16 +232,16 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final l10n = AppLocalizations.of(context)!;
 
     if (success) {
-      AppSnackBar.show(message: l10n.requestSubmitted, isSuccess: true);
+      AppToast.show(message: l10n.requestSubmitted, type: AppToastType.success);
       if (context.canPop()) context.pop();
       return;
     }
 
-    AppSnackBar.show(
+    AppToast.show(
       message:
           ref.read(ownerRegistrationMutationProvider).error ??
           l10n.somethingWentWrongTryAgain,
-      isError: true,
+      type: AppToastType.error,
     );
   }
 

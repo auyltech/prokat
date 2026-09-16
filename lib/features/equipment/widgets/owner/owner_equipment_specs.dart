@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
@@ -314,7 +314,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       if (!valid) {
         setState(() {});
         _publish();
-        AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+        AppToast.show(message: l10n.pleaseFillMissingInfo);
         return false;
       }
     }
@@ -408,10 +408,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       }
 
       if (notify) {
-        AppSnackBar.show(
+        AppToast.show(
           message: result ? l10n.equipmentUpdated : l10n.updateFailed,
-          isSuccess: result,
-          isError: !result,
+          type: result ? AppToastType.success : AppToastType.error,
         );
       }
       return result;
@@ -419,7 +418,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       setState(() => _isSaving = false);
       _publish();
       if (notify) {
-        AppSnackBar.show(message: l10n.updateFailed, isError: true);
+        AppToast.show(message: l10n.updateFailed, type: AppToastType.error);
       }
       return false;
     }

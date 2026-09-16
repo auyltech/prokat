@@ -6,10 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
@@ -189,28 +190,11 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     final serviceDescription = _descriptionController.text.trim();
     final l10n = AppLocalizations.of(context)!;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          backgroundColor: theme.cardColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(l10n.profileUpdateNeedsModeration),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: Text(l10n.no),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: Text(l10n.yes),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.profileUpdateNeedsModeration,
+      primaryLabel: l10n.yes,
+      secondaryLabel: l10n.no,
     );
     if (!mounted || confirmed != true) return;
 
@@ -241,13 +225,12 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       setState(() => _isEditing = false);
     }
 
-    AppSnackBar.show(
+    AppToast.show(
       message: success
           ? l10n.profileSentForModeration
           : ref.read(ownerRegistrationMutationProvider).error ??
                 l10n.failedToUpdateProfile,
-      isSuccess: success,
-      isError: !success,
+      type: success ? AppToastType.success : AppToastType.error,
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_app_bar.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_city_field.dart';
@@ -73,8 +74,10 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
           );
       ref.read(demandConfigProvider.notifier).markResponded(widget.campaignId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.demandSurveyThankYou)));
+      AppToast.show(
+        message: l10n.demandSurveyThankYou,
+        type: AppToastType.success,
+      );
       context.pop();
     } on DemandApiException catch (error) {
       if (error.code == 'DEMAND_RESPONSE_ALREADY_EXISTS') {

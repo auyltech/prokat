@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -112,9 +112,9 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     final preCheck = ownerGoOnlineBlockReason(ref);
     if (preCheck != OwnerGoOnlineBlockReason.none) {
       if (mounted) {
-        AppSnackBar.show(
+        AppToast.show(
           message: ownerGoOnlineBlockMessage(l10n: l10n, reason: preCheck),
-          isError: true,
+          type: AppToastType.error,
         );
         setState(() => _goingOnline = false);
       }
@@ -125,19 +125,18 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     if (!mounted) return;
 
     if (!ok) {
-      AppSnackBar.show(
+      AppToast.show(
         message: ownerGoOnlineFailureMessage(
           ref: ref,
           l10n: l10n,
           preCheck: OwnerGoOnlineBlockReason.none,
         ),
-        isError: true,
+        type: AppToastType.error,
       );
       setState(() => _goingOnline = false);
       return;
     }
 
-    AppSnackBar.show(message: l10n.accountSwitchedToOnline, isSuccess: true);
     setState(() => _goingOnline = false);
   }
 

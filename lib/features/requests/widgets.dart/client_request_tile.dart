@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -171,8 +172,9 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                 )
               else
                 IconButton(
-                  onPressed: () =>
-                      _showCancelConfirmation(context, ref, request.id, l10n),
+                  onPressed: () => unawaited(
+                    _showCancelConfirmation(context, ref, request.id, l10n),
+                  ),
                   icon: Icon(
                     LucideIcons.x,
                     size: 25,
@@ -189,53 +191,31 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
   }
 }
 
-void _showCancelConfirmation(
+Future<void> _showCancelConfirmation(
   BuildContext context,
   WidgetRef ref,
   String requestId,
   AppLocalizations l10n,
-) {
-  unawaited(
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.cancelRequest),
-        content: Text(l10n.cancelRequestContent),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              l10n.no,
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
+) async {
+  final confirmed = await AppAlertBottomSheet.show(
+    context,
+    title: l10n.cancelRequest,
+    description: l10n.cancelRequestContent,
+    primaryLabel: l10n.yesCancel,
+    secondaryLabel: l10n.no,
+    isDestructivePrimary: true,
+  );
 
-              final result = await ref
-                  .read(requestMutationProvider.notifier)
-                  .cancelRequest(requestId);
+  if (confirmed != true) return;
 
-              AppSnackBar.show(
-                message: result.success
-                    ? l10n.requestCancelled
-                    : l10n.failedToCancelRequest,
-                isSuccess: result.success,
-                isError: !result.success,
-              );
-            },
-            child: Text(
-              l10n.yesCancel,
-              style: const TextStyle(
-                color: Colors.redAccent,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
+  final result = await ref
+      .read(requestMutationProvider.notifier)
+      .cancelRequest(requestId);
+
+  AppToast.show(
+    message: result.success
+        ? l10n.requestCancelled
+        : l10n.failedToCancelRequest,
+    type: result.success ? AppToastType.success : AppToastType.error,
   );
 }

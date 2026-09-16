@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -16,6 +17,7 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           locale: const Locale('ru'),
+          theme: AppTheme.lightTheme,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(

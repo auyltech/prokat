@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
@@ -95,9 +95,12 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
           : "${AppRoutes.equipment}/${widget.equipmentId}";
 
       unawaited(context.push(url));
-      AppSnackBar.show(message: _l10n.addressCreated, isSuccess: true);
+      AppToast.show(message: _l10n.addressCreated, type: AppToastType.success);
     } else {
-      AppSnackBar.show(message: _l10n.failedCreateAddress, isError: true);
+      AppToast.show(
+        message: _l10n.failedCreateAddress,
+        type: AppToastType.error,
+      );
     }
   }
 
