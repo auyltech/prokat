@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -137,12 +138,14 @@ void main() {
           builder: (context) {
             return TextButton(
               onPressed: () {
-                showModalBottomSheet<void>(
-                  context: context,
-                  useRootNavigator: true,
-                  builder: (_) => const SizedBox(
-                    height: 200,
-                    child: Center(child: Text('sheet-body')),
+                unawaited(
+                  showModalBottomSheet<void>(
+                    context: context,
+                    useRootNavigator: true,
+                    builder: (_) => const SizedBox(
+                      height: 200,
+                      child: Center(child: Text('sheet-body')),
+                    ),
                   ),
                 );
               },
