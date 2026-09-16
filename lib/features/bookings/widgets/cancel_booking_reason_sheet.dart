@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -137,20 +138,23 @@ class _CancelBookingReasonSheetState extends State<CancelBookingReasonSheet> {
             Row(
               children: [
                 Expanded(
-                  child: TextButton(
-                    onPressed: () {
+                  child: AppLabelButton(
+                    title: l10n.goBack,
+                    onTap: () {
                       Navigator.pop(
                         context,
                         const CancelBookingDecision.cancelled(),
                       );
                     },
-                    child: Text(l10n.goBack),
+                    isExpanded: true,
+                    variant: AppLabelButtonVariant.text,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: selectedReason == null
+                  child: AppLabelButton(
+                    title: confirmLabel,
+                    onTap: selectedReason == null
                         ? null
                         : () {
                             Navigator.pop(
@@ -160,7 +164,8 @@ class _CancelBookingReasonSheetState extends State<CancelBookingReasonSheet> {
                               ),
                             );
                           },
-                    child: Text(confirmLabel),
+                    isExpanded: true,
+                    tone: AppLabelButtonTone.destructive,
                   ),
                 ),
               ],

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -314,16 +315,20 @@ class _OwnerEquipmentImageHeaderState
           Positioned(
             right: 16,
             bottom: 16,
-            child: FloatingActionButton.small(
-              heroTag: 'editEquipmentImages_${widget.equipmentId}',
-              onPressed: () => _openActionsSheet(
-                isBusy: isBusy,
-                canAddMore: canAddMore,
-                current: current,
-                canSetCover: canSetCoverCurrent,
-                canDelete: canDeleteCurrent,
+            child: Hero(
+              tag: 'editEquipmentImages_${widget.equipmentId}',
+              child: AppIconButton(
+                icon: Icons.camera_alt,
+                variant: AppIconButtonVariant.floating,
+                tone: AppIconButtonTone.primary,
+                onTap: () => _openActionsSheet(
+                  isBusy: isBusy,
+                  canAddMore: canAddMore,
+                  current: current,
+                  canSetCover: canSetCoverCurrent,
+                  canDelete: canDeleteCurrent,
+                ),
               ),
-              child: const Icon(Icons.camera_alt),
             ),
           ),
 

@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
@@ -100,9 +100,9 @@ class _OwnerEquipmentListScreenState
                       imageName: 'empty_equipment.png',
                       imageHeight: 168,
                       imageFit: BoxFit.contain,
-                      actionButton: PrimaryButton(
-                        label: l10n.add,
-                        onPressed: () =>
+                      actionButton: AppElevatedButton(
+                        title: l10n.add,
+                        onTap: () =>
                             context.push(AppRoutes.ownerEquipmentCreate),
                       ),
                     ),

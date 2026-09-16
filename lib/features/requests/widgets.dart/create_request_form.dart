@@ -12,7 +12,7 @@ import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
@@ -357,9 +357,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 40),
 
-        PrimaryButton(
-          label: l10n.create,
-          onPressed: (!canSubmit || isSubmitting) ? null : onSubmit,
+        AppElevatedButton(
+          title: l10n.create,
+          onTap: (!canSubmit || isSubmitting) ? null : onSubmit,
           isLoading: isSubmitting,
         ),
       ],

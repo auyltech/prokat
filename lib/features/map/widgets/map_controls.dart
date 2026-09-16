@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 
 class MapControls extends ConsumerWidget {
   final VoidCallback onZoomIn;
@@ -18,7 +19,6 @@ class MapControls extends ConsumerWidget {
     // TODO(Vadim): пока скрыл. Эта функциональность не проверена и плохо подходит для флоу выбора адреса.
     // final selectedCategory = ref.watch(selectedCategoryProvider);
     const bgColor = Color(0xFF1E2125); // Card Charcoal
-    const accentColor = Color(0xFF4E73DF); // Industrial Blue
 
     return Positioned(
       right: 16,
@@ -57,6 +57,7 @@ class MapControls extends ConsumerWidget {
                   ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   _ZoomPart(
@@ -84,10 +85,6 @@ class MapControls extends ConsumerWidget {
             _MapControlButton(
               icon: Icons.my_location_rounded,
               onPressed: onChangeLocation,
-              size: 42, // Smaller as requested
-              iconSize: 20,
-              color: bgColor,
-              iconColor: accentColor,
             ),
           ],
         ),
@@ -99,41 +96,17 @@ class MapControls extends ConsumerWidget {
 class _MapControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
-  final double size;
-  final double iconSize;
-  final Color color;
-  final Color iconColor;
 
-  const _MapControlButton({
-    required this.icon,
-    this.onPressed,
-    this.size = 48,
-    this.iconSize = 24,
-    required this.color,
-    required this.iconColor,
-  });
+  const _MapControlButton({required this.icon, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppIconButton(
+      icon: icon,
       onTap: onPressed,
-      child: Container(
-        height: size,
-        width: size,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(icon, color: iconColor, size: iconSize),
-      ),
+      variant: AppIconButtonVariant.outlined,
+      tone: AppIconButtonTone.primary,
+      shape: AppIconButtonShape.rounded,
     );
   }
 }
@@ -151,18 +124,10 @@ class _ZoomPart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return AppIconButton(
+      icon: icon,
       onTap: onTap,
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(isTop ? 14 : 0),
-        bottom: Radius.circular(isTop ? 0 : 14),
-      ),
-      child: Container(
-        height: 44,
-        width: 44,
-        alignment: Alignment.center,
-        child: Icon(icon, color: Colors.white, size: 22),
-      ),
+      tone: AppIconButtonTone.inverse,
     );
   }
 }

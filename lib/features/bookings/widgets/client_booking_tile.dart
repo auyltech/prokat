@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
@@ -175,41 +175,35 @@ class ClientBookingTile extends ConsumerWidget {
                         ),
                       )
                     else
-                      IconButton(
-                        onPressed: !isSubmittingCancel
+                      AppIconButton(
+                        icon: LucideIcons.x,
+                        tone: AppIconButtonTone.destructive,
+                        onTap: !isSubmittingCancel
                             ? () {
                                 unawaited(
                                   _handleCancel(context, ref, booking, l10n),
                                 );
                               }
                             : null,
-                        icon: Icon(
-                          LucideIcons.x,
-                          size: 25,
-                          color: theme.colorScheme.error,
-                        ),
                       ),
 
                     const SizedBox(width: 8),
 
-                    IconButton(
-                      onPressed: () {
+                    AppIconButton(
+                      icon: LucideIcons.messageCircle,
+                      tone: AppIconButtonTone.primary,
+                      onTap: () {
                         unawaited(
                           context.push(
                             '${AppRoutes.clientChatList}/direct/${booking.chatId}',
                           ),
                         );
                       },
-                      icon: Icon(
-                        LucideIcons.messageCircle,
-                        size: 25,
-                        color: theme.colorScheme.primary,
-                      ),
                     ),
                   ] else if (canReview) ...[
-                    ActionButton(
+                    AppIconButton(
                       icon: Icons.reviews,
-                      onPressed: () async {
+                      onTap: () async {
                         await showModalBottomSheet<bool>(
                           context: context,
                           isScrollControlled: true,
@@ -226,6 +220,7 @@ class ClientBookingTile extends ConsumerWidget {
                           ),
                         );
                       },
+                      variant: AppIconButtonVariant.filled,
                     ),
                   ] else ...[
                     const Text(""),

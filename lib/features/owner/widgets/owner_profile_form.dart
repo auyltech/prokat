@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -9,7 +10,7 @@ import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
@@ -292,9 +293,9 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             _OwnerProfileStatusBlock(profile: widget.initialProfile),
             if (!isLocked) ...[
               const SizedBox(height: 32),
-              PrimaryButton(
-                label: l10n.editProfileData,
-                onPressed: _startEditing,
+              AppElevatedButton(
+                title: l10n.editProfileData,
+                onTap: _startEditing,
               ),
             ],
           ] else ...[
@@ -379,35 +380,15 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
                   : 0,
             ),
             const SizedBox(height: 28),
-            PrimaryButton(
-              label: l10n.submitChangesForReview,
+            AppElevatedButton(
+              title: l10n.submitChangesForReview,
               isLoading: isLoading,
-              onPressed: isLoading ? null : () => unawaited(_submitForm()),
+              onTap: isLoading ? null : () => unawaited(_submitForm()),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: OutlinedButton(
-                onPressed: isLoading ? null : _cancelEditing,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.onSurface,
-                  side: BorderSide(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.7),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  l10n.cancel,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
+            AppOutlinedButton(
+              title: l10n.cancel,
+              onTap: isLoading ? null : _cancelEditing,
             ),
           ],
         ],

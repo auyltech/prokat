@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_error_message.dart';
@@ -137,7 +138,6 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
     );
 
     final onSurface = theme.colorScheme.onSurface;
-    final primary = theme.colorScheme.primary;
     final isTimerActive = _secondsRemaining > 0;
 
     return Column(
@@ -180,10 +180,10 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
                 num.tryParse(temp) != null &&
                 !authState.isLoading;
 
-            return PrimaryButton(
-              label: authState.isLoading ? _l10n.verifying : _l10n.verifyOtp,
+            return AppElevatedButton(
+              title: authState.isLoading ? _l10n.verifying : _l10n.verifyOtp,
               isLoading: authState.isLoading,
-              onPressed: canSubmit ? verifyOtp : null,
+              onTap: canSubmit ? verifyOtp : null,
             );
           },
         ),
@@ -203,20 +203,10 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
           ),
         ] else ...[
           Center(
-            child: TextButton(
-              onPressed: authState.isLoading ? null : resendOtp,
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                _l10n.didntReceiveCodeResend,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            child: AppLabelButton(
+              title: _l10n.didntReceiveCodeResend,
+              onTap: authState.isLoading ? null : resendOtp,
+              variant: AppLabelButtonVariant.text,
             ),
           ),
         ],
@@ -226,26 +216,14 @@ class _OtpVerificationFormState extends ConsumerState<OtpVerificationForm> {
         ), // Gives clean breathing room before exit action
         // Change Phone Number Section
         Center(
-          child: TextButton(
-            onPressed: authState.isLoading
+          child: AppLabelButton(
+            title: _l10n.changePhoneNumber,
+            onTap: authState.isLoading
                 ? null
                 : () async {
                     await ref.read(authProvider.notifier).clearOtpSession();
                   },
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              _l10n.changePhoneNumber,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: primary,
-                fontWeight: FontWeight.w500,
-                decoration: TextDecoration
-                    .underline, // Subtle distinction from resend text
-              ),
-            ),
+            variant: AppLabelButtonVariant.text,
           ),
         ),
       ],

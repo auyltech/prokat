@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:prokat/core/widgets/ui_kit/toasts/app_toast.dart";
+import "package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart";
 import "package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart";
 import "package:prokat/features/appstartup/app_mode_storage.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
@@ -64,7 +65,6 @@ class BookingActionRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     return Padding(
@@ -72,20 +72,14 @@ class BookingActionRow extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-            child: OutlinedButton(
-              onPressed: () => _handleCancel(context, ref, booking, l10n),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                booking.status == BookingStatus.created
-                    ? l10n.decline
-                    : l10n.cancel,
-              ),
+            child: AppLabelButton(
+              title: booking.status == BookingStatus.created
+                  ? l10n.decline
+                  : l10n.cancel,
+              onTap: () => _handleCancel(context, ref, booking, l10n),
+              isExpanded: true,
+              variant: AppLabelButtonVariant.outlined,
+              tone: AppLabelButtonTone.destructive,
             ),
           ),
 
@@ -93,47 +87,31 @@ class BookingActionRow extends ConsumerWidget {
 
           if (booking.status == BookingStatus.created) ...[
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => _handleCounterOffer(context),
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(l10n.counter),
+              child: AppLabelButton(
+                title: l10n.counter,
+                onTap: () => _handleCounterOffer(context),
+                isExpanded: true,
+                variant: AppLabelButtonVariant.outlined,
               ),
             ),
 
             const SizedBox(width: 8),
             Expanded(
               flex: 2,
-              child: ElevatedButton(
-                onPressed: () => unawaited(_handleAccept(context, ref)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(l10n.acceptOrder),
+              child: AppLabelButton(
+                title: l10n.acceptOrder,
+                onTap: () => unawaited(_handleAccept(context, ref)),
+                isExpanded: true,
+                tone: AppLabelButtonTone.success,
               ),
             ),
           ] else
             Expanded(
-              child: ElevatedButton(
-                onPressed: () =>
-                    BookingStatusSheet.show(context, booking: booking),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: theme.colorScheme.primary),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(l10n.startWork),
+              child: AppLabelButton(
+                title: l10n.startWork,
+                onTap: () => BookingStatusSheet.show(context, booking: booking),
+                isExpanded: true,
+                variant: AppLabelButtonVariant.outlined,
               ),
             ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -282,13 +283,11 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: IconButton(
-                        onPressed: widget.onDelete,
+                      child: AppIconButton(
+                        onTap: widget.onDelete,
                         tooltip: l10n.deletePriceEntry,
-                        icon: Icon(
-                          Icons.delete_outline,
-                          color: colorScheme.error,
-                        ),
+                        icon: Icons.delete_outline,
+                        tone: AppIconButtonTone.destructive,
                       ),
                     ),
                   ],

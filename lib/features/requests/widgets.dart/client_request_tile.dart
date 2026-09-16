@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -171,15 +172,12 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
                   ),
                 )
               else
-                IconButton(
-                  onPressed: () => unawaited(
+                AppIconButton(
+                  onTap: () => unawaited(
                     _showCancelConfirmation(context, ref, request.id, l10n),
                   ),
-                  icon: Icon(
-                    LucideIcons.x,
-                    size: 25,
-                    color: theme.colorScheme.error,
-                  ),
+                  icon: LucideIcons.x,
+                  tone: AppIconButtonTone.destructive,
                 ),
 
               const SizedBox(width: 12),

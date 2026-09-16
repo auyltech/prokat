@@ -8,7 +8,7 @@ import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
@@ -265,10 +265,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     const SizedBox(height: 16),
 
-                    PrimaryButton(
-                      label: l10n.continueAction,
+                    AppElevatedButton(
+                      title: l10n.continueAction,
                       isLoading: _loading,
-                      onPressed: _loading ? null : () => onSubmit(l10n),
+                      onTap: _loading ? null : () => onSubmit(l10n),
                     ),
                   ],
                 ),

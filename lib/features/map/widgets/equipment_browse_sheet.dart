@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -134,29 +135,10 @@ class EquipmentBrowseSheet extends ConsumerWidget {
                     const SizedBox(height: 24),
 
                     /// 3. Primary Action Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: () =>
-                            context.push(AppRoutes.clientRequestsCreate),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        icon: const Icon(Icons.add_circle_outline_rounded),
-                        label: Text(
-                          l10n.createRequest.toUpperCase(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ),
+                    AppElevatedButton(
+                      title: l10n.createRequest.toUpperCase(),
+                      onTap: () => context.push(AppRoutes.clientRequestsCreate),
+                      prefix: const Icon(Icons.add_circle_outline_rounded),
                     ),
                     const SizedBox(height: 20),
                   ],

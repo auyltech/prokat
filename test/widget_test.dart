@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 
 void main() {
-  testWidgets('PrimaryButton displays its label and handles taps', (
+  testWidgets('AppElevatedButton displays its label and handles taps', (
     WidgetTester tester,
   ) async {
     var wasPressed = false;
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.lightTheme,
         home: Scaffold(
-          body: PrimaryButton(
-            label: 'Continue',
-            onPressed: () {
+          body: AppElevatedButton(
+            title: 'Continue',
+            onTap: () {
               wasPressed = true;
             },
           ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EditSheet extends StatelessWidget {
@@ -23,7 +24,6 @@ class EditSheet extends StatelessWidget {
     final bgColor = theme.colorScheme.surface;
     final resolvedButtonText =
         buttonText ?? AppLocalizations.of(context)!.saveChanges;
-    final accentColor = theme.colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(
@@ -80,31 +80,7 @@ class EditSheet extends StatelessWidget {
 
             /// Primary Action Button
             if (resolvedButtonText.isNotEmpty)
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: onSubmit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accentColor,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        16,
-                      ), // Small Item Radius
-                    ),
-                  ),
-                  child: Text(
-                    resolvedButtonText,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ),
-              ),
+              AppElevatedButton(title: resolvedButtonText, onTap: onSubmit),
           ],
         ),
       ),

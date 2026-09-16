@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 
 class AuthTextField extends StatefulWidget {
   final String label;
@@ -53,13 +54,9 @@ class _AuthTextFieldState extends State<AuthTextField> {
 
         /// Password toggle
         suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility_off : Icons.visibility,
-                  size: 20,
-                  color: onSurface.withValues(alpha: 0.6),
-                ),
-                onPressed: () => setState(() => _obscureText = !_obscureText),
+            ? AppIconButton(
+                icon: _obscureText ? Icons.visibility_off : Icons.visibility,
+                onTap: () => setState(() => _obscureText = !_obscureText),
               )
             : null,
 

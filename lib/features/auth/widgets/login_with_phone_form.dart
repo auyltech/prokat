@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_error_message.dart';
@@ -169,10 +169,10 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
 
             return Column(
               children: [
-                PrimaryButton(
-                  label: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
+                AppElevatedButton(
+                  title: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
                   isLoading: authState.isLoading,
-                  onPressed: canSubmit ? requestOtp : null,
+                  onTap: canSubmit ? requestOtp : null,
                 ),
                 if (cooldownSeconds > 0) ...[
                   const SizedBox(height: 8),

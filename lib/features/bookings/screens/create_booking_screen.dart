@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
@@ -293,7 +294,11 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           const SizedBox(width: 8),
 
                           // Favorite Button
-                          GestureDetector(
+                          AppIconButton(
+                            icon: isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            tone: AppIconButtonTone.destructive,
                             onTap: isClient
                                 ? () async {
                                     await ref
@@ -301,16 +306,6 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                         .toggleFavorite(equipment.id);
                                   }
                                 : null,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: Icon(
-                                isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: Colors.red,
-                                size: 32,
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -398,12 +393,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: ActionButton(
-                              label: l10n.placeOrder,
-                              onPressed: (!canSubmit || isSubmitting)
+                            child: AppElevatedButton(
+                              title: l10n.placeOrder,
+                              onTap: (!canSubmit || isSubmitting)
                                   ? null
                                   : onSubmit,
                               isLoading: isSubmitting,
+                              isExpanded: false,
                             ),
                           ),
                         ],

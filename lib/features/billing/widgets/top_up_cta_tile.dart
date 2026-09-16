@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 
@@ -58,23 +59,12 @@ class TopUpCtaTile extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
+          AppLabelButton(
+            title: l10n.add,
+            onTap: () {
               unawaited(context.push(AppRoutes.ownerPayment));
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: colorScheme.primary,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: Text(
-              l10n.add,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            tone: AppLabelButtonTone.inverse,
           ),
         ],
       ),

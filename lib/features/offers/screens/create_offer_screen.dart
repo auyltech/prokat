@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/parse.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
 import 'package:prokat/core/widgets/drop_down_field.dart';
@@ -225,11 +225,11 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: ActionButton(
-                      label: l10n.sendOffer,
-                      onPressed: onSubmit,
-                      isEnabled: canSubmit,
+                    child: AppElevatedButton(
+                      title: l10n.sendOffer,
+                      onTap: canSubmit ? onSubmit : null,
                       isLoading: offersState.isActionActive("offer:create"),
+                      isExpanded: false,
                     ),
                   ),
                 ],

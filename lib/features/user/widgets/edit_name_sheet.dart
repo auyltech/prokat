@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -116,16 +118,17 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : onSubmit,
-                  child: Text(l10n.save),
+                child: AppElevatedButton(
+                  title: l10n.save,
+                  onTap: isLoading ? null : onSubmit,
+                  isLoading: isLoading,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel),
+                child: AppOutlinedButton(
+                  title: l10n.cancel,
+                  onTap: isLoading ? null : () => Navigator.pop(context),
                 ),
               ),
             ],

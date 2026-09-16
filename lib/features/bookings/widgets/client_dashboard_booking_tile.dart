@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
@@ -123,15 +123,16 @@ class ClientDashboardBookingTile extends ConsumerWidget {
               // Go to chat
               Expanded(
                 flex: 1,
-                child: ActionButton(
+                child: AppIconButton(
                   icon: Icons.chat,
-                  onPressed: () {
+                  onTap: () {
                     unawaited(
                       context.push(
                         '${AppRoutes.clientChatList}/direct/${booking.chatId}',
                       ),
                     );
                   },
+                  variant: AppIconButtonVariant.filled,
                 ),
               ),
 

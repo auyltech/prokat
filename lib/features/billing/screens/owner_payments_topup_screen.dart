@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/utils/billing_display.dart';
@@ -161,9 +162,9 @@ class _OwnerPaymentsTopupScreenState
 
             const SizedBox(height: 24),
 
-            PrimaryButton(
-              label: l10n.submitTopUpRequest,
-              onPressed: selectedTierId == null || billingState.isSubmitting
+            AppElevatedButton(
+              title: l10n.submitTopUpRequest,
+              onTap: selectedTierId == null || billingState.isSubmitting
                   ? null
                   : () => submitTopUpRequest(selectedTierId!),
               isLoading: billingState.isSubmitting,
@@ -217,9 +218,10 @@ class _OwnerPaymentsTopupScreenState
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextButton(
-                  onPressed: () => context.push(AppRoutes.ownerPaymentHistory),
-                  child: Text(l10n.viewAll),
+                AppLabelButton(
+                  title: l10n.viewAll,
+                  onTap: () => context.push(AppRoutes.ownerPaymentHistory),
+                  variant: AppLabelButtonVariant.text,
                 ),
               ],
             ),

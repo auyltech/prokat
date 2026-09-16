@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstatic/widgets/login_tile.dart';
@@ -44,41 +45,18 @@ class HeroBanner extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          GestureDetector(
+          AppLabelButton(
+            title: hasSpecificCity
+                ? catalogCityLabelOf(ref, context, selectedCity)
+                : l10n.allLocations,
             onTap: () => CityPickerSheet.show(
               context: context,
               service: CitySelectorService.guestcategory,
             ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(30),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.location_on_outlined,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    hasSpecificCity
-                        ? catalogCityLabelOf(ref, context, selectedCity)
-                        : l10n.allLocations,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 16,
-                    color: Colors.white70,
-                  ),
-                ],
-              ),
-            ),
+            prefix: const Icon(Icons.location_on_outlined),
+            postfix: const Icon(Icons.keyboard_arrow_down),
+            variant: AppLabelButtonVariant.soft,
+            tone: AppLabelButtonTone.inverse,
           ),
           const SizedBox(height: 24),
           LoginTile(

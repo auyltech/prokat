@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -207,12 +207,12 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           /// 3. ACTION SUBMIT BUTTON
           SizedBox(
             width: double.infinity,
-            child: PrimaryButton(
-              label: _isSubmitting
+            child: AppElevatedButton(
+              title: _isSubmitting
                   ? l10n.saving
                   : (isEditing ? l10n.save : l10n.add),
               // FIXED: Added submission pipeline execution
-              onPressed: _isSubmitting ? null : () => submitPriceEntry(l10n),
+              onTap: _isSubmitting ? null : () => submitPriceEntry(l10n),
             ),
           ),
         ],

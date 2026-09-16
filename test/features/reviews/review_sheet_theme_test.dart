@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -19,8 +20,7 @@ void main() {
     tester,
   ) async {
     const surface = Color(0xFF1C1C1E);
-    final theme = ThemeData(
-      brightness: Brightness.dark,
+    final theme = AppTheme.darkTheme.copyWith(
       colorScheme: const ColorScheme.dark(surface: surface),
     );
 

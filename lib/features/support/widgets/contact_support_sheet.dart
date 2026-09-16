@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -46,32 +47,15 @@ class ContactSupportSheet extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          GestureDetector(
+          AppLabelButton(
+            title: l10n.submitInquiry,
             onTap: () {
               unawaited(context.push(AppRoutes.contactSupport));
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black26),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Icon(Icons.email_outlined),
-                  const SizedBox(width: 12),
-                  Text(
-                    l10n.submitInquiry,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            prefix: const Icon(Icons.email_outlined),
+            isExpanded: true,
+            size: AppLabelButtonSize.regular,
+            variant: AppLabelButtonVariant.outlined,
           ),
 
           // ListTile(

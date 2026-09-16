@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -253,8 +254,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () => showModalBottomSheet(
+                  AppIconButton(
+                    icon: LucideIcons.x,
+                    tone: AppIconButtonTone.destructive,
+                    onTap: () => showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
                       backgroundColor: theme.colorScheme.surface,
@@ -267,11 +270,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                         booking: booking,
                         mode: widget.mode,
                       ),
-                    ),
-                    icon: Icon(
-                      LucideIcons.x,
-                      size: 25,
-                      color: theme.colorScheme.error,
                     ),
                   ),
               ],
@@ -292,8 +290,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () async {
+                  AppIconButton(
+                    icon: LucideIcons.coins,
+                    tone: AppIconButtonTone.primary,
+                    onTap: () async {
                       if (widget.mode == AppMode.ownerMode) {
                         final online = await ensureOwnerOnline(
                           context,
@@ -312,11 +312,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                         mode: widget.mode,
                       );
                     },
-                    icon: Icon(
-                      LucideIcons.coins,
-                      size: 25,
-                      color: theme.colorScheme.primary,
-                    ),
                   ),
               ],
 
@@ -337,8 +332,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () async {
+                  AppIconButton(
+                    icon: LucideIcons.check,
+                    tone: AppIconButtonTone.success,
+                    onTap: () async {
                       final online = await ensureOwnerOnline(
                         context,
                         ref,
@@ -377,11 +374,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                             : AppToastType.error,
                       );
                     },
-                    icon: Icon(
-                      LucideIcons.check,
-                      size: 25,
-                      color: Colors.green[800],
-                    ),
                   ),
               ],
             ],

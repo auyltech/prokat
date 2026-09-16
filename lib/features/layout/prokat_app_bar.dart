@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -102,9 +103,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (isOrdersScreen) {
       actionWidgets.add(
-        IconButton(
-          onPressed: () => context.push(AppRoutes.clientOrdersHistory),
-          icon: const Icon(Icons.history, color: Colors.grey, size: 24),
+        AppIconButton(
+          onTap: () => context.push(AppRoutes.clientOrdersHistory),
+          icon: Icons.history,
           tooltip: l10n.orderHistory,
         ),
       );
@@ -112,9 +113,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (currentPath == AppRoutes.clientRequests) {
       actionWidgets.add(
-        IconButton(
-          onPressed: () => context.push(AppRoutes.clientRequestsCreate),
-          icon: const Icon(Icons.add_rounded, color: Colors.grey, size: 24),
+        AppIconButton(
+          onTap: () => context.push(AppRoutes.clientRequestsCreate),
+          icon: Icons.add_rounded,
           tooltip: l10n.createRequest,
         ),
       );
@@ -122,9 +123,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (currentPath == AppRoutes.ownerEquipment) {
       actionWidgets.add(
-        IconButton(
-          onPressed: () => context.push(AppRoutes.ownerEquipmentCreate),
-          icon: const Icon(Icons.add, color: Colors.grey, size: 24),
+        AppIconButton(
+          onTap: () => context.push(AppRoutes.ownerEquipmentCreate),
+          icon: Icons.add,
           tooltip: l10n.addEquipment,
         ),
       );
@@ -132,13 +133,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (currentPath == AppRoutes.ownerBookings) {
       actionWidgets.add(
-        IconButton(
-          onPressed: () => context.push(AppRoutes.ownerBookingsHistory),
-          icon: const Icon(
-            Icons.history_toggle_off_rounded,
-            color: Colors.grey,
-            size: 24,
-          ),
+        AppIconButton(
+          onTap: () => context.push(AppRoutes.ownerBookingsHistory),
+          icon: Icons.history_toggle_off_rounded,
           tooltip: l10n.orderHistory,
         ),
       );
@@ -147,10 +144,9 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
     if (currentPath == AppRoutes.clientNotifications ||
         currentPath == AppRoutes.ownerNotifications) {
       actionWidgets.add(
-        IconButton(
-          onPressed: () =>
-              ref.read(notificationProvider.notifier).markAllAsRead(),
-          icon: const Icon(Icons.done_all),
+        AppIconButton(
+          onTap: () => ref.read(notificationProvider.notifier).markAllAsRead(),
+          icon: Icons.done_all,
           tooltip: l10n.markAllAsRead,
         ),
       );
@@ -169,6 +165,10 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
       elevation: 5,
       backgroundColor: theme.cardColor,
       automaticallyImplyLeading: false,
+      title: titleWidget,
+      centerTitle: false,
+      actions: actionWidgets,
+      actionsPadding: const EdgeInsets.only(right: 16.0),
       iconTheme: IconThemeData(
         color: isOwnerScreen ? AppColors.teal700 : theme.colorScheme.primary,
       ),
@@ -177,13 +177,10 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
         child: Container(color: Colors.black12, height: 1.0),
       ),
       leading: showBackButton
-          ? IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 26,
-                color: theme.colorScheme.onPrimary,
-              ),
-              onPressed: () {
+          ? AppIconButton(
+              icon: Icons.arrow_back_ios_new_rounded,
+              tone: AppIconButtonTone.inverse,
+              onTap: () {
                 if (GoRouter.of(context).canPop()) {
                   context.pop();
                 } else {
@@ -208,10 +205,6 @@ class ProkatAppBar extends ConsumerWidget implements PreferredSizeWidget {
               },
             )
           : null,
-      title: titleWidget,
-      centerTitle: false,
-      actions: actionWidgets,
-      actionsPadding: const EdgeInsets.only(right: 16.0),
     );
   }
 }

@@ -80,6 +80,67 @@ class LightColorTheme extends AppColorsTheme {
   );
 
   @override
+  AppIconButtonTheme get iconButton => AppIconButtonTheme(
+    neutral: const AppButtonToneTheme(
+      content: AppColors.textPrimary,
+      contentOnFill: AppColors.textPrimary,
+      fill: AppColors.surfaceElevated,
+      softFill: AppColors.surface,
+      border: AppColors.border,
+    ),
+    primary: const AppButtonToneTheme(
+      content: AppColors.primary,
+      contentOnFill: AppColors.white,
+      fill: AppColors.primary,
+      softFill: AppColors.primarySoft,
+      border: AppColors.primary,
+    ),
+    success: const AppButtonToneTheme(
+      content: AppColors.success,
+      contentOnFill: AppColors.white,
+      fill: AppColors.success,
+      softFill: AppColors.successSoft,
+      border: AppColors.success,
+    ),
+    warning: const AppButtonToneTheme(
+      content: AppColors.warning,
+      contentOnFill: AppColors.textPrimary,
+      fill: AppColors.amber,
+      softFill: AppColors.warningSoft,
+      border: AppColors.warning,
+    ),
+    destructive: const AppButtonToneTheme(
+      content: AppColors.danger,
+      contentOnFill: AppColors.white,
+      fill: AppColors.danger,
+      softFill: AppColors.dangerSoft,
+      border: AppColors.danger,
+    ),
+    inverse: AppButtonToneTheme(
+      content: AppColors.white,
+      contentOnFill: AppColors.primary,
+      fill: AppColors.white,
+      softFill: AppColors.black.withValues(alpha: 0.4),
+      border: AppColors.white.withValues(alpha: 0.6),
+    ),
+    contentDisabled: AppColors.textDisabled,
+    backgroundDisabled: AppColors.surface,
+    borderDisabled: AppColors.textDisabled,
+  );
+
+  @override
+  AppLabelButtonTheme get labelButton => AppLabelButtonTheme(
+    neutral: iconButton.neutral,
+    primary: iconButton.primary,
+    success: iconButton.success,
+    destructive: iconButton.destructive,
+    inverse: iconButton.inverse,
+    contentDisabled: AppColors.textDisabled,
+    backgroundDisabled: AppColors.surface,
+    borderDisabled: AppColors.textDisabled,
+  );
+
+  @override
   AppElevatedButtonTheme get elevatedButton => const AppElevatedButtonTheme(
     background: AppColors.primary,
     content: AppColors.white,

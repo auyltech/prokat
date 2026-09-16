@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
@@ -121,15 +122,14 @@ class FavoriteTile extends ConsumerWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                    onPressed: () => ref
+                  AppIconButton(
+                    onTap: () => ref
                         .read(favoritesProvider.notifier)
                         .toggleFavorite(equipment.id),
-                    icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorite ? Colors.red : theme.hintColor,
-                      size: 22,
-                    ),
+                    icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+                    tone: isFavorite
+                        ? AppIconButtonTone.destructive
+                        : AppIconButtonTone.neutral,
                   ),
                   Icon(
                     Icons.arrow_forward_ios_rounded,

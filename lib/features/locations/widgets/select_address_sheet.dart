@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -170,41 +171,22 @@ class SelectAddressSheet extends ConsumerWidget {
 
           const SizedBox(height: 8),
 
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                unawaited(
-                  context.push(
-                    AppRoutes.clientPinAddress,
-                    extra: {
-                      'equipmentId': equipmentId,
-                      "service": service,
-                      "from": from,
-                    },
-                  ),
-                );
-              },
-              icon: const Icon(Icons.map_outlined, size: 24),
-              label: Text(
-                l10n.chooseOnMap,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface,
+          AppOutlinedButton(
+            title: l10n.chooseOnMap,
+            onTap: () {
+              Navigator.pop(context);
+              unawaited(
+                context.push(
+                  AppRoutes.clientPinAddress,
+                  extra: {
+                    'equipmentId': equipmentId,
+                    "service": service,
+                    "from": from,
+                  },
                 ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary,
-                side: BorderSide(
-                  color: theme.colorScheme.outline.withAlpha(50),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                backgroundColor: theme.colorScheme.surfaceBright,
-              ),
-            ),
+              );
+            },
+            prefix: const Icon(Icons.map_outlined),
           ),
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SpecFilterChoice {
@@ -126,9 +126,10 @@ class _SpecMultiSelectSheetState extends State<SpecMultiSelectSheet> {
       title: widget.title,
       footer: SizedBox(
         width: double.infinity,
-        child: ActionButton(
-          label: l10n.apply,
-          onPressed: () => Navigator.pop(context, {..._draft}),
+        child: AppElevatedButton(
+          title: l10n.apply,
+          onTap: () => Navigator.pop(context, {..._draft}),
+          isExpanded: false,
         ),
       ),
       child: ListView.builder(

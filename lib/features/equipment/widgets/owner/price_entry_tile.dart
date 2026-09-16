@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -29,7 +30,6 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
-    final accent = colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -77,9 +77,10 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             else
-              IconButton(
-                onPressed: widget.onEdit,
-                icon: Icon(Icons.edit_rounded, color: accent, size: 20),
+              AppIconButton(
+                onTap: widget.onEdit,
+                icon: Icons.edit_rounded,
+                tone: AppIconButtonTone.primary,
               ),
             if (ref
                 .watch(equipmentMutationProvider)
@@ -92,9 +93,10 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             else
-              IconButton(
-                onPressed: widget.onDelete,
-                icon: Icon(Icons.delete, color: colorScheme.error, size: 20),
+              AppIconButton(
+                onTap: widget.onDelete,
+                icon: Icons.delete,
+                tone: AppIconButtonTone.destructive,
               ),
           ],
         ],

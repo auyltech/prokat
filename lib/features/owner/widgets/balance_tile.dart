@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -109,10 +110,9 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                 ],
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.refresh, size: 20),
-              onPressed: () =>
-                  ref.read(billingProvider.notifier).getOwnerBalance(),
+            AppIconButton(
+              icon: Icons.refresh,
+              onTap: () => ref.read(billingProvider.notifier).getOwnerBalance(),
             ),
           ],
         ),
@@ -280,29 +280,13 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
+    return AppIconButton(
+      icon: icon,
       onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: filled
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurface.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(18),
-          border: filled
-              ? null
-              : Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
-        ),
-        child: Icon(
-          icon,
-          size: 18,
-          color: filled
-              ? Colors.white
-              : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-        ),
-      ),
+      variant: filled
+          ? AppIconButtonVariant.filled
+          : AppIconButtonVariant.outlined,
+      tone: filled ? AppIconButtonTone.primary : AppIconButtonTone.neutral,
     );
   }
 }

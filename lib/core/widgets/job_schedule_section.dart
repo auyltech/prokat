@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
@@ -154,9 +156,10 @@ Future<DateTime?> showJobTimePicker({
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(draft),
-                  child: Text(MaterialLocalizations.of(context).okButtonLabel),
+                child: AppLabelButton(
+                  title: MaterialLocalizations.of(context).okButtonLabel,
+                  onTap: () => Navigator.of(context).pop(draft),
+                  variant: AppLabelButtonVariant.text,
                 ),
               ),
               Expanded(
@@ -284,13 +287,13 @@ class _JobDatePickerSheetState extends State<_JobDatePickerSheet> {
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: _canGoPrev ? () => _shiftMonth(-1) : null,
-                  icon: const Icon(Icons.chevron_left),
+                AppIconButton(
+                  onTap: _canGoPrev ? () => _shiftMonth(-1) : null,
+                  icon: Icons.chevron_left,
                 ),
-                IconButton(
-                  onPressed: _canGoNext ? () => _shiftMonth(1) : null,
-                  icon: const Icon(Icons.chevron_right),
+                AppIconButton(
+                  onTap: _canGoNext ? () => _shiftMonth(1) : null,
+                  icon: Icons.chevron_right,
                 ),
               ],
             ),
@@ -372,13 +375,15 @@ class _JobDatePickerSheetState extends State<_JobDatePickerSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(material.cancelButtonLabel),
+                AppLabelButton(
+                  title: material.cancelButtonLabel,
+                  onTap: () => Navigator.of(context).pop(),
+                  variant: AppLabelButtonVariant.text,
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(_selected),
-                  child: Text(material.okButtonLabel),
+                AppLabelButton(
+                  title: material.okButtonLabel,
+                  onTap: () => Navigator.of(context).pop(_selected),
+                  variant: AppLabelButtonVariant.text,
                 ),
               ],
             ),

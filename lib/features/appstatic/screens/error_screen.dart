@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/features/auth/widgets/auth_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,14 +48,14 @@ class ErrorScreen extends ConsumerWidget {
               style: const TextStyle(color: ghostGray, fontSize: 16),
             ),
             const SizedBox(height: 48),
-            AuthButton(
-              loading: false,
-              text: l10n.retryConnection,
-              loadingText: l10n.reconnecting,
-              onPressed: () {
+            AppLabelButton(
+              title: l10n.retryConnection.toUpperCase(),
+              onTap: () {
                 unawaited(ref.read(appStartupProvider.notifier).init());
                 context.go(AppRoutes.launch);
               },
+              isExpanded: true,
+              size: AppLabelButtonSize.regular,
             ),
           ],
         ),

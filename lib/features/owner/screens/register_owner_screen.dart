@@ -11,7 +11,7 @@ import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/moderation_status_card.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/shake_on_tick.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -395,11 +395,11 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
               if (canSubmit) ...[
                 const SizedBox(height: 16),
-                PrimaryButton(
-                  label: submitLabel,
+                AppElevatedButton(
+                  title: submitLabel,
                   isLoading: mutationState.isLoading,
-                  icon: Icons.send_rounded,
-                  onPressed: mutationState.isLoading ? null : _submit,
+                  prefix: const Icon(Icons.send_rounded),
+                  onTap: mutationState.isLoading ? null : _submit,
                 ),
               ] else if (isAccepted) ...[
                 _AcceptedInfo(theme: theme),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -63,12 +64,9 @@ class MapAddressPreview extends ConsumerWidget {
 
               const SizedBox(height: 16),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: address == null ? null : onConfirm,
-                  child: Text(l10n.confirmLocation),
-                ),
+              AppElevatedButton(
+                title: l10n.confirmLocation,
+                onTap: address == null ? null : onConfirm,
               ),
             ],
           ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -31,9 +32,12 @@ class OwnerAddressesScreen extends ConsumerWidget {
           return AddressListTile(location: location);
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
+      floatingActionButton: AppIconButton(
+        icon: Icons.add,
+        size: AppIconButtonSize.large,
+        variant: AppIconButtonVariant.floating,
+        tone: AppIconButtonTone.primary,
+        onTap: () {
           unawaited(context.push(AppRoutes.ownerAddressCreate));
         },
       ),

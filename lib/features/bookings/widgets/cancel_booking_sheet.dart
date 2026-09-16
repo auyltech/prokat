@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/core/widgets/action_bar_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
@@ -162,26 +162,28 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
           Row(
             children: [
               Expanded(
-                child: ActionBarButton.secondary(
-                  label: l10n.goBack,
-                  onPressed: () => Navigator.pop(context),
+                child: AppLabelButton(
+                  title: l10n.goBack,
+                  onTap: () => Navigator.pop(context),
+                  isExpanded: true,
+                  variant: AppLabelButtonVariant.outlined,
                 ),
               ),
 
               const SizedBox(width: 8),
 
               Expanded(
-                child: ActionBarButton.destructive(
-                  label: widget.mode == AppMode.clientMode
+                child: AppLabelButton(
+                  title: widget.mode == AppMode.clientMode
                       ? l10n.cancelBooking
                       : widget.booking.status == BookingStatus.created
                       ? l10n.rejectOrder
                       : l10n.cancelBooking,
-                  onPressed: selectedReason == null
-                      ? null
-                      : () => onSubmit(l10n),
+                  onTap: selectedReason == null ? null : () => onSubmit(l10n),
                   isLoading: isSubmitting,
-                  isEnabled: selectedReason != null && !isSubmitting,
+                  isExpanded: true,
+                  variant: AppLabelButtonVariant.outlined,
+                  tone: AppLabelButtonTone.destructive,
                 ),
               ),
             ],

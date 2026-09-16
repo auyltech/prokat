@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/appstatic/widgets/faq_tile.dart';
 import 'package:prokat/features/support/data/faq_data.dart';
 import 'package:prokat/features/support/data/guides_data.dart';
@@ -76,29 +77,9 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               ),
               const SizedBox(height: 12),
               // Primary Action Form Button Wrapper
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(
-                      0xFF004699,
-                    ), // Matching image primary blue theme color
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () => ContactSupportSheet.show(context),
-                  child: Text(
-                    l10n.contactSupport,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
+              AppElevatedButton(
+                title: l10n.contactSupport,
+                onTap: () => ContactSupportSheet.show(context),
               ),
             ],
           ),

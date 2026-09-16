@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/widgets/page_header.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class MapContainer extends StatefulWidget {
@@ -120,25 +121,10 @@ class _MapContainerState extends State<MapContainer> {
 
                 const SizedBox(height: 32),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: () => context.go(widget.redirectRoute),
-                    icon: const Icon(Icons.list_alt_rounded),
-                    label: Text(
-                      widget.redirectLabel.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4E73DF),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
+                AppElevatedButton(
+                  title: widget.redirectLabel.toUpperCase(),
+                  onTap: () => context.go(widget.redirectRoute),
+                  prefix: const Icon(Icons.list_alt_rounded),
                 ),
               ],
             ),

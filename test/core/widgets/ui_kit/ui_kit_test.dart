@@ -6,6 +6,10 @@ import 'package:prokat/core/theme/colors/app_colors_theme.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_text_button.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_dropdown_field.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
@@ -111,6 +115,166 @@ void main() {
     );
     await tester.tap(find.byType(AppElevatedButton));
     expect(taps, 1);
+  });
+
+  testWidgets('AppElevatedButton passes content color to prefix icons', (
+    tester,
+  ) async {
+    Color? iconColor;
+    await tester.pumpWidget(
+      _wrap(
+        AppElevatedButton(
+          title: 'Go',
+          onTap: () {},
+          prefix: Builder(
+            builder: (context) {
+              iconColor = IconTheme.of(context).color;
+              return const Icon(Icons.add);
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      iconColor,
+      AppTheme.lightTheme.extension<AppColorsTheme>()!.elevatedButton.content,
+    );
+  });
+
+  testWidgets(
+    'AppOutlinedButton passes disabled content color to prefix icons',
+    (tester) async {
+      Color? iconColor;
+      await tester.pumpWidget(
+        _wrap(
+          AppOutlinedButton(
+            title: 'Go',
+            onTap: null,
+            prefix: Builder(
+              builder: (context) {
+                iconColor = IconTheme.of(context).color;
+                return const Icon(Icons.add);
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        iconColor,
+        AppTheme.lightTheme
+            .extension<AppColorsTheme>()!
+            .outlinedButton
+            .contentDisabled,
+      );
+    },
+  );
+
+  testWidgets(
+    'AppTextButton passes destructive content color to postfix icons',
+    (tester) async {
+      Color? iconColor;
+      await tester.pumpWidget(
+        _wrap(
+          AppTextButton(
+            title: 'Delete',
+            onTap: () {},
+            style: AppTextButtonStyle.destructive,
+            postfix: Builder(
+              builder: (context) {
+                iconColor = IconTheme.of(context).color;
+                return const Icon(Icons.delete_outline);
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        iconColor,
+        AppTheme.lightTheme
+            .extension<AppColorsTheme>()!
+            .textButton
+            .contentDestructive,
+      );
+    },
+  );
+
+  testWidgets('AppIconButton supports enabled, loading and asset icons', (
+    tester,
+  ) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      _wrap(AppIconButton(icon: Icons.add, onTap: () => taps++)),
+    );
+    expect(tester.getSize(find.byType(AppIconButton)), const Size(44, 44));
+    await tester.tap(find.byType(AppIconButton));
+    expect(taps, 1);
+
+    await tester.pumpWidget(
+      _wrap(
+        AppIconButton(icon: Icons.add, onTap: () => taps++, isLoading: true),
+      ),
+    );
+    await tester.tap(find.byType(AppIconButton));
+    expect(taps, 1);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    await tester.pumpWidget(
+      _wrap(AppIconButton.asset(icon: AppIcons.check, onTap: () {})),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'AppLabelButton keeps its title while loading and disables taps',
+    (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        _wrap(
+          AppLabelButton(
+            title: 'Отправить предложение',
+            onTap: () => taps++,
+            isLoading: true,
+            isExpanded: true,
+          ),
+        ),
+      );
+
+      expect(find.text('Отправить предложение'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.tap(find.byType(AppLabelButton));
+      expect(taps, 0);
+    },
+  );
+
+  testWidgets('new buttons render in light and dark themes without overflow', (
+    tester,
+  ) async {
+    Widget subject() => const SizedBox(
+      width: 320,
+      child: Column(
+        children: [
+          AppLabelButton(
+            title: 'Ұзын батырма атауы тексеру үшін',
+            onTap: null,
+            isExpanded: true,
+            variant: AppLabelButtonVariant.outlined,
+          ),
+          AppIconButton(
+            icon: Icons.delete_outline,
+            onTap: null,
+            tone: AppIconButtonTone.destructive,
+          ),
+        ],
+      ),
+    );
+
+    await tester.pumpWidget(_wrap(subject(), theme: AppTheme.lightTheme));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(_wrap(subject(), theme: AppTheme.darkTheme));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('AppTextField controller, onChanged, obscure', (tester) async {

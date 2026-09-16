@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -210,12 +211,11 @@ class _SupportItem extends StatelessWidget {
                     alignment: Alignment.bottomLeft,
                     child: Transform.translate(
                       offset: const Offset(-12, 6),
-                      child: TextButton(
-                        onPressed: onTap,
-                        child: Text(
-                          actionText,
-                          style: TextStyle(color: theme.colorScheme.onPrimary),
-                        ),
+                      child: AppLabelButton(
+                        title: actionText,
+                        onTap: onTap,
+                        variant: AppLabelButtonVariant.text,
+                        tone: AppLabelButtonTone.inverse,
                       ),
                     ),
                   ),

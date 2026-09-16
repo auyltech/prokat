@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/models/location_search_result.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -117,13 +118,10 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
             decoration: BoxDecoration(color: theme.colorScheme.primary),
             child: Row(
               children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                  onPressed: () => context.pop(),
+                AppIconButton(
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  tone: AppIconButtonTone.inverse,
+                  onTap: () => context.pop(),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -160,7 +158,7 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
 
                 const SizedBox(height: 24),
 
-                PrimaryButton(label: l10n.saveLocation, onPressed: _onPressed),
+                AppElevatedButton(title: l10n.saveLocation, onTap: _onPressed),
               ],
             ),
           ),

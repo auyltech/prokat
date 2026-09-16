@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
@@ -222,18 +223,14 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
         const SizedBox(height: 24),
 
         // Production Danger Zone Trigger Button
-        OutlinedButton.icon(
-          icon: const Icon(Icons.delete_forever_rounded),
-          label: Text(l10n.initiateAccountDeletion),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: theme.colorScheme.error,
-            side: BorderSide(color: theme.colorScheme.error),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          onPressed: () => unawaited(_showDeletionConfirmationDialog(context)),
+        AppLabelButton(
+          title: l10n.initiateAccountDeletion,
+          onTap: () => unawaited(_showDeletionConfirmationDialog(context)),
+          prefix: const Icon(Icons.delete_forever_rounded),
+          isExpanded: true,
+          size: AppLabelButtonSize.regular,
+          variant: AppLabelButtonVariant.outlined,
+          tone: AppLabelButtonTone.destructive,
         ),
 
         // Native spacing cushion at the base of scroll view

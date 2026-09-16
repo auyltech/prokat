@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
@@ -256,8 +257,10 @@ class OwnerBookingTile extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                     ] else
-                      IconButton(
-                        onPressed: () => unawaited(
+                      AppIconButton(
+                        icon: LucideIcons.x,
+                        tone: AppIconButtonTone.destructive,
+                        onTap: () => unawaited(
                           _handleCancel(
                             context,
                             ref,
@@ -265,48 +268,37 @@ class OwnerBookingTile extends ConsumerWidget {
                             booking.status == BookingStatus.created,
                           ),
                         ),
-                        icon: Icon(
-                          LucideIcons.x,
-                          size: 25,
-                          color: theme.colorScheme.error,
-                        ),
                       ),
 
-                    IconButton(
-                      onPressed: () {
+                    AppIconButton(
+                      icon: LucideIcons.messageCircle,
+                      tone: AppIconButtonTone.primary,
+                      onTap: () {
                         unawaited(
                           context.push(
                             '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
                           ),
                         );
                       },
-                      icon: Icon(
-                        LucideIcons.messageCircle,
-                        size: 25,
-                        color: theme.colorScheme.primary,
-                      ),
                     ),
 
                     const SizedBox(width: 8),
                   ],
                   if (booking.status == BookingStatus.created) ...[
                     // Accept Order
-                    IconButton(
-                      onPressed: () =>
+                    AppIconButton(
+                      icon: LucideIcons.check,
+                      tone: AppIconButtonTone.success,
+                      onTap: () =>
                           ref.watch(bookingMutationProvider).isSubmitting
                           ? null
                           : unawaited(handleAccept(context, ref)),
                       tooltip: l10n.acceptOrder,
-                      icon: Icon(
-                        LucideIcons.check,
-                        size: 25,
-                        color: Colors.green[800],
-                      ),
                     ),
                   ] else if (canReview) ...[
-                    ActionButton(
-                      label: l10n.submitReview,
-                      onPressed: () async {
+                    AppElevatedButton(
+                      title: l10n.submitReview,
+                      onTap: () async {
                         await showModalBottomSheet<bool>(
                           context: context,
                           isScrollControlled: true,
@@ -323,6 +315,7 @@ class OwnerBookingTile extends ConsumerWidget {
                           ),
                         );
                       },
+                      isExpanded: false,
                     ),
                   ],
                 ],

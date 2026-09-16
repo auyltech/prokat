@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -137,12 +138,14 @@ class _NegotiationMessageBubbleState
                           ),
                         )
                       else
-                        IconButton(
+                        AppIconButton(
+                          icon: Icons.clear,
+                          tone: AppIconButtonTone.destructive,
                           // isEnabled: !submitState.isSubmitting,
                           // isLoading:
                           //     submitState.isSubmitting &&
                           //     submitState.submitId == "price:cancel",
-                          onPressed: () async {
+                          onTap: () async {
                             await ref
                                 .read(priceNegotiationMutationProvider.notifier)
                                 .cancelPriceNegotiation(
@@ -152,9 +155,6 @@ class _NegotiationMessageBubbleState
                                   chatId: widget.message.chatId,
                                 );
                           },
-                          iconSize: 32,
-                          padding: const EdgeInsets.all(0),
-                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
                     ] else if (priceNegotiation.status ==
                         PriceNegotiationStatus.created) ...[
@@ -172,8 +172,10 @@ class _NegotiationMessageBubbleState
                           ),
                         )
                       else
-                        IconButton(
-                          onPressed: () async {
+                        AppIconButton(
+                          icon: Icons.clear,
+                          tone: AppIconButtonTone.destructive,
+                          onTap: () async {
                             await ref
                                 .read(priceNegotiationMutationProvider.notifier)
                                 .respondToPriceNegotiation(
@@ -186,9 +188,6 @@ class _NegotiationMessageBubbleState
 
                             // chatId: widget.message.chatId,
                           },
-                          iconSize: 32,
-                          padding: const EdgeInsets.all(0),
-                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
 
                       if (ref
@@ -205,8 +204,10 @@ class _NegotiationMessageBubbleState
                           ),
                         )
                       else
-                        IconButton(
-                          onPressed: () async {
+                        AppIconButton(
+                          icon: Icons.check,
+                          tone: AppIconButtonTone.success,
+                          onTap: () async {
                             await ref
                                 .read(priceNegotiationMutationProvider.notifier)
                                 .respondToPriceNegotiation(
@@ -217,9 +218,6 @@ class _NegotiationMessageBubbleState
                                   chatId: widget.message.chatId,
                                 );
                           },
-                          iconSize: 32,
-                          padding: const EdgeInsets.all(0),
-                          icon: const Icon(Icons.check, color: Colors.green),
                         ),
                     ],
                   ],

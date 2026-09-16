@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -36,21 +37,16 @@ class PageHeader extends StatelessWidget {
           alignment: Alignment.centerLeft,
           children: [
             if (showBack)
-              IconButton(
-                icon: Icon(
-                  LucideIcons.chevronLeft,
-                  size: 20,
-                  color: theme.colorScheme.onPrimary,
-                ),
-                onPressed: () {
+              AppIconButton(
+                icon: LucideIcons.chevronLeft,
+                tone: AppIconButtonTone.inverse,
+                onTap: () {
                   if (context.canPop()) {
                     context.pop();
                   } else {
                     unawaited(context.push(AppRoutes.clientProfile));
                   }
                 },
-                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                padding: EdgeInsets.zero,
               ),
 
             if (title != null)

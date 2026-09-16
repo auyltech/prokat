@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
@@ -614,19 +615,14 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             );
           }),
           if (_canEdit && _tariffs.length < ownerEquipmentTariffMax)
-            TextButton.icon(
-              onPressed: () {
+            AppLabelButton(
+              title: l10n.addTariff,
+              onTap: () {
                 setState(() => _tariffs.add(TariffDraft.custom()));
                 _onChanged();
               },
-              icon: Icon(Icons.add, color: colorScheme.primary),
-              label: Text(
-                l10n.addTariff,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              prefix: const Icon(Icons.add),
+              variant: AppLabelButtonVariant.text,
             ),
         ],
       ),

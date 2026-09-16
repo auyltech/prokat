@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/action_bar_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -149,7 +150,12 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           Row(
             children: [
               Expanded(
-                child: ActionBarButton(label: l10n.submit, onPressed: onSubmit),
+                child: AppLabelButton(
+                  title: l10n.submit,
+                  onTap: state.isSubmitting ? null : onSubmit,
+                  isLoading: state.isSubmitting,
+                  isExpanded: true,
+                ),
               ),
             ],
           ),
@@ -167,17 +173,16 @@ class _StarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Row(
       children: List.generate(5, (index) {
         final star = index + 1;
         final isActive = star <= value;
-        return IconButton(
-          onPressed: onChanged == null ? null : () => onChanged!(star),
-          icon: Icon(
-            isActive ? Icons.star_rounded : Icons.star_outline_rounded,
-            color: isActive ? theme.colorScheme.primary : theme.disabledColor,
-          ),
+        return AppIconButton(
+          onTap: onChanged == null ? null : () => onChanged!(star),
+          icon: isActive ? Icons.star_rounded : Icons.star_outline_rounded,
+          tone: isActive
+              ? AppIconButtonTone.primary
+              : AppIconButtonTone.neutral,
         );
       }),
     );

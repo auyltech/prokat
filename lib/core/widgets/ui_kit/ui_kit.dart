@@ -3,6 +3,8 @@ export 'package:prokat/core/widgets/ui_kit/app_icon.dart';
 export 'package:prokat/core/widgets/ui_kit/app_image.dart';
 export 'package:prokat/core/widgets/ui_kit/asset_paths.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_text_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/selection/app_checkbox.dart';

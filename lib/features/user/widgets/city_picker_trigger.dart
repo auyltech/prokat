@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -18,25 +19,19 @@ class CityPickerTrigger extends ConsumerStatefulWidget {
 class _CityPickerTriggerState extends ConsumerState<CityPickerTrigger> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final locationState = ref.watch(locationProvider);
     final selectedCity = locationState.city;
 
-    return TextButton.icon(
-      icon: Icon(
-        LucideIcons.mapPin,
-        color: theme.colorScheme.onPrimary,
-        size: 24,
-      ),
-      label: Text(
-        (selectedCity == null || selectedCity.isEmpty)
-            ? l10n.allLocations
-            : catalogCityLabelOf(ref, context, selectedCity),
-        style: TextStyle(color: theme.colorScheme.onPrimary),
-      ),
-      onPressed: () {
+    return AppLabelButton(
+      title: (selectedCity == null || selectedCity.isEmpty)
+          ? l10n.allLocations
+          : catalogCityLabelOf(ref, context, selectedCity),
+      prefix: const Icon(LucideIcons.mapPin),
+      variant: AppLabelButtonVariant.text,
+      tone: AppLabelButtonTone.inverse,
+      onTap: () {
         unawaited(
           CityPickerSheet.show(
             context: context,

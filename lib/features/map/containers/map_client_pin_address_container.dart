@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/widgets/action_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -197,15 +197,19 @@ class _MapClientPinAddressContainerState
             },
             confirmButton: SizedBox(
               width: double.infinity,
-              child: ActionButton(
-                onPressed: selectedAddress == null ? null : createAddress,
-                label: l10n.saveAddress,
+              child: AppElevatedButton(
+                onTap:
+                    selectedAddress == null ||
+                        ref
+                            .watch(locationProvider)
+                            .isActionActive("location:create")
+                    ? null
+                    : createAddress,
+                title: l10n.saveAddress,
                 isLoading: ref
                     .watch(locationProvider)
                     .isActionActive("location:create"),
-                isEnabled: !ref
-                    .watch(locationProvider)
-                    .isActionActive("location:create"),
+                isExpanded: false,
               ),
             ),
           ),
