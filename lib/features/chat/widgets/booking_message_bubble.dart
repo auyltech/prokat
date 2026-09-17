@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -255,16 +257,9 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   AppIconButton(
                     icon: LucideIcons.x,
                     tone: AppIconButtonTone.destructive,
-                    onTap: () => showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: theme.colorScheme.surface,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (_) => CancelBookingSheet(
+                    onTap: () => unawaited(
+                      CancelBookingSheet.show(
+                        context,
                         booking: booking,
                         mode: widget.mode,
                       ),

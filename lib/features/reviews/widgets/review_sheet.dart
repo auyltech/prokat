@@ -9,13 +9,11 @@ import 'package:prokat/l10n/app_localizations.dart';
 class ReviewSheet extends ConsumerStatefulWidget {
   final String bookingId;
   final String revieweeId;
-  final String title;
 
   const ReviewSheet({
     super.key,
     required this.bookingId,
     required this.revieweeId,
-    required this.title,
   });
 
   static Future<bool> show(
@@ -25,20 +23,14 @@ class ReviewSheet extends ConsumerStatefulWidget {
     required AppMode mode,
   }) async {
     final l10n = AppLocalizations.of(context)!;
-    final submitted = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => ReviewSheet(
-        bookingId: bookingId,
-        revieweeId: revieweeId,
-        title: mode == AppMode.clientMode
-            ? l10n.reviewOwner
-            : l10n.reviewClient,
-      ),
+    final title = mode == AppMode.clientMode
+        ? l10n.reviewOwner
+        : l10n.reviewClient;
+    final submitted = await AppBottomSheet.show<bool>(
+      context,
+      title: title,
+      contentBuilder: (context) =>
+          ReviewSheet(bookingId: bookingId, revieweeId: revieweeId),
     );
 
     return submitted ?? false;
@@ -95,41 +87,15 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(reviewByBookingProvider(widget.bookingId));
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        24 + MediaQuery.viewInsetsOf(context).bottom,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s08$sm),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-
-          Text(
-            widget.title,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
           _StarRow(
             value: _stars,
             onChanged: state.isSubmitting

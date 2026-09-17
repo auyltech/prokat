@@ -14,6 +14,25 @@ class CancelBookingSheet extends ConsumerStatefulWidget {
 
   const CancelBookingSheet({super.key, required this.booking, this.mode});
 
+  static Future<void> show(
+    BuildContext context, {
+    required BookingModel booking,
+    AppMode? mode,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final isOwner = mode == AppMode.ownerMode;
+    final title = isOwner && booking.status == BookingStatus.created
+        ? l10n.rejectOrder
+        : l10n.cancelBooking;
+
+    await AppBottomSheet.show<void>(
+      context,
+      title: title,
+      contentBuilder: (context) =>
+          CancelBookingSheet(booking: booking, mode: mode),
+    );
+  }
+
   @override
   ConsumerState<CancelBookingSheet> createState() => CancelBookingSheetState();
 }
@@ -69,12 +88,6 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       l10n.cancelReasonOther,
     ];
 
-    final sheetTitle = isOwner
-        ? widget.booking.status == BookingStatus.created
-              ? l10n.rejectOrder
-              : l10n.cancelBooking
-        : l10n.cancelBooking;
-
     final reasons = isOwner ? ownerCancelReasons : clientCancelReasons;
 
     final actionId = "booking:cancel:${widget.booking.id}";
@@ -88,33 +101,11 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
         : action.status == MutationStatus.submitting;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s04$xs),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-
-          Text(
-            sheetTitle,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
           ...reasons.map((reason) {
             final isSelected = selectedReason == reason;
 

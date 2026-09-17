@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ThemeSelectionSheet extends StatelessWidget {
@@ -11,16 +12,13 @@ class ThemeSelectionSheet extends StatelessWidget {
     BuildContext context, {
     required ThemeMode selectedMode,
   }) async {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled:
-          true, // Allows sheet to wrap its content height dynamically
-      useSafeArea: true,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (sheetContext) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AppBottomSheet.show<ThemeMode>(
+      context,
+      title: l10n.applicationTheme,
+      subtitle: l10n.themeChooseHint,
+      contentBuilder: (context) {
         return ThemeSelectionSheet(selectedMode: selectedMode);
       },
     );
@@ -54,69 +52,44 @@ class ThemeSelectionSheet extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: EdgeInsets.fromLTRB(
+        AppDimens.sheetHorizontalPadding,
+        0,
+        AppDimens.sheetHorizontalPadding,
+        MediaQuery.paddingOf(context).bottom,
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 42,
-              height: 4,
+        children: options.map((option) {
+          final isSelected = option.mode == selectedMode;
+
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            onTap: () {
+              Navigator.of(context).pop(option.mode);
+            },
+            leading: Container(
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+                color: isSelected
+                    ? theme.colorScheme.primaryContainer
+                    : theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                option.icon,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurfaceVariant,
               ),
             ),
-          ),
-
-          const SizedBox(height: 20),
-
-          Text(
-            l10n.applicationTheme,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(l10n.themeChooseHint, style: theme.textTheme.bodySmall),
-
-          const SizedBox(height: 16),
-
-          ...options.map((option) {
-            final isSelected = option.mode == selectedMode;
-
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              onTap: () {
-                Navigator.of(context).pop(option.mode);
-              },
-              leading: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? theme.colorScheme.primaryContainer
-                      : theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  option.icon,
-                  color: isSelected
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              title: Text(option.title),
-              subtitle: Text(option.subtitle),
-              trailing: isSelected
-                  ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
-                  : null,
-            );
-          }),
-        ],
+            title: Text(option.title),
+            subtitle: Text(option.subtitle),
+            trailing: isSelected
+                ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                : null,
+          );
+        }).toList(),
       ),
     );
   }

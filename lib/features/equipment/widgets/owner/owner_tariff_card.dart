@@ -158,48 +158,41 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (!draft.isPreset) ...[
-                    _FieldLabel(l10n.serviceType),
-                    const SizedBox(height: 6),
-                    _OutlineDropdown<String>(
+                    AppDropdownField<String>(
+                      label: l10n.serviceType,
                       value: draft.labelKey.isEmpty ? null : draft.labelKey,
                       hint: l10n.serviceType,
                       enabled: widget.canEdit,
-                      items: vacuumServiceTypeKeys
+                      sheetTitle: l10n.serviceType,
+                      options: vacuumServiceTypeKeys
                           .map(
-                            (key) => DropdownMenuItem(
+                            (key) => DropdownOption(
                               value: key,
-                              child: Text(tariffServiceOptionLabel(key, l10n)),
+                              label: tariffServiceOptionLabel(key, l10n),
                             ),
                           )
                           .toList(),
                       onChanged: (value) {
-                        if (value == null) return;
                         _emitAndCommit(draft.copyWith(labelKey: value));
                       },
                     ),
                     if (draft.labelKey == vacuumTariffOther) ...[
                       const SizedBox(height: 12),
-                      _FieldLabel(l10n.customServiceName),
-                      const SizedBox(height: 6),
-                      TextField(
+                      AppTextField(
+                        label: l10n.customServiceName,
                         controller: _customNameController,
                         focusNode: _customNameFocus,
                         enabled: widget.canEdit,
                         maxLength: 40,
                         onChanged: (value) =>
                             _emit(draft.copyWith(customName: value)),
-                        style: theme.textTheme.bodyMedium,
-                        decoration: _boxDecoration(context).copyWith(
-                          hintText: l10n.customServiceNameHint,
-                          counterText: '',
-                        ),
+                        hint: l10n.customServiceNameHint,
                       ),
                     ],
                     const SizedBox(height: 14),
                   ],
-                  _FieldLabel(l10n.priceFieldLabel),
-                  const SizedBox(height: 6),
-                  TextField(
+                  AppTextField(
+                    label: l10n.priceFieldLabel,
                     controller: _priceController,
                     focusNode: _priceFocus,
                     enabled: widget.canEdit,
@@ -217,23 +210,21 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                         ),
                       );
                     },
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
-                    ),
-                    decoration: _boxDecoration(context).copyWith(
-                      hintText: '0',
-                      suffixText: '₸',
-                      suffixStyle: theme.textTheme.titleMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
+                    hint: '0',
+                    suffix: Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Text(
+                        '₸',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 14),
-                  _FieldLabel(l10n.billingUnit),
-                  const SizedBox(height: 6),
-                  _OutlineDropdown<PriceRateOption>(
+                  AppDropdownField<PriceRateOption>(
+                    label: l10n.billingUnit,
                     value: priceRateOptions.contains(draft.priceRate)
                         ? draft.priceRate
                         : priceRateOptions.firstWhere(
@@ -242,16 +233,16 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                           ),
                     hint: l10n.billingUnit,
                     enabled: widget.canEdit,
-                    items: priceRateOptions
+                    sheetTitle: l10n.billingUnit,
+                    options: priceRateOptions
                         .map(
-                          (rate) => DropdownMenuItem(
+                          (rate) => DropdownOption(
                             value: rate,
-                            child: Text(getPriceRateLabel(rate, l10n)),
+                            label: getPriceRateLabel(rate, l10n),
                           ),
                         )
                         .toList(),
                     onChanged: (value) {
-                      if (value == null) return;
                       _emitAndCommit(draft.copyWith(priceRate: value));
                     },
                   ),
@@ -349,66 +340,4 @@ class _ModeChip extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OutlineDropdown<T> extends StatelessWidget {
-  final T? value;
-  final String hint;
-  final bool enabled;
-  final List<DropdownMenuItem<T>> items;
-  final ValueChanged<T?> onChanged;
-
-  const _OutlineDropdown({
-    required this.value,
-    required this.hint,
-    required this.enabled,
-    required this.items,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.45)),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          isExpanded: true,
-          value: value,
-          hint: Text(hint),
-          items: items,
-          onChanged: enabled ? onChanged : null,
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-InputDecoration _boxDecoration(BuildContext context) {
-  final colorScheme = Theme.of(context).colorScheme;
-  final border = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.45)),
-  );
-  return InputDecoration(
-    isDense: true,
-    filled: false,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-    border: border,
-    enabledBorder: border,
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-    ),
-  );
 }

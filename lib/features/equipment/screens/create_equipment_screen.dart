@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -190,52 +189,54 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     const SizedBox(height: 16),
 
-                    InputField(
-                      icon: Icons.badge_outlined,
-                      label: l10n.equipmentNameLabel,
+                    AppTextField(
+                      prefix: const Icon(Icons.badge_outlined),
+                      label:
+                          '${l10n.equipmentNameLabel} ${l10n.requiredInParens}',
                       controller: _name,
                       hint: l10n.equipmentNameHint,
-                      isRequired: true,
-                      requiredHintText: l10n.requiredInParens,
-                      showFieldErrors: false,
                       maxLength: ownerEquipmentTextMaxLength,
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
                           ownerEquipmentTextMaxLength,
                         ),
                       ],
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
 
                     const SizedBox(height: 8),
 
-                    InputField(
-                      icon: Icons.view_column_outlined,
-                      label: l10n.modelLabel,
+                    AppTextField(
+                      prefix: const Icon(Icons.view_column_outlined),
+                      label: '${l10n.modelLabel} ${l10n.requiredInParens}',
                       controller: _model,
                       hint: l10n.modelHint,
-                      isRequired: true,
-                      requiredHintText: l10n.requiredInParens,
-                      showFieldErrors: false,
                       maxLength: ownerEquipmentTextMaxLength,
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
                           ownerEquipmentTextMaxLength,
                         ),
                       ],
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
 
                     const SizedBox(height: 8),
 
-                    InputField(
-                      icon: Icons.mp_outlined,
-                      label: l10n.plateNumberLabel,
+                    AppTextField(
+                      prefix: const Icon(Icons.mp_outlined),
+                      label:
+                          '${l10n.plateNumberLabel} ${l10n.requiredInParens}',
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
-                      isRequired: true,
-                      requiredHintText: l10n.requiredInParens,
-                      showFieldErrors: false,
-                      isLast: true,
+                      textInputAction: TextInputAction.done,
                       inputFormatters: const [KzPlateInputFormatter()],
+                      validator: (value) => sanitizeKzPlate(value ?? '').isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
 
                     const SizedBox(height: 24),

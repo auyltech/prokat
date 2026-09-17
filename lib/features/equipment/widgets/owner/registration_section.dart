@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
@@ -224,37 +223,29 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       saveLabel: l10n.save,
       child: Column(
         children: [
-          InputField(
-            label: l10n.modelLabel,
+          AppTextField(
+            label: '${l10n.modelLabel} ${l10n.requiredInParens}',
             controller: _modelController,
-            onChanged: _onChanged,
+            onChanged: (_) => _onChanged(),
             onFocusLost: _commitIfDirty,
             hint: l10n.modelHint,
-            isRequired: true,
-            requiredHintText: l10n.requiredInParens,
-            showFieldErrors: false,
             readOnly: !_canEdit,
-            boxed: true,
-            filled: false,
+            errorText: _modelError == null ? null : l10n.fieldRequired,
             maxLength: ownerEquipmentTextMaxLength,
             inputFormatters: [
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
           const SizedBox(height: 12),
-          InputField(
-            label: l10n.plateNumberLabel,
+          AppTextField(
+            label: '${l10n.plateNumberLabel} ${l10n.requiredInParens}',
             controller: _plateController,
-            onChanged: _onChanged,
+            onChanged: (_) => _onChanged(),
             onFocusLost: _commitIfDirty,
             hint: l10n.plateNumberHint,
-            isRequired: true,
-            requiredHintText: l10n.requiredInParens,
-            showFieldErrors: false,
-            isLast: true,
+            textInputAction: TextInputAction.done,
             readOnly: !_canEdit,
-            boxed: true,
-            filled: false,
+            errorText: _plateError == null ? null : l10n.fieldRequired,
             inputFormatters: const [KzPlateInputFormatter()],
           ),
         ],

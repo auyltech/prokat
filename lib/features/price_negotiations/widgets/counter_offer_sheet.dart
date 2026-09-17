@@ -40,14 +40,12 @@ class CounterOfferSheet extends ConsumerStatefulWidget {
     PriceRateOption? initialPriceRate,
     required AppMode mode,
   }) async {
-    return await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => CounterOfferSheet(
+    final l10n = AppLocalizations.of(context)!;
+
+    await AppBottomSheet.show<void>(
+      context,
+      title: l10n.proposeYourPrice,
+      contentBuilder: (context) => CounterOfferSheet(
         bookingId: bookingId,
         offerId: offerId,
         chatId: chatId,
@@ -134,92 +132,67 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
         ? ''
         : getPriceRateLabel(widget.initialPriceRate!, l10n);
     final yourPrice = int.tryParse(_priceController.text.trim());
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
-
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, 16 + bottomInset),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurfaceVariant.withValues(
-                    alpha: 0.4,
-                  ),
-                  borderRadius: BorderRadius.circular(2),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s08$sm),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _PriceQuoteCard(
+                  title: l10n.currentPrice,
+                  amount: _formattedAmount(widget.initialPrice),
+                  unit: unit,
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.proposeYourPrice,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _PriceQuoteCard(
-                    title: l10n.currentPrice,
-                    amount: _formattedAmount(widget.initialPrice),
-                    unit: unit,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _PriceQuoteCard(
-                    title: l10n.yourPrice,
-                    amount: _formattedAmount(yourPrice),
-                    unit: unit,
-                    isEditing: _priceFocus.hasFocus,
-                    onTap: () => _priceFocus.requestFocus(),
-                    input: TextField(
-                      controller: _priceController,
-                      focusNode: _priceFocus,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        const MaxIntInputFormatter(_priceMax),
-                      ],
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: Colors.transparent,
-                        height: 1.2,
-                      ),
-                      cursorColor: theme.colorScheme.primary,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _PriceQuoteCard(
+                  title: l10n.yourPrice,
+                  amount: _formattedAmount(yourPrice),
+                  unit: unit,
+                  isEditing: _priceFocus.hasFocus,
+                  onTap: () => _priceFocus.requestFocus(),
+                  input: TextField(
+                    controller: _priceController,
+                    focusNode: _priceFocus,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      const MaxIntInputFormatter(_priceMax),
+                    ],
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.transparent,
+                      height: 1.2,
+                    ),
+                    cursorColor: theme.colorScheme.primary,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            JobCommentField(
-              hint: l10n.requestCommentHint,
-              controller: _commentController,
-            ),
-            const SizedBox(height: 16),
-            AppElevatedButton(
-              title: l10n.sendPriceProposal,
-              isLoading: state.isSubmitting,
-              onTap: state.isSubmitting ? null : onSubmit,
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          JobCommentField(
+            hint: l10n.requestCommentHint,
+            controller: _commentController,
+          ),
+          const SizedBox(height: 16),
+          AppElevatedButton(
+            title: l10n.sendPriceProposal,
+            isLoading: state.isSubmitting,
+            onTap: state.isSubmitting ? null : onSubmit,
+          ),
+        ],
       ),
     );
   }

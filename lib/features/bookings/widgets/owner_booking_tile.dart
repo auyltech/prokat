@@ -119,15 +119,10 @@ class OwnerBookingTile extends ConsumerWidget {
     // Open step option modal form sheet past strict time restriction window
     if (context.mounted) {
       unawaited(
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: theme.colorScheme.surface,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          builder: (context) =>
-              CancelBookingSheet(booking: booking, mode: AppMode.ownerMode),
+        CancelBookingSheet.show(
+          context,
+          booking: booking,
+          mode: AppMode.ownerMode,
         ),
       );
     }
@@ -293,26 +288,16 @@ class OwnerBookingTile extends ConsumerWidget {
                       tooltip: l10n.acceptOrder,
                     ),
                   ] else if (canReview) ...[
-                    AppElevatedButton(
+                    AppLabelButton(
                       title: l10n.submitReview,
                       onTap: () async {
-                        await showModalBottomSheet<bool>(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: theme.colorScheme.surface,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (_) => ReviewSheet(
-                            bookingId: booking.id,
-                            revieweeId: booking.client?.id ?? "",
-                            title: l10n.reviewClient,
-                          ),
+                        await ReviewSheet.show(
+                          context,
+                          bookingId: booking.id,
+                          revieweeId: booking.client?.id ?? "",
+                          mode: AppMode.ownerMode,
                         );
                       },
-                      isExpanded: false,
                     ),
                   ],
                 ],

@@ -82,6 +82,42 @@ void main() {
     expect(find.text('Locked'), findsOneWidget);
   });
 
+  testWidgets('scrollable AppBottomSheet renders its subtitle', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        Builder(
+          builder: (context) {
+            return TextButton(
+              onPressed: () {
+                unawaited(
+                  AppBottomSheet.showScrollable<void>(
+                    context,
+                    title: 'Scrollable',
+                    subtitle: 'Description',
+                    headerBuilder: (_) => const SizedBox.shrink(),
+                    scrollableListBuilder: (_, controller) => ListView(
+                      controller: controller,
+                      children: const [Text('item')],
+                    ),
+                    footerBuilder: (_) => const SizedBox.shrink(),
+                  ),
+                );
+              },
+              child: const Text('open'),
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Scrollable'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
+    expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+  });
+
   testWidgets('AppAlertBottomSheet primary returns true', (tester) async {
     bool? result;
     await tester.pumpWidget(

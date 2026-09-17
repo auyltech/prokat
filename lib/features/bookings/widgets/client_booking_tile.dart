@@ -202,20 +202,11 @@ class ClientBookingTile extends ConsumerWidget {
                     AppIconButton(
                       icon: Icons.reviews,
                       onTap: () async {
-                        await showModalBottomSheet<bool>(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: theme.colorScheme.surface,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (_) => ReviewSheet(
-                            bookingId: booking.id,
-                            revieweeId: booking.client?.id ?? "",
-                            title: l10n.reviewOwner,
-                          ),
+                        await ReviewSheet.show(
+                          context,
+                          bookingId: booking.id,
+                          revieweeId: booking.client?.id ?? "",
+                          mode: AppMode.clientMode,
                         );
                       },
                       variant: AppIconButtonVariant.filled,
@@ -239,7 +230,6 @@ Future<void> _handleCancel(
   BookingModel booking,
   AppLocalizations l10n,
 ) async {
-  final theme = Theme.of(context);
   final notifier = ref.read(bookingMutationProvider.notifier);
 
   final confirmed = await AppAlertBottomSheet.show(
@@ -280,15 +270,10 @@ Future<void> _handleCancel(
   if (!context.mounted) return;
 
   unawaited(
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) =>
-          CancelBookingSheet(booking: booking, mode: AppMode.clientMode),
+    CancelBookingSheet.show(
+      context,
+      booking: booking,
+      mode: AppMode.clientMode,
     ),
   );
 }

@@ -16,11 +16,13 @@ class AppTextArea extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onFocusLost;
   final Widget? prefix;
   final Widget? suffix;
   final String? Function(String?)? validator;
   final int minLines;
   final int maxLines;
+  final int? maxLength;
 
   const AppTextArea({
     super.key,
@@ -37,11 +39,13 @@ class AppTextArea extends StatelessWidget {
     this.inputFormatters,
     this.textInputAction,
     this.onChanged,
+    this.onFocusLost,
     this.prefix,
     this.suffix,
     this.validator,
     this.minLines = 3,
     this.maxLines = 5,
+    this.maxLength,
   });
 
   @override
@@ -60,10 +64,13 @@ class AppTextArea extends StatelessWidget {
       inputFormatters: inputFormatters,
       textInputAction: textInputAction ?? TextInputAction.newline,
       onChanged: onChanged,
+      onFocusLost: onFocusLost,
       prefix: prefix,
       suffix: suffix,
       validator: validator,
+      minLines: minLines,
       maxLines: maxLines,
+      maxLength: maxLength,
     );
   }
 }

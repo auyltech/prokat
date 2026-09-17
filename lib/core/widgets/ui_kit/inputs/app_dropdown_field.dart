@@ -17,6 +17,7 @@ class DropdownOption<T> {
 class AppDropdownField<T> extends StatefulWidget {
   final String? label;
   final String? hint;
+  final String? errorText;
   final T? value;
   final List<DropdownOption<T>> options;
   final ValueChanged<T> onChanged;
@@ -28,6 +29,7 @@ class AppDropdownField<T> extends StatefulWidget {
     super.key,
     this.label,
     this.hint,
+    this.errorText,
     this.value,
     required this.options,
     required this.onChanged,
@@ -146,6 +148,7 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
       controller: _controller,
       label: widget.label,
       hint: widget.hint,
+      errorText: widget.errorText,
       enabled: widget.enabled,
       readOnly: true,
       onTap: _openSheet,

@@ -104,15 +104,12 @@ class BookingActionRow extends ConsumerWidget {
 
   void _handleCounterOffer(BuildContext context) {
     unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => CounterOfferSheet(
-          bookingId: booking.id,
-          initialPrice: booking.price,
-          initialPriceRate: booking.priceRate,
-          mode: AppMode.clientMode,
-        ),
+      CounterOfferSheet.show(
+        context,
+        bookingId: booking.id,
+        initialPrice: booking.price,
+        initialPriceRate: booking.priceRate,
+        mode: AppMode.clientMode,
       ),
     );
   }
@@ -123,7 +120,6 @@ class BookingActionRow extends ConsumerWidget {
     BookingModel booking,
     AppLocalizations l10n,
   ) async {
-    final theme = Theme.of(context);
     final notifier = ref.read(bookingMutationProvider.notifier);
 
     final modalTitle = booking.status == BookingStatus.created
@@ -172,16 +168,6 @@ class BookingActionRow extends ConsumerWidget {
     }
 
     if (!context.mounted) return;
-    unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: theme.colorScheme.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (context) => CancelBookingSheet(booking: booking),
-      ),
-    );
+    unawaited(CancelBookingSheet.show(context, booking: booking));
   }
 }

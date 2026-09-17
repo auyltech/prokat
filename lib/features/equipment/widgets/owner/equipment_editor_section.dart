@@ -58,9 +58,7 @@ class EquipmentEditorSection extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: AppFonts.headingM(context),
                     ),
                   ),
                   Icon(
@@ -128,12 +126,12 @@ class _IndicatorDot extends StatelessWidget {
     }
 
     return Container(
-      width: 10,
-      height: 10,
+      width: 16,
+      height: 16,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: fill,
-        border: Border.all(color: border, width: 1.5),
+        border: Border.all(color: border, width: 2),
       ),
     );
   }

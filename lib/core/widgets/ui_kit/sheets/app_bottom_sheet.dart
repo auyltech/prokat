@@ -38,6 +38,7 @@ abstract final class AppBottomSheet {
   static Future<T?> showScrollable<T>(
     BuildContext context, {
     required String title,
+    String? subtitle,
     double minChildSize = 0.4,
     double maxChildSize = 0.85,
     double initialChildSize = 0.6,
@@ -57,6 +58,7 @@ abstract final class AppBottomSheet {
       builder: (context) => AppBottomSheetBarrier(
         child: AppScrollableBottomSheet(
           title: title,
+          subtitle: subtitle,
           minChildSize: minChildSize,
           maxChildSize: maxChildSize,
           initialChildSize: initialChildSize,
@@ -231,6 +233,7 @@ class AppBottomSheetLayout extends StatelessWidget {
 
 class AppScrollableBottomSheet extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final double minChildSize;
   final double maxChildSize;
   final double initialChildSize;
@@ -242,6 +245,7 @@ class AppScrollableBottomSheet extends StatelessWidget {
   const AppScrollableBottomSheet({
     super.key,
     required this.title,
+    this.subtitle,
     required this.minChildSize,
     required this.maxChildSize,
     required this.initialChildSize,
@@ -268,7 +272,7 @@ class AppScrollableBottomSheet extends StatelessWidget {
                   AppDimens.sheetHorizontalPadding,
                   AppDimens.sheetTitleToContentGap,
                 ),
-                child: AppBottomSheetHeader(title: title),
+                child: AppBottomSheetHeader(title: title, subtitle: subtitle),
               ),
               headerBuilder(context),
               Expanded(child: scrollableListBuilder(context, scrollController)),

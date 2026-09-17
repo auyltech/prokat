@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
@@ -21,12 +23,13 @@ void main() {
     const messagesKey = Key('messages');
 
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MaterialApp(
-          locale: Locale('en'),
+          locale: const Locale('en'),
+          theme: AppTheme.lightTheme,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
+          home: const Scaffold(
             body: ColoredBox(
               key: messagesKey,
               color: Colors.black,
@@ -52,5 +55,6 @@ void main() {
     expect(bodySize.height, greaterThan(400));
     expect(find.text('Submit Review'), findsOneWidget);
     expect(find.text('Leave a review'), findsOneWidget);
+    expect(find.byType(AppLabelButton), findsOneWidget);
   });
 }

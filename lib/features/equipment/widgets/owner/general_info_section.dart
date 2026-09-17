@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -37,6 +36,7 @@ class GeneralInfoSection extends ConsumerStatefulWidget {
 class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
+  late TextEditingController _cityController;
 
   late String _city;
   late String _baselineName;
@@ -59,6 +59,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       text: shortDescriptionOf(widget.equipment),
     );
     _city = widget.equipment.city ?? '';
+    _cityController = TextEditingController();
     _tariffs = _editorTariffs();
     _captureBaseline();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -129,6 +130,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -444,6 +446,17 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     final editor = ref.watch(ownerEquipmentEditorProvider(widget.equipment.id));
     final view = editor.block(OwnerEquipmentBlockId.general);
     final hasLocation = _city.trim().isNotEmpty;
+    final cityLabel = hasLocation
+        ? catalogCityLabel(
+            city: _city,
+            languageCode: locale,
+            catalog: catalog,
+            fallback: (city) => localizedCityName(city, l10n),
+          )
+        : '';
+    if (_cityController.text != cityLabel) {
+      _cityController.text = cityLabel;
+    }
 
     return EquipmentEditorSection(
       title: l10n.forClients,
@@ -459,124 +472,43 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text.rich(
-                TextSpan(
-                  text: l10n.workCity,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  children: [
-                    if (!hasLocation)
-                      TextSpan(
-                        text: ' ${l10n.requiredInParens}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.error,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              GestureDetector(
-                onTap: _canEdit ? _pickCity : null,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _cityError != null
-                          ? colorScheme.error
-                          : colorScheme.outline.withValues(alpha: 0.45),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        hasLocation
-                            ? Icons.location_on
-                            : Icons.location_on_outlined,
-                        color: hasLocation
-                            ? colorScheme.primary
-                            : colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          hasLocation
-                              ? catalogCityLabel(
-                                  city: _city,
-                                  languageCode: locale,
-                                  catalog: catalog,
-                                  fallback: (city) =>
-                                      localizedCityName(city, l10n),
-                                )
-                              : l10n.selectCity,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: hasLocation
-                                ? colorScheme.onSurface
-                                : colorScheme.onSurface.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (_cityError != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  l10n.fieldRequired,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.error,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ],
+          AppTextField(
+            controller: _cityController,
+            label: '${l10n.workCity} ${l10n.requiredInParens}',
+            hint: l10n.selectCity,
+            enabled: _canEdit,
+            readOnly: true,
+            onTap: _canEdit ? _pickCity : null,
+            errorText: _cityError == null ? null : l10n.fieldRequired,
+            prefix: Icon(
+              hasLocation ? Icons.location_on : Icons.location_on_outlined,
+            ),
+            suffix: const Icon(Icons.chevron_right),
           ),
           const SizedBox(height: 16),
-          InputField(
-            label: l10n.equipmentNameLabel,
+          AppTextField(
+            label: '${l10n.equipmentNameLabel} ${l10n.requiredInParens}',
             controller: _nameController,
-            onChanged: _onChanged,
+            onChanged: (_) => _onChanged(),
             onFocusLost: _commitIfDirty,
             hint: l10n.equipmentNameHint,
-            isRequired: true,
-            requiredHintText: l10n.requiredInParens,
-            showFieldErrors: false,
-            boxed: true,
-            filled: false,
             readOnly: !_canEdit,
+            errorText: _nameError == null ? null : l10n.fieldRequired,
             maxLength: ownerEquipmentTextMaxLength,
             inputFormatters: [
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
           const SizedBox(height: 16),
-          InputField(
+          AppTextArea(
             label: l10n.shortDescription,
             controller: _descriptionController,
-            onChanged: _onChanged,
+            onChanged: (_) => _onChanged(),
             onFocusLost: _commitIfDirty,
             hint: l10n.shortDescriptionHelper,
-            hintMaxLines: 3,
             maxLines: 4,
             minLines: 3,
             maxLength: 200,
-            boxed: true,
-            filled: false,
             readOnly: !_canEdit,
           ),
           const SizedBox(height: 18),

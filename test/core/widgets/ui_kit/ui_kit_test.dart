@@ -367,6 +367,110 @@ void main() {
     expect(find.byType(TextField), findsOneWidget);
   });
 
+  testWidgets('AppTextField reports focus loss and character count', (
+    tester,
+  ) async {
+    final controller = TextEditingController();
+    var focusLost = 0;
+    await tester.pumpWidget(
+      _wrap(
+        AppTextField(
+          controller: controller,
+          label: 'Name',
+          maxLength: 5,
+          onFocusLost: () => focusLost++,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.enterText(find.byType(TextField), 'abc');
+    await tester.pump();
+    expect(find.text('3/5'), findsOneWidget);
+
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    expect(focusLost, 1);
+  });
+
+  testWidgets('AppTextField keeps affix icons away from field edges', (
+    tester,
+  ) async {
+    final controller = TextEditingController();
+    await tester.pumpWidget(
+      _wrap(
+        AppTextField(
+          controller: controller,
+          prefix: const Icon(Icons.location_on),
+          suffix: const Icon(Icons.chevron_right),
+        ),
+      ),
+    );
+
+    final textField = tester.widget<TextField>(find.byType(TextField));
+
+    final prefix = textField.decoration?.prefixIcon as Padding;
+    final suffix = textField.decoration?.suffixIcon as Padding;
+
+    expect(prefix.padding, AppInputFieldStyle.prefixIconPadding);
+    expect(suffix.padding, AppInputFieldStyle.suffixIconPadding);
+    expect(
+      textField.decoration?.contentPadding,
+      AppInputFieldStyle.contentPadding,
+    );
+  });
+
+  testWidgets('disabled AppTextField is neutral after losing enabled state', (
+    tester,
+  ) async {
+    final controller = TextEditingController(text: 'Renault-210');
+
+    Widget subject({required bool enabled}) =>
+        _wrap(AppTextField(controller: controller, enabled: enabled));
+
+    await tester.pumpWidget(subject(enabled: true));
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+
+    await tester.pumpWidget(subject(enabled: false));
+    await tester.pump();
+
+    final fieldContext = tester.element(find.byType(AppTextField));
+    final input = tester.widget<TextField>(find.byType(TextField));
+    final box = tester.widget<AppInputFieldBox>(find.byType(AppInputFieldBox));
+
+    expect(box.isFocused, isFalse);
+    expect(input.style?.color, fieldContext.colors.textField.border);
+  });
+
+  testWidgets('AppTextField uses a single one-pixel focused border', (
+    tester,
+  ) async {
+    final controller = TextEditingController();
+    await tester.pumpWidget(
+      _wrap(AppTextField(controller: controller, label: 'Name')),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+
+    final fieldContext = tester.element(find.byType(AppTextField));
+    final decoratedBox = tester.widget<DecoratedBox>(
+      find.descendant(
+        of: find.byType(AppInputFieldBox),
+        matching: find.byType(DecoratedBox),
+      ),
+    );
+    final decoration = decoratedBox.decoration as BoxDecoration;
+    final border = decoration.border! as Border;
+    final radius = decoration.borderRadius! as BorderRadius;
+
+    expect(border.top.color, fieldContext.colors.textField.borderFocused);
+    expect(border.top.width, 1);
+    expect(radius.topLeft.x, AppDimens.r16$xl);
+    expect(decoration.boxShadow, isNull);
+  });
+
   testWidgets('AppBottomSheet.show pumps without throw', (tester) async {
     await tester.pumpWidget(
       _wrap(
@@ -417,6 +521,21 @@ void main() {
     await tester.tap(find.text('Two'));
     await tester.pumpAndSettle();
     expect(value, '2');
+  });
+
+  testWidgets('AppDropdownField forwards field errors', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        AppDropdownField<String>(
+          value: null,
+          errorText: 'Required',
+          options: const [DropdownOption(label: 'One', value: '1')],
+          onChanged: (_) {},
+        ),
+      ),
+    );
+
+    expect(find.text('Required'), findsOneWidget);
   });
 
   testWidgets('AppIcons.check builds', (tester) async {

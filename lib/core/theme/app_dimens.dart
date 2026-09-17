@@ -20,12 +20,12 @@ abstract final class AppDimens {
   static const double iconButtonLargeSize = 56;
   static const double iconButtonIconSize = 24;
   static const double buttonLoadingIndicatorSize = 18;
-  static const double buttonBorderWidth = 1.5;
+  static const double buttonBorderWidth = 1.6;
   static const double inputHeight = 46;
-  static const double inputLabelGap = 6;
+  static const double inputLabelGap = 8;
   static const double inputHelperGap = 6;
-  static const double inputBorderWidth = 1;
-  static const double inputBorderWidthError = 1.5;
+  static const double inputBorderWidth = 1.6;
+  static const double inputBorderWidthError = 1.6;
 
   static const double appBarHeight = 56;
   static const double appBarDividerHeight = 1;

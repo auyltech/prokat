@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/catalog/models/catalog_spec_type.dart';
@@ -476,9 +475,11 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           }
 
           final errorKey = _errorsByKey[key];
-          final String? errorText = errorKey == 'invalidNumber'
-              ? l10n.invalidNumber
-              : null;
+          final String? errorText = switch (errorKey) {
+            'required' => l10n.fieldRequired,
+            'invalidNumber' => l10n.invalidNumber,
+            _ => null,
+          };
           final label = spec.displayName(locale);
           final unit = catalogSpec == null
               ? spec.unit
@@ -514,34 +515,25 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
                 : null;
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: label,
-                  errorText: errorText,
-                  filled: false,
-                  border: const OutlineInputBorder(),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: dropdownValue,
-                    hint: Text(label),
-                    items: options
-                        .map(
-                          (option) => DropdownMenuItem(
-                            value: option.id,
-                            child: Text(option.label(locale)),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: !_canEdit
-                        ? null
-                        : (value) {
-                            _optionsByKey[key] = value == null ? [] : [value];
-                            _onDiscreteChanged();
-                          },
-                  ),
-                ),
+              child: AppDropdownField<String>(
+                label: isRequired ? '$label ${l10n.requiredInParens}' : label,
+                hint: label,
+                sheetTitle: label,
+                value: dropdownValue,
+                enabled: _canEdit,
+                errorText: errorText,
+                options: options
+                    .map(
+                      (option) => DropdownOption(
+                        value: option.id,
+                        label: option.label(locale),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  _optionsByKey[key] = [value];
+                  _onDiscreteChanged();
+                },
               ),
             );
           }
@@ -594,20 +586,20 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           if (controller == null) return const SizedBox.shrink();
 
           final unitText = unit.trim();
-          return InputField(
-            label: unitText.isEmpty ? label : '$label, $unitText',
+          final fieldLabel = unitText.isEmpty ? label : '$label, $unitText';
+          return AppTextField(
+            label: isRequired
+                ? '$fieldLabel ${l10n.requiredInParens}'
+                : fieldLabel,
             controller: controller,
             hint: '',
-            isRequired: isRequired,
-            requiredHintText: l10n.requiredInParens,
-            showFieldErrors: false,
-            onChanged: _onFieldChanged,
+            onChanged: (_) => _onFieldChanged(),
             onFocusLost: _commitIfDirty,
-            isNumeric: type == CatalogSpecType.number,
+            keyboardType: type == CatalogSpecType.number
+                ? const TextInputType.numberWithOptions(decimal: true)
+                : null,
             errorText: errorText,
             readOnly: !_canEdit,
-            boxed: true,
-            filled: false,
           );
         }),
       );
