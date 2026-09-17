@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
-import 'package:prokat/core/widgets/ui_kit/app_image.dart';
 import 'package:prokat/features/categories/models/category.dart';
 
 import '../../../core/theme/app_images.dart';

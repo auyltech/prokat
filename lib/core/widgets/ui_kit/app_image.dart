@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/asset_paths.dart';
 
 class AppImage {
   final String iconKey;

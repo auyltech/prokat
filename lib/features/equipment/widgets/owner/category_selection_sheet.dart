@@ -6,7 +6,6 @@ import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
@@ -40,13 +39,13 @@ class CategorySelectionSheet extends ConsumerWidget {
   }
 
   List<Category> _categoriesForSheet(WidgetRef ref) {
+    final catalog = ref.watch(catalogProvider).valueOrNull;
     if (service == CategorySheetMode.createEquipment ||
-        service == CategorySheetMode.createRequest) {
-      final vacuum = vacuumTrucksCategory(
-        ref.watch(catalogProvider).valueOrNull,
-      );
-      return vacuum == null ? const [] : [vacuum];
+        service == CategorySheetMode.editEquipment) {
+      return catalog?.ownerCategories.map(Category.fromCatalog).toList() ??
+          const [];
     }
+
     return ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
   }
 

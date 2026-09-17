@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/widgets/ui_kit/asset_paths.dart';
 
 class AppIcon {
   final String? _svgAsset;

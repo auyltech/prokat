@@ -11,7 +11,6 @@ import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -106,16 +105,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
           ref.read(categoriesProvider.notifier).refreshIfStale(),
           ref.read(ownerProfileProvider.notifier).refreshIfStale(),
         ]);
-        if (!mounted) return;
-        _selectVacuumCategory();
       }),
     );
-  }
-
-  void _selectVacuumCategory() {
-    final vacuum = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull);
-    if (vacuum == null) return;
-    ref.read(equipmentMutationProvider.notifier).selectCategory(vacuum);
   }
 
   String _selectedCity() {
@@ -156,12 +147,6 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     ref.watch(locationProvider.select((state) => state.city));
     final accountCity = _selectedCity();
 
-    ref.listen(catalogProvider, (previous, next) {
-      final vacuum = vacuumTrucksCategory(next.valueOrNull);
-      if (vacuum == null) return;
-      ref.read(equipmentMutationProvider.notifier).selectCategory(vacuum);
-    });
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
@@ -170,8 +155,6 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             ref.read(categoriesProvider.notifier).refresh(),
             ref.read(ownerProfileProvider.notifier).refresh(),
           ]);
-          if (!mounted) return;
-          _selectVacuumCategory();
         },
         child: ListView(
           padding: EdgeInsets.zero,
