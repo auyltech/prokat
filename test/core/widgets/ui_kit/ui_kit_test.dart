@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/app_icons.dart';
 import 'package:prokat/core/theme/colors/app_colors_theme.dart';
@@ -171,6 +172,49 @@ void main() {
     },
   );
 
+  testWidgets('AppOutlinedButton destructive follows light and dark themes', (
+    tester,
+  ) async {
+    Color? iconColor;
+    Widget subject() => AppOutlinedButton.destructive(
+      title: 'Delete',
+      onTap: () {},
+      prefix: Builder(
+        builder: (context) {
+          iconColor = IconTheme.of(context).color;
+          return const Icon(Icons.delete_outline);
+        },
+      ),
+    );
+
+    await tester.pumpWidget(_wrap(subject(), theme: AppTheme.lightTheme));
+    expect(
+      iconColor,
+      AppTheme.lightTheme
+          .extension<AppColorsTheme>()!
+          .outlinedButton
+          .contentDestructive,
+    );
+
+    iconColor = null;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.dark,
+        home: Scaffold(body: subject()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      iconColor,
+      AppTheme.darkTheme
+          .extension<AppColorsTheme>()!
+          .outlinedButton
+          .contentDestructive,
+    );
+  });
+
   testWidgets(
     'AppTextButton passes destructive content color to postfix icons',
     (tester) async {
@@ -237,7 +281,6 @@ void main() {
             title: 'Отправить предложение',
             onTap: () => taps++,
             isLoading: true,
-            isExpanded: true,
           ),
         ),
       );
@@ -249,6 +292,46 @@ void main() {
     },
   );
 
+  testWidgets('AppLabelButton is compact, intrinsic and uses an InkWell', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        Center(
+          child: AppLabelButton(
+            title: 'Action',
+            onTap: () {},
+            prefix: const Icon(Icons.add),
+            postfix: const Icon(Icons.chevron_right),
+          ),
+        ),
+      ),
+    );
+
+    final size = tester.getSize(find.byType(AppLabelButton));
+    expect(size.height, AppDimens.compactButtonHeight);
+    expect(size.width, lessThan(320));
+
+    final material = tester.widget<Material>(
+      find.descendant(
+        of: find.byType(AppLabelButton),
+        matching: find.byType(Material),
+      ),
+    );
+    final shape = material.shape! as RoundedRectangleBorder;
+    expect(
+      shape.borderRadius,
+      const BorderRadius.all(Radius.circular(AppDimens.r999$full)),
+    );
+    expect(
+      find.descendant(
+        of: find.byType(AppLabelButton),
+        matching: find.byType(InkWell),
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('new buttons render in light and dark themes without overflow', (
     tester,
   ) async {
@@ -259,7 +342,6 @@ void main() {
           AppLabelButton(
             title: 'Ұзын батырма атауы тексеру үшін',
             onTap: null,
-            isExpanded: true,
             variant: AppLabelButtonVariant.outlined,
           ),
           AppIconButton(

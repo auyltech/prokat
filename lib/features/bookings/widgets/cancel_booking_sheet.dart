@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
@@ -162,18 +162,17 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
           Row(
             children: [
               Expanded(
-                child: AppLabelButton(
+                child: AppOutlinedButton(
                   title: l10n.goBack,
                   onTap: () => Navigator.pop(context),
                   isExpanded: true,
-                  variant: AppLabelButtonVariant.outlined,
                 ),
               ),
 
               const SizedBox(width: 8),
 
               Expanded(
-                child: AppLabelButton(
+                child: AppOutlinedButton.destructive(
                   title: widget.mode == AppMode.clientMode
                       ? l10n.cancelBooking
                       : widget.booking.status == BookingStatus.created
@@ -182,8 +181,6 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
                   onTap: selectedReason == null ? null : () => onSubmit(l10n),
                   isLoading: isSubmitting,
                   isExpanded: true,
-                  variant: AppLabelButtonVariant.outlined,
-                  tone: AppLabelButtonTone.destructive,
                 ),
               ),
             ],

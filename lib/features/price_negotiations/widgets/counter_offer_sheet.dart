@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -214,11 +214,10 @@ class _CounterOfferSheetState extends ConsumerState<CounterOfferSheet> {
               controller: _commentController,
             ),
             const SizedBox(height: 16),
-            AppLabelButton(
+            AppElevatedButton(
               title: l10n.sendPriceProposal,
               isLoading: state.isSubmitting,
               onTap: state.isSubmitting ? null : onSubmit,
-              isExpanded: true,
             ),
           ],
         ),

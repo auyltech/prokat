@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentErrorTile extends StatelessWidget {
@@ -52,11 +52,11 @@ class EquipmentErrorTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          AppLabelButton(
+          AppElevatedButton.destructive(
             title: l10n.retryNow,
             onTap: onRetry,
             prefix: const Icon(Icons.refresh_rounded),
-            tone: AppLabelButtonTone.destructive,
+            isExpanded: false,
           ),
         ],
       ),

@@ -146,8 +146,10 @@ class DarkColorTheme extends AppColorsTheme {
   @override
   AppOutlinedButtonTheme get outlinedButton => const AppOutlinedButtonTheme(
     border: AppColorsDark.primaryInteractive,
+    borderDestructive: AppColorsDark.danger,
     borderDisabled: AppColorsDark.textDisabled,
     content: AppColorsDark.white,
+    contentDestructive: AppColorsDark.danger,
     contentDisabled: AppColorsDark.textDisabled,
     background: Colors.transparent,
   );

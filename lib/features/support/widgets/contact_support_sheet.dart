@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -47,15 +47,13 @@ class ContactSupportSheet extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          AppLabelButton(
+          AppOutlinedButton(
             title: l10n.submitInquiry,
             onTap: () {
               unawaited(context.push(AppRoutes.contactSupport));
             },
             prefix: const Icon(Icons.email_outlined),
             isExpanded: true,
-            size: AppLabelButtonSize.regular,
-            variant: AppLabelButtonVariant.outlined,
           ),
 
           // ListTile(

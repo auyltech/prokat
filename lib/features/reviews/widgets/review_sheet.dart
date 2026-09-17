@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -150,11 +150,10 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           Row(
             children: [
               Expanded(
-                child: AppLabelButton(
+                child: AppElevatedButton(
                   title: l10n.submit,
                   onTap: state.isSubmitting ? null : onSubmit,
                   isLoading: state.isSubmitting,
-                  isExpanded: true,
                 ),
               ),
             ],

@@ -69,50 +69,35 @@ class BookingActionRow extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        spacing: 8,
+        runSpacing: 8,
         children: [
-          Expanded(
-            child: AppLabelButton(
-              title: booking.status == BookingStatus.created
-                  ? l10n.decline
-                  : l10n.cancel,
-              onTap: () => _handleCancel(context, ref, booking, l10n),
-              isExpanded: true,
-              variant: AppLabelButtonVariant.outlined,
-              tone: AppLabelButtonTone.destructive,
-            ),
+          AppLabelButton(
+            title: booking.status == BookingStatus.created
+                ? l10n.decline
+                : l10n.cancel,
+            onTap: () => _handleCancel(context, ref, booking, l10n),
+            variant: AppLabelButtonVariant.outlined,
+            tone: AppLabelButtonTone.destructive,
           ),
-
-          const SizedBox(width: 8),
-
           if (booking.status == BookingStatus.created) ...[
-            Expanded(
-              child: AppLabelButton(
-                title: l10n.counter,
-                onTap: () => _handleCounterOffer(context),
-                isExpanded: true,
-                variant: AppLabelButtonVariant.outlined,
-              ),
+            AppLabelButton(
+              title: l10n.counter,
+              onTap: () => _handleCounterOffer(context),
+              variant: AppLabelButtonVariant.outlined,
             ),
-
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: AppLabelButton(
-                title: l10n.acceptOrder,
-                onTap: () => unawaited(_handleAccept(context, ref)),
-                isExpanded: true,
-                tone: AppLabelButtonTone.success,
-              ),
+            AppLabelButton(
+              title: l10n.acceptOrder,
+              onTap: () => unawaited(_handleAccept(context, ref)),
+              tone: AppLabelButtonTone.success,
             ),
           ] else
-            Expanded(
-              child: AppLabelButton(
-                title: l10n.startWork,
-                onTap: () => BookingStatusSheet.show(context, booking: booking),
-                isExpanded: true,
-                variant: AppLabelButtonVariant.outlined,
-              ),
+            AppLabelButton(
+              title: l10n.startWork,
+              onTap: () => BookingStatusSheet.show(context, booking: booking),
+              variant: AppLabelButtonVariant.outlined,
             ),
         ],
       ),

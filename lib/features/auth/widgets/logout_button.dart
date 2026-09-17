@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
 import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -41,15 +41,12 @@ class LogoutButton extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
 
-    return AppLabelButton(
+    return AppOutlinedButton.destructive(
       title: l10n.logout,
       onTap: authState.isLoading ? null : () => _confirmLogout(context, ref),
       isLoading: authState.isLoading,
       isExpanded: true,
       prefix: const Icon(LucideIcons.logOut),
-      variant: AppLabelButtonVariant.soft,
-      tone: AppLabelButtonTone.destructive,
-      size: AppLabelButtonSize.regular,
     );
   }
 }

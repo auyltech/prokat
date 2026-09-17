@@ -151,8 +151,10 @@ class LightColorTheme extends AppColorsTheme {
   @override
   AppOutlinedButtonTheme get outlinedButton => const AppOutlinedButtonTheme(
     border: AppColors.primary,
+    borderDestructive: AppColors.danger,
     borderDisabled: AppColors.textDisabled,
     content: AppColors.primary,
+    contentDestructive: AppColors.danger,
     contentDisabled: AppColors.textDisabled,
     background: Colors.transparent,
   );

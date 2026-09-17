@@ -8,29 +8,23 @@ enum AppLabelButtonVariant { filled, outlined, soft, text }
 
 enum AppLabelButtonTone { neutral, primary, success, destructive, inverse }
 
-enum AppLabelButtonSize { compact, regular }
-
 class AppLabelButton extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
   final bool isLoading;
-  final bool isExpanded;
   final Widget? prefix;
   final Widget? postfix;
   final AppLabelButtonVariant variant;
   final AppLabelButtonTone tone;
-  final AppLabelButtonSize size;
 
   const AppLabelButton({
     required this.title,
     required this.onTap,
     this.isLoading = false,
-    this.isExpanded = false,
     this.prefix,
     this.postfix,
     this.variant = AppLabelButtonVariant.filled,
     this.tone = AppLabelButtonTone.primary,
-    this.size = AppLabelButtonSize.compact,
     super.key,
   });
 
@@ -53,18 +47,7 @@ class AppLabelButton extends StatelessWidget {
       backgroundDisabled: buttonTheme.backgroundDisabled,
       borderDisabled: buttonTheme.borderDisabled,
     );
-    final height = switch (size) {
-      AppLabelButtonSize.compact => AppDimens.compactButtonHeight,
-      AppLabelButtonSize.regular => AppDimens.buttonHeight,
-    };
-    final borderRadius = switch (size) {
-      AppLabelButtonSize.compact => const BorderRadius.all(
-        Radius.circular(AppDimens.r999$full),
-      ),
-      AppLabelButtonSize.regular => const BorderRadius.all(
-        Radius.circular(AppDimens.r16$xl),
-      ),
-    };
+    const borderRadius = BorderRadius.all(Radius.circular(AppDimens.r999$full));
 
     return Semantics(
       button: true,
@@ -88,8 +71,7 @@ class AppLabelButton extends StatelessWidget {
             onTap: enabled ? onTap : null,
             borderRadius: borderRadius,
             child: SizedBox(
-              height: height,
-              width: isExpanded ? double.infinity : null,
+              height: AppDimens.compactButtonHeight,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppDimens.s12$md,
@@ -100,9 +82,7 @@ class AppLabelButton extends StatelessWidget {
                     size: AppDimens.s20$lg,
                   ),
                   child: Row(
-                    mainAxisSize: isExpanded
-                        ? MainAxisSize.max
-                        : MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: AppDimens.s08$sm,
                     children: [
@@ -117,7 +97,7 @@ class AppLabelButton extends StatelessWidget {
                       else
                         ?prefix,
                       Flexible(
-                        fit: isExpanded ? FlexFit.tight : FlexFit.loose,
+                        fit: FlexFit.loose,
                         child: Text(
                           title,
                           maxLines: 1,
