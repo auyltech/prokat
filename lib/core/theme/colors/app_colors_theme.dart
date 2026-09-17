@@ -26,6 +26,7 @@ abstract class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   AppRadioTheme get radio;
   AppToastTheme get toast;
   ProkatAppBarTheme get appBar;
+  AppNavigationBarTheme get navigationBar;
 
   /// Brand navy (same hex light/dark). Prefer [elevatedButton.background] for CTAs.
   Color get primary;

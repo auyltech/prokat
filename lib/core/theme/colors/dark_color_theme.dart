@@ -15,6 +15,19 @@ class DarkColorTheme extends AppColorsTheme {
   );
 
   @override
+  AppNavigationBarTheme get navigationBar => AppNavigationBarTheme(
+    background: AppColorsDark.surface,
+    divider: AppColorsDark.border,
+    selected: AppColorsDark.primaryInteractive,
+    ownerSelected: AppColorsDark.success,
+    unselected: AppColorsDark.textSecondary,
+    splash: AppColorsDark.primaryInteractive.withValues(alpha: 0.18),
+    highlight: AppColorsDark.primaryInteractive.withValues(alpha: 0.1),
+    ownerSplash: AppColorsDark.success.withValues(alpha: 0.18),
+    ownerHighlight: AppColorsDark.success.withValues(alpha: 0.1),
+  );
+
+  @override
   Color get primary => AppColorsDark.primary;
 
   @override

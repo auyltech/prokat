@@ -29,7 +29,11 @@ abstract final class AppDimens {
 
   static const double appBarHeight = 56;
   static const double appBarDividerHeight = 1;
-  static const double appBarElevation = 2;
+  static const double appBarElevation = 4;
+
+  static const double navigationBarHeight = 60;
+  static const double navigationBarDividerHeight = 1;
+  static const double navigationBarIconSize = 26;
 
   static const double checkboxSize = 18;
   static const double checkboxRadius = 3;

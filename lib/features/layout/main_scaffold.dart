@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/layout/main_app_bar.dart';
-import 'package:prokat/features/layout/prokat_navigation_bar.dart';
+import 'package:prokat/features/layout/main_navigation_bar.dart';
 
 class MainScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -45,7 +45,7 @@ class MainScaffold extends StatelessWidget {
       appBar: hideAppBar ? null : const MainAppBar(),
       bottomNavigationBar: isChatDetailScreen || isPinMapScreen
           ? null
-          : const ProkatNavigationBar(),
+          : const MainNavigationBar(),
       body: navigationShell,
     );
   }

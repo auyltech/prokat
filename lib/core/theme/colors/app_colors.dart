@@ -9,7 +9,7 @@ abstract final class AppColors {
   static const Color background = Color(0xFFFFFFFF);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFFFFFFF);
-  static const Color border = Color(0xFFE0E0E1);
+  static const Color border = Color(0xFFCFCFD3);
 
   static const Color textPrimary = Color(0xFF1C1E21);
   static const Color textSecondary = Color(0xFF5F6368);

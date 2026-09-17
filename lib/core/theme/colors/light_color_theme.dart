@@ -11,7 +11,20 @@ class LightColorTheme extends AppColorsTheme {
     background: AppColors.surface,
     content: AppColors.textPrimary,
     divider: AppColors.border,
-    shadow: AppColors.black.withValues(alpha: 0.12),
+    shadow: AppColors.black.withValues(alpha: 0.45),
+  );
+
+  @override
+  AppNavigationBarTheme get navigationBar => AppNavigationBarTheme(
+    background: AppColors.surface,
+    divider: AppColors.border,
+    selected: AppColors.primary,
+    ownerSelected: AppColors.success,
+    unselected: AppColors.textSecondary,
+    splash: AppColors.primary.withValues(alpha: 0.12),
+    highlight: AppColors.primary.withValues(alpha: 0.06),
+    ownerSplash: AppColors.success.withValues(alpha: 0.12),
+    ownerHighlight: AppColors.success.withValues(alpha: 0.06),
   );
 
   @override
