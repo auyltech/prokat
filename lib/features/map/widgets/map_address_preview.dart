@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';

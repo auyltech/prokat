@@ -8,7 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
 import 'package:prokat/features/auth/widgets/phone_input_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';

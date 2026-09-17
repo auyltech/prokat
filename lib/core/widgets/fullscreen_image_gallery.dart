@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/page_dots_indicator.dart';
 

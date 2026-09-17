@@ -10,7 +10,7 @@ import 'package:prokat/features/requests/providers/request_mutation_provider.dar
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
@@ -144,12 +144,15 @@ class _FullWidthCategoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
 
-    return Transform.translate(
-      offset: const Offset(-_UserCategorySelectorState._horizontalBleed, 0),
-      child: OverflowBox(
-        alignment: Alignment.centerLeft,
-        maxWidth: screenWidth,
-        child: SizedBox(width: screenWidth, child: child),
+    return SizedBox(
+      height: _UserCategorySelectorState._tileExtent,
+      child: Transform.translate(
+        offset: const Offset(-_UserCategorySelectorState._horizontalBleed, 0),
+        child: OverflowBox(
+          alignment: Alignment.centerLeft,
+          maxWidth: screenWidth,
+          child: SizedBox(width: screenWidth, child: child),
+        ),
       ),
     );
   }

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
@@ -117,7 +117,7 @@ class _OwnerEquipmentListScreenState
                       thickness: 1,
                       indent: 16,
                       endIndent: 16,
-                      color: AppColors.teal700,
+                      color: legacy_colors.AppColors.teal700,
                     ),
                     itemCount: query.items.length,
                     shrinkWrap: true,

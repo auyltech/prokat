@@ -1,19 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/theme/app_fonts.dart';
-import 'package:prokat/core/theme/app_icons.dart';
-import 'package:prokat/core/theme/colors/app_colors_theme.dart';
-import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_text_button.dart';
-import 'package:prokat/core/widgets/ui_kit/inputs/app_dropdown_field.dart';
-import 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 Widget _wrap(Widget child, {ThemeData? theme}) {
   return MaterialApp(

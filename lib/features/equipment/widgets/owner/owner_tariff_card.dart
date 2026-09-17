@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';

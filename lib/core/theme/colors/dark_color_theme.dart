@@ -7,6 +7,14 @@ class DarkColorTheme extends AppColorsTheme {
   const DarkColorTheme();
 
   @override
+  ProkatAppBarTheme get appBar => ProkatAppBarTheme(
+    background: AppColorsDark.surface,
+    content: AppColorsDark.textPrimary,
+    divider: AppColorsDark.border,
+    shadow: AppColorsDark.black.withValues(alpha: 0.35),
+  );
+
+  @override
   Color get primary => AppColorsDark.primary;
 
   @override

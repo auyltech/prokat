@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/widgets/form_choice.dart';

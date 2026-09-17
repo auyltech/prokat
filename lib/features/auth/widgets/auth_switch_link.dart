@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class AuthSwitchLink extends StatelessWidget {
   final String message;

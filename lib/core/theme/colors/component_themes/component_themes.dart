@@ -13,3 +13,4 @@ export 'package:prokat/core/theme/colors/component_themes/app_text_button_theme.
 export 'package:prokat/core/theme/colors/component_themes/app_text_colors.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_text_field_theme.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_toast_theme.dart';
+export 'package:prokat/core/theme/colors/component_themes/prokat_app_bar_theme.dart';

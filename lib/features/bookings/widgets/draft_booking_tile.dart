@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';

@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/utils/billing_display.dart';
@@ -104,7 +102,7 @@ class _OwnerPaymentsTopupScreenState
                     textAlign: TextAlign.center,
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.teal800,
+                      color: legacy_colors.AppColors.teal800,
                     ),
                   ),
                   const SizedBox(height: 8),

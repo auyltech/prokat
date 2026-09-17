@@ -27,6 +27,10 @@ abstract final class AppDimens {
   static const double inputBorderWidth = 1;
   static const double inputBorderWidthError = 1.5;
 
+  static const double appBarHeight = 56;
+  static const double appBarDividerHeight = 1;
+  static const double appBarElevation = 2;
+
   static const double checkboxSize = 18;
   static const double checkboxRadius = 3;
   static const double checkboxBorderWidth = 0.75;

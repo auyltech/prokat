@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
@@ -12,8 +12,6 @@ import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-
-import '../../../core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 
 class ClientEquipmentTile extends ConsumerWidget {
   final Equipment equipment;

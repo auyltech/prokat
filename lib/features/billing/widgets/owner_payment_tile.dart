@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/models/transaction_model.dart';

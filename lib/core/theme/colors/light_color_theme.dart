@@ -7,6 +7,14 @@ class LightColorTheme extends AppColorsTheme {
   const LightColorTheme();
 
   @override
+  ProkatAppBarTheme get appBar => ProkatAppBarTheme(
+    background: AppColors.surface,
+    content: AppColors.textPrimary,
+    divider: AppColors.border,
+    shadow: AppColors.black.withValues(alpha: 0.12),
+  );
+
+  @override
   Color get primary => AppColors.primary;
 
   @override
