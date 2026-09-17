@@ -137,8 +137,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   List<TariffDraft> _editorTariffs([Equipment? equipment]) {
-    final vacuumId = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull)
-        ?.id;
+    final vacuumId = vacuumTrucksCategory(
+      ref.read(catalogProvider).valueOrNull,
+      forOwner: true,
+    )?.id;
     return tariffsForEditor(
       equipment ?? widget.equipment,
       vacuumCategoryId: vacuumId,

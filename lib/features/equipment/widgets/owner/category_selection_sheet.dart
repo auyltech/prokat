@@ -44,6 +44,7 @@ class CategorySelectionSheet extends ConsumerWidget {
         service == CategorySheetMode.createRequest) {
       final vacuum = vacuumTrucksCategory(
         ref.watch(catalogProvider).valueOrNull,
+        forOwner: service == CategorySheetMode.createEquipment,
       );
       return vacuum == null ? const [] : [vacuum];
     }

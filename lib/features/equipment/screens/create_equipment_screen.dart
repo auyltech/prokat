@@ -107,7 +107,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   }
 
   void _selectVacuumCategory() {
-    final vacuum = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull);
+    final vacuum = vacuumTrucksCategory(
+      ref.read(catalogProvider).valueOrNull,
+      forOwner: true,
+    );
     if (vacuum == null) return;
     ref.read(equipmentMutationProvider.notifier).selectCategory(vacuum);
   }
@@ -151,7 +154,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     final accountCity = _selectedCity();
 
     ref.listen(catalogProvider, (previous, next) {
-      final vacuum = vacuumTrucksCategory(next.valueOrNull);
+      final vacuum = vacuumTrucksCategory(next.valueOrNull, forOwner: true);
       if (vacuum == null) return;
       ref.read(equipmentMutationProvider.notifier).selectCategory(vacuum);
     });
