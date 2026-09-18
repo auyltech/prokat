@@ -440,12 +440,10 @@ void main() {
     final box = tester.widget<AppInputFieldBox>(find.byType(AppInputFieldBox));
 
     expect(box.isFocused, isFalse);
-    expect(input.style?.color, fieldContext.colors.textField.border);
+    expect(input.style?.color, fieldContext.colors.textField.textDisabled);
   });
 
-  testWidgets('AppTextField uses a single one-pixel focused border', (
-    tester,
-  ) async {
+  testWidgets('AppTextField uses a single focused border', (tester) async {
     final controller = TextEditingController();
     await tester.pumpWidget(
       _wrap(AppTextField(controller: controller, title: 'Name')),
@@ -466,7 +464,7 @@ void main() {
     final radius = decoration.borderRadius! as BorderRadius;
 
     expect(border.top.color, fieldContext.colors.textField.borderFocused);
-    expect(border.top.width, 1);
+    expect(border.top.width, AppDimens.inputBorderWidth);
     expect(radius.topLeft.x, AppDimens.r16$xl);
     expect(decoration.boxShadow, isNull);
   });

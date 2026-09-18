@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:prokat/core/widgets/kz_phone_input_field.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/core/utils/kz_phone_mask.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 void main() {
   testWidgets('phone field keeps +7, applies mask, and blocks extra digits', (
     tester,
   ) async {
-    final controller = TextEditingController(text: '+7');
+    final controller = TextEditingController(
+      text: kzPhoneEditingValue(null).text,
+    );
     final formKey = GlobalKey<FormState>();
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.lightTheme,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('ru'),
         home: Scaffold(
           body: Form(
             key: formKey,
-            child: KzPhoneInputField(
+            child: AppKzPhoneField(
               controller: controller,
-              label: 'Телефон',
+              title: 'Телефон',
               hint: 'hint',
             ),
           ),

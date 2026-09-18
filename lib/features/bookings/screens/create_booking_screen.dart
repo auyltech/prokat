@@ -34,6 +34,7 @@ class CreateBookingScreen extends ConsumerStatefulWidget {
 
 class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   JobScheduleMode _scheduleMode = JobScheduleMode.none;
+  final _commentController = TextEditingController();
 
   @override
   void initState() {
@@ -53,6 +54,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         ref.read(bookingMutationProvider.notifier).selectLocation(address);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
   }
 
   void _selectAsap() {
@@ -382,8 +389,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                       const SizedBox(height: 20),
 
-                      JobCommentField(
+                      AppTextArea(
+                        title: l10n.comments,
                         hint: l10n.requestCommentHint,
+                        controller: _commentController,
+                        minLines: 2,
+                        maxLines: 4,
                         onChanged: bookingNotifier.setComment,
                       ),
 

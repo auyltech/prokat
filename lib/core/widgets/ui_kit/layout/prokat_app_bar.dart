@@ -27,6 +27,7 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasBack = onBack != null;
     final appBarTheme = context.colors.appBar;
     final backButtonTooltip = MaterialLocalizations.of(context)
         .backButtonTooltip;
@@ -40,22 +41,31 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
       shadowColor: appBarTheme.shadow,
       surfaceTintColor: appBarTheme.background,
       automaticallyImplyLeading: false,
+      titleSpacing: hasBack
+          ? AppDimens.appBarTitleGap
+          : AppDimens.appBarTitleSpacing,
       centerTitle: false,
-      leadingWidth: AppDimens.iconButtonLargeSize,
+      leadingWidth: AppDimens.s04$xs * 2 + AppDimens.iconButtonSize,
       leading: onBack == null
           ? null
-          : Center(
-              child: AppIconButton.asset(
-                icon: AppIcons.appBarChevronLeft,
-                onTap: onBack,
-                tooltip: backButtonTooltip,
-                semanticLabel: backButtonTooltip,
-                variant: AppIconButtonVariant.plain,
-                tone: AppIconButtonTone.neutral,
+          : Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.s04$xs,
+                ),
+                child: AppIconButton.asset(
+                  icon: AppIcons.appBarChevronLeft,
+                  onTap: onBack,
+                  tooltip: backButtonTooltip,
+                  semanticLabel: backButtonTooltip,
+                  variant: AppIconButtonVariant.plain,
+                  tone: AppIconButtonTone.neutral,
+                ),
               ),
             ),
       title: DefaultTextStyle.merge(
-        style: AppFonts.headingS(context).copyWith(color: appBarTheme.content),
+        style: AppFonts.headingL(context).copyWith(color: appBarTheme.content),
         maxLines: titleMaxLines,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.start,

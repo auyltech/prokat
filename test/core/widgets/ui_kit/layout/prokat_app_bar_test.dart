@@ -118,4 +118,35 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(AppIconButton), findsNWidgets(2));
   });
+
+  testWidgets('places title next to the back button', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        ProkatAppBar(title: const Text('Title'), onBack: () {}),
+        AppTheme.lightTheme,
+      ),
+    );
+
+    expect(
+      tester.getTopLeft(find.text('Title')).dx,
+      AppDimens.appBarLeadingWidth + AppDimens.appBarTitleGap,
+    );
+    expect(
+      tester.getSize(find.byType(AppIconButton)),
+      const Size(AppDimens.iconButtonSize, AppDimens.iconButtonSize),
+    );
+  });
+
+  testWidgets('keeps title inset on root screens without a back button', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(const ProkatAppBar(title: Text('Title')), AppTheme.lightTheme),
+    );
+
+    expect(
+      tester.getTopLeft(find.text('Title')).dx,
+      AppDimens.appBarTitleSpacing,
+    );
+  });
 }

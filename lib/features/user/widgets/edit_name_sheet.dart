@@ -84,31 +84,11 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
 
           const SizedBox(height: 16),
 
-          TextField(
+          AppTextField(
             controller: controller,
-            autofocus: true,
+            hint: l10n.enterName,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => onSubmit(),
-            decoration: InputDecoration(
-              hintText: l10n.enterName,
-              filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: theme.colorScheme.outline),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(
-                  color: theme.colorScheme.primary,
-                  width: 1.5,
-                ),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: theme.colorScheme.outline),
-              ),
-            ),
           ),
 
           const SizedBox(height: 16),

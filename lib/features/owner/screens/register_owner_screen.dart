@@ -8,10 +8,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/kz_phone_input_field.dart';
 import 'package:prokat/core/widgets/moderation_status_card.dart';
-import 'package:prokat/core/widgets/shake_on_tick.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -36,12 +33,16 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _phoneController = TextEditingController(text: '+7');
+  final _phoneController = TextEditingController.fromValue(
+    kzPhoneEditingValue(null),
+  );
   final _messageController = TextEditingController();
+  final _cityController = TextEditingController();
 
   String? _selectedCity;
   bool _prefilledFromRequest = false;
-  int _shakeTick = 0;
+  bool _showFieldErrors = false;
+  bool _cityPickerOpen = false;
 
   void _clearFormForAccountChange() {
     _formKey.currentState?.reset();
@@ -50,16 +51,19 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _lastNameController.clear();
     _phoneController.value = kzPhoneEditingValue(null);
     _messageController.clear();
+    _cityController.clear();
 
     if (!mounted) {
       _selectedCity = null;
       _prefilledFromRequest = false;
+      _showFieldErrors = false;
       return;
     }
 
     setState(() {
       _selectedCity = null;
       _prefilledFromRequest = false;
+      _showFieldErrors = false;
     });
   }
 
@@ -125,6 +129,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     _lastNameController.dispose();
     _phoneController.dispose();
     _messageController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -194,6 +199,27 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     });
   }
 
+  Future<void> _pickCity() async {
+    if (_cityPickerOpen) return;
+    setState(() => _cityPickerOpen = true);
+    final selected = await CityPickerSheet.show(
+      context: context,
+      service: CitySelectorService.becomeowner,
+      highlightedCity: _selectedCity,
+    );
+    if (!mounted) return;
+    setState(() => _cityPickerOpen = false);
+    if (selected == null || selected.isEmpty) return;
+
+    final next =
+        canonicalCity(
+          selected,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
+        selected;
+    setState(() => _selectedCity = next);
+  }
+
   Future<void> _submit() async {
     final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
 
@@ -213,7 +239,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         message.isEmpty;
 
     if (hasMissing) {
-      setState(() => _shakeTick++);
+      setState(() => _showFieldErrors = true);
       return;
     }
 
@@ -252,10 +278,25 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
     final request = ref.watch(ownerRegistrationRequestProvider).valueOrNull;
     final mutationState = ref.watch(ownerRegistrationMutationProvider);
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final locale = Localizations.localeOf(context).languageCode;
 
     final isAccepted = request?.isApproved == true;
     final isReadOnly = request != null && !request.isRejected;
     final canSubmit = request == null || request.isRejected;
+
+    final hasCity = (_selectedCity ?? '').trim().isNotEmpty;
+    final cityLabel = hasCity
+        ? catalogCityLabel(
+            city: _selectedCity!,
+            languageCode: locale,
+            catalog: catalog,
+            fallback: (city) => localizedCityName(city, l10n),
+          )
+        : '';
+    if (_cityController.text != cityLabel) {
+      _cityController.text = cityLabel;
+    }
 
     ref.listen<String?>(authProvider.select((auth) => auth.currentUserId), (
       previousUserId,
@@ -305,95 +346,115 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            padding: const EdgeInsets.fromLTRB(
+              AppDimens.s16$base,
+              AppDimens.s16$base,
+              AppDimens.s16$base,
+              AppDimens.s24$xl,
+            ),
             children: [
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.s12$md),
               Text(l10n.joinTeamHint, style: theme.textTheme.bodyMedium),
-              const SizedBox(height: 16),
-              _OwnerCityChip(
-                city: _selectedCity,
-                enabled: !isReadOnly,
-                shakeTick: (_selectedCity ?? '').trim().isEmpty
-                    ? _shakeTick
-                    : 0,
-                onChanged: (city) => setState(() => _selectedCity = city),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppDimens.s16$base),
 
-              if (request != null) _StatusCard(request: request),
-              if (request != null) const SizedBox(height: 16),
+              if (request != null) ...[
+                _StatusCard(request: request),
+                const SizedBox(height: AppDimens.s16$base),
+              ],
 
-              InputField(
+              AppTextField(
                 controller: _firstNameController,
-                label: l10n.firstName,
-                hint: l10n.firstNameHint,
-                icon: Icons.person_outline,
+                title: l10n.firstName,
+                hint: l10n.enterFirstName,
                 readOnly: isReadOnly,
                 isRequired: true,
-                requiredHintText: l10n.requiredInParens,
-                requiredHintMuted: true,
-                showFieldErrors: false,
-                shakeTick: _firstNameController.text.trim().isEmpty
-                    ? _shakeTick
-                    : 0,
+                showError: _showFieldErrors,
+                errorText: _firstNameController.text.trim().isEmpty
+                    ? l10n.cannotBeEmpty
+                    : null,
+                onChanged: (_) {
+                  if (_showFieldErrors) setState(() {});
+                },
               ),
-
-              const SizedBox(height: 8),
-
-              InputField(
+              const SizedBox(height: AppDimens.s16$base),
+              AppTextField(
                 controller: _lastNameController,
-                label: l10n.lastName,
-                hint: l10n.lastNameHint,
-                icon: Icons.person_outline,
+                title: l10n.lastName,
+                hint: l10n.enterLastName,
                 readOnly: isReadOnly,
                 isRequired: true,
-                requiredHintText: l10n.requiredInParens,
-                requiredHintMuted: true,
-                showFieldErrors: false,
-                shakeTick: _lastNameController.text.trim().isEmpty
-                    ? _shakeTick
-                    : 0,
+                showError: _showFieldErrors,
+                errorText: _lastNameController.text.trim().isEmpty
+                    ? l10n.cannotBeEmpty
+                    : null,
+                onChanged: (_) {
+                  if (_showFieldErrors) setState(() {});
+                },
               ),
-
-              const SizedBox(height: 8),
-              KzPhoneInputField(
+              const SizedBox(height: AppDimens.s16$base),
+              AppKzPhoneField(
                 controller: _phoneController,
-                label: l10n.phoneNumber,
+                title: l10n.phoneNumber,
                 hint: l10n.phoneHint,
-                icon: Icons.phone_outlined,
-                helperText: l10n.ownerContactPhoneHint,
                 readOnly: isReadOnly,
                 isRequired: true,
-                requiredHintText: l10n.requiredInParens,
-                requiredHintMuted: true,
-                showFieldErrors: false,
-                shakeTick: normalizeKzPhone(_phoneController.text) == null
-                    ? _shakeTick
-                    : 0,
+                showError: _showFieldErrors,
+                errorText: normalizeKzPhone(_phoneController.text) == null
+                    ? l10n.enterValidPhoneNumber
+                    : null,
+                onChanged: (_) {
+                  if (_showFieldErrors) setState(() {});
+                },
               ),
-
-              const SizedBox(height: 8),
-              InputField(
+              const SizedBox(height: AppDimens.inputHelperGap),
+              Text(
+                l10n.ownerContactPhoneHint,
+                style: AppFonts.caption(context)
+                    .copyWith(color: context.colors.text.tertiary),
+              ),
+              const SizedBox(height: AppDimens.s16$base),
+              AppTextField(
+                controller: _cityController,
+                title: l10n.city,
+                hint: l10n.selectCity,
+                isRequired: true,
+                enabled: !isReadOnly,
+                readOnly: isReadOnly,
+                selectOnly: true,
+                forceFocused: _cityPickerOpen,
+                onTap: isReadOnly ? null : _pickCity,
+                showError: _showFieldErrors,
+                errorText: hasCity ? null : l10n.cannotBeEmpty,
+                prefix: Icon(
+                  hasCity ? Icons.location_on : Icons.location_on_outlined,
+                ),
+                suffix: Icon(
+                  Icons.expand_more_rounded,
+                  size: AppDimens.s24$xl,
+                  color: context.colors.text.secondary,
+                ),
+              ),
+              const SizedBox(height: AppDimens.s16$base),
+              AppTextArea(
                 controller: _messageController,
-                label: l10n.message,
-                hint: l10n.messageHint,
-                icon: Icons.message_outlined,
-                keyboardType: TextInputType.multiline,
-                isLast: true,
+                title: l10n.serviceDetails,
+                hint: l10n.serviceDetailsHint,
                 readOnly: isReadOnly,
                 isRequired: true,
-                requiredHintText: l10n.requiredInParens,
-                requiredHintMuted: true,
-                showFieldErrors: false,
                 maxLines: 4,
-                hintMaxLines: 4,
-                shakeTick: _messageController.text.trim().isEmpty
-                    ? _shakeTick
-                    : 0,
+                minLines: 3,
+                maxLength: 100,
+                showError: _showFieldErrors,
+                errorText: _messageController.text.trim().isEmpty
+                    ? l10n.cannotBeEmpty
+                    : null,
+                onChanged: (_) {
+                  if (_showFieldErrors) setState(() {});
+                },
               ),
 
               if (canSubmit) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: AppDimens.s16$base),
                 AppElevatedButton(
                   title: submitLabel,
                   isLoading: mutationState.isLoading,
@@ -406,96 +467,6 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
 
               const SizedBox(height: 40),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OwnerCityChip extends ConsumerWidget {
-  final String? city;
-  final bool enabled;
-  final int shakeTick;
-  final ValueChanged<String> onChanged;
-
-  const _OwnerCityChip({
-    required this.city,
-    required this.enabled,
-    required this.shakeTick,
-    required this.onChanged,
-  });
-
-  Future<void> _pickCity(BuildContext context, WidgetRef ref) async {
-    final selected = await CityPickerSheet.show(
-      context: context,
-      service: CitySelectorService.becomeowner,
-      highlightedCity: city,
-    );
-    if (selected == null || selected.isEmpty) return;
-
-    final next =
-        canonicalCity(
-          selected,
-          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
-        ) ??
-        selected;
-    onChanged(next);
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final hasCity = (city ?? '').trim().isNotEmpty;
-    final showError = shakeTick > 0 && !hasCity;
-    final label = hasCity
-        ? catalogCityLabelOf(ref, context, city)
-        : l10n.selectCity;
-
-    return ShakeOnTick(
-      tick: shakeTick,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: GestureDetector(
-          onTap: enabled ? () => _pickCity(context, ref) : null,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: showError
-                    ? colors.error
-                    : colors.outline.withValues(alpha: 0.6),
-                width: showError ? 1.5 : 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 16,
-                  color: colors.onSurface,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurface,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 16,
-                  color: colors.onSurface.withValues(alpha: 0.6),
-                ),
-              ],
-            ),
           ),
         ),
       ),
@@ -551,7 +522,7 @@ class _AcceptedInfo extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      margin: const EdgeInsets.only(top: 12),
+      margin: const EdgeInsets.only(top: AppDimens.s12$md),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.green.withValues(alpha: 0.08),

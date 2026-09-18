@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
@@ -52,23 +51,25 @@ class AddressFormState extends ConsumerState<AddressForm> {
     final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        InputField(
-          label: l10n.houseBuilding,
+        AppTextField(
+          title: l10n.houseBuilding,
           controller: commentController,
           hint: l10n.myHouseHint,
         ),
-        InputField(
-          label: l10n.street,
+        const SizedBox(height: AppDimens.s16$base),
+        AppTextField(
+          title: l10n.street,
           controller: streetController,
           hint: l10n.streetHint,
         ),
-        InputField(
-          label: l10n.city,
+        const SizedBox(height: AppDimens.s16$base),
+        AppTextField(
+          title: l10n.city,
           controller: cityController,
           hint: l10n.cityHint,
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: AppDimens.s24$xl),
 
         AppElevatedButton(
           title: l10n.saveLocation,

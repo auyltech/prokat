@@ -1,14 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstatic/widgets/faq_tile.dart';
 import 'package:prokat/features/support/data/faq_data.dart';
 import 'package:prokat/features/support/data/guides_data.dart';
-import 'package:prokat/features/support/widgets/contact_support_sheet.dart';
 import 'package:prokat/features/support/widgets/user_guides_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/core/providers/locale_provider.dart';
 
 class HelpScreen extends ConsumerStatefulWidget {
   const HelpScreen({super.key});
@@ -79,7 +82,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               // Primary Action Form Button Wrapper
               AppElevatedButton(
                 title: l10n.contactSupport,
-                onTap: () => ContactSupportSheet.show(context),
+                onTap: () => unawaited(context.push(AppRoutes.contactSupport)),
               ),
             ],
           ),

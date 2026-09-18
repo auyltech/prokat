@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -185,13 +185,19 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           const SizedBox(height: 16),
 
           /// 1. PRICE INPUT
-          InputField(
-            label: l10n.priceKZT,
+          AppTextField(
+            title: l10n.priceKZT,
             controller: _priceController,
             hint: l10n.priceKztHint,
-            isNumeric: true,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            prefix: Text(
+              '₸',
+              style: AppFonts.body16SemiBold(context)
+                  .copyWith(color: context.colors.text.secondary),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppDimens.s16$base),
 
           /// 2. RATE TYPE SELECTOR
           PriceRateSelector(

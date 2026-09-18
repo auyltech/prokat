@@ -325,11 +325,21 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         if (_priceMode == _PriceMode.budget) ...[
           const SizedBox(height: 14),
-          _BudgetAmountField(
-            label: l10n.requestMyBudget,
-            requiredHint: l10n.requestRequiredHint,
+          AppTextField(
+            title: l10n.requestMyBudget,
+            isRequired: true,
             hint: l10n.offeredRateHint,
             controller: rateController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              const MaxIntInputFormatter(_offeredRateMax),
+            ],
+            prefix: Text(
+              '₸',
+              style: AppFonts.body16SemiBold(context)
+                  .copyWith(color: context.colors.text.secondary),
+            ),
           ),
         ],
 
@@ -349,9 +359,12 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
         const SizedBox(height: 20),
 
-        JobCommentField(
+        AppTextArea(
+          title: l10n.comments,
           hint: l10n.requestCommentHint,
           controller: commentController,
+          minLines: 2,
+          maxLines: 4,
         ),
 
         const SizedBox(height: 40),
@@ -441,93 +454,6 @@ class _CategoryPickerCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _BudgetAmountField extends StatelessWidget {
-  const _BudgetAmountField({
-    required this.label,
-    required this.requiredHint,
-    required this.hint,
-    required this.controller,
-  });
-
-  final String label;
-  final String requiredHint;
-  final String hint;
-  final TextEditingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isBlank = controller.text.trim().isEmpty;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.4)),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text.rich(
-          TextSpan(
-            text: label,
-            style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-            children: [
-              if (isBlank)
-                TextSpan(
-                  text: ' $requiredHint',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.error,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            const MaxIntInputFormatter(_offeredRateMax),
-          ],
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
-              fontWeight: FontWeight.w400,
-            ),
-            suffixText: '₸',
-            suffixStyle: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-            isDense: true,
-            filled: true,
-            fillColor: colorScheme.surface,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            border: border,
-            enabledBorder: border,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

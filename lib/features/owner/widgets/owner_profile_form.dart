@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/kz_phone_input_field.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
@@ -16,7 +14,6 @@ import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
-import 'package:prokat/features/user/widgets/city_select_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerProfileForm extends ConsumerStatefulWidget {
@@ -31,20 +28,20 @@ class OwnerProfileForm extends ConsumerStatefulWidget {
 class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers
   late final TextEditingController _companyNameController;
   late final TextEditingController _legalNameController;
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _cityController;
 
-  // Local state properties for non-text selections
   OwnerType? _selectedOwnerType;
   String? _selectedCity;
   bool _lastHasChanges = false;
   bool _isEditing = false;
-  int _shakeTick = 0;
+  bool _showFieldErrors = false;
+  bool _cityPickerOpen = false;
 
   @override
   void initState() {
@@ -55,14 +52,14 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     _legalNameController = TextEditingController(text: profile.legalName);
     _firstNameController = TextEditingController(text: profile.firstName);
     _lastNameController = TextEditingController(text: profile.lastName);
-    _phoneController = TextEditingController(
-      text: maskedKzPhone(profile.phoneNumber),
+    _phoneController = TextEditingController.fromValue(
+      kzPhoneEditingValue(profile.phoneNumber),
     );
     _descriptionController = TextEditingController(
       text: profile.serviceDescription,
     );
+    _cityController = TextEditingController();
 
-    // Bind state variations directly from the profile instance
     _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
     _selectedCity =
         canonicalCity(
@@ -94,7 +91,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     _legalNameController.text = profile.legalName ?? '';
     _firstNameController.text = profile.firstName ?? '';
     _lastNameController.text = profile.lastName ?? '';
-    _phoneController.text = maskedKzPhone(profile.phoneNumber);
+    _phoneController.value = kzPhoneEditingValue(profile.phoneNumber);
     _descriptionController.text = profile.serviceDescription ?? '';
     _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
     _selectedCity =
@@ -104,6 +101,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
         ) ??
         ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
     _lastHasChanges = false;
+    _showFieldErrors = false;
   }
 
   @override
@@ -123,11 +121,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     setState(() => _isEditing = true);
   }
 
-  void _cancelEditing() {
-    _hydrateFrom(widget.initialProfile);
-    setState(() => _isEditing = false);
-  }
-
   @override
   void dispose() {
     _firstNameController.removeListener(_onFieldsChanged);
@@ -140,6 +133,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     _lastNameController.dispose();
     _phoneController.dispose();
     _descriptionController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -169,10 +163,34 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       (_selectedCity ?? '').trim().isEmpty ||
       _descriptionController.text.trim().isEmpty;
 
+  Future<void> _pickCity() async {
+    if (_cityPickerOpen) return;
+    setState(() => _cityPickerOpen = true);
+    final selected = await CityPickerSheet.show(
+      context: context,
+      service: CitySelectorService.ownerprofile,
+      highlightedCity: _selectedCity,
+    );
+    if (!mounted) return;
+    setState(() => _cityPickerOpen = false);
+    if (selected == null || selected.isEmpty) return;
+
+    final next =
+        canonicalCity(
+          selected,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
+        selected;
+    setState(() {
+      _selectedCity = next;
+      _lastHasChanges = _hasChanges;
+    });
+  }
+
   Future<void> _submitForm() async {
     if (_isLocked) return;
     if (_hasMissingRequired) {
-      setState(() => _shakeTick++);
+      setState(() => _showFieldErrors = true);
       return;
     }
     if (!_hasChanges) return;
@@ -234,46 +252,49 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final providerState = ref.watch(ownerRegistrationMutationProvider);
     final isLoading = providerState.isLoading;
     final isLocked = _isLocked;
     final isEditing = !isLocked && _isEditing;
+    final locale = Localizations.localeOf(context).languageCode;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
 
-    // TODO(Vadim): Временно отключена возможность работать как организация
-    // final isOrganization = _selectedOwnerType == OwnerType.organization;
+    final hasCity = (_selectedCity ?? '').trim().isNotEmpty;
+    final cityLabel = hasCity
+        ? catalogCityLabel(
+            city: _selectedCity!,
+            languageCode: locale,
+            catalog: catalog,
+            fallback: (city) => localizedCityName(city, l10n),
+          )
+        : '';
+    if (_cityController.text != cityLabel) {
+      _cityController.text = cityLabel;
+    }
 
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.personalContactDetails,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 22,
-            ),
-          ),
-          const SizedBox(height: 16),
           if (!isEditing) ...[
             _ProfileReadOnlyRow(
               label: l10n.firstName,
               value: widget.initialProfile.firstName,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.lastName,
               value: widget.initialProfile.lastName,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.phoneNumber,
               value: maskedKzPhone(widget.initialProfile.phoneNumber),
               helperText: l10n.ownerContactPhoneHint,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.city,
               value: catalogCityLabelOf(
@@ -282,110 +303,112 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
                 widget.initialProfile.city,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.serviceDetails,
               value: widget.initialProfile.serviceDescription,
             ),
             _OwnerProfileStatusBlock(profile: widget.initialProfile),
             if (!isLocked) ...[
-              const SizedBox(height: 32),
+              const SizedBox(height: AppDimens.s32$xxl),
               AppElevatedButton(
                 title: l10n.editProfileData,
                 onTap: _startEditing,
               ),
             ],
           ] else ...[
-            InputField(
-              label: l10n.firstName,
+            AppTextField(
+              title: l10n.firstName,
               hint: l10n.enterFirstName,
               controller: _firstNameController,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              shakeTick: _firstNameController.text.trim().isEmpty
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: _firstNameController.text.trim().isEmpty
+                  ? l10n.cannotBeEmpty
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
-            const SizedBox(height: 16),
-            InputField(
-              label: l10n.lastName,
+            const SizedBox(height: AppDimens.s16$base),
+            AppTextField(
+              title: l10n.lastName,
               hint: l10n.enterLastName,
               controller: _lastNameController,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              shakeTick: _lastNameController.text.trim().isEmpty
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: _lastNameController.text.trim().isEmpty
+                  ? l10n.cannotBeEmpty
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
-            const SizedBox(height: 16),
-            KzPhoneInputField(
+            const SizedBox(height: AppDimens.s16$base),
+            AppKzPhoneField(
               controller: _phoneController,
-              label: l10n.phoneNumber,
+              title: l10n.phoneNumber,
               hint: l10n.phoneHint,
-              helperText: l10n.ownerContactPhoneHint,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              shakeTick: normalizeKzPhone(_phoneController.text) == null
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: normalizeKzPhone(_phoneController.text) == null
+                  ? l10n.enterValidPhoneNumber
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
-            const SizedBox(height: 16),
-            CitySelectField(
-              city: _selectedCity,
+            const SizedBox(height: AppDimens.inputHelperGap),
+            Text(
+              l10n.ownerContactPhoneHint,
+              style: AppFonts.caption(context)
+                  .copyWith(color: context.colors.text.tertiary),
+            ),
+            const SizedBox(height: AppDimens.s16$base),
+            AppTextField(
+              controller: _cityController,
+              title: l10n.city,
+              hint: l10n.selectCity,
               isRequired: true,
-              showIcon: false,
-              enabled: true,
-              boxed: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              shakeTick: (_selectedCity ?? '').trim().isEmpty ? _shakeTick : 0,
-              service: CitySelectorService.ownerprofile,
-              onChanged: (city) => setState(() {
-                _selectedCity = city;
-                _lastHasChanges = _hasChanges;
-              }),
+              selectOnly: true,
+              forceFocused: _cityPickerOpen,
+              onTap: _pickCity,
+              showError: _showFieldErrors,
+              errorText: hasCity ? null : l10n.cannotBeEmpty,
+              prefix: Icon(
+                hasCity ? Icons.location_on : Icons.location_on_outlined,
+              ),
+              suffix: Icon(
+                Icons.expand_more_rounded,
+                size: AppDimens.s24$xl,
+                color: context.colors.text.secondary,
+              ),
             ),
-            const SizedBox(height: 16),
-            InputField(
-              label: l10n.serviceDetails,
+            const SizedBox(height: AppDimens.s16$base),
+            AppTextArea(
+              title: l10n.serviceDetails,
               hint: l10n.serviceDetailsHint,
               controller: _descriptionController,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              isLast: true,
               minLines: 3,
               maxLines: 4,
               maxLength: 100,
-              hintMaxLines: 3,
-              keyboardType: TextInputType.multiline,
               inputFormatters: [LengthLimitingTextInputFormatter(100)],
-              shakeTick: _descriptionController.text.trim().isEmpty
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: _descriptionController.text.trim().isEmpty
+                  ? l10n.cannotBeEmpty
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
             const SizedBox(height: 28),
             AppElevatedButton(
               title: l10n.submitChangesForReview,
               isLoading: isLoading,
-              onTap: isLoading ? null : () => unawaited(_submitForm()),
-            ),
-            const SizedBox(height: 12),
-            AppOutlinedButton(
-              title: l10n.cancel,
-              onTap: isLoading ? null : _cancelEditing,
+              onTap: (isLoading || !_hasChanges)
+                  ? null
+                  : () => unawaited(_submitForm()),
             ),
           ],
         ],
@@ -436,7 +459,7 @@ class _OwnerProfileStatusBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
+        const SizedBox(height: AppDimens.s24$xl),
         Card(
           child: ListTile(
             leading: Icon(icon, color: color),
@@ -445,7 +468,7 @@ class _OwnerProfileStatusBlock extends StatelessWidget {
           ),
         ),
         if (status == OwnerRegistrationStatus.rejected) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppDimens.s16$base),
           AdminCommentBlock(comment: profile.adminComment),
         ],
       ],
@@ -477,7 +500,7 @@ class _ProfileReadOnlyRow extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppDimens.s04$xs),
         Text(
           display.isEmpty ? '—' : display,
           style: theme.textTheme.bodyMedium?.copyWith(
@@ -487,12 +510,11 @@ class _ProfileReadOnlyRow extends StatelessWidget {
           ),
         ),
         if (helperText != null && helperText!.trim().isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: AppDimens.s04$xs),
           Text(
             helperText!,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-            ),
+            style: AppFonts.caption(context)
+                .copyWith(color: context.colors.text.tertiary),
           ),
         ],
       ],

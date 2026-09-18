@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -103,10 +102,12 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
                 : (v) => setState(() => _stars = v),
           ),
 
-          InputField(
-            label: l10n.commentOptional,
+          AppTextArea(
+            title: l10n.commentOptional,
             controller: _commentController,
-            hint: "",
+            hint: '',
+            minLines: 2,
+            maxLines: 4,
           ),
 
           const SizedBox(height: 12),

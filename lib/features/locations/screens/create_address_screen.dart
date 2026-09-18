@@ -11,7 +11,6 @@ import 'package:prokat/features/locations/state/location_provider.dart';
 import '../../owner/widgets/address_form.dart';
 
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateAddressScreen extends ConsumerStatefulWidget {
@@ -136,20 +135,20 @@ class _CreateAddressScreenState extends ConsumerState<CreateAddressScreen> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                InputField(
-                  label: l10n.houseBuilding,
+                AppTextField(
+                  title: l10n.houseBuilding,
                   controller: commentController,
                   hint: l10n.myHouseHint,
                 ),
-                const SizedBox(height: 8),
-                InputField(
-                  label: l10n.street,
+                const SizedBox(height: AppDimens.s08$sm),
+                AppTextField(
+                  title: l10n.street,
                   controller: streetController,
                   hint: l10n.streetHint,
                 ),
-                const SizedBox(height: 8),
-                InputField(
-                  label: l10n.city,
+                const SizedBox(height: AppDimens.s08$sm),
+                AppTextField(
+                  title: l10n.city,
                   controller: cityController,
                   hint: l10n.cityHint,
                 ),
