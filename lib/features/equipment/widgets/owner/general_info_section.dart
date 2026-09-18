@@ -48,6 +48,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   bool _saveAttempted = false;
   bool _isSaving = false;
+  bool _cityPickerOpen = false;
   String? _nameError;
   String? _cityError;
 
@@ -152,7 +153,12 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   bool get _canEdit => !widget.equipment.isPendingReview;
 
   String _tariffFingerprint(List<TariffDraft> items) {
-    return items.map((item) => item.fingerprint()).join('\n');
+    // Incomplete local stubs stay in memory only — they must not dirty the
+    // section or trigger equipment/tariff network saves.
+    return items
+        .where((item) => item.id != null || item.isSavable)
+        .map((item) => item.fingerprint())
+        .join('\n');
   }
 
   String _priceFingerprint(Equipment equipment) {
@@ -194,6 +200,12 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
         _hasPricedTariff;
   }
 
+  bool get _hasValidationErrors {
+    return _nameError != null ||
+        _cityError != null ||
+        (_saveAttempted && !_hasPricedTariff);
+  }
+
   void _bind() {
     _editor.bind(
       id: OwnerEquipmentBlockId.general,
@@ -217,7 +229,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       isSaving: _isSaving,
       indicator: blockIndicatorFor(
         complete: _isComplete,
-        saveAttempted: _saveAttempted,
+        hasValidationErrors: _hasValidationErrors,
       ),
     );
   }
@@ -228,6 +240,14 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     _cityError = _city.trim().isEmpty ? 'required' : null;
     setState(() {});
     return _nameError == null && _cityError == null && _hasPricedTariff;
+  }
+
+  void _validateNameField() {
+    _nameError = _nameController.text.trim().isEmpty ? 'required' : null;
+  }
+
+  void _validateCityField() {
+    _cityError = _city.trim().isEmpty ? 'required' : null;
   }
 
   Future<bool> _persistTariffs() async {
@@ -286,9 +306,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   Future<bool> _handleSave({required bool notify}) async {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || _isSaving) return false;
-    if (notify && !_validate()) {
+    if (!_validate()) {
       _publish();
-      AppToast.show(message: l10n.pleaseFillMissingInfo);
+      if (notify) {
+        AppToast.show(message: l10n.pleaseFillMissingInfo);
+      }
       return false;
     }
 
@@ -352,7 +374,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
           OwnerEquipmentBlockId.general,
           indicator: blockIndicatorFor(
             complete: _isComplete,
-            saveAttempted: _saveAttempted,
+            hasValidationErrors: _hasValidationErrors,
           ),
         );
         if (notify) {
@@ -388,7 +410,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   void _onChanged() {
     if (!_canEdit) return;
-    if (_saveAttempted) _validate();
+    if (_nameError != null || _cityError != null || _saveAttempted) {
+      _validateNameField();
+      _validateCityField();
+    }
     setState(() {});
     _publish();
   }
@@ -398,15 +423,38 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     unawaited(_handleSave(notify: false));
   }
 
-  Future<void> _pickCity() async {
+  void _onNameFocusLost() {
     if (!_canEdit) return;
+    setState(_validateNameField);
+    _publish();
+    if (_nameError != null) return;
+    _commitIfDirty();
+  }
+
+  void _onDescriptionFocusLost() {
+    if (!_canEdit) return;
+    _commitIfDirty();
+  }
+
+  Future<void> _pickCity() async {
+    if (!_canEdit || _cityPickerOpen) return;
+    setState(() => _cityPickerOpen = true);
     final selected = await CityPickerSheet.show(
       context: context,
       service: CitySelectorService.createequipment,
       highlightedCity: _city,
     );
-    if (selected == null || selected.isEmpty) return;
+    if (!mounted) return;
+    setState(() => _cityPickerOpen = false);
+    if (selected == null || selected.isEmpty) {
+      setState(_validateCityField);
+      _publish();
+      return;
+    }
+    // Validate after assigning the new value — same stale-state trap as
+    // AppDropdownField if we validated against the previous empty city.
     _city = selected;
+    setState(() => _cityError = null);
     _onChanged();
     _commitIfDirty();
   }
@@ -414,6 +462,14 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   Future<void> _deleteTariff(int index) async {
     if (!_canEdit) return;
     final draft = _tariffs[index];
+
+    // Local stub: drop the form only — nothing was sent to the backend.
+    if (draft.isLocalDraft) {
+      setState(() => _tariffs.removeAt(index));
+      _publish();
+      return;
+    }
+
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await AppAlertBottomSheet.show(
       context,
@@ -424,19 +480,36 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       isDestructivePrimary: true,
       isDismissible: false,
     );
-    if (confirmed != true) return;
-    if (draft.id != null) {
-      _deletedPriceIds.add(draft.id!);
+    if (confirmed != true || !mounted) return;
+
+    final ok = await ref
+        .read(equipmentMutationProvider.notifier)
+        .deletePriceEntry(
+          PriceEntry(
+            id: draft.id!,
+            price: draft.price ?? 1,
+            priceRate: draft.priceRate,
+          ),
+          widget.equipment.id,
+        );
+    if (!mounted) return;
+    if (!ok) {
+      AppToast.show(
+        message: l10n.couldNotSaveEquipment,
+        type: AppToastType.error,
+      );
+      return;
     }
-    setState(() => _tariffs.removeAt(index));
+
+    setState(() {
+      _tariffs.removeAt(index);
+      _baselineTariffs = _tariffFingerprint(_tariffs);
+    });
     _publish();
-    unawaited(_handleSave(notify: false));
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     final catalog = ref.watch(catalogProvider).valueOrNull;
@@ -470,90 +543,104 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       },
       saveLabel: l10n.save,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppDimens.s16$base,
         children: [
           AppTextField(
             controller: _cityController,
-            label: '${l10n.workCity} ${l10n.requiredInParens}',
+            title: l10n.workCity,
+            isRequired: true,
             hint: l10n.selectCity,
             enabled: _canEdit,
-            readOnly: true,
+            readOnly: !_canEdit,
+            selectOnly: true,
+            forceFocused: _cityPickerOpen,
             onTap: _canEdit ? _pickCity : null,
-            errorText: _cityError == null ? null : l10n.fieldRequired,
+            errorText: _cityError == null ? null : l10n.cannotBeEmpty,
             prefix: Icon(
               hasLocation ? Icons.location_on : Icons.location_on_outlined,
             ),
-            suffix: const Icon(Icons.chevron_right),
+            suffix: Icon(
+              Icons.expand_more_rounded,
+              size: AppDimens.s24$xl,
+              color: context.colors.text.secondary,
+            ),
           ),
-          const SizedBox(height: 16),
           AppTextField(
-            label: '${l10n.equipmentNameLabel} ${l10n.requiredInParens}',
+            title: l10n.equipmentNameLabel,
+            isRequired: true,
             controller: _nameController,
             onChanged: (_) => _onChanged(),
-            onFocusLost: _commitIfDirty,
+            onFocusLost: _onNameFocusLost,
             hint: l10n.equipmentNameHint,
             readOnly: !_canEdit,
-            errorText: _nameError == null ? null : l10n.fieldRequired,
+            errorText: _nameError == null ? null : l10n.cannotBeEmpty,
             maxLength: ownerEquipmentTextMaxLength,
             inputFormatters: [
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
-          const SizedBox(height: 16),
           AppTextArea(
-            label: l10n.shortDescription,
+            title: l10n.shortDescription,
             controller: _descriptionController,
             onChanged: (_) => _onChanged(),
-            onFocusLost: _commitIfDirty,
+            onFocusLost: _onDescriptionFocusLost,
             hint: l10n.shortDescriptionHelper,
             maxLines: 4,
             minLines: 3,
             maxLength: 200,
             readOnly: !_canEdit,
           ),
-          const SizedBox(height: 18),
-          Text.rich(
-            TextSpan(
-              text: l10n.tariffs,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text.rich(
+                TextSpan(
+                  text: l10n.tariffs,
+                  style: AppFonts.headingS(context),
+                  children: [
+                    if (_canEdit)
+                      TextSpan(
+                        text: ' *',
+                        style: AppFonts.headingS(context)
+                            .copyWith(color: context.colors.text.error),
+                      ),
+                  ],
+                ),
               ),
-              children: [
-                if (!_hasPricedTariff)
-                  TextSpan(
-                    text: ' ${l10n.requiredInParens}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.error,
-                      fontWeight: FontWeight.w500,
+              const SizedBox(height: AppDimens.inputLabelGap),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppDimens.s12$md,
+                children: [
+                  for (var index = 0; index < _tariffs.length; index++)
+                    OwnerTariffCard(
+                      draft: _tariffs[index],
+                      canEdit: _canEdit,
+                      onChanged: (next) {
+                        setState(() => _tariffs[index] = next);
+                        _onChanged();
+                      },
+                      onCommit: _commitIfDirty,
+                      onDelete: () => _deleteTariff(index),
                     ),
-                  ),
-              ],
-            ),
+                  if (_canEdit && _tariffs.length < ownerEquipmentTariffMax)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: AppLabelButton(
+                        title: l10n.addTariff,
+                        onTap: () {
+                          setState(() => _tariffs.add(TariffDraft.custom()));
+                          _onChanged();
+                        },
+                        prefix: const Icon(Icons.add),
+                        variant: AppLabelButtonVariant.text,
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          ...List.generate(_tariffs.length, (index) {
-            final draft = _tariffs[index];
-            return OwnerTariffCard(
-              draft: draft,
-              canEdit: _canEdit,
-              onChanged: (next) {
-                setState(() => _tariffs[index] = next);
-                _onChanged();
-              },
-              onCommit: _commitIfDirty,
-              onDelete: () => _deleteTariff(index),
-            );
-          }),
-          if (_canEdit && _tariffs.length < ownerEquipmentTariffMax)
-            AppLabelButton(
-              title: l10n.addTariff,
-              onTap: () {
-                setState(() => _tariffs.add(TariffDraft.custom()));
-                _onChanged();
-              },
-              prefix: const Icon(Icons.add),
-              variant: AppLabelButtonVariant.text,
-            ),
         ],
       ),
     );

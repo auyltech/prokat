@@ -136,7 +136,7 @@ class _OwnerEquipmentImageHeaderState
           unawaited(
             _pageController.animateToPage(
               count - 1,
-              duration: const Duration(milliseconds: 250),
+              duration: AppDimens.defaultAnimationDuration,
               curve: Curves.easeOut,
             ),
           );
@@ -302,7 +302,7 @@ class _OwnerEquipmentImageHeaderState
           Positioned(
             left: 0,
             right: 0,
-            bottom: 12,
+            bottom: AppDimens.s12$md,
             child: PageDotsIndicator(
               count: images.length,
               index: _currentIndex,
@@ -311,8 +311,8 @@ class _OwnerEquipmentImageHeaderState
 
         if (widget.canEditImages)
           Positioned(
-            right: 16,
-            bottom: 16,
+            right: AppDimens.s16$base,
+            bottom: AppDimens.s16$base,
             child: Hero(
               tag: 'editEquipmentImages_${widget.equipmentId}',
               child: AppIconButton(
@@ -371,8 +371,8 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
       color: colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 8 : 32,
-        vertical: compact ? 6 : 12,
+        horizontal: compact ? AppDimens.s08$sm : AppDimens.s32$xxl,
+        vertical: compact ? AppDimens.inputHelperGap : AppDimens.s12$md,
       ),
       child: Text(
         l10n.equipmentPhotoRequiredPlaceholder,
@@ -380,10 +380,11 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
         maxLines: compact ? 4 : 3,
         overflow: TextOverflow.ellipsis,
         style:
-            (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
-                ?.copyWith(
+            (compact
+                    ? AppFonts.captionMedium(context)
+                    : AppFonts.body16SemiBold(context))
+                .copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.55),
-                  fontWeight: FontWeight.w600,
                   height: 1.2,
                 ),
       ),

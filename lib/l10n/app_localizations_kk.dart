@@ -1899,6 +1899,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get addTariff => 'Тариф қосу';
 
   @override
+  String get tariffDraftPrefix => 'Жоба:';
+
+  @override
   String get serviceType => 'Қызмет түрі';
 
   @override
@@ -3375,6 +3378,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get fieldRequired => 'Міндетті өріс';
+
+  @override
+  String get cannotBeEmpty => 'Бос болмауы керек';
 
   @override
   String get justNow => 'Жаңа ғана';

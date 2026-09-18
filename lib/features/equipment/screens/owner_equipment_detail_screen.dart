@@ -187,7 +187,12 @@ class _OwnerEquipmentDetailScreenState
                     canEditImages: equipment.isDraft,
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDimens.s16$base,
+                      AppDimens.s16$base,
+                      AppDimens.s16$base,
+                      AppDimens.s24$xl,
+                    ),
                     child: Column(
                       children: [
                         CategorySelectorTile(
@@ -196,29 +201,24 @@ class _OwnerEquipmentDetailScreenState
                         ),
                         if (equipment.isPendingReview ||
                             equipment.isRejected) ...[
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppDimens.s16$base),
                           EquipmentModerationStatusCard(
                             status: equipment.status,
                             adminComment: equipment.adminComment,
                           ),
                         ],
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppDimens.s16$base),
                         GeneralInfoSection(equipment: equipment),
                         RegistrationSection(equipment: equipment),
                         OwnerEquipmentSpecs(equipment: equipment),
                         if (reviewUi.showSubmitForReview ||
                             reviewUi.showResubmit) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppDimens.s12$md),
                           Text(
                             l10n.equipmentSubmitPhotoHint,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
-                              height: 1.35,
-                            ),
+                            style: AppFonts.caption(context),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppDimens.s12$md),
                           AppElevatedButton(
                             title: reviewUi.showSubmitForReview
                                 ? l10n.submitForReview
@@ -243,7 +243,7 @@ class _OwnerEquipmentDetailScreenState
                           ),
                         ],
                         if (equipment.status != EquipmentStatus.booked) ...[
-                          const SizedBox(height: 20),
+                          const SizedBox(height: AppDimens.s20$lg),
                           DeleteEquipmentSection(equipmentId: equipment.id),
                         ],
                       ],

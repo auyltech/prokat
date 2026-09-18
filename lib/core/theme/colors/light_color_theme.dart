@@ -200,7 +200,7 @@ class LightColorTheme extends AppColorsTheme {
       colors: <Color>[AppColors.primary, AppColors.primary],
     ),
     text: AppColors.textPrimary,
-    textDisabled: AppColors.textDisabled,
+    textDisabled: AppColors.textTertiary,
     hint: AppColors.textTertiary,
     label: AppColors.textSecondary,
     caption: AppColors.textSecondary,

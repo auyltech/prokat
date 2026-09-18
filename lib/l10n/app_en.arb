@@ -700,6 +700,7 @@
   "priceFixed": "Fixed",
   "priceFromPrefix": "from",
   "addTariff": "Add rate",
+  "tariffDraftPrefix": "Draft:",
   "serviceType": "Service type",
   "serviceOther": "Other",
   "customServiceName": "Service name",
@@ -1202,6 +1203,7 @@
   "saveChanges": "Save Changes",
   "saving": "Saving...",
   "fieldRequired": "This field is required",
+  "cannotBeEmpty": "Cannot be empty",
   "justNow": "Just now",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {

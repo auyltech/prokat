@@ -15,7 +15,7 @@ abstract final class AppDimens {
   static const double r999$full = 999;
 
   static const double buttonHeight = 52;
-  static const double compactButtonHeight = 44;
+  static const double compactButtonHeight = 40;
   static const double iconButtonSize = 44;
   static const double iconButtonLargeSize = 56;
   static const double iconButtonIconSize = 24;

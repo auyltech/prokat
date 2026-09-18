@@ -212,6 +212,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     return true;
   }
 
+  bool get _hasValidationErrors =>
+      _errorsByKey.values.any((error) => error != null && error.isNotEmpty);
+
   void _bind() {
     _editor.bind(
       id: OwnerEquipmentBlockId.specs,
@@ -232,7 +235,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       isSaving: _isSaving,
       indicator: blockIndicatorFor(
         complete: _isComplete,
-        saveAttempted: _saveAttempted,
+        hasValidationErrors: _hasValidationErrors,
       ),
     );
   }
@@ -240,7 +243,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   void _onFieldChanged() {
     if (!_canEdit) return;
     final dirty = _computeIsDirty();
-    if (_saveAttempted) _validate();
+    if (_hasValidationErrors || _saveAttempted) _validate();
     setState(() => _isDirty = dirty);
     _publish();
   }
@@ -248,6 +251,23 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
   void _commitIfDirty() {
     if (!_canEdit || !_isDirty || _isSaving) return;
     unawaited(_handleSave(notify: false));
+  }
+
+  void _onTextFocusLost(String key, {required bool isRequired}) {
+    if (!_canEdit) return;
+    if (isRequired) {
+      final raw = _controllersByKey[key]?.text.trim() ?? '';
+      setState(() {
+        if (raw.isEmpty) {
+          _errorsByKey[key] = 'required';
+        } else if (_errorsByKey[key] == 'required') {
+          _errorsByKey[key] = null;
+        }
+      });
+      _publish();
+      if (raw.isEmpty) return;
+    }
+    _commitIfDirty();
   }
 
   void _onDiscreteChanged() {
@@ -308,14 +328,14 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || !_isDirty || _isSaving) return false;
 
-    if (notify) {
-      final valid = _validate();
-      if (!valid) {
-        setState(() {});
-        _publish();
+    final valid = _validate();
+    if (!valid) {
+      setState(() {});
+      _publish();
+      if (notify) {
         AppToast.show(message: l10n.pleaseFillMissingInfo);
-        return false;
       }
+      return false;
     }
 
     setState(() => _isSaving = true);
@@ -398,7 +418,7 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
           OwnerEquipmentBlockId.specs,
           indicator: blockIndicatorFor(
             complete: _isComplete,
-            saveAttempted: _saveAttempted,
+            hasValidationErrors: _hasValidationErrors,
           ),
         );
       } else {
@@ -459,149 +479,175 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       if (!hasSpecs) {
         return Text(
           l10n.noSpecsConfigured,
-          style: theme.textTheme.bodyMedium?.copyWith(color: ghostGray),
+          style: AppFonts.body14(context).copyWith(color: ghostGray),
         );
       }
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(_sortedSpecs.length, (i) {
-          final spec = _sortedSpecs[i];
-          final key = _controllerKey(spec, i);
-          final catalogSpec = catalog?.specById(spec.specId);
-          final type = spec.resolvedType(catalogSpec);
-          if (!type.isKnown) {
-            return const SizedBox.shrink();
-          }
+      final fields = <Widget>[];
+      for (var i = 0; i < _sortedSpecs.length; i++) {
+        final spec = _sortedSpecs[i];
+        final key = _controllerKey(spec, i);
+        final catalogSpec = catalog?.specById(spec.specId);
+        final type = spec.resolvedType(catalogSpec);
+        if (!type.isKnown) continue;
 
-          final errorKey = _errorsByKey[key];
-          final String? errorText = switch (errorKey) {
-            'required' => l10n.fieldRequired,
-            'invalidNumber' => l10n.invalidNumber,
-            _ => null,
-          };
-          final label = spec.displayName(locale);
-          final unit = catalogSpec == null
-              ? spec.unit
-              : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
-                    spec.unit;
-          final isRequired = equipmentSpecIsRequired(spec);
+        final errorKey = _errorsByKey[key];
+        final String? errorText = switch (errorKey) {
+          'required' => l10n.cannotBeEmpty,
+          'invalidNumber' => l10n.invalidNumber,
+          _ => null,
+        };
+        final label = spec.displayName(locale);
+        final unit = catalogSpec == null
+            ? spec.unit
+            : catalog?.unitById(catalogSpec.unitId)?.symbol(locale) ??
+                  spec.unit;
+        final isRequired = equipmentSpecIsRequired(spec);
 
-          if (type == CatalogSpecType.boolean) {
-            return SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(label),
-              value: _boolByKey[key] ?? false,
-              onChanged: !_canEdit
-                  ? null
-                  : (value) {
-                      _boolByKey[key] = value;
-                      _onDiscreteChanged();
-                    },
-            );
-          }
+        if (type == CatalogSpecType.boolean) {
+          fields.add(
+            Row(
+              children: [
+                Expanded(child: Text(label, style: AppFonts.headingS(context))),
+                AppSwitch(
+                  value: _boolByKey[key] ?? false,
+                  enabled: _canEdit,
+                  onChanged: (value) {
+                    _boolByKey[key] = value;
+                    _onDiscreteChanged();
+                  },
+                ),
+              ],
+            ),
+          );
+          continue;
+        }
 
-          if (type == CatalogSpecType.select) {
-            final options = catalogSpec == null
-                ? const <CatalogSpecOption>[]
-                : catalog!.optionsForSpec(catalogSpec.id);
-            final selected = (_optionsByKey[key] ?? spec.optionIds)
-                .where((id) => id.isNotEmpty)
-                .firstOrNull;
-            final optionIds = options.map((option) => option.id).toSet();
-            final dropdownValue =
-                selected != null && optionIds.contains(selected)
-                ? selected
-                : null;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: AppDropdownField<String>(
-                label: isRequired ? '$label ${l10n.requiredInParens}' : label,
-                hint: label,
-                sheetTitle: label,
-                value: dropdownValue,
-                enabled: _canEdit,
-                errorText: errorText,
-                options: options
-                    .map(
-                      (option) => DropdownOption(
-                        value: option.id,
-                        label: option.label(locale),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  _optionsByKey[key] = [value];
-                  _onDiscreteChanged();
-                },
-              ),
-            );
-          }
-
-          if (type == CatalogSpecType.multiSelect) {
-            final options = catalogSpec == null
-                ? const <CatalogSpecOption>[]
-                : catalog!.optionsForSpec(catalogSpec.id);
-            final selected = {...(_optionsByKey[key] ?? spec.optionIds)};
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: theme.textTheme.labelLarge),
-                  Wrap(
-                    spacing: 8,
-                    children: options.map((option) {
-                      final isSelected = selected.contains(option.id);
-                      return FilterChip(
-                        label: Text(option.label(locale)),
-                        selected: isSelected,
-                        onSelected: !_canEdit
-                            ? null
-                            : (next) {
-                                if (next) {
-                                  selected.add(option.id);
-                                } else {
-                                  selected.remove(option.id);
-                                }
-                                _optionsByKey[key] = selected.toList();
-                                _onDiscreteChanged();
-                              },
-                      );
-                    }).toList(),
-                  ),
-                  if (errorText != null)
-                    Text(
-                      errorText,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.error,
-                      ),
+        if (type == CatalogSpecType.select) {
+          final options = catalogSpec == null
+              ? const <CatalogSpecOption>[]
+              : catalog!.optionsForSpec(catalogSpec.id);
+          final selected = (_optionsByKey[key] ?? spec.optionIds)
+              .where((id) => id.isNotEmpty)
+              .firstOrNull;
+          final optionIds = options.map((option) => option.id).toSet();
+          final dropdownValue = selected != null && optionIds.contains(selected)
+              ? selected
+              : null;
+          fields.add(
+            AppDropdownField<String>(
+              title: label,
+              isRequired: isRequired,
+              hint: label,
+              sheetTitle: label,
+              value: dropdownValue,
+              enabled: _canEdit,
+              readOnly: !_canEdit,
+              errorText: errorText,
+              options: options
+                  .map(
+                    (option) => DropdownOption(
+                      value: option.id,
+                      label: option.label(locale),
                     ),
-                ],
-              ),
-            );
-          }
+                  )
+                  .toList(),
+              onChanged: (value) {
+                _optionsByKey[key] = [value];
+                _onDiscreteChanged();
+              },
+            ),
+          );
+          continue;
+        }
 
-          final controller = _controllersByKey[key];
-          if (controller == null) return const SizedBox.shrink();
+        if (type == CatalogSpecType.multiSelect) {
+          final options = catalogSpec == null
+              ? const <CatalogSpecOption>[]
+              : catalog!.optionsForSpec(catalogSpec.id);
+          final selected = {...(_optionsByKey[key] ?? spec.optionIds)};
+          fields.add(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppDimens.inputLabelGap,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    text: label,
+                    style: AppFonts.headingS(context),
+                    children: [
+                      if (isRequired && _canEdit)
+                        TextSpan(
+                          text: ' *',
+                          style: AppFonts.headingS(context)
+                              .copyWith(color: context.colors.text.error),
+                        ),
+                    ],
+                  ),
+                ),
+                Wrap(
+                  spacing: AppDimens.s08$sm,
+                  runSpacing: AppDimens.s08$sm,
+                  children: options.map((option) {
+                    final isSelected = selected.contains(option.id);
+                    return AppLabelButton(
+                      title: option.label(locale),
+                      onTap: !_canEdit
+                          ? null
+                          : () {
+                              if (isSelected) {
+                                selected.remove(option.id);
+                              } else {
+                                selected.add(option.id);
+                              }
+                              _optionsByKey[key] = selected.toList();
+                              _onDiscreteChanged();
+                            },
+                      variant: isSelected
+                          ? AppLabelButtonVariant.filled
+                          : AppLabelButtonVariant.outlined,
+                      tone: AppLabelButtonTone.primary,
+                    );
+                  }).toList(),
+                ),
+                if (errorText != null)
+                  Text(
+                    errorText,
+                    style: AppFonts.caption(context)
+                        .copyWith(color: context.colors.text.error),
+                  ),
+              ],
+            ),
+          );
+          continue;
+        }
 
-          final unitText = unit.trim();
-          final fieldLabel = unitText.isEmpty ? label : '$label, $unitText';
-          return AppTextField(
-            label: isRequired
-                ? '$fieldLabel ${l10n.requiredInParens}'
-                : fieldLabel,
+        final controller = _controllersByKey[key];
+        if (controller == null) continue;
+
+        final unitText = unit.trim();
+        final fieldLabel = unitText.isEmpty ? label : '$label, $unitText';
+        fields.add(
+          AppTextField(
+            title: fieldLabel,
+            isRequired: isRequired,
             controller: controller,
             hint: '',
             onChanged: (_) => _onFieldChanged(),
-            onFocusLost: _commitIfDirty,
+            onFocusLost: () => _onTextFocusLost(key, isRequired: isRequired),
             keyboardType: type == CatalogSpecType.number
                 ? const TextInputType.numberWithOptions(decimal: true)
                 : null,
             errorText: errorText,
             readOnly: !_canEdit,
-          );
-        }),
+          ),
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppDimens.s16$base,
+        children: fields,
       );
     }
 

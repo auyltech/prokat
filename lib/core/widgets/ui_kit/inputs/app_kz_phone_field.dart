@@ -6,19 +6,21 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class AppKzPhoneField extends StatefulWidget {
   final TextEditingController controller;
-  final String label;
+  final String? title;
   final String hint;
   final String? helperText;
   final bool readOnly;
+  final bool isRequired;
   final String? Function(String?)? validator;
 
   const AppKzPhoneField({
     super.key,
     required this.controller,
-    required this.label,
+    this.title,
     required this.hint,
     this.helperText,
     this.readOnly = false,
+    this.isRequired = false,
     this.validator,
   });
 
@@ -62,9 +64,10 @@ class _AppKzPhoneFieldState extends State<AppKzPhoneField> {
 
     return AppTextField(
       controller: widget.controller,
-      label: widget.label,
+      title: widget.title,
       hint: widget.hint,
       readOnly: widget.readOnly,
+      isRequired: widget.isRequired,
       keyboardType: TextInputType.phone,
       inputFormatters: [_formatter],
       validator:

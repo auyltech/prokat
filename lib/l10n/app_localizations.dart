@@ -3694,6 +3694,12 @@ abstract class AppLocalizations {
   /// **'Add rate'**
   String get addTariff;
 
+  /// No description provided for @tariffDraftPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft:'**
+  String get tariffDraftPrefix;
+
   /// No description provided for @serviceType.
   ///
   /// In en, this message translates to:
@@ -6417,6 +6423,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This field is required'**
   String get fieldRequired;
+
+  /// No description provided for @cannotBeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be empty'**
+  String get cannotBeEmpty;
 
   /// No description provided for @justNow.
   ///

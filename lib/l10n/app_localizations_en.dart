@@ -1908,6 +1908,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTariff => 'Add rate';
 
   @override
+  String get tariffDraftPrefix => 'Draft:';
+
+  @override
   String get serviceType => 'Service type';
 
   @override
@@ -3372,6 +3375,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fieldRequired => 'This field is required';
+
+  @override
+  String get cannotBeEmpty => 'Cannot be empty';
 
   @override
   String get justNow => 'Just now';

@@ -10,13 +10,19 @@ import 'package:prokat/core/widgets/ui_kit/inputs/app_input_field_style.dart';
 class AppTextField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
-  final String? label;
   final String? title;
   final String? hint;
   final String? errorText;
   final bool showError;
   final bool enabled;
   final bool readOnly;
+  final bool isRequired;
+
+  /// Disables typing (dropdown / city picker) without applying [readOnly] chrome.
+  final bool selectOnly;
+
+  /// Keeps focused chrome while an external picker/sheet is open.
+  final bool forceFocused;
   final bool obscure;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -36,13 +42,15 @@ class AppTextField extends StatefulWidget {
     super.key,
     required this.controller,
     this.focusNode,
-    this.label,
     this.title,
     this.hint,
     this.errorText,
     this.showError = true,
     this.enabled = true,
     this.readOnly = false,
+    this.isRequired = false,
+    this.selectOnly = false,
+    this.forceFocused = false,
     this.obscure = false,
     this.keyboardType,
     this.inputFormatters,
@@ -129,15 +137,28 @@ class _AppTextFieldState extends State<AppTextField> {
         widget.showError &&
         widget.errorText != null &&
         widget.errorText!.isNotEmpty;
+    final chromeReadOnly = widget.readOnly;
+    final textInputReadOnly = widget.readOnly || widget.selectOnly;
+    final showFocusChrome =
+        widget.enabled &&
+        !chromeReadOnly &&
+        (widget.selectOnly ? widget.forceFocused : _focused);
     final background = !widget.enabled
         ? fieldTheme.backgroundDisabled
-        : (_focused ? fieldTheme.backgroundFocused : fieldTheme.background);
-    final textColor = widget.enabled ? fieldTheme.text : fieldTheme.border;
+        : (showFocusChrome
+              ? fieldTheme.backgroundFocused
+              : fieldTheme.background);
+    final textColor = (!widget.enabled || chromeReadOnly)
+        ? fieldTheme.textDisabled
+        : fieldTheme.text;
     final textStyle = AppFonts.body16(context).copyWith(
       color: textColor,
       height: 1.3,
       leadingDistribution: TextLeadingDistribution.even,
     );
+    final title = widget.title?.trim();
+    final hasTitle = title != null && title.isNotEmpty;
+    final showRequiredMark = widget.isRequired && hasTitle && !chromeReadOnly;
 
     final obscureActive = widget.obscure && _obscured;
     final field = widget.validator != null
@@ -145,7 +166,7 @@ class _AppTextFieldState extends State<AppTextField> {
             controller: widget.controller,
             focusNode: _focusNode,
             enabled: widget.enabled,
-            readOnly: widget.readOnly,
+            readOnly: textInputReadOnly,
             obscureText: obscureActive,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
@@ -165,7 +186,7 @@ class _AppTextFieldState extends State<AppTextField> {
             controller: widget.controller,
             focusNode: _focusNode,
             enabled: widget.enabled,
-            readOnly: widget.readOnly,
+            readOnly: textInputReadOnly,
             obscureText: obscureActive,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
@@ -185,15 +206,26 @@ class _AppTextFieldState extends State<AppTextField> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppDimens.inputLabelGap,
       children: [
-        if (widget.title != null)
-          Text(widget.title!, style: AppFonts.headingS(context)),
-        if (widget.label != null)
+        if (hasTitle)
           Row(
             children: [
               Expanded(
-                child: Text(widget.label!, style: AppFonts.headingS(context)),
+                child: Text.rich(
+                  TextSpan(
+                    text: title,
+                    style: AppFonts.headingS(context),
+                    children: [
+                      if (showRequiredMark)
+                        TextSpan(
+                          text: ' *',
+                          style: AppFonts.headingS(context)
+                              .copyWith(color: colors.text.error),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-              if (widget.maxLength != null)
+              if (widget.maxLength != null && !widget.readOnly)
                 Text(
                   '${widget.controller.text.length}/${widget.maxLength}',
                   style: AppFonts.caption(context)
@@ -202,7 +234,7 @@ class _AppTextFieldState extends State<AppTextField> {
             ],
           ),
         AppInputFieldBox(
-          isFocused: widget.enabled && _focused,
+          isFocused: showFocusChrome,
           hasError: hasError,
           backgroundColor: background,
           height: widget.maxLines == 1 ? AppDimens.inputHeight : null,

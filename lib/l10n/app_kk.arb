@@ -699,6 +699,7 @@
   "priceFixed": "Бекітілген",
   "priceFromPrefix": "бастап",
   "addTariff": "Тариф қосу",
+  "tariffDraftPrefix": "Жоба:",
   "serviceType": "Қызмет түрі",
   "serviceOther": "Басқа",
   "customServiceName": "Қызмет атауы",
@@ -1200,6 +1201,7 @@
   "saveChanges": "Сақтау",
   "saving": "Сақталуда...",
   "fieldRequired": "Міндетті өріс",
+  "cannotBeEmpty": "Бос болмауы керек",
   "justNow": "Жаңа ғана",
   "minutesAgo": "{count} мин бұрын",
   "@minutesAgo": {

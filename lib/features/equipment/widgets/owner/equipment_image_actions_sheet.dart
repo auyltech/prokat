@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentImageActionsSheet extends StatelessWidget {
@@ -23,10 +24,8 @@ class EquipmentImageActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-
     final disabledColor = colorScheme.onSurface.withValues(alpha: 0.38);
 
     return SafeArea(
@@ -37,12 +36,16 @@ class EquipmentImageActionsSheet extends StatelessWidget {
           children: [
             if (limitMessage != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                padding: const EdgeInsets.fromLTRB(
+                  AppDimens.s16$base,
+                  AppDimens.s12$md,
+                  AppDimens.s16$base,
+                  AppDimens.s04$xs,
+                ),
                 child: Text(
                   limitMessage!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: AppFonts.body14(context)
+                      .copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               ),
             ListTile(
@@ -52,7 +55,8 @@ class EquipmentImageActionsSheet extends StatelessWidget {
               ),
               title: Text(
                 l10n.chooseFromGallery,
-                style: canAddMore ? null : TextStyle(color: disabledColor),
+                style: AppFonts.body16(context)
+                    .copyWith(color: canAddMore ? null : disabledColor),
               ),
               enabled: canAddMore && !isBusy,
               onTap: () {
@@ -67,7 +71,8 @@ class EquipmentImageActionsSheet extends StatelessWidget {
               ),
               title: Text(
                 l10n.takePhoto,
-                style: canAddMore ? null : TextStyle(color: disabledColor),
+                style: AppFonts.body16(context)
+                    .copyWith(color: canAddMore ? null : disabledColor),
               ),
               enabled: canAddMore && !isBusy,
               onTap: () {
@@ -83,7 +88,8 @@ class EquipmentImageActionsSheet extends StatelessWidget {
                 ),
                 title: Text(
                   l10n.setAsCover,
-                  style: isBusy ? TextStyle(color: disabledColor) : null,
+                  style: AppFonts.body16(context)
+                      .copyWith(color: isBusy ? disabledColor : null),
                 ),
                 enabled: !isBusy,
                 onTap: () {
@@ -99,9 +105,9 @@ class EquipmentImageActionsSheet extends StatelessWidget {
                 ),
                 title: Text(
                   l10n.deletePhoto,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: isBusy ? disabledColor : colorScheme.error,
-                  ),
+                  style: AppFonts.body16(
+                    context,
+                  ).copyWith(color: isBusy ? disabledColor : colorScheme.error),
                 ),
                 enabled: !isBusy,
                 onTap: () {

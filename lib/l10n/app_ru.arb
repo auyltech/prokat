@@ -698,6 +698,7 @@
   "priceFixed": "Фиксированная",
   "priceFromPrefix": "от",
   "addTariff": "Добавить тариф",
+  "tariffDraftPrefix": "Черновик:",
   "serviceType": "Вид услуги",
   "serviceOther": "Другое",
   "customServiceName": "Название услуги",
@@ -1199,6 +1200,7 @@
   "saveChanges": "Сохранить",
   "saving": "Сохранение...",
   "fieldRequired": "Обязательное поле",
+  "cannotBeEmpty": "Не может быть пустым",
   "justNow": "Только что",
   "minutesAgo": "{count} мин назад",
   "@minutesAgo": {

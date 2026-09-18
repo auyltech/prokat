@@ -191,8 +191,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     AppTextField(
                       prefix: const Icon(Icons.badge_outlined),
-                      label:
-                          '${l10n.equipmentNameLabel} ${l10n.requiredInParens}',
+                      title: l10n.equipmentNameLabel,
+                      isRequired: true,
                       controller: _name,
                       hint: l10n.equipmentNameHint,
                       maxLength: ownerEquipmentTextMaxLength,
@@ -210,7 +210,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     AppTextField(
                       prefix: const Icon(Icons.view_column_outlined),
-                      label: '${l10n.modelLabel} ${l10n.requiredInParens}',
+                      title: l10n.modelLabel,
+                      isRequired: true,
                       controller: _model,
                       hint: l10n.modelHint,
                       maxLength: ownerEquipmentTextMaxLength,
@@ -228,8 +229,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     AppTextField(
                       prefix: const Icon(Icons.mp_outlined),
-                      label:
-                          '${l10n.plateNumberLabel} ${l10n.requiredInParens}',
+                      title: l10n.plateNumberLabel,
+                      isRequired: true,
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
                       textInputAction: TextInputAction.done,

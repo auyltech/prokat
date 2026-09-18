@@ -1913,6 +1913,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addTariff => 'Добавить тариф';
 
   @override
+  String get tariffDraftPrefix => 'Черновик:';
+
+  @override
   String get serviceType => 'Вид услуги';
 
   @override
@@ -3398,6 +3401,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fieldRequired => 'Обязательное поле';
+
+  @override
+  String get cannotBeEmpty => 'Не может быть пустым';
 
   @override
   String get justNow => 'Только что';

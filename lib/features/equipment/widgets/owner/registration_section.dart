@@ -93,6 +93,8 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
         _plateController.text.trim().isNotEmpty;
   }
 
+  bool get _hasValidationErrors => _modelError != null || _plateError != null;
+
   void _bind() {
     _editor.bind(
       id: OwnerEquipmentBlockId.registration,
@@ -113,25 +115,35 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       isSaving: _isSaving,
       indicator: blockIndicatorFor(
         complete: _isComplete,
-        saveAttempted: _saveAttempted,
+        hasValidationErrors: _hasValidationErrors,
       ),
     );
   }
 
   bool _validate() {
     _saveAttempted = true;
-    _modelError = _modelController.text.trim().isEmpty ? 'required' : null;
-    _plateError = _plateController.text.trim().isEmpty ? 'required' : null;
+    _validateModelField();
+    _validatePlateField();
     setState(() {});
     return _modelError == null && _plateError == null;
+  }
+
+  void _validateModelField() {
+    _modelError = _modelController.text.trim().isEmpty ? 'required' : null;
+  }
+
+  void _validatePlateField() {
+    _plateError = _plateController.text.trim().isEmpty ? 'required' : null;
   }
 
   Future<bool> _handleSave({required bool notify}) async {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || _isSaving) return false;
-    if (notify && !_validate()) {
+    if (!_validate()) {
       _publish();
-      AppToast.show(message: l10n.pleaseFillMissingInfo);
+      if (notify) {
+        AppToast.show(message: l10n.pleaseFillMissingInfo);
+      }
       return false;
     }
 
@@ -156,7 +168,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
           OwnerEquipmentBlockId.registration,
           indicator: blockIndicatorFor(
             complete: _isComplete,
-            saveAttempted: _saveAttempted,
+            hasValidationErrors: _hasValidationErrors,
           ),
         );
         if (notify) {
@@ -191,7 +203,10 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
 
   void _onChanged() {
     if (!_canEdit) return;
-    if (_saveAttempted) _validate();
+    if (_modelError != null || _plateError != null || _saveAttempted) {
+      _validateModelField();
+      _validatePlateField();
+    }
     setState(() {});
     _publish();
   }
@@ -199,6 +214,22 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   void _commitIfDirty() {
     if (!_canEdit || !_isDirty || _isSaving) return;
     unawaited(_handleSave(notify: false));
+  }
+
+  void _onModelFocusLost() {
+    if (!_canEdit) return;
+    setState(_validateModelField);
+    _publish();
+    if (_modelError != null) return;
+    _commitIfDirty();
+  }
+
+  void _onPlateFocusLost() {
+    if (!_canEdit) return;
+    setState(_validatePlateField);
+    _publish();
+    if (_plateError != null) return;
+    _commitIfDirty();
   }
 
   @override
@@ -222,30 +253,32 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       },
       saveLabel: l10n.save,
       child: Column(
+        spacing: AppDimens.s16$base,
         children: [
           AppTextField(
-            label: '${l10n.modelLabel} ${l10n.requiredInParens}',
+            title: l10n.modelLabel,
+            isRequired: true,
             controller: _modelController,
             onChanged: (_) => _onChanged(),
-            onFocusLost: _commitIfDirty,
+            onFocusLost: _onModelFocusLost,
             hint: l10n.modelHint,
             readOnly: !_canEdit,
-            errorText: _modelError == null ? null : l10n.fieldRequired,
+            errorText: _modelError == null ? null : l10n.cannotBeEmpty,
             maxLength: ownerEquipmentTextMaxLength,
             inputFormatters: [
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
-          const SizedBox(height: 12),
           AppTextField(
-            label: '${l10n.plateNumberLabel} ${l10n.requiredInParens}',
+            title: l10n.plateNumberLabel,
+            isRequired: true,
             controller: _plateController,
             onChanged: (_) => _onChanged(),
-            onFocusLost: _commitIfDirty,
+            onFocusLost: _onPlateFocusLost,
             hint: l10n.plateNumberHint,
             textInputAction: TextInputAction.done,
             readOnly: !_canEdit,
-            errorText: _plateError == null ? null : l10n.fieldRequired,
+            errorText: _plateError == null ? null : l10n.cannotBeEmpty,
             inputFormatters: const [KzPlateInputFormatter()],
           ),
         ],

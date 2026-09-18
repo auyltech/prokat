@@ -376,7 +376,7 @@ void main() {
       _wrap(
         AppTextField(
           controller: controller,
-          label: 'Name',
+          title: 'Name',
           maxLength: 5,
           onFocusLost: () => focusLost++,
         ),
@@ -448,7 +448,7 @@ void main() {
   ) async {
     final controller = TextEditingController();
     await tester.pumpWidget(
-      _wrap(AppTextField(controller: controller, label: 'Name')),
+      _wrap(AppTextField(controller: controller, title: 'Name')),
     );
 
     await tester.tap(find.byType(TextField));

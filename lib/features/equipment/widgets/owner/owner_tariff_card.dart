@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -33,6 +33,11 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   late TextEditingController _customNameController;
   late FocusNode _priceFocus;
   late FocusNode _customNameFocus;
+
+  bool _serviceTypeError = false;
+  bool _customNameError = false;
+  bool _priceError = false;
+  bool _billingUnitError = false;
 
   @override
   void initState() {
@@ -80,72 +85,145 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
 
   void _emitAndCommit(TariffDraft next) {
     _emit(next);
-    widget.onCommit?.call();
+    if (next.isSavable) {
+      widget.onCommit?.call();
+    }
+  }
+
+  void _validateServiceType() {
+    _serviceTypeError = !widget.draft.isPreset && widget.draft.labelKey.isEmpty;
+  }
+
+  void _validateCustomName() {
+    _customNameError =
+        widget.draft.labelKey == vacuumTariffOther &&
+        _customNameController.text.trim().isEmpty;
+  }
+
+  void _validatePrice() {
+    final parsed = int.tryParse(_priceController.text.trim());
+    _priceError = parsed == null || parsed <= 0;
+  }
+
+  void _validateBillingUnit() {
+    _billingUnitError =
+        !priceRateOptions.contains(widget.draft.priceRate) &&
+        !priceRateOptions.any(
+          (item) => item.value == widget.draft.priceRate.value,
+        );
   }
 
   void _onPriceFocusChange() {
-    if (!_priceFocus.hasFocus) widget.onCommit?.call();
+    if (_priceFocus.hasFocus || !widget.canEdit) return;
+    setState(_validatePrice);
+    if (_priceError || !widget.draft.isSavable) return;
+    widget.onCommit?.call();
   }
 
   void _onCustomNameFocusChange() {
-    if (!_customNameFocus.hasFocus) widget.onCommit?.call();
+    if (_customNameFocus.hasFocus || !widget.canEdit) return;
+    setState(_validateCustomName);
+    if (_customNameError || !widget.draft.isSavable) return;
+    widget.onCommit?.call();
+  }
+
+  void _onServiceTypeFocusLost() {
+    if (!widget.canEdit) return;
+    setState(_validateServiceType);
+  }
+
+  void _onBillingUnitFocusLost() {
+    if (!widget.canEdit) return;
+    setState(_validateBillingUnit);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colors = context.colors;
     final l10n = AppLocalizations.of(context)!;
     final draft = widget.draft;
+    final isLocalDraft = draft.isLocalDraft;
+    final showDelete = widget.onDelete != null && widget.canEdit;
+    const cardRadius = BorderRadius.all(Radius.circular(AppDimens.r16$xl));
+    const headerExpandedRadius = BorderRadius.vertical(
+      top: Radius.circular(AppDimens.r16$xl),
+    );
+    final headerRadius = draft.expanded ? headerExpandedRadius : cardRadius;
+    final emptyError = l10n.cannotBeEmpty;
+    final titleStyle = AppFonts.headingS(context);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant),
+    final card = Material(
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: cardRadius,
+        side: isLocalDraft
+            ? BorderSide.none
+            : BorderSide(
+                color: colors.borders.main,
+                width: AppDimens.inputBorderWidth,
+              ),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           InkWell(
             onTap: widget.canEdit
                 ? () => _emit(draft.copyWith(expanded: !draft.expanded))
                 : null,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: headerRadius,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.s16$base,
+                AppDimens.s12$md,
+                AppDimens.s12$md,
+                AppDimens.s12$md,
+              ),
               child: Row(
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: AppDimens.s04$xs,
                       children: [
-                        Text(
-                          draft.title(l10n),
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.onSurface,
+                        Text.rich(
+                          TextSpan(
+                            style: titleStyle,
+                            children: [
+                              if (isLocalDraft)
+                                TextSpan(text: '${l10n.tariffDraftPrefix} '),
+                              TextSpan(text: draft.title(l10n)),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 4),
                         Text(
                           draft.collapsedSubtitle(l10n),
-                          style: theme.textTheme.bodySmall?.copyWith(
+                          style: AppFonts.body16(context).copyWith(
                             color: draft.hasPrice
-                                ? colorScheme.onSurface
-                                : colorScheme.onSurface.withValues(alpha: 0.55),
-                            fontWeight: draft.hasPrice
-                                ? FontWeight.w600
-                                : FontWeight.w400,
+                                ? colors.text.main
+                                : colors.text.tertiary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(
-                    draft.expanded
-                        ? Icons.expand_less_rounded
-                        : Icons.expand_more_rounded,
-                    color: colorScheme.onSurfaceVariant,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: AppDimens.s12$md,
+                    children: [
+                      if (showDelete)
+                        AppIconButton(
+                          icon: Icons.delete_outline,
+                          onTap: widget.onDelete,
+                          tooltip: l10n.deletePriceEntry,
+                          tone: AppIconButtonTone.destructive,
+                        ),
+                      Icon(
+                        draft.expanded
+                            ? Icons.expand_less_rounded
+                            : Icons.expand_more_rounded,
+                        color: colors.text.secondary,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -153,17 +231,27 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
           ),
           if (draft.expanded)
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+              padding: const EdgeInsets.fromLTRB(
+                AppDimens.s16$base,
+                0,
+                AppDimens.s16$base,
+                AppDimens.s16$base,
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppDimens.s16$base,
                 children: [
                   if (!draft.isPreset) ...[
                     AppDropdownField<String>(
-                      label: l10n.serviceType,
+                      title: l10n.serviceType,
+                      isRequired: true,
                       value: draft.labelKey.isEmpty ? null : draft.labelKey,
                       hint: l10n.serviceType,
                       enabled: widget.canEdit,
+                      readOnly: !widget.canEdit,
                       sheetTitle: l10n.serviceType,
+                      errorText: _serviceTypeError ? emptyError : null,
+                      onFocusLost: _onServiceTypeFocusLost,
                       options: vacuumServiceTypeKeys
                           .map(
                             (key) => DropdownOption(
@@ -173,36 +261,52 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                           )
                           .toList(),
                       onChanged: (value) {
+                        setState(() {
+                          _serviceTypeError = false;
+                          if (value != vacuumTariffOther) {
+                            _customNameError = false;
+                          }
+                        });
                         _emitAndCommit(draft.copyWith(labelKey: value));
                       },
                     ),
-                    if (draft.labelKey == vacuumTariffOther) ...[
-                      const SizedBox(height: 12),
+                    if (draft.labelKey == vacuumTariffOther)
                       AppTextField(
-                        label: l10n.customServiceName,
+                        title: l10n.customServiceName,
+                        isRequired: true,
                         controller: _customNameController,
                         focusNode: _customNameFocus,
                         enabled: widget.canEdit,
+                        readOnly: !widget.canEdit,
                         maxLength: 40,
-                        onChanged: (value) =>
-                            _emit(draft.copyWith(customName: value)),
+                        errorText: _customNameError ? emptyError : null,
+                        onChanged: (value) {
+                          if (_customNameError && value.trim().isNotEmpty) {
+                            setState(() => _customNameError = false);
+                          }
+                          _emit(draft.copyWith(customName: value));
+                        },
                         hint: l10n.customServiceNameHint,
                       ),
-                    ],
-                    const SizedBox(height: 14),
                   ],
                   AppTextField(
-                    label: l10n.priceFieldLabel,
+                    title: l10n.priceFieldLabel,
+                    isRequired: true,
                     controller: _priceController,
                     focusNode: _priceFocus,
                     enabled: widget.canEdit,
+                    readOnly: !widget.canEdit,
                     keyboardType: TextInputType.number,
+                    errorText: _priceError ? emptyError : null,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       const MaxIntInputFormatter(ownerEquipmentPriceMax),
                     ],
                     onChanged: (value) {
                       final parsed = int.tryParse(value);
+                      if (_priceError && parsed != null && parsed > 0) {
+                        setState(() => _priceError = false);
+                      }
                       _emit(
                         draft.copyWith(
                           price: parsed,
@@ -211,20 +315,15 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                       );
                     },
                     hint: '0',
-                    suffix: Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Text(
-                        '₸',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                    prefix: Text(
+                      '₸',
+                      style: AppFonts.body16SemiBold(context)
+                          .copyWith(color: colors.text.secondary),
                     ),
                   ),
-                  const SizedBox(height: 14),
                   AppDropdownField<PriceRateOption>(
-                    label: l10n.billingUnit,
+                    title: l10n.billingUnit,
+                    isRequired: true,
                     value: priceRateOptions.contains(draft.priceRate)
                         ? draft.priceRate
                         : priceRateOptions.firstWhere(
@@ -233,7 +332,10 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                           ),
                     hint: l10n.billingUnit,
                     enabled: widget.canEdit,
+                    readOnly: !widget.canEdit,
                     sheetTitle: l10n.billingUnit,
+                    errorText: _billingUnitError ? emptyError : null,
+                    onFocusLost: _onBillingUnitFocusLost,
                     options: priceRateOptions
                         .map(
                           (rate) => DropdownOption(
@@ -243,101 +345,135 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                         )
                         .toList(),
                     onChanged: (value) {
+                      setState(() => _billingUnitError = false);
                       _emitAndCommit(draft.copyWith(priceRate: value));
                     },
                   ),
-                  const SizedBox(height: 14),
-                  _FieldLabel(l10n.howToShowPrice),
-                  const SizedBox(height: 8),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: AppDimens.inputLabelGap,
                     children: [
-                      _ModeChip(
-                        label: l10n.priceFrom,
-                        selected: draft.isStartingFrom,
-                        enabled: widget.canEdit,
-                        onTap: () => _emitAndCommit(
-                          draft.copyWith(isStartingFrom: true),
+                      Text.rich(
+                        TextSpan(
+                          text: l10n.howToShowPrice,
+                          style: AppFonts.headingS(context),
+                          children: [
+                            if (widget.canEdit)
+                              TextSpan(
+                                text: ' *',
+                                style: AppFonts.headingS(context)
+                                    .copyWith(color: colors.text.error),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      _ModeChip(
-                        label: l10n.priceFixed,
-                        selected: !draft.isStartingFrom,
-                        enabled: widget.canEdit,
-                        onTap: () => _emitAndCommit(
-                          draft.copyWith(isStartingFrom: false),
-                        ),
+                      Wrap(
+                        spacing: AppDimens.s08$sm,
+                        runSpacing: AppDimens.s08$sm,
+                        children: [
+                          AppLabelButton(
+                            title: l10n.priceFrom,
+                            onTap: widget.canEdit
+                                ? () => _emitAndCommit(
+                                    draft.copyWith(isStartingFrom: true),
+                                  )
+                                : null,
+                            variant: draft.isStartingFrom
+                                ? AppLabelButtonVariant.filled
+                                : AppLabelButtonVariant.outlined,
+                            tone: AppLabelButtonTone.primary,
+                          ),
+                          AppLabelButton(
+                            title: l10n.priceFixed,
+                            onTap: widget.canEdit
+                                ? () => _emitAndCommit(
+                                    draft.copyWith(isStartingFrom: false),
+                                  )
+                                : null,
+                            variant: !draft.isStartingFrom
+                                ? AppLabelButtonVariant.filled
+                                : AppLabelButtonVariant.outlined,
+                            tone: AppLabelButtonTone.primary,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  if (widget.onDelete != null && widget.canEdit) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: AppIconButton(
-                        onTap: widget.onDelete,
-                        tooltip: l10n.deletePriceEntry,
-                        icon: Icons.delete_outline,
-                        tone: AppIconButtonTone.destructive,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
         ],
       ),
     );
-  }
-}
 
-class _FieldLabel extends StatelessWidget {
-  final String text;
+    if (!isLocalDraft) return card;
 
-  const _FieldLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Text(
-      text,
-      style: theme.textTheme.labelMedium?.copyWith(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.62),
-        fontWeight: FontWeight.w600,
+    return CustomPaint(
+      painter: _DashedRRectPainter(
+        color: colors.borders.main,
+        radius: const Radius.circular(AppDimens.r16$xl),
+        strokeWidth: AppDimens.inputBorderWidth,
       ),
+      child: card,
     );
   }
 }
 
-class _ModeChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final bool enabled;
-  final VoidCallback onTap;
+class _DashedRRectPainter extends CustomPainter {
+  final Color color;
+  final Radius radius;
+  final double strokeWidth;
 
-  const _ModeChip({
-    required this.label,
-    required this.selected,
-    required this.enabled,
-    required this.onTap,
+  const _DashedRRectPainter({
+    required this.color,
+    required this.radius,
+    required this.strokeWidth,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return FilterChip(
-      selected: selected,
-      label: Text(label),
-      onSelected: enabled ? (_) => onTap() : null,
-      selectedColor: colorScheme.primary.withValues(alpha: 0.16),
-      side: BorderSide(
-        color: selected ? colorScheme.primary : colorScheme.outlineVariant,
-      ),
-      labelStyle: theme.textTheme.labelMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-        color: selected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            strokeWidth / 2,
+            strokeWidth / 2,
+            size.width - strokeWidth,
+            size.height - strokeWidth,
+          ),
+          radius,
+        ),
+      );
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+    canvas.drawPath(_dashPath(path), paint);
+  }
+
+  Path _dashPath(Path source) {
+    const dash = 6.0;
+    const gap = 4.0;
+    final dashed = Path();
+    for (final metric in source.computeMetrics()) {
+      var distance = 0.0;
+      var draw = true;
+      while (distance < metric.length) {
+        final next = (distance + (draw ? dash : gap)).clamp(0.0, metric.length);
+        if (draw) {
+          dashed.addPath(metric.extractPath(distance, next), Offset.zero);
+        }
+        distance = next;
+        draw = !draw;
+      }
+    }
+    return dashed;
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) {
+    return oldDelegate.color != color ||
+        oldDelegate.radius != radius ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }

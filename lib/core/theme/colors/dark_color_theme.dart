@@ -198,7 +198,7 @@ class DarkColorTheme extends AppColorsTheme {
       ],
     ),
     text: AppColorsDark.textPrimary,
-    textDisabled: AppColorsDark.textDisabled,
+    textDisabled: AppColorsDark.textTertiary,
     hint: AppColorsDark.textTertiary,
     label: AppColorsDark.textSecondary,
     caption: AppColorsDark.textSecondary,

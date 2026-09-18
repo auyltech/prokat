@@ -30,11 +30,14 @@ class _DeleteEquipmentSectionState
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.7);
 
     return Container(
-      margin: const EdgeInsets.only(top: 12, bottom: 40),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.only(
+        top: AppDimens.s12$md,
+        bottom: AppDimens.sheetBottomPadding,
+      ),
+      padding: const EdgeInsets.all(AppDimens.s24$xl),
       decoration: BoxDecoration(
         color: colorScheme.errorContainer.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimens.r20$xxl),
         border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -43,32 +46,34 @@ class _DeleteEquipmentSectionState
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_rounded, color: danger, size: 30),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: danger,
+                size: AppDimens.s32$xxl,
+              ),
+              const SizedBox(width: AppDimens.s08$sm),
               Text(
                 l10n.dangerZone,
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: AppFonts.label(context).copyWith(
                   color: danger.withValues(alpha: 0.85),
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 1.8,
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppDimens.s12$md),
 
           /// DESCRIPTION
           Text(
             l10n.deleteEquipmentWarning,
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: ghostGray,
-              height: 1.6,
-            ),
+            style: AppFonts.body14(context)
+                .copyWith(color: ghostGray, height: 1.6),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: AppDimens.s24$xl),
 
           /// DELETE BUTTON
           AppOutlinedButton.destructive(
