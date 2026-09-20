@@ -12,6 +12,7 @@ class FakeAppSocketService extends AppSocketService {
   int _generation = 0;
   Completer<void>? connectGate;
   dynamic ackResult = true;
+  Completer<void>? ackGate;
 
   int connectCalls = 0;
   int disconnectCalls = 0;
@@ -87,6 +88,7 @@ class FakeAppSocketService extends AppSocketService {
       throw Exception('Socket is not connected');
     }
     emitted.add((event, data));
+    await ackGate?.future;
     return ackResult;
   }
 

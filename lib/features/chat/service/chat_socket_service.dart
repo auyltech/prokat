@@ -177,7 +177,15 @@ class ChatSocketService {
         await _leaveChat(joinedChatId!);
       }
 
-      appSocket.emit(joinChatEvent, {'chatId': chatId});
+      final generation = appSocket.connectionGeneration;
+      final response = await appSocket.emitWithAck(joinChatEvent, {
+        'chatId': chatId,
+      });
+      _requireSuccessfulAck(response, 'Failed to join chat');
+      if (!appSocket.isConnected ||
+          appSocket.connectionGeneration != generation) {
+        throw StateError('Connection changed while joining chat');
+      }
 
       _joinedChatId = chatId;
       _joinedConnectionGeneration = appSocket.connectionGeneration;

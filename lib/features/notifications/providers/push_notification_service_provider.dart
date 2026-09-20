@@ -27,10 +27,6 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
         source: NotificationSource.fcm,
       );
     },
-    shouldSuppressDisplay: (id) {
-      final recentIds = ref.read(notificationProvider).recentIds;
-      return recentIds.containsKey(id);
-    },
     currentLocale: () => ref.read(localeProvider).languageCode,
   );
 });

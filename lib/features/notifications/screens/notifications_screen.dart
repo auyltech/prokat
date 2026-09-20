@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/features/notifications/models/notification_group.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
@@ -36,6 +37,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(notificationProvider);
+    final groups = groupNotifications(state.items);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -73,13 +75,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               }
 
               return ListView.separated(
-                itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                itemCount: groups.length + (state.hasMore ? 1 : 0),
                 separatorBuilder: (_, _) => Divider(
                   height: 1,
                   color: theme.dividerColor.withValues(alpha: 0.5),
                 ),
                 itemBuilder: (context, index) {
-                  if (index >= state.items.length) {
+                  if (index >= groups.length) {
                     if (!state.isLoadingMore) {
                       unawaited(
                         Future.microtask(
@@ -99,25 +101,33 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     );
                   }
 
-                  final item = state.items[index];
+                  final group = groups[index];
+                  final item = group.latest;
 
                   return NotificationTile(
                     notification: item,
+                    unreadCount: group.isChat ? group.unreadCount : null,
                     onTap: () async {
                       // Fire-and-forget: navigation should not wait for the read.
-                      unawaited(
-                        ref
-                            .read(notificationProvider.notifier)
-                            .markAsRead(item.id),
-                      );
+                      for (final notification in group.items.where(
+                        (item) => item.isUnread,
+                      )) {
+                        unawaited(
+                          ref
+                              .read(notificationProvider.notifier)
+                              .markAsRead(notification.id),
+                        );
+                      }
 
                       await ref
                           .read(notificationNavigationServiceProvider)
                           .navigate(item);
                     },
-                    onDelete: () => ref
-                        .read(notificationProvider.notifier)
-                        .deleteNotification(item.id),
+                    onDelete: group.isChat
+                        ? null
+                        : () => ref
+                              .read(notificationProvider.notifier)
+                              .deleteNotification(item.id),
                   );
                 },
               );

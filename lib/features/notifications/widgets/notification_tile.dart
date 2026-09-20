@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class NotificationTile extends StatelessWidget {
   final AppNotification notification;
+  final int? unreadCount;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
@@ -11,6 +13,7 @@ class NotificationTile extends StatelessWidget {
     super.key,
     required this.notification,
     this.onTap,
+    this.unreadCount,
     this.onDelete,
   });
 
@@ -22,7 +25,9 @@ class NotificationTile extends StatelessWidget {
     final languageCode = Localizations.localeOf(context).languageCode;
     final title = notification.localizedTitle(languageCode);
     final body = notification.localizedBody(languageCode);
-    final isUnread = notification.isUnread;
+    final isUnread = unreadCount == null
+        ? notification.isUnread
+        : unreadCount! > 0;
 
     return ListTile(
       onTap: onTap,
@@ -34,8 +39,15 @@ class NotificationTile extends StatelessWidget {
         foregroundColor: isUnread
             ? theme.colorScheme.primary
             : theme.colorScheme.onSurface,
-        child: Icon(
-          isUnread ? Icons.notifications_active : Icons.notifications,
+        child: Badge(
+          isLabelVisible: (unreadCount ?? 0) > 0,
+          child: Icon(
+            unreadCount != null
+                ? Icons.chat_bubble_outline
+                : isUnread
+                ? Icons.notifications_active
+                : Icons.notifications,
+          ),
         ),
       ),
       title: Text(
@@ -44,7 +56,25 @@ class NotificationTile extends StatelessWidget {
           fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
         ),
       ),
-      subtitle: Text(body, maxLines: 5, overflow: TextOverflow.ellipsis),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 4),
+          Text(body, maxLines: 5, overflow: TextOverflow.ellipsis),
+          if (notification.createdAt != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              DateFormat(
+                'd MMM, HH:mm',
+                languageCode,
+              ).format(notification.createdAt!.toLocal()),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
+      ),
       trailing: onDelete == null
           ? null
           : IconButton(

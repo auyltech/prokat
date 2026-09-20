@@ -33,6 +33,7 @@ class PushNotificationService {
   StreamSubscription<String>? _onTokenRefreshSub;
 
   bool _initialized = false;
+  final Map<String, DateTime> _displayedIds = {};
 
   PushNotificationService({
     required this.messaging,
@@ -193,8 +194,14 @@ class PushNotificationService {
       if (notification == null) return;
 
       final id = notification.id.trim();
+      final now = DateTime.now();
+      _displayedIds.removeWhere(
+        (_, at) => now.difference(at) > const Duration(minutes: 10),
+      );
       final suppress =
-          id.isNotEmpty && (shouldSuppressDisplay?.call(id) ?? false);
+          id.isNotEmpty &&
+          (_displayedIds.containsKey(id) ||
+              (shouldSuppressDisplay?.call(id) ?? false));
 
       onIncoming(notification);
 
@@ -203,7 +210,13 @@ class PushNotificationService {
         if (suppress) {
           return;
         }
-        await _showLocalNotification(notification);
+        _displayedIds[id] = now;
+        try {
+          await _showLocalNotification(notification);
+        } catch (_) {
+          _displayedIds.remove(id);
+          rethrow;
+        }
       } catch (_) {}
     });
   }
@@ -413,6 +426,7 @@ class PushNotificationService {
     _onMessageSub = null;
     _onMessageOpenedSub = null;
     _onTokenRefreshSub = null;
+    _displayedIds.clear();
     _initialized = false;
   }
 }

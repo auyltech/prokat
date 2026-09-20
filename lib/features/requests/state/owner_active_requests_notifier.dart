@@ -11,6 +11,7 @@ class OwnerActiveRequestsNotifier
     extends AsyncNotifier<QueryState<RequestModel>> {
   RequestService get api => ref.read(requestServiceProvider);
   Future<void>? _refreshing;
+  int _requestEventRevision = 0;
   AuthenticatedSessionScopeKey? _refreshingScope;
   AuthenticatedSessionScopeKey? _stateScope;
 
@@ -74,6 +75,25 @@ class OwnerActiveRequestsNotifier
       state = AsyncData(next);
     }
     return result.status;
+  }
+
+  Future<void> refreshForNewRequest() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+    final revision = ++_requestEventRevision;
+    try {
+      final active = _refreshing;
+      if (active != null && _refreshingScope == scope) {
+        await active;
+      } else if (state.isLoading) {
+        await future;
+      }
+    } catch (_) {}
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope) ||
+        revision != _requestEventRevision) {
+      return;
+    }
+    await refresh();
   }
 
   Future<void> refresh() {
