@@ -8,6 +8,8 @@ import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/state/chat_status_detail.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
+import 'package:prokat/features/offers/models/offer_model.dart';
+import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/l10n/app_localizations_en.dart';
@@ -43,12 +45,49 @@ void main() {
         capacity: '10',
         offeredPrice: 1000,
       ),
+      offers: [
+        OfferModel(
+          id: 'offer-loser',
+          status: OfferStatus.closed,
+          requestId: 'request-1',
+          chatId: 'chat-loser',
+          equipmentId: 'eq-1',
+          price: 1000,
+        ),
+      ],
     );
 
     final config = getChatConfig(chat: chat, l10n: l10n);
 
     expect(config.status, ChatStatusDetail.offernotselected);
     expect(config.statusLabel, l10n.offerNotSelected);
+  });
+
+  test('accepted request with this chat\'s accepted offer is the winner', () {
+    final chat = ChatModel(
+      id: 'chat-winner',
+      request: RequestModel(
+        id: 'request-1',
+        status: RequestStatus.accepted,
+        capacity: '10',
+        offeredPrice: 1000,
+      ),
+      offers: [
+        OfferModel(
+          id: 'offer-winner',
+          status: OfferStatus.accepted,
+          requestId: 'request-1',
+          chatId: 'chat-winner',
+          equipmentId: 'eq-1',
+          price: 1000,
+        ),
+      ],
+    );
+
+    final config = getChatConfig(chat: chat, l10n: l10n);
+
+    expect(config.status, ChatStatusDetail.bookingcreated);
+    expect(config.statusLabel, l10n.orderCreated);
   });
 
   test('accepted request with a booking still uses the booking status', () {
