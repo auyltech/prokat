@@ -15,7 +15,7 @@ import 'package:prokat/features/notifications/services/notification_navigation_s
 import 'package:prokat/features/notifications/utils/chat_push_tag.dart';
 
 class PushNotificationService {
-  static const String _androidChannelId = 'prokat_notifications';
+  static const String _androidChannelId = 'prokat_alerts';
   static const String _androidNotificationIcon = 'ic_notification';
   static const Color _androidNotificationColor = Color(0xFFFFCA0A);
 
@@ -33,6 +33,7 @@ class PushNotificationService {
   StreamSubscription<String>? _onTokenRefreshSub;
 
   bool _initialized = false;
+  bool _localNotificationsReady = false;
   final Map<String, DateTime> _displayedIds = {};
 
   PushNotificationService({
@@ -193,31 +194,13 @@ class PushNotificationService {
       final notification = _toAppNotification(message);
       if (notification == null) return;
 
-      final id = notification.id.trim();
-      final now = DateTime.now();
-      _displayedIds.removeWhere(
-        (_, at) => now.difference(at) > const Duration(minutes: 10),
-      );
-      final suppress =
-          id.isNotEmpty &&
-          (_displayedIds.containsKey(id) ||
-              (shouldSuppressDisplay?.call(id) ?? false));
-
       onIncoming(notification);
 
-      // Local notification (Phase 1): show something visible.
-      try {
-        if (suppress) {
-          return;
-        }
-        _displayedIds[id] = now;
-        try {
-          await _showLocalNotification(notification);
-        } catch (_) {
-          _displayedIds.remove(id);
-          rethrow;
-        }
-      } catch (_) {}
+      if (shouldSuppressDisplay?.call(notification.id.trim()) ?? false) {
+        return;
+      }
+
+      await presentIncoming(notification);
     });
   }
 
@@ -278,7 +261,33 @@ class PushNotificationService {
     }
   }
 
+  /// Heads-up banner while the app is open. FCM does not draw a system tray
+  /// notification in the foreground, so socket events must use the same path.
+  Future<void> presentIncoming(AppNotification notification) async {
+    if (kIsWeb) return;
+    if (defaultTargetPlatform != TargetPlatform.android &&
+        defaultTargetPlatform != TargetPlatform.iOS) {
+      return;
+    }
+
+    final id = notification.id.trim();
+    final now = DateTime.now();
+    _displayedIds.removeWhere(
+      (_, at) => now.difference(at) > const Duration(minutes: 10),
+    );
+    if (id.isNotEmpty && _displayedIds.containsKey(id)) return;
+    if (id.isNotEmpty) _displayedIds[id] = now;
+
+    try {
+      await _initLocalNotifications();
+      await _showLocalNotification(notification);
+    } catch (_) {
+      if (id.isNotEmpty) _displayedIds.remove(id);
+    }
+  }
+
   Future<void> _initLocalNotifications() async {
+    if (_localNotificationsReady) return;
     const android = AndroidInitializationSettings(_androidNotificationIcon);
     const ios = DarwinInitializationSettings();
     const settings = InitializationSettings(android: android, iOS: ios);
@@ -302,7 +311,7 @@ class PushNotificationService {
         _androidChannelId,
         'Notifications',
         description: 'Prokat notifications',
-        importance: Importance.high,
+        importance: Importance.max,
       );
 
       final androidPlugin = localNotifications
@@ -311,6 +320,7 @@ class PushNotificationService {
           >();
       await androidPlugin?.createNotificationChannel(channel);
     }
+    _localNotificationsReady = true;
   }
 
   Future<void> _showLocalNotification(AppNotification notification) async {
@@ -324,8 +334,10 @@ class PushNotificationService {
         channelDescription: 'Prokat notifications',
         icon: _androidNotificationIcon,
         color: _androidNotificationColor,
-        importance: Importance.high,
+        importance: Importance.max,
         priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
         tag: tag,
       ),
       iOS: tag == null
@@ -428,5 +440,6 @@ class PushNotificationService {
     _onTokenRefreshSub = null;
     _displayedIds.clear();
     _initialized = false;
+    _localNotificationsReady = false;
   }
 }
