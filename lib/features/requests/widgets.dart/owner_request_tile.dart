@@ -274,7 +274,7 @@ class OwnerRequestTile extends ConsumerWidget {
                         if (context.mounted) {
                           AppSnackBar.show(
                             message: result
-                                ? l10n.viewedBadge
+                                ? l10n.requestHidden
                                 : l10n.saveFailed,
                             isSuccess: result,
                             isError: !result,

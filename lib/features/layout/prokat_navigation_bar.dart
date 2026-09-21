@@ -6,7 +6,13 @@ import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/chat/providers/chat_unread_providers.dart';
+import 'package:prokat/features/layout/nav_badge.dart';
+import 'package:prokat/features/requests/providers/owner_pending_requests_count_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+
+/// Which live counter, if any, sits on a tab icon.
+enum NavBadgeKind { none, requests, chat }
 
 // Simple helper class to keep the code dry
 class _NavItem {
@@ -14,12 +20,14 @@ class _NavItem {
   final String base;
   final String path;
   final String Function(AppLocalizations) label;
+  final NavBadgeKind badge;
 
   _NavItem({
     required this.icon,
     required this.label,
     required this.path,
     required this.base,
+    this.badge = NavBadgeKind.none,
   });
 }
 
@@ -41,6 +49,7 @@ final ownerNavItems = [
     label: (l) => l.navRequests,
     path: AppRoutes.ownerRequests,
     base: AppRoutes.ownerRequests,
+    badge: NavBadgeKind.requests,
   ),
   _NavItem(
     icon: LucideIcons.scrollText400,
@@ -53,6 +62,7 @@ final ownerNavItems = [
     label: (l) => l.navChats,
     path: AppRoutes.ownerChatList,
     base: AppRoutes.ownerChatList,
+    badge: NavBadgeKind.chat,
   ),
 ];
 
@@ -86,6 +96,7 @@ final clientNavItems = [
     label: (l) => l.navChats,
     path: AppRoutes.clientChatList,
     base: AppRoutes.clientChatList,
+    badge: NavBadgeKind.chat,
   ),
 ];
 
@@ -123,6 +134,15 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
     if (navItems.isEmpty) {
       return const SizedBox.shrink();
     }
+
+    final isOwner = startupState == AppStartupRouteState.owner;
+
+    final requestsBadgeCount = isOwner
+        ? ref.watch(ownerPendingRequestsCountProvider)
+        : 0;
+    final chatBadgeCount = isOwner
+        ? ref.watch(ownerChatUnreadCountProvider)
+        : ref.watch(clientChatUnreadCountProvider);
 
     final l10n = AppLocalizations.of(context)!;
     final String location = GoRouterState.of(context).uri.path;
@@ -173,6 +193,12 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
               final isSelected = index == (currentIndex < 0 ? 0 : currentIndex);
               final color = isSelected ? primary : const Color(0xFF707E94);
 
+              final badgeCount = switch (item.badge) {
+                NavBadgeKind.requests => requestsBadgeCount,
+                NavBadgeKind.chat => chatBadgeCount,
+                NavBadgeKind.none => 0,
+              };
+
               return Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -180,7 +206,12 @@ class _ProkatNavigationBarState extends ConsumerState<ProkatNavigationBar> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(item.icon, size: 26, color: color),
+                      NavIconBadge(
+                        count: badgeCount,
+                        color: theme.colorScheme.error,
+                        pulse: item.badge == NavBadgeKind.chat,
+                        child: Icon(item.icon, size: 26, color: color),
+                      ),
                       const SizedBox(height: 3),
                       Text(
                         item.label(l10n),

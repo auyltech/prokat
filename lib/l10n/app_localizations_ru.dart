@@ -2142,6 +2142,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noHistoryFound => 'История не найдена';
 
   @override
+  String get requestHidden => 'Заявка скрыта';
+
+  @override
   String get viewedBadge => 'ПРОСМОТРЕНО';
 
   @override
