@@ -78,8 +78,6 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
       final notifier = ref.read(equipmentMutationProvider.notifier);
 
       if (!mounted) return;
-      Navigator.pop(context);
-
       if (widget.priceEntry == null) {
         final result = await notifier.createPriceEntry(
           price: price,
@@ -87,6 +85,8 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           equipmentId: widget.equipmentId,
         );
 
+        if (!mounted) return;
+        if (result.success) Navigator.pop(context);
         AppSnackBar.show(
           message: result.success
               ? l10n.priceEntryAdded
@@ -107,7 +107,7 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
         );
 
         if (!mounted) return;
-        Navigator.pop(context);
+        if (result.success) Navigator.pop(context);
 
         AppSnackBar.show(
           message: result.success

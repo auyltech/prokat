@@ -41,7 +41,7 @@ void main() {
     expect(drafts.single.price, 15000);
   });
 
-  test('adoptServerTariffs does not keep savable drafts without id', () {
+  test('adoptServerTariffs deduplicates an acknowledged create', () {
     final server = tariffsForEditor(
       _equipment(
         prices: [
@@ -95,4 +95,21 @@ void main() {
     expect(adopted.single.id, 'p1');
     expect(adopted.single.expanded, isTrue);
   });
+
+  test(
+    'a response without a new tariff does not discard its completed draft',
+    () {
+      final draft = TariffDraft(
+        labelKey: vacuumTariffSeptic,
+        price: 15000,
+        priceRate: priceRateOptions.first,
+        expanded: true,
+      );
+      final adopted = adoptServerTariffs(server: [], local: [draft]);
+      expect(adopted, hasLength(1));
+      expect(adopted.single.persistedLabel(), vacuumTariffSeptic);
+      expect(adopted.single.price, 15000);
+      expect(adopted.single.expanded, isTrue);
+    },
+  );
 }

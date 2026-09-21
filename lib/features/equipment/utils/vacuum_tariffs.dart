@@ -208,8 +208,8 @@ List<TariffDraft> tariffsForEditor(
   return equipment.prices.map(TariffDraft.fromEntry).toList();
 }
 
-/// Keep only unfinished local drafts. Savable drafts without an id must not
-/// be appended after a create — that duplicated tariffs on every autosave.
+/// Keep local drafts not represented in the response yet. Match newly created
+/// tariffs by content so an acknowledged create is not appended twice.
 List<TariffDraft> adoptServerTariffs({
   required List<TariffDraft> server,
   required List<TariffDraft> local,
@@ -221,8 +221,11 @@ List<TariffDraft> adoptServerTariffs({
   final expandedByContent = <String, bool>{
     for (final item in local) item.contentKey(): item.expanded,
   };
-  final incomplete = local
-      .where((item) => item.id == null && !item.isSavable)
+  final serverContent = server.map((item) => item.contentKey()).toSet();
+  final pending = local
+      .where(
+        (item) => item.id == null && !serverContent.contains(item.contentKey()),
+      )
       .toList();
   return [
     ...server.map((item) {
@@ -232,7 +235,7 @@ List<TariffDraft> adoptServerTariffs({
           item.expanded;
       return item.copyWith(expanded: expanded);
     }),
-    ...incomplete,
+    ...pending,
   ];
 }
 
