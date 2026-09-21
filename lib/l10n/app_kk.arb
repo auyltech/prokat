@@ -868,6 +868,17 @@
   "ownerProfileSuspendedHint": "Техниканы орналастыру уақытша қолжетімсіз. Қолдау қызметіне хабарласыңыз.",
   "ownerProfilePendingReview": "Қарауды күтіңіз",
   "ownerProfilePendingReviewHint": "Жіберілген деректер қайта модерациядан өтеді.",
+  "ownerProfileChangesPending": "Өзгерістер қаралуда",
+  "ownerProfileChangesPendingHint": "Тексеру кезінде профильді өзгертуге болмайды.",
+  "ownerProfileChangesRejected": "Өзгерістер қабылданбады",
+  "ownerProfileChangesRejectedUntil": "{date} дейін түзетіңіз",
+  "@ownerProfileChangesRejectedUntil": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "ownerProfileCorrectionOverdue": "Түзету мерзімі өтті. Қолжетімділік тоқтатылуы мүмкін.",
+  "ownerProfileCorrectionOverdueHint": "Деректерді жаңартып, қайта тексеруге жіберіңіз.",
   "profileUpdateNeedsModeration": "Деректер модерацияға жіберіледі",
   "submitForVerification": "Тексеруге жіберу",
   "underReview": "Тексерілуде",

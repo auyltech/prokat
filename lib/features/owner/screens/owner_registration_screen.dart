@@ -19,7 +19,7 @@ class _OwnerRegistrationScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(ref.read(ownerProfileProvider.notifier).refreshIfStale());
+      unawaited(ref.read(ownerProfileProvider.notifier).refresh());
     });
   }
 

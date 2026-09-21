@@ -2387,6 +2387,30 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправленные данные снова проходят модерацию.';
 
   @override
+  String get ownerProfileChangesPending =>
+      'Изменения находятся на рассмотрении';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'Пока идёт проверка, редактировать профиль нельзя.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Изменения отклонены';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return 'исправить до $date';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Срок исправления истёк. Доступ может быть приостановлен.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Обновите данные и снова отправьте на проверку.';
+
+  @override
   String get profileUpdateNeedsModeration =>
       'Данные будут переданы на модерацию';
 

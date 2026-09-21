@@ -2368,6 +2368,29 @@ class AppLocalizationsKk extends AppLocalizations {
       'Жіберілген деректер қайта модерациядан өтеді.';
 
   @override
+  String get ownerProfileChangesPending => 'Өзгерістер қаралуда';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'Тексеру кезінде профильді өзгертуге болмайды.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Өзгерістер қабылданбады';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return '$date дейін түзетіңіз';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Түзету мерзімі өтті. Қолжетімділік тоқтатылуы мүмкін.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Деректерді жаңартып, қайта тексеруге жіберіңіз.';
+
+  @override
   String get profileUpdateNeedsModeration => 'Деректер модерацияға жіберіледі';
 
   @override

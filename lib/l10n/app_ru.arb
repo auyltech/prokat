@@ -867,6 +867,17 @@
   "ownerProfileSuspendedHint": "Размещение техники временно недоступно. Свяжитесь с поддержкой.",
   "ownerProfilePendingReview": "Ожидайте рассмотрения",
   "ownerProfilePendingReviewHint": "Отправленные данные снова проходят модерацию.",
+  "ownerProfileChangesPending": "Изменения находятся на рассмотрении",
+  "ownerProfileChangesPendingHint": "Пока идёт проверка, редактировать профиль нельзя.",
+  "ownerProfileChangesRejected": "Изменения отклонены",
+  "ownerProfileChangesRejectedUntil": "исправить до {date}",
+  "@ownerProfileChangesRejectedUntil": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "ownerProfileCorrectionOverdue": "Срок исправления истёк. Доступ может быть приостановлен.",
+  "ownerProfileCorrectionOverdueHint": "Обновите данные и снова отправьте на проверку.",
   "profileUpdateNeedsModeration": "Данные будут переданы на модерацию",
   "submitForVerification": "Отправить на верификацию",
   "underReview": "На проверке",

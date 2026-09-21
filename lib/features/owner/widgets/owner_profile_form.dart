@@ -6,12 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/core/widgets/moderation_status_card.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
-import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -46,7 +46,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   @override
   void initState() {
     super.initState();
-    final profile = widget.initialProfile;
+    final profile = _displayProfile(widget.initialProfile);
 
     _companyNameController = TextEditingController(text: profile.companyName);
     _legalNameController = TextEditingController(text: profile.legalName);
@@ -74,10 +74,27 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     _descriptionController.addListener(_onFieldsChanged);
   }
 
+  /// For CHANGES_* cycles, form shows proposed draft (`pendingChanges.to`).
+  OwnerProfileModel _displayProfile(OwnerProfileModel profile) {
+    final status = effectiveOwnerBusinessStatus(
+      status: profile.status,
+      isVerified: profile.isVerified,
+      ownerCycle: true,
+    );
+    if (status == OwnerRegistrationStatus.changesPending ||
+        status == OwnerRegistrationStatus.changesRejected) {
+      return profile.withPendingDraftApplied();
+    }
+    return profile;
+  }
+
   String _profileIdentity(OwnerProfileModel profile) {
     return [
       profile.status?.name,
       profile.adminComment,
+      profile.correctionDeadlineAt?.toIso8601String(),
+      profile.isCorrectionOverdue,
+      profile.pendingChanges.map((c) => '${c.field}:${c.to}').join(','),
       profile.firstName,
       profile.lastName,
       profile.phoneNumber,
@@ -87,19 +104,20 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   }
 
   void _hydrateFrom(OwnerProfileModel profile) {
-    _companyNameController.text = profile.companyName ?? '';
-    _legalNameController.text = profile.legalName ?? '';
-    _firstNameController.text = profile.firstName ?? '';
-    _lastNameController.text = profile.lastName ?? '';
-    _phoneController.value = kzPhoneEditingValue(profile.phoneNumber);
-    _descriptionController.text = profile.serviceDescription ?? '';
-    _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
+    final draft = _displayProfile(profile);
+    _companyNameController.text = draft.companyName ?? '';
+    _legalNameController.text = draft.legalName ?? '';
+    _firstNameController.text = draft.firstName ?? '';
+    _lastNameController.text = draft.lastName ?? '';
+    _phoneController.value = kzPhoneEditingValue(draft.phoneNumber);
+    _descriptionController.text = draft.serviceDescription ?? '';
+    _selectedOwnerType = draft.ownerType ?? OwnerType.individual;
     _selectedCity =
         canonicalCity(
-          profile.city,
+          draft.city,
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
-        ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
+        ((draft.city ?? '').trim().isEmpty ? null : draft.city!.trim());
     _lastHasChanges = false;
     _showFieldErrors = false;
   }
@@ -144,8 +162,13 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     if (mounted) setState(() {});
   }
 
-  bool get _isLocked =>
-      isOwnerBusinessProfileLocked(widget.initialProfile.status);
+  bool get _isLocked => isOwnerBusinessProfileLocked(
+    effectiveOwnerBusinessStatus(
+      status: widget.initialProfile.status,
+      isVerified: widget.initialProfile.isVerified,
+      ownerCycle: true,
+    ),
+  );
 
   bool get _hasChanges => ownerBusinessProfileHasChanges(
     current: widget.initialProfile,
@@ -273,42 +296,48 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       _cityController.text = cityLabel;
     }
 
+    final displayProfile = _displayProfile(widget.initialProfile);
+
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _OwnerProfileStatusBlock(profile: widget.initialProfile),
           if (!isEditing) ...[
+            if (shouldShowOwnerProfileStatusBanner(
+              effectiveOwnerBusinessStatus(
+                status: widget.initialProfile.status,
+                isVerified: widget.initialProfile.isVerified,
+                ownerCycle: true,
+              ),
+            ))
+              const SizedBox(height: AppDimens.s16$base),
             _ProfileReadOnlyRow(
               label: l10n.firstName,
-              value: widget.initialProfile.firstName,
+              value: displayProfile.firstName,
             ),
             const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.lastName,
-              value: widget.initialProfile.lastName,
+              value: displayProfile.lastName,
             ),
             const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.phoneNumber,
-              value: maskedKzPhone(widget.initialProfile.phoneNumber),
+              value: maskedKzPhone(displayProfile.phoneNumber),
               helperText: l10n.ownerContactPhoneHint,
             ),
             const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.city,
-              value: catalogCityLabelOf(
-                ref,
-                context,
-                widget.initialProfile.city,
-              ),
+              value: catalogCityLabelOf(ref, context, displayProfile.city),
             ),
             const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.serviceDetails,
-              value: widget.initialProfile.serviceDescription,
+              value: displayProfile.serviceDescription,
             ),
-            _OwnerProfileStatusBlock(profile: widget.initialProfile),
             if (!isLocked) ...[
               const SizedBox(height: AppDimens.s32$xxl),
               AppElevatedButton(
@@ -317,6 +346,14 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
               ),
             ],
           ] else ...[
+            if (shouldShowOwnerProfileStatusBanner(
+              effectiveOwnerBusinessStatus(
+                status: widget.initialProfile.status,
+                isVerified: widget.initialProfile.isVerified,
+                ownerCycle: true,
+              ),
+            ))
+              const SizedBox(height: AppDimens.s16$base),
             AppTextField(
               title: l10n.firstName,
               hint: l10n.enterFirstName,
@@ -425,54 +462,68 @@ class _OwnerProfileStatusBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final status = profile.status;
+    final colors = Theme.of(context).colorScheme;
+    final status = effectiveOwnerBusinessStatus(
+      status: profile.status,
+      isVerified: profile.isVerified,
+      ownerCycle: true,
+    );
     if (!shouldShowOwnerProfileStatusBanner(status)) {
       return const SizedBox.shrink();
     }
 
-    final (title, subtitle, color, icon) = switch (status) {
-      OwnerRegistrationStatus.pending => (
-        l10n.ownerProfilePendingReview,
-        l10n.ownerProfilePendingReviewHint,
-        Colors.blue,
-        Icons.hourglass_top,
-      ),
-      OwnerRegistrationStatus.rejected => (
-        l10n.verificationFailed,
-        l10n.statusRejectedSubtitle,
-        Colors.red,
-        Icons.error_outline,
-      ),
-      OwnerRegistrationStatus.suspended => (
-        l10n.ownerProfileSuspended,
-        l10n.ownerProfileSuspendedHint,
-        Colors.red,
-        Icons.block,
-      ),
-      OwnerRegistrationStatus.incomplete ||
-      OwnerRegistrationStatus.approved ||
-      null => ('', '', Colors.transparent, Icons.info_outline),
-    };
+    final deadline = profile.correctionDeadlineAt;
+    final deadlineLabel = deadline == null
+        ? null
+        : formatDate(date: deadline.toLocal(), format: 'dd.MM.yyyy');
+    final overdue =
+        profile.isCorrectionOverdue ||
+        (deadline != null && deadline.isBefore(DateTime.now()));
 
-    if (title.isEmpty) return const SizedBox.shrink();
+    if (status == OwnerRegistrationStatus.pending ||
+        status == OwnerRegistrationStatus.changesPending) {
+      return ModerationStatusCard(
+        title: l10n.ownerProfileChangesPending,
+        subtitle: l10n.ownerProfileChangesPendingHint,
+        icon: Icons.hourglass_top_rounded,
+        color: colors.primary,
+      );
+    }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: AppDimens.s24$xl),
-        Card(
-          child: ListTile(
-            leading: Icon(icon, color: color),
-            title: Text(title),
-            subtitle: Text(subtitle),
-          ),
-        ),
-        if (status == OwnerRegistrationStatus.rejected) ...[
-          const SizedBox(height: AppDimens.s16$base),
-          AdminCommentBlock(comment: profile.adminComment),
-        ],
-      ],
-    );
+    if (status == OwnerRegistrationStatus.rejected ||
+        status == OwnerRegistrationStatus.changesRejected) {
+      final comment = profile.adminComment?.trim() ?? '';
+      final baseHint = comment.isEmpty
+          ? l10n.statusRejectedNoComment
+          : l10n.statusRejectedReviewHint;
+      final subtitle = overdue
+          ? l10n.ownerProfileCorrectionOverdueHint
+          : deadlineLabel == null
+          ? baseHint
+          : '$baseHint · ${l10n.ownerProfileChangesRejectedUntil(deadlineLabel)}';
+      return ModerationStatusCard(
+        title: overdue
+            ? l10n.ownerProfileCorrectionOverdue
+            : l10n.statusRejected,
+        subtitle: subtitle,
+        icon: overdue
+            ? Icons.warning_amber_rounded
+            : Icons.error_outline_rounded,
+        color: colors.error,
+        detail: comment.isEmpty ? null : comment,
+      );
+    }
+
+    if (status == OwnerRegistrationStatus.suspended) {
+      return ModerationStatusCard(
+        title: l10n.ownerProfileSuspended,
+        subtitle: l10n.ownerProfileSuspendedHint,
+        icon: Icons.block,
+        color: colors.error,
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }
 

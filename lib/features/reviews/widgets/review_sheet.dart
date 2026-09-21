@@ -102,6 +102,8 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
                 : (v) => setState(() => _stars = v),
           ),
 
+          const SizedBox(height: AppDimens.s12$md),
+
           AppTextArea(
             title: l10n.commentOptional,
             controller: _commentController,
@@ -110,7 +112,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
             maxLines: 4,
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppDimens.s16$base),
 
           Row(
             children: [
@@ -144,6 +146,7 @@ class _StarRow extends StatelessWidget {
         return AppIconButton(
           onTap: onChanged == null ? null : () => onChanged!(star),
           icon: isActive ? Icons.star_rounded : Icons.star_outline_rounded,
+          size: AppIconButtonSize.large,
           tone: isActive
               ? AppIconButtonTone.primary
               : AppIconButtonTone.neutral,

@@ -2373,6 +2373,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your updated details will be checked by an administrator.';
 
   @override
+  String get ownerProfileChangesPending => 'Changes are under review';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'You cannot edit the profile while review is in progress.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Changes were rejected';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return 'fix by $date';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Correction deadline has passed. Access may be suspended.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Update your details and submit them for review again.';
+
+  @override
   String get profileUpdateNeedsModeration =>
       'Your details will be sent for moderation';
 
