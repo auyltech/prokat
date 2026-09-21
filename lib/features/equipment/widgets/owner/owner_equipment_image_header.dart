@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/page_dots_indicator.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
@@ -129,14 +130,14 @@ class _OwnerEquipmentImageHeaderState
                 ?.message ??
             _l10n.failedToUploadPhoto;
 
-        AppSnackBar.show(message: message, isError: true);
+        AppToast.show(message: message, type: AppToastType.error);
       } else {
         final count = _displayImages.length;
         if (count > 0) {
           unawaited(
             _pageController.animateToPage(
               count - 1,
-              duration: const Duration(milliseconds: 250),
+              duration: AppDimens.defaultAnimationDuration,
               curve: Curves.easeOut,
             ),
           );
@@ -145,35 +146,21 @@ class _OwnerEquipmentImageHeaderState
     } on PlatformException catch (e) {
       if (!mounted) return;
       final denied = e.code.contains('access_denied');
-      AppSnackBar.show(
+      AppToast.show(
         message: denied ? _l10n.mediaAccessDenied : _l10n.somethingWentWrong,
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
 
   Future<void> _confirmAndDelete(EquipmentImage image) async {
-    final theme = Theme.of(context);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(_l10n.deletePhotoQuestion),
-        content: Text(_l10n.deletePhotoConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(_l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-            ),
-            child: Text(_l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: _l10n.deletePhotoQuestion,
+      description: _l10n.deletePhotoConfirmation,
+      primaryLabel: _l10n.delete,
+      secondaryLabel: _l10n.cancel,
+      isDestructivePrimary: true,
     );
 
     if (confirmed != true) return;
@@ -197,7 +184,7 @@ class _OwnerEquipmentImageHeaderState
               ?.message ??
           _l10n.failedToDeletePhoto;
 
-      AppSnackBar.show(message: message, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
     }
   }
 
@@ -221,37 +208,44 @@ class _OwnerEquipmentImageHeaderState
               ?.message ??
           _l10n.failedToSetCoverPhoto;
 
-      AppSnackBar.show(message: message, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
     }
   }
 
-  void _openActionsSheet({
+  Future<void> _openActionsSheet({
     required bool isBusy,
     required bool canAddMore,
     required EquipmentImage? current,
     required bool canSetCover,
     required bool canDelete,
-  }) {
+  }) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    unawaited(
-      showModalBottomSheet(
-        context: context,
-        showDragHandle: true,
-        builder: (_) {
-          return EquipmentImageActionsSheet(
-            canAddMore: canAddMore,
-            isBusy: isBusy,
-            limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
-            onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
-            onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
-            onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
-            onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
-          );
-        },
-      ).whenComplete(() {
-        FocusManager.instance.primaryFocus?.unfocus();
-      }),
+
+    final action = await EquipmentImageActionsSheet.show(
+      context,
+      canAddMore: canAddMore,
+      isBusy: isBusy,
+      canSetAsCover: canSetCover,
+      canDelete: canDelete,
+      limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
     );
+
+    if (!mounted || action == null) return;
+
+    switch (action) {
+      case EquipmentImageAction.gallery:
+        await _pickAndUpload(ImageSource.gallery);
+      case EquipmentImageAction.camera:
+        await _pickAndUpload(ImageSource.camera);
+      case EquipmentImageAction.setAsCover:
+        if (current != null) await _setAsCover(current);
+      case EquipmentImageAction.delete:
+        if (current != null) await _confirmAndDelete(current);
+    }
+
+    if (mounted) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
   }
 
   @override
@@ -316,7 +310,7 @@ class _OwnerEquipmentImageHeaderState
           Positioned(
             left: 0,
             right: 0,
-            bottom: 12,
+            bottom: AppDimens.s12$md,
             child: PageDotsIndicator(
               count: images.length,
               index: _currentIndex,
@@ -325,18 +319,26 @@ class _OwnerEquipmentImageHeaderState
 
         if (widget.canEditImages)
           Positioned(
-            right: 16,
-            bottom: 16,
-            child: FloatingActionButton.small(
-              heroTag: 'editEquipmentImages_${widget.equipmentId}',
-              onPressed: () => _openActionsSheet(
-                isBusy: isBusy,
-                canAddMore: canAddMore,
-                current: current,
-                canSetCover: canSetCoverCurrent,
-                canDelete: canDeleteCurrent,
+            right: AppDimens.s16$base,
+            bottom: AppDimens.s16$base,
+            child: Hero(
+              tag: 'editEquipmentImages_${widget.equipmentId}',
+              child: AppIconButton(
+                icon: LucideIcons.squarePen,
+                variant: AppIconButtonVariant.floating,
+                tone: AppIconButtonTone.primary,
+                onTap: () {
+                  unawaited(
+                    _openActionsSheet(
+                      isBusy: isBusy,
+                      canAddMore: canAddMore,
+                      current: current,
+                      canSetCover: canSetCoverCurrent,
+                      canDelete: canDeleteCurrent,
+                    ),
+                  );
+                },
               ),
-              child: const Icon(Icons.camera_alt),
             ),
           ),
 
@@ -381,8 +383,8 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
       color: colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 8 : 32,
-        vertical: compact ? 6 : 12,
+        horizontal: compact ? AppDimens.s08$sm : AppDimens.s32$xxl,
+        vertical: compact ? AppDimens.inputHelperGap : AppDimens.s12$md,
       ),
       child: Text(
         l10n.equipmentPhotoRequiredPlaceholder,
@@ -390,10 +392,11 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
         maxLines: compact ? 4 : 3,
         overflow: TextOverflow.ellipsis,
         style:
-            (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
-                ?.copyWith(
+            (compact
+                    ? AppFonts.captionMedium(context)
+                    : AppFonts.body16SemiBold(context))
+                .copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.55),
-                  fontWeight: FontWeight.w600,
                   height: 1.2,
                 ),
       ),

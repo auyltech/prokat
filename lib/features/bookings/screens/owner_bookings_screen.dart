@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
 import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
@@ -98,11 +98,11 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
                       subtitle: l10n.noActiveOrders,
-                      actionButton: PrimaryButton(
-                        label: l10n.refresh,
+                      actionButton: AppElevatedButton(
+                        title: l10n.refresh,
                         isLoading: bookingsAsync.isRefreshing,
-                        icon: LucideIcons.refreshCw,
-                        onPressed: () async {
+                        prefix: const Icon(LucideIcons.refreshCw),
+                        onTap: () async {
                           await ref
                               .read(ownerActiveBookingsProvider.notifier)
                               .refresh();

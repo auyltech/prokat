@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -58,17 +57,17 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
     final price = int.tryParse(_priceController.text.trim());
 
     if (price == null) {
-      AppSnackBar.show(message: l10n.pleaseEnterValidPrice);
+      AppToast.show(message: l10n.pleaseEnterValidPrice);
       return;
     }
 
     if (price <= 0) {
-      AppSnackBar.show(message: l10n.priceMustBePositive);
+      AppToast.show(message: l10n.priceMustBePositive);
       return;
     }
 
     if (price > 100000) {
-      AppSnackBar.show(message: l10n.priceMaximumExceeded);
+      AppToast.show(message: l10n.priceMaximumExceeded);
       return;
     }
 
@@ -87,12 +86,11 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
 
         if (!mounted) return;
         if (result.success) Navigator.pop(context);
-        AppSnackBar.show(
+        AppToast.show(
           message: result.success
               ? l10n.priceEntryAdded
               : l10n.failedAddPriceEntry,
-          isSuccess: result.success,
-          isError: !result.success,
+          type: result.success ? AppToastType.success : AppToastType.error,
         );
       } else {
         final result = await notifier.updatePriceEntry(
@@ -109,17 +107,19 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
         if (!mounted) return;
         if (result.success) Navigator.pop(context);
 
-        AppSnackBar.show(
+        AppToast.show(
           message: result.success
               ? l10n.priceEntrySaved
               : l10n.failedUpdatePriceEntry,
-          isSuccess: result.success,
-          isError: !result.success,
+          type: result.success ? AppToastType.success : AppToastType.error,
         );
       }
     } catch (error) {
       if (mounted) {
-        AppSnackBar.show(message: l10n.failedSavePriceEntry, isError: true);
+        AppToast.show(
+          message: l10n.failedSavePriceEntry,
+          type: AppToastType.error,
+        );
       }
     } finally {
       if (mounted) {
@@ -185,13 +185,19 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           const SizedBox(height: 16),
 
           /// 1. PRICE INPUT
-          InputField(
-            label: l10n.priceKZT,
+          AppTextField(
+            title: l10n.priceKZT,
             controller: _priceController,
             hint: l10n.priceKztHint,
-            isNumeric: true,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            prefix: Text(
+              '₸',
+              style: AppFonts.body16SemiBold(context)
+                  .copyWith(color: context.colors.text.secondary),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppDimens.s16$base),
 
           /// 2. RATE TYPE SELECTOR
           PriceRateSelector(
@@ -206,12 +212,12 @@ class _PriceEntrySheetState extends ConsumerState<PriceEntrySheet> {
           /// 3. ACTION SUBMIT BUTTON
           SizedBox(
             width: double.infinity,
-            child: PrimaryButton(
-              label: _isSubmitting
+            child: AppElevatedButton(
+              title: _isSubmitting
                   ? l10n.saving
                   : (isEditing ? l10n.save : l10n.add),
               // FIXED: Added submission pipeline execution
-              onPressed: _isSubmitting ? null : () => submitPriceEntry(l10n),
+              onTap: _isSubmitting ? null : () => submitPriceEntry(l10n),
             ),
           ),
         ],

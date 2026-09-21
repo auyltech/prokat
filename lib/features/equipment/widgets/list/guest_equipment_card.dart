@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
@@ -18,33 +19,18 @@ class GuestEquipmentCard extends ConsumerWidget {
 
   static const double height = 104;
 
-  void _showSignInDialog(BuildContext context) {
+  Future<void> _showSignInDialog(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
-    unawaited(
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(l10n.loginRequired),
-            content: Text(l10n.loginRequiredToViewEquipment),
-            actions: <Widget>[
-              TextButton(
-                child: Text(l10n.cancel),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              ElevatedButton(
-                child: Text(l10n.loginLink),
-                onPressed: () {
-                  Navigator.of(context).pop();
-
-                  context.go(AppRoutes.login);
-                },
-              ),
-            ],
-          );
-        },
-      ),
+    final goLogin = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.loginRequired,
+      description: l10n.loginRequiredToViewEquipment,
+      primaryLabel: l10n.loginLink,
+      secondaryLabel: l10n.cancel,
     );
+    if (goLogin == true && context.mounted) {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override
@@ -61,7 +47,7 @@ class GuestEquipmentCard extends ConsumerWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => _showSignInDialog(context),
+        onTap: () => unawaited(_showSignInDialog(context)),
         borderRadius: BorderRadius.circular(10),
         child: Row(
           spacing: 12,

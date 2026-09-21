@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 
@@ -20,9 +21,9 @@ class DemandSurveyAppBar extends StatelessWidget
       backgroundColor: theme.cardColor,
       automaticallyImplyLeading: false,
       iconTheme: IconThemeData(color: theme.colorScheme.primary),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-        onPressed: () {
+      leading: AppIconButton(
+        icon: Icons.arrow_back_ios_new_rounded,
+        onTap: () {
           if (context.canPop()) {
             context.pop();
           }

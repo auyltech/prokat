@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -50,22 +51,12 @@ class DraftBookingTile extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
-            onPressed: () => context.push(
+          AppLabelButton(
+            title: l10n.resume,
+            onTap: () => context.push(
               '${AppRoutes.equipment}/${booking.equipment?.id}/${AppRoutes.book}',
             ),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: draftColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            child: Text(
-              l10n.resume,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
+            tone: AppLabelButtonTone.primary,
           ),
         ],
       ),

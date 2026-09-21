@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -77,9 +78,10 @@ class NotificationTile extends StatelessWidget {
       ),
       trailing: onDelete == null
           ? null
-          : IconButton(
-              onPressed: onDelete,
-              icon: const Icon(Icons.delete_outline),
+          : AppIconButton(
+              onTap: onDelete,
+              icon: Icons.delete_outline,
+              tone: AppIconButtonTone.destructive,
               tooltip: l10n.delete,
             ),
     );

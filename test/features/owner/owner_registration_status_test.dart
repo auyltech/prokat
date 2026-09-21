@@ -17,8 +17,16 @@ void main() {
         OwnerRegistrationStatus.pending,
       );
       expect(
+        parseOwnerRegistrationStatus('CHANGES_PENDING_REVIEW'),
+        OwnerRegistrationStatus.changesPending,
+      );
+      expect(
         parseOwnerRegistrationStatus('REJECTED'),
         OwnerRegistrationStatus.rejected,
+      );
+      expect(
+        parseOwnerRegistrationStatus('CHANGES_REJECTED'),
+        OwnerRegistrationStatus.changesRejected,
       );
       expect(
         parseOwnerRegistrationStatus('SUSPENDED'),
@@ -51,13 +59,25 @@ void main() {
       expect(shouldShowOwnerProfileStatusBanner(null), isFalse);
     });
 
-    test('shows statuses that actually block the owner', () {
+    test('shows moderation and correction statuses', () {
       expect(
         shouldShowOwnerProfileStatusBanner(OwnerRegistrationStatus.pending),
         isTrue,
       );
       expect(
+        shouldShowOwnerProfileStatusBanner(
+          OwnerRegistrationStatus.changesPending,
+        ),
+        isTrue,
+      );
+      expect(
         shouldShowOwnerProfileStatusBanner(OwnerRegistrationStatus.rejected),
+        isTrue,
+      );
+      expect(
+        shouldShowOwnerProfileStatusBanner(
+          OwnerRegistrationStatus.changesRejected,
+        ),
         isTrue,
       );
       expect(
@@ -68,9 +88,13 @@ void main() {
   });
 
   group('isOwnerBusinessProfileLocked', () {
-    test('locks only while the profile is pending review', () {
+    test('locks pending and changesPending review', () {
       expect(
         isOwnerBusinessProfileLocked(OwnerRegistrationStatus.pending),
+        isTrue,
+      );
+      expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.changesPending),
         isTrue,
       );
       expect(
@@ -82,6 +106,10 @@ void main() {
         isFalse,
       );
       expect(
+        isOwnerBusinessProfileLocked(OwnerRegistrationStatus.changesRejected),
+        isFalse,
+      );
+      expect(
         isOwnerBusinessProfileLocked(OwnerRegistrationStatus.incomplete),
         isFalse,
       );
@@ -90,6 +118,38 @@ void main() {
         isFalse,
       );
       expect(isOwnerBusinessProfileLocked(null), isFalse);
+    });
+  });
+  group('effectiveOwnerBusinessStatus', () {
+    test('maps legacy pending/rejected to CHANGES_* for owner cycle', () {
+      expect(
+        effectiveOwnerBusinessStatus(
+          status: OwnerRegistrationStatus.pending,
+          ownerCycle: true,
+        ),
+        OwnerRegistrationStatus.changesPending,
+      );
+      expect(
+        effectiveOwnerBusinessStatus(
+          status: OwnerRegistrationStatus.rejected,
+          ownerCycle: true,
+        ),
+        OwnerRegistrationStatus.changesRejected,
+      );
+      expect(
+        effectiveOwnerBusinessStatus(
+          status: OwnerRegistrationStatus.rejected,
+          isVerified: false,
+        ),
+        OwnerRegistrationStatus.rejected,
+      );
+      expect(
+        effectiveOwnerBusinessStatus(
+          status: OwnerRegistrationStatus.rejected,
+          isVerified: true,
+        ),
+        OwnerRegistrationStatus.changesRejected,
+      );
     });
   });
 }

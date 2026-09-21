@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/localized_city.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -38,26 +39,35 @@ List<String> cityPickerOptions({
 class CityPickerSheet extends ConsumerStatefulWidget {
   final CitySelectorService? service;
   final String? highlightedCity;
+  final ScrollController scrollController;
 
-  const CityPickerSheet({super.key, this.service, this.highlightedCity});
+  const CityPickerSheet({
+    super.key,
+    this.service,
+    this.highlightedCity,
+    required this.scrollController,
+  });
 
   static Future<String?> show({
     required BuildContext context,
     CitySelectorService? service,
     String? highlightedCity,
   }) {
-    return showModalBottomSheet<String?>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AppBottomSheet.showScrollable<String>(
+      context,
+      title: l10n.selectCity,
+      initialChildSize: 0.4,
+      maxChildSize: 0.4,
+      minChildSize: 0.3,
+      headerBuilder: (_) => const SizedBox.shrink(),
+      footerBuilder: (_) => const SizedBox.shrink(),
+      scrollableListBuilder: (context, controller) {
         return CityPickerSheet(
           service: service,
           highlightedCity: highlightedCity,
+          scrollController: controller,
         );
       },
     );
@@ -110,84 +120,46 @@ class _CityPickerSheetState extends ConsumerState<CityPickerSheet> {
 
     final selectedCity =
         widget.highlightedCity ?? ref.watch(locationProvider).city;
-    final title = l10n.selectCity;
     final options = cityPickerOptions(
       cityKeys: catalogCityKeys(catalog),
       service: widget.service,
     );
 
-    return SafeArea(
-      top: false,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.6,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withValues(
-                      alpha: 0.4,
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Text(title, style: theme.textTheme.titleLarge),
-
-              const SizedBox(height: 12),
-
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final option = options[index];
-                    final isAllCities = option.trim().isEmpty;
-                    final isSelected = isSameCity(option, selectedCity);
-
-                    return ListTile(
-                      leading: Icon(
-                        isAllCities
-                            ? Icons.public_outlined
-                            : Icons.location_city,
-                      ),
-                      title: Text(
-                        isAllCities
-                            ? l10n.allLocations
-                            : catalogCityLabel(
-                                city: option,
-                                languageCode: locale,
-                                catalog: catalog,
-                                fallback: (city) =>
-                                    localizedCityName(city, l10n),
-                              ),
-                      ),
-                      trailing: isSelected
-                          ? Icon(
-                              Icons.check_circle,
-                              color: theme.colorScheme.primary,
-                            )
-                          : null,
-                      onTap: () async => await _onCitySelected(option),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+    return ListView.separated(
+      controller: widget.scrollController,
+      padding: EdgeInsets.fromLTRB(
+        AppDimens.sheetHorizontalPadding,
+        0,
+        AppDimens.sheetHorizontalPadding,
+        AppDimens.sheetBottomPadding + MediaQuery.paddingOf(context).bottom,
       ),
+      itemCount: options.length,
+      separatorBuilder: (_, _) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final option = options[index];
+        final isAllCities = option.trim().isEmpty;
+        final isSelected = isSameCity(option, selectedCity);
+
+        return ListTile(
+          leading: Icon(
+            isAllCities ? Icons.public_outlined : Icons.location_city,
+          ),
+          title: Text(
+            isAllCities
+                ? l10n.allLocations
+                : catalogCityLabel(
+                    city: option,
+                    languageCode: locale,
+                    catalog: catalog,
+                    fallback: (city) => localizedCityName(city, l10n),
+                  ),
+          ),
+          trailing: isSelected
+              ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+              : null,
+          onTap: () async => await _onCitySelected(option),
+        );
+      },
     );
   }
 }

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
@@ -40,14 +39,13 @@ class CategorySelectionSheet extends ConsumerWidget {
   }
 
   List<Category> _categoriesForSheet(WidgetRef ref) {
+    final catalog = ref.watch(catalogProvider).valueOrNull;
     if (service == CategorySheetMode.createEquipment ||
-        service == CategorySheetMode.createRequest) {
-      final vacuum = vacuumTrucksCategory(
-        ref.watch(catalogProvider).valueOrNull,
-        forOwner: service == CategorySheetMode.createEquipment,
-      );
-      return vacuum == null ? const [] : [vacuum];
+        service == CategorySheetMode.editEquipment) {
+      return catalog?.ownerCategories.map(Category.fromCatalog).toList() ??
+          const [];
     }
+
     return ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
   }
 
@@ -59,7 +57,7 @@ class CategorySelectionSheet extends ConsumerWidget {
     final router = GoRouter.of(context);
 
     DemandConfig? config = ref.read(demandConfigProvider).valueOrNull;
-    if (config == null) {
+    if (config == null || !config.shouldShow) {
       try {
         config = await ref.read(demandConfigProvider.future);
       } catch (_) {
@@ -71,8 +69,13 @@ class CategorySelectionSheet extends ConsumerWidget {
     Navigator.of(context).pop();
 
     final campaignId = config?.campaignId;
-    if (campaignId == null || campaignId.isEmpty) {
-      AppSnackBar.show(message: l10n.demandSurveyLoadError, isError: true);
+    if (campaignId == null ||
+        campaignId.isEmpty ||
+        !(config?.shouldShow ?? false)) {
+      AppToast.show(
+        message: l10n.demandSurveyLoadError,
+        type: AppToastType.error,
+      );
       return;
     }
 
@@ -84,9 +87,12 @@ class CategorySelectionSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final categories = _categoriesForSheet(ref);
-    final showSuggest =
+    final demandEligible =
         service == CategorySheetMode.createEquipment ||
         service == CategorySheetMode.createRequest;
+    final showSuggest =
+        demandEligible &&
+        (ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false);
     final itemCount = categories.length + (showSuggest ? 1 : 0);
     final sheetTitle = service == CategorySheetMode.createRequest
         ? l10n.requestCategoryTitle

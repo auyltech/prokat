@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/parse.dart';
-import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/error_box_tile.dart';
-import 'package:prokat/core/widgets/drop_down_field.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/bookings/widgets/price_rate_selector.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
@@ -19,7 +17,6 @@ import 'package:prokat/features/offers/offer_error_message.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/core/widgets/input_field.dart';
 
 class CreateOfferScreen extends ConsumerStatefulWidget {
   const CreateOfferScreen({super.key});
@@ -77,17 +74,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
     Future<void> onSubmit() async {
       if (!(_formKey.currentState?.validate() ?? false)) {
-        AppSnackBar.show(
+        AppToast.show(
           message: l10n.pleaseProvideRequiredInformation,
-          isError: true,
+          type: AppToastType.error,
         );
         return;
       }
 
       if (ref.read(billingProvider).isOutOfPaidMinutes) {
-        AppSnackBar.show(
+        AppToast.show(
           message: l10n.cannotRespondWithZeroBalance,
-          isError: true,
+          type: AppToastType.error,
         );
         return;
       }
@@ -117,10 +114,9 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               fallback: result.message,
             );
 
-      AppSnackBar.show(
+      AppToast.show(
         message: message,
-        isSuccess: result.success,
-        isError: !result.success,
+        type: result.success ? AppToastType.success : AppToastType.error,
       );
 
       if (result.success) {
@@ -155,49 +151,44 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: DropDownfield<EquipmentSummaryModel>(
-                      label: l10n.navEquipment,
-                      hint: l10n.selectEquipment,
-                      value: offersState.selectedEquipment,
-                      items: equipmentOptions.map((e) {
-                        return DropdownMenuItem(
-                          value: e,
-                          child: Text("${e.name}-${e.plateNumber}"),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          offersNotifier.selectEquipment(value);
-                        }
-                      },
-                    ),
-                  ),
-                ],
+              AppDropdownField<EquipmentSummaryModel>(
+                title: l10n.navEquipment,
+                hint: l10n.selectEquipment,
+                sheetTitle: l10n.selectEquipment,
+                value: offersState.selectedEquipment,
+                options: equipmentOptions
+                    .map(
+                      (e) => DropdownOption(
+                        value: e,
+                        label: '${e.name}-${e.plateNumber}',
+                      ),
+                    )
+                    .toList(),
+                onChanged: offersNotifier.selectEquipment,
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.s16$base),
 
-              SectionTitle(title: l10n.price),
-
-              const SizedBox(height: 8),
-
-              InputField(
-                icon: LucideIcons.coins,
-                label: l10n.priceKZT,
+              AppTextField(
+                title: l10n.priceKZT,
                 controller: _price,
-                hint: "12 000",
+                hint: '12 000',
+                isRequired: true,
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                prefix: Text(
+                  '₸',
+                  style: AppFonts.body16SemiBold(context)
+                      .copyWith(color: context.colors.text.secondary),
+                ),
                 validator: (v) => v == null || v.isEmpty ? l10n.required : null,
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.s16$base),
 
               SectionTitle(title: l10n.priceRateLabel),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: AppDimens.s08$sm),
 
               PriceRateSelector(
                 initialValue: ref.watch(offerMutationProvider).priceRate,
@@ -205,20 +196,17 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
                     ref.read(offerMutationProvider.notifier).setPriceRate(val),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimens.s16$base),
 
-              SectionTitle(title: l10n.comments),
-
-              const SizedBox(height: 8),
-
-              InputField(
-                icon: LucideIcons.text,
-                label: l10n.comments,
+              AppTextArea(
+                title: l10n.comments,
                 controller: _comment,
                 hint: l10n.equipmentNameHint,
+                minLines: 2,
+                maxLines: 4,
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: AppDimens.s24$xl),
 
               if (_submitError != null)
                 ErrorBoxTile(errorMessage: _submitError),
@@ -226,11 +214,11 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: ActionButton(
-                      label: l10n.sendOffer,
-                      onPressed: onSubmit,
-                      isEnabled: canSubmit,
+                    child: AppElevatedButton(
+                      title: l10n.sendOffer,
+                      onTap: canSubmit ? onSubmit : null,
                       isLoading: offersState.isActionActive("offer:create"),
+                      isExpanded: false,
                     ),
                   ),
                 ],

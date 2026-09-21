@@ -3,4 +3,5 @@ import 'package:prokat/core/widgets/ui_kit/asset_paths.dart';
 
 abstract final class AppImages {
   static const AppImage appLogo = AppImage('${kImagesPath}app_logo.png');
+  static const AppImage demand = AppImage('${kImagesPath}demand.png');
 }

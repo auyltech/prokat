@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
@@ -145,8 +146,10 @@ class _MapOwnerPinLocationContainerState
     } catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.failedCreateLocation)));
+      AppToast.show(
+        message: l10n.failedCreateLocation,
+        type: AppToastType.error,
+      );
     }
   }
 
@@ -199,12 +202,9 @@ class _MapOwnerPinLocationContainerState
                 selectedAddress = current.withStreetNames(names);
               });
             },
-            confirmButton: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: selectedAddress == null ? null : confirmLocation,
-                child: Text(l10n.confirmLocation),
-              ),
+            confirmButton: AppElevatedButton(
+              title: l10n.confirmLocation,
+              onTap: selectedAddress == null ? null : confirmLocation,
             ),
           ),
         ],

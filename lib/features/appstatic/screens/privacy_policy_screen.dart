@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,41 +37,25 @@ class _PrivacyPolicyScreenState extends ConsumerState<PrivacyPolicyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     final locale = ref.watch(localeProvider);
     final langDisplay = LocaleNotifier.displayCode(locale);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.privacyPolicy),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () async {
+        leading: AppIconButton(
+          icon: Icons.arrow_back_ios_new_rounded,
+          onTap: () async {
             if (GoRouter.of(context).canPop()) {
               context.pop();
             }
           },
         ),
         actions: [
-          GestureDetector(
+          AppLabelButton(
+            title: langDisplay,
             onTap: () => LanguageSheet.show(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withAlpha(40),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white30),
-              ),
-              child: Text(
-                langDisplay,
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            variant: AppLabelButtonVariant.soft,
           ),
         ],
         actionsPadding: const EdgeInsets.only(right: 8),

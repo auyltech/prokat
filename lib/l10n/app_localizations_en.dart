@@ -1908,6 +1908,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTariff => 'Add rate';
 
   @override
+  String get tariffDraftPrefix => 'Draft:';
+
+  @override
   String get serviceType => 'Service type';
 
   @override
@@ -2054,6 +2057,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createNewOnMap => 'Create new on map';
+
+  @override
+  String get equipmentPhotoSheetTitle => 'Equipment photo';
 
   @override
   String get chooseFromGallery => 'Choose from gallery';
@@ -2368,6 +2374,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ownerProfilePendingReviewHint =>
       'Your updated details will be checked by an administrator.';
+
+  @override
+  String get ownerProfileChangesPending => 'Changes are under review';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'You cannot edit the profile while review is in progress.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Changes were rejected';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return 'fix by $date';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Correction deadline has passed. Access may be suspended.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Update your details and submit them for review again.';
 
   @override
   String get profileUpdateNeedsModeration =>
@@ -3377,6 +3406,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldRequired => 'This field is required';
 
   @override
+  String get cannotBeEmpty => 'Cannot be empty';
+
+  @override
   String get justNow => 'Just now';
 
   @override
@@ -3516,13 +3548,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get becomeOnline => 'Go Online';
 
   @override
-  String get accountSwitchedToOnline => 'You switched the account to Online';
+  String get youAreNowOnline =>
+      'Online mode is on.\nYou can accept orders now.';
 
   @override
-  String get youAreNowOnline => 'You are now online';
-
-  @override
-  String get youAreNowOffline => 'You are now offline';
+  String get youAreNowOffline =>
+      'Online mode is off.\nYou cannot accept orders.';
 
   @override
   String get failedToggleStatus => 'Failed to update status';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentErrorTile extends StatelessWidget {
@@ -51,14 +52,11 @@ class EquipmentErrorTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: Text(l10n.retryNow),
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
+          AppElevatedButton.destructive(
+            title: l10n.retryNow,
+            onTap: onRetry,
+            prefix: const Icon(Icons.refresh_rounded),
+            isExpanded: false,
           ),
         ],
       ),

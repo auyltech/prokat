@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -31,92 +31,100 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
     final result = await profileState.deleteAccount();
 
     if (result && mounted) {
-      // 1. Show the success notification dialog to the user
-      _showSuccessAndLogoutDialog(context);
+      await _showSuccessAndLogoutDialog(context);
     } else if (mounted) {
-      AppSnackBar.show(
+      AppToast.show(
         message: l10n.failedToRequestAccountDeletion,
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
 
-  void _showSuccessAndLogoutDialog(BuildContext context) {
-    final theme = Theme.of(context);
+  Future<void> _showSuccessAndLogoutDialog(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
 
-    unawaited(
-      showDialog(
-        context: context,
-        barrierDismissible:
-            false, // Force them to explicitly tap "OK" to acknowledge the state
-        builder: (BuildContext dialogContext) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+    final acknowledged = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.requestReceived,
+      description: l10n.accountDeletionScheduledBody,
+      primaryLabel: l10n.ok,
+      isDismissible: false,
+    );
+
+    if (acknowledged != true) return;
+
+    await ref.read(appStartupProvider.notifier).forceSignedOut();
+
+    if (context.mounted) {
+      unawaited(
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/login', (route) => false),
+      );
+    }
+  }
+
+  Future<void> _showDeletionConfirmationDialog(BuildContext context) async {
+    final confirmed = await _showDeleteAccountSheet(context);
+    if (confirmed == true && mounted) {
+      await onSubmit();
+    }
+  }
+
+  Future<bool?> _showDeleteAccountSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AppBottomSheet.show<bool>(
+      context,
+      title: l10n.deleteAccountQuestion,
+      contentBuilder: (sheetContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.accountDeletionAccessStops,
+              textAlign: TextAlign.center,
+              style: AppFonts.body16(sheetContext),
             ),
-            title: Row(
+            const SizedBox(height: AppDimens.s12$md),
+            Text(
+              l10n.accountDeletionDataWithinDays,
+              textAlign: TextAlign.center,
+              style: AppFonts.body16(sheetContext),
+            ),
+            const SizedBox(height: AppDimens.s12$md),
+            AppTextButton(
+              title: l10n.learnMoreAboutDeletion,
+              isExpanded: false,
+              onTap: () => unawaited(_openAccountDeletionHelp()),
+            ),
+            const SizedBox(height: AppDimens.s20$lg),
+            Row(
+              spacing: AppDimens.s12$md,
               children: [
-                Icon(
-                  Icons.check_circle_outline_rounded,
-                  color: theme
-                      .colorScheme
-                      .primary, // Neutral or branding color for confirmation
-                  size: 28,
-                ),
-                const SizedBox(width: 10),
-                Text(l10n.requestReceived),
-              ],
-            ),
-            content: Text(l10n.accountDeletionScheduledBody),
-            actions: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                Expanded(
+                  child: AppElevatedButton.destructive(
+                    title: l10n.confirmAccountDeletion,
+                    onTap: () => Navigator.of(sheetContext).pop(true),
                   ),
                 ),
-                onPressed: () async {
-                  // Close the dialog box view
-                  Navigator.of(dialogContext).pop();
-
-                  // 2. Perform the global logout sequence
-                  // Replace this with your project's auth notifier reference (e.g., authProvider)
-                  await ref.read(appStartupProvider.notifier).forceSignedOut();
-
-                  // 3. Clear the navigation stack back to the authentication screen
-                  if (context.mounted) {
-                    unawaited(
-                      Navigator.of(context)
-                          .pushNamedAndRemoveUntil('/login', (route) => false),
-                    );
-                  }
-                },
-                child: Text(l10n.ok),
-              ),
-            ],
-          );
-        },
-      ),
+                Expanded(
+                  child: AppOutlinedButton(
+                    title: l10n.keepAccount,
+                    onTap: () => Navigator.of(sheetContext).pop(false),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
-  void _showDeletionConfirmationDialog(BuildContext context) {
-    unawaited(
-      showDialog(
-        context: context,
-        builder: (dialogContext) {
-          return const _DeleteAccountDialog();
-        },
-      ).then((confirmed) {
-        if (confirmed == true && mounted) {
-          unawaited(onSubmit());
-        }
-      }),
-    );
+  Future<void> _openAccountDeletionHelp() async {
+    final uri = Uri.parse(accountDeletionHelpUrl);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -207,152 +215,16 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
         const SizedBox(height: 24),
 
         // Production Danger Zone Trigger Button
-        OutlinedButton.icon(
-          icon: const Icon(Icons.delete_forever_rounded),
-          label: Text(l10n.initiateAccountDeletion),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: theme.colorScheme.error,
-            side: BorderSide(color: theme.colorScheme.error),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          onPressed: () => _showDeletionConfirmationDialog(context),
+        AppOutlinedButton.destructive(
+          title: l10n.initiateAccountDeletion,
+          onTap: () => unawaited(_showDeletionConfirmationDialog(context)),
+          prefix: const Icon(Icons.delete_forever_rounded),
+          isExpanded: true,
         ),
 
         // Native spacing cushion at the base of scroll view
         SizedBox(height: MediaQuery.of(context).padding.bottom),
       ],
-    );
-  }
-}
-
-class _DeleteAccountDialog extends StatelessWidget {
-  const _DeleteAccountDialog();
-
-  Future<void> _openHelp() async {
-    final uri = Uri.parse(accountDeletionHelpUrl);
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    const confirmColor = Color(0xFFC62828);
-    final maxHeight = MediaQuery.sizeOf(context).height * 0.85;
-
-    return Dialog(
-      backgroundColor: colorScheme.surface,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 400, maxHeight: maxHeight),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 16, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.deleteAccountQuestion,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    icon: Icon(Icons.close, color: colorScheme.onSurface),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.accountDeletionAccessStops,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface,
-                        height: 1.4,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.accountDeletionDataWithinDays,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.72),
-                        height: 1.4,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () => unawaited(_openHelp()),
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          foregroundColor: colorScheme.primary,
-                        ),
-                        child: Text(
-                          l10n.learnMoreAboutDeletion,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: colorScheme.surface,
-                        foregroundColor: colorScheme.onSurface,
-                        side: BorderSide(
-                          color: colorScheme.onSurface.withValues(alpha: 0.28),
-                        ),
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(l10n.keepAccount),
-                    ),
-                    const SizedBox(height: 10),
-                    FilledButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: confirmColor,
-                        foregroundColor: Colors.white,
-                        disabledForegroundColor: Colors.white,
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(l10n.confirmAccountDeletion),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

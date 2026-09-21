@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -62,44 +61,12 @@ class _OwnerEquipmentDetailScreenState
     final comment = equipment.adminComment?.trim() ?? '';
     final remarks = comment.isEmpty ? l10n.statusRejectedNoComment : comment;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          title: Text(l10n.resubmit),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.equipmentResubmitConfirmMessage),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: theme.colorScheme.error.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Text(remarks, style: theme.textTheme.bodyMedium),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(l10n.submit),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.resubmit,
+      description: '${l10n.equipmentResubmitConfirmMessage}\n\n$remarks',
+      primaryLabel: l10n.submit,
+      secondaryLabel: l10n.cancel,
     );
     return confirmed == true;
   }
@@ -119,11 +86,11 @@ class _OwnerEquipmentDetailScreenState
         setState(() => _submitting = false);
         switch (saveResult) {
           case SaveAllResult.invalid:
-            AppSnackBar.show(message: l10n.pleaseFillMissingInfo);
+            AppToast.show(message: l10n.pleaseFillMissingInfo);
           case SaveAllResult.failed:
-            AppSnackBar.show(
+            AppToast.show(
               message: l10n.couldNotSaveEquipment,
-              isError: true,
+              type: AppToastType.error,
             );
           case SaveAllResult.success:
             break;
@@ -142,12 +109,12 @@ class _OwnerEquipmentDetailScreenState
     if (!mounted) return;
     if (!equipmentHasImage(latest)) {
       setState(() => _submitting = false);
-      AppSnackBar.show(message: l10n.equipmentSubmitPhotoRequired);
+      AppToast.show(message: l10n.equipmentSubmitPhotoRequired);
       return;
     }
     if (!isEquipmentReadyForReview(latest)) {
       setState(() => _submitting = false);
-      AppSnackBar.show(message: l10n.pleaseCompleteRequiredFields);
+      AppToast.show(message: l10n.pleaseCompleteRequiredFields);
       return;
     }
 
@@ -156,7 +123,7 @@ class _OwnerEquipmentDetailScreenState
         .updateEquipmentStatus(latest.id, EquipmentStatus.created);
     if (!mounted) return;
     setState(() => _submitting = false);
-    AppSnackBar.show(
+    AppToast.show(
       message: res.success
           ? l10n.equipmentSubmittedForReview
           : equipmentStatusErrorMessage(
@@ -164,8 +131,7 @@ class _OwnerEquipmentDetailScreenState
               errorCode: res.errorCode,
               fallback: l10n.failedToSubmit,
             ),
-      isSuccess: res.success,
-      isError: !res.success,
+      type: res.success ? AppToastType.success : AppToastType.error,
     );
   }
 
@@ -221,7 +187,12 @@ class _OwnerEquipmentDetailScreenState
                     canEditImages: equipment.isDraft,
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDimens.s16$base,
+                      AppDimens.s16$base,
+                      AppDimens.s16$base,
+                      AppDimens.s24$xl,
+                    ),
                     child: Column(
                       children: [
                         CategorySelectorTile(
@@ -230,34 +201,29 @@ class _OwnerEquipmentDetailScreenState
                         ),
                         if (equipment.isPendingReview ||
                             equipment.isRejected) ...[
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppDimens.s16$base),
                           EquipmentModerationStatusCard(
                             status: equipment.status,
                             adminComment: equipment.adminComment,
                           ),
                         ],
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppDimens.s16$base),
                         GeneralInfoSection(equipment: equipment),
                         RegistrationSection(equipment: equipment),
                         OwnerEquipmentSpecs(equipment: equipment),
                         if (reviewUi.showSubmitForReview ||
                             reviewUi.showResubmit) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppDimens.s12$md),
                           Text(
                             l10n.equipmentSubmitPhotoHint,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
-                              height: 1.35,
-                            ),
+                            style: AppFonts.caption(context),
                           ),
-                          const SizedBox(height: 12),
-                          PrimaryButton(
-                            label: reviewUi.showSubmitForReview
+                          const SizedBox(height: AppDimens.s12$md),
+                          AppElevatedButton(
+                            title: reviewUi.showSubmitForReview
                                 ? l10n.submitForReview
                                 : l10n.resubmit,
-                            onPressed: _submitting
+                            onTap: _submitting
                                 ? null
                                 : () async {
                                     if (reviewUi.showResubmit) {
@@ -277,7 +243,7 @@ class _OwnerEquipmentDetailScreenState
                           ),
                         ],
                         if (equipment.status != EquipmentStatus.booked) ...[
-                          const SizedBox(height: 20),
+                          const SizedBox(height: AppDimens.s20$lg),
                           DeleteEquipmentSection(equipmentId: equipment.id),
                         ],
                       ],

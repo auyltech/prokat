@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -35,15 +35,15 @@ class OfferChatActionController {
             chatId: chatId,
           );
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: AppLocalizations.of(context)!.saved,
-        isSuccess: true,
+        type: AppToastType.success,
       );
     } catch (e) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: e.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -63,15 +63,15 @@ class OfferChatActionController {
             chatId: chatId,
           );
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: AppLocalizations.of(context)!.saved,
-        isSuccess: true,
+        type: AppToastType.success,
       );
     } catch (error) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: error.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -88,9 +88,9 @@ class OfferChatActionController {
           .acceptOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: error.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -107,9 +107,9 @@ class OfferChatActionController {
           .rejectOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: error.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -126,9 +126,9 @@ class OfferChatActionController {
           .cancelOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: error.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -142,9 +142,9 @@ class OfferChatActionController {
       await ref.read(requestMutationProvider.notifier).cancelRequest(requestId);
     } catch (error) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: error.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }
@@ -161,9 +161,9 @@ class OfferChatActionController {
           .cancelOffer(offerId, chatId: chatId, requestId: requestId);
     } catch (error) {
       if (!context.mounted) return;
-      AppSnackBar.show(
+      AppToast.show(
         message: error.toString().replaceFirst('Exception: ', ''),
-        isError: true,
+        type: AppToastType.error,
       );
     }
   }

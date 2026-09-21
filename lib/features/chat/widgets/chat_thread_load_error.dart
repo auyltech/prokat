@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/chat/utils/chat_error_utils.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -37,10 +38,11 @@ class ChatThreadLoadError extends StatelessWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
               ),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(l10n.retry),
+              AppElevatedButton(
+                title: l10n.retry,
+                onTap: onRetry,
+                isExpanded: false,
+                prefix: const Icon(Icons.refresh_rounded),
               ),
             ],
           ),

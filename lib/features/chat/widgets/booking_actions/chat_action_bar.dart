@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -92,12 +92,13 @@ class ChatActionBar extends ConsumerWidget {
                         request?.id ?? "",
                       );
 
-                      AppSnackBar.show(
+                      AppToast.show(
                         message: result.success
                             ? l10n.requestCancelled
                             : l10n.failedToCancelRequest,
-                        isSuccess: result.success,
-                        isError: !result.success,
+                        type: result.success
+                            ? AppToastType.success
+                            : AppToastType.error,
                       );
                     },
                   ),
@@ -131,21 +132,11 @@ class ChatActionBar extends ConsumerWidget {
                         submitState.isSubmitting &&
                         submitState.isActionActive("booking:reject"),
                     onPressed: () async {
-                      final decision =
-                          await showModalBottomSheet<CancelBookingDecision>(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: theme.colorScheme.surface,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20),
-                              ),
-                            ),
-                            builder: (_) => CancelBookingReasonSheet(
-                              booking: booking,
-                              useCase: 'owner',
-                            ),
-                          );
+                      final decision = await CancelBookingReasonSheet.show(
+                        context,
+                        booking: booking,
+                        useCase: 'owner',
+                      );
 
                       if (!context.mounted) return;
                       if (decision == null || decision.confirmed == false) {
@@ -175,36 +166,24 @@ class ChatActionBar extends ConsumerWidget {
                           submitState.isSubmitting &&
                           submitState.isActionActive("booking:workstatus"),
                       onPressed: () async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: theme.colorScheme.surface,
-                            title: Text(l10n.markCompletedQuestion),
-                            content: Text(l10n.clientConfirmCompletion),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: Text(l10n.cancel),
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  Navigator.pop(context, true);
-                                  final result = await bookingMutation
-                                      .updateBookingWorkStatus(
-                                        id: booking.id,
-                                        workStatus: WorkStatus.completed,
-                                      );
-                                  if (result.success == true) {
-                                    await chatNotifier.refreshAll();
-                                  }
-                                },
-                                child: Text(l10n.markCompleted),
-                              ),
-                            ],
-                          ),
+                        final confirmed = await AppAlertBottomSheet.show(
+                          context,
+                          title: l10n.markCompletedQuestion,
+                          description: l10n.clientConfirmCompletion,
+                          primaryLabel: l10n.markCompleted,
+                          secondaryLabel: l10n.cancel,
                         );
 
                         if (confirmed != true) return;
+
+                        final result = await bookingMutation
+                            .updateBookingWorkStatus(
+                              id: booking.id,
+                              workStatus: WorkStatus.completed,
+                            );
+                        if (result.success == true) {
+                          await chatNotifier.refreshAll();
+                        }
                       },
                     )
                   else if (canTransition(
@@ -253,63 +232,50 @@ class ChatActionBar extends ConsumerWidget {
                   isEnabled: !submitState.isSubmitting,
                   isLoading: submitState.isSubmitting,
                   onPressed: () async {
-                    await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        backgroundColor: theme.colorScheme.surface,
-                        title: Text(l10n.confirmCompletionQuestion),
-                        content: Text(l10n.confirmCompletionPrompt),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(l10n.notYet),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (context.mounted) {
-                                Navigator.pop(context, false);
-                              }
-
-                              final result = await bookingMutation
-                                  .updateBookingStatus(
-                                    id: booking?.id ?? "",
-                                    status: BookingStatus.completed,
-                                  );
-
-                              if (result.success) {
-                                await chatNotifier.refreshAll();
-                              }
-                            },
-                            child: Text(l10n.confirm),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
-                ActionBarButton(
-                  label: l10n.leaveReviewAction,
-                  isEnabled: !submitState.isSubmitting,
-                  isLoading:
-                      submitState.isSubmitting &&
-                      submitState.isActionActive("review:submit"),
-                  onPressed: () async {
-                    final submitted = await ReviewSheet.show(
+                    final confirmed = await AppAlertBottomSheet.show(
                       context,
-                      bookingId: booking?.id ?? "",
-                      revieweeId:
-                          (mode == AppMode.clientMode
-                              ? chatOwnerId
-                              : chatClientId) ??
-                          "",
-                      mode: mode,
+                      title: l10n.confirmCompletionQuestion,
+                      description: l10n.confirmCompletionPrompt,
+                      primaryLabel: l10n.confirm,
+                      secondaryLabel: l10n.notYet,
                     );
 
-                    if (submitted == true) {
+                    if (confirmed != true) return;
+
+                    final result = await bookingMutation.updateBookingStatus(
+                      id: booking?.id ?? "",
+                      status: BookingStatus.completed,
+                    );
+
+                    if (result.success) {
                       await chatNotifier.refreshAll();
                     }
                   },
+                ),
+              ] else if (chatStatus == ChatStatusDetail.leaveReview) ...[
+                AppLabelButton(
+                  title: l10n.leaveReviewAction,
+                  isLoading:
+                      submitState.isSubmitting &&
+                      submitState.isActionActive("review:submit"),
+                  onTap: submitState.isSubmitting
+                      ? null
+                      : () async {
+                          final submitted = await ReviewSheet.show(
+                            context,
+                            bookingId: booking?.id ?? "",
+                            revieweeId:
+                                (mode == AppMode.clientMode
+                                    ? chatOwnerId
+                                    : chatClientId) ??
+                                "",
+                            mode: mode,
+                          );
+
+                          if (submitted == true) {
+                            await chatNotifier.refreshAll();
+                          }
+                        },
                 ),
               ],
               const SizedBox(width: 16),

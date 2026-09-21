@@ -11,6 +11,22 @@
             ]
         },
         {
+            "name": "prokat (Ngrok)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env.ngrok.local"
+            ]
+        },
+        {
+            "name": "prokat (Hoster)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env.hoster"
+            ]
+        },
+        {
             "name": "prokat (Production Debug)",
             "request": "launch",
             "type": "dart",

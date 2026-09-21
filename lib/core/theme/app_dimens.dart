@@ -10,15 +10,33 @@ abstract final class AppDimens {
 
   static const double r08$md = 8;
   static const double r10$base = 10;
+  static const double r16$xl = 16;
   static const double r20$xxl = 20;
   static const double r999$full = 999;
 
   static const double buttonHeight = 52;
+  static const double compactButtonHeight = 40;
+  static const double iconButtonSize = 44;
+  static const double iconButtonLargeSize = 56;
+  static const double iconButtonIconSize = 24;
+  static const double buttonLoadingIndicatorSize = 18;
+  static const double buttonBorderWidth = 1.6;
   static const double inputHeight = 46;
-  static const double inputLabelGap = 6;
+  static const double inputLabelGap = 8;
   static const double inputHelperGap = 6;
-  static const double inputBorderWidth = 1;
-  static const double inputBorderWidthError = 1.5;
+  static const double inputBorderWidth = 1.6;
+  static const double inputBorderWidthError = 1.6;
+
+  static const double appBarHeight = 56;
+  static const double appBarDividerHeight = 1;
+  static const double appBarElevation = 4;
+  static const double appBarLeadingWidth = s04$xs * 2 + iconButtonSize;
+  static const double appBarTitleSpacing = s16$base;
+  static const double appBarTitleGap = 0;
+
+  static const double navigationBarHeight = 60;
+  static const double navigationBarDividerHeight = 1;
+  static const double navigationBarIconSize = 26;
 
   static const double checkboxSize = 18;
   static const double checkboxRadius = 3;
@@ -36,9 +54,9 @@ abstract final class AppDimens {
   static const double sheetHandleRadius = 2;
   static const double sheetTopPadding = s12$md;
   static const double sheetHorizontalPadding = s12$md;
-  static const double sheetHandleToTitleGap = 28;
+  static const double sheetHandleToTitleGap = s20$lg;
   static const double sheetTitleToSubtitleGap = s08$sm;
-  static const double sheetTitleToContentGap = 28;
+  static const double sheetTitleToContentGap = s20$lg;
   static const double sheetBottomPadding = 40;
 
   static const double defaultIconSize = 16;

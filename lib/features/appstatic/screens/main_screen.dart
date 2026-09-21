@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/utils/logger.dart';
@@ -176,27 +177,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                       ],
                     ),
                   ),
-                  GestureDetector(
+                  AppLabelButton(
+                    title: langDisplay,
                     onTap: () => LanguageSheet.show(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(40),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white30),
-                      ),
-                      child: Text(
-                        langDisplay,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    variant: AppLabelButtonVariant.soft,
+                    tone: AppLabelButtonTone.inverse,
                   ),
                 ],
               ),

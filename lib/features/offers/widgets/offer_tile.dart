@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -38,10 +38,9 @@ class OfferTile extends ConsumerWidget {
       requestId: offer.requestId,
     );
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
 
     if (result.success) {
@@ -67,10 +66,9 @@ class OfferTile extends ConsumerWidget {
 
     if (!context.mounted) return;
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.offerUpdated : l10n.somethingWentWrong,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
   }
 
@@ -179,15 +177,12 @@ class OfferTile extends ConsumerWidget {
 
               /// ACTIONS
               if (offer.chatId.isNotEmpty) ...[
-                IconButton(
-                  onPressed: () => context.push(
+                AppIconButton(
+                  onTap: () => context.push(
                     '${AppRoutes.clientChatList}/direct/${offer.chatId}',
                   ),
-                  icon: Icon(
-                    LucideIcons.messageCircle,
-                    size: 25,
-                    color: theme.colorScheme.primary,
-                  ),
+                  icon: LucideIcons.messageCircle,
+                  tone: AppIconButtonTone.primary,
                 ),
 
                 const SizedBox(width: 8),
@@ -195,29 +190,23 @@ class OfferTile extends ConsumerWidget {
 
               if (!isHandled) ...[
                 // Reject Offer
-                IconButton(
-                  onPressed: () => ref.watch(offerMutationProvider).isSubmitting
+                AppIconButton(
+                  onTap: () => ref.watch(offerMutationProvider).isSubmitting
                       ? null
                       : _handleReject(context, ref, l10n),
-                  icon: Icon(
-                    LucideIcons.x,
-                    size: 25,
-                    color: theme.colorScheme.error,
-                  ),
+                  icon: LucideIcons.x,
+                  tone: AppIconButtonTone.destructive,
                 ),
 
                 const SizedBox(width: 8),
 
                 // Accept Offer
-                IconButton(
-                  onPressed: () => ref.watch(offerMutationProvider).isSubmitting
+                AppIconButton(
+                  onTap: () => ref.watch(offerMutationProvider).isSubmitting
                       ? null
                       : _handleAccept(context, ref, l10n),
-                  icon: Icon(
-                    LucideIcons.check,
-                    size: 25,
-                    color: Colors.green[800],
-                  ),
+                  icon: LucideIcons.check,
+                  tone: AppIconButtonTone.success,
                 ),
               ],
             ],

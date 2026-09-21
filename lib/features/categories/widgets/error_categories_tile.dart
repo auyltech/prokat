@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ErrorCategoriesCard extends StatelessWidget {
@@ -56,9 +57,10 @@ class ErrorCategoriesCard extends StatelessWidget {
             ),
           ),
           if (onRetry != null)
-            IconButton(
-              onPressed: onRetry,
-              icon: Icon(Icons.refresh, color: theme.colorScheme.error),
+            AppIconButton(
+              onTap: onRetry,
+              icon: Icons.refresh,
+              tone: AppIconButtonTone.destructive,
             ),
         ],
       ),

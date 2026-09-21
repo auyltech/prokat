@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -252,25 +254,15 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () => showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: theme.colorScheme.surface,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (_) => CancelBookingSheet(
+                  AppIconButton(
+                    icon: LucideIcons.x,
+                    tone: AppIconButtonTone.destructive,
+                    onTap: () => unawaited(
+                      CancelBookingSheet.show(
+                        context,
                         booking: booking,
                         mode: widget.mode,
                       ),
-                    ),
-                    icon: Icon(
-                      LucideIcons.x,
-                      size: 25,
-                      color: theme.colorScheme.error,
                     ),
                   ),
               ],
@@ -291,8 +283,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () async {
+                  AppIconButton(
+                    icon: LucideIcons.coins,
+                    tone: AppIconButtonTone.primary,
+                    onTap: () async {
                       if (widget.mode == AppMode.ownerMode) {
                         final online = await ensureOwnerOnline(
                           context,
@@ -311,11 +305,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                         mode: widget.mode,
                       );
                     },
-                    icon: Icon(
-                      LucideIcons.coins,
-                      size: 25,
-                      color: theme.colorScheme.primary,
-                    ),
                   ),
               ],
 
@@ -336,8 +325,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () async {
+                  AppIconButton(
+                    icon: LucideIcons.check,
+                    tone: AppIconButtonTone.success,
+                    onTap: () async {
                       final online = await ensureOwnerOnline(
                         context,
                         ref,
@@ -345,53 +336,37 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                       );
                       if (!online || !context.mounted) return;
 
-                      await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: theme.colorScheme.surface,
-                          title: Text(l10n.acceptOrderQuestion),
-                          content: Text(l10n.acceptOrderConfirmation),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: Text(l10n.cancel),
-                            ),
+                      final confirmed = await AppAlertBottomSheet.show(
+                        context,
+                        title: l10n.acceptOrderQuestion,
+                        description: l10n.acceptOrderConfirmation,
+                        primaryLabel: l10n.accept,
+                        secondaryLabel: l10n.cancel,
+                      );
 
-                            ElevatedButton(
-                              onPressed: () async {
-                                Navigator.pop(context, true);
+                      if (confirmed != true || !context.mounted) return;
 
-                                final result = await ref
-                                    .read(bookingMutationProvider.notifier)
-                                    .updateBookingStatus(
-                                      id: booking.id,
-                                      status: BookingStatus.confirmed,
-                                    );
+                      final result = await ref
+                          .read(bookingMutationProvider.notifier)
+                          .updateBookingStatus(
+                            id: booking.id,
+                            status: BookingStatus.confirmed,
+                          );
 
-                                if (!context.mounted) return;
-                                AppSnackBar.show(
-                                  message: result.success
-                                      ? l10n.orderConfirmed
-                                      : ownerOfflineActionErrorMessage(
-                                          l10n: l10n,
-                                          errorCode: result.errorCode,
-                                          fallback: l10n.failedToConfirmOrder,
-                                        ),
-                                  isSuccess: result.success,
-                                  isError: !result.success,
-                                );
-                              },
-                              child: Text(l10n.accept),
-                            ),
-                          ],
-                        ),
+                      if (!context.mounted) return;
+                      AppToast.show(
+                        message: result.success
+                            ? l10n.orderConfirmed
+                            : ownerOfflineActionErrorMessage(
+                                l10n: l10n,
+                                errorCode: result.errorCode,
+                                fallback: l10n.failedToConfirmOrder,
+                              ),
+                        type: result.success
+                            ? AppToastType.success
+                            : AppToastType.error,
                       );
                     },
-                    icon: Icon(
-                      LucideIcons.check,
-                      size: 25,
-                      color: Colors.green[800],
-                    ),
                   ),
               ],
             ],

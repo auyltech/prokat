@@ -5,8 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
@@ -174,57 +173,43 @@ class ClientBookingTile extends ConsumerWidget {
                         ),
                       )
                     else
-                      IconButton(
-                        onPressed: !isSubmittingCancel
+                      AppIconButton(
+                        icon: LucideIcons.x,
+                        tone: AppIconButtonTone.destructive,
+                        onTap: !isSubmittingCancel
                             ? () {
                                 unawaited(
                                   _handleCancel(context, ref, booking, l10n),
                                 );
                               }
                             : null,
-                        icon: Icon(
-                          LucideIcons.x,
-                          size: 25,
-                          color: theme.colorScheme.error,
-                        ),
                       ),
 
                     const SizedBox(width: 8),
 
-                    IconButton(
-                      onPressed: () {
+                    AppIconButton(
+                      icon: LucideIcons.messageCircle,
+                      tone: AppIconButtonTone.primary,
+                      onTap: () {
                         unawaited(
                           context.push(
                             '${AppRoutes.clientChatList}/direct/${booking.chatId}',
                           ),
                         );
                       },
-                      icon: Icon(
-                        LucideIcons.messageCircle,
-                        size: 25,
-                        color: theme.colorScheme.primary,
-                      ),
                     ),
                   ] else if (canReview) ...[
-                    ActionButton(
+                    AppIconButton(
                       icon: Icons.reviews,
-                      onPressed: () async {
-                        await showModalBottomSheet<bool>(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: theme.colorScheme.surface,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (_) => ReviewSheet(
-                            bookingId: booking.id,
-                            revieweeId: booking.client?.id ?? "",
-                            title: l10n.reviewOwner,
-                          ),
+                      onTap: () async {
+                        await ReviewSheet.show(
+                          context,
+                          bookingId: booking.id,
+                          revieweeId: booking.client?.id ?? "",
+                          mode: AppMode.clientMode,
                         );
                       },
+                      variant: AppIconButtonVariant.filled,
                     ),
                   ] else ...[
                     const Text(""),
@@ -245,35 +230,15 @@ Future<void> _handleCancel(
   BookingModel booking,
   AppLocalizations l10n,
 ) async {
-  final theme = Theme.of(context);
   final notifier = ref.read(bookingMutationProvider.notifier);
 
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.cancelBooking, style: theme.textTheme.titleLarge),
-        content: Text(
-          l10n.cancelOrderQuestion,
-          style: theme.textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.no),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              l10n.yesCancel,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      );
-    },
+  final confirmed = await AppAlertBottomSheet.show(
+    context,
+    title: l10n.cancelBooking,
+    description: l10n.cancelOrderQuestion,
+    primaryLabel: l10n.yesCancel,
+    secondaryLabel: l10n.no,
+    isDestructivePrimary: true,
   );
 
   if (confirmed != true) return;
@@ -294,10 +259,9 @@ Future<void> _handleCancel(
     //   Navigator.pop(context);
     // }
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.orderCancelled : l10n.failedToCancelOrder,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
 
     return;
@@ -306,15 +270,10 @@ Future<void> _handleCancel(
   if (!context.mounted) return;
 
   unawaited(
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) =>
-          CancelBookingSheet(booking: booking, mode: AppMode.clientMode),
+    CancelBookingSheet.show(
+      context,
+      booking: booking,
+      mode: AppMode.clientMode,
     ),
   );
 }

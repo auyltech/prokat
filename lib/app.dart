@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_router.dart';
@@ -60,7 +60,8 @@ class _MyAppState extends ConsumerState<MyApp> {
     return MaterialApp.router(
       title: 'Prokat',
       debugShowCheckedModeBanner: false,
-      scaffoldMessengerKey: AppSnackBar.messengerKey,
+      builder: (context, child) =>
+          AppToastHost(child: child ?? const SizedBox.shrink()),
       routerConfig: router,
       themeMode: themeMode,
       theme: AppTheme.lightTheme,

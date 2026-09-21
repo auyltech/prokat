@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 
 class RequiredFieldLabel extends StatelessWidget {
   const RequiredFieldLabel({
@@ -188,64 +186,6 @@ class OutlinePickerField extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class JobCommentField extends StatelessWidget {
-  const JobCommentField({
-    super.key,
-    required this.hint,
-    this.controller,
-    this.onChanged,
-  });
-
-  final String hint;
-  final TextEditingController? controller;
-  final ValueChanged<String>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionTitle(title: l10n.comments),
-        const SizedBox(height: 12),
-        TextField(
-          controller: controller,
-          maxLines: 3,
-          style: theme.textTheme.bodyMedium,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-            filled: true,
-            fillColor: theme.cardColor,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.5),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.primary,
-                width: 1.5,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
             ),
           ),
         ),

@@ -143,6 +143,9 @@ class TariffDraft {
     );
   }
 
+  /// Local in-memory stub (not yet on the backend). Lost when leaving the screen.
+  bool get isLocalDraft => id == null;
+
   bool get hasPrice => (price ?? 0) > 0;
 
   bool get isSavable {

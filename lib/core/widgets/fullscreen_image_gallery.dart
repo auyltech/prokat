@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:prokat/core/theme/app_dimens.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/page_dots_indicator.dart';
 
@@ -140,13 +140,15 @@ class _FullscreenImageGalleryState extends State<FullscreenImageGallery> {
             Positioned(
               top: topInset + AppDimens.s08$sm,
               left: AppDimens.s08$sm,
-              child: FloatingActionButton.small(
-                heroTag: 'fullscreen_image_gallery_back',
-                onPressed: () =>
-                    Navigator.of(context, rootNavigator: true).maybePop(),
-                backgroundColor: Colors.black.withValues(alpha: 0.35),
-                elevation: 0,
-                child: const Icon(Icons.chevron_left, color: Colors.white),
+              child: Hero(
+                tag: 'fullscreen_image_gallery_back',
+                child: AppIconButton(
+                  icon: Icons.chevron_left,
+                  onTap: () =>
+                      Navigator.of(context, rootNavigator: true).maybePop(),
+                  variant: AppIconButtonVariant.soft,
+                  tone: AppIconButtonTone.inverse,
+                ),
               ),
             ),
             if (widget.imageUrls.length > 1)

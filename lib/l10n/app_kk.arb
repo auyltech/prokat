@@ -699,6 +699,7 @@
   "priceFixed": "Бекітілген",
   "priceFromPrefix": "бастап",
   "addTariff": "Тариф қосу",
+  "tariffDraftPrefix": "Жоба:",
   "serviceType": "Қызмет түрі",
   "serviceOther": "Басқа",
   "customServiceName": "Қызмет атауы",
@@ -747,6 +748,7 @@
   "selectLocation": "Орынды таңдаңыз",
   "noSavedLocations": "Сақталған мекен-жайлар жоқ",
   "createNewOnMap": "Картада жаңа мекен-жай жасау",
+  "equipmentPhotoSheetTitle": "Техника фотосы",
   "chooseFromGallery": "Галереядан таңдау",
   "takePhoto": "Фото түсіру",
   "setAsCover": "Мұқаба ретінде орнату",
@@ -867,6 +869,17 @@
   "ownerProfileSuspendedHint": "Техниканы орналастыру уақытша қолжетімсіз. Қолдау қызметіне хабарласыңыз.",
   "ownerProfilePendingReview": "Қарауды күтіңіз",
   "ownerProfilePendingReviewHint": "Жіберілген деректер қайта модерациядан өтеді.",
+  "ownerProfileChangesPending": "Өзгерістер қаралуда",
+  "ownerProfileChangesPendingHint": "Тексеру кезінде профильді өзгертуге болмайды.",
+  "ownerProfileChangesRejected": "Өзгерістер қабылданбады",
+  "ownerProfileChangesRejectedUntil": "{date} дейін түзетіңіз",
+  "@ownerProfileChangesRejectedUntil": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "ownerProfileCorrectionOverdue": "Түзету мерзімі өтті. Қолжетімділік тоқтатылуы мүмкін.",
+  "ownerProfileCorrectionOverdueHint": "Деректерді жаңартып, қайта тексеруге жіберіңіз.",
   "profileUpdateNeedsModeration": "Деректер модерацияға жіберіледі",
   "submitForVerification": "Тексеруге жіберу",
   "underReview": "Тексерілуде",
@@ -1201,6 +1214,7 @@
   "saveChanges": "Сақтау",
   "saving": "Сақталуда...",
   "fieldRequired": "Міндетті өріс",
+  "cannotBeEmpty": "Бос болмауы керек",
   "justNow": "Жаңа ғана",
   "minutesAgo": "{count} мин бұрын",
   "@minutesAgo": {
@@ -1262,9 +1276,8 @@
   "ownerOfflineChatClientBanner": "Техника иесі қазір офлайн, бірақ ол сіздің сұранысыңызды алды",
   "ownerOfflineChatOwnerBanner": "Жалғастыру үшін мәртебені «Онлайн» етіп ауыстырыңыз",
   "becomeOnline": "«Онлайн» болу",
-  "accountSwitchedToOnline": "Сіз аккаунтты «Онлайн» режиміне аудардыңыз",
-  "youAreNowOnline": "Енді сіз онлайнсыз",
-  "youAreNowOffline": "Енді сіз офлайнсыз",
+  "youAreNowOnline": "«Онлайн» режимі қосылды.\nЕнді сіз тапсырыстарды қабылдай аласыз.",
+  "youAreNowOffline": "«Онлайн» режимі өшірілді.\nСіз тапсырыстарды қабылдай алмайсыз.",
   "failedToggleStatus": "Мәртебені жаңарту мүмкін болмады",
   "cannotGoOnlineWithZeroBalance": "Баланс нөлде болғанда онлайн болуға болмайды",
   "cannotGoOnlineWithoutOnlineEquipment": "Алдымен кемінде бір техниканы онлайнға шығарыңыз",
