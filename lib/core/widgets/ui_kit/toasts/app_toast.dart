@@ -16,7 +16,7 @@ abstract final class AppToast {
   static const Duration _displayDuration = Duration(seconds: 4);
 
   /// Extra lift above the safe-area bottom edge (on top of [AppDimens.s16$base]).
-  static const double _bottomLift = 100;
+  static const double _bottomLift = 80;
 
   static OverlayState? _overlay;
   static OverlayEntry? _entry;
@@ -251,14 +251,13 @@ class _AppToastViewState extends State<_AppToastView>
           ),
           child: Row(
             children: [
-              Icon(icon, color: contentColor, size: AppDimens.s20$lg),
+              Icon(icon, color: contentColor, size: AppDimens.s24$xl),
               const SizedBox(width: AppDimens.s12$md),
               Expanded(
                 child: Text(
                   widget.message,
-                  style: AppFonts.body14(
-                    context,
-                  ).copyWith(color: contentColor, fontWeight: FontWeight.w500),
+                  style: AppFonts.body16SemiBold(context)
+                      .copyWith(color: contentColor, height: 1.4),
                 ),
               ),
             ],

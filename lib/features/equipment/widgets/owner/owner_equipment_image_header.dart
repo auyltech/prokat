@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -323,7 +324,7 @@ class _OwnerEquipmentImageHeaderState
             child: Hero(
               tag: 'editEquipmentImages_${widget.equipmentId}',
               child: AppIconButton(
-                icon: Icons.camera_alt,
+                icon: LucideIcons.squarePen,
                 variant: AppIconButtonVariant.floating,
                 tone: AppIconButtonTone.primary,
                 onTap: () {
