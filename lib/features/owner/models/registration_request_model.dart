@@ -16,6 +16,19 @@ BecomeOwnerRequestStatus parseBecomeOwnerRequestStatus(String? status) {
   }
 }
 
+enum BecomeOwnerRequestKind { becomeOwner, profileUpdate }
+
+BecomeOwnerRequestKind parseBecomeOwnerRequestKind(dynamic value) {
+  final normalized = value?.toString().trim().toUpperCase().replaceAll(
+    '-',
+    '_',
+  );
+  if (normalized == 'PROFILE_UPDATE') {
+    return BecomeOwnerRequestKind.profileUpdate;
+  }
+  return BecomeOwnerRequestKind.becomeOwner;
+}
+
 class RegistrationRequestModel {
   final String? id;
 
@@ -30,6 +43,7 @@ class RegistrationRequestModel {
   final String? message;
   final String? adminComment;
   final String? status;
+  final BecomeOwnerRequestKind kind;
 
   final DateTime? createdAt;
 
@@ -46,6 +60,7 @@ class RegistrationRequestModel {
     this.message,
     this.adminComment,
     this.status,
+    this.kind = BecomeOwnerRequestKind.becomeOwner,
 
     this.createdAt,
   });
@@ -58,6 +73,8 @@ class RegistrationRequestModel {
   bool get isRejected => parsedStatus == BecomeOwnerRequestStatus.rejected;
 
   bool get isPending => parsedStatus == BecomeOwnerRequestStatus.pending;
+
+  bool get isBecomeOwner => kind == BecomeOwnerRequestKind.becomeOwner;
 
   factory RegistrationRequestModel.fromJson(Map<String, dynamic> json) {
     try {
@@ -74,6 +91,7 @@ class RegistrationRequestModel {
         message: json['message']?.toString(),
         adminComment: json['adminComment']?.toString(),
         status: json['status']?.toString(),
+        kind: parseBecomeOwnerRequestKind(json['kind']),
 
         createdAt: parseNullableDate(json['createdAt']),
       );
@@ -95,6 +113,9 @@ class RegistrationRequestModel {
       'message': message,
       'adminComment': adminComment,
       'status': status,
+      'kind': kind == BecomeOwnerRequestKind.profileUpdate
+          ? 'PROFILE_UPDATE'
+          : 'BECOME_OWNER',
     };
   }
 }

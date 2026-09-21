@@ -5,8 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
@@ -94,6 +93,8 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
         _plateController.text.trim().isNotEmpty;
   }
 
+  bool get _hasValidationErrors => _modelError != null || _plateError != null;
+
   void _bind() {
     _editor.bind(
       id: OwnerEquipmentBlockId.registration,
@@ -114,25 +115,35 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       isSaving: _isSaving,
       indicator: blockIndicatorFor(
         complete: _isComplete,
-        saveAttempted: _saveAttempted,
+        hasValidationErrors: _hasValidationErrors,
       ),
     );
   }
 
   bool _validate() {
     _saveAttempted = true;
-    _modelError = _modelController.text.trim().isEmpty ? 'required' : null;
-    _plateError = _plateController.text.trim().isEmpty ? 'required' : null;
+    _validateModelField();
+    _validatePlateField();
     setState(() {});
     return _modelError == null && _plateError == null;
+  }
+
+  void _validateModelField() {
+    _modelError = _modelController.text.trim().isEmpty ? 'required' : null;
+  }
+
+  void _validatePlateField() {
+    _plateError = _plateController.text.trim().isEmpty ? 'required' : null;
   }
 
   Future<bool> _handleSave({required bool notify}) async {
     final l10n = AppLocalizations.of(context)!;
     if (!_canEdit || _isSaving) return false;
-    if (notify && !_validate()) {
+    if (!_validate()) {
       _publish();
-      AppToast.show(message: l10n.pleaseFillMissingInfo);
+      if (notify) {
+        AppToast.show(message: l10n.pleaseFillMissingInfo);
+      }
       return false;
     }
 
@@ -157,7 +168,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
           OwnerEquipmentBlockId.registration,
           indicator: blockIndicatorFor(
             complete: _isComplete,
-            saveAttempted: _saveAttempted,
+            hasValidationErrors: _hasValidationErrors,
           ),
         );
         if (notify) {
@@ -192,7 +203,10 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
 
   void _onChanged() {
     if (!_canEdit) return;
-    if (_saveAttempted) _validate();
+    if (_modelError != null || _plateError != null || _saveAttempted) {
+      _validateModelField();
+      _validatePlateField();
+    }
     setState(() {});
     _publish();
   }
@@ -200,6 +214,22 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   void _commitIfDirty() {
     if (!_canEdit || !_isDirty || _isSaving) return;
     unawaited(_handleSave(notify: false));
+  }
+
+  void _onModelFocusLost() {
+    if (!_canEdit) return;
+    setState(_validateModelField);
+    _publish();
+    if (_modelError != null) return;
+    _commitIfDirty();
+  }
+
+  void _onPlateFocusLost() {
+    if (!_canEdit) return;
+    setState(_validatePlateField);
+    _publish();
+    if (_plateError != null) return;
+    _commitIfDirty();
   }
 
   @override
@@ -223,38 +253,32 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       },
       saveLabel: l10n.save,
       child: Column(
+        spacing: AppDimens.s16$base,
         children: [
-          InputField(
-            label: l10n.modelLabel,
-            controller: _modelController,
-            onChanged: _onChanged,
-            onFocusLost: _commitIfDirty,
-            hint: l10n.modelHint,
+          AppTextField(
+            title: l10n.modelLabel,
             isRequired: true,
-            requiredHintText: l10n.requiredInParens,
-            showFieldErrors: false,
+            controller: _modelController,
+            onChanged: (_) => _onChanged(),
+            onFocusLost: _onModelFocusLost,
+            hint: l10n.modelHint,
             readOnly: !_canEdit,
-            boxed: true,
-            filled: false,
+            errorText: _modelError == null ? null : l10n.cannotBeEmpty,
             maxLength: ownerEquipmentTextMaxLength,
             inputFormatters: [
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
-          const SizedBox(height: 12),
-          InputField(
-            label: l10n.plateNumberLabel,
-            controller: _plateController,
-            onChanged: _onChanged,
-            onFocusLost: _commitIfDirty,
-            hint: l10n.plateNumberHint,
+          AppTextField(
+            title: l10n.plateNumberLabel,
             isRequired: true,
-            requiredHintText: l10n.requiredInParens,
-            showFieldErrors: false,
-            isLast: true,
+            controller: _plateController,
+            onChanged: (_) => _onChanged(),
+            onFocusLost: _onPlateFocusLost,
+            hint: l10n.plateNumberHint,
+            textInputAction: TextInputAction.done,
             readOnly: !_canEdit,
-            boxed: true,
-            filled: false,
+            errorText: _plateError == null ? null : l10n.cannotBeEmpty,
             inputFormatters: const [KzPlateInputFormatter()],
           ),
         ],

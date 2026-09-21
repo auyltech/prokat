@@ -6,12 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -106,16 +103,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
           ref.read(categoriesProvider.notifier).refreshIfStale(),
           ref.read(ownerProfileProvider.notifier).refreshIfStale(),
         ]);
-        if (!mounted) return;
-        _selectVacuumCategory();
       }),
     );
-  }
-
-  void _selectVacuumCategory() {
-    final vacuum = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull);
-    if (vacuum == null) return;
-    ref.read(equipmentMutationProvider.notifier).selectCategory(vacuum);
   }
 
   String _selectedCity() {
@@ -156,12 +145,6 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     ref.watch(locationProvider.select((state) => state.city));
     final accountCity = _selectedCity();
 
-    ref.listen(catalogProvider, (previous, next) {
-      final vacuum = vacuumTrucksCategory(next.valueOrNull);
-      if (vacuum == null) return;
-      ref.read(equipmentMutationProvider.notifier).selectCategory(vacuum);
-    });
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
@@ -170,8 +153,6 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             ref.read(categoriesProvider.notifier).refresh(),
             ref.read(ownerProfileProvider.notifier).refresh(),
           ]);
-          if (!mounted) return;
-          _selectVacuumCategory();
         },
         child: ListView(
           padding: EdgeInsets.zero,
@@ -208,52 +189,55 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     const SizedBox(height: 16),
 
-                    InputField(
-                      icon: Icons.badge_outlined,
-                      label: l10n.equipmentNameLabel,
+                    AppTextField(
+                      prefix: const Icon(Icons.badge_outlined),
+                      title: l10n.equipmentNameLabel,
+                      isRequired: true,
                       controller: _name,
                       hint: l10n.equipmentNameHint,
-                      isRequired: true,
-                      requiredHintText: l10n.requiredInParens,
-                      showFieldErrors: false,
                       maxLength: ownerEquipmentTextMaxLength,
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
                           ownerEquipmentTextMaxLength,
                         ),
                       ],
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
 
                     const SizedBox(height: 8),
 
-                    InputField(
-                      icon: Icons.view_column_outlined,
-                      label: l10n.modelLabel,
+                    AppTextField(
+                      prefix: const Icon(Icons.view_column_outlined),
+                      title: l10n.modelLabel,
+                      isRequired: true,
                       controller: _model,
                       hint: l10n.modelHint,
-                      isRequired: true,
-                      requiredHintText: l10n.requiredInParens,
-                      showFieldErrors: false,
                       maxLength: ownerEquipmentTextMaxLength,
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
                           ownerEquipmentTextMaxLength,
                         ),
                       ],
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
 
                     const SizedBox(height: 8),
 
-                    InputField(
-                      icon: Icons.mp_outlined,
-                      label: l10n.plateNumberLabel,
+                    AppTextField(
+                      prefix: const Icon(Icons.mp_outlined),
+                      title: l10n.plateNumberLabel,
+                      isRequired: true,
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
-                      isRequired: true,
-                      requiredHintText: l10n.requiredInParens,
-                      showFieldErrors: false,
-                      isLast: true,
+                      textInputAction: TextInputAction.done,
                       inputFormatters: const [KzPlateInputFormatter()],
+                      validator: (value) => sanitizeKzPlate(value ?? '').isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
 
                     const SizedBox(height: 24),
@@ -265,10 +249,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
                     const SizedBox(height: 16),
 
-                    PrimaryButton(
-                      label: l10n.continueAction,
+                    AppElevatedButton(
+                      title: l10n.continueAction,
                       isLoading: _loading,
-                      onPressed: _loading ? null : () => onSubmit(l10n),
+                      onTap: _loading ? null : () => onSubmit(l10n),
                     ),
                   ],
                 ),

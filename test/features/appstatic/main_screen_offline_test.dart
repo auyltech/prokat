@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_provider.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/catalog/catalog_cache.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -107,11 +108,12 @@ void main() {
           apiClientProvider.overrideWithValue(apiClient),
           catalogCacheProvider.overrideWithValue(_EmptyCatalogCache()),
         ],
-        child: const MaterialApp(
-          locale: Locale('en'),
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          locale: const Locale('en'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: MainScreen(),
+          home: const MainScreen(),
         ),
       ),
     );

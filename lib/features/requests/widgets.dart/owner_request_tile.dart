@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -219,26 +219,25 @@ class OwnerRequestTile extends ConsumerWidget {
                 children: [
                   if (activeOffer != null) ...[
                     // Go To Chat
-                    IconButton(
-                      onPressed: () {
+                    AppIconButton(
+                      icon: LucideIcons.messageCircle,
+                      tone: AppIconButtonTone.primary,
+                      onTap: () {
                         unawaited(
                           context.push(
                             '${AppRoutes.ownerChatList}/direct/${activeOffer.chatId}',
                           ),
                         );
                       },
-                      icon: Icon(
-                        LucideIcons.messageCircle,
-                        size: 25,
-                        color: theme.colorScheme.primary,
-                      ),
                     ),
 
                     const SizedBox(width: 8),
 
                     // View Offer
-                    IconButton(
-                      onPressed: () => openViewOfferSheet(
+                    AppIconButton(
+                      icon: LucideIcons.scrollText,
+                      tone: AppIconButtonTone.primary,
+                      onTap: () => openViewOfferSheet(
                         context: context,
                         offer: activeOffer,
                         onCancel: () async {
@@ -258,16 +257,13 @@ class OwnerRequestTile extends ConsumerWidget {
                           );
                         },
                       ),
-                      icon: Icon(
-                        LucideIcons.scrollText,
-                        size: 25,
-                        color: Colors.blue[800],
-                      ),
                     ),
                   ] else ...[
                     // Reject Request (set as viewed for this owner)
-                    IconButton(
-                      onPressed: () async {
+                    AppIconButton(
+                      icon: LucideIcons.x,
+                      tone: AppIconButtonTone.destructive,
+                      onTap: () async {
                         final result = await ref
                             .read(requestMutationProvider.notifier)
                             .viewRequest(request.id);
@@ -283,16 +279,13 @@ class OwnerRequestTile extends ConsumerWidget {
                           );
                         }
                       },
-                      icon: Icon(
-                        LucideIcons.x,
-                        size: 25,
-                        color: theme.colorScheme.error,
-                      ),
                     ),
 
                     // Send Offer
-                    IconButton(
-                      onPressed: () async {
+                    AppIconButton(
+                      icon: LucideIcons.send,
+                      tone: AppIconButtonTone.success,
+                      onTap: () async {
                         final online = await ensureOwnerOnline(
                           context,
                           ref,
@@ -306,11 +299,6 @@ class OwnerRequestTile extends ConsumerWidget {
 
                         unawaited(context.push(AppRoutes.ownerCreateOffer));
                       },
-                      icon: Icon(
-                        LucideIcons.send,
-                        size: 25,
-                        color: Colors.green[800],
-                      ),
                     ),
                   ],
                 ],

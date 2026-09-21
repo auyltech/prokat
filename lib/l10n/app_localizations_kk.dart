@@ -1899,6 +1899,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get addTariff => 'Тариф қосу';
 
   @override
+  String get tariffDraftPrefix => 'Жоба:';
+
+  @override
   String get serviceType => 'Қызмет түрі';
 
   @override
@@ -2045,6 +2048,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get createNewOnMap => 'Картада жаңа мекен-жай жасау';
+
+  @override
+  String get equipmentPhotoSheetTitle => 'Техника фотосы';
 
   @override
   String get chooseFromGallery => 'Галереядан таңдау';
@@ -2360,6 +2366,29 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get ownerProfilePendingReviewHint =>
       'Жіберілген деректер қайта модерациядан өтеді.';
+
+  @override
+  String get ownerProfileChangesPending => 'Өзгерістер қаралуда';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'Тексеру кезінде профильді өзгертуге болмайды.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Өзгерістер қабылданбады';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return '$date дейін түзетіңіз';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Түзету мерзімі өтті. Қолжетімділік тоқтатылуы мүмкін.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Деректерді жаңартып, қайта тексеруге жіберіңіз.';
 
   @override
   String get profileUpdateNeedsModeration => 'Деректер модерацияға жіберіледі';
@@ -3375,6 +3404,9 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get fieldRequired => 'Міндетті өріс';
+
+  @override
+  String get cannotBeEmpty => 'Бос болмауы керек';
 
   @override
   String get justNow => 'Жаңа ғана';

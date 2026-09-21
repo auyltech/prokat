@@ -4,23 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/location_tile.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
-  final String service;
   final String from;
-  final String? equipmentId;
+  final ScrollController scrollController;
 
   const SelectAddressSheet({
     super.key,
-    required this.service,
     required this.from,
-    this.equipmentId,
+    required this.scrollController,
   });
 
   static void show(
@@ -29,15 +26,19 @@ class SelectAddressSheet extends ConsumerWidget {
     required String from,
     String? equipmentId,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+
     unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (context) => SelectAddressSheet(
+      AppBottomSheet.showScrollable<void>(
+        context,
+        minChildSize: 0.3,
+        maxChildSize: 0.4,
+        initialChildSize: 0.4,
+        title: l10n.selectAddress,
+        headerBuilder: (_) => const SizedBox.shrink(),
+        scrollableListBuilder: (context, controller) =>
+            SelectAddressSheet(from: from, scrollController: controller),
+        footerBuilder: (sheetContext) => _SelectAddressFooter(
           service: service,
           from: from,
           equipmentId: equipmentId,
@@ -82,131 +83,87 @@ class SelectAddressSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-
     final locationState = ref.watch(locationProvider);
     final addresses = locationState.clientLocations;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.05),
-        ),
+    return ListView.builder(
+      controller: scrollController,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.sheetHorizontalPadding,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
+      itemCount: addresses.length,
+      itemBuilder: (context, index) {
+        final address = addresses[index];
+        final addressId = address.id;
+        final isDeleting =
+            addressId != null &&
+            locationState.isActionActive('location:$addressId:delete');
 
-          Text(
-            l10n.selectAddress,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+        return LocationTile(
+          location: address,
+          isDeleting: isDeleting,
+          onDelete: addressId == null || isDeleting
+              ? null
+              : () => unawaited(_confirmDeleteAddress(context, ref, addressId)),
+          onTap: () {
+            ref.read(locationProvider.notifier).selectAddress(address);
 
-          const SizedBox(height: 16),
+            if (from == 'profile' && (addressId ?? '').isNotEmpty) {
+              unawaited(
+                ref
+                    .read(clientProfileMutationProvider.notifier)
+                    .selectAddress(addressId!),
+              );
+            }
 
-          if (addresses.isNotEmpty)
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.45,
-              ),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: addresses.length,
-                itemBuilder: (context, index) {
-                  final address = addresses[index];
-                  final addressId = address.id;
-                  final isDeleting =
-                      addressId != null &&
-                      locationState.isActionActive(
-                        'location:$addressId:delete',
-                      );
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+}
 
-                  return LocationTile(
-                    location: address,
-                    isDeleting: isDeleting,
-                    onDelete: addressId == null || isDeleting
-                        ? null
-                        : () => unawaited(
-                            _confirmDeleteAddress(context, ref, addressId),
-                          ),
-                    onTap: () {
-                      ref
-                          .read(locationProvider.notifier)
-                          .selectAddress(address);
+class _SelectAddressFooter extends StatelessWidget {
+  final String service;
+  final String from;
+  final String? equipmentId;
 
-                      if (from == 'profile' && (addressId ?? '').isNotEmpty) {
-                        unawaited(
-                          ref
-                              .read(clientProfileMutationProvider.notifier)
-                              .selectAddress(addressId!),
-                        );
-                      }
+  const _SelectAddressFooter({
+    required this.service,
+    required this.from,
+    this.equipmentId,
+  });
 
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
-          const SizedBox(height: 8),
-
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                unawaited(
-                  context.push(
-                    AppRoutes.clientPinAddress,
-                    extra: {
-                      'equipmentId': equipmentId,
-                      "service": service,
-                      "from": from,
-                    },
-                  ),
-                );
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppDimens.sheetHorizontalPadding,
+        AppDimens.s08$sm,
+        AppDimens.sheetHorizontalPadding,
+        AppDimens.sheetBottomPadding + bottomInset,
+      ),
+      child: AppOutlinedButton(
+        title: l10n.chooseOnMap,
+        prefix: const Icon(Icons.map_outlined),
+        onTap: () {
+          final router = GoRouter.of(context);
+          Navigator.of(context).pop();
+          unawaited(
+            router.push(
+              AppRoutes.clientPinAddress,
+              extra: {
+                'equipmentId': equipmentId,
+                'service': service,
+                'from': from,
               },
-              icon: const Icon(Icons.map_outlined, size: 24),
-              label: Text(
-                l10n.chooseOnMap,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: theme.colorScheme.primary,
-                side: BorderSide(
-                  color: theme.colorScheme.outline.withAlpha(50),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                backgroundColor: theme.colorScheme.surfaceBright,
-              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

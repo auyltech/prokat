@@ -56,9 +56,9 @@ class OwnerEquipmentEditorState {
 
 BlockIndicator blockIndicatorFor({
   required bool complete,
-  required bool saveAttempted,
+  required bool hasValidationErrors,
 }) {
   if (complete) return BlockIndicator.valid;
-  if (saveAttempted) return BlockIndicator.invalid;
+  if (hasValidationErrors) return BlockIndicator.invalid;
   return BlockIndicator.empty;
 }

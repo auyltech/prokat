@@ -5,43 +5,47 @@ import 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
 class AppTextArea extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
-  final String? label;
   final String? title;
   final String? hint;
   final String? errorText;
   final bool showError;
   final bool enabled;
   final bool readOnly;
+  final bool isRequired;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onFocusLost;
   final Widget? prefix;
   final Widget? suffix;
   final String? Function(String?)? validator;
   final int minLines;
   final int maxLines;
+  final int? maxLength;
 
   const AppTextArea({
     super.key,
     required this.controller,
     this.focusNode,
-    this.label,
     this.title,
     this.hint,
     this.errorText,
     this.showError = true,
     this.enabled = true,
     this.readOnly = false,
+    this.isRequired = false,
     this.keyboardType,
     this.inputFormatters,
     this.textInputAction,
     this.onChanged,
+    this.onFocusLost,
     this.prefix,
     this.suffix,
     this.validator,
     this.minLines = 3,
     this.maxLines = 5,
+    this.maxLength,
   });
 
   @override
@@ -49,21 +53,24 @@ class AppTextArea extends StatelessWidget {
     return AppTextField(
       controller: controller,
       focusNode: focusNode,
-      label: label,
       title: title,
       hint: hint,
       errorText: errorText,
       showError: showError,
       enabled: enabled,
       readOnly: readOnly,
+      isRequired: isRequired,
       keyboardType: keyboardType ?? TextInputType.multiline,
       inputFormatters: inputFormatters,
       textInputAction: textInputAction ?? TextInputAction.newline,
       onChanged: onChanged,
+      onFocusLost: onFocusLost,
       prefix: prefix,
       suffix: suffix,
       validator: validator,
+      minLines: minLines,
       maxLines: maxLines,
+      maxLength: maxLength,
     );
   }
 }

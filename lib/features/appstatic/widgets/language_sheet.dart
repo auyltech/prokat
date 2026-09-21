@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
@@ -19,18 +20,13 @@ class LanguageSheet extends ConsumerStatefulWidget {
   ConsumerState<LanguageSheet> createState() => LanguageSheetState();
 
   static void show(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled:
-            true, // Allows sheet to wrap its content height dynamically
-        backgroundColor: Theme.of(context).cardColor,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (sheetContext) {
-          return const LanguageSheet();
-        },
+      AppBottomSheet.show<void>(
+        context,
+        title: l10n.selectLanguage,
+        contentBuilder: (context) => const LanguageSheet(),
       ),
     );
   }
@@ -88,37 +84,16 @@ class LanguageSheetState extends ConsumerState<LanguageSheet> {
   @override
   Widget build(BuildContext context) {
     final currentLocale = ref.watch(localeProvider);
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24, top: 12, left: 24, right: 24),
+      padding: EdgeInsets.fromLTRB(
+        AppDimens.sheetHorizontalPadding,
+        0,
+        AppDimens.sheetHorizontalPadding,
+        MediaQuery.paddingOf(context).bottom,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // Constrains sheet to content size
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withValues(
-                  alpha: 0.4,
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.selectLanguage,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
           _LanguageTile(
             title: 'Қазақша',
             code: 'KZ',
@@ -143,7 +118,6 @@ class LanguageSheetState extends ConsumerState<LanguageSheet> {
   }
 }
 
-// 5. Mocking your private sub-tile widget structure so your code compiles out of the box
 class _LanguageTile extends StatelessWidget {
   final String title;
   final String code;

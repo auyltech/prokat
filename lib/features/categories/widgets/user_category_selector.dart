@@ -3,16 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstatic/widgets/category_card.dart';
-import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
@@ -32,6 +30,11 @@ class UserCategorySelector extends ConsumerStatefulWidget {
 }
 
 class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
+  static const _horizontalBleed = 16.0;
+  static const _tileExtent = 132.0;
+  static const _tileWidth = 140.0;
+  static const _tileSpacing = 12.0;
+
   void onCategorySelected(BuildContext context, Category category) {
     if (widget.mode == "create_request") {
       ref.read(requestMutationProvider.notifier).selectCategory(category);
@@ -70,55 +73,87 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final catalogAsync = ref.watch(catalogProvider);
-    final categories = vacuumTrucksCategories(catalogAsync.valueOrNull);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final categories = categoriesAsync.valueOrNull?.items ?? const [];
     final showDemand =
         ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (catalogAsync.isLoading && categories.isEmpty)
-          const CategoryRowSkeleton()
-        else if (catalogAsync.hasError && categories.isEmpty)
+        if (categoriesAsync.isLoading && categories.isEmpty && !showDemand)
+          const _FullWidthCategoryRow(
+            child: CategoryRowSkeleton(
+              padding: EdgeInsets.symmetric(horizontal: _horizontalBleed),
+            ),
+          )
+        else if (categoriesAsync.hasError && categories.isEmpty && !showDemand)
           EmptyStateTile(
             icon: LucideIcons.router,
             title: l10n.errorLoadingServices,
             subtitle: l10n.couldNotLoadServices,
           )
         else
-          SizedBox(
-            height: 132,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length + (showDemand ? 1 : 0),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                if (showDemand && index == categories.length) {
+          _FullWidthCategoryRow(
+            child: SizedBox(
+              height: _tileExtent,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length + (showDemand ? 1 : 0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _horizontalBleed,
+                ),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(width: _tileSpacing),
+                itemBuilder: (context, index) {
+                  if (showDemand && index == categories.length) {
+                    return SizedBox(
+                      width: _tileWidth,
+                      child: DemandCategoryCard(
+                        title: l10n.demandSurveyCardTitle,
+                        onTap: _openSuggestEquipment,
+                      ),
+                    );
+                  }
+                  final cat = categories[index];
+                  final isSelected = widget.selectedCategoryId == cat.id;
+
                   return SizedBox(
-                    width: 140,
-                    child: DemandCategoryCard(
-                      title: l10n.demandSurveyCardTitle,
-                      onTap: _openSuggestEquipment,
+                    width: _tileWidth,
+                    child: CategoryCard(
+                      category: cat,
+                      onTap: () => onCategorySelected(context, cat),
+                      isSelected: isSelected,
                     ),
                   );
-                }
-                final cat = categories[index];
-                final isSelected = widget.selectedCategoryId == cat.id;
-
-                return SizedBox(
-                  width: 140,
-                  child: CategoryCard(
-                    category: cat,
-                    onTap: () => onCategorySelected(context, cat),
-                    isSelected: isSelected,
-                  ),
-                );
-              },
+                },
+              ),
             ),
           ),
       ],
+    );
+  }
+}
+
+class _FullWidthCategoryRow extends StatelessWidget {
+  final Widget child;
+
+  const _FullWidthCategoryRow({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    return SizedBox(
+      height: _UserCategorySelectorState._tileExtent,
+      child: Transform.translate(
+        offset: const Offset(-_UserCategorySelectorState._horizontalBleed, 0),
+        child: OverflowBox(
+          alignment: Alignment.centerLeft,
+          maxWidth: screenWidth,
+          child: SizedBox(width: screenWidth, child: child),
+        ),
+      ),
     );
   }
 }

@@ -9,6 +9,9 @@ class ProkatListTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
   final String? variant;
+  final String? statusLine;
+  final Color? statusColor;
+  final IconData? statusIcon;
 
   const ProkatListTile({
     super.key,
@@ -19,6 +22,9 @@ class ProkatListTile extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.variant = "default",
+    this.statusLine,
+    this.statusColor,
+    this.statusIcon,
   });
 
   factory ProkatListTile.secondary({
@@ -29,6 +35,9 @@ class ProkatListTile extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    String? statusLine,
+    Color? statusColor,
+    IconData? statusIcon,
   }) {
     return ProkatListTile(
       key: key,
@@ -39,12 +48,16 @@ class ProkatListTile extends StatelessWidget {
       subtitle: subtitle,
       title: title,
       variant: "secondary",
+      statusLine: statusLine,
+      statusColor: statusColor,
+      statusIcon: statusIcon,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final statusText = statusLine?.trim();
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -91,6 +104,31 @@ class ProkatListTile extends StatelessWidget {
                           ),
                         ),
                 ),
+                if (statusText != null && statusText.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (statusIcon != null) ...[
+                        Icon(
+                          statusIcon,
+                          size: 14,
+                          color: statusColor ?? theme.colorScheme.error,
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Expanded(
+                        child: Text(
+                          statusText,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: statusColor ?? theme.colorScheme.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

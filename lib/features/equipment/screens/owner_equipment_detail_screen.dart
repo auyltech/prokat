@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -189,7 +187,12 @@ class _OwnerEquipmentDetailScreenState
                     canEditImages: equipment.isDraft,
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDimens.s16$base,
+                      AppDimens.s16$base,
+                      AppDimens.s16$base,
+                      AppDimens.s24$xl,
+                    ),
                     child: Column(
                       children: [
                         CategorySelectorTile(
@@ -198,34 +201,29 @@ class _OwnerEquipmentDetailScreenState
                         ),
                         if (equipment.isPendingReview ||
                             equipment.isRejected) ...[
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppDimens.s16$base),
                           EquipmentModerationStatusCard(
                             status: equipment.status,
                             adminComment: equipment.adminComment,
                           ),
                         ],
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppDimens.s16$base),
                         GeneralInfoSection(equipment: equipment),
                         RegistrationSection(equipment: equipment),
                         OwnerEquipmentSpecs(equipment: equipment),
                         if (reviewUi.showSubmitForReview ||
                             reviewUi.showResubmit) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppDimens.s12$md),
                           Text(
                             l10n.equipmentSubmitPhotoHint,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
-                              height: 1.35,
-                            ),
+                            style: AppFonts.caption(context),
                           ),
-                          const SizedBox(height: 12),
-                          PrimaryButton(
-                            label: reviewUi.showSubmitForReview
+                          const SizedBox(height: AppDimens.s12$md),
+                          AppElevatedButton(
+                            title: reviewUi.showSubmitForReview
                                 ? l10n.submitForReview
                                 : l10n.resubmit,
-                            onPressed: _submitting
+                            onTap: _submitting
                                 ? null
                                 : () async {
                                     if (reviewUi.showResubmit) {
@@ -245,7 +243,7 @@ class _OwnerEquipmentDetailScreenState
                           ),
                         ],
                         if (equipment.status != EquipmentStatus.booked) ...[
-                          const SizedBox(height: 20),
+                          const SizedBox(height: AppDimens.s20$lg),
                           DeleteEquipmentSection(equipmentId: equipment.id),
                         ],
                       ],

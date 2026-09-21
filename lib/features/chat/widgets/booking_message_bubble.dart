@@ -1,12 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
@@ -253,25 +254,15 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () => showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: theme.colorScheme.surface,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
-                      ),
-                      builder: (_) => CancelBookingSheet(
+                  AppIconButton(
+                    icon: LucideIcons.x,
+                    tone: AppIconButtonTone.destructive,
+                    onTap: () => unawaited(
+                      CancelBookingSheet.show(
+                        context,
                         booking: booking,
                         mode: widget.mode,
                       ),
-                    ),
-                    icon: Icon(
-                      LucideIcons.x,
-                      size: 25,
-                      color: theme.colorScheme.error,
                     ),
                   ),
               ],
@@ -292,8 +283,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () async {
+                  AppIconButton(
+                    icon: LucideIcons.coins,
+                    tone: AppIconButtonTone.primary,
+                    onTap: () async {
                       if (widget.mode == AppMode.ownerMode) {
                         final online = await ensureOwnerOnline(
                           context,
@@ -312,11 +305,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                         mode: widget.mode,
                       );
                     },
-                    icon: Icon(
-                      LucideIcons.coins,
-                      size: 25,
-                      color: theme.colorScheme.primary,
-                    ),
                   ),
               ],
 
@@ -337,8 +325,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                     ),
                   )
                 else
-                  IconButton(
-                    onPressed: () async {
+                  AppIconButton(
+                    icon: LucideIcons.check,
+                    tone: AppIconButtonTone.success,
+                    onTap: () async {
                       final online = await ensureOwnerOnline(
                         context,
                         ref,
@@ -377,11 +367,6 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                             : AppToastType.error,
                       );
                     },
-                    icon: Icon(
-                      LucideIcons.check,
-                      size: 25,
-                      color: Colors.green[800],
-                    ),
                   ),
               ],
             ],

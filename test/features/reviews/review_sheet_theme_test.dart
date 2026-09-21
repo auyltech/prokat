@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/widgets/review_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -15,12 +17,11 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
   });
 
-  testWidgets('review sheet uses the theme surface in dark mode', (
+  testWidgets('review sheet uses the UI kit elevated surface in dark mode', (
     tester,
   ) async {
     const surface = Color(0xFF1C1C1E);
-    final theme = ThemeData(
-      brightness: Brightness.dark,
+    final theme = AppTheme.darkTheme.copyWith(
       colorScheme: const ColorScheme.dark(surface: surface),
     );
 
@@ -59,15 +60,21 @@ void main() {
 
     expect(find.text('Review client'), findsOneWidget);
 
-    final sheetMaterial = tester.widget<Material>(
-      find
-          .descendant(
-            of: find.byType(BottomSheet),
-            matching: find.byType(Material),
-          )
-          .first,
-    );
-    expect(sheetMaterial.color, surface);
-    expect(sheetMaterial.color, isNot(Colors.white));
+    expect(find.byType(AppBottomSheetFrame), findsOneWidget);
+
+    final sheetDecoration =
+        tester
+                .widget<DecoratedBox>(
+                  find
+                      .descendant(
+                        of: find.byType(AppBottomSheetFrame),
+                        matching: find.byType(DecoratedBox),
+                      )
+                      .first,
+                )
+                .decoration
+            as BoxDecoration;
+    expect(sheetDecoration.color, AppColorsDark.surfaceElevated);
+    expect(sheetDecoration.color, isNot(Colors.white));
   });
 }

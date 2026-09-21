@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class AuthSwitchLink extends StatelessWidget {
   final String message;
@@ -15,7 +16,6 @@ class AuthSwitchLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const ghostGray = Color(0x4DFFFFFF); // White @ 30%
-    const accentColor = Color(0xFF4E73DF);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24, top: 20),
@@ -23,19 +23,10 @@ class AuthSwitchLink extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(message, style: const TextStyle(color: ghostGray, fontSize: 14)),
-          GestureDetector(
+          AppLabelButton(
+            title: actionText,
             onTap: onTap,
-            behavior:
-                HitTestBehavior.opaque, // Makes the touch area more reliable
-            child: Text(
-              actionText,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: accentColor,
-                fontSize: 14,
-                letterSpacing: 0.5,
-              ),
-            ),
+            variant: AppLabelButtonVariant.text,
           ),
         ],
       ),

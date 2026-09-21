@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -32,11 +30,14 @@ class _DeleteEquipmentSectionState
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.7);
 
     return Container(
-      margin: const EdgeInsets.only(top: 12, bottom: 40),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.only(
+        top: AppDimens.s12$md,
+        bottom: AppDimens.sheetBottomPadding,
+      ),
+      padding: const EdgeInsets.all(AppDimens.s24$xl),
       decoration: BoxDecoration(
         color: colorScheme.errorContainer.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppDimens.r20$xxl),
         border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -45,41 +46,43 @@ class _DeleteEquipmentSectionState
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_rounded, color: danger, size: 30),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: danger,
+                size: AppDimens.s32$xxl,
+              ),
+              const SizedBox(width: AppDimens.s08$sm),
               Text(
                 l10n.dangerZone,
-                style: theme.textTheme.labelLarge?.copyWith(
+                style: AppFonts.label(context).copyWith(
                   color: danger.withValues(alpha: 0.85),
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 1.8,
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppDimens.s12$md),
 
           /// DESCRIPTION
           Text(
             l10n.deleteEquipmentWarning,
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: ghostGray,
-              height: 1.6,
-            ),
+            style: AppFonts.body14(context)
+                .copyWith(color: ghostGray, height: 1.6),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: AppDimens.s24$xl),
 
           /// DELETE BUTTON
-          ActionButton.danger(
-            label: l10n.deleteEquipment,
-            icon: LucideIcons.trash,
+          AppOutlinedButton.destructive(
+            title: l10n.deleteEquipment,
+            prefix: const Icon(LucideIcons.trash),
             isLoading: ref
                 .watch(equipmentMutationProvider)
                 .isActionActive("equipment:delete:${widget.equipmentId}"),
-            onPressed: () => unawaited(
+            onTap: () => unawaited(
               _confirmDelete(context, ref, widget.equipmentId, l10n),
             ),
           ),

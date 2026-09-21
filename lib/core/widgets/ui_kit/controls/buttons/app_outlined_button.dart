@@ -3,6 +3,8 @@ import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 
+enum AppOutlinedButtonStyle { primary, destructive }
+
 class AppOutlinedButton extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
@@ -10,6 +12,7 @@ class AppOutlinedButton extends StatelessWidget {
   final bool isExpanded;
   final Widget? prefix;
   final Widget? postfix;
+  final AppOutlinedButtonStyle style;
 
   const AppOutlinedButton({
     super.key,
@@ -19,18 +22,36 @@ class AppOutlinedButton extends StatelessWidget {
     this.isExpanded = true,
     this.prefix,
     this.postfix,
+    this.style = AppOutlinedButtonStyle.primary,
   });
+
+  const AppOutlinedButton.destructive({
+    super.key,
+    required this.title,
+    required this.onTap,
+    this.isLoading = false,
+    this.isExpanded = true,
+    this.prefix,
+    this.postfix,
+  }) : style = AppOutlinedButtonStyle.destructive;
 
   @override
   Widget build(BuildContext context) {
     final buttonTheme = context.colors.outlinedButton;
     final enabled = onTap != null && !isLoading;
-    final contentColor = enabled
-        ? buttonTheme.content
-        : buttonTheme.contentDisabled;
-    final borderColor = enabled
-        ? buttonTheme.border
-        : buttonTheme.borderDisabled;
+    final contentColor = !enabled
+        ? buttonTheme.contentDisabled
+        : switch (style) {
+            AppOutlinedButtonStyle.primary => buttonTheme.content,
+            AppOutlinedButtonStyle.destructive =>
+              buttonTheme.contentDestructive,
+          };
+    final borderColor = !enabled
+        ? buttonTheme.borderDisabled
+        : switch (style) {
+            AppOutlinedButtonStyle.primary => buttonTheme.border,
+            AppOutlinedButtonStyle.destructive => buttonTheme.borderDestructive,
+          };
     final borderRadius = BorderRadius.circular(AppDimens.r16$xl);
 
     return Opacity(
@@ -52,44 +73,47 @@ class AppOutlinedButton extends StatelessWidget {
             ),
           ),
           onPressed: enabled ? onTap : null,
-          child: Row(
-            mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: AppDimens.s08$sm,
-            children: isLoading
-                ? [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: contentColor,
+          child: IconTheme.merge(
+            data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),
+            child: Row(
+              mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: AppDimens.s08$sm,
+              children: isLoading
+                  ? [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: contentColor,
+                        ),
                       ),
-                    ),
-                  ]
-                : [
-                    ?prefix,
-                    if (isExpanded)
-                      Flexible(
-                        child: Text(
+                    ]
+                  : [
+                      ?prefix,
+                      if (isExpanded)
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: AppFonts.button(context)
+                                .copyWith(color: contentColor),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      else
+                        Text(
                           title,
                           style: AppFonts.button(context)
                               .copyWith(color: contentColor),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
                         ),
-                      )
-                    else
-                      Text(
-                        title,
-                        style: AppFonts.button(context)
-                            .copyWith(color: contentColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ?postfix,
-                  ],
+                      ?postfix,
+                    ],
+            ),
           ),
         ),
       ),

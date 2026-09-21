@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/support/models/contact_inquiry_topic.dart';
 import 'package:prokat/features/support/state/support_provider.dart';
 import 'package:prokat/features/support/widgets/inquiry_topic_sheet.dart';
@@ -22,10 +21,12 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _messageController = TextEditingController();
+  final _topicController = TextEditingController();
 
   ContactInquiryTopic? _selectedTopic;
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   bool _isLoading = false;
+  bool _topicPickerOpen = false;
 
   @override
   void dispose() {
@@ -33,6 +34,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _messageController.dispose();
+    _topicController.dispose();
     super.dispose();
   }
 
@@ -41,26 +43,45 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
     _emailController.clear();
     _phoneController.clear();
     _messageController.clear();
+    _topicController.clear();
     _selectedTopic = null;
     _autovalidateMode = AutovalidateMode.disabled;
     _formKey = GlobalKey<FormState>();
   }
 
-  Future<void> _pickTopic(FormFieldState<ContactInquiryTopic> field) async {
+  bool get _showErrors => _autovalidateMode != AutovalidateMode.disabled;
+
+  Future<void> _pickTopic() async {
+    if (_topicPickerOpen) return;
     FocusScope.of(context).unfocus();
+    setState(() => _topicPickerOpen = true);
     final selected = await InquiryTopicSheet.show(
       context,
-      selectedTopic: field.value ?? _selectedTopic,
+      selectedTopic: _selectedTopic,
     );
-    if (selected == null || !mounted) return;
-    setState(() => _selectedTopic = selected);
-    field.didChange(selected);
+    if (!mounted) return;
+    setState(() {
+      _topicPickerOpen = false;
+      if (selected != null) {
+        _selectedTopic = selected;
+        _topicController.text = selected.localizedLabel(
+          AppLocalizations.of(context)!,
+        );
+      }
+    });
   }
 
   Future<void> _submitForm() async {
     final l10n = AppLocalizations.of(context)!;
     final curr = _formKey.currentState;
-    if (curr == null || !curr.validate() || _selectedTopic == null) {
+    final hasFieldErrors =
+        (_nameController.text.trim().length < 2) ||
+        _emailError(l10n) != null ||
+        _phoneController.text.trim().isEmpty ||
+        _selectedTopic == null ||
+        (_messageController.text.trim().length < 10);
+
+    if (curr == null || !curr.validate() || hasFieldErrors) {
       setState(() {
         _autovalidateMode = AutovalidateMode.onUserInteraction;
       });
@@ -100,69 +121,34 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
     }
   }
 
+  String? _emailError(AppLocalizations l10n) {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) return l10n.pleaseEnterEmail;
+    final emailRegex = RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) return l10n.invalidEmail;
+    return null;
+  }
+
+  void _onFieldChanged() {
+    if (_showErrors) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final isSubmitting = ref.watch(supportProvider).isSubmitting;
 
-    // Unified input decoration styling builder
-    InputDecoration buildInputDecoration({
-      required String labelText,
-      required IconData prefixIcon,
-      String? helperText,
-    }) {
-      return InputDecoration(
-        labelText: labelText,
-        helperText: helperText,
-        prefixIcon: Icon(
-          prefixIcon,
-          color: theme.colorScheme.primary.withAlpha(200),
-        ),
-        filled: true,
-        fillColor: theme.colorScheme.surfaceContainerHighest.withAlpha(
-          76,
-        ), // Subtle surface tint
-        alignLabelWithHint: true,
-        helperStyle: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.outline,
-        ),
-        errorStyle: TextStyle(
-          color: theme.colorScheme.error,
-          fontWeight: FontWeight.w500,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: theme.colorScheme.outlineVariant.withAlpha(128),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme.colorScheme.error),
-        ),
-      );
-    }
-
     return Scaffold(
-      backgroundColor:
-          theme.colorScheme.surfaceContainerLow, // Dynamic neutral background
+      backgroundColor: theme.colorScheme.surfaceContainerLow,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 12.0,
+                  horizontal: AppDimens.s12$md,
+                  vertical: AppDimens.s12$md,
                 ),
                 child: Form(
                   key: _formKey,
@@ -182,7 +168,6 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                           ),
                         ),
                       ),
-                      // Header introduction section
                       Text(
                         l10n.howCanWeHelp,
                         style: theme.textTheme.headlineSmall?.copyWith(
@@ -197,24 +182,22 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppDimens.s24$xl),
 
-                      // Structured Form Container Card
                       Card(
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(AppDimens.r16$xl),
                           side: BorderSide(
                             color: theme.colorScheme.outlineVariant,
                           ),
                         ),
                         color: theme.colorScheme.surface,
                         child: Padding(
-                          padding: const EdgeInsets.all(20.0),
+                          padding: const EdgeInsets.all(AppDimens.s20$lg),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // --- SECTION 1: Personal Info ---
                               Row(
                                 children: [
                                   Icon(
@@ -222,7 +205,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                     size: 20,
                                     color: theme.colorScheme.primary,
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: AppDimens.s08$sm),
                                   Text(
                                     l10n.contactInformation,
                                     style: theme.textTheme.titleMedium
@@ -232,35 +215,44 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               ),
                               const Divider(height: 24, thickness: 0.8),
 
-                              // Full Name Field
-                              TextFormField(
+                              AppTextField(
                                 controller: _nameController,
-                                decoration: buildInputDecoration(
-                                  labelText: l10n.fullNameRequiredLabel,
-                                  prefixIcon: Icons.account_circle_outlined,
+                                title: l10n.fullNameRequiredLabel,
+                                hint: l10n.fullNameRequiredLabel,
+                                isRequired: true,
+                                prefix: const Icon(
+                                  Icons.account_circle_outlined,
                                 ),
+                                showError: _showErrors,
+                                errorText:
+                                    _nameController.text.trim().length < 2
+                                    ? l10n.fullNameValidation
+                                    : null,
+                                onChanged: (_) => _onFieldChanged(),
                                 validator: (value) =>
                                     (value == null || value.trim().length < 2)
                                     ? l10n.fullNameValidation
                                     : null,
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppDimens.s16$base),
 
-                              // Email Field
-                              TextFormField(
+                              AppTextField(
                                 controller: _emailController,
+                                title: l10n.emailAddressRequiredLabel,
+                                hint: l10n.emailAddressRequiredLabel,
+                                isRequired: true,
                                 keyboardType: TextInputType.emailAddress,
-                                decoration: buildInputDecoration(
-                                  labelText: l10n.emailAddressRequiredLabel,
-                                  prefixIcon: Icons.email_outlined,
-                                ),
+                                prefix: const Icon(Icons.email_outlined),
+                                showError: _showErrors,
+                                errorText: _emailError(l10n),
+                                onChanged: (_) => _onFieldChanged(),
                                 validator: (value) {
                                   final email = value?.trim() ?? '';
                                   if (email.isEmpty) {
                                     return l10n.pleaseEnterEmail;
                                   }
                                   final emailRegex = RegExp(
-                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                    r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$',
                                   );
                                   if (!emailRegex.hasMatch(email)) {
                                     return l10n.invalidEmail;
@@ -268,25 +260,28 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                   return null;
                                 },
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppDimens.s16$base),
 
-                              // Phone Number Field
-                              TextFormField(
+                              AppTextField(
                                 controller: _phoneController,
+                                title: l10n.phoneNumberRequiredLabel,
+                                hint: l10n.phoneNumberRequiredLabel,
+                                isRequired: true,
                                 keyboardType: TextInputType.phone,
-                                decoration: buildInputDecoration(
-                                  labelText: l10n.phoneNumberRequiredLabel,
-                                  prefixIcon: Icons.phone_outlined,
-                                ),
+                                prefix: const Icon(Icons.phone_outlined),
+                                showError: _showErrors,
+                                errorText: _phoneController.text.trim().isEmpty
+                                    ? l10n.phoneNumberRequired
+                                    : null,
+                                onChanged: (_) => _onFieldChanged(),
                                 validator: (value) =>
                                     (value == null || value.trim().isEmpty)
                                     ? l10n.phoneNumberRequired
                                     : null,
                               ),
 
-                              const SizedBox(height: 32),
+                              const SizedBox(height: AppDimens.s32$xxl),
 
-                              // --- SECTION 2: Message Details ---
                               Row(
                                 children: [
                                   Icon(
@@ -294,7 +289,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                                     size: 20,
                                     color: theme.colorScheme.primary,
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: AppDimens.s08$sm),
                                   Text(
                                     l10n.inquiryDetails,
                                     style: theme.textTheme.titleMedium
@@ -304,57 +299,40 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               ),
                               const Divider(height: 24, thickness: 0.8),
 
-                              FormField<ContactInquiryTopic>(
-                                initialValue: _selectedTopic,
-                                validator: (value) => value == null
+                              AppTextField(
+                                controller: _topicController,
+                                title: l10n.inquiryTopicRequiredLabel,
+                                hint: l10n.inquiryTopicRequiredLabel,
+                                isRequired: true,
+                                selectOnly: true,
+                                forceFocused: _topicPickerOpen,
+                                onTap: _pickTopic,
+                                prefix: const Icon(Icons.unfold_more_rounded),
+                                suffix: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: context.colors.text.secondary,
+                                ),
+                                showError: _showErrors,
+                                errorText: _selectedTopic == null
                                     ? l10n.inquiryTopicValidation
                                     : null,
-                                builder: (field) {
-                                  final selected = field.value;
-                                  return Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: () => _pickTopic(field),
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: InputDecorator(
-                                        isEmpty: selected == null,
-                                        decoration:
-                                            buildInputDecoration(
-                                              labelText: l10n
-                                                  .inquiryTopicRequiredLabel,
-                                              prefixIcon:
-                                                  Icons.unfold_more_rounded,
-                                            ).copyWith(
-                                              errorText: field.errorText,
-                                              suffixIcon: Icon(
-                                                Icons.keyboard_arrow_down,
-                                                color: theme
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withValues(alpha: 0.6),
-                                              ),
-                                            ),
-                                        child: Text(
-                                          selected?.localizedLabel(l10n) ?? '',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: theme.textTheme.bodyLarge,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppDimens.s16$base),
 
-                              // Message Field
-                              TextFormField(
+                              AppTextArea(
                                 controller: _messageController,
+                                title: l10n.yourMessageRequiredLabel,
+                                hint: l10n.yourMessageRequiredLabel,
+                                isRequired: true,
+                                minLines: 5,
                                 maxLines: 5,
-                                decoration: buildInputDecoration(
-                                  labelText: l10n.yourMessageRequiredLabel,
-                                  prefixIcon: Icons.edit_note_rounded,
-                                ),
+                                prefix: const Icon(Icons.edit_note_rounded),
+                                showError: _showErrors,
+                                errorText:
+                                    _messageController.text.trim().length < 10
+                                    ? l10n.messageValidation
+                                    : null,
+                                onChanged: (_) => _onFieldChanged(),
                                 validator: (value) =>
                                     (value == null || value.trim().length < 10)
                                     ? l10n.messageValidation
@@ -364,15 +342,16 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      // Submit Action Layout
+                      const SizedBox(height: AppDimens.s24$xl),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: ActionButton(
-                          label: l10n.submitInquiry,
-                          onPressed: _submitForm,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppDimens.s04$xs,
+                        ),
+                        child: AppElevatedButton(
+                          title: l10n.submitInquiry,
+                          onTap: isSubmitting ? null : _submitForm,
                           isLoading: isSubmitting,
-                          isEnabled: !isSubmitting,
+                          isExpanded: false,
                         ),
                       ),
                     ],

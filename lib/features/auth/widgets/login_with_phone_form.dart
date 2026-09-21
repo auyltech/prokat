@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/utils/kz_phone_mask.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/auth/widgets/auth_error_message.dart';
-import 'package:prokat/features/auth/widgets/phone_input_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class LoginWithPhoneForm extends ConsumerStatefulWidget {
@@ -19,10 +20,11 @@ class LoginWithPhoneForm extends ConsumerStatefulWidget {
 }
 
 class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
-  final phoneController = TextEditingController(text: "");
+  final phoneController = TextEditingController.fromValue(
+    kzPhoneEditingValue(null),
+  );
   late AppLocalizations _l10n;
 
-  String phone = "";
   Timer? _cooldownTimer;
   int _secondsRemaining = 0;
 
@@ -67,8 +69,6 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
       if (_secondsRemaining != remaining) {
         setState(() => _secondsRemaining = remaining);
       }
-
-      if (remaining == 0) _cooldownTimer?.cancel();
     }
 
     update();
@@ -80,25 +80,14 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
     }
   }
 
-  bool isValidKazakhstanPhone(String phone) {
-    final regex = RegExp(r'^\+7\d{10}$');
-    return regex.hasMatch(phone);
-  }
-
   Future<void> requestOtp() async {
-    final rawDigits = phoneController.text.replaceAll(RegExp(r'\D'), '');
+    final fullPhone = normalizeKzPhone(phoneController.text);
 
-    if (rawDigits.isEmpty) {
-      widget.onError(_l10n.pleaseEnterPhone);
-      return;
-    }
-
-    final fullPhone = "+7$rawDigits";
-
-    widget.onError(null);
-
-    if (!isValidKazakhstanPhone(fullPhone)) {
-      widget.onError(_l10n.validKazakhPhone);
+    if (fullPhone == null) {
+      final digits = phoneController.text.replaceAll(RegExp(r'\D'), '');
+      widget.onError(
+        digits.isEmpty ? _l10n.pleaseEnterPhone : _l10n.validKazakhPhone,
+      );
       return;
     }
 
@@ -144,38 +133,39 @@ class _LoginWithPhoneFormState extends ConsumerState<LoginWithPhoneForm> {
           ),
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: AppDimens.s20$lg),
 
-        PhoneInputField(label: _l10n.phoneNumber, controller: phoneController),
+        AppKzPhoneField(
+          title: _l10n.phoneNumber,
+          hint: _l10n.phoneHint,
+          controller: phoneController,
+        ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: AppDimens.s24$xl),
 
         ListenableBuilder(
           listenable: phoneController,
           builder: (context, _) {
-            final rawDigits = phoneController.text.replaceAll(
-              RegExp(r'\D'),
-              '',
-            );
-            final fullPhone = "+7$rawDigits";
-            final cooldownSeconds = authState.otpCooldownPhone == fullPhone
+            final fullPhone = normalizeKzPhone(phoneController.text);
+            final cooldownSeconds =
+                fullPhone != null && authState.otpCooldownPhone == fullPhone
                 ? _secondsRemaining
                 : 0;
 
             final canSubmit =
-                isValidKazakhstanPhone(fullPhone) &&
+                fullPhone != null &&
                 !authState.isLoading &&
                 cooldownSeconds == 0;
 
             return Column(
               children: [
-                PrimaryButton(
-                  label: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
+                AppElevatedButton(
+                  title: authState.isLoading ? _l10n.sending : _l10n.sendOtp,
                   isLoading: authState.isLoading,
-                  onPressed: canSubmit ? requestOtp : null,
+                  onTap: canSubmit ? requestOtp : null,
                 ),
                 if (cooldownSeconds > 0) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppDimens.s08$sm),
 
                   Text(
                     _l10n.otpRetryIn(cooldownSeconds),

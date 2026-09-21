@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -84,31 +84,11 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
 
           const SizedBox(height: 16),
 
-          TextField(
+          AppTextField(
             controller: controller,
-            autofocus: true,
+            hint: l10n.enterName,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => onSubmit(),
-            decoration: InputDecoration(
-              hintText: l10n.enterName,
-              filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: theme.colorScheme.outline),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(
-                  color: theme.colorScheme.primary,
-                  width: 1.5,
-                ),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: theme.colorScheme.outline),
-              ),
-            ),
           ),
 
           const SizedBox(height: 16),
@@ -116,16 +96,17 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
           Row(
             children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : onSubmit,
-                  child: Text(l10n.save),
+                child: AppElevatedButton(
+                  title: l10n.save,
+                  onTap: isLoading ? null : onSubmit,
+                  isLoading: isLoading,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel),
+                child: AppOutlinedButton(
+                  title: l10n.cancel,
+                  onTap: isLoading ? null : () => Navigator.pop(context),
                 ),
               ),
             ],

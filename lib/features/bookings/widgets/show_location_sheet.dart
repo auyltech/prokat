@@ -2,94 +2,55 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void showLocationSheet(BuildContext context, LocationModel location) {
-  final theme = Theme.of(context);
   final l10n = AppLocalizations.of(context)!;
   final lat = location.latitude;
   final lon = location.longitude;
 
   unawaited(
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: theme.cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        final sheetTheme = Theme.of(context);
-        final colorScheme = sheetTheme.colorScheme;
+    AppBottomSheet.show<void>(
+      context,
+      title: l10n.deliveryAddress,
+      contentBuilder: (context) {
+        final colors = context.colors;
 
         return Consumer(
           builder: (context, ref, _) {
-            return SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: colorScheme.onSurfaceVariant.withValues(
-                            alpha: 0.4,
-                          ),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    Text(
-                      l10n.deliveryAddress,
-                      style: sheetTheme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    Text(
-                      formatLocationModel(ref, context, location),
-                      style: sheetTheme.textTheme.titleMedium?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(
-                        Icons.map_outlined,
-                        color: Colors.green,
-                      ),
-                      title: Text(
-                        l10n.openIn2GIS,
-                        style: sheetTheme.textTheme.titleMedium,
-                      ),
-                      onTap: () => _launchMap('2gis', lat, lon),
-                    ),
-
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.location_on, color: Colors.red),
-                      title: Text(
-                        l10n.openInGoogleMaps,
-                        style: sheetTheme.textTheme.titleMedium,
-                      ),
-                      onTap: () => _launchMap('google', lat, lon),
-                    ),
-                  ],
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  formatLocationModel(ref, context, location),
+                  textAlign: TextAlign.center,
+                  style: AppFonts.body16SemiBold(context),
                 ),
-              ),
+                const SizedBox(height: AppDimens.s12$md),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    Icons.map_outlined,
+                    color: colors.icons.success,
+                  ),
+                  title: Text(l10n.openIn2GIS, style: AppFonts.body16(context)),
+                  onTap: () => _launchMap('2gis', lat, lon),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.location_on, color: colors.text.error),
+                  title: Text(
+                    l10n.openInGoogleMaps,
+                    style: AppFonts.body16(context),
+                  ),
+                  onTap: () => _launchMap('google', lat, lon),
+                ),
+              ],
             );
           },
         );

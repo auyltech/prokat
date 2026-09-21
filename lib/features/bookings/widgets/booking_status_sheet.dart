@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -15,14 +15,11 @@ class BookingStatusSheet extends ConsumerWidget {
     BuildContext context, {
     required BookingModel booking,
   }) async {
-    final updated = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => BookingStatusSheet(booking: booking),
+    final l10n = AppLocalizations.of(context)!;
+    final updated = await AppBottomSheet.show<bool>(
+      context,
+      title: l10n.updateWorkStatus,
+      contentBuilder: (context) => BookingStatusSheet(booking: booking),
     );
 
     return updated ?? false;
@@ -30,7 +27,6 @@ class BookingStatusSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(bookingMutationProvider.notifier);
 
@@ -38,58 +34,42 @@ class BookingStatusSheet extends ConsumerWidget {
     final validStatuses = nextWorkStatuses(currentStatus);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s04$xs),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...validStatuses.map((status) {
+            return _StatusTile(
+              label: status.sheetLabel(l10n, current: currentStatus),
+              isCurrent: status == currentStatus,
+              isDanger: status == WorkStatus.stopped,
+              onTap: () async {
+                final result = await notifier.updateBookingWorkStatus(
+                  id: booking.id,
+                  workStatus: status,
+                );
 
-            Text(l10n.updateWorkStatus, style: theme.textTheme.titleMedium),
+                final chatId = booking.chatId;
+                if ((chatId ?? '').isNotEmpty) {
+                  // await chatNotifier.reloadChat(chatId!);
+                }
 
-            const SizedBox(height: 16),
+                if (!context.mounted) return;
 
-            ...validStatuses.map((status) {
-              return _StatusTile(
-                label: status.sheetLabel(l10n, current: currentStatus),
-                isCurrent: status == currentStatus,
-                isDanger: status == WorkStatus.stopped,
-                onTap: () async {
-                  final result = await notifier.updateBookingWorkStatus(
-                    id: booking.id,
-                    workStatus: status,
-                  );
+                Navigator.pop(context, result.success);
 
-                  final chatId = booking.chatId;
-                  if ((chatId ?? '').isNotEmpty) {
-                    // await chatNotifier.reloadChat(chatId!);
-                  }
-
-                  if (!context.mounted) return;
-
-                  Navigator.pop(context, result.success);
-
-                  AppToast.show(
-                    message: result.success
-                        ? l10n.statusUpdated
-                        : l10n.failedSaveStatus,
-                    type: result.success
-                        ? AppToastType.success
-                        : AppToastType.error,
-                  );
-                },
-              );
-            }),
-          ],
-        ),
+                AppToast.show(
+                  message: result.success
+                      ? l10n.statusUpdated
+                      : l10n.failedSaveStatus,
+                  type: result.success
+                      ? AppToastType.success
+                      : AppToastType.error,
+                );
+              },
+            );
+          }),
+        ],
       ),
     );
   }
@@ -116,29 +96,35 @@ class _StatusTile extends StatelessWidget {
         ? theme.colorScheme.error
         : theme.colorScheme.primary;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isCurrent
-                ? color.withValues(alpha: 0.3)
-                : color.withValues(alpha: 0.7),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 14,
-              color: color.withValues(alpha: 0.6),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isCurrent
+                    ? color.withValues(alpha: 0.3)
+                    : color.withValues(alpha: 0.7),
+              ),
             ),
-          ],
+            child: Row(
+              children: [
+                Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: color.withValues(alpha: 0.6),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

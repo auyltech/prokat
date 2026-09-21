@@ -4,8 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 Widget _wrap(Widget child) {
   return MaterialApp(
@@ -81,6 +80,42 @@ void main() {
     await tester.tapAt(const Offset(20, 20));
     await tester.pumpAndSettle();
     expect(find.text('Locked'), findsOneWidget);
+  });
+
+  testWidgets('scrollable AppBottomSheet renders its subtitle', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        Builder(
+          builder: (context) {
+            return TextButton(
+              onPressed: () {
+                unawaited(
+                  AppBottomSheet.showScrollable<void>(
+                    context,
+                    title: 'Scrollable',
+                    subtitle: 'Description',
+                    headerBuilder: (_) => const SizedBox.shrink(),
+                    scrollableListBuilder: (_, controller) => ListView(
+                      controller: controller,
+                      children: const [Text('item')],
+                    ),
+                    footerBuilder: (_) => const SizedBox.shrink(),
+                  ),
+                );
+              },
+              child: const Text('open'),
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Scrollable'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
+    expect(find.byType(DraggableScrollableSheet), findsOneWidget);
   });
 
   testWidgets('AppAlertBottomSheet primary returns true', (tester) async {

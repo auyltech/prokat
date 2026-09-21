@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
@@ -73,9 +74,10 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
             size: 24,
             color: theme.colorScheme.primary,
           ),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: _onSubmit,
+          suffixIcon: AppIconButton(
+            icon: Icons.arrow_forward,
+            onTap: _onSubmit,
+            tone: AppIconButtonTone.primary,
           ),
           border: InputBorder.none,
           isDense: true,

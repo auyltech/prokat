@@ -1,4 +1,5 @@
 import 'package:prokat/core/utils/parse.dart';
+import 'package:prokat/features/owner/models/owner_profile_pending_change.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
@@ -54,6 +55,9 @@ class OwnerProfileModel {
   final bool? isVerified;
   final DateTime? verifiedAt;
   final String? adminComment;
+  final DateTime? correctionDeadlineAt;
+  final bool isCorrectionOverdue;
+  final List<OwnerProfilePendingChange> pendingChanges;
 
   final OwnerNotificationPreferences notificationSettings;
 
@@ -83,10 +87,53 @@ class OwnerProfileModel {
     this.isVerified,
     this.verifiedAt,
     this.adminComment,
+    this.correctionDeadlineAt,
+    this.isCorrectionOverdue = false,
+    this.pendingChanges = const [],
 
     required this.onlineStatus,
     this.notificationSettings = const OwnerNotificationPreferences(),
   });
+
+  /// Live profile keeps approved values; overlay proposed `to` for draft edit/display.
+  OwnerProfileModel withPendingDraftApplied() {
+    if (pendingChanges.isEmpty) return this;
+
+    String? valueFor(String field) {
+      for (final change in pendingChanges) {
+        if (change.field == field) return change.to;
+      }
+      return null;
+    }
+
+    String? pick(String field, String? current) {
+      final proposed = valueFor(field);
+      if (proposed == null) return current;
+      final trimmed = proposed.trim();
+      return trimmed.isEmpty ? null : trimmed;
+    }
+
+    OwnerType? nextType = ownerType;
+    final typeRaw = valueFor('ownerType');
+    if (typeRaw != null) {
+      nextType = parseOwnerType(typeRaw) ?? ownerType;
+    }
+
+    return copyWith(
+      ownerType: nextType,
+      companyName: pick('companyName', companyName),
+      legalName: pick('legalName', legalName),
+      firstName: pick('firstName', firstName),
+      lastName: pick('lastName', lastName),
+      phoneNumber: pick('phoneNumber', phoneNumber),
+      email: pick('email', email),
+      city: pick('city', city),
+      region: pick('region', region),
+      iin: pick('iin', iin),
+      serviceDescription: pick('serviceDescription', serviceDescription),
+      serviceCities: pick('serviceCities', serviceCities),
+    );
+  }
 
   OwnerProfileModel copyWith({
     String? id,
@@ -111,6 +158,9 @@ class OwnerProfileModel {
     bool? isVerified,
     DateTime? verifiedAt,
     String? adminComment,
+    DateTime? correctionDeadlineAt,
+    bool? isCorrectionOverdue,
+    List<OwnerProfilePendingChange>? pendingChanges,
     OwnerNotificationPreferences? notificationSettings,
   }) {
     return OwnerProfileModel(
@@ -136,6 +186,9 @@ class OwnerProfileModel {
       isVerified: isVerified ?? this.isVerified,
       verifiedAt: verifiedAt ?? this.verifiedAt,
       adminComment: adminComment ?? this.adminComment,
+      correctionDeadlineAt: correctionDeadlineAt ?? this.correctionDeadlineAt,
+      isCorrectionOverdue: isCorrectionOverdue ?? this.isCorrectionOverdue,
+      pendingChanges: pendingChanges ?? this.pendingChanges,
       notificationSettings: notificationSettings ?? this.notificationSettings,
     );
   }
@@ -172,6 +225,9 @@ class OwnerProfileModel {
       isVerified: parseBoolean(json['isVerified']),
       verifiedAt: parseNullableDate(json['verifiedAt']),
       adminComment: json['adminComment']?.toString(),
+      correctionDeadlineAt: parseNullableDate(json['correctionDeadlineAt']),
+      isCorrectionOverdue: parseBoolean(json['isCorrectionOverdue']),
+      pendingChanges: parseOwnerProfilePendingChanges(json['pendingChanges']),
 
       onlineStatus: parseOwnerStatus(json['onlineStatus']),
       notificationSettings: json['notificationSettings'] is Map
@@ -221,14 +277,14 @@ class OwnerProfileModel {
       'iin': iin,
       'serviceDescription': serviceDescription,
       'serviceCities': serviceCities,
-      // Converts enums to their raw String names
       'status': status?.name,
       'onlineStatus': onlineStatus.name,
       'isVerified': isVerified,
       'adminComment': adminComment,
-      // Converts DateTime to an ISO 8601 string format
+      'correctionDeadlineAt': correctionDeadlineAt?.toIso8601String(),
+      'isCorrectionOverdue': isCorrectionOverdue,
+      'pendingChanges': pendingChanges.map((c) => c.toJson()).toList(),
       'verifiedAt': verifiedAt?.toIso8601String(),
-      // Calls toJson on the nested settings class
       'notificationSettings': notificationSettings.toJson(),
     };
   }

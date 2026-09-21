@@ -2,14 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/theme/app_fonts.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_text_button.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -222,18 +215,11 @@ class _DeleteAccountTileState extends ConsumerState<DeleteAccountTile>
         const SizedBox(height: 24),
 
         // Production Danger Zone Trigger Button
-        OutlinedButton.icon(
-          icon: const Icon(Icons.delete_forever_rounded),
-          label: Text(l10n.initiateAccountDeletion),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: theme.colorScheme.error,
-            side: BorderSide(color: theme.colorScheme.error),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          onPressed: () => unawaited(_showDeletionConfirmationDialog(context)),
+        AppOutlinedButton.destructive(
+          title: l10n.initiateAccountDeletion,
+          onTap: () => unawaited(_showDeletionConfirmationDialog(context)),
+          prefix: const Icon(Icons.delete_forever_rounded),
+          isExpanded: true,
         ),
 
         // Native spacing cushion at the base of scroll view

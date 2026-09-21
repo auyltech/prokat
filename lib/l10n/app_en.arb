@@ -700,6 +700,7 @@
   "priceFixed": "Fixed",
   "priceFromPrefix": "from",
   "addTariff": "Add rate",
+  "tariffDraftPrefix": "Draft:",
   "serviceType": "Service type",
   "serviceOther": "Other",
   "customServiceName": "Service name",
@@ -748,6 +749,7 @@
   "selectLocation": "Select Location",
   "noSavedLocations": "No saved locations yet",
   "createNewOnMap": "Create new on map",
+  "equipmentPhotoSheetTitle": "Equipment photo",
   "chooseFromGallery": "Choose from gallery",
   "takePhoto": "Take photo",
   "setAsCover": "Set as cover",
@@ -867,6 +869,17 @@
   "ownerProfileSuspendedHint": "Listing equipment is temporarily unavailable. Contact support.",
   "ownerProfilePendingReview": "Waiting for review",
   "ownerProfilePendingReviewHint": "Your updated details will be checked by an administrator.",
+  "ownerProfileChangesPending": "Changes are under review",
+  "ownerProfileChangesPendingHint": "You cannot edit the profile while review is in progress.",
+  "ownerProfileChangesRejected": "Changes were rejected",
+  "ownerProfileChangesRejectedUntil": "fix by {date}",
+  "@ownerProfileChangesRejectedUntil": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "ownerProfileCorrectionOverdue": "Correction deadline has passed. Access may be suspended.",
+  "ownerProfileCorrectionOverdueHint": "Update your details and submit them for review again.",
   "profileUpdateNeedsModeration": "Your details will be sent for moderation",
   "submitForVerification": "Submit for Verification",
   "underReview": "Under Review",
@@ -1202,6 +1215,7 @@
   "saveChanges": "Save Changes",
   "saving": "Saving...",
   "fieldRequired": "This field is required",
+  "cannotBeEmpty": "Cannot be empty",
   "justNow": "Just now",
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {

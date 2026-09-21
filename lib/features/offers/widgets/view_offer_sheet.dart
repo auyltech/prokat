@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
@@ -206,23 +207,12 @@ class ViewOfferSheet extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Cancel Button
-          ElevatedButton(
-            onPressed: () {
+          AppElevatedButton.destructive(
+            title: l10n.cancelOffer,
+            onTap: () {
               Navigator.pop(context); // Close the sheet
               onCancel(); // Execute callback logic
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text(
-              l10n.cancelOffer,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
           ),
         ],
       ),

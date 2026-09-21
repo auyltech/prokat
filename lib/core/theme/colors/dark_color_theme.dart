@@ -7,6 +7,27 @@ class DarkColorTheme extends AppColorsTheme {
   const DarkColorTheme();
 
   @override
+  ProkatAppBarTheme get appBar => ProkatAppBarTheme(
+    background: AppColorsDark.surface,
+    content: AppColorsDark.textPrimary,
+    divider: AppColorsDark.border,
+    shadow: AppColorsDark.black.withValues(alpha: 0.35),
+  );
+
+  @override
+  AppNavigationBarTheme get navigationBar => AppNavigationBarTheme(
+    background: AppColorsDark.surface,
+    divider: AppColorsDark.border,
+    selected: AppColorsDark.primaryInteractive,
+    ownerSelected: AppColorsDark.success,
+    unselected: AppColorsDark.textSecondary,
+    splash: AppColorsDark.primaryInteractive.withValues(alpha: 0.18),
+    highlight: AppColorsDark.primaryInteractive.withValues(alpha: 0.1),
+    ownerSplash: AppColorsDark.success.withValues(alpha: 0.18),
+    ownerHighlight: AppColorsDark.success.withValues(alpha: 0.1),
+  );
+
+  @override
   Color get primary => AppColorsDark.primary;
 
   @override
@@ -75,6 +96,67 @@ class DarkColorTheme extends AppColorsTheme {
   );
 
   @override
+  AppIconButtonTheme get iconButton => AppIconButtonTheme(
+    neutral: const AppButtonToneTheme(
+      content: AppColorsDark.textPrimary,
+      contentOnFill: AppColorsDark.textPrimary,
+      fill: AppColorsDark.surfaceElevated,
+      softFill: AppColorsDark.surface,
+      border: AppColorsDark.border,
+    ),
+    primary: const AppButtonToneTheme(
+      content: AppColorsDark.primaryInteractive,
+      contentOnFill: AppColorsDark.white,
+      fill: AppColorsDark.primaryInteractive,
+      softFill: AppColorsDark.primarySoft,
+      border: AppColorsDark.primaryInteractive,
+    ),
+    success: const AppButtonToneTheme(
+      content: AppColorsDark.success,
+      contentOnFill: AppColorsDark.background,
+      fill: AppColorsDark.success,
+      softFill: AppColorsDark.successSoft,
+      border: AppColorsDark.success,
+    ),
+    warning: const AppButtonToneTheme(
+      content: AppColorsDark.warning,
+      contentOnFill: AppColorsDark.background,
+      fill: AppColorsDark.amber,
+      softFill: AppColorsDark.warningSoft,
+      border: AppColorsDark.warning,
+    ),
+    destructive: const AppButtonToneTheme(
+      content: AppColorsDark.danger,
+      contentOnFill: AppColorsDark.white,
+      fill: AppColors.danger,
+      softFill: AppColorsDark.dangerSoft,
+      border: AppColorsDark.danger,
+    ),
+    inverse: AppButtonToneTheme(
+      content: AppColorsDark.white,
+      contentOnFill: AppColors.primary,
+      fill: AppColorsDark.white,
+      softFill: AppColorsDark.black.withValues(alpha: 0.5),
+      border: AppColorsDark.white.withValues(alpha: 0.6),
+    ),
+    contentDisabled: AppColorsDark.textDisabled,
+    backgroundDisabled: AppColorsDark.surface,
+    borderDisabled: AppColorsDark.textDisabled,
+  );
+
+  @override
+  AppLabelButtonTheme get labelButton => AppLabelButtonTheme(
+    neutral: iconButton.neutral,
+    primary: iconButton.primary,
+    success: iconButton.success,
+    destructive: iconButton.destructive,
+    inverse: iconButton.inverse,
+    contentDisabled: AppColorsDark.textDisabled,
+    backgroundDisabled: AppColorsDark.surface,
+    borderDisabled: AppColorsDark.textDisabled,
+  );
+
+  @override
   AppElevatedButtonTheme get elevatedButton => const AppElevatedButtonTheme(
     background: AppColorsDark.primaryInteractive,
     content: AppColorsDark.white,
@@ -85,8 +167,10 @@ class DarkColorTheme extends AppColorsTheme {
   @override
   AppOutlinedButtonTheme get outlinedButton => const AppOutlinedButtonTheme(
     border: AppColorsDark.primaryInteractive,
+    borderDestructive: AppColorsDark.danger,
     borderDisabled: AppColorsDark.textDisabled,
     content: AppColorsDark.white,
+    contentDestructive: AppColorsDark.danger,
     contentDisabled: AppColorsDark.textDisabled,
     background: Colors.transparent,
   );
@@ -114,7 +198,7 @@ class DarkColorTheme extends AppColorsTheme {
       ],
     ),
     text: AppColorsDark.textPrimary,
-    textDisabled: AppColorsDark.textDisabled,
+    textDisabled: AppColorsDark.textTertiary,
     hint: AppColorsDark.textTertiary,
     label: AppColorsDark.textSecondary,
     caption: AppColorsDark.textSecondary,

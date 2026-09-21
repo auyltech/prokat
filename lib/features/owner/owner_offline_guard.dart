@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/theme/app_fonts.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
-import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/offers/offer_error_message.dart';
@@ -176,34 +171,7 @@ class BecomeOnlineOutlinedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final border = theme.colorScheme.outline.withValues(alpha: 0.7);
-
-    return OutlinedButton(
-      onPressed: busy ? null : onPressed,
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(color: border),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: busy
-          ? SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: theme.colorScheme.primary,
-              ),
-            )
-          : Text(
-              label,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-    );
+    return AppOutlinedButton(title: label, onTap: onPressed, isLoading: busy);
   }
 }
 

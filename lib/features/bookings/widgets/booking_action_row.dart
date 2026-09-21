@@ -2,8 +2,7 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:prokat/core/widgets/ui_kit/toasts/app_toast.dart";
-import "package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart";
+import "package:prokat/core/widgets/ui_kit/ui_kit.dart";
 import "package:prokat/features/appstartup/app_mode_storage.dart";
 import "package:prokat/features/bookings/models/booking_model.dart";
 import "package:prokat/features/bookings/models/booking_status.dart";
@@ -64,77 +63,39 @@ class BookingActionRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        spacing: 8,
+        runSpacing: 8,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => _handleCancel(context, ref, booking, l10n),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                side: const BorderSide(color: Colors.red),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                booking.status == BookingStatus.created
-                    ? l10n.decline
-                    : l10n.cancel,
-              ),
-            ),
+          AppLabelButton(
+            title: booking.status == BookingStatus.created
+                ? l10n.decline
+                : l10n.cancel,
+            onTap: () => _handleCancel(context, ref, booking, l10n),
+            variant: AppLabelButtonVariant.outlined,
+            tone: AppLabelButtonTone.destructive,
           ),
-
-          const SizedBox(width: 8),
-
           if (booking.status == BookingStatus.created) ...[
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => _handleCounterOffer(context),
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(l10n.counter),
-              ),
+            AppLabelButton(
+              title: l10n.counter,
+              onTap: () => _handleCounterOffer(context),
+              variant: AppLabelButtonVariant.outlined,
             ),
-
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton(
-                onPressed: () => unawaited(_handleAccept(context, ref)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(l10n.acceptOrder),
-              ),
+            AppLabelButton(
+              title: l10n.acceptOrder,
+              onTap: () => unawaited(_handleAccept(context, ref)),
+              tone: AppLabelButtonTone.success,
             ),
           ] else
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () =>
-                    BookingStatusSheet.show(context, booking: booking),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: theme.colorScheme.primary),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(l10n.startWork),
-              ),
+            AppLabelButton(
+              title: l10n.startWork,
+              onTap: () => BookingStatusSheet.show(context, booking: booking),
+              variant: AppLabelButtonVariant.outlined,
             ),
         ],
       ),
@@ -143,15 +104,12 @@ class BookingActionRow extends ConsumerWidget {
 
   void _handleCounterOffer(BuildContext context) {
     unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => CounterOfferSheet(
-          bookingId: booking.id,
-          initialPrice: booking.price,
-          initialPriceRate: booking.priceRate,
-          mode: AppMode.clientMode,
-        ),
+      CounterOfferSheet.show(
+        context,
+        bookingId: booking.id,
+        initialPrice: booking.price,
+        initialPriceRate: booking.priceRate,
+        mode: AppMode.clientMode,
       ),
     );
   }
@@ -162,7 +120,6 @@ class BookingActionRow extends ConsumerWidget {
     BookingModel booking,
     AppLocalizations l10n,
   ) async {
-    final theme = Theme.of(context);
     final notifier = ref.read(bookingMutationProvider.notifier);
 
     final modalTitle = booking.status == BookingStatus.created
@@ -211,16 +168,6 @@ class BookingActionRow extends ConsumerWidget {
     }
 
     if (!context.mounted) return;
-    unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: theme.colorScheme.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (context) => CancelBookingSheet(booking: booking),
-      ),
-    );
+    unawaited(CancelBookingSheet.show(context, booking: booking));
   }
 }

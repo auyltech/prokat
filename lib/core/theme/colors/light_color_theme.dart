@@ -7,6 +7,27 @@ class LightColorTheme extends AppColorsTheme {
   const LightColorTheme();
 
   @override
+  ProkatAppBarTheme get appBar => ProkatAppBarTheme(
+    background: AppColors.surface,
+    content: AppColors.textPrimary,
+    divider: AppColors.border,
+    shadow: AppColors.black.withValues(alpha: 0.45),
+  );
+
+  @override
+  AppNavigationBarTheme get navigationBar => AppNavigationBarTheme(
+    background: AppColors.surface,
+    divider: AppColors.border,
+    selected: AppColors.primary,
+    ownerSelected: AppColors.success,
+    unselected: AppColors.textSecondary,
+    splash: AppColors.primary.withValues(alpha: 0.12),
+    highlight: AppColors.primary.withValues(alpha: 0.06),
+    ownerSplash: AppColors.success.withValues(alpha: 0.12),
+    ownerHighlight: AppColors.success.withValues(alpha: 0.06),
+  );
+
+  @override
   Color get primary => AppColors.primary;
 
   @override
@@ -80,6 +101,67 @@ class LightColorTheme extends AppColorsTheme {
   );
 
   @override
+  AppIconButtonTheme get iconButton => AppIconButtonTheme(
+    neutral: const AppButtonToneTheme(
+      content: AppColors.textPrimary,
+      contentOnFill: AppColors.textPrimary,
+      fill: AppColors.surfaceElevated,
+      softFill: AppColors.surface,
+      border: AppColors.border,
+    ),
+    primary: const AppButtonToneTheme(
+      content: AppColors.primary,
+      contentOnFill: AppColors.white,
+      fill: AppColors.primary,
+      softFill: AppColors.primarySoft,
+      border: AppColors.primary,
+    ),
+    success: const AppButtonToneTheme(
+      content: AppColors.success,
+      contentOnFill: AppColors.white,
+      fill: AppColors.success,
+      softFill: AppColors.successSoft,
+      border: AppColors.success,
+    ),
+    warning: const AppButtonToneTheme(
+      content: AppColors.warning,
+      contentOnFill: AppColors.textPrimary,
+      fill: AppColors.amber,
+      softFill: AppColors.warningSoft,
+      border: AppColors.warning,
+    ),
+    destructive: const AppButtonToneTheme(
+      content: AppColors.danger,
+      contentOnFill: AppColors.white,
+      fill: AppColors.danger,
+      softFill: AppColors.dangerSoft,
+      border: AppColors.danger,
+    ),
+    inverse: AppButtonToneTheme(
+      content: AppColors.white,
+      contentOnFill: AppColors.primary,
+      fill: AppColors.white,
+      softFill: AppColors.black.withValues(alpha: 0.4),
+      border: AppColors.white.withValues(alpha: 0.6),
+    ),
+    contentDisabled: AppColors.textDisabled,
+    backgroundDisabled: AppColors.surface,
+    borderDisabled: AppColors.textDisabled,
+  );
+
+  @override
+  AppLabelButtonTheme get labelButton => AppLabelButtonTheme(
+    neutral: iconButton.neutral,
+    primary: iconButton.primary,
+    success: iconButton.success,
+    destructive: iconButton.destructive,
+    inverse: iconButton.inverse,
+    contentDisabled: AppColors.textDisabled,
+    backgroundDisabled: AppColors.surface,
+    borderDisabled: AppColors.textDisabled,
+  );
+
+  @override
   AppElevatedButtonTheme get elevatedButton => const AppElevatedButtonTheme(
     background: AppColors.primary,
     content: AppColors.white,
@@ -90,8 +172,10 @@ class LightColorTheme extends AppColorsTheme {
   @override
   AppOutlinedButtonTheme get outlinedButton => const AppOutlinedButtonTheme(
     border: AppColors.primary,
+    borderDestructive: AppColors.danger,
     borderDisabled: AppColors.textDisabled,
     content: AppColors.primary,
+    contentDestructive: AppColors.danger,
     contentDisabled: AppColors.textDisabled,
     background: Colors.transparent,
   );
@@ -116,7 +200,7 @@ class LightColorTheme extends AppColorsTheme {
       colors: <Color>[AppColors.primary, AppColors.primary],
     ),
     text: AppColors.textPrimary,
-    textDisabled: AppColors.textDisabled,
+    textDisabled: AppColors.textTertiary,
     hint: AppColors.textTertiary,
     label: AppColors.textSecondary,
     caption: AppColors.textSecondary,

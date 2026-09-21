@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -185,7 +186,7 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                           Row(
                             children: [
                               // Favorite Button
-                              _CircleIconButton(
+                              AppIconButton(
                                 icon: isFav
                                     ? Icons.favorite_rounded
                                     : Icons.favorite_border_rounded,
@@ -196,12 +197,17 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                         .toggleFavorite(equipment.id),
                                   );
                                 },
+                                size: AppIconButtonSize.large,
+                                shape: AppIconButtonShape.rounded,
+                                variant: AppIconButtonVariant.outlined,
+                                tone: AppIconButtonTone.destructive,
                               ),
                               const SizedBox(width: 16),
                               // Book equipment button
                               Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
+                                child: AppElevatedButton(
+                                  title: l10n.startBooking,
+                                  onTap: () {
                                     // Select equipment
                                     ref
                                         .read(bookingMutationProvider.notifier)
@@ -213,21 +219,6 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                                       ),
                                     );
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: accentColor,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    l10n.startBooking,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
                                 ),
                               ),
                             ],
@@ -296,31 +287,6 @@ class _PriceTag extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CircleIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _CircleIconButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        height: 56,
-        width: 56,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: Icon(icon, color: Colors.white70),
       ),
     );
   }

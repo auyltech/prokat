@@ -698,6 +698,7 @@
   "priceFixed": "Фиксированная",
   "priceFromPrefix": "от",
   "addTariff": "Добавить тариф",
+  "tariffDraftPrefix": "Черновик:",
   "serviceType": "Вид услуги",
   "serviceOther": "Другое",
   "customServiceName": "Название услуги",
@@ -746,6 +747,7 @@
   "selectLocation": "Выберите местоположение",
   "noSavedLocations": "Нет сохранённых адресов",
   "createNewOnMap": "Создать новый на карте",
+  "equipmentPhotoSheetTitle": "Фото техники",
   "chooseFromGallery": "Выбрать из галереи",
   "takePhoto": "Сделать фото",
   "setAsCover": "Установить как обложку",
@@ -865,6 +867,17 @@
   "ownerProfileSuspendedHint": "Размещение техники временно недоступно. Свяжитесь с поддержкой.",
   "ownerProfilePendingReview": "Ожидайте рассмотрения",
   "ownerProfilePendingReviewHint": "Отправленные данные снова проходят модерацию.",
+  "ownerProfileChangesPending": "Изменения находятся на рассмотрении",
+  "ownerProfileChangesPendingHint": "Пока идёт проверка, редактировать профиль нельзя.",
+  "ownerProfileChangesRejected": "Изменения отклонены",
+  "ownerProfileChangesRejectedUntil": "исправить до {date}",
+  "@ownerProfileChangesRejectedUntil": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "ownerProfileCorrectionOverdue": "Срок исправления истёк. Доступ может быть приостановлен.",
+  "ownerProfileCorrectionOverdueHint": "Обновите данные и снова отправьте на проверку.",
   "profileUpdateNeedsModeration": "Данные будут переданы на модерацию",
   "submitForVerification": "Отправить на верификацию",
   "underReview": "На проверке",
@@ -1199,6 +1212,7 @@
   "saveChanges": "Сохранить",
   "saving": "Сохранение...",
   "fieldRequired": "Обязательное поле",
+  "cannotBeEmpty": "Не может быть пустым",
   "justNow": "Только что",
   "minutesAgo": "{count} мин назад",
   "@minutesAgo": {

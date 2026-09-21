@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/base_tile.dart';
@@ -11,8 +12,6 @@ import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-
-import '../../../core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 
 class ClientEquipmentTile extends ConsumerWidget {
   final Equipment equipment;
@@ -97,13 +96,11 @@ class ClientEquipmentTile extends ConsumerWidget {
               Positioned(
                 top: 8,
                 right: 8,
-                child: IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                  ),
-                  color: Colors.red,
-                  iconSize: 28,
-                  onPressed: isClient
+                child: AppIconButton(
+                  icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+                  tone: AppIconButtonTone.destructive,
+                  variant: AppIconButtonVariant.soft,
+                  onTap: isClient
                       ? () => notifier.toggleFavorite(equipment.id)
                       : null,
                 ),

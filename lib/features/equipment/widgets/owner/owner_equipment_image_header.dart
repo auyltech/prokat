@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/page_dots_indicator.dart';
-import 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_image_actions_sheet.dart';
@@ -137,7 +137,7 @@ class _OwnerEquipmentImageHeaderState
           unawaited(
             _pageController.animateToPage(
               count - 1,
-              duration: const Duration(milliseconds: 250),
+              duration: AppDimens.defaultAnimationDuration,
               curve: Curves.easeOut,
             ),
           );
@@ -212,33 +212,40 @@ class _OwnerEquipmentImageHeaderState
     }
   }
 
-  void _openActionsSheet({
+  Future<void> _openActionsSheet({
     required bool isBusy,
     required bool canAddMore,
     required EquipmentImage? current,
     required bool canSetCover,
     required bool canDelete,
-  }) {
+  }) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    unawaited(
-      showModalBottomSheet(
-        context: context,
-        showDragHandle: true,
-        builder: (_) {
-          return EquipmentImageActionsSheet(
-            canAddMore: canAddMore,
-            isBusy: isBusy,
-            limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
-            onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
-            onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
-            onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
-            onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
-          );
-        },
-      ).whenComplete(() {
-        FocusManager.instance.primaryFocus?.unfocus();
-      }),
+
+    final action = await EquipmentImageActionsSheet.show(
+      context,
+      canAddMore: canAddMore,
+      isBusy: isBusy,
+      canSetAsCover: canSetCover,
+      canDelete: canDelete,
+      limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
     );
+
+    if (!mounted || action == null) return;
+
+    switch (action) {
+      case EquipmentImageAction.gallery:
+        await _pickAndUpload(ImageSource.gallery);
+      case EquipmentImageAction.camera:
+        await _pickAndUpload(ImageSource.camera);
+      case EquipmentImageAction.setAsCover:
+        if (current != null) await _setAsCover(current);
+      case EquipmentImageAction.delete:
+        if (current != null) await _confirmAndDelete(current);
+    }
+
+    if (mounted) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
   }
 
   @override
@@ -303,7 +310,7 @@ class _OwnerEquipmentImageHeaderState
           Positioned(
             left: 0,
             right: 0,
-            bottom: 12,
+            bottom: AppDimens.s12$md,
             child: PageDotsIndicator(
               count: images.length,
               index: _currentIndex,
@@ -312,18 +319,26 @@ class _OwnerEquipmentImageHeaderState
 
         if (widget.canEditImages)
           Positioned(
-            right: 16,
-            bottom: 16,
-            child: FloatingActionButton.small(
-              heroTag: 'editEquipmentImages_${widget.equipmentId}',
-              onPressed: () => _openActionsSheet(
-                isBusy: isBusy,
-                canAddMore: canAddMore,
-                current: current,
-                canSetCover: canSetCoverCurrent,
-                canDelete: canDeleteCurrent,
+            right: AppDimens.s16$base,
+            bottom: AppDimens.s16$base,
+            child: Hero(
+              tag: 'editEquipmentImages_${widget.equipmentId}',
+              child: AppIconButton(
+                icon: LucideIcons.squarePen,
+                variant: AppIconButtonVariant.floating,
+                tone: AppIconButtonTone.primary,
+                onTap: () {
+                  unawaited(
+                    _openActionsSheet(
+                      isBusy: isBusy,
+                      canAddMore: canAddMore,
+                      current: current,
+                      canSetCover: canSetCoverCurrent,
+                      canDelete: canDeleteCurrent,
+                    ),
+                  );
+                },
               ),
-              child: const Icon(Icons.camera_alt),
             ),
           ),
 
@@ -368,8 +383,8 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
       color: colorScheme.surfaceContainerHighest,
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 8 : 32,
-        vertical: compact ? 6 : 12,
+        horizontal: compact ? AppDimens.s08$sm : AppDimens.s32$xxl,
+        vertical: compact ? AppDimens.inputHelperGap : AppDimens.s12$md,
       ),
       child: Text(
         l10n.equipmentPhotoRequiredPlaceholder,
@@ -377,10 +392,11 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
         maxLines: compact ? 4 : 3,
         overflow: TextOverflow.ellipsis,
         style:
-            (compact ? theme.textTheme.labelSmall : theme.textTheme.bodyLarge)
-                ?.copyWith(
+            (compact
+                    ? AppFonts.captionMedium(context)
+                    : AppFonts.body16SemiBold(context))
+                .copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.55),
-                  fontWeight: FontWeight.w600,
                   height: 1.2,
                 ),
       ),

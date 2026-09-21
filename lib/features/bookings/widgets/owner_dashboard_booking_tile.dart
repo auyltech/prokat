@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
@@ -158,23 +159,13 @@ class OwnerDashboardBookingTile extends StatelessWidget {
               ),
 
               const Spacer(),
-              TextButton(
-                onPressed: () {
+              AppLabelButton(
+                title: l10n.details,
+                onTap: () {
                   /* Show Details Logic */
                 },
-                style: TextButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  foregroundColor: colorScheme.primary,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      l10n.details,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const Icon(Icons.chevron_right, size: 16),
-                  ],
-                ),
+                variant: AppLabelButtonVariant.text,
+                postfix: const Icon(Icons.chevron_right),
               ),
             ],
           ),

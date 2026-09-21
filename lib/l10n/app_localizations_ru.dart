@@ -1913,6 +1913,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addTariff => 'Добавить тариф';
 
   @override
+  String get tariffDraftPrefix => 'Черновик:';
+
+  @override
   String get serviceType => 'Вид услуги';
 
   @override
@@ -2061,6 +2064,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get createNewOnMap => 'Создать новый на карте';
+
+  @override
+  String get equipmentPhotoSheetTitle => 'Фото техники';
 
   @override
   String get chooseFromGallery => 'Выбрать из галереи';
@@ -2379,6 +2385,30 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get ownerProfilePendingReviewHint =>
       'Отправленные данные снова проходят модерацию.';
+
+  @override
+  String get ownerProfileChangesPending =>
+      'Изменения находятся на рассмотрении';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'Пока идёт проверка, редактировать профиль нельзя.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Изменения отклонены';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return 'исправить до $date';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Срок исправления истёк. Доступ может быть приостановлен.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Обновите данные и снова отправьте на проверку.';
 
   @override
   String get profileUpdateNeedsModeration =>
@@ -3398,6 +3428,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fieldRequired => 'Обязательное поле';
+
+  @override
+  String get cannotBeEmpty => 'Не может быть пустым';
 
   @override
   String get justNow => 'Только что';

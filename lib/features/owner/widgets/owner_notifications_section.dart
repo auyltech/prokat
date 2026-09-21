@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:prokat/core/config/env.dart';
-import 'package:prokat/core/constants/app_colors.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
+import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
 import 'package:prokat/features/owner/models/owner_notification_preferences.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -38,7 +38,7 @@ class _OwnerNotificationsSectionState
   bool _loadingPermission = true;
   String? _savingPreference;
 
-  Color get _ownerColor => AppColors.teal800;
+  Color get _ownerColor => legacy_colors.AppColors.teal800;
 
   Color get _ownerBackground => _ownerColor.withValues(alpha: 0.15);
 

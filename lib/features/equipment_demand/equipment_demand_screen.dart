@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_app_bar.dart';
 import 'package:prokat/features/equipment_demand/widgets/demand_survey_city_field.dart';
@@ -12,7 +12,6 @@ import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/widgets/action_button.dart';
 import 'equipment_demand_models.dart';
 import 'equipment_demand_provider.dart';
 
@@ -133,10 +132,12 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
-                FilledButton(
-                  onPressed: () =>
+                AppIconButton(
+                  icon: Icons.refresh,
+                  onTap: () =>
                       ref.invalidate(demandFormProvider(widget.campaignId)),
-                  child: const Icon(Icons.refresh),
+                  variant: AppIconButtonVariant.filled,
+                  tone: AppIconButtonTone.primary,
                 ),
               ],
             ),
@@ -192,10 +193,11 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
                 ),
               ),
             const SizedBox(height: 24),
-            ActionButton(
-              label: l10n.demandSurveySubmit,
-              onPressed: _submitting ? null : _submit,
+            AppElevatedButton(
+              title: l10n.demandSurveySubmit,
+              onTap: _submitting ? null : _submit,
               isLoading: _submitting,
+              isExpanded: false,
             ),
           ],
         ),
