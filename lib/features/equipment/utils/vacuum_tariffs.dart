@@ -67,6 +67,20 @@ bool isKnownTariffKey(String? label) {
   return vacuumServiceTypeKeys.contains(label) && label != vacuumTariffOther;
 }
 
+/// Client-facing name of a saved tariff.
+///
+/// Known service keys are localized; a free-form label is shown as typed.
+/// Returns `null` when the owner never stored a label (legacy rows created
+/// before `PriceEntry.label` existed). Callers must omit the name in that case
+/// instead of falling back to the owner editor's «new tariff» placeholder.
+String? savedTariffTitle(PriceEntry entry, AppLocalizations l10n) {
+  final raw = (entry.label ?? '').trim();
+  if (raw.isEmpty) return null;
+  if (isKnownTariffKey(raw)) return tariffServiceTitle(raw, '', l10n);
+  if (raw == vacuumTariffOther) return null;
+  return raw;
+}
+
 String persistTariffLabel({
   required String labelKey,
   required String customName,
