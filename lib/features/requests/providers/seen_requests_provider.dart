@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
 /// Tender ids the owner has already had on screen.
 ///
@@ -7,7 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Session-scoped, so the highlight can replay after an app restart.
 class SeenRequestIdsNotifier extends Notifier<Set<String>> {
   @override
-  Set<String> build() => const <String>{};
+  Set<String> build() {
+    ref.watch(authenticatedSessionScopeKeyProvider);
+    return const <String>{};
+  }
 
   bool isSeen(String requestId) => state.contains(requestId);
 

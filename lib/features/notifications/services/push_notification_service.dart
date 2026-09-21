@@ -271,6 +271,9 @@ class PushNotificationService {
     }
 
     final id = notification.id.trim();
+    if (notification.isRead || (shouldSuppressDisplay?.call(id) ?? false)) {
+      return;
+    }
     final now = DateTime.now();
     _displayedIds.removeWhere(
       (_, at) => now.difference(at) > const Duration(minutes: 10),

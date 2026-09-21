@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
@@ -103,6 +104,7 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
   }
 
   Future<void> _refreshRequestQuery(bool owner) async {
+    refreshNavigationCounts(ref);
     if (owner && ref.exists(ownerActiveRequestsProvider)) {
       await ref.read(ownerActiveRequestsProvider.notifier).refresh();
     } else if (!owner && ref.exists(clientActiveRequestsProvider)) {

@@ -158,6 +158,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
                       final requestOffers = offersByRequest[r.id] ?? [];
 
                       return NewRequestHighlight(
+                        key: ValueKey(r.id),
                         requestId: r.id,
                         child: OwnerRequestTile(
                           request: r,

@@ -3,6 +3,7 @@ import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
@@ -97,6 +98,7 @@ class OwnerActiveRequestsNotifier
   }
 
   Future<void> refresh() {
+    refreshNavigationCounts(ref);
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return Future<void>.value();
 

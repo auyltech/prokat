@@ -90,6 +90,7 @@ class WorkflowChatDelta {
 }
 
 class WorkflowUpdate {
+  final String? requestClientId;
   final int v;
   final String eventId;
   final DateTime emittedAt;
@@ -104,6 +105,7 @@ class WorkflowUpdate {
   final WorkflowChatDelta? chat;
 
   const WorkflowUpdate({
+    this.requestClientId,
     required this.v,
     required this.eventId,
     required this.emittedAt,
@@ -138,6 +140,7 @@ class WorkflowUpdate {
     final chatId = json['chatId']?.toString().trim();
 
     return WorkflowUpdate(
+      requestClientId: json['requestClientId']?.toString(),
       v: v,
       eventId: eventId,
       emittedAt: emittedAt,

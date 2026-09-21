@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -23,6 +25,7 @@ final chatSidebarBootstrapProvider = Provider<void>((ref) {
   }
 
   void applyUpdate(ChatSidebarUpdate update) {
+    refreshNavigationCounts(ref);
     final currentUserId = ref.read(authProvider).currentUserId;
     final isThreadOpen = socketService.activeChatId == update.chatId;
 

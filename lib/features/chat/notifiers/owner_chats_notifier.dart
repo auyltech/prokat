@@ -6,6 +6,7 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/chat/utils/chat_sidebar_update_utils.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
@@ -81,6 +82,7 @@ class OwnerChatsNotifier
   }
 
   Future<void> refresh() {
+    refreshNavigationCounts(ref);
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return Future<void>.value();
 

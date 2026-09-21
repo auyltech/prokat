@@ -28,5 +28,9 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
       );
     },
     currentLocale: () => ref.read(localeProvider).languageCode,
+    shouldSuppressDisplay: (id) => ref
+        .read(notificationProvider)
+        .items
+        .any((item) => item.id == id && item.isRead),
   );
 });
