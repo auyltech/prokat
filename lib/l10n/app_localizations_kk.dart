@@ -2050,6 +2050,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get createNewOnMap => 'Картада жаңа мекен-жай жасау';
 
   @override
+  String get equipmentPhotoSheetTitle => 'Техника фотосы';
+
+  @override
   String get chooseFromGallery => 'Галереядан таңдау';
 
   @override

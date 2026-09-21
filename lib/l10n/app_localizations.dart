@@ -3988,6 +3988,12 @@ abstract class AppLocalizations {
   /// **'Create new on map'**
   String get createNewOnMap;
 
+  /// No description provided for @equipmentPhotoSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment photo'**
+  String get equipmentPhotoSheetTitle;
+
   /// No description provided for @chooseFromGallery.
   ///
   /// In en, this message translates to:

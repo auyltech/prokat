@@ -2059,6 +2059,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createNewOnMap => 'Create new on map';
 
   @override
+  String get equipmentPhotoSheetTitle => 'Equipment photo';
+
+  @override
   String get chooseFromGallery => 'Choose from gallery';
 
   @override

@@ -45,7 +45,7 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? AppDimens.appBarTitleGap
           : AppDimens.appBarTitleSpacing,
       centerTitle: false,
-      leadingWidth: AppDimens.s04$xs * 2 + AppDimens.iconButtonSize,
+      leadingWidth: AppDimens.appBarLeadingWidth,
       leading: onBack == null
           ? null
           : Align(

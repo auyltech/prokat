@@ -30,6 +30,7 @@ abstract final class AppDimens {
   static const double appBarHeight = 56;
   static const double appBarDividerHeight = 1;
   static const double appBarElevation = 4;
+  static const double appBarLeadingWidth = s04$xs * 2 + iconButtonSize;
   static const double appBarTitleSpacing = s16$base;
   static const double appBarTitleGap = 0;
 

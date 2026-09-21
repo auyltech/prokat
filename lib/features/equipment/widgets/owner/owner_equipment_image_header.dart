@@ -211,33 +211,40 @@ class _OwnerEquipmentImageHeaderState
     }
   }
 
-  void _openActionsSheet({
+  Future<void> _openActionsSheet({
     required bool isBusy,
     required bool canAddMore,
     required EquipmentImage? current,
     required bool canSetCover,
     required bool canDelete,
-  }) {
+  }) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    unawaited(
-      showModalBottomSheet(
-        context: context,
-        showDragHandle: true,
-        builder: (_) {
-          return EquipmentImageActionsSheet(
-            canAddMore: canAddMore,
-            isBusy: isBusy,
-            limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
-            onPickFromGallery: () => _pickAndUpload(ImageSource.gallery),
-            onPickFromCamera: () => _pickAndUpload(ImageSource.camera),
-            onSetAsCover: canSetCover ? () => _setAsCover(current!) : null,
-            onDelete: canDelete ? () => _confirmAndDelete(current!) : null,
-          );
-        },
-      ).whenComplete(() {
-        FocusManager.instance.primaryFocus?.unfocus();
-      }),
+
+    final action = await EquipmentImageActionsSheet.show(
+      context,
+      canAddMore: canAddMore,
+      isBusy: isBusy,
+      canSetAsCover: canSetCover,
+      canDelete: canDelete,
+      limitMessage: canAddMore ? null : _l10n.maxPhotosReached,
     );
+
+    if (!mounted || action == null) return;
+
+    switch (action) {
+      case EquipmentImageAction.gallery:
+        await _pickAndUpload(ImageSource.gallery);
+      case EquipmentImageAction.camera:
+        await _pickAndUpload(ImageSource.camera);
+      case EquipmentImageAction.setAsCover:
+        if (current != null) await _setAsCover(current);
+      case EquipmentImageAction.delete:
+        if (current != null) await _confirmAndDelete(current);
+    }
+
+    if (mounted) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
   }
 
   @override
@@ -319,13 +326,17 @@ class _OwnerEquipmentImageHeaderState
                 icon: Icons.camera_alt,
                 variant: AppIconButtonVariant.floating,
                 tone: AppIconButtonTone.primary,
-                onTap: () => _openActionsSheet(
-                  isBusy: isBusy,
-                  canAddMore: canAddMore,
-                  current: current,
-                  canSetCover: canSetCoverCurrent,
-                  canDelete: canDeleteCurrent,
-                ),
+                onTap: () {
+                  unawaited(
+                    _openActionsSheet(
+                      isBusy: isBusy,
+                      canAddMore: canAddMore,
+                      current: current,
+                      canSetCover: canSetCoverCurrent,
+                      canDelete: canDeleteCurrent,
+                    ),
+                  );
+                },
               ),
             ),
           ),

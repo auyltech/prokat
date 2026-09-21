@@ -17,6 +17,7 @@ void main() {
       'lib/features/bookings/widgets/cancel_booking_sheet.dart',
       'lib/features/bookings/widgets/cancel_booking_reason_sheet.dart',
       'lib/features/reviews/widgets/review_sheet.dart',
+      'lib/features/equipment/widgets/owner/equipment_image_actions_sheet.dart',
     ];
 
     for (final path in paths) {
@@ -55,6 +56,7 @@ void main() {
       'lib/features/bookings/widgets/cancel_booking_sheet.dart',
       'lib/features/bookings/widgets/cancel_booking_reason_sheet.dart',
       'lib/features/reviews/widgets/review_sheet.dart',
+      'lib/features/equipment/widgets/owner/equipment_image_actions_sheet.dart',
     ];
 
     for (final path in paths) {

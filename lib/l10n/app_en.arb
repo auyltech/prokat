@@ -749,6 +749,7 @@
   "selectLocation": "Select Location",
   "noSavedLocations": "No saved locations yet",
   "createNewOnMap": "Create new on map",
+  "equipmentPhotoSheetTitle": "Equipment photo",
   "chooseFromGallery": "Choose from gallery",
   "takePhoto": "Take photo",
   "setAsCover": "Set as cover",

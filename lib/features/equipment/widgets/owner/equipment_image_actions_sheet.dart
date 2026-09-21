@@ -2,121 +2,127 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
+enum EquipmentImageAction { gallery, camera, setAsCover, delete }
+
 class EquipmentImageActionsSheet extends StatelessWidget {
   final bool canAddMore;
   final bool isBusy;
-  final VoidCallback onPickFromGallery;
-  final VoidCallback onPickFromCamera;
-  final VoidCallback? onSetAsCover;
-  final VoidCallback? onDelete;
-  final String? limitMessage;
+  final bool canSetAsCover;
+  final bool canDelete;
 
   const EquipmentImageActionsSheet({
     super.key,
     required this.canAddMore,
     required this.isBusy,
-    required this.onPickFromGallery,
-    required this.onPickFromCamera,
-    required this.onSetAsCover,
-    required this.onDelete,
-    required this.limitMessage,
+    required this.canSetAsCover,
+    required this.canDelete,
   });
+
+  static Future<EquipmentImageAction?> show(
+    BuildContext context, {
+    required bool canAddMore,
+    required bool isBusy,
+    required bool canSetAsCover,
+    required bool canDelete,
+    String? limitMessage,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AppBottomSheet.show<EquipmentImageAction>(
+      context,
+      title: l10n.equipmentPhotoSheetTitle,
+      subtitle: limitMessage,
+      contentBuilder: (context) {
+        return EquipmentImageActionsSheet(
+          canAddMore: canAddMore,
+          isBusy: isBusy,
+          canSetAsCover: canSetAsCover,
+          canDelete: canDelete,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final disabledColor = colorScheme.onSurface.withValues(alpha: 0.38);
+    final canPick = canAddMore && !isBusy;
 
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (limitMessage != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppDimens.s16$base,
-                  AppDimens.s12$md,
-                  AppDimens.s16$base,
-                  AppDimens.s04$xs,
-                ),
-                child: Text(
-                  limitMessage!,
-                  style: AppFonts.body14(context)
-                      .copyWith(color: colorScheme.onSurfaceVariant),
-                ),
-              ),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        AppDimens.sheetHorizontalPadding,
+        0,
+        AppDimens.sheetHorizontalPadding,
+        MediaQuery.paddingOf(context).bottom,
+      ),
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              Icons.photo_library,
+              color: canPick ? null : disabledColor,
+            ),
+            title: Text(
+              l10n.chooseFromGallery,
+              style: AppFonts.body16(context)
+                  .copyWith(color: canPick ? null : disabledColor),
+            ),
+            enabled: canPick,
+            onTap: () =>
+                Navigator.of(context).pop(EquipmentImageAction.gallery),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              Icons.camera_alt,
+              color: canPick ? null : disabledColor,
+            ),
+            title: Text(
+              l10n.takePhoto,
+              style: AppFonts.body16(context)
+                  .copyWith(color: canPick ? null : disabledColor),
+            ),
+            enabled: canPick,
+            onTap: () => Navigator.of(context).pop(EquipmentImageAction.camera),
+          ),
+          if (canSetAsCover)
             ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: Icon(
-                Icons.photo_library,
-                color: canAddMore ? null : disabledColor,
+                Icons.star_outline,
+                color: isBusy ? disabledColor : null,
               ),
               title: Text(
-                l10n.chooseFromGallery,
+                l10n.setAsCover,
                 style: AppFonts.body16(context)
-                    .copyWith(color: canAddMore ? null : disabledColor),
+                    .copyWith(color: isBusy ? disabledColor : null),
               ),
-              enabled: canAddMore && !isBusy,
-              onTap: () {
-                Navigator.of(context).pop();
-                onPickFromGallery();
-              },
+              enabled: !isBusy,
+              onTap: () =>
+                  Navigator.of(context).pop(EquipmentImageAction.setAsCover),
             ),
+          if (canDelete)
             ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: Icon(
-                Icons.camera_alt,
-                color: canAddMore ? null : disabledColor,
+                Icons.delete_outline,
+                color: isBusy ? disabledColor : colorScheme.error,
               ),
               title: Text(
-                l10n.takePhoto,
-                style: AppFonts.body16(context)
-                    .copyWith(color: canAddMore ? null : disabledColor),
+                l10n.deletePhoto,
+                style: AppFonts.body16(
+                  context,
+                ).copyWith(color: isBusy ? disabledColor : colorScheme.error),
               ),
-              enabled: canAddMore && !isBusy,
-              onTap: () {
-                Navigator.of(context).pop();
-                onPickFromCamera();
-              },
+              enabled: !isBusy,
+              onTap: () =>
+                  Navigator.of(context).pop(EquipmentImageAction.delete),
             ),
-            if (onSetAsCover != null)
-              ListTile(
-                leading: Icon(
-                  Icons.star_outline,
-                  color: isBusy ? disabledColor : null,
-                ),
-                title: Text(
-                  l10n.setAsCover,
-                  style: AppFonts.body16(context)
-                      .copyWith(color: isBusy ? disabledColor : null),
-                ),
-                enabled: !isBusy,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onSetAsCover!();
-                },
-              ),
-            if (onDelete != null)
-              ListTile(
-                leading: Icon(
-                  Icons.delete_outline,
-                  color: isBusy ? disabledColor : colorScheme.error,
-                ),
-                title: Text(
-                  l10n.deletePhoto,
-                  style: AppFonts.body16(
-                    context,
-                  ).copyWith(color: isBusy ? disabledColor : colorScheme.error),
-                ),
-                enabled: !isBusy,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onDelete!();
-                },
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

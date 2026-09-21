@@ -2066,6 +2066,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get createNewOnMap => 'Создать новый на карте';
 
   @override
+  String get equipmentPhotoSheetTitle => 'Фото техники';
+
+  @override
   String get chooseFromGallery => 'Выбрать из галереи';
 
   @override
