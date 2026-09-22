@@ -33,4 +33,15 @@ void main() {
       throwsFormatException,
     );
   });
+
+  test('demand option parses optional image and description', () {
+    final option = DemandOption.fromJson({
+      'id': 'option-1',
+      'name': 'Excavator',
+      'description': 'Digs',
+      'imageUrl': 'https://example.com/a.png',
+    });
+    expect(option.description, 'Digs');
+    expect(option.imageUrl, 'https://example.com/a.png');
+  });
 }

@@ -29,8 +29,15 @@ class EquipmentDemandService {
     if (data is! Map || data['options'] is! List) {
       throw const FormatException('Invalid demand form');
     }
+    final allowOther = data['allowOther'] == true;
+    DemandOtherOption? other;
+    if (allowOther && data['other'] is Map) {
+      other = DemandOtherOption.fromJson(data['other']);
+    }
     return DemandForm(
       campaignId: campaignId,
+      allowOther: allowOther,
+      other: other,
       options: (data['options'] as List)
           .map(DemandOption.fromJson)
           .toList(growable: false),

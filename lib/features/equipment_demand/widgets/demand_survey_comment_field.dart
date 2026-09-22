@@ -13,7 +13,7 @@ class DemandSurveyCommentField extends StatelessWidget {
 
     return AppTextArea(
       controller: controller,
-      hint: l10n.demandSurveyOtherOption,
+      hint: l10n.demandSurveyOtherHint,
       minLines: 2,
       maxLines: 3,
     );
