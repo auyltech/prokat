@@ -2,7 +2,7 @@
 
 - Business profile (`PATCH /owner/profile`) is individual contact fields only. Company / BUSINESS type stays hidden.
 - Saving a real field change sends `submitForReview: true` with `PATCH /owner/profile`. For an already-approved owner the API sets `CHANGES_PENDING_REVIEW`, keeps live approved fields, and stores proposed values in `pendingChanges` (`from`=approved, `to`=proposed). First-time applicants still use `PENDING_REVIEW`.
-- Update button stays visible in edit mode but is disabled until visible fields differ from the last saved **live** profile; Cancel is not shown. After a successful PATCH the form returns to read-only.
+- Submit-for-review button stays visible and enabled in edit mode except while the PATCH is in flight; Cancel is not shown. After a successful PATCH the form returns to read-only.
 - `PENDING_REVIEW` and `CHANGES_PENDING_REVIEW` lock the form until an admin accepts or rejects — no further edits (anti-spam). Owner mode / role is **not** demoted by `CHANGES_*`.
 - Banner: `ModerationStatusCard` (same as equipment) at the **top** of the business profile screen. `CHANGES_REJECTED` / legacy owner-cycle `REJECTED` show title «Отклонено», admin comment inset, and deadline / overdue in the subtitle. Pending uses the same card style.
 - After `CHANGES_REJECTED`, the form hydrates editable fields from `pendingChanges.to` (draft). Public/live values stay approved until approve.

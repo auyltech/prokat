@@ -8,7 +8,6 @@ import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/core/widgets/moderation_status_card.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/features/owner/models/owner_profile_edit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -38,7 +37,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
   OwnerType? _selectedOwnerType;
   String? _selectedCity;
-  bool _lastHasChanges = false;
   bool _isEditing = false;
   bool _showFieldErrors = false;
   bool _cityPickerOpen = false;
@@ -67,11 +65,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
         ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
-
-    _firstNameController.addListener(_onFieldsChanged);
-    _lastNameController.addListener(_onFieldsChanged);
-    _phoneController.addListener(_onFieldsChanged);
-    _descriptionController.addListener(_onFieldsChanged);
   }
 
   /// For CHANGES_* cycles, form shows proposed draft (`pendingChanges.to`).
@@ -118,7 +111,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
         ((draft.city ?? '').trim().isEmpty ? null : draft.city!.trim());
-    _lastHasChanges = false;
     _showFieldErrors = false;
   }
 
@@ -141,10 +133,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
 
   @override
   void dispose() {
-    _firstNameController.removeListener(_onFieldsChanged);
-    _lastNameController.removeListener(_onFieldsChanged);
-    _phoneController.removeListener(_onFieldsChanged);
-    _descriptionController.removeListener(_onFieldsChanged);
     _companyNameController.dispose();
     _legalNameController.dispose();
     _firstNameController.dispose();
@@ -155,28 +143,12 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     super.dispose();
   }
 
-  void _onFieldsChanged() {
-    final next = _hasChanges;
-    if (next == _lastHasChanges) return;
-    _lastHasChanges = next;
-    if (mounted) setState(() {});
-  }
-
   bool get _isLocked => isOwnerBusinessProfileLocked(
     effectiveOwnerBusinessStatus(
       status: widget.initialProfile.status,
       isVerified: widget.initialProfile.isVerified,
       ownerCycle: true,
     ),
-  );
-
-  bool get _hasChanges => ownerBusinessProfileHasChanges(
-    current: widget.initialProfile,
-    firstName: _firstNameController.text,
-    lastName: _lastNameController.text,
-    phoneNumber: _phoneController.text,
-    city: _selectedCity,
-    serviceDescription: _descriptionController.text,
   );
 
   bool get _hasMissingRequired =>
@@ -204,10 +176,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
         selected;
-    setState(() {
-      _selectedCity = next;
-      _lastHasChanges = _hasChanges;
-    });
+    setState(() => _selectedCity = next);
   }
 
   Future<void> _submitForm() async {
@@ -216,7 +185,6 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       setState(() => _showFieldErrors = true);
       return;
     }
-    if (!_hasChanges) return;
 
     final isOrganization = _selectedOwnerType == OwnerType.organization;
     final companyName = isOrganization
@@ -443,9 +411,7 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
             AppElevatedButton(
               title: l10n.submitChangesForReview,
               isLoading: isLoading,
-              onTap: (isLoading || !_hasChanges)
-                  ? null
-                  : () => unawaited(_submitForm()),
+              onTap: isLoading ? null : () => unawaited(_submitForm()),
             ),
           ],
         ],
