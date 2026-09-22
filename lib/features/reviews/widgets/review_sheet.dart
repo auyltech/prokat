@@ -139,19 +139,27 @@ class _StarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(5, (index) {
-        final star = index + 1;
-        final isActive = star <= value;
-        return AppIconButton(
-          onTap: onChanged == null ? null : () => onChanged!(star),
-          icon: isActive ? Icons.star_rounded : Icons.star_outline_rounded,
-          size: AppIconButtonSize.large,
-          tone: isActive
-              ? AppIconButtonTone.primary
-              : AppIconButtonTone.neutral,
-        );
-      }),
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(5, (index) {
+          final star = index + 1;
+          final isActive = star <= value;
+          return IconButton(
+            onPressed: onChanged == null ? null : () => onChanged!(star),
+            iconSize: 40,
+            visualDensity: VisualDensity.compact,
+            icon: Icon(
+              isActive ? Icons.star_rounded : Icons.star_outline_rounded,
+              color: isActive
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
+          );
+        }),
+      ),
     );
   }
 }
