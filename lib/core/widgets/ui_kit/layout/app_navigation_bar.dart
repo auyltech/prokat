@@ -8,8 +8,13 @@ enum AppNavigationBarTone { primary, owner }
 final class AppNavigationBarItem {
   final IconData icon;
   final String label;
+  final Widget Function(Widget icon)? iconWrapper;
 
-  const AppNavigationBarItem({required this.icon, required this.label});
+  const AppNavigationBarItem({
+    required this.icon,
+    required this.label,
+    this.iconWrapper,
+  });
 }
 
 class AppNavigationBar extends StatelessWidget {
@@ -119,6 +124,12 @@ class _NavigationBarItem extends StatelessWidget {
           ]
         : null;
 
+    final icon = Icon(
+      item.icon,
+      size: AppDimens.navigationBarIconSize,
+      color: contentColor,
+      shadows: glowShadows,
+    );
     return Semantics(
       button: true,
       selected: isSelected,
@@ -132,12 +143,7 @@ class _NavigationBarItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  item.icon,
-                  size: AppDimens.navigationBarIconSize,
-                  color: contentColor,
-                  shadows: glowShadows,
-                ),
+                item.iconWrapper?.call(icon) ?? icon,
                 const SizedBox(height: AppDimens.s04$xs),
                 Padding(
                   padding: const EdgeInsets.symmetric(

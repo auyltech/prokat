@@ -48,6 +48,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   bool _saveAttempted = false;
   bool _isSaving = false;
+  bool _saveQueued = false;
   bool _cityPickerOpen = false;
   String? _nameError;
   String? _cityError;
@@ -77,11 +78,11 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     });
   }
 
-  void _captureBaseline() {
+  void _captureBaseline({String? tariffFingerprint}) {
     _baselineName = _nameController.text.trim();
     _baselineDescription = _descriptionController.text.trim();
     _baselineCity = _city.trim();
-    _baselineTariffs = _tariffFingerprint(_tariffs);
+    _baselineTariffs = tariffFingerprint ?? _tariffFingerprint(_tariffs);
   }
 
   void _prefillCityIfNeeded() {
@@ -140,8 +141,10 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   List<TariffDraft> _editorTariffs([Equipment? equipment]) {
-    final vacuumId = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull)
-        ?.id;
+    final vacuumId = vacuumTrucksCategory(
+      ref.read(catalogProvider).valueOrNull,
+      forOwner: true,
+    )?.id;
     return tariffsForEditor(
       equipment ?? widget.equipment,
       vacuumCategoryId: vacuumId,
@@ -180,18 +183,17 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
   bool get _hasPricedTariff => _tariffs.any((item) => item.isSavable);
 
-  Future<void> _adoptPersistedTariffs() async {
+  Future<String> _adoptPersistedTariffs() async {
     Equipment? latest;
     try {
       latest = await ref.read(
         ownerEquipmentDetailsProvider(widget.equipment.id).future,
       );
     } catch (_) {}
-    if (!mounted) return;
-    _tariffs = adoptServerTariffs(
-      server: _editorTariffs(latest ?? widget.equipment),
-      local: _tariffs,
-    );
+    if (!mounted) return "";
+    final server = _editorTariffs(latest ?? widget.equipment);
+    _tariffs = adoptServerTariffs(server: server, local: _tariffs);
+    return _tariffFingerprint(server);
   }
 
   bool get _isComplete {
@@ -267,7 +269,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
     final existingCount = _tariffs.where((item) => item.id != null).length;
     var createdThisSave = 0;
 
-    for (final draft in _tariffs) {
+    for (final draft in List<TariffDraft>.of(_tariffs)) {
       if (!draft.isSavable) continue;
       final label = draft.persistedLabel();
       final unchanged =
@@ -357,14 +359,12 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
       final ok = infoOk && locationOk;
       if (!mounted) return ok;
 
-      setState(() => _isSaving = false);
-
       if (ok) {
         _deletedPriceIds.clear();
-        await _adoptPersistedTariffs();
+        final persistedTariffs = await _adoptPersistedTariffs();
         if (!mounted) return ok;
         setState(() {});
-        _captureBaseline();
+        _captureBaseline(tariffFingerprint: persistedTariffs);
         if (!_hasPricedTariff && widget.equipment.isVisible) {
           await ref
               .read(equipmentMutationProvider.notifier)
@@ -393,6 +393,13 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
         _publish();
       }
 
+      if (!mounted) return ok;
+      setState(() => _isSaving = false);
+      _publish();
+      if (ok && _saveQueued) {
+        _saveQueued = false;
+        _commitIfDirty();
+      }
       return ok;
     } catch (_) {
       if (!mounted) return false;
@@ -419,7 +426,12 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
   }
 
   void _commitIfDirty() {
-    if (!_canEdit || !_isDirty || _isSaving) return;
+    if (!_canEdit || !_isDirty) return;
+    if (_isSaving) {
+      _saveQueued = true;
+      return;
+    }
+    if (_tariffs.any((item) => item.id == null && !item.isSavable)) return;
     unawaited(_handleSave(notify: false));
   }
 
@@ -616,7 +628,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                   for (var index = 0; index < _tariffs.length; index++)
                     OwnerTariffCard(
                       draft: _tariffs[index],
-                      canEdit: _canEdit,
+                      canEdit: _canEdit && !_isSaving,
                       onChanged: (next) {
                         setState(() => _tariffs[index] = next);
                         _onChanged();
@@ -629,10 +641,14 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                       alignment: Alignment.centerLeft,
                       child: AppLabelButton(
                         title: l10n.addTariff,
-                        onTap: () {
-                          setState(() => _tariffs.add(TariffDraft.custom()));
-                          _onChanged();
-                        },
+                        onTap: _isSaving
+                            ? null
+                            : () {
+                                setState(
+                                  () => _tariffs.add(TariffDraft.custom()),
+                                );
+                                _onChanged();
+                              },
                         prefix: const Icon(Icons.add),
                         variant: AppLabelButtonVariant.text,
                       ),

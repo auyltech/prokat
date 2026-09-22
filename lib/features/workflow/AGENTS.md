@@ -17,7 +17,7 @@
 - Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`). Если в payload оффер с новым id — ещё `currentChat.refresh()`. HTTP-рефреш треда не затирает более новый сокет: `mergeChatPreferringNewerWorkflow` оставляет previous.booking только когда оба `updatedAt` есть и previous новее.
 - Списки чатов: `clientChatsByFilterProvider` / `ownerChatsByFilterProvider` (`ACTIVE` / `ARCHIVED`). Источник архива — `Chat.status` (`closed` / `archived`) из HTTP и из `payload.chat`. `SUPPORT` всегда в Active.
 - Заказы: active — патч или remove + decrement; history — патч или `invalidate()`. Guard по `updatedAt`; HTTP-рефреш не затирает более новый сокет.
-- Заявки участников: тот же канал и coordinator; `ACCEPTED` / `CANCELLED` / `EXPIRED` → убрать из active; history клиента — патч или `invalidate()`. Лента чужих тендеров у владельца — HTTP, не broadcast.
+- Заявки: `REQUEST_CREATED` обновляет ленту владельцев через HTTP; `ACCEPTED` / `CANCELLED` / `EXPIRED` удаляют из active у всех. History клиента — патч или `invalidate()` только если `requestClientId` совпадает с текущим пользователем. Старый payload без поля сохраняет прежнее поведение.
 - Офферы / торг: при наличии в payload — `invalidate` family-провайдеров. Resume/reconnect — HTTP `refresh()` загруженных `OfferQuery.active|history` (экран заявок). Family с `requestId` (открытый чат) — через `currentChat.refresh()`.
 
 ## Список vs тред

@@ -3,9 +3,16 @@ import 'package:prokat/features/categories/models/category.dart';
 
 const vacuumTrucksSlug = 'vacuum_trucks';
 
-Category? vacuumTrucksCategory(CatalogBundle? catalog) {
+Category? vacuumTrucksCategory(
+  CatalogBundle? catalog, {
+  bool forOwner = false,
+}) {
   final item = catalog?.categories
-      .where((category) => category.slug == vacuumTrucksSlug)
+      .where(
+        (category) =>
+            category.slug == vacuumTrucksSlug &&
+            (forOwner ? category.isOwnerVisible : category.isUserVisible),
+      )
       .firstOrNull;
   if (item == null) return null;
   return Category.fromCatalog(item);

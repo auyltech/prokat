@@ -775,6 +775,7 @@
   "requestsHistory": "История запросов",
   "activeRequestsTooltip": "Активные запросы",
   "noHistoryFound": "История не найдена",
+  "requestHidden": "Заявка скрыта",
   "viewedBadge": "ПРОСМОТРЕНО",
   "acceptedBadge": "ПРИНЯТО",
   "hiddenBadge": "СКРЫТО",

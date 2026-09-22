@@ -4150,6 +4150,12 @@ abstract class AppLocalizations {
   /// **'No history found'**
   String get noHistoryFound;
 
+  /// No description provided for @requestHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Request hidden'**
+  String get requestHidden;
+
   /// No description provided for @viewedBadge.
   ///
   /// In en, this message translates to:

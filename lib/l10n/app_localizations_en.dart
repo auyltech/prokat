@@ -2141,6 +2141,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noHistoryFound => 'No history found';
 
   @override
+  String get requestHidden => 'Request hidden';
+
+  @override
   String get viewedBadge => 'VIEWED';
 
   @override

@@ -129,6 +129,10 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     final updatedRecentIds = Map<String, DateTime>.from(pruned)..[id] = now;
 
     final index = state.items.indexWhere((n) => n.id == id);
+    if (index != -1) {
+      state = state.copyWith(recentIds: Map.unmodifiable(updatedRecentIds));
+      return;
+    }
     final nextItems = index == -1
         ? [notification, ...state.items]
         : [notification, ...state.items.where((n) => n.id != id)];

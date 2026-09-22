@@ -271,7 +271,7 @@ class OwnerRequestTile extends ConsumerWidget {
                         if (context.mounted) {
                           AppToast.show(
                             message: result
-                                ? l10n.viewedBadge
+                                ? l10n.requestHidden
                                 : l10n.saveFailed,
                             type: result
                                 ? AppToastType.success

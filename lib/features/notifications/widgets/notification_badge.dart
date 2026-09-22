@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,9 +17,31 @@ class NotificationBadge extends ConsumerStatefulWidget {
   ConsumerState<NotificationBadge> createState() => _NotificationBadgeState();
 }
 
-class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
+class _NotificationBadgeState extends ConsumerState<NotificationBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _arrival = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 650),
+  );
+
+  @override
+  void dispose() {
+    _arrival.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen(notificationProvider.select((state) => state.unreadCount), (
+      previous,
+      next,
+    ) {
+      if (previous != null &&
+          next > previous &&
+          !MediaQuery.disableAnimationsOf(context)) {
+        _arrival.forward(from: 0);
+      }
+    });
     final count = ref.watch(notificationProvider).unreadCount;
     final startupState = ref.watch(appStartupProvider).routeState;
 
@@ -28,7 +52,7 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
     final theme = Theme.of(context);
     final text = count > 99 ? '99+' : count.toString();
 
-    return Stack(
+    final badgeContent = Stack(
       clipBehavior: Clip.none,
       children: [
         AppIconButton(
@@ -64,6 +88,17 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge> {
             ),
           ),
       ],
+    );
+    return AnimatedBuilder(
+      animation: _arrival,
+      child: badgeContent,
+      builder: (context, child) => Transform.rotate(
+        angle:
+            math.sin(_arrival.value * math.pi * 6) *
+            0.14 *
+            (1 - _arrival.value),
+        child: child,
+      ),
     );
   }
 }

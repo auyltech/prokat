@@ -8,6 +8,42 @@ import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import '../../support/fake_app_socket_service.dart';
 
 void main() {
+  test('send waits for confirmed room membership', () async {
+    final env = _ChatSocketHarness();
+    addTearDown(env.dispose);
+    env.socket.ackGate = Completer<void>();
+    final sending = env.chat.sendMessage(
+      chatId: 'chat-1',
+      message: 'hello',
+      type: 'TEXT',
+    );
+    await _settle();
+    expect(env.socket.emitted.map((event) => event.$1), ['chat:join']);
+    env.socket.ackGate!.complete();
+    await sending;
+    expect(env.socket.emitted.map((event) => event.$1), [
+      'chat:join',
+      'chat:message:send',
+    ]);
+  });
+
+  test('rejected join is retried and never sends a message', () async {
+    final env = _ChatSocketHarness();
+    addTearDown(env.dispose);
+    env.socket.ackResult = {'success': false, 'message': 'Chat not found'};
+    await expectLater(
+      env.chat.sendMessage(chatId: 'chat-1', message: 'hello', type: 'TEXT'),
+      throwsException,
+    );
+    expect(
+      env.socket.emitted.any((event) => event.$1 == 'chat:message:send'),
+      isFalse,
+    );
+    env.socket.ackResult = {'success': true};
+    await env.chat.joinChat('chat-1');
+    expect(env.socket.joinEmits, 2);
+  });
+
   test('join emits once and leave acks once on the fake socket', () async {
     final env = _ChatSocketHarness();
     addTearDown(env.dispose);

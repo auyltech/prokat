@@ -776,6 +776,7 @@
   "requestsHistory": "Сұраныстар тарихы",
   "activeRequestsTooltip": "Белсенді сұраныстар",
   "noHistoryFound": "Тарих табылмады",
+  "requestHidden": "Өтінім жасырылды",
   "viewedBadge": "ҚАРАЛДЫ",
   "acceptedBadge": "ҚАБЫЛДАНДЫ",
   "hiddenBadge": "ЖАСЫРЫЛҒАН",

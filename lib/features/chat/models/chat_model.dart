@@ -196,7 +196,11 @@ class ChatModel {
         messages: (json["messages"] as List<dynamic>? ?? [])
             .map((e) => ChatMessageModel.fromJson(e as Map<String, dynamic>))
             .toList(),
-        newMessagesCount: parseNullableInt(json["newMessagesCount"]),
+        // Chat list DTO calls it `unreadCount`; socket sidebar updates and older
+        // payloads use `newMessagesCount`.
+        newMessagesCount:
+            parseNullableInt(json["unreadCount"]) ??
+            parseNullableInt(json["newMessagesCount"]),
 
         createdAt: _parseDate(json["createdAt"]),
         updatedAt: _parseDate(json["updatedAt"]),

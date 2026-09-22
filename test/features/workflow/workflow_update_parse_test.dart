@@ -11,6 +11,7 @@ void main() {
       'emittedAt': '2026-08-20T12:00:00.000Z',
       'reason': 'BOOKING_STATUS_CHANGED',
       'actorId': 'user-1',
+      'requestClientId': 'client-1',
       'chatId': 'chat-1',
       'booking': {
         'id': 'booking-1',
@@ -50,6 +51,7 @@ void main() {
 
     expect(update, isNotNull);
     expect(update!.eventId, 'evt-1');
+    expect(update.requestClientId, 'client-1');
     expect(update.chatId, 'chat-1');
     expect(update.booking?.status, BookingStatus.cancelled);
     expect(update.request?.id, 'request-1');

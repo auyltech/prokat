@@ -444,7 +444,8 @@ class _ServiceTariffBlock extends StatelessWidget {
     final primary = theme.colorScheme.primary;
     final priceText =
         '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
-    final serviceName = TariffDraft.fromEntry(entry).title(l10n);
+    final serviceName = savedTariffTitle(entry, l10n);
+    final label = serviceName == null ? priceText : '$priceText — $serviceName';
 
     return Material(
       color: selected ? primary : theme.colorScheme.surface,
@@ -464,7 +465,7 @@ class _ServiceTariffBlock extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Text(
-              '$priceText — $serviceName',
+              label,
               style: theme.textTheme.labelLarge?.copyWith(
                 color: selected ? Colors.white : theme.colorScheme.onSurface,
                 fontWeight: FontWeight.w600,

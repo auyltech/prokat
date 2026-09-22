@@ -36,6 +36,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
         notification,
         source: NotificationSource.socket,
       );
+      unawaited(push?.presentIncoming(notification));
     });
   }
 
@@ -211,12 +212,16 @@ class _NotificationSocketLifecycleObserver extends WidgetsBindingObserver {
 }
 
 AppNotification? _parseSocketNotification(dynamic payload) {
-  if (payload is Map<String, dynamic>) {
-    return AppNotification.fromJson(payload);
-  }
+  try {
+    if (payload is Map<String, dynamic>) {
+      return AppNotification.fromJson(payload);
+    }
 
-  if (payload is Map) {
-    return AppNotification.fromJson(Map<String, dynamic>.from(payload));
+    if (payload is Map) {
+      return AppNotification.fromJson(Map<String, dynamic>.from(payload));
+    }
+  } catch (_) {
+    return null;
   }
 
   return null;

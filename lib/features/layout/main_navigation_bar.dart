@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/features/layout/nav_badge.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -126,11 +128,29 @@ class MainNavigationBar extends ConsumerWidget {
       (item) => routerState.uri.path.startsWith(item.basePath),
     );
     final l10n = AppLocalizations.of(context)!;
+    final counts = ref.watch(navigationCountsProvider).valueOrNull;
+    final isOwner = startupState == AppStartupRouteState.owner;
 
     return AppNavigationBar(
       items: [
         for (final item in navigationItems)
-          AppNavigationBarItem(icon: item.icon, label: item.label(l10n)),
+          AppNavigationBarItem(
+            icon: item.icon,
+            label: item.label(l10n),
+            iconWrapper: (icon) => NavIconBadge(
+              count: item.path == AppRoutes.ownerRequests
+                  ? counts?.pendingRequests ?? 0
+                  : (item.path == AppRoutes.ownerChatList ||
+                        item.path == AppRoutes.clientChatList)
+                  ? (isOwner ? counts?.ownerUnread : counts?.clientUnread) ?? 0
+                  : 0,
+              pulse:
+                  item.path == AppRoutes.ownerChatList ||
+                  item.path == AppRoutes.clientChatList,
+              color: Theme.of(context).colorScheme.error,
+              child: icon,
+            ),
+          ),
       ],
       currentIndex: currentIndex < 0 ? 0 : currentIndex,
       tone: startupState == AppStartupRouteState.owner

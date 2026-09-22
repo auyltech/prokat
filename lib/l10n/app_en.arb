@@ -777,6 +777,7 @@
   "requestsHistory": "Requests History",
   "activeRequestsTooltip": "Active Requests",
   "noHistoryFound": "No history found",
+  "requestHidden": "Request hidden",
   "viewedBadge": "VIEWED",
   "acceptedBadge": "ACCEPTED",
   "hiddenBadge": "HIDDEN",

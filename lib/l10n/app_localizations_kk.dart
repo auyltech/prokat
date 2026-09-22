@@ -2132,6 +2132,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noHistoryFound => 'Тарих табылмады';
 
   @override
+  String get requestHidden => 'Өтінім жасырылды';
+
+  @override
   String get viewedBadge => 'ҚАРАЛДЫ';
 
   @override
