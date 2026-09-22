@@ -5,6 +5,8 @@ import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/services/push_notification_service.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
+import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final pushNotificationServiceProvider = Provider<PushNotificationService>((
@@ -26,6 +28,12 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
         notification,
         source: NotificationSource.fcm,
       );
+      if (notificationRefreshesOwnerRequestFeed(notification.type)) {
+        refreshOwnerRequestFeed(ref);
+      }
+      if (notificationRefreshesOwnerOrderBadge(notification.type)) {
+        refreshOwnerOrderBadge(ref);
+      }
     },
     currentLocale: () => ref.read(localeProvider).languageCode,
     shouldSuppressDisplay: (id) => ref

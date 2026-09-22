@@ -7,6 +7,8 @@ import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
+import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
+import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
@@ -36,6 +38,12 @@ final notificationBootstrapProvider = Provider<void>((ref) {
         notification,
         source: NotificationSource.socket,
       );
+      if (notificationRefreshesOwnerRequestFeed(notification.type)) {
+        refreshOwnerRequestFeed(ref);
+      }
+      if (notificationRefreshesOwnerOrderBadge(notification.type)) {
+        refreshOwnerOrderBadge(ref);
+      }
       unawaited(push?.presentIncoming(notification));
     });
   }
@@ -200,11 +208,11 @@ class _NotificationSocketLifecycleObserver extends WidgetsBindingObserver {
         break;
 
       case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
         break;
 
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
         onPause();
         break;
     }

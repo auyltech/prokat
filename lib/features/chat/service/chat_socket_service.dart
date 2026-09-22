@@ -37,7 +37,7 @@ class ChatSocketService {
     await appSocket.connect();
   }
 
-  Future<void> sendMessage({
+  Future<ChatMessageModel?> sendMessage({
     required String chatId,
     required String message,
     required String type,
@@ -47,12 +47,22 @@ class ChatSocketService {
 
     await joinChat(normalizedChatId);
 
-    appSocket.emit(sendMessageEvent, {
+    final response = await appSocket.emitWithAck(sendMessageEvent, {
       'chatId': normalizedChatId,
       'type': type,
       'content': message,
       if ((clientTempId ?? '').isNotEmpty) 'clientTempId': clientTempId,
-    });
+    }, timeout: const Duration(seconds: 8));
+    _requireSuccessfulAck(response, 'Failed to send message');
+
+    final data = response is Map ? response['data'] : null;
+    if (data is Map<String, dynamic>) {
+      return ChatMessageModel.fromJson(data);
+    }
+    if (data is Map) {
+      return ChatMessageModel.fromJson(Map<String, dynamic>.from(data));
+    }
+    return null;
   }
 
   void Function() onNewMessage(

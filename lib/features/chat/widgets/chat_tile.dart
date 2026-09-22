@@ -177,7 +177,7 @@ class ChatTile extends ConsumerWidget {
                                 child: Text(
                                   '$unreadCount',
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color: theme.colorScheme.onPrimary,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 11,
                                   ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/config/env.dart';
@@ -17,6 +18,9 @@ class AppSocketService {
   Future<void>? _connecting;
   Completer<void>? _handshakeCompleter;
   int _connectionGeneration = 0;
+  bool _keepAlive = false;
+  Timer? _reconnectTimer;
+  int _reconnectAttempt = 0;
 
   final Map<String, void Function(dynamic payload)> _eventHandlers = {};
   final Map<Object, void Function()> _connectListeners = {};
@@ -24,9 +28,21 @@ class AppSocketService {
   AppSocketService(this.apiClient, this.ref);
 
   bool get isConnected => _socket?.connected ?? false;
+
+  /// Android `localhost` often resolves to IPv6 `::1` first. adb reverse
+  /// forwards 127.0.0.1, and a local IPv6 listener can accept the socket
+  /// without completing the handshake.
+  static String _ipv4Loopback(String url) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return url;
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null || uri.host != 'localhost') return url;
+    return uri.replace(host: '127.0.0.1').toString();
+  }
+
   int get connectionGeneration => _connectionGeneration;
 
   Future<void> connect() async {
+    _keepAlive = true;
     if (isConnected) {
       return;
     }
@@ -61,8 +77,12 @@ class AppSocketService {
 
     _socket?.dispose();
 
+    // Native socket_io_client always opens a WebSocket, and it puts the
+    // first transport name in the handshake URL. "polling" makes the server
+    // wait for an XHR body that never comes, so the connect call times out.
+    final socketUrl = _ipv4Loopback(Env.socketUrl);
     final socket = io.io(
-      Env.socketUrl,
+      socketUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
@@ -90,7 +110,7 @@ class AppSocketService {
         hasToken: sessionToken.isNotEmpty,
         tokenLength: sessionToken.length,
         sessionExpiredOnClient: session?.isExpired ?? false,
-        socketUrl: Env.socketUrl,
+        socketUrl: socketUrl,
         userId: userId,
       );
     }
@@ -117,9 +137,11 @@ class AppSocketService {
       }
 
       if (exception.isExpectedDisconnect) {
-        Logger.log('Socket connect deferred: ${exception.message}');
+        Logger.log(
+          'Socket connect deferred: ${exception.message} url=$socketUrl',
+        );
       } else {
-        Logger.log('Socket connect error: ${exception.message}');
+        Logger.log('Socket connect error: ${exception.message} url=$socketUrl');
       }
 
       if (!completer.isCompleted) {
@@ -127,11 +149,19 @@ class AppSocketService {
       }
     }
 
+    socket.onDisconnect((_) {
+      if (!identical(_socket, socket)) return;
+      Logger.log('Socket disconnected');
+      _scheduleReconnect();
+    });
+
     socket.onConnect((_) {
       if (!identical(_socket, socket)) {
         return;
       }
 
+      _reconnectAttempt = 0;
+      _reconnectTimer?.cancel();
       _connectionGeneration++;
 
       if (!completer.isCompleted) {
@@ -139,7 +169,7 @@ class AppSocketService {
       }
 
       Logger.log(
-        'Socket connected user=${userId ?? 'none'} url=${Env.socketUrl}',
+        'Socket connected user=${userId ?? 'none'} url=$socketUrl',
       );
 
       scheduleMicrotask(_notifyConnectListeners);
@@ -256,7 +286,31 @@ class AppSocketService {
   // app goes to background, if you choose to fully disconnect
   // auth session is cleared
   // socket token is invalid
+  void _scheduleReconnect() {
+    if (!_keepAlive || isConnected) return;
+    _reconnectTimer?.cancel();
+    final step = _reconnectAttempt.clamp(0, 4);
+    final delay = Duration(milliseconds: 400 * (1 << step));
+    _reconnectTimer = Timer(delay, () {
+      if (!_keepAlive || isConnected) return;
+      _reconnectAttempt++;
+      unawaited(
+        connect()
+            .then((_) {
+              _reconnectAttempt = 0;
+            })
+            .catchError((Object _) {
+              if (_keepAlive) _scheduleReconnect();
+            }),
+      );
+    });
+  }
+
   void disconnectSocket() {
+    _keepAlive = false;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    _reconnectAttempt = 0;
     final handshake = _handshakeCompleter;
     if (handshake != null && !handshake.isCompleted) {
       handshake.completeError(

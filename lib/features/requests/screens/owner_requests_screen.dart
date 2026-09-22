@@ -51,9 +51,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(
-        ref.read(ownerActiveRequestsProvider.notifier).refreshIfStale(),
-      );
+      unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
       unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
       unawaited(
         ref

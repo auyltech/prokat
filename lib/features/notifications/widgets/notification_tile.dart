@@ -174,7 +174,7 @@ class _Trailing extends StatelessWidget {
             child: Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onPrimary,
+                color: Colors.white,
                 fontWeight: FontWeight.w700,
                 fontSize: 11,
               ),

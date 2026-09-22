@@ -242,10 +242,14 @@ class _OfferChatButton extends StatelessWidget {
     return Badge(
       isLabelVisible: showCount,
       backgroundColor: theme.colorScheme.primary,
-      textColor: theme.colorScheme.onPrimary,
+      textColor: Colors.white,
       label: Text(
         label,
-        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       child: AppIconButton(
         onTap: onTap,

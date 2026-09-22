@@ -129,7 +129,6 @@ class MainNavigationBar extends ConsumerWidget {
     );
     final l10n = AppLocalizations.of(context)!;
     final counts = ref.watch(navigationCountsProvider).valueOrNull;
-    final isOwner = startupState == AppStartupRouteState.owner;
 
     return AppNavigationBar(
       items: [
@@ -140,13 +139,9 @@ class MainNavigationBar extends ConsumerWidget {
             iconWrapper: (icon) => NavIconBadge(
               count: item.path == AppRoutes.ownerRequests
                   ? counts?.pendingRequests ?? 0
-                  : (item.path == AppRoutes.ownerChatList ||
-                        item.path == AppRoutes.clientChatList)
-                  ? (isOwner ? counts?.ownerUnread : counts?.clientUnread) ?? 0
+                  : item.path == AppRoutes.ownerBookings
+                  ? counts?.pendingOrders ?? 0
                   : 0,
-              pulse:
-                  item.path == AppRoutes.ownerChatList ||
-                  item.path == AppRoutes.clientChatList,
               color: Theme.of(context).colorScheme.error,
               child: icon,
             ),
