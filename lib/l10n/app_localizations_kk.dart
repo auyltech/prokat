@@ -650,6 +650,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get notification => 'Хабарландыру';
 
   @override
+  String newMessageFrom(String name) {
+    return 'Жаңа хабарлама: $name';
+  }
+
+  @override
   String get typeMessageHint => 'Хабарлама жазыңыз...';
 
   @override

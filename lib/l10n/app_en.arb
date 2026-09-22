@@ -242,6 +242,12 @@
   "notFound": "Not Found",
   "placeOrder": "Place Order",
   "notification": "Notification",
+  "newMessageFrom": "New message from: {name}",
+  "@newMessageFrom": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "typeMessageHint": "Type a message...",
   "rejectPrice": "Reject Price",
   "acceptPrice": "Accept Price",

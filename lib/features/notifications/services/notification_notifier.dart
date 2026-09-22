@@ -202,27 +202,37 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> deleteNotification(String id) async {
-    final trimmed = id.trim();
-    if (trimmed.isEmpty) return;
+    await deleteNotifications([id]);
+  }
 
-    final index = state.items.indexWhere((n) => n.id == trimmed);
-    if (index == -1) return;
+  /// Removes every loaded row in a grouped chat notification.
+  Future<void> deleteNotifications(List<String> ids) async {
+    final idSet = ids
+        .map((id) => id.trim())
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    if (idSet.isEmpty) return;
 
-    final removed = state.items[index];
-    final nextItems = [...state.items]..removeAt(index);
+    final removedUnread = state.items
+        .where((item) => idSet.contains(item.id) && item.isUnread)
+        .length;
+    final nextItems = state.items
+        .where((item) => !idSet.contains(item.id))
+        .toList(growable: false);
+    if (nextItems.length == state.items.length) return;
 
-    final nextUnread = removed.isUnread && state.unreadCount > 0
-        ? state.unreadCount - 1
-        : state.unreadCount;
+    final nextUnread = state.unreadCount - removedUnread;
 
     state = state.copyWith(
       items: nextItems,
-      unreadCount: nextUnread,
+      unreadCount: nextUnread < 0 ? 0 : nextUnread,
       error: null,
     );
 
     try {
-      await api.deleteNotification(trimmed);
+      for (final id in idSet) {
+        await api.deleteNotification(id);
+      }
       await syncUnreadCountFromServer();
     } catch (error) {
       state = state.copyWith(

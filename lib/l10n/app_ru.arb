@@ -234,6 +234,12 @@
   "notFound": "Не найдено",
   "placeOrder": "Оформить заказ",
   "notification": "Уведомление",
+  "newMessageFrom": "Новое сообщение от: {name}",
+  "@newMessageFrom": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "typeMessageHint": "Введите сообщение...",
   "rejectPrice": "Отклонить цену",
   "acceptPrice": "Принять цену",

@@ -655,6 +655,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notification => 'Notification';
 
   @override
+  String newMessageFrom(String name) {
+    return 'New message from: $name';
+  }
+
+  @override
   String get typeMessageHint => 'Type a message...';
 
   @override

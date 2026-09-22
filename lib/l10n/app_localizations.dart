@@ -1282,6 +1282,12 @@ abstract class AppLocalizations {
   /// **'Notification'**
   String get notification;
 
+  /// No description provided for @newMessageFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'New message from: {name}'**
+  String newMessageFrom(String name);
+
   /// No description provided for @typeMessageHint.
   ///
   /// In en, this message translates to:

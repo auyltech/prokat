@@ -657,6 +657,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notification => 'Уведомление';
 
   @override
+  String newMessageFrom(String name) {
+    return 'Новое сообщение от: $name';
+  }
+
+  @override
   String get typeMessageHint => 'Введите сообщение...';
 
   @override

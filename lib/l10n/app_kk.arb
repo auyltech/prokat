@@ -234,6 +234,12 @@
   "notFound": "Табылмады",
   "placeOrder": "Тапсырыс беру",
   "notification": "Хабарландыру",
+  "newMessageFrom": "Жаңа хабарлама: {name}",
+  "@newMessageFrom": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "typeMessageHint": "Хабарлама жазыңыз...",
   "rejectPrice": "Бағаны қабылдамау",
   "acceptPrice": "Бағаны қабылдау",
