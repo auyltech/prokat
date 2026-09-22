@@ -65,7 +65,8 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
       if (mounted) {
         AppToast.show(
           message: result ? l10n.reviewSubmitted : l10n.failedToSubmitReview,
-          type: AppToastType.error,
+          type: result ? AppToastType.success : AppToastType.error,
+          icon: result ? Icons.sentiment_satisfied_alt : null,
         );
       }
     } catch (e) {

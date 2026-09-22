@@ -48,6 +48,7 @@ abstract final class AppToast {
   static void show({
     required String message,
     AppToastType type = AppToastType.info,
+    IconData? icon,
   }) {
     final overlay = _overlay;
     if (overlay == null || !overlay.mounted) return;
@@ -60,6 +61,7 @@ abstract final class AppToast {
         return _AppToastView(
           message: message,
           type: type,
+          icon: icon,
           bottomLift: _bottomLift,
           onRegisterDismiss: (dismiss) {
             if (identical(_entry, entry)) {
@@ -146,6 +148,7 @@ class _AppToastView extends StatefulWidget {
   const _AppToastView({
     required this.message,
     required this.type,
+    required this.icon,
     required this.bottomLift,
     required this.onRegisterDismiss,
     required this.onClosed,
@@ -153,6 +156,7 @@ class _AppToastView extends StatefulWidget {
 
   final String message;
   final AppToastType type;
+  final IconData? icon;
   final double bottomLift;
   final void Function(VoidCallback dismiss) onRegisterDismiss;
   final VoidCallback onClosed;
@@ -225,13 +229,13 @@ class _AppToastViewState extends State<_AppToastView>
     switch (widget.type) {
       case AppToastType.error:
         backgroundColor = toastColors.error;
-        icon = Icons.error_outline;
+        icon = widget.icon ?? Icons.error_outline;
       case AppToastType.success:
         backgroundColor = toastColors.success;
-        icon = Icons.check_circle_outline;
+        icon = widget.icon ?? Icons.check_circle_outline;
       case AppToastType.info:
         backgroundColor = toastColors.info;
-        icon = Icons.info_outline;
+        icon = widget.icon ?? Icons.info_outline;
     }
 
     final contentColor = toastColors.content;
