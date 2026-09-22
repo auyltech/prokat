@@ -47,18 +47,27 @@ class EquipmentDemandService {
   Future<void> submit({
     required String clientSubmissionId,
     required String campaignId,
-    required String city,
-    required List<String> optionIds,
-    String? otherText,
+    required List<Map<String, Object>> selections,
+    required List<String> cityIds,
+    String? otherProvideText,
+    String? otherRentText,
   }) async {
+    final other = <String, String>{};
+    if (otherProvideText != null && otherProvideText.isNotEmpty) {
+      other['provideText'] = otherProvideText;
+    }
+    if (otherRentText != null && otherRentText.isNotEmpty) {
+      other['rentText'] = otherRentText;
+    }
+
     final response = await apiClient.dio.post(
       '/equipment-demand/responses',
       data: {
         'clientSubmissionId': clientSubmissionId,
         'campaignId': campaignId,
-        'city': city,
-        'optionIds': optionIds,
-        'otherText': otherText,
+        'selections': selections,
+        'cityIds': cityIds,
+        if (other.isNotEmpty) 'other': other,
       },
     );
     _throwIfFailed(response);

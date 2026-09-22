@@ -3074,10 +3074,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demandSurveySelectCity => 'Select a city';
 
   @override
+  String get demandSurveySelectCities => 'Select cities';
+
+  @override
   String get demandSurveyOtherOption => 'Other equipment';
 
   @override
   String get demandSurveyOtherHint => 'Describe the equipment';
+
+  @override
+  String get demandSurveyWantAbility => 'I want to be able to:';
+
+  @override
+  String get demandSurveyProvide => 'List for rent';
+
+  @override
+  String get demandSurveyRent => 'Rent';
+
+  @override
+  String get demandSurveyOtherProvidePrompt =>
+      'What equipment do you want to list?';
+
+  @override
+  String get demandSurveyOtherProvideHint =>
+      'Describe equipment you can provide';
+
+  @override
+  String get demandSurveyOtherRentPrompt =>
+      'What equipment do you want to rent?';
+
+  @override
+  String get demandSurveyOtherRentHint => 'Describe equipment you want to rent';
+
+  @override
+  String get demandSurveyDone => 'Done';
 
   @override
   String get demandSurveySubmit => 'Submit';

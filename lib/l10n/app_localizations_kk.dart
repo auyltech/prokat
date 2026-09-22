@@ -3071,10 +3071,40 @@ class AppLocalizationsKk extends AppLocalizations {
   String get demandSurveySelectCity => 'Қаланы таңдаңыз';
 
   @override
+  String get demandSurveySelectCities => 'Қалаларды таңдаңыз';
+
+  @override
   String get demandSurveyOtherOption => 'Басқа техника';
 
   @override
   String get demandSurveyOtherHint => 'Қажетті техниканы сипаттаңыз';
+
+  @override
+  String get demandSurveyWantAbility => 'Менің мүмкіндігім болсын:';
+
+  @override
+  String get demandSurveyProvide => 'Жалға беру';
+
+  @override
+  String get demandSurveyRent => 'Жалға алу';
+
+  @override
+  String get demandSurveyOtherProvidePrompt =>
+      'Қандай техниканы жалға бергіңіз келеді?';
+
+  @override
+  String get demandSurveyOtherProvideHint =>
+      'Жалға беретін техниканы сипаттаңыз';
+
+  @override
+  String get demandSurveyOtherRentPrompt =>
+      'Қандай техниканы жалға алғыңыз келеді?';
+
+  @override
+  String get demandSurveyOtherRentHint => 'Жалға алатын техниканы сипаттаңыз';
+
+  @override
+  String get demandSurveyDone => 'Дайын';
 
   @override
   String get demandSurveySubmit => 'Жіберу';

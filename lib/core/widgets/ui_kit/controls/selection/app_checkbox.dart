@@ -3,6 +3,8 @@ import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_icons.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 
+import '../../../../theme/app_fonts.dart';
+
 class AppCheckbox extends StatelessWidget {
   final bool value;
   final bool hasError;
@@ -63,12 +65,15 @@ class AppCheckboxTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return InkWell(
       onTap: enabled ? () => onChanged(!value) : null,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppDimens.s08$sm),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppDimens.s12$md,
+          horizontal: AppDimens.s08$sm,
+        ),
         child: Row(
+          spacing: AppDimens.s16$base,
           children: [
             AppCheckbox(
               value: value,
@@ -77,17 +82,8 @@ class AppCheckboxTile extends StatelessWidget {
               hasError: hasError,
               absorbPointer: true,
             ),
-            const SizedBox(width: AppDimens.s12$md),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: enabled ? colors.text.main : colors.text.disabled,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Manrope',
-                ),
-              ),
+              child: Text(title, style: AppFonts.body16SemiBold(context)),
             ),
           ],
         ),

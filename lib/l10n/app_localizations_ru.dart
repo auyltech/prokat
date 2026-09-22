@@ -3095,10 +3095,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demandSurveySelectCity => 'Выберите город';
 
   @override
+  String get demandSurveySelectCities => 'Выберите города';
+
+  @override
   String get demandSurveyOtherOption => 'Другая техника';
 
   @override
   String get demandSurveyOtherHint => 'Опишите нужную технику';
+
+  @override
+  String get demandSurveyWantAbility => 'Хочу иметь возможность:';
+
+  @override
+  String get demandSurveyProvide => 'Сдавать';
+
+  @override
+  String get demandSurveyRent => 'Арендовать';
+
+  @override
+  String get demandSurveyOtherProvidePrompt =>
+      'Какую технику вы хотите сдавать?';
+
+  @override
+  String get demandSurveyOtherProvideHint => 'Опишите технику для сдачи';
+
+  @override
+  String get demandSurveyOtherRentPrompt =>
+      'Какую технику вы хотите арендовать?';
+
+  @override
+  String get demandSurveyOtherRentHint => 'Опишите технику для аренды';
+
+  @override
+  String get demandSurveyDone => 'Готово';
 
   @override
   String get demandSurveySubmit => 'Отправить';

@@ -67,9 +67,14 @@ class DemandOption {
 
 class DemandOtherOption {
   final String name;
+  final String? description;
   final String? imageUrl;
 
-  const DemandOtherOption({required this.name, this.imageUrl});
+  const DemandOtherOption({
+    required this.name,
+    this.description,
+    this.imageUrl,
+  });
 
   factory DemandOtherOption.fromJson(dynamic json) {
     if (json is! Map || json['name'] is! String) {
@@ -77,6 +82,9 @@ class DemandOtherOption {
     }
     return DemandOtherOption(
       name: json['name'] as String,
+      description: json['description'] is String
+          ? json['description'] as String
+          : null,
       imageUrl: json['imageUrl'] is String ? json['imageUrl'] as String : null,
     );
   }
@@ -94,6 +102,22 @@ class DemandForm {
     this.allowOther = false,
     this.other,
   });
+}
+
+class DemandOptionIntent {
+  final bool provide;
+  final bool rent;
+
+  const DemandOptionIntent({required this.provide, required this.rent});
+
+  bool get hasAny => provide || rent;
+
+  DemandOptionIntent copyWith({bool? provide, bool? rent}) {
+    return DemandOptionIntent(
+      provide: provide ?? this.provide,
+      rent: rent ?? this.rent,
+    );
+  }
 }
 
 class DemandApiException implements Exception {
