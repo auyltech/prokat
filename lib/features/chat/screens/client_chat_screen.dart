@@ -39,6 +39,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(() async {
         try {
+          ref.read(clientChatsProvider.notifier).markChatRead(widget.chatId);
           await Future.wait([
             ref.read(currentChatProvider(widget.chatId).notifier).refresh(),
             ref

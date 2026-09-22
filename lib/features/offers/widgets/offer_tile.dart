@@ -3,6 +3,8 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -177,12 +179,11 @@ class OfferTile extends ConsumerWidget {
 
               /// ACTIONS
               if (offer.chatId.isNotEmpty) ...[
-                AppIconButton(
+                _OfferChatButton(
+                  unreadCount: _unreadCountForChat(ref, offer.chatId),
                   onTap: () => context.push(
                     '${AppRoutes.clientChatList}/direct/${offer.chatId}',
                   ),
-                  icon: LucideIcons.messageCircle,
-                  tone: AppIconButtonTone.primary,
                 ),
 
                 const SizedBox(width: 8),
@@ -212,6 +213,44 @@ class OfferTile extends ConsumerWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+int _unreadCountForChat(WidgetRef ref, String chatId) {
+  final items =
+      ref.watch(clientChatsProvider).valueOrNull?.items ?? const <ChatModel>[];
+  for (final chat in items) {
+    if (chat.id == chatId) return chat.newMessagesCount ?? 0;
+  }
+  return 0;
+}
+
+class _OfferChatButton extends StatelessWidget {
+  final int unreadCount;
+  final VoidCallback onTap;
+
+  const _OfferChatButton({required this.unreadCount, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final showCount = unreadCount > 0;
+    final label = unreadCount > 99 ? '99+' : '$unreadCount';
+
+    return Badge(
+      isLabelVisible: showCount,
+      backgroundColor: theme.colorScheme.primary,
+      textColor: theme.colorScheme.onPrimary,
+      label: Text(
+        label,
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+      ),
+      child: AppIconButton(
+        onTap: onTap,
+        icon: LucideIcons.messageCircle,
+        tone: AppIconButtonTone.primary,
       ),
     );
   }
