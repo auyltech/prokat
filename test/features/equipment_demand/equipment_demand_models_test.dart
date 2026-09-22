@@ -44,4 +44,23 @@ void main() {
     expect(option.description, 'Digs');
     expect(option.imageUrl, 'https://example.com/a.png');
   });
+
+  test('option intent hasAny requires at least one flag', () {
+    expect(
+      const DemandOptionIntent(provide: false, rent: false).hasAny,
+      isFalse,
+    );
+    expect(const DemandOptionIntent(provide: true, rent: false).hasAny, isTrue);
+    expect(const DemandOptionIntent(provide: false, rent: true).hasAny, isTrue);
+  });
+
+  test('demand other option parses optional description', () {
+    final other = DemandOtherOption.fromJson({
+      'name': 'Other',
+      'description': 'Tell us more',
+      'imageUrl': 'https://example.com/o.png',
+    });
+    expect(other.description, 'Tell us more');
+    expect(other.imageUrl, 'https://example.com/o.png');
+  });
 }

@@ -5866,6 +5866,12 @@ abstract class AppLocalizations {
   /// **'Select a city'**
   String get demandSurveySelectCity;
 
+  /// No description provided for @demandSurveySelectCities.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cities'**
+  String get demandSurveySelectCities;
+
   /// No description provided for @demandSurveyOtherOption.
   ///
   /// In en, this message translates to:
@@ -5877,6 +5883,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Describe the equipment'**
   String get demandSurveyOtherHint;
+
+  /// No description provided for @demandSurveyWantAbility.
+  ///
+  /// In en, this message translates to:
+  /// **'I want to be able to:'**
+  String get demandSurveyWantAbility;
+
+  /// No description provided for @demandSurveyProvide.
+  ///
+  /// In en, this message translates to:
+  /// **'List for rent'**
+  String get demandSurveyProvide;
+
+  /// No description provided for @demandSurveyRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get demandSurveyRent;
+
+  /// No description provided for @demandSurveyOtherProvidePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What equipment do you want to list?'**
+  String get demandSurveyOtherProvidePrompt;
+
+  /// No description provided for @demandSurveyOtherProvideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe equipment you can provide'**
+  String get demandSurveyOtherProvideHint;
+
+  /// No description provided for @demandSurveyOtherRentPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What equipment do you want to rent?'**
+  String get demandSurveyOtherRentPrompt;
+
+  /// No description provided for @demandSurveyOtherRentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe equipment you want to rent'**
+  String get demandSurveyOtherRentHint;
+
+  /// No description provided for @demandSurveyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get demandSurveyDone;
 
   /// No description provided for @demandSurveySubmit.
   ///

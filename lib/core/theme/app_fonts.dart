@@ -36,19 +36,19 @@ abstract final class AppFonts {
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle headingL(BuildContext context) => _base(
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: FontWeight.w600,
     fontFamily: displayFamily,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle headingM(BuildContext context) => _base(
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: FontWeight.w600,
     fontFamily: displayFamily,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle headingS(BuildContext context) => _base(
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
   ).copyWith(color: _colors(context).text.main);
 

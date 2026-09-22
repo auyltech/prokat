@@ -66,9 +66,7 @@ class _NavIconBadgeState extends State<NavIconBadge>
 
     final theme = Theme.of(context);
     final capped = widget.count > NavIconBadge.maxCount;
-    final text = capped
-        ? '+${NavIconBadge.maxCount}'
-        : '+${widget.count}';
+    final text = capped ? '+${NavIconBadge.maxCount}' : '+${widget.count}';
 
     return Stack(
       clipBehavior: Clip.none,
