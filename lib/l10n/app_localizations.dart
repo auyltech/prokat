@@ -5851,7 +5851,7 @@ abstract class AppLocalizations {
   /// No description provided for @demandSurveyQuestionTitle.
   ///
   /// In en, this message translates to:
-  /// **'What equipment do you need?'**
+  /// **'Your interests'**
   String get demandSurveyQuestionTitle;
 
   /// No description provided for @demandSurveyQuestionSubtitle.
@@ -5875,8 +5875,14 @@ abstract class AppLocalizations {
   /// No description provided for @demandSurveySelectCities.
   ///
   /// In en, this message translates to:
-  /// **'Select cities'**
+  /// **'Which cities?'**
   String get demandSurveySelectCities;
+
+  /// No description provided for @demandSurveySelectCitiesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cities where you want to list or rent this equipment.'**
+  String get demandSurveySelectCitiesSubtitle;
 
   /// No description provided for @demandSurveyOtherOption.
   ///
@@ -5893,43 +5899,43 @@ abstract class AppLocalizations {
   /// No description provided for @demandSurveyWantAbility.
   ///
   /// In en, this message translates to:
-  /// **'I want to be able to:'**
+  /// **'What interests you?'**
   String get demandSurveyWantAbility;
 
   /// No description provided for @demandSurveyProvide.
   ///
   /// In en, this message translates to:
-  /// **'List for rent'**
+  /// **'List equipment'**
   String get demandSurveyProvide;
 
   /// No description provided for @demandSurveyRent.
   ///
   /// In en, this message translates to:
-  /// **'Rent'**
+  /// **'Rent equipment'**
   String get demandSurveyRent;
 
   /// No description provided for @demandSurveyOtherProvidePrompt.
   ///
   /// In en, this message translates to:
-  /// **'What equipment do you want to list?'**
+  /// **'Equipment to list'**
   String get demandSurveyOtherProvidePrompt;
 
   /// No description provided for @demandSurveyOtherProvideHint.
   ///
   /// In en, this message translates to:
-  /// **'Describe equipment you can provide'**
+  /// **'For example: aerial work platform'**
   String get demandSurveyOtherProvideHint;
 
   /// No description provided for @demandSurveyOtherRentPrompt.
   ///
   /// In en, this message translates to:
-  /// **'What equipment do you want to rent?'**
+  /// **'Equipment to rent'**
   String get demandSurveyOtherRentPrompt;
 
   /// No description provided for @demandSurveyOtherRentHint.
   ///
   /// In en, this message translates to:
-  /// **'Describe equipment you want to rent'**
+  /// **'For example: asphalt paver'**
   String get demandSurveyOtherRentHint;
 
   /// No description provided for @demandSurveyDone.

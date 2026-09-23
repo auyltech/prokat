@@ -3063,7 +3063,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get demandSurveyCardSubtitle => 'Қандай техника керегін айтыңыз';
 
   @override
-  String get demandSurveyQuestionTitle => 'Сізге қандай техника қажет?';
+  String get demandSurveyQuestionTitle => 'Қызығушылықтарыңыз';
 
   @override
   String get demandSurveyQuestionSubtitle =>
@@ -3076,7 +3076,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get demandSurveySelectCity => 'Қаланы таңдаңыз';
 
   @override
-  String get demandSurveySelectCities => 'Қалаларды таңдаңыз';
+  String get demandSurveySelectCities => 'Қай қалаларда?';
+
+  @override
+  String get demandSurveySelectCitiesSubtitle =>
+      'Осы техниканы жалға бергіңіз немесе жалға алғыңыз келетін қалаларды таңдаңыз.';
 
   @override
   String get demandSurveyOtherOption => 'Басқа техника';
@@ -3085,28 +3089,25 @@ class AppLocalizationsKk extends AppLocalizations {
   String get demandSurveyOtherHint => 'Қажетті техниканы сипаттаңыз';
 
   @override
-  String get demandSurveyWantAbility => 'Менің мүмкіндігім болсын:';
+  String get demandSurveyWantAbility => 'Сізді не қызықтырады?';
 
   @override
-  String get demandSurveyProvide => 'Жалға беру';
+  String get demandSurveyProvide => 'Техниканы жалға беру';
 
   @override
-  String get demandSurveyRent => 'Жалға алу';
+  String get demandSurveyRent => 'Техниканы жалға алу';
 
   @override
-  String get demandSurveyOtherProvidePrompt =>
-      'Қандай техниканы жалға бергіңіз келеді?';
+  String get demandSurveyOtherProvidePrompt => 'Жалға беретін техника';
 
   @override
-  String get demandSurveyOtherProvideHint =>
-      'Жалға беретін техниканы сипаттаңыз';
+  String get demandSurveyOtherProvideHint => 'Мысалы: автовышка';
 
   @override
-  String get demandSurveyOtherRentPrompt =>
-      'Қандай техниканы жалға алғыңыз келеді?';
+  String get demandSurveyOtherRentPrompt => 'Жалға алатын техника';
 
   @override
-  String get demandSurveyOtherRentHint => 'Жалға алатын техниканы сипаттаңыз';
+  String get demandSurveyOtherRentHint => 'Мысалы: асфальт төсегіш';
 
   @override
   String get demandSurveyDone => 'Дайын';

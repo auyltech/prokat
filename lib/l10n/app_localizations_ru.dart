@@ -3087,7 +3087,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demandSurveyCardSubtitle => 'Расскажите, что вам нужно';
 
   @override
-  String get demandSurveyQuestionTitle => 'Какая техника вам нужна?';
+  String get demandSurveyQuestionTitle => 'Ваши интересы';
 
   @override
   String get demandSurveyQuestionSubtitle =>
@@ -3100,7 +3100,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demandSurveySelectCity => 'Выберите город';
 
   @override
-  String get demandSurveySelectCities => 'Выберите города';
+  String get demandSurveySelectCities => 'В каких городах?';
+
+  @override
+  String get demandSurveySelectCitiesSubtitle =>
+      'Выберите города, где вы хотите сдавать или арендовать эту технику.';
 
   @override
   String get demandSurveyOtherOption => 'Другая техника';
@@ -3109,27 +3113,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demandSurveyOtherHint => 'Опишите нужную технику';
 
   @override
-  String get demandSurveyWantAbility => 'Хочу иметь возможность:';
+  String get demandSurveyWantAbility => 'Что вас интересует?';
 
   @override
-  String get demandSurveyProvide => 'Сдавать';
+  String get demandSurveyProvide => 'Сдавать технику';
 
   @override
-  String get demandSurveyRent => 'Арендовать';
+  String get demandSurveyRent => 'Арендовать технику';
 
   @override
-  String get demandSurveyOtherProvidePrompt =>
-      'Какую технику вы хотите сдавать?';
+  String get demandSurveyOtherProvidePrompt => 'Техника для сдачи';
 
   @override
-  String get demandSurveyOtherProvideHint => 'Опишите технику для сдачи';
+  String get demandSurveyOtherProvideHint => 'Например: автовышка';
 
   @override
-  String get demandSurveyOtherRentPrompt =>
-      'Какую технику вы хотите арендовать?';
+  String get demandSurveyOtherRentPrompt => 'Техника для аренды';
 
   @override
-  String get demandSurveyOtherRentHint => 'Опишите технику для аренды';
+  String get demandSurveyOtherRentHint => 'Например: асфальтоукладчик';
 
   @override
   String get demandSurveyDone => 'Готово';

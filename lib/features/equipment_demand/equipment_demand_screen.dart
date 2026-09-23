@@ -255,7 +255,7 @@ class _EquipmentDemandScreenState extends ConsumerState<EquipmentDemandScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: DemandSurveyAppBar(title: l10n.demandSurveyCardTitle),
+      appBar: DemandSurveyAppBar(title: l10n.demandSurveyQuestionTitle),
       body: configAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) {

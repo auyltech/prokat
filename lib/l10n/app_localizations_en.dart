@@ -3066,7 +3066,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demandSurveyCardSubtitle => 'Tell us what you need';
 
   @override
-  String get demandSurveyQuestionTitle => 'What equipment do you need?';
+  String get demandSurveyQuestionTitle => 'Your interests';
 
   @override
   String get demandSurveyQuestionSubtitle =>
@@ -3079,7 +3079,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demandSurveySelectCity => 'Select a city';
 
   @override
-  String get demandSurveySelectCities => 'Select cities';
+  String get demandSurveySelectCities => 'Which cities?';
+
+  @override
+  String get demandSurveySelectCitiesSubtitle =>
+      'Select cities where you want to list or rent this equipment.';
 
   @override
   String get demandSurveyOtherOption => 'Other equipment';
@@ -3088,28 +3092,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demandSurveyOtherHint => 'Describe the equipment';
 
   @override
-  String get demandSurveyWantAbility => 'I want to be able to:';
+  String get demandSurveyWantAbility => 'What interests you?';
 
   @override
-  String get demandSurveyProvide => 'List for rent';
+  String get demandSurveyProvide => 'List equipment';
 
   @override
-  String get demandSurveyRent => 'Rent';
+  String get demandSurveyRent => 'Rent equipment';
 
   @override
-  String get demandSurveyOtherProvidePrompt =>
-      'What equipment do you want to list?';
+  String get demandSurveyOtherProvidePrompt => 'Equipment to list';
 
   @override
   String get demandSurveyOtherProvideHint =>
-      'Describe equipment you can provide';
+      'For example: aerial work platform';
 
   @override
-  String get demandSurveyOtherRentPrompt =>
-      'What equipment do you want to rent?';
+  String get demandSurveyOtherRentPrompt => 'Equipment to rent';
 
   @override
-  String get demandSurveyOtherRentHint => 'Describe equipment you want to rent';
+  String get demandSurveyOtherRentHint => 'For example: asphalt paver';
 
   @override
   String get demandSurveyDone => 'Done';

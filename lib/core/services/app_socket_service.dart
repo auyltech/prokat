@@ -168,9 +168,7 @@ class AppSocketService {
         completer.complete();
       }
 
-      Logger.log(
-        'Socket connected user=${userId ?? 'none'} url=$socketUrl',
-      );
+      Logger.log('Socket connected user=${userId ?? 'none'} url=$socketUrl');
 
       scheduleMicrotask(_notifyConnectListeners);
     });

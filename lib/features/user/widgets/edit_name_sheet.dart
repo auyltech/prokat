@@ -9,6 +9,18 @@ class EditNameSheet extends ConsumerStatefulWidget {
 
   const EditNameSheet({super.key, required this.initialName});
 
+  static Future<void> show({
+    required BuildContext context,
+    required String initialName,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+    return AppBottomSheet.show<void>(
+      context,
+      title: l10n.editName,
+      contentBuilder: (_) => EditNameSheet(initialName: initialName),
+    );
+  }
+
   @override
   ConsumerState<EditNameSheet> createState() => _EditNameSheetState();
 }
@@ -54,65 +66,39 @@ class _EditNameSheetState extends ConsumerState<EditNameSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(clientProfileMutationProvider);
-    final isLoading = state.isLoading;
+    final isLoading = ref.watch(clientProfileMutationProvider).isLoading;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 20,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          /// Drag handle
-          Container(
-            width: 40,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppDimens.s16$base,
+      children: [
+        AppTextField(
+          controller: controller,
+          hint: l10n.enterName,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => onSubmit(),
+        ),
+        Row(
+          spacing: AppDimens.s12$md,
+          children: [
+            Expanded(
+              child: AppElevatedButton(
+                title: l10n.save,
+                onTap: isLoading ? null : onSubmit,
+                isLoading: isLoading,
+              ),
             ),
-          ),
-
-          Text(l10n.editName, style: theme.textTheme.titleMedium),
-
-          const SizedBox(height: 16),
-
-          AppTextField(
-            controller: controller,
-            hint: l10n.enterName,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => onSubmit(),
-          ),
-
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: AppElevatedButton(
-                  title: l10n.save,
-                  onTap: isLoading ? null : onSubmit,
-                  isLoading: isLoading,
-                ),
+            Expanded(
+              child: AppOutlinedButton(
+                title: l10n.cancel,
+                onTap: isLoading ? null : () => Navigator.pop(context),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: AppOutlinedButton(
-                  title: l10n.cancel,
-                  onTap: isLoading ? null : () => Navigator.pop(context),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

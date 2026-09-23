@@ -9,18 +9,8 @@ import 'package:prokat/l10n/app_localizations.dart';
 class DisplayName extends ConsumerWidget {
   const DisplayName({super.key});
 
-  void _openEditSheet(BuildContext context, WidgetRef ref, String currentName) {
-    unawaited(
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (_) => EditNameSheet(initialName: currentName),
-      ),
-    );
+  void _openEditSheet(BuildContext context, String currentName) {
+    unawaited(EditNameSheet.show(context: context, initialName: currentName));
   }
 
   @override
@@ -35,7 +25,7 @@ class DisplayName extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: () => _openEditSheet(context, ref, savedName),
+          onTap: () => _openEditSheet(context, savedName),
           child: Text(
             name,
             style: theme.textTheme.titleLarge?.copyWith(

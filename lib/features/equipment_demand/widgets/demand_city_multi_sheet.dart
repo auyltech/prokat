@@ -20,6 +20,7 @@ class DemandCityMultiSheet extends ConsumerStatefulWidget {
     return AppBottomSheet.show<List<String>>(
       context,
       title: l10n.demandSurveySelectCities,
+      subtitle: l10n.demandSurveySelectCitiesSubtitle,
       contentBuilder: (_) =>
           DemandCityMultiSheet(initialSelectedIds: initialSelectedIds),
     );
