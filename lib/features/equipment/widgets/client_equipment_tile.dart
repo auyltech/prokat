@@ -9,6 +9,7 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -96,13 +97,19 @@ class ClientEquipmentTile extends ConsumerWidget {
               Positioned(
                 top: 8,
                 right: 8,
-                child: AppIconButton(
-                  icon: isFavorite ? Icons.favorite : Icons.favorite_border,
-                  tone: AppIconButtonTone.destructive,
-                  variant: AppIconButtonVariant.soft,
-                  onTap: isClient
-                      ? () => notifier.toggleFavorite(equipment.id)
-                      : null,
+                child: Row(
+                  children: [
+                    ShareEquipmentButton(equipment: equipment),
+                    const SizedBox(width: 8),
+                    AppIconButton(
+                      icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+                      tone: AppIconButtonTone.destructive,
+                      variant: AppIconButtonVariant.soft,
+                      onTap: isClient
+                          ? () => notifier.toggleFavorite(equipment.id)
+                          : null,
+                    ),
+                  ],
                 ),
               ),
 

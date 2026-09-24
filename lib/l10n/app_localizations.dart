@@ -6975,6 +6975,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get somethingWentWrongTryAgain;
+
+  /// No description provided for @shareEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareEquipment;
+
+  /// No description provided for @shareEquipmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareEquipmentTitle;
+
+  /// No description provided for @shareEquipmentNeedPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'To share this equipment, publish it in the catalog: status “available”, the visibility toggle on, and a price set.'**
+  String get shareEquipmentNeedPublish;
+
+  /// No description provided for @shareEquipmentCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Book in PROKAT'**
+  String get shareEquipmentCta;
+
+  /// No description provided for @shareEquipmentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\n{priceLine}\n{url}'**
+  String shareEquipmentMessage(String name, String priceLine, String url);
 }
 
 class _AppLocalizationsDelegate

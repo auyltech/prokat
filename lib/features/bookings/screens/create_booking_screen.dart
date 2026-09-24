@@ -13,6 +13,7 @@ import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
+import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
@@ -298,7 +299,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                           const SizedBox(width: 8),
 
-                          // Favorite Button
+                          ShareEquipmentButton(equipment: equipment),
+                          const SizedBox(width: 8),
                           AppIconButton(
                             icon: isFavorite
                                 ? Icons.favorite

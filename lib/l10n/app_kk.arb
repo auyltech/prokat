@@ -1343,5 +1343,18 @@
   "connectionTimedOut": "Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.",
   "noConnectionCheckNetwork": "Байланыс жоқ. Желіні тексеріп, қайталап көріңіз.",
   "networkErrorTryAgain": "Желі қатесі. Қайталап көріңіз.",
-  "somethingWentWrongTryAgain": "Бірдеңе дұрыс болмады. Қайталап көріңіз."
+  "somethingWentWrongTryAgain": "Бірдеңе дұрыс болмады. Қайталап көріңіз.",
+
+  "shareEquipment": "Бөлісу",
+  "shareEquipmentTitle": "Бөлісу",
+  "shareEquipmentNeedPublish": "Техникамен бөлісу үшін оны каталогқа жариялаңыз: күйі «қолжетімді», көрсету қосқышы қосулы, бағасы көрсетілген.",
+  "shareEquipmentCta": "PROKAT-та брондау",
+  "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
+  "@shareEquipmentMessage": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "priceLine": { "type": "String" },
+      "url": { "type": "String" }
+    }
+  }
 }

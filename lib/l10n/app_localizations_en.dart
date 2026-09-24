@@ -3725,4 +3725,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get somethingWentWrongTryAgain =>
       'Something went wrong. Please try again.';
+
+  @override
+  String get shareEquipment => 'Share';
+
+  @override
+  String get shareEquipmentTitle => 'Share';
+
+  @override
+  String get shareEquipmentNeedPublish =>
+      'To share this equipment, publish it in the catalog: status “available”, the visibility toggle on, and a price set.';
+
+  @override
+  String get shareEquipmentCta => 'Book in PROKAT';
+
+  @override
+  String shareEquipmentMessage(String name, String priceLine, String url) {
+    return '$name\n$priceLine\n$url';
+  }
 }

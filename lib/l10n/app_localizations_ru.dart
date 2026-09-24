@@ -3761,4 +3761,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get somethingWentWrongTryAgain =>
       'Что-то пошло не так. Попробуйте ещё раз.';
+
+  @override
+  String get shareEquipment => 'Поделиться';
+
+  @override
+  String get shareEquipmentTitle => 'Поделиться';
+
+  @override
+  String get shareEquipmentNeedPublish =>
+      'Чтобы поделиться техникой, опубликуйте её в каталоге: статус «доступна», тумблер показа включён, указана цена.';
+
+  @override
+  String get shareEquipmentCta => 'Забронировать в PROKAT';
+
+  @override
+  String shareEquipmentMessage(String name, String priceLine, String url) {
+    return '$name\n$priceLine\n$url';
+  }
 }

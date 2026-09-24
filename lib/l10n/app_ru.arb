@@ -1342,5 +1342,18 @@
   "connectionTimedOut": "Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.",
   "noConnectionCheckNetwork": "Нет соединения. Проверьте сеть и попробуйте снова.",
   "networkErrorTryAgain": "Ошибка сети. Попробуйте ещё раз.",
-  "somethingWentWrongTryAgain": "Что-то пошло не так. Попробуйте ещё раз."
+  "somethingWentWrongTryAgain": "Что-то пошло не так. Попробуйте ещё раз.",
+
+  "shareEquipment": "Поделиться",
+  "shareEquipmentTitle": "Поделиться",
+  "shareEquipmentNeedPublish": "Чтобы поделиться техникой, опубликуйте её в каталоге: статус «доступна», тумблер показа включён, указана цена.",
+  "shareEquipmentCta": "Забронировать в PROKAT",
+  "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
+  "@shareEquipmentMessage": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "priceLine": { "type": "String" },
+      "url": { "type": "String" }
+    }
+  }
 }

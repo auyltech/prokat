@@ -1345,5 +1345,18 @@
   "connectionTimedOut": "Connection timed out. The server may be warming up — please try again.",
   "noConnectionCheckNetwork": "No connection. Check your network and try again.",
   "networkErrorTryAgain": "Network error. Please try again.",
-  "somethingWentWrongTryAgain": "Something went wrong. Please try again."
+  "somethingWentWrongTryAgain": "Something went wrong. Please try again.",
+
+  "shareEquipment": "Share",
+  "shareEquipmentTitle": "Share",
+  "shareEquipmentNeedPublish": "To share this equipment, publish it in the catalog: status “available”, the visibility toggle on, and a price set.",
+  "shareEquipmentCta": "Book in PROKAT",
+  "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
+  "@shareEquipmentMessage": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "priceLine": { "type": "String" },
+      "url": { "type": "String" }
+    }
+  }
 }
