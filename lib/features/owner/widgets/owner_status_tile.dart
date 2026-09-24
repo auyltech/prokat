@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
@@ -46,7 +46,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     try {
       await ref
           .read(ownerRegistrationMutationProvider.notifier)
-          .updateOwnerStatus(ownerStatus: OwnerStatus.offline);
+          .updateOwnerStatus(ownerStatus: OwnerStatus.offline, notify: false);
     } finally {
       _forcingOffline = false;
     }
@@ -58,9 +58,9 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     if (turnOnline) {
       final block = ownerGoOnlineBlockReason(ref);
       if (block != OwnerGoOnlineBlockReason.none) {
-        AppSnackBar.show(
+        AppToast.show(
           message: ownerGoOnlineBlockMessage(l10n: l10n, reason: block),
-          isError: true,
+          type: AppToastType.error,
         );
         setState(() {});
         return;
@@ -80,16 +80,15 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
     final failedNoEquipment =
         !result && turnOnline && errorCode == ownerOnlineNoEquipmentCode;
 
-    AppSnackBar.show(
-      message: result
-          ? (turnOnline ? l10n.youAreNowOnline : l10n.youAreNowOffline)
-          : (failedZeroBalance
-                ? l10n.cannotGoOnlineWithZeroBalance
-                : failedNoEquipment
-                ? l10n.cannotGoOnlineWithoutOnlineEquipment
-                : l10n.failedToggleStatus),
-      isSuccess: result,
-      isError: !result,
+    if (result) return;
+
+    AppToast.show(
+      message: failedZeroBalance
+          ? l10n.cannotGoOnlineWithZeroBalance
+          : failedNoEquipment
+          ? l10n.cannotGoOnlineWithoutOnlineEquipment
+          : l10n.failedToggleStatus,
+      type: AppToastType.error,
     );
   }
 

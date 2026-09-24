@@ -6,6 +6,7 @@ import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -238,6 +239,7 @@ Future<void> _pumpOverlay(
         ),
       ],
       child: MaterialApp.router(
+        theme: AppTheme.lightTheme,
         locale: const Locale('ru'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

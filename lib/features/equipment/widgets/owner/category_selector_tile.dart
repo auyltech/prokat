@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -89,21 +90,6 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
 
       if (widget.mode == CategorySheetMode.editEquipment) {
         return null;
-
-        // picked?.id != null &&
-        //     equipment?.categoryId != picked?.id &&
-        // final result = await ref
-        //     .read(equipmentMutationProvider.notifier)
-        //     .updateEquipmentCategory(
-        //       equipmentId: equipment?.id ?? "",
-        //       categoryId: picked?.id ?? "",
-        //     );
-
-        // AppSnackBar.show(
-        //   message: result ? l10n.equipmentUpdated : l10n.updateFailed,
-        //   isSuccess: result,
-        //   isError: !result,
-        // );
       }
     }
 
@@ -115,7 +101,7 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
         children: [
           // Icon Container
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(AppDimens.r10$base),
             decoration: BoxDecoration(
               color: hasError
                   ? errorColor.withValues(alpha: 0.2)
@@ -133,11 +119,11 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
                   : hasCategory
                   ? Colors.white
                   : Colors.white.withValues(alpha: 0.3),
-              size: 24,
+              size: AppDimens.iconButtonIconSize,
             ),
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(width: AppDimens.s16$base),
 
           Expanded(
             child: Column(
@@ -145,24 +131,20 @@ class _CategorySelectorTileState extends ConsumerState<CategorySelectorTile> {
               children: [
                 Text(
                   l10n.equipmentCategoryLabel,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: hasError ? errorColor : null,
-                  ),
+                  style: AppFonts.label(context)
+                      .copyWith(color: hasError ? errorColor : null),
                 ),
                 Text(
                   hasCategory ? categoryName : l10n.selectService,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: hasError ? errorColor : null,
-                  ),
+                  style: AppFonts.body16(context)
+                      .copyWith(color: hasError ? errorColor : null),
                 ),
                 if (hasError) ...[
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppDimens.inputHelperGap),
                   Text(
                     widget.errorText!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: errorColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppFonts.captionMedium(context)
+                        .copyWith(color: errorColor),
                   ),
                 ],
               ],

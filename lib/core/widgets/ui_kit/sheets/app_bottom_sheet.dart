@@ -10,18 +10,22 @@ abstract final class AppBottomSheet {
     BuildContext context, {
     required String title,
     String? subtitle,
-    bool useRootNavigator = false,
+    bool isDismissible = true,
+    bool enableDrag = true,
     required WidgetBuilder contentBuilder,
   }) {
     final colors = context.colors;
 
     return showModalBottomSheet<T>(
       context: context,
-      useRootNavigator: useRootNavigator,
+      useRootNavigator: true,
       isScrollControlled: true,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
       barrierColor: colors.barrierColor,
       backgroundColor: Colors.transparent,
       builder: (context) => AppBottomSheetBarrier(
+        dismissOnBarrierTap: isDismissible,
         child: AppBottomSheetLayout(
           title: title,
           subtitle: subtitle,
@@ -34,6 +38,7 @@ abstract final class AppBottomSheet {
   static Future<T?> showScrollable<T>(
     BuildContext context, {
     required String title,
+    String? subtitle,
     double minChildSize = 0.4,
     double maxChildSize = 0.85,
     double initialChildSize = 0.6,
@@ -46,12 +51,14 @@ abstract final class AppBottomSheet {
 
     return showModalBottomSheet<T>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       barrierColor: colors.barrierColor,
       backgroundColor: Colors.transparent,
       builder: (context) => AppBottomSheetBarrier(
         child: AppScrollableBottomSheet(
           title: title,
+          subtitle: subtitle,
           minChildSize: minChildSize,
           maxChildSize: maxChildSize,
           initialChildSize: initialChildSize,
@@ -66,8 +73,13 @@ abstract final class AppBottomSheet {
 
 class AppBottomSheetBarrier extends StatelessWidget {
   final Widget child;
+  final bool dismissOnBarrierTap;
 
-  const AppBottomSheetBarrier({super.key, required this.child});
+  const AppBottomSheetBarrier({
+    super.key,
+    required this.child,
+    this.dismissOnBarrierTap = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +87,7 @@ class AppBottomSheetBarrier extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => Navigator.of(context).pop(),
+      onTap: dismissOnBarrierTap ? () => Navigator.of(context).pop() : null,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
@@ -221,6 +233,7 @@ class AppBottomSheetLayout extends StatelessWidget {
 
 class AppScrollableBottomSheet extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final double minChildSize;
   final double maxChildSize;
   final double initialChildSize;
@@ -232,6 +245,7 @@ class AppScrollableBottomSheet extends StatelessWidget {
   const AppScrollableBottomSheet({
     super.key,
     required this.title,
+    this.subtitle,
     required this.minChildSize,
     required this.maxChildSize,
     required this.initialChildSize,
@@ -258,7 +272,7 @@ class AppScrollableBottomSheet extends StatelessWidget {
                   AppDimens.sheetHorizontalPadding,
                   AppDimens.sheetTitleToContentGap,
                 ),
-                child: AppBottomSheetHeader(title: title),
+                child: AppBottomSheetHeader(title: title, subtitle: subtitle),
               ),
               headerBuilder(context),
               Expanded(child: scrollableListBuilder(context, scrollController)),

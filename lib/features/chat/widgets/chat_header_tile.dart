@@ -6,6 +6,7 @@ import 'package:prokat/features/chat/widgets/chat_header_error.dart';
 import 'package:prokat/features/chat/widgets/chat_header_skeleton.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ChatHeaderTile extends ConsumerStatefulWidget {
@@ -62,7 +63,8 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
         if (chat.type == ChatType.support) {
           return Text(
             l10n.support,
-            style: const TextStyle(color: Colors.black),
+            style: AppFonts.body16SemiBold(context)
+                .copyWith(color: context.colors.appBar.content),
           );
         }
 

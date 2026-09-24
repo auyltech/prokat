@@ -45,7 +45,7 @@ class AppElevatedButton extends StatelessWidget {
       AppElevatedButtonStyle.primary => buttonTheme.background,
       AppElevatedButtonStyle.destructive => buttonTheme.destructiveBackground,
     };
-    final borderRadius = BorderRadius.circular(AppDimens.r10$base);
+    final borderRadius = BorderRadius.circular(AppDimens.r16$xl);
 
     return Opacity(
       opacity: onTap == null ? buttonTheme.disabledOpacity : 1,
@@ -68,46 +68,52 @@ class AppElevatedButton extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.s16$base,
                   ),
-                  child: Row(
-                    mainAxisSize: isExpanded
-                        ? MainAxisSize.max
-                        : MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: AppDimens.s08$sm,
-                    children: isLoading
-                        ? [
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: contentColor,
+                  child: IconTheme.merge(
+                    data: IconThemeData(
+                      color: contentColor,
+                      size: AppDimens.s20$lg,
+                    ),
+                    child: Row(
+                      mainAxisSize: isExpanded
+                          ? MainAxisSize.max
+                          : MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: AppDimens.s08$sm,
+                      children: isLoading
+                          ? [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: contentColor,
+                                ),
                               ),
-                            ),
-                          ]
-                        : [
-                            ?prefix,
-                            if (isExpanded)
-                              Flexible(
-                                child: Text(
+                            ]
+                          : [
+                              ?prefix,
+                              if (isExpanded)
+                                Flexible(
+                                  child: Text(
+                                    title,
+                                    style: AppFonts.button(context)
+                                        .copyWith(color: contentColor),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              else
+                                Text(
                                   title,
                                   style: AppFonts.button(context)
                                       .copyWith(color: contentColor),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
                                 ),
-                              )
-                            else
-                              Text(
-                                title,
-                                style: AppFonts.button(context)
-                                    .copyWith(color: contentColor),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ?postfix,
-                          ],
+                              ?postfix,
+                            ],
+                    ),
                   ),
                 ),
               ),

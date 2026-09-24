@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/section_title.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstatic/widgets/faq_tile.dart';
 import 'package:prokat/features/support/data/faq_data.dart';
 import 'package:prokat/features/support/data/guides_data.dart';
-import 'package:prokat/features/support/widgets/contact_support_sheet.dart';
 import 'package:prokat/features/support/widgets/user_guides_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:prokat/core/providers/locale_provider.dart';
 
 class HelpScreen extends ConsumerStatefulWidget {
   const HelpScreen({super.key});
@@ -76,29 +80,9 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               ),
               const SizedBox(height: 12),
               // Primary Action Form Button Wrapper
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(
-                      0xFF004699,
-                    ), // Matching image primary blue theme color
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    elevation: 0,
-                  ),
-                  onPressed: () => ContactSupportSheet.show(context),
-                  child: Text(
-                    l10n.contactSupport,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
+              AppElevatedButton(
+                title: l10n.contactSupport,
+                onTap: () => unawaited(context.push(AppRoutes.contactSupport)),
               ),
             ],
           ),

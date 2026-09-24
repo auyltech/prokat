@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 
@@ -20,7 +21,10 @@ class TopUpCtaTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppColors.teal600, AppColors.teal800],
+          colors: [
+            legacy_colors.AppColors.teal600,
+            legacy_colors.AppColors.teal800,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -58,23 +62,12 @@ class TopUpCtaTile extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
+          AppLabelButton(
+            title: l10n.add,
+            onTap: () {
               unawaited(context.push(AppRoutes.ownerPayment));
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: colorScheme.primary,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: Text(
-              l10n.add,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            tone: AppLabelButtonTone.inverse,
           ),
         ],
       ),

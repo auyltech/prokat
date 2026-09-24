@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ChatHeaderError extends StatelessWidget {
@@ -53,10 +54,10 @@ class ChatHeaderError extends StatelessWidget {
 
         // 3. Optional Inline Retry Button
         if (onRetry != null)
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, size: 20),
-            color: theme.colorScheme.onPrimary.withValues(alpha: 0.6),
-            onPressed: onRetry,
+          AppIconButton(
+            icon: Icons.refresh_rounded,
+            tone: AppIconButtonTone.inverse,
+            onTap: onRetry,
           ),
       ],
     );

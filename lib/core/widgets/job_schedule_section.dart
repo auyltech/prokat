@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 const jobScheduleDefaultHour = 16;
@@ -116,12 +116,11 @@ Future<DateTime?> showJobDatePicker({
       ? firstDate
       : DateTime(current.year, current.month, current.day);
 
-  return showModalBottomSheet<DateTime>(
-    context: context,
-    isScrollControlled: true,
-    builder: (context) {
-      return _JobDatePickerSheet(
-        title: l10n.dateAndTime,
+  return AppBottomSheet.show<DateTime>(
+    context,
+    title: l10n.dateAndTime,
+    contentBuilder: (context) {
+      return _JobDatePickerContent(
         initialDate: initial,
         firstDate: firstDate,
         lastDate: lastDate,
@@ -144,65 +143,74 @@ Future<DateTime?> showJobTimePicker({
       ? earliest
       : null;
 
-  return showModalBottomSheet<DateTime>(
-    context: context,
-    builder: (context) {
-      return SafeArea(
-        child: SizedBox(
-          height: 280,
-          child: Column(
+  final l10n = AppLocalizations.of(context)!;
+  return AppBottomSheet.show<DateTime>(
+    context,
+    title: l10n.dateAndTime,
+    contentBuilder: (context) {
+      final material = MaterialLocalizations.of(context);
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: AppDimens.s24$xl,
+        children: [
+          SizedBox(
+            height: 216,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.time,
+              use24hFormat: true,
+              minuteInterval: jobScheduleMinuteInterval,
+              initialDateTime: draft,
+              minimumDate: minimumDate,
+              onDateTimeChanged: (value) {
+                draft = DateTime(
+                  day.year,
+                  day.month,
+                  day.day,
+                  value.hour,
+                  value.minute,
+                );
+              },
+            ),
+          ),
+          Row(
+            spacing: AppDimens.s12$md,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(draft),
-                  child: Text(MaterialLocalizations.of(context).okButtonLabel),
+              Expanded(
+                child: AppOutlinedButton(
+                  title: material.cancelButtonLabel,
+                  onTap: () => Navigator.of(context).pop(),
                 ),
               ),
               Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.time,
-                  use24hFormat: true,
-                  minuteInterval: jobScheduleMinuteInterval,
-                  initialDateTime: draft,
-                  minimumDate: minimumDate,
-                  onDateTimeChanged: (value) {
-                    draft = DateTime(
-                      day.year,
-                      day.month,
-                      day.day,
-                      value.hour,
-                      value.minute,
-                    );
-                  },
+                child: AppElevatedButton(
+                  title: material.okButtonLabel,
+                  onTap: () => Navigator.of(context).pop(draft),
                 ),
               ),
             ],
           ),
-        ),
+        ],
       );
     },
   );
 }
 
-class _JobDatePickerSheet extends StatefulWidget {
-  const _JobDatePickerSheet({
-    required this.title,
+class _JobDatePickerContent extends StatefulWidget {
+  const _JobDatePickerContent({
     required this.initialDate,
     required this.firstDate,
     required this.lastDate,
   });
 
-  final String title;
   final DateTime initialDate;
   final DateTime firstDate;
   final DateTime lastDate;
 
   @override
-  State<_JobDatePickerSheet> createState() => _JobDatePickerSheetState();
+  State<_JobDatePickerContent> createState() => _JobDatePickerContentState();
 }
 
-class _JobDatePickerSheetState extends State<_JobDatePickerSheet> {
+class _JobDatePickerContentState extends State<_JobDatePickerContent> {
   late DateTime _visibleMonth;
   late DateTime _selected;
 
@@ -254,137 +262,117 @@ class _JobDatePickerSheetState extends State<_JobDatePickerSheet> {
       return DateFormat.E(locale).format(day);
     });
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          DateFormat.MMMEd(locale).format(_selected),
+          style: AppFonts.headingM(context)
+              .copyWith(color: context.colors.text.primary),
+        ),
+        const SizedBox(height: AppDimens.s12$md),
+        Row(
           children: [
-            Text(
-              widget.title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Text(
+                monthLabel,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              DateFormat.MMMEd(locale).format(_selected),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: colorScheme.primary,
-              ),
+            AppIconButton(
+              onTap: _canGoPrev ? () => _shiftMonth(-1) : null,
+              icon: Icons.chevron_left,
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
+            AppIconButton(
+              onTap: _canGoNext ? () => _shiftMonth(1) : null,
+              icon: Icons.chevron_right,
+            ),
+          ],
+        ),
+        const SizedBox(height: AppDimens.s04$xs),
+        Row(
+          children: [
+            for (final label in weekdayLabels)
+              Expanded(
+                child: Center(
                   child: Text(
-                    monthLabel,
-                    style: theme.textTheme.titleSmall?.copyWith(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: _canGoPrev ? () => _shiftMonth(-1) : null,
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                IconButton(
-                  onPressed: _canGoNext ? () => _shiftMonth(1) : null,
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                for (final label in weekdayLabels)
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        label,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: leadingEmpty + daysInMonth,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
               ),
-              itemBuilder: (context, index) {
-                if (index < leadingEmpty) {
-                  return const SizedBox.shrink();
-                }
-                final day = index - leadingEmpty + 1;
-                final date = DateTime(
-                  _visibleMonth.year,
-                  _visibleMonth.month,
-                  day,
-                );
-                final enabled =
-                    !date.isBefore(widget.firstDate) &&
-                    !date.isAfter(widget.lastDate);
-                final selected =
-                    enabled && jobScheduleIsSameDay(date, _selected);
+          ],
+        ),
+        const SizedBox(height: 8),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: leadingEmpty + daysInMonth,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+          ),
+          itemBuilder: (context, index) {
+            if (index < leadingEmpty) {
+              return const SizedBox.shrink();
+            }
+            final day = index - leadingEmpty + 1;
+            final date = DateTime(_visibleMonth.year, _visibleMonth.month, day);
+            final enabled =
+                !date.isBefore(widget.firstDate) &&
+                !date.isAfter(widget.lastDate);
+            final selected = enabled && jobScheduleIsSameDay(date, _selected);
 
-                return InkWell(
-                  borderRadius: BorderRadius.circular(24),
-                  onTap: enabled
-                      ? () => setState(() => _selected = date)
-                      : null,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: selected ? colorScheme.primary : null,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$day',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: selected
-                              ? (theme.brightness == Brightness.light
-                                    ? AppTheme.white
-                                    : colorScheme.onPrimary)
-                              : enabled
-                              ? colorScheme.onSurface
-                              : colorScheme.onSurface.withValues(alpha: 0.28),
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                        ),
-                      ),
+            return InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: enabled ? () => setState(() => _selected = date) : null,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: selected ? colorScheme.primary : null,
+                ),
+                child: Center(
+                  child: Text(
+                    '$day',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: selected
+                          ? context.colors.text.white
+                          : enabled
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurface.withValues(alpha: 0.28),
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
-                );
-              },
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: AppDimens.s08$sm),
+        Row(
+          spacing: AppDimens.s12$md,
+          children: [
+            Expanded(
+              child: AppOutlinedButton(
+                title: material.cancelButtonLabel,
+                onTap: () => Navigator.of(context).pop(),
+              ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(material.cancelButtonLabel),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(_selected),
-                  child: Text(material.okButtonLabel),
-                ),
-              ],
+            Expanded(
+              child: AppElevatedButton(
+                title: material.okButtonLabel,
+                onTap: () => Navigator.of(context).pop(_selected),
+              ),
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 }

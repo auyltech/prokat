@@ -1282,6 +1282,12 @@ abstract class AppLocalizations {
   /// **'Notification'**
   String get notification;
 
+  /// No description provided for @newMessageFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'New message from: {name}'**
+  String newMessageFrom(String name);
+
   /// No description provided for @typeMessageHint.
   ///
   /// In en, this message translates to:
@@ -3694,6 +3700,12 @@ abstract class AppLocalizations {
   /// **'Add rate'**
   String get addTariff;
 
+  /// No description provided for @tariffDraftPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft:'**
+  String get tariffDraftPrefix;
+
   /// No description provided for @serviceType.
   ///
   /// In en, this message translates to:
@@ -3982,6 +3994,12 @@ abstract class AppLocalizations {
   /// **'Create new on map'**
   String get createNewOnMap;
 
+  /// No description provided for @equipmentPhotoSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment photo'**
+  String get equipmentPhotoSheetTitle;
+
   /// No description provided for @chooseFromGallery.
   ///
   /// In en, this message translates to:
@@ -4137,6 +4155,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No history found'**
   String get noHistoryFound;
+
+  /// No description provided for @requestHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Request hidden'**
+  String get requestHidden;
 
   /// No description provided for @viewedBadge.
   ///
@@ -4557,6 +4581,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your updated details will be checked by an administrator.'**
   String get ownerProfilePendingReviewHint;
+
+  /// No description provided for @ownerProfileChangesPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes are under review'**
+  String get ownerProfileChangesPending;
+
+  /// No description provided for @ownerProfileChangesPendingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot edit the profile while review is in progress.'**
+  String get ownerProfileChangesPendingHint;
+
+  /// No description provided for @ownerProfileChangesRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes were rejected'**
+  String get ownerProfileChangesRejected;
+
+  /// No description provided for @ownerProfileChangesRejectedUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'fix by {date}'**
+  String ownerProfileChangesRejectedUntil(String date);
+
+  /// No description provided for @ownerProfileCorrectionOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction deadline has passed. Access may be suspended.'**
+  String get ownerProfileCorrectionOverdue;
+
+  /// No description provided for @ownerProfileCorrectionOverdueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your details and submit them for review again.'**
+  String get ownerProfileCorrectionOverdueHint;
 
   /// No description provided for @profileUpdateNeedsModeration.
   ///
@@ -5791,7 +5851,7 @@ abstract class AppLocalizations {
   /// No description provided for @demandSurveyQuestionTitle.
   ///
   /// In en, this message translates to:
-  /// **'What equipment do you need?'**
+  /// **'Your interests'**
   String get demandSurveyQuestionTitle;
 
   /// No description provided for @demandSurveyQuestionSubtitle.
@@ -5812,6 +5872,18 @@ abstract class AppLocalizations {
   /// **'Select a city'**
   String get demandSurveySelectCity;
 
+  /// No description provided for @demandSurveySelectCities.
+  ///
+  /// In en, this message translates to:
+  /// **'Which cities?'**
+  String get demandSurveySelectCities;
+
+  /// No description provided for @demandSurveySelectCitiesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select cities where you want to list or rent this equipment.'**
+  String get demandSurveySelectCitiesSubtitle;
+
   /// No description provided for @demandSurveyOtherOption.
   ///
   /// In en, this message translates to:
@@ -5823,6 +5895,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Describe the equipment'**
   String get demandSurveyOtherHint;
+
+  /// No description provided for @demandSurveyWantAbility.
+  ///
+  /// In en, this message translates to:
+  /// **'What interests you?'**
+  String get demandSurveyWantAbility;
+
+  /// No description provided for @demandSurveyProvide.
+  ///
+  /// In en, this message translates to:
+  /// **'List equipment'**
+  String get demandSurveyProvide;
+
+  /// No description provided for @demandSurveyRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent equipment'**
+  String get demandSurveyRent;
+
+  /// No description provided for @demandSurveyOtherProvidePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment to list'**
+  String get demandSurveyOtherProvidePrompt;
+
+  /// No description provided for @demandSurveyOtherProvideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: aerial work platform'**
+  String get demandSurveyOtherProvideHint;
+
+  /// No description provided for @demandSurveyOtherRentPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment to rent'**
+  String get demandSurveyOtherRentPrompt;
+
+  /// No description provided for @demandSurveyOtherRentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: asphalt paver'**
+  String get demandSurveyOtherRentHint;
+
+  /// No description provided for @demandSurveyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get demandSurveyDone;
 
   /// No description provided for @demandSurveySubmit.
   ///
@@ -6418,6 +6538,12 @@ abstract class AppLocalizations {
   /// **'This field is required'**
   String get fieldRequired;
 
+  /// No description provided for @cannotBeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be empty'**
+  String get cannotBeEmpty;
+
   /// No description provided for @justNow.
   ///
   /// In en, this message translates to:
@@ -6604,22 +6730,16 @@ abstract class AppLocalizations {
   /// **'Go Online'**
   String get becomeOnline;
 
-  /// No description provided for @accountSwitchedToOnline.
-  ///
-  /// In en, this message translates to:
-  /// **'You switched the account to Online'**
-  String get accountSwitchedToOnline;
-
   /// No description provided for @youAreNowOnline.
   ///
   /// In en, this message translates to:
-  /// **'You are now online'**
+  /// **'Online mode is on.\nYou can accept orders now.'**
   String get youAreNowOnline;
 
   /// No description provided for @youAreNowOffline.
   ///
   /// In en, this message translates to:
-  /// **'You are now offline'**
+  /// **'Online mode is off.\nYou cannot accept orders.'**
   String get youAreNowOffline;
 
   /// No description provided for @failedToggleStatus.

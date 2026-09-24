@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/models/transaction_model.dart';
@@ -71,22 +72,10 @@ class OwnerPaymentTile extends StatelessWidget {
           style: const TextStyle(fontSize: 12),
         ),
         trailing: transaction.type == TransactionType.topup
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      l10n.repeat,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+            ? AppLabelButton(
+                title: l10n.repeat,
+                onTap: () {},
+                variant: AppLabelButtonVariant.text,
               )
             : null,
       ),

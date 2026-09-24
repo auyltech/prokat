@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/profile_accent_cta.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -44,8 +44,9 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       await ref.read(ownerRegistrationRequestProvider.notifier).refresh();
       if (!mounted) return;
       final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
-      final awaitingModeration = request != null && !request.isApproved;
-      // Do not mint an OWNER session while the application is still CREATED.
+      final awaitingModeration =
+          request != null && request.isBecomeOwner && !request.isApproved;
+      // Do not mint an OWNER session while the BECOME_OWNER application is still CREATED.
       if (!awaitingModeration && !ref.read(authProvider).isOwner) {
         await ref.read(authProvider.notifier).refreshSession();
         if (!mounted) return;
@@ -60,12 +61,15 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     await _refreshApplicationState();
     if (!mounted) return;
     if (ref.read(authProvider).session == null) return;
-    final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
-    if (request != null && !request.isApproved) return;
+    // OWNER role always enters owner mode — PROFILE_UPDATE must not block.
     if (!_hasOwnerRole()) {
-      AppSnackBar.show(
+      final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
+      if (request != null && request.isBecomeOwner && !request.isApproved) {
+        return;
+      }
+      AppToast.show(
         message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,
-        isError: true,
+        type: AppToastType.error,
       );
       return;
     }
@@ -91,12 +95,28 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
     final isOwnerRole =
         isOwnerJwt || profileRole == 'owner' || profileRole == 'admin';
 
-    // CREATED/REJECTED wins over User.role=OWNER (local auto-promote setting).
-    if (registrationRequest != null) {
-      switch (registrationRequest.parsedStatus) {
+    // Owner access is role-based. Never treat PROFILE_UPDATE / profile CHANGES_*
+    // as "not yet an owner".
+    if (isOwnerRole) {
+      return ProfileAccentCta(
+        leading: ProfileAccentCta.truck(),
+        title: l10n.ownerDashboard,
+        subtitle: l10n.ownerDashboardSubtitle,
+        isLoading: _isRefreshing,
+        onTap: _enterOwnerMode,
+      );
+    }
+
+    final becomeOwnerRequest =
+        registrationRequest != null && registrationRequest.isBecomeOwner
+        ? registrationRequest
+        : null;
+
+    if (becomeOwnerRequest != null) {
+      switch (becomeOwnerRequest.parsedStatus) {
         case BecomeOwnerRequestStatus.pending:
         case BecomeOwnerRequestStatus.rejected:
-          final status = registrationRequest.parsedStatus;
+          final status = becomeOwnerRequest.parsedStatus;
           final config = _getStatusConfig(status, l10n, theme.brightness);
           return ProfileAccentCta(
             leading: Icon(
@@ -105,7 +125,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
               size: ProfileAccentCta.iconSize,
             ),
             title: config.label,
-            subtitle: _subtitleForRequest(registrationRequest, l10n),
+            subtitle: _subtitleForRequest(becomeOwnerRequest, l10n),
             backgroundColor: config.bg,
             contentColor: config.color,
             trailingIcon: config.trailing,
@@ -117,7 +137,7 @@ class _BecomeOwnerCTAState extends ConsumerState<BecomeOwnerCTA> {
       }
     }
 
-    if (isOwnerRole || registrationRequest?.isApproved == true) {
+    if (becomeOwnerRequest?.isApproved == true) {
       return ProfileAccentCta(
         leading: ProfileAccentCta.truck(),
         title: l10n.ownerDashboard,

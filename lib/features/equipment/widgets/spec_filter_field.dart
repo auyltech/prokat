@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 
 class SpecFilterField extends StatelessWidget {
@@ -133,16 +134,7 @@ class _ClearIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface
-        .withValues(alpha: enabled ? 0.6 : 0.25);
-
-    return IconButton(
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-      icon: Icon(Icons.close, size: 18, color: color),
-      onPressed: enabled ? onPressed : null,
-    );
+    return AppIconButton(icon: Icons.close, onTap: enabled ? onPressed : null);
   }
 }
 

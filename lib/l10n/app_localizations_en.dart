@@ -655,6 +655,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notification => 'Notification';
 
   @override
+  String newMessageFrom(String name) {
+    return 'New message from: $name';
+  }
+
+  @override
   String get typeMessageHint => 'Type a message...';
 
   @override
@@ -1908,6 +1913,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addTariff => 'Add rate';
 
   @override
+  String get tariffDraftPrefix => 'Draft:';
+
+  @override
   String get serviceType => 'Service type';
 
   @override
@@ -2056,6 +2064,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createNewOnMap => 'Create new on map';
 
   @override
+  String get equipmentPhotoSheetTitle => 'Equipment photo';
+
+  @override
   String get chooseFromGallery => 'Choose from gallery';
 
   @override
@@ -2133,6 +2144,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noHistoryFound => 'No history found';
+
+  @override
+  String get requestHidden => 'Request hidden';
 
   @override
   String get viewedBadge => 'VIEWED';
@@ -2365,6 +2379,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ownerProfilePendingReviewHint =>
       'Your updated details will be checked by an administrator.';
+
+  @override
+  String get ownerProfileChangesPending => 'Changes are under review';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'You cannot edit the profile while review is in progress.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Changes were rejected';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return 'fix by $date';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Correction deadline has passed. Access may be suspended.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Update your details and submit them for review again.';
 
   @override
   String get profileUpdateNeedsModeration =>
@@ -3029,7 +3066,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demandSurveyCardSubtitle => 'Tell us what you need';
 
   @override
-  String get demandSurveyQuestionTitle => 'What equipment do you need?';
+  String get demandSurveyQuestionTitle => 'Your interests';
 
   @override
   String get demandSurveyQuestionSubtitle =>
@@ -3042,10 +3079,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demandSurveySelectCity => 'Select a city';
 
   @override
+  String get demandSurveySelectCities => 'Which cities?';
+
+  @override
+  String get demandSurveySelectCitiesSubtitle =>
+      'Select cities where you want to list or rent this equipment.';
+
+  @override
   String get demandSurveyOtherOption => 'Other equipment';
 
   @override
   String get demandSurveyOtherHint => 'Describe the equipment';
+
+  @override
+  String get demandSurveyWantAbility => 'What interests you?';
+
+  @override
+  String get demandSurveyProvide => 'List equipment';
+
+  @override
+  String get demandSurveyRent => 'Rent equipment';
+
+  @override
+  String get demandSurveyOtherProvidePrompt => 'Equipment to list';
+
+  @override
+  String get demandSurveyOtherProvideHint =>
+      'For example: aerial work platform';
+
+  @override
+  String get demandSurveyOtherRentPrompt => 'Equipment to rent';
+
+  @override
+  String get demandSurveyOtherRentHint => 'For example: asphalt paver';
+
+  @override
+  String get demandSurveyDone => 'Done';
 
   @override
   String get demandSurveySubmit => 'Submit';
@@ -3374,6 +3443,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldRequired => 'This field is required';
 
   @override
+  String get cannotBeEmpty => 'Cannot be empty';
+
+  @override
   String get justNow => 'Just now';
 
   @override
@@ -3513,13 +3585,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get becomeOnline => 'Go Online';
 
   @override
-  String get accountSwitchedToOnline => 'You switched the account to Online';
+  String get youAreNowOnline =>
+      'Online mode is on.\nYou can accept orders now.';
 
   @override
-  String get youAreNowOnline => 'You are now online';
-
-  @override
-  String get youAreNowOffline => 'You are now offline';
+  String get youAreNowOffline =>
+      'Online mode is off.\nYou cannot accept orders.';
 
   @override
   String get failedToggleStatus => 'Failed to update status';

@@ -1,6 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/chat/models/chat_lookup.dart';
+import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/providers/chat_providers.dart';
+import 'package:prokat/features/notifications/models/app_notification.dart';
+import 'package:prokat/features/notifications/models/notification_group.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
@@ -36,6 +42,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(notificationProvider);
+    final groups = groupNotifications(state.items);
+    final currentUserId = ref.watch(authProvider).currentUserId ?? '';
+    final clientChats =
+        ref.watch(clientChatsProvider).valueOrNull?.items ??
+        const <ChatModel>[];
+    final ownerChats =
+        ref.watch(ownerChatsProvider).valueOrNull?.items ?? const <ChatModel>[];
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -73,13 +86,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               }
 
               return ListView.separated(
-                itemCount: state.items.length + (state.hasMore ? 1 : 0),
+                itemCount: groups.length + (state.hasMore ? 1 : 0),
                 separatorBuilder: (_, _) => Divider(
                   height: 1,
                   color: theme.dividerColor.withValues(alpha: 0.5),
                 ),
                 itemBuilder: (context, index) {
-                  if (index >= state.items.length) {
+                  if (index >= groups.length) {
                     if (!state.isLoadingMore) {
                       unawaited(
                         Future.microtask(
@@ -99,25 +112,56 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     );
                   }
 
-                  final item = state.items[index];
+                  final group = groups[index];
+                  final item = group.latest;
+                  final ids = group.items
+                      .map((notification) => notification.id)
+                      .toList(growable: false);
 
-                  return NotificationTile(
-                    notification: item,
-                    onTap: () async {
-                      // Fire-and-forget: navigation should not wait for the read.
+                  Future<void> open() async {
+                    for (final notification in group.items.where(
+                      (item) => item.isUnread,
+                    )) {
                       unawaited(
                         ref
                             .read(notificationProvider.notifier)
-                            .markAsRead(item.id),
+                            .markAsRead(notification.id),
                       );
+                    }
 
-                      await ref
-                          .read(notificationNavigationServiceProvider)
-                          .navigate(item);
+                    await ref
+                        .read(notificationNavigationServiceProvider)
+                        .navigate(item);
+                  }
+
+                  void remove() {
+                    unawaited(
+                      ref
+                          .read(notificationProvider.notifier)
+                          .deleteNotifications(ids),
+                    );
+                  }
+
+                  if (group.isChat) {
+                    return _ChatGroupTile(
+                      notification: item,
+                      fallbackUnread: group.unreadCount,
+                      currentUserId: currentUserId,
+                      clientChats: clientChats,
+                      ownerChats: ownerChats,
+                      onTap: () {
+                        unawaited(open());
+                      },
+                      onDelete: remove,
+                    );
+                  }
+
+                  return NotificationTile(
+                    notification: item,
+                    onTap: () {
+                      unawaited(open());
                     },
-                    onDelete: () => ref
-                        .read(notificationProvider.notifier)
-                        .deleteNotification(item.id),
+                    onDelete: remove,
                   );
                 },
               );
@@ -127,4 +171,72 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       ),
     );
   }
+}
+
+class _ChatGroupTile extends ConsumerWidget {
+  final AppNotification notification;
+  final int fallbackUnread;
+  final String currentUserId;
+  final List<ChatModel> clientChats;
+  final List<ChatModel> ownerChats;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _ChatGroupTile({
+    required this.notification,
+    required this.fallbackUnread,
+    required this.currentUserId,
+    required this.clientChats,
+    required this.ownerChats,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final listed = _listedChat(
+      chatId: notification.chatId,
+      clientChats: clientChats,
+      ownerChats: ownerChats,
+    );
+    final resolved = ref
+        .watch(chatResolverProvider(ChatLookup.byId(notification.chatId)))
+        .valueOrNull;
+    final chat = listed ?? resolved;
+    final senderName = chat?.displayTitle(
+      currentUserId,
+      ownerFallback: l10n.nameNotSpecified,
+      clientFallback: l10n.nameNotSpecified,
+    );
+
+    return NotificationTile(
+      notification: notification,
+      chatStyle: true,
+      senderName: senderName,
+      senderImageUrl: chat?.displayImageUrl(currentUserId: currentUserId),
+      unreadCount:
+          listed?.newMessagesCount ??
+          resolved?.newMessagesCount ??
+          fallbackUnread,
+      onTap: onTap,
+      onDelete: onDelete,
+    );
+  }
+}
+
+ChatModel? _listedChat({
+  required String? chatId,
+  required List<ChatModel> clientChats,
+  required List<ChatModel> ownerChats,
+}) {
+  final id = chatId?.trim() ?? '';
+  if (id.isEmpty) return null;
+  for (final chat in clientChats) {
+    if (chat.id == id) return chat;
+  }
+  for (final chat in ownerChats) {
+    if (chat.id == id) return chat;
+  }
+  return null;
 }

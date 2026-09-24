@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/bookings/models/booking_status_buckets.dart';
 import 'package:prokat/features/bookings/providers/client_active_bookings_provider.dart';
@@ -28,6 +31,15 @@ class WorkflowCacheCoordinator {
 
   void apply(WorkflowUpdate update) {
     if (!_eventIds.remember(update.eventId)) return;
+    if (ref.exists(navigationCountsProvider)) {
+      final auth = ref.read(authProvider);
+      if (update.request == null ||
+          update.chatId != null ||
+          auth.session?.user?.isOwner == true ||
+          update.requestClientId == auth.currentUserId) {
+        refreshNavigationCounts(ref);
+      }
+    }
 
     final chatId = update.chatId?.trim() ?? '';
     if (chatId.isNotEmpty && ref.exists(currentChatProvider(chatId))) {
@@ -49,6 +61,7 @@ class WorkflowCacheCoordinator {
   }
 
   Future<void> resyncAfterReconnect() async {
+    refreshNavigationCounts(ref);
     final refreshes = <Future<void>>[];
 
     for (final filter in ChatListFilter.values) {
@@ -227,7 +240,9 @@ class WorkflowCacheCoordinator {
   void _applyRequests(WorkflowUpdate update) {
     if (update.reason == 'REQUEST_CREATED') {
       if (ref.exists(ownerActiveRequestsProvider)) {
-        unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+        unawaited(
+          ref.read(ownerActiveRequestsProvider.notifier).refreshForNewRequest(),
+        );
       }
       return;
     }
@@ -239,6 +254,12 @@ class WorkflowCacheCoordinator {
 
     if (ref.exists(ownerActiveRequestsProvider)) {
       ref.read(ownerActiveRequestsProvider.notifier).applyRequestDelta(request);
+    }
+
+    // Global tender updates also reach clients who do not own this request.
+    if (update.requestClientId != null &&
+        update.requestClientId != ref.read(authProvider).currentUserId) {
+      return;
     }
 
     if (ref.exists(clientActiveRequestsProvider)) {

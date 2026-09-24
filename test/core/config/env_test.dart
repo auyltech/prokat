@@ -9,7 +9,7 @@ void main() {
   );
   const configuredApiUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://prokat-backend.onrender.com',
+    defaultValue: 'https://api.prokat.auyltech.kz',
   );
   const configuredSocketUrl = String.fromEnvironment('SOCKET_BASE_URL');
   const androidApiUrl = String.fromEnvironment('ANDROID_API_BASE_URL');

@@ -14,6 +14,7 @@ Before creating a new UI widget, search `lib/core/widgets/ui_kit/` **and** `lib/
 - Fields → `AppTextField` / `AppTextArea` / `AppDropdownField` / `AppKzPhoneField`
 - Selectors → `AppCheckbox` / `AppRadio` / `AppSwitch`
 - Modals → bottom sheets only (`AppBottomSheet.show` / `showScrollable`) via a `*Sheet.show` class — no new `AlertDialog`
+- Toasts → `AppToast.show(message:, type:)` (`AppToastType.info` / `success` / `error`) only for passive transient feedback; renders above modals via `AppToastHost` — no raw `SnackBar` / `ScaffoldMessenger`
 - Icons → `AppIcons.*.call(...)`; images → `AppImages.*.call(...)`
 - Do not invent `FooButton`, `AuthTextField`, `IndustrialTextField`, or parallel inputs
 

@@ -13,6 +13,7 @@ import 'package:prokat/features/bookings/providers/owner_active_bookings_provide
 import 'package:prokat/features/bookings/providers/owner_history_bookings_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
 import 'package:prokat/features/bookings/state/booking_mutation_state.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -28,6 +29,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     : super(const BookingMutationState());
 
   void _refreshActiveCaches() {
+    refreshNavigationCounts(ref);
     if (ref.exists(clientActiveBookingsProvider)) {
       unawaited(ref.read(clientActiveBookingsProvider.notifier).refresh());
     }

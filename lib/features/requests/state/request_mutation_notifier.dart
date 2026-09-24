@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
@@ -26,6 +28,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
   }
 
   void _refreshOwnerActive() {
+    refreshNavigationCounts(ref);
     if (ref.exists(ownerActiveRequestsProvider)) {
       unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
     }

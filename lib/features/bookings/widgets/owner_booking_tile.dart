@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/action_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
@@ -27,11 +26,7 @@ class OwnerBookingTile extends ConsumerWidget {
 
   const OwnerBookingTile({super.key, required this.booking});
 
-  void handleAccept(
-    BuildContext context,
-    WidgetRef ref,
-    ThemeData theme,
-  ) async {
+  Future<void> handleAccept(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     if (!await ensureOwnerOnline(
       context,
@@ -42,58 +37,29 @@ class OwnerBookingTile extends ConsumerWidget {
     }
     if (!context.mounted) return;
 
-    unawaited(
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(l10n.acceptOrderQuestion),
-            content: Text(l10n.acceptOrderConfirmation),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  if (context.mounted && context.canPop()) {
-                    context.pop();
-                  }
-                },
-                child: Text(l10n.cancel),
-              ),
-              TextButton(
-                onPressed: () async {
-                  if (context.mounted && context.canPop()) {
-                    context.pop();
-                  }
-                  final result = await ref
-                      .read(bookingMutationProvider.notifier)
-                      .updateBookingStatus(
-                        id: booking.id,
-                        status: BookingStatus.confirmed,
-                      );
-                  if (!context.mounted) return;
-                  AppSnackBar.show(
-                    message: result.success
-                        ? l10n.orderConfirmed
-                        : ownerOfflineActionErrorMessage(
-                            l10n: l10n,
-                            errorCode: result.errorCode,
-                            fallback: l10n.failedToConfirmOrder,
-                          ),
-                    isSuccess: result.success,
-                    isError: !result.success,
-                  );
-                },
-                child: Text(
-                  l10n.confirm,
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.acceptOrderQuestion,
+      description: l10n.acceptOrderConfirmation,
+      primaryLabel: l10n.confirm,
+      secondaryLabel: l10n.cancel,
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final result = await ref
+        .read(bookingMutationProvider.notifier)
+        .updateBookingStatus(id: booking.id, status: BookingStatus.confirmed);
+    if (!context.mounted) return;
+    AppToast.show(
+      message: result.success
+          ? l10n.orderConfirmed
+          : ownerOfflineActionErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: l10n.failedToConfirmOrder,
+            ),
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
   }
 
@@ -112,32 +78,13 @@ class OwnerBookingTile extends ConsumerWidget {
         : l10n.cancelOrderQuestion;
     final submitButton = isCreatedStatus ? l10n.yesReject : l10n.yesCancel;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(modalTitle, style: theme.textTheme.titleLarge),
-        content: Text(modalText, style: theme.textTheme.bodyMedium),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, false),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: theme.colorScheme.primary,
-              elevation: 0,
-            ),
-            child: Text(l10n.no),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-              elevation: 0,
-            ),
-            child: Text(submitButton),
-          ),
-        ],
-      ),
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: modalTitle,
+      description: modalText,
+      primaryLabel: submitButton,
+      secondaryLabel: l10n.no,
+      isDestructivePrimary: true,
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -159,12 +106,11 @@ class OwnerBookingTile extends ConsumerWidget {
         context.pop();
       }
 
-      AppSnackBar.show(
+      AppToast.show(
         message: result.success
             ? l10n.orderCancelled
             : l10n.failedToCancelOrder,
-        isSuccess: result.success,
-        isError: !result.success,
+        type: result.success ? AppToastType.success : AppToastType.error,
       );
 
       return;
@@ -173,15 +119,10 @@ class OwnerBookingTile extends ConsumerWidget {
     // Open step option modal form sheet past strict time restriction window
     if (context.mounted) {
       unawaited(
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: theme.colorScheme.surface,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          builder: (context) =>
-              CancelBookingSheet(booking: booking, mode: AppMode.ownerMode),
+        CancelBookingSheet.show(
+          context,
+          booking: booking,
+          mode: AppMode.ownerMode,
         ),
       );
     }
@@ -308,69 +249,53 @@ class OwnerBookingTile extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                     ] else
-                      IconButton(
-                        onPressed: () => _handleCancel(
-                          context,
-                          ref,
-                          theme,
-                          booking.status == BookingStatus.created,
-                        ),
-                        icon: Icon(
-                          LucideIcons.x,
-                          size: 25,
-                          color: theme.colorScheme.error,
+                      AppIconButton(
+                        icon: LucideIcons.x,
+                        tone: AppIconButtonTone.destructive,
+                        onTap: () => unawaited(
+                          _handleCancel(
+                            context,
+                            ref,
+                            theme,
+                            booking.status == BookingStatus.created,
+                          ),
                         ),
                       ),
 
-                    IconButton(
-                      onPressed: () {
+                    AppIconButton(
+                      icon: LucideIcons.messageCircle,
+                      tone: AppIconButtonTone.primary,
+                      onTap: () {
                         unawaited(
                           context.push(
                             '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
                           ),
                         );
                       },
-                      icon: Icon(
-                        LucideIcons.messageCircle,
-                        size: 25,
-                        color: theme.colorScheme.primary,
-                      ),
                     ),
 
                     const SizedBox(width: 8),
                   ],
                   if (booking.status == BookingStatus.created) ...[
                     // Accept Order
-                    IconButton(
-                      onPressed: () =>
+                    AppIconButton(
+                      icon: LucideIcons.check,
+                      tone: AppIconButtonTone.success,
+                      onTap: () =>
                           ref.watch(bookingMutationProvider).isSubmitting
                           ? null
-                          : handleAccept(context, ref, theme),
+                          : unawaited(handleAccept(context, ref)),
                       tooltip: l10n.acceptOrder,
-                      icon: Icon(
-                        LucideIcons.check,
-                        size: 25,
-                        color: Colors.green[800],
-                      ),
                     ),
                   ] else if (canReview) ...[
-                    ActionButton(
-                      label: l10n.submitReview,
-                      onPressed: () async {
-                        await showModalBottomSheet<bool>(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: theme.colorScheme.surface,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          builder: (_) => ReviewSheet(
-                            bookingId: booking.id,
-                            revieweeId: booking.client?.id ?? "",
-                            title: l10n.reviewClient,
-                          ),
+                    AppLabelButton(
+                      title: l10n.submitReview,
+                      onTap: () async {
+                        await ReviewSheet.show(
+                          context,
+                          bookingId: booking.id,
+                          revieweeId: booking.client?.id ?? "",
+                          mode: AppMode.ownerMode,
                         );
                       },
                     ),

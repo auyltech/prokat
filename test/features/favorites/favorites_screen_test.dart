@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -52,11 +53,12 @@ void main() {
             (ref) => _StubFavoritesNotifier([equipment]),
           ),
         ],
-        child: const MaterialApp(
-          locale: Locale('en'),
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          locale: const Locale('en'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: FavoritesScreen(),
+          home: const FavoritesScreen(),
         ),
       ),
     );

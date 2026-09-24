@@ -1,13 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/billing/utils/billing_display.dart';
@@ -33,7 +32,7 @@ class _OwnerPaymentsTopupScreenState
     if (id == null) return;
     final l10n = AppLocalizations.of(context)!;
 
-    AppSnackBar.show(message: l10n.paymentFeatureComingSoon);
+    AppToast.show(message: l10n.paymentFeatureComingSoon);
   }
 
   @override
@@ -103,7 +102,7 @@ class _OwnerPaymentsTopupScreenState
                     textAlign: TextAlign.center,
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.teal800,
+                      color: legacy_colors.AppColors.teal800,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -161,9 +160,9 @@ class _OwnerPaymentsTopupScreenState
 
             const SizedBox(height: 24),
 
-            PrimaryButton(
-              label: l10n.submitTopUpRequest,
-              onPressed: selectedTierId == null || billingState.isSubmitting
+            AppElevatedButton(
+              title: l10n.submitTopUpRequest,
+              onTap: selectedTierId == null || billingState.isSubmitting
                   ? null
                   : () => submitTopUpRequest(selectedTierId!),
               isLoading: billingState.isSubmitting,
@@ -217,9 +216,10 @@ class _OwnerPaymentsTopupScreenState
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextButton(
-                  onPressed: () => context.push(AppRoutes.ownerPaymentHistory),
-                  child: Text(l10n.viewAll),
+                AppLabelButton(
+                  title: l10n.viewAll,
+                  onTap: () => context.push(AppRoutes.ownerPaymentHistory),
+                  variant: AppLabelButtonVariant.text,
                 ),
               ],
             ),

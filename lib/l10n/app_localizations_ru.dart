@@ -657,6 +657,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notification => 'Уведомление';
 
   @override
+  String newMessageFrom(String name) {
+    return 'Новое сообщение от: $name';
+  }
+
+  @override
   String get typeMessageHint => 'Введите сообщение...';
 
   @override
@@ -1913,6 +1918,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addTariff => 'Добавить тариф';
 
   @override
+  String get tariffDraftPrefix => 'Черновик:';
+
+  @override
   String get serviceType => 'Вид услуги';
 
   @override
@@ -2063,6 +2071,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get createNewOnMap => 'Создать новый на карте';
 
   @override
+  String get equipmentPhotoSheetTitle => 'Фото техники';
+
+  @override
   String get chooseFromGallery => 'Выбрать из галереи';
 
   @override
@@ -2140,6 +2151,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noHistoryFound => 'История не найдена';
+
+  @override
+  String get requestHidden => 'Заявка скрыта';
 
   @override
   String get viewedBadge => 'ПРОСМОТРЕНО';
@@ -2379,6 +2393,30 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get ownerProfilePendingReviewHint =>
       'Отправленные данные снова проходят модерацию.';
+
+  @override
+  String get ownerProfileChangesPending =>
+      'Изменения находятся на рассмотрении';
+
+  @override
+  String get ownerProfileChangesPendingHint =>
+      'Пока идёт проверка, редактировать профиль нельзя.';
+
+  @override
+  String get ownerProfileChangesRejected => 'Изменения отклонены';
+
+  @override
+  String ownerProfileChangesRejectedUntil(String date) {
+    return 'исправить до $date';
+  }
+
+  @override
+  String get ownerProfileCorrectionOverdue =>
+      'Срок исправления истёк. Доступ может быть приостановлен.';
+
+  @override
+  String get ownerProfileCorrectionOverdueHint =>
+      'Обновите данные и снова отправьте на проверку.';
 
   @override
   String get profileUpdateNeedsModeration =>
@@ -3049,7 +3087,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demandSurveyCardSubtitle => 'Расскажите, что вам нужно';
 
   @override
-  String get demandSurveyQuestionTitle => 'Какая техника вам нужна?';
+  String get demandSurveyQuestionTitle => 'Ваши интересы';
 
   @override
   String get demandSurveyQuestionSubtitle =>
@@ -3062,10 +3100,41 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demandSurveySelectCity => 'Выберите город';
 
   @override
+  String get demandSurveySelectCities => 'В каких городах?';
+
+  @override
+  String get demandSurveySelectCitiesSubtitle =>
+      'Выберите города, где вы хотите сдавать или арендовать эту технику.';
+
+  @override
   String get demandSurveyOtherOption => 'Другая техника';
 
   @override
   String get demandSurveyOtherHint => 'Опишите нужную технику';
+
+  @override
+  String get demandSurveyWantAbility => 'Что вас интересует?';
+
+  @override
+  String get demandSurveyProvide => 'Сдавать технику';
+
+  @override
+  String get demandSurveyRent => 'Арендовать технику';
+
+  @override
+  String get demandSurveyOtherProvidePrompt => 'Техника для сдачи';
+
+  @override
+  String get demandSurveyOtherProvideHint => 'Например: автовышка';
+
+  @override
+  String get demandSurveyOtherRentPrompt => 'Техника для аренды';
+
+  @override
+  String get demandSurveyOtherRentHint => 'Например: асфальтоукладчик';
+
+  @override
+  String get demandSurveyDone => 'Готово';
 
   @override
   String get demandSurveySubmit => 'Отправить';
@@ -3400,6 +3469,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fieldRequired => 'Обязательное поле';
 
   @override
+  String get cannotBeEmpty => 'Не может быть пустым';
+
+  @override
   String get justNow => 'Только что';
 
   @override
@@ -3547,13 +3619,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get becomeOnline => 'Стать «Онлайн»';
 
   @override
-  String get accountSwitchedToOnline => 'Вы перевели аккаунт в «Онлайн»';
+  String get youAreNowOnline =>
+      'Включен режим «Онлайн».\nТеперь вы можете принимать заказы.';
 
   @override
-  String get youAreNowOnline => 'Вы теперь онлайн';
-
-  @override
-  String get youAreNowOffline => 'Вы теперь офлайн';
+  String get youAreNowOffline =>
+      'Режим «Онлайн» отключен.\nВы не сможете принимать заказы.';
 
   @override
   String get failedToggleStatus => 'Не удалось обновить статус';

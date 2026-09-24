@@ -6,18 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
 import 'package:prokat/core/utils/localized_city.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/input_field.dart';
-import 'package:prokat/core/widgets/kz_phone_input_field.dart';
-import 'package:prokat/core/widgets/primary_button.dart';
-import 'package:prokat/features/owner/models/owner_profile_edit.dart';
+import 'package:prokat/core/widgets/moderation_status_card.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_registration_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
-import 'package:prokat/features/owner/widgets/admin_comment_block.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
-import 'package:prokat/features/user/widgets/city_select_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerProfileForm extends ConsumerStatefulWidget {
@@ -32,38 +27,37 @@ class OwnerProfileForm extends ConsumerStatefulWidget {
 class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers
   late final TextEditingController _companyNameController;
   late final TextEditingController _legalNameController;
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _cityController;
 
-  // Local state properties for non-text selections
   OwnerType? _selectedOwnerType;
   String? _selectedCity;
-  bool _lastHasChanges = false;
   bool _isEditing = false;
-  int _shakeTick = 0;
+  bool _showFieldErrors = false;
+  bool _cityPickerOpen = false;
 
   @override
   void initState() {
     super.initState();
-    final profile = widget.initialProfile;
+    final profile = _displayProfile(widget.initialProfile);
 
     _companyNameController = TextEditingController(text: profile.companyName);
     _legalNameController = TextEditingController(text: profile.legalName);
     _firstNameController = TextEditingController(text: profile.firstName);
     _lastNameController = TextEditingController(text: profile.lastName);
-    _phoneController = TextEditingController(
-      text: maskedKzPhone(profile.phoneNumber),
+    _phoneController = TextEditingController.fromValue(
+      kzPhoneEditingValue(profile.phoneNumber),
     );
     _descriptionController = TextEditingController(
       text: profile.serviceDescription,
     );
+    _cityController = TextEditingController();
 
-    // Bind state variations directly from the profile instance
     _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
     _selectedCity =
         canonicalCity(
@@ -71,17 +65,29 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
         ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
+  }
 
-    _firstNameController.addListener(_onFieldsChanged);
-    _lastNameController.addListener(_onFieldsChanged);
-    _phoneController.addListener(_onFieldsChanged);
-    _descriptionController.addListener(_onFieldsChanged);
+  /// For CHANGES_* cycles, form shows proposed draft (`pendingChanges.to`).
+  OwnerProfileModel _displayProfile(OwnerProfileModel profile) {
+    final status = effectiveOwnerBusinessStatus(
+      status: profile.status,
+      isVerified: profile.isVerified,
+      ownerCycle: true,
+    );
+    if (status == OwnerRegistrationStatus.changesPending ||
+        status == OwnerRegistrationStatus.changesRejected) {
+      return profile.withPendingDraftApplied();
+    }
+    return profile;
   }
 
   String _profileIdentity(OwnerProfileModel profile) {
     return [
       profile.status?.name,
       profile.adminComment,
+      profile.correctionDeadlineAt?.toIso8601String(),
+      profile.isCorrectionOverdue,
+      profile.pendingChanges.map((c) => '${c.field}:${c.to}').join(','),
       profile.firstName,
       profile.lastName,
       profile.phoneNumber,
@@ -91,20 +97,21 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
   }
 
   void _hydrateFrom(OwnerProfileModel profile) {
-    _companyNameController.text = profile.companyName ?? '';
-    _legalNameController.text = profile.legalName ?? '';
-    _firstNameController.text = profile.firstName ?? '';
-    _lastNameController.text = profile.lastName ?? '';
-    _phoneController.text = maskedKzPhone(profile.phoneNumber);
-    _descriptionController.text = profile.serviceDescription ?? '';
-    _selectedOwnerType = profile.ownerType ?? OwnerType.individual;
+    final draft = _displayProfile(profile);
+    _companyNameController.text = draft.companyName ?? '';
+    _legalNameController.text = draft.legalName ?? '';
+    _firstNameController.text = draft.firstName ?? '';
+    _lastNameController.text = draft.lastName ?? '';
+    _phoneController.value = kzPhoneEditingValue(draft.phoneNumber);
+    _descriptionController.text = draft.serviceDescription ?? '';
+    _selectedOwnerType = draft.ownerType ?? OwnerType.individual;
     _selectedCity =
         canonicalCity(
-          profile.city,
+          draft.city,
           catalogCityKeys(ref.read(catalogProvider).valueOrNull),
         ) ??
-        ((profile.city ?? '').trim().isEmpty ? null : profile.city!.trim());
-    _lastHasChanges = false;
+        ((draft.city ?? '').trim().isEmpty ? null : draft.city!.trim());
+    _showFieldErrors = false;
   }
 
   @override
@@ -124,43 +131,24 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     setState(() => _isEditing = true);
   }
 
-  void _cancelEditing() {
-    _hydrateFrom(widget.initialProfile);
-    setState(() => _isEditing = false);
-  }
-
   @override
   void dispose() {
-    _firstNameController.removeListener(_onFieldsChanged);
-    _lastNameController.removeListener(_onFieldsChanged);
-    _phoneController.removeListener(_onFieldsChanged);
-    _descriptionController.removeListener(_onFieldsChanged);
     _companyNameController.dispose();
     _legalNameController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
     _descriptionController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
-  void _onFieldsChanged() {
-    final next = _hasChanges;
-    if (next == _lastHasChanges) return;
-    _lastHasChanges = next;
-    if (mounted) setState(() {});
-  }
-
-  bool get _isLocked =>
-      isOwnerBusinessProfileLocked(widget.initialProfile.status);
-
-  bool get _hasChanges => ownerBusinessProfileHasChanges(
-    current: widget.initialProfile,
-    firstName: _firstNameController.text,
-    lastName: _lastNameController.text,
-    phoneNumber: _phoneController.text,
-    city: _selectedCity,
-    serviceDescription: _descriptionController.text,
+  bool get _isLocked => isOwnerBusinessProfileLocked(
+    effectiveOwnerBusinessStatus(
+      status: widget.initialProfile.status,
+      isVerified: widget.initialProfile.isVerified,
+      ownerCycle: true,
+    ),
   );
 
   bool get _hasMissingRequired =>
@@ -170,13 +158,33 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       (_selectedCity ?? '').trim().isEmpty ||
       _descriptionController.text.trim().isEmpty;
 
+  Future<void> _pickCity() async {
+    if (_cityPickerOpen) return;
+    setState(() => _cityPickerOpen = true);
+    final selected = await CityPickerSheet.show(
+      context: context,
+      service: CitySelectorService.ownerprofile,
+      highlightedCity: _selectedCity,
+    );
+    if (!mounted) return;
+    setState(() => _cityPickerOpen = false);
+    if (selected == null || selected.isEmpty) return;
+
+    final next =
+        canonicalCity(
+          selected,
+          catalogCityKeys(ref.read(catalogProvider).valueOrNull),
+        ) ??
+        selected;
+    setState(() => _selectedCity = next);
+  }
+
   Future<void> _submitForm() async {
     if (_isLocked) return;
     if (_hasMissingRequired) {
-      setState(() => _shakeTick++);
+      setState(() => _showFieldErrors = true);
       return;
     }
-    if (!_hasChanges) return;
 
     final isOrganization = _selectedOwnerType == OwnerType.organization;
     final companyName = isOrganization
@@ -189,28 +197,11 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
     final serviceDescription = _descriptionController.text.trim();
     final l10n = AppLocalizations.of(context)!;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return AlertDialog(
-          backgroundColor: theme.cardColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(l10n.profileUpdateNeedsModeration),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: Text(l10n.no),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: Text(l10n.yes),
-            ),
-          ],
-        );
-      },
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.profileUpdateNeedsModeration,
+      primaryLabel: l10n.yes,
+      secondaryLabel: l10n.no,
     );
     if (!mounted || confirmed != true) return;
 
@@ -241,190 +232,186 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
       setState(() => _isEditing = false);
     }
 
-    AppSnackBar.show(
+    AppToast.show(
       message: success
           ? l10n.profileSentForModeration
           : ref.read(ownerRegistrationMutationProvider).error ??
                 l10n.failedToUpdateProfile,
-      isSuccess: success,
-      isError: !success,
+      type: success ? AppToastType.success : AppToastType.error,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final providerState = ref.watch(ownerRegistrationMutationProvider);
     final isLoading = providerState.isLoading;
     final isLocked = _isLocked;
     final isEditing = !isLocked && _isEditing;
+    final locale = Localizations.localeOf(context).languageCode;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
 
-    // TODO(Vadim): Временно отключена возможность работать как организация
-    // final isOrganization = _selectedOwnerType == OwnerType.organization;
+    final hasCity = (_selectedCity ?? '').trim().isNotEmpty;
+    final cityLabel = hasCity
+        ? catalogCityLabel(
+            city: _selectedCity!,
+            languageCode: locale,
+            catalog: catalog,
+            fallback: (city) => localizedCityName(city, l10n),
+          )
+        : '';
+    if (_cityController.text != cityLabel) {
+      _cityController.text = cityLabel;
+    }
+
+    final displayProfile = _displayProfile(widget.initialProfile);
 
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.personalContactDetails,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 22,
-            ),
-          ),
-          const SizedBox(height: 16),
+          _OwnerProfileStatusBlock(profile: widget.initialProfile),
           if (!isEditing) ...[
+            if (shouldShowOwnerProfileStatusBanner(
+              effectiveOwnerBusinessStatus(
+                status: widget.initialProfile.status,
+                isVerified: widget.initialProfile.isVerified,
+                ownerCycle: true,
+              ),
+            ))
+              const SizedBox(height: AppDimens.s16$base),
             _ProfileReadOnlyRow(
               label: l10n.firstName,
-              value: widget.initialProfile.firstName,
+              value: displayProfile.firstName,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.lastName,
-              value: widget.initialProfile.lastName,
+              value: displayProfile.lastName,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.phoneNumber,
-              value: maskedKzPhone(widget.initialProfile.phoneNumber),
+              value: maskedKzPhone(displayProfile.phoneNumber),
               helperText: l10n.ownerContactPhoneHint,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.city,
-              value: catalogCityLabelOf(
-                ref,
-                context,
-                widget.initialProfile.city,
-              ),
+              value: catalogCityLabelOf(ref, context, displayProfile.city),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppDimens.s12$md),
             _ProfileReadOnlyRow(
               label: l10n.serviceDetails,
-              value: widget.initialProfile.serviceDescription,
+              value: displayProfile.serviceDescription,
             ),
-            _OwnerProfileStatusBlock(profile: widget.initialProfile),
             if (!isLocked) ...[
-              const SizedBox(height: 32),
-              PrimaryButton(
-                label: l10n.editProfileData,
-                onPressed: _startEditing,
+              const SizedBox(height: AppDimens.s32$xxl),
+              AppElevatedButton(
+                title: l10n.editProfileData,
+                onTap: _startEditing,
               ),
             ],
           ] else ...[
-            InputField(
-              label: l10n.firstName,
+            if (shouldShowOwnerProfileStatusBanner(
+              effectiveOwnerBusinessStatus(
+                status: widget.initialProfile.status,
+                isVerified: widget.initialProfile.isVerified,
+                ownerCycle: true,
+              ),
+            ))
+              const SizedBox(height: AppDimens.s16$base),
+            AppTextField(
+              title: l10n.firstName,
               hint: l10n.enterFirstName,
               controller: _firstNameController,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              shakeTick: _firstNameController.text.trim().isEmpty
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: _firstNameController.text.trim().isEmpty
+                  ? l10n.cannotBeEmpty
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
-            const SizedBox(height: 16),
-            InputField(
-              label: l10n.lastName,
+            const SizedBox(height: AppDimens.s16$base),
+            AppTextField(
+              title: l10n.lastName,
               hint: l10n.enterLastName,
               controller: _lastNameController,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              shakeTick: _lastNameController.text.trim().isEmpty
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: _lastNameController.text.trim().isEmpty
+                  ? l10n.cannotBeEmpty
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
-            const SizedBox(height: 16),
-            KzPhoneInputField(
+            const SizedBox(height: AppDimens.s16$base),
+            AppKzPhoneField(
               controller: _phoneController,
-              label: l10n.phoneNumber,
+              title: l10n.phoneNumber,
               hint: l10n.phoneHint,
-              helperText: l10n.ownerContactPhoneHint,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              shakeTick: normalizeKzPhone(_phoneController.text) == null
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: normalizeKzPhone(_phoneController.text) == null
+                  ? l10n.enterValidPhoneNumber
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
-            const SizedBox(height: 16),
-            CitySelectField(
-              city: _selectedCity,
+            const SizedBox(height: AppDimens.inputHelperGap),
+            Text(
+              l10n.ownerContactPhoneHint,
+              style: AppFonts.caption(context)
+                  .copyWith(color: context.colors.text.tertiary),
+            ),
+            const SizedBox(height: AppDimens.s16$base),
+            AppTextField(
+              controller: _cityController,
+              title: l10n.city,
+              hint: l10n.selectCity,
               isRequired: true,
-              showIcon: false,
-              enabled: true,
-              boxed: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              shakeTick: (_selectedCity ?? '').trim().isEmpty ? _shakeTick : 0,
-              service: CitySelectorService.ownerprofile,
-              onChanged: (city) => setState(() {
-                _selectedCity = city;
-                _lastHasChanges = _hasChanges;
-              }),
+              selectOnly: true,
+              forceFocused: _cityPickerOpen,
+              onTap: _pickCity,
+              showError: _showFieldErrors,
+              errorText: hasCity ? null : l10n.cannotBeEmpty,
+              prefix: Icon(
+                hasCity ? Icons.location_on : Icons.location_on_outlined,
+              ),
+              suffix: Icon(
+                Icons.expand_more_rounded,
+                size: AppDimens.s24$xl,
+                color: context.colors.text.secondary,
+              ),
             ),
-            const SizedBox(height: 16),
-            InputField(
-              label: l10n.serviceDetails,
+            const SizedBox(height: AppDimens.s16$base),
+            AppTextArea(
+              title: l10n.serviceDetails,
               hint: l10n.serviceDetailsHint,
               controller: _descriptionController,
               isRequired: true,
-              requiredHintText: l10n.requiredInParens,
-              requiredHintMuted: true,
-              showFieldErrors: false,
-              boxed: true,
-              isLast: true,
               minLines: 3,
               maxLines: 4,
               maxLength: 100,
-              hintMaxLines: 3,
-              keyboardType: TextInputType.multiline,
               inputFormatters: [LengthLimitingTextInputFormatter(100)],
-              shakeTick: _descriptionController.text.trim().isEmpty
-                  ? _shakeTick
-                  : 0,
+              showError: _showFieldErrors,
+              errorText: _descriptionController.text.trim().isEmpty
+                  ? l10n.cannotBeEmpty
+                  : null,
+              onChanged: (_) {
+                if (_showFieldErrors) setState(() {});
+              },
             ),
             const SizedBox(height: 28),
-            PrimaryButton(
-              label: l10n.submitChangesForReview,
+            AppElevatedButton(
+              title: l10n.submitChangesForReview,
               isLoading: isLoading,
-              onPressed: isLoading ? null : () => unawaited(_submitForm()),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: OutlinedButton(
-                onPressed: isLoading ? null : _cancelEditing,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: theme.colorScheme.onSurface,
-                  side: BorderSide(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.7),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  l10n.cancel,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
+              onTap: isLoading ? null : () => unawaited(_submitForm()),
             ),
           ],
         ],
@@ -441,54 +428,68 @@ class _OwnerProfileStatusBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final status = profile.status;
+    final colors = Theme.of(context).colorScheme;
+    final status = effectiveOwnerBusinessStatus(
+      status: profile.status,
+      isVerified: profile.isVerified,
+      ownerCycle: true,
+    );
     if (!shouldShowOwnerProfileStatusBanner(status)) {
       return const SizedBox.shrink();
     }
 
-    final (title, subtitle, color, icon) = switch (status) {
-      OwnerRegistrationStatus.pending => (
-        l10n.ownerProfilePendingReview,
-        l10n.ownerProfilePendingReviewHint,
-        Colors.blue,
-        Icons.hourglass_top,
-      ),
-      OwnerRegistrationStatus.rejected => (
-        l10n.verificationFailed,
-        l10n.statusRejectedSubtitle,
-        Colors.red,
-        Icons.error_outline,
-      ),
-      OwnerRegistrationStatus.suspended => (
-        l10n.ownerProfileSuspended,
-        l10n.ownerProfileSuspendedHint,
-        Colors.red,
-        Icons.block,
-      ),
-      OwnerRegistrationStatus.incomplete ||
-      OwnerRegistrationStatus.approved ||
-      null => ('', '', Colors.transparent, Icons.info_outline),
-    };
+    final deadline = profile.correctionDeadlineAt;
+    final deadlineLabel = deadline == null
+        ? null
+        : formatDate(date: deadline.toLocal(), format: 'dd.MM.yyyy');
+    final overdue =
+        profile.isCorrectionOverdue ||
+        (deadline != null && deadline.isBefore(DateTime.now()));
 
-    if (title.isEmpty) return const SizedBox.shrink();
+    if (status == OwnerRegistrationStatus.pending ||
+        status == OwnerRegistrationStatus.changesPending) {
+      return ModerationStatusCard(
+        title: l10n.ownerProfileChangesPending,
+        subtitle: l10n.ownerProfileChangesPendingHint,
+        icon: Icons.hourglass_top_rounded,
+        color: colors.primary,
+      );
+    }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 24),
-        Card(
-          child: ListTile(
-            leading: Icon(icon, color: color),
-            title: Text(title),
-            subtitle: Text(subtitle),
-          ),
-        ),
-        if (status == OwnerRegistrationStatus.rejected) ...[
-          const SizedBox(height: 16),
-          AdminCommentBlock(comment: profile.adminComment),
-        ],
-      ],
-    );
+    if (status == OwnerRegistrationStatus.rejected ||
+        status == OwnerRegistrationStatus.changesRejected) {
+      final comment = profile.adminComment?.trim() ?? '';
+      final baseHint = comment.isEmpty
+          ? l10n.statusRejectedNoComment
+          : l10n.statusRejectedReviewHint;
+      final subtitle = overdue
+          ? l10n.ownerProfileCorrectionOverdueHint
+          : deadlineLabel == null
+          ? baseHint
+          : '$baseHint · ${l10n.ownerProfileChangesRejectedUntil(deadlineLabel)}';
+      return ModerationStatusCard(
+        title: overdue
+            ? l10n.ownerProfileCorrectionOverdue
+            : l10n.statusRejected,
+        subtitle: subtitle,
+        icon: overdue
+            ? Icons.warning_amber_rounded
+            : Icons.error_outline_rounded,
+        color: colors.error,
+        detail: comment.isEmpty ? null : comment,
+      );
+    }
+
+    if (status == OwnerRegistrationStatus.suspended) {
+      return ModerationStatusCard(
+        title: l10n.ownerProfileSuspended,
+        subtitle: l10n.ownerProfileSuspendedHint,
+        icon: Icons.block,
+        color: colors.error,
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }
 
@@ -516,7 +517,7 @@ class _ProfileReadOnlyRow extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppDimens.s04$xs),
         Text(
           display.isEmpty ? '—' : display,
           style: theme.textTheme.bodyMedium?.copyWith(
@@ -526,12 +527,11 @@ class _ProfileReadOnlyRow extends StatelessWidget {
           ),
         ),
         if (helperText != null && helperText!.trim().isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: AppDimens.s04$xs),
           Text(
             helperText!,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-            ),
+            style: AppFonts.caption(context)
+                .copyWith(color: context.colors.text.tertiary),
           ),
         ],
       ],

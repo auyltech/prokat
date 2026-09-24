@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/booking_chat_action_state.dart';
@@ -250,9 +250,9 @@ class BookingChatActionController
     final id = negotiationId.trim();
 
     if (id.isEmpty) {
-      AppSnackBar.show(
+      AppToast.show(
         message: AppLocalizations.of(context)!.negotiationIdMissing,
-        isError: true,
+        type: AppToastType.error,
       );
       return;
     }
@@ -284,9 +284,9 @@ class BookingChatActionController
     final id = negotiationId.trim();
 
     if (id.isEmpty) {
-      AppSnackBar.show(
+      AppToast.show(
         message: AppLocalizations.of(context)!.negotiationIdMissing,
-        isError: true,
+        type: AppToastType.error,
       );
       return;
     }
@@ -336,9 +336,9 @@ class BookingChatActionController
         state = state.copyWith(isSubmitting: false);
         if (!context.mounted) return;
 
-        AppSnackBar.show(
+        AppToast.show(
           message: failureMessage ?? l10n.actionFailed,
-          isError: true,
+          type: AppToastType.error,
         );
         return;
       }
@@ -349,7 +349,10 @@ class BookingChatActionController
 
       if (!context.mounted) return;
 
-      AppSnackBar.show(message: successMessage ?? l10n.saved, isSuccess: true);
+      AppToast.show(
+        message: successMessage ?? l10n.saved,
+        type: AppToastType.success,
+      );
     } catch (error) {
       // TODO: remove error message
       final message = error.toString().replaceFirst('Exception: ', '');
@@ -361,7 +364,7 @@ class BookingChatActionController
       );
       if (!context.mounted) return;
 
-      AppSnackBar.show(message: message, isError: true);
+      AppToast.show(message: message, type: AppToastType.error);
     }
   }
 }

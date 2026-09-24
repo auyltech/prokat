@@ -7,8 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_provider.dart';
+import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/auth/widgets/login_with_phone_form.dart';
-import 'package:prokat/features/auth/widgets/phone_input_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class _RateLimitedAdapter implements HttpClientAdapter {
@@ -43,11 +44,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.lightTheme,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: StatefulBuilder(
             builder: (context, setState) {
               rebuild = setState;
-              return PhoneInputField(controller: controller);
+              return AppKzPhoneField(controller: controller, hint: 'phone');
             },
           ),
         ),
@@ -55,13 +59,13 @@ void main() {
     );
 
     await tester.enterText(find.byType(TextField), '700');
-    expect(controller.text, '(700');
+    expect(controller.text, '+7(700)');
 
     rebuild(() {});
     await tester.pump();
 
     await tester.enterText(find.byType(TextField), '${controller.text}1');
-    expect(controller.text, '(700) 1');
+    expect(controller.text, '+7(700)1');
 
     await tester.pumpWidget(const SizedBox.shrink());
     controller.dispose();
@@ -84,6 +88,7 @@ void main() {
       ProviderScope(
         overrides: [dioProvider.overrideWithValue(dio)],
         child: MaterialApp(
+          theme: AppTheme.lightTheme,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -107,7 +112,7 @@ void main() {
     );
     expect(error, 'Please try again later');
     expect(
-      tester.widget<ElevatedButton>(find.byType(ElevatedButton)).onPressed,
+      tester.widget<AppElevatedButton>(find.byType(AppElevatedButton)).onTap,
       isNull,
     );
   });

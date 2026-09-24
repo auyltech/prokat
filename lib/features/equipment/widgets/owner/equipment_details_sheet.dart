@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/edit_sheet.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
-import 'package:prokat/features/equipment/widgets/owner/modern_text_field.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 Future<void> updateEquipmentDetails(
@@ -23,8 +23,10 @@ Future<void> updateEquipmentDetails(
   final rentCondition = rentConditionController.text.trim();
 
   if (name.isEmpty) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l10n.pleaseEnterValidValues)));
+    AppToast.show(
+      message: l10n.pleaseEnterValidValues,
+      type: AppToastType.error,
+    );
     return;
   }
 
@@ -40,14 +42,17 @@ Future<void> updateEquipmentDetails(
     if (context.mounted) {
       Navigator.pop(context);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.equipmentUpdatedSuccessfully)),
+      AppToast.show(
+        message: l10n.equipmentUpdatedSuccessfully,
+        type: AppToastType.success,
       );
     }
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.failedToUpdateEquipment)));
+      AppToast.show(
+        message: l10n.failedToUpdateEquipment,
+        type: AppToastType.error,
+      );
     }
   }
 }
@@ -81,31 +86,32 @@ void equipmentDetailsSheet(
         commentController,
         rentConditionController,
       ),
-
       child: Column(
+        spacing: AppDimens.s16$base,
         children: [
-          ModernTextField(
+          AppTextField(
             controller: nameController,
-            label: l10n.name,
-            icon: Icons.inventory_2_rounded,
+            title: l10n.name,
+            hint: l10n.name,
+            prefix: const Icon(Icons.inventory_2_rounded),
           ),
-          ModernTextField(
+          AppTextField(
             controller: modelController,
-            label: l10n.model,
-            icon: Icons.label_rounded,
+            title: l10n.model,
+            hint: l10n.model,
+            prefix: const Icon(Icons.label_rounded),
           ),
-          const SizedBox(height: 16),
-          ModernTextField(
+          AppTextField(
             controller: commentController,
-            label: l10n.ownerComment,
-            icon: Icons.comment_rounded,
-            maxLines: 1,
+            title: l10n.ownerComment,
+            hint: l10n.ownerComment,
+            prefix: const Icon(Icons.comment_rounded),
           ),
-          ModernTextField(
+          AppTextField(
             controller: rentConditionController,
-            label: l10n.rentCondition,
-            icon: Icons.rule_rounded,
-            maxLines: 1,
+            title: l10n.rentCondition,
+            hint: l10n.rentCondition,
+            prefix: const Icon(Icons.rule_rounded),
           ),
         ],
       ),

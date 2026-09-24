@@ -3,6 +3,7 @@ import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
@@ -11,6 +12,7 @@ class OwnerActiveRequestsNotifier
     extends AsyncNotifier<QueryState<RequestModel>> {
   RequestService get api => ref.read(requestServiceProvider);
   Future<void>? _refreshing;
+  int _requestEventRevision = 0;
   AuthenticatedSessionScopeKey? _refreshingScope;
   AuthenticatedSessionScopeKey? _stateScope;
 
@@ -76,7 +78,27 @@ class OwnerActiveRequestsNotifier
     return result.status;
   }
 
+  Future<void> refreshForNewRequest() async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return;
+    final revision = ++_requestEventRevision;
+    try {
+      final active = _refreshing;
+      if (active != null && _refreshingScope == scope) {
+        await active;
+      } else if (state.isLoading) {
+        await future;
+      }
+    } catch (_) {}
+    if (!isAuthenticatedSessionScopeCurrent(ref, scope) ||
+        revision != _requestEventRevision) {
+      return;
+    }
+    await refresh();
+  }
+
   Future<void> refresh() {
+    refreshNavigationCounts(ref);
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return Future<void>.value();
 

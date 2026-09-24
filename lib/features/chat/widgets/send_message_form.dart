@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -112,9 +112,9 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     final preCheck = ownerGoOnlineBlockReason(ref);
     if (preCheck != OwnerGoOnlineBlockReason.none) {
       if (mounted) {
-        AppSnackBar.show(
+        AppToast.show(
           message: ownerGoOnlineBlockMessage(l10n: l10n, reason: preCheck),
-          isError: true,
+          type: AppToastType.error,
         );
         setState(() => _goingOnline = false);
       }
@@ -125,19 +125,18 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     if (!mounted) return;
 
     if (!ok) {
-      AppSnackBar.show(
+      AppToast.show(
         message: ownerGoOnlineFailureMessage(
           ref: ref,
           l10n: l10n,
           preCheck: OwnerGoOnlineBlockReason.none,
         ),
-        isError: true,
+        type: AppToastType.error,
       );
       setState(() => _goingOnline = false);
       return;
     }
 
-    AppSnackBar.show(message: l10n.accountSwitchedToOnline, isSuccess: true);
     setState(() => _goingOnline = false);
   }
 
@@ -254,11 +253,25 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
         decoration: const BoxDecoration(color: Colors.transparent),
         child: SafeArea(
           top: false,
-          child: Text(
-            l10n.chatLocked,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.lock_outline_rounded,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  l10n.chatLocked,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -356,38 +369,26 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Material(
-                  color: theme.colorScheme.primary,
-                  shape: const CircleBorder(),
-                  elevation: 2,
-                  child: IconButton(
-                    onPressed: _sendMessage,
-                    icon: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Icon(
-                          Icons.send_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        if (isSendingAny)
-                          const Positioned(
-                            right: -4,
-                            top: -4,
-                            child: SizedBox(
-                              width: 12,
-                              height: 12,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    AppIconButton(
+                      icon: Icons.send_rounded,
+                      onTap: _sendMessage,
+                      variant: AppIconButtonVariant.floating,
+                      tone: AppIconButtonTone.primary,
                     ),
-                  ),
+                    if (isSendingAny)
+                      const Positioned(
+                        right: -2,
+                        top: -2,
+                        child: SizedBox(
+                          width: 12,
+                          height: 12,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

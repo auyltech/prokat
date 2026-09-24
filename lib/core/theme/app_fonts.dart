@@ -43,12 +43,12 @@ abstract final class AppFonts {
 
   static TextStyle headingM(BuildContext context) => _base(
     fontSize: 22,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     fontFamily: displayFamily,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle headingS(BuildContext context) => _base(
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
   ).copyWith(color: _colors(context).text.main);
 
@@ -78,12 +78,12 @@ abstract final class AppFonts {
   ).copyWith(color: _colors(context).text.secondary);
 
   static TextStyle caption(BuildContext context) => _base(
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   ).copyWith(color: _colors(context).text.secondary);
 
   static TextStyle captionMedium(BuildContext context) => _base(
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   ).copyWith(color: _colors(context).text.secondary);
 
@@ -99,7 +99,7 @@ abstract final class AppFonts {
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle technical(BuildContext context) => _base(
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
     fontFamily: monoFamily,
   ).copyWith(color: _colors(context).text.secondary);

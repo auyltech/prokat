@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
-import 'package:prokat/core/widgets/input_field.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/reviews/state/review_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -10,13 +8,11 @@ import 'package:prokat/l10n/app_localizations.dart';
 class ReviewSheet extends ConsumerStatefulWidget {
   final String bookingId;
   final String revieweeId;
-  final String title;
 
   const ReviewSheet({
     super.key,
     required this.bookingId,
     required this.revieweeId,
-    required this.title,
   });
 
   static Future<bool> show(
@@ -26,20 +22,14 @@ class ReviewSheet extends ConsumerStatefulWidget {
     required AppMode mode,
   }) async {
     final l10n = AppLocalizations.of(context)!;
-    final submitted = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => ReviewSheet(
-        bookingId: bookingId,
-        revieweeId: revieweeId,
-        title: mode == AppMode.clientMode
-            ? l10n.reviewOwner
-            : l10n.reviewClient,
-      ),
+    final title = mode == AppMode.clientMode
+        ? l10n.reviewOwner
+        : l10n.reviewClient;
+    final submitted = await AppBottomSheet.show<bool>(
+      context,
+      title: title,
+      contentBuilder: (context) =>
+          ReviewSheet(bookingId: bookingId, revieweeId: revieweeId),
     );
 
     return submitted ?? false;
@@ -56,7 +46,7 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
     if (_stars <= 0) {
-      AppSnackBar.show(message: l10n.selectStars, isError: true);
+      AppToast.show(message: l10n.selectStars, type: AppToastType.error);
       return;
     }
     try {
@@ -73,16 +63,17 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
           );
 
       if (mounted) {
-        AppSnackBar.show(
+        AppToast.show(
           message: result ? l10n.reviewSubmitted : l10n.failedToSubmitReview,
-          isError: true,
+          type: result ? AppToastType.success : AppToastType.error,
+          icon: result ? Icons.sentiment_satisfied_alt : null,
         );
       }
     } catch (e) {
       if (mounted) {
-        AppSnackBar.show(
+        AppToast.show(
           message: e.toString().replaceFirst('Exception: ', ''),
-          isError: true,
+          type: AppToastType.error,
         );
       }
     }
@@ -96,41 +87,15 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(reviewByBookingProvider(widget.bookingId));
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        24 + MediaQuery.viewInsetsOf(context).bottom,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s08$sm),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-
-          Text(
-            widget.title,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
           _StarRow(
             value: _stars,
             onChanged: state.isSubmitting
@@ -138,18 +103,26 @@ class _ReviewSheetState extends ConsumerState<ReviewSheet> {
                 : (v) => setState(() => _stars = v),
           ),
 
-          InputField(
-            label: l10n.commentOptional,
+          const SizedBox(height: AppDimens.s12$md),
+
+          AppTextArea(
+            title: l10n.commentOptional,
             controller: _commentController,
-            hint: "",
+            hint: '',
+            minLines: 2,
+            maxLines: 4,
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppDimens.s16$base),
 
           Row(
             children: [
               Expanded(
-                child: ActionBarButton(label: l10n.submit, onPressed: onSubmit),
+                child: AppElevatedButton(
+                  title: l10n.submit,
+                  onTap: state.isSubmitting ? null : onSubmit,
+                  isLoading: state.isSubmitting,
+                ),
               ),
             ],
           ),
@@ -168,18 +141,26 @@ class _StarRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      children: List.generate(5, (index) {
-        final star = index + 1;
-        final isActive = star <= value;
-        return IconButton(
-          onPressed: onChanged == null ? null : () => onChanged!(star),
-          icon: Icon(
-            isActive ? Icons.star_rounded : Icons.star_outline_rounded,
-            color: isActive ? theme.colorScheme.primary : theme.disabledColor,
-          ),
-        );
-      }),
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(5, (index) {
+          final star = index + 1;
+          final isActive = star <= value;
+          return IconButton(
+            onPressed: onChanged == null ? null : () => onChanged!(star),
+            iconSize: 40,
+            visualDensity: VisualDensity.compact,
+            icon: Icon(
+              isActive ? Icons.star_rounded : Icons.star_outline_rounded,
+              color: isActive
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
+          );
+        }),
+      ),
     );
   }
 }

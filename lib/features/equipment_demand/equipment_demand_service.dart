@@ -29,8 +29,15 @@ class EquipmentDemandService {
     if (data is! Map || data['options'] is! List) {
       throw const FormatException('Invalid demand form');
     }
+    final allowOther = data['allowOther'] == true;
+    DemandOtherOption? other;
+    if (allowOther && data['other'] is Map) {
+      other = DemandOtherOption.fromJson(data['other']);
+    }
     return DemandForm(
       campaignId: campaignId,
+      allowOther: allowOther,
+      other: other,
       options: (data['options'] as List)
           .map(DemandOption.fromJson)
           .toList(growable: false),
@@ -40,18 +47,27 @@ class EquipmentDemandService {
   Future<void> submit({
     required String clientSubmissionId,
     required String campaignId,
-    required String city,
-    required List<String> optionIds,
-    String? otherText,
+    required List<Map<String, Object>> selections,
+    required List<String> cityIds,
+    String? otherProvideText,
+    String? otherRentText,
   }) async {
+    final other = <String, String>{};
+    if (otherProvideText != null && otherProvideText.isNotEmpty) {
+      other['provideText'] = otherProvideText;
+    }
+    if (otherRentText != null && otherRentText.isNotEmpty) {
+      other['rentText'] = otherRentText;
+    }
+
     final response = await apiClient.dio.post(
       '/equipment-demand/responses',
       data: {
         'clientSubmissionId': clientSubmissionId,
         'campaignId': campaignId,
-        'city': city,
-        'optionIds': optionIds,
-        'otherText': otherText,
+        'selections': selections,
+        'cityIds': cityIds,
+        if (other.isNotEmpty) 'other': other,
       },
     );
     _throwIfFailed(response);

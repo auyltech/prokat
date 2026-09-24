@@ -48,36 +48,39 @@ class AppTextButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.s16$base),
         ),
         onPressed: enabled ? onTap : null,
-        child: Row(
-          mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: AppDimens.s08$sm,
-          children: isLoading
-              ? [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: contentColor,
+        child: IconTheme.merge(
+          data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),
+          child: Row(
+            mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: AppDimens.s08$sm,
+            children: isLoading
+                ? [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: contentColor,
+                      ),
                     ),
-                  ),
-                ]
-              : [
-                  ?prefix,
-                  Flexible(
-                    fit: isExpanded ? FlexFit.tight : FlexFit.loose,
-                    child: Text(
-                      title,
-                      style: AppFonts.button(context)
-                          .copyWith(color: contentColor),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+                  ]
+                : [
+                    ?prefix,
+                    Flexible(
+                      fit: isExpanded ? FlexFit.tight : FlexFit.loose,
+                      child: Text(
+                        title,
+                        style: AppFonts.button(context)
+                            .copyWith(color: contentColor),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                  ?postfix,
-                ],
+                    ?postfix,
+                  ],
+          ),
         ),
       ),
     );

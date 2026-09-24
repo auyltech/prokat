@@ -10,6 +10,7 @@ import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:prokat/features/requests/state/request_lifetime.dart';
+import 'package:prokat/features/requests/widgets.dart/new_request_highlight.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -50,9 +51,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(
-        ref.read(ownerActiveRequestsProvider.notifier).refreshIfStale(),
-      );
+      unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
       unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
       unawaited(
         ref
@@ -156,9 +155,13 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
                       final r = requests[index];
                       final requestOffers = offersByRequest[r.id] ?? [];
 
-                      return OwnerRequestTile(
-                        request: requests[index],
-                        offers: requestOffers,
+                      return NewRequestHighlight(
+                        key: ValueKey(r.id),
+                        requestId: r.id,
+                        child: OwnerRequestTile(
+                          request: r,
+                          offers: requestOffers,
+                        ),
                       );
                     },
                   ),

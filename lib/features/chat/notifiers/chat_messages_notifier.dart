@@ -398,13 +398,17 @@ class ChatMessagesNotifier
     try {
       final activated = await _activateChatSession(scope);
       if (!activated || !isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        markFailed(clientTempId);
         return false;
       }
 
       final socketService = _socketService;
-      if (socketService == null) return false;
+      if (socketService == null) {
+        markFailed(clientTempId);
+        return false;
+      }
 
-      await socketService.sendMessage(
+      final confirmed = await socketService.sendMessage(
         chatId: chatId,
         message: trimmed,
         type: optimisticMessage.type,
@@ -412,6 +416,11 @@ class ChatMessagesNotifier
       );
 
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return false;
+
+      if (confirmed != null && replacePending(confirmed)) {
+        _pendingConfirmationTimers.remove(clientTempId)?.cancel();
+        return true;
+      }
 
       _pendingConfirmationTimers[clientTempId]?.cancel();
       _pendingConfirmationTimers[clientTempId] = Timer(

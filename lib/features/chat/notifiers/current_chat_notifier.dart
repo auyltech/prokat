@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
@@ -180,6 +181,7 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
     if (!isAuthenticatedSessionScopeCurrent(ref, scope) || !response.success) {
       return;
     }
+    refreshNavigationCounts(ref);
 
     state = AsyncData(
       chat.copyWith(

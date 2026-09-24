@@ -219,6 +219,17 @@ ChatConfig getChatConfig({
       );
 
     case RequestStatus.accepted:
+      final wonTender =
+          chat?.offers.any((offer) => offer.status == OfferStatus.accepted) ==
+              true ||
+          (chat?.bookingId?.trim().isNotEmpty ?? false);
+      if (wonTender) {
+        return ChatConfig(
+          status: ChatStatusDetail.bookingcreated,
+          actionBartitle: l10n.newOrder,
+          statusLabel: l10n.orderCreated,
+        );
+      }
       return ChatConfig(
         status: ChatStatusDetail.offernotselected,
         actionBartitle: l10n.offerNotSelected,

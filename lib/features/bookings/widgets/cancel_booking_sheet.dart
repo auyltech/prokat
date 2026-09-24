@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
-import 'package:prokat/core/widgets/action_bar_button.dart';
-import 'package:prokat/core/widgets/app_snack_bar.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
@@ -14,6 +13,25 @@ class CancelBookingSheet extends ConsumerStatefulWidget {
   final AppMode? mode;
 
   const CancelBookingSheet({super.key, required this.booking, this.mode});
+
+  static Future<void> show(
+    BuildContext context, {
+    required BookingModel booking,
+    AppMode? mode,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final isOwner = mode == AppMode.ownerMode;
+    final title = isOwner && booking.status == BookingStatus.created
+        ? l10n.rejectOrder
+        : l10n.cancelBooking;
+
+    await AppBottomSheet.show<void>(
+      context,
+      title: title,
+      contentBuilder: (context) =>
+          CancelBookingSheet(booking: booking, mode: mode),
+    );
+  }
 
   @override
   ConsumerState<CancelBookingSheet> createState() => CancelBookingSheetState();
@@ -40,10 +58,9 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       cancelReason: selectedReason,
     );
 
-    AppSnackBar.show(
+    AppToast.show(
       message: result.success ? l10n.orderCancelled : l10n.failedToCancelOrder,
-      isSuccess: result.success,
-      isError: !result.success,
+      type: result.success ? AppToastType.success : AppToastType.error,
     );
   }
 
@@ -71,12 +88,6 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
       l10n.cancelReasonOther,
     ];
 
-    final sheetTitle = isOwner
-        ? widget.booking.status == BookingStatus.created
-              ? l10n.rejectOrder
-              : l10n.cancelBooking
-        : l10n.cancelBooking;
-
     final reasons = isOwner ? ownerCancelReasons : clientCancelReasons;
 
     final actionId = "booking:cancel:${widget.booking.id}";
@@ -90,33 +101,11 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
         : action.status == MutationStatus.submitting;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s04$xs),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-
-          Text(
-            sheetTitle,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
           ...reasons.map((reason) {
             final isSelected = selectedReason == reason;
 
@@ -163,26 +152,25 @@ class CancelBookingSheetState extends ConsumerState<CancelBookingSheet> {
           Row(
             children: [
               Expanded(
-                child: ActionBarButton.secondary(
-                  label: l10n.goBack,
-                  onPressed: () => Navigator.pop(context),
+                child: AppOutlinedButton(
+                  title: l10n.goBack,
+                  onTap: () => Navigator.pop(context),
+                  isExpanded: true,
                 ),
               ),
 
               const SizedBox(width: 8),
 
               Expanded(
-                child: ActionBarButton.destructive(
-                  label: widget.mode == AppMode.clientMode
+                child: AppOutlinedButton.destructive(
+                  title: widget.mode == AppMode.clientMode
                       ? l10n.cancelBooking
                       : widget.booking.status == BookingStatus.created
                       ? l10n.rejectOrder
                       : l10n.cancelBooking,
-                  onPressed: selectedReason == null
-                      ? null
-                      : () => onSubmit(l10n),
+                  onTap: selectedReason == null ? null : () => onSubmit(l10n),
                   isLoading: isSubmitting,
-                  isEnabled: selectedReason != null && !isSubmitting,
+                  isExpanded: true,
                 ),
               ),
             ],

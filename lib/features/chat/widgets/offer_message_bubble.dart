@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -127,8 +128,10 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                           ),
                         )
                       else
-                        IconButton(
-                          onPressed: () async {
+                        AppIconButton(
+                          icon: Icons.clear,
+                          tone: AppIconButtonTone.destructive,
+                          onTap: () async {
                             await ref
                                 .read(offerMutationProvider.notifier)
                                 .cancelOffer(
@@ -137,9 +140,6 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                                   requestId: offer.requestId,
                                 );
                           },
-                          iconSize: 32,
-                          padding: const EdgeInsets.all(0),
-                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
                     ] else if (offer.status == OfferStatus.created) ...[
                       // Reject Offer
@@ -157,8 +157,10 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                           ),
                         )
                       else
-                        IconButton(
-                          onPressed: () async {
+                        AppIconButton(
+                          icon: Icons.clear,
+                          tone: AppIconButtonTone.destructive,
+                          onTap: () async {
                             await ref
                                 .read(offerMutationProvider.notifier)
                                 .rejectOffer(
@@ -167,9 +169,6 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                                   requestId: offer.requestId,
                                 );
                           },
-                          iconSize: 32,
-                          padding: const EdgeInsets.all(0),
-                          icon: const Icon(Icons.clear, color: Colors.red),
                         ),
 
                       // Accept Offer
@@ -187,8 +186,10 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                           ),
                         )
                       else
-                        IconButton(
-                          onPressed: () async {
+                        AppIconButton(
+                          icon: Icons.check,
+                          tone: AppIconButtonTone.success,
+                          onTap: () async {
                             final navigation = TenderAcceptNavigation.capture(
                               context,
                             );
@@ -202,9 +203,6 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                             if (!result.success) return;
                             navigation.revealClientOrders();
                           },
-                          iconSize: 32,
-                          padding: const EdgeInsets.all(0),
-                          icon: const Icon(Icons.check, color: Colors.green),
                           // isEnabled: !submitState.isSubmitting,
                           // isLoading:
                           //     submitState.isSubmitting &&
