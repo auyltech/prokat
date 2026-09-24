@@ -7000,6 +7000,18 @@ abstract class AppLocalizations {
   /// **'Book in PROKAT'**
   String get shareEquipmentCta;
 
+  /// No description provided for @shareEquipmentUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This equipment is not available in the catalog.'**
+  String get shareEquipmentUnavailable;
+
+  /// No description provided for @shareEquipmentOpenCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse catalog'**
+  String get shareEquipmentOpenCatalog;
+
   /// No description provided for @shareEquipmentMessage.
   ///
   /// In en, this message translates to:

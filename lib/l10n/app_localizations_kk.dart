@@ -3742,6 +3742,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get shareEquipmentCta => 'PROKAT-та брондау';
 
   @override
+  String get shareEquipmentUnavailable => 'Бұл техника каталогта жоқ.';
+
+  @override
+  String get shareEquipmentOpenCatalog => 'Каталогқа';
+
+  @override
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }

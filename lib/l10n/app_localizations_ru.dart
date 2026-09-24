@@ -3776,6 +3776,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shareEquipmentCta => 'Забронировать в PROKAT';
 
   @override
+  String get shareEquipmentUnavailable => 'Этой техники нет в каталоге.';
+
+  @override
+  String get shareEquipmentOpenCatalog => 'В каталог';
+
+  @override
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }

@@ -1349,6 +1349,8 @@
   "shareEquipmentTitle": "Бөлісу",
   "shareEquipmentNeedPublish": "Техникамен бөлісу үшін оны каталогқа жариялаңыз: күйі «қолжетімді», көрсету қосқышы қосулы, бағасы көрсетілген.",
   "shareEquipmentCta": "PROKAT-та брондау",
+  "shareEquipmentUnavailable": "Бұл техника каталогта жоқ.",
+  "shareEquipmentOpenCatalog": "Каталогқа",
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {

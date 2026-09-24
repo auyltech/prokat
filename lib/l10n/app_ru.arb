@@ -1348,6 +1348,8 @@
   "shareEquipmentTitle": "Поделиться",
   "shareEquipmentNeedPublish": "Чтобы поделиться техникой, опубликуйте её в каталоге: статус «доступна», тумблер показа включён, указана цена.",
   "shareEquipmentCta": "Забронировать в PROKAT",
+  "shareEquipmentUnavailable": "Этой техники нет в каталоге.",
+  "shareEquipmentOpenCatalog": "В каталог",
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {

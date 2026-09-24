@@ -23,3 +23,4 @@
 - Save-all runs dirty blocks (general, registration, specs) for draft and approved cards. Rejected uses Resubmit instead of Save-all.
 - Read `AsyncValue` with `valueOrNull` in build (not `.value`) — otherwise API errors rethrow as Crashlytics fatals. List UIs that own the equipment list use `EquipmentErrorTile` + retry.
 - Share sits in `lib/features/equipment_share`: client tile, owner list (not draft cards; button under the status badge), owner photo header, create-booking. A link is sent only when status is `AVAILABLE`, `isVisible`, and some price is > 0. Other moderated states show a publish alert and do not share.
+- Incoming `/e/:id` loads `GET /equipment/public/:id` via `publicEquipmentProvider` on `GuestCreateBookingScreen`. Do not use the broken `getClientEquipmentById`.

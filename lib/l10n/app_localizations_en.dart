@@ -3740,6 +3740,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareEquipmentCta => 'Book in PROKAT';
 
   @override
+  String get shareEquipmentUnavailable =>
+      'This equipment is not available in the catalog.';
+
+  @override
+  String get shareEquipmentOpenCatalog => 'Browse catalog';
+
+  @override
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }

@@ -21,6 +21,7 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
@@ -226,6 +227,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.invalidate(ownerEquipmentProvider);
     ref.invalidate(ownerEquipmentDetailsProvider);
     ref.invalidate(equipmentMutationProvider);
+    await ref.read(equipmentShareStorageProvider).clearPendingUri();
 
     // Map state can retain selected/personalized equipment.
     // ref.invalidate(equipmentMapProvider);

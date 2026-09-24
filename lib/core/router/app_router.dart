@@ -15,6 +15,7 @@ import 'package:prokat/features/appstatic/screens/support_us_screen.dart';
 import 'package:prokat/features/appstatic/screens/user_agreement_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
 import 'package:prokat/features/bookings/screens/create_booking_screen.dart';
+import 'package:prokat/features/bookings/screens/guest_create_booking_screen.dart';
 import 'package:prokat/features/bookings/screens/client_bookings_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_list_screen.dart';
 import 'package:prokat/features/chat/screens/client_chat_screen.dart';
@@ -171,6 +172,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: AppRoutes.equipmentShare,
+        builder: (_, state) =>
+            GuestCreateBookingScreen(equipmentId: state.pathParameters['id']!),
+      ),
       GoRoute(
         path: AppRoutes.equipmentDemand,
         builder: (_, state) => EquipmentDemandScreen(

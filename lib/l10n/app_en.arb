@@ -1351,6 +1351,8 @@
   "shareEquipmentTitle": "Share",
   "shareEquipmentNeedPublish": "To share this equipment, publish it in the catalog: status “available”, the visibility toggle on, and a price set.",
   "shareEquipmentCta": "Book in PROKAT",
+  "shareEquipmentUnavailable": "This equipment is not available in the catalog.",
+  "shareEquipmentOpenCatalog": "Browse catalog",
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {

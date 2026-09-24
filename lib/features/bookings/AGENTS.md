@@ -22,4 +22,6 @@
 
 На карточках «Мои заказы» у владельца нет кнопок хода работ («Начать/Завершить работу» и т.п.) — только принять/отклонить заказ или чат. Операционный пульт выполняемого заказа — чат (`ChatActionBar` / `BookingStatusSheet`).
 
+Входящая ссылка `/e/:id` открывает `GuestCreateBookingScreen`, не `CreateBookingScreen`. Каркас: публичная карточка и вход. Форма адреса и `POST /bookings` сюда ещё не входят. Тарифы — общий `ServiceTariffBlock`.
+
 Шит: `BookingStatusSheet` берёт `nextWorkStatuses`. Кнопки — ARB. Тела EVENT и пушей — бэкенд `meta.i18n` / `data.i18n`, не ARB.

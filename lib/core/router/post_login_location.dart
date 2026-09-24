@@ -17,6 +17,10 @@ String resolvePostLoginLocation({
   required bool ownerModeActive,
   required bool accountIsOwner,
 }) {
+  if (from != null && from.startsWith('/e/')) {
+    return from;
+  }
+
   if (from == AppRoutes.becomeOwner) {
     return accountIsOwner ? AppRoutes.ownerProfile : AppRoutes.becomeOwner;
   }

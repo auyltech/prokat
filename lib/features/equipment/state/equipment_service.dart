@@ -226,6 +226,33 @@ class EquipmentService {
     }
   }
 
+  Future<ApiResponse<Equipment?>> getPublicEquipmentById(String id) async {
+    try {
+      final response = await _dio.get("${ApiRoutes.publicEquipment}/$id");
+
+      return handleApiResponse<Equipment>(
+        response: response,
+        parser: (data) => Equipment.fromJson(data["data"]),
+        fallbackMessage: "Failed to load equipment",
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : "Request failed",
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(
+        message: "Unexpected error",
+        error: error.toString(),
+      );
+    }
+  }
+
   Future<ApiResponse<Equipment?>> getOwnerEquipmentById(String id) async {
     try {
       final response = await _dio.get("/equipment/owner/id/$id");
