@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PROKAT</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        background: #f4f1ea;
+        color: #1c1915;
+      }
+      main {
+        max-width: 28rem;
+        margin: 0 auto;
+        padding: 3rem 1.5rem;
+      }
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: 1.75rem;
+        letter-spacing: 0.04em;
+      }
+      p {
+        margin: 0 0 1rem;
+        line-height: 1.5;
+      }
+      a,
+      .soon {
+        display: block;
+        margin: 0.75rem 0 0;
+        padding: 0.9rem 1rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 700;
+      }
+      a {
+        background: #1c1915;
+        color: #f4f1ea;
+      }
+      .soon {
+        background: transparent;
+        color: #1c1915;
+        border: 1px solid #1c1915;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>PROKAT</h1>
+      <p>Эта техника доступна в приложении.</p>
+      <p id="card-line" class="hidden"></p>
+      <a id="play" class="hidden" href="https://play.google.com/store/apps/details?id=com.auyltech.prokat">Открыть / Установить</a>
+      <p id="ios" class="soon hidden">Скоро в App Store</p>
+    </main>
+    <script>
+      (function () {
+        var parts = location.pathname.split("/").filter(Boolean);
+        var marker = parts.indexOf("e");
+        var id = marker >= 0 && parts.length > marker + 1 ? parts[marker + 1] : "";
+        if (id && id !== "index.html") {
+          var line = document.getElementById("card-line");
+          line.textContent = "Карточка: " + decodeURIComponent(id);
+          line.classList.remove("hidden");
+        }
+
+        var ua = navigator.userAgent || "";
+        var isAndroid = /Android/i.test(ua);
+        var isAppleTouchMac =
+          navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+        var isIOS = /iPhone|iPad|iPod/i.test(ua) || isAppleTouchMac;
+        var play = document.getElementById("play");
+        var ios = document.getElementById("ios");
+
+        if (isAndroid) {
+          play.classList.remove("hidden");
+        } else if (isIOS) {
+          ios.classList.remove("hidden");
+        } else {
+          play.classList.remove("hidden");
+          ios.classList.remove("hidden");
+        }
+      })();
+    </script>
+  </body>
+</html>
