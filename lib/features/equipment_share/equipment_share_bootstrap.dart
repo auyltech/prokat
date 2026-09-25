@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/equipment_share/equipment_share_install_referrer.dart';
 import 'package:prokat/features/equipment_share/equipment_share_link.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
@@ -115,7 +116,17 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
       initialHandled = true;
       try {
         final initial = await appLinks.getInitialLink();
-        if (initial != null) await openOrStore(initial);
+        if (initial != null) {
+          await openOrStore(initial);
+          await storage.markInstallReferrerChecked();
+        } else {
+          final link = await captureShareInstallReferrer(
+            wasChecked: storage.wasInstallReferrerChecked,
+            markChecked: storage.markInstallReferrerChecked,
+            readReferrer: readPlayInstallReferrer,
+          );
+          if (link != null) await openOrStore(link.canonical);
+        }
       } catch (_) {}
     }
 

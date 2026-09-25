@@ -61,11 +61,23 @@
       (function () {
         var parts = location.pathname.split("/").filter(Boolean);
         var marker = parts.indexOf("e");
-        var id = marker >= 0 && parts.length > marker + 1 ? parts[marker + 1] : "";
+        var rawId = marker >= 0 && parts.length > marker + 1 ? parts[marker + 1] : "";
+        var id = "";
+        try {
+          id = decodeURIComponent(rawId);
+        } catch (e) {
+          id = rawId;
+        }
         if (id && id !== "index.html") {
           var line = document.getElementById("card-line");
-          line.textContent = "Карточка: " + decodeURIComponent(id);
+          line.textContent = "Карточка: " + id;
           line.classList.remove("hidden");
+          var playLink = document.getElementById("play");
+          var referrer = "id=" + encodeURIComponent(id);
+          playLink.href =
+            playLink.href.split("&referrer=")[0] +
+            "&referrer=" +
+            encodeURIComponent(referrer);
         }
 
         var ua = navigator.userAgent || "";

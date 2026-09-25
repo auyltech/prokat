@@ -28,6 +28,10 @@ class EquipmentShareStorage {
   String get _overlayKey =>
       Env.isLocal ? 'local_equipment_share_overlay' : 'equipment_share_overlay';
 
+  String get _referrerCheckedKey => Env.isLocal
+      ? 'local_equipment_share_install_referrer_checked'
+      : 'equipment_share_install_referrer_checked';
+
   Future<void> savePendingUri(String uri) async {
     await _storage.write(key: _pendingKey, value: uri);
   }
@@ -98,6 +102,20 @@ class EquipmentShareStorage {
   Future<void> clearOverlay() async {
     try {
       await _storage.delete(key: _overlayKey);
+    } catch (_) {}
+  }
+
+  Future<bool> wasInstallReferrerChecked() async {
+    try {
+      return await _storage.read(key: _referrerCheckedKey) == '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> markInstallReferrerChecked() async {
+    try {
+      await _storage.write(key: _referrerCheckedKey, value: '1');
     } catch (_) {}
   }
 }
