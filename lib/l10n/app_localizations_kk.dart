@@ -3727,4 +3727,43 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get somethingWentWrongTryAgain =>
       'Бірдеңе дұрыс болмады. Қайталап көріңіз.';
+
+  @override
+  String get shareEquipment => 'Бөлісу';
+
+  @override
+  String get shareEquipmentTitle => 'Бөлісу';
+
+  @override
+  String get shareEquipmentNeedPublish =>
+      'Техникамен бөлісу үшін оны каталогқа жариялаңыз: күйі «қолжетімді», көрсету қосқышы қосулы, бағасы көрсетілген.';
+
+  @override
+  String get shareEquipmentCta => 'PROKAT-та брондау';
+
+  @override
+  String get shareEquipmentUnavailable => 'Бұл техника каталогта жоқ.';
+
+  @override
+  String get shareEquipmentOpenCatalog => 'Каталогқа';
+
+  @override
+  String get shareCannotBookOwnEquipment => 'Өз техникаңызды брондай алмайсыз.';
+
+  @override
+  String get bookingActiveLimitReached =>
+      'Белсенді тапсырыстардың ең көп санына жеттіңіз.';
+
+  @override
+  String get shareEquipmentPriceChanged =>
+      'Баға өзгерді. Тарифті тексеріп, «Брондау» түймесін қайта басыңыз.';
+
+  @override
+  String get shareEquipmentTariffUnavailable =>
+      'Таңдалған тариф енді жоқ. Басқасын таңдаңыз.';
+
+  @override
+  String shareEquipmentMessage(String name, String priceLine, String url) {
+    return '$name\n$priceLine\n$url';
+  }
 }

@@ -5,6 +5,7 @@ class ApiRoutes {
   static const equipment = "/equipment";
   static const clientEquipment = "$equipment/client";
   static const guestEquipment = "$equipment/guest";
+  static const publicEquipment = "$equipment/public";
   static const ownerEquipment = "$equipment/owner";
   static const locations = "/locations";
   static const ownerLocations = "/locations/owner";

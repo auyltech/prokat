@@ -1343,5 +1343,24 @@
   "connectionTimedOut": "Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.",
   "noConnectionCheckNetwork": "Байланыс жоқ. Желіні тексеріп, қайталап көріңіз.",
   "networkErrorTryAgain": "Желі қатесі. Қайталап көріңіз.",
-  "somethingWentWrongTryAgain": "Бірдеңе дұрыс болмады. Қайталап көріңіз."
+  "somethingWentWrongTryAgain": "Бірдеңе дұрыс болмады. Қайталап көріңіз.",
+
+  "shareEquipment": "Бөлісу",
+  "shareEquipmentTitle": "Бөлісу",
+  "shareEquipmentNeedPublish": "Техникамен бөлісу үшін оны каталогқа жариялаңыз: күйі «қолжетімді», көрсету қосқышы қосулы, бағасы көрсетілген.",
+  "shareEquipmentCta": "PROKAT-та брондау",
+  "shareEquipmentUnavailable": "Бұл техника каталогта жоқ.",
+  "shareEquipmentOpenCatalog": "Каталогқа",
+  "shareCannotBookOwnEquipment": "Өз техникаңызды брондай алмайсыз.",
+  "bookingActiveLimitReached": "Белсенді тапсырыстардың ең көп санына жеттіңіз.",
+  "shareEquipmentPriceChanged": "Баға өзгерді. Тарифті тексеріп, «Брондау» түймесін қайта басыңыз.",
+  "shareEquipmentTariffUnavailable": "Таңдалған тариф енді жоқ. Басқасын таңдаңыз.",
+  "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
+  "@shareEquipmentMessage": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "priceLine": { "type": "String" },
+      "url": { "type": "String" }
+    }
+  }
 }

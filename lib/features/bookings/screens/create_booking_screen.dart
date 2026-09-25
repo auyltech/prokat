@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
-import 'package:prokat/features/equipment/models/price_entry_model.dart';
-import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
+import 'package:prokat/features/bookings/widgets/service_tariff_block.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
+import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
@@ -172,7 +172,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .createBooking();
 
     AppToast.show(
-      message: result.message,
+      message: result.success
+          ? l10n.orderCreated
+          : bookingCreateErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: result.message,
+            ),
       type: result.success ? AppToastType.success : AppToastType.error,
     );
 
@@ -298,7 +304,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
                           const SizedBox(width: 8),
 
-                          // Favorite Button
+                          ShareEquipmentButton(equipment: equipment),
+                          const SizedBox(width: 8),
                           AppIconButton(
                             icon: isFavorite
                                 ? Icons.favorite
@@ -360,7 +367,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       ...?priceEntries?.map(
                         (entry) => Padding(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: _ServiceTariffBlock(
+                          child: ServiceTariffBlock(
                             entry: entry,
                             selected:
                                 bookingState.selectedPriceEntry?.id == entry.id,
@@ -421,58 +428,6 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
               ],
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _ServiceTariffBlock extends StatelessWidget {
-  const _ServiceTariffBlock({
-    required this.entry,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final PriceEntry entry;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-    final primary = theme.colorScheme.primary;
-    final priceText =
-        '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
-    final serviceName = savedTariffTitle(entry, l10n);
-    final label = serviceName == null ? priceText : '$priceText — $serviceName';
-
-    return Material(
-      color: selected ? primary : theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: selected
-              ? primary
-              : theme.colorScheme.outline.withValues(alpha: 0.4),
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Text(
-              label,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: selected ? Colors.white : theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

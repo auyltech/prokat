@@ -3761,4 +3761,44 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get somethingWentWrongTryAgain =>
       'Что-то пошло не так. Попробуйте ещё раз.';
+
+  @override
+  String get shareEquipment => 'Поделиться';
+
+  @override
+  String get shareEquipmentTitle => 'Поделиться';
+
+  @override
+  String get shareEquipmentNeedPublish =>
+      'Чтобы поделиться техникой, опубликуйте её в каталоге: статус «доступна», тумблер показа включён, указана цена.';
+
+  @override
+  String get shareEquipmentCta => 'Забронировать в PROKAT';
+
+  @override
+  String get shareEquipmentUnavailable => 'Этой техники нет в каталоге.';
+
+  @override
+  String get shareEquipmentOpenCatalog => 'В каталог';
+
+  @override
+  String get shareCannotBookOwnEquipment =>
+      'Нельзя забронировать свою технику.';
+
+  @override
+  String get bookingActiveLimitReached =>
+      'Достигнуто максимальное число активных заказов.';
+
+  @override
+  String get shareEquipmentPriceChanged =>
+      'Цена изменилась. Проверьте тариф и нажмите «Забронировать» ещё раз.';
+
+  @override
+  String get shareEquipmentTariffUnavailable =>
+      'Выбранный тариф больше недоступен. Выберите другой.';
+
+  @override
+  String shareEquipmentMessage(String name, String priceLine, String url) {
+    return '$name\n$priceLine\n$url';
+  }
 }

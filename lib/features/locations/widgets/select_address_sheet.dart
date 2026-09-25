@@ -20,31 +20,37 @@ class SelectAddressSheet extends ConsumerWidget {
     required this.scrollController,
   });
 
-  static void show(
+  /// [onChooseOnMap] runs only after this sheet route is fully gone.
+  /// Callers outside the shell (share booking `/e/:id`) must pass it and open
+  /// their own map. Pushing `/client/addresses/map` from that screen stacks a
+  /// second shell and the UI stops receiving taps.
+  static Future<void> show(
     BuildContext context, {
     required String service,
     required String from,
     String? equipmentId,
-  }) {
+    VoidCallback? onChooseOnMap,
+  }) async {
     final l10n = AppLocalizations.of(context)!;
 
-    unawaited(
-      AppBottomSheet.showScrollable<void>(
-        context,
-        minChildSize: 0.3,
-        maxChildSize: 0.4,
-        initialChildSize: 0.4,
-        title: l10n.selectAddress,
-        headerBuilder: (_) => const SizedBox.shrink(),
-        scrollableListBuilder: (context, controller) =>
-            SelectAddressSheet(from: from, scrollController: controller),
-        footerBuilder: (sheetContext) => _SelectAddressFooter(
-          service: service,
-          from: from,
-          equipmentId: equipmentId,
-        ),
+    final openMap = await AppBottomSheet.showScrollable<bool>(
+      context,
+      minChildSize: 0.3,
+      maxChildSize: 0.4,
+      initialChildSize: 0.4,
+      title: l10n.selectAddress,
+      headerBuilder: (_) => const SizedBox.shrink(),
+      scrollableListBuilder: (context, controller) =>
+          SelectAddressSheet(from: from, scrollController: controller),
+      footerBuilder: (sheetContext) => _SelectAddressFooter(
+        service: service,
+        from: from,
+        equipmentId: equipmentId,
+        onChooseOnMap: onChooseOnMap,
       ),
     );
+
+    if (openMap == true) onChooseOnMap?.call();
   }
 
   Future<void> _confirmDeleteAddress(
@@ -128,11 +134,13 @@ class _SelectAddressFooter extends StatelessWidget {
   final String service;
   final String from;
   final String? equipmentId;
+  final VoidCallback? onChooseOnMap;
 
   const _SelectAddressFooter({
     required this.service,
     required this.from,
     this.equipmentId,
+    this.onChooseOnMap,
   });
 
   @override
@@ -151,6 +159,11 @@ class _SelectAddressFooter extends StatelessWidget {
         title: l10n.chooseOnMap,
         prefix: const Icon(Icons.map_outlined),
         onTap: () {
+          if (onChooseOnMap != null) {
+            Navigator.of(context).pop(true);
+            return;
+          }
+
           final router = GoRouter.of(context);
           Navigator.of(context).pop();
           unawaited(

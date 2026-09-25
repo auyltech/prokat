@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -13,6 +14,8 @@ import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart'
 import 'package:prokat/features/equipment/widgets/owner/equipment_status_badge.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
 import 'package:prokat/features/equipment/widgets/online_toggle.dart';
+import 'package:prokat/features/equipment_share/equipment_share_gate.dart';
+import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentCard extends ConsumerWidget {
@@ -57,24 +60,22 @@ class OwnerEquipmentCard extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
       child: Column(
         children: [
-          InkWell(
-            onTap: () => _openEditor(context, ref),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildImage(equipment.imageUrl),
-
-                const SizedBox(width: 14),
-
-                Expanded(
-                  child: Column(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () => _openEditor(context, ref),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
+                      _buildImage(equipment.imageUrl),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
                               equipment.name,
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -82,48 +83,58 @@ class OwnerEquipmentCard extends ConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          EquipmentStatusBadge(status: equipment.status),
-                        ],
-                      ),
-                      Text(
-                        "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: ghostGray,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-
-                      const SizedBox(height: 4),
-
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 20,
-                            color: ghostGray,
-                          ),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(
-                              locationText,
+                            Text(
+                              "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: ghostGray,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 20,
+                                  color: ghostGray,
+                                ),
+                                const SizedBox(width: 2),
+                                Expanded(
+                                  child: Text(
+                                    locationText,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: ghostGray,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  EquipmentStatusBadge(status: equipment.status),
+                  if (canShowShareButton(equipment)) ...[
+                    const SizedBox(height: 8),
+                    ShareEquipmentButton(
+                      equipment: equipment,
+                      variant: AppIconButtonVariant.filled,
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ),
 
           const SizedBox(height: 4),
@@ -131,39 +142,46 @@ class OwnerEquipmentCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Tooltip(
-                    message: hasPrice
-                        ? l10n.hasPricesListed
-                        : l10n.noPricesListed,
-                    triggerMode: TooltipTriggerMode.tap,
-                    child: Icon(
-                      hasPrice
-                          ? Icons.check_circle_outline
-                          : Icons.error_outline,
-                      size: 18,
-                      color: hasPrice ? Colors.green : colorScheme.error,
+              Expanded(
+                child: Row(
+                  children: [
+                    Tooltip(
+                      message: hasPrice
+                          ? l10n.hasPricesListed
+                          : l10n.noPricesListed,
+                      triggerMode: TooltipTriggerMode.tap,
+                      child: Icon(
+                        hasPrice
+                            ? Icons.check_circle_outline
+                            : Icons.error_outline,
+                        size: 18,
+                        color: hasPrice ? Colors.green : colorScheme.error,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    priceDisplay,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: hasPrice ? colorScheme.primary : ghostGray,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        priceDisplay,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: hasPrice ? colorScheme.primary : ghostGray,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-
               if (equipment.status == EquipmentStatus.available ||
-                  equipment.status == EquipmentStatus.accepted)
+                  equipment.status == EquipmentStatus.accepted) ...[
+                const SizedBox(width: 8),
                 OnlineToggle(
                   id: equipment.id,
                   isVisible: equipment.isVisible,
                   canShow: hasPrice,
                 ),
+              ],
             ],
           ),
         ],

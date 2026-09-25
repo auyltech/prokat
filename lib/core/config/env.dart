@@ -28,6 +28,15 @@ class Env {
     'ENABLE_FIREBASE_SERVICES',
     defaultValue: true,
   );
+  static const _defaultShareBaseUrl = 'https://prokat-bfbec.web.app';
+  static const _shareBaseUrl = String.fromEnvironment(
+    'SHARE_BASE_URL',
+    defaultValue: _defaultShareBaseUrl,
+  );
+  static const _builtInShareHosts = <String>[
+    'prokat-bfbec.web.app',
+    'prokat-bfbec.firebaseapp.com',
+  ];
 
   static AppEnvironment get environment => switch (_environmentName) {
     'production' => AppEnvironment.production,
@@ -56,6 +65,46 @@ class Env {
       defaultValue: defaultValue,
       androidValue: _androidSocketBaseUrl,
     );
+  }
+
+  static String get shareBaseUrl => parseShareBaseUrl(_shareBaseUrl);
+
+  static Set<String> get shareTrustedHosts => {
+    ..._builtInShareHosts,
+    Uri.parse(shareBaseUrl).host.toLowerCase(),
+  };
+
+  static String equipmentShareUrl(String equipmentId) {
+    final id = equipmentId.trim();
+    if (id.isEmpty || id == '.' || id == '..' || id.contains('/')) {
+      throw ArgumentError.value(
+        equipmentId,
+        'equipmentId',
+        'must be a single non-empty path segment',
+      );
+    }
+    return '$shareBaseUrl/e/${Uri.encodeComponent(id)}';
+  }
+
+  static String parseShareBaseUrl(String raw) {
+    final value = raw.trim();
+    final uri = Uri.tryParse(value);
+    final valid =
+        uri != null &&
+        uri.scheme == 'https' &&
+        uri.host.isNotEmpty &&
+        uri.userInfo.isEmpty &&
+        uri.port == 443 &&
+        uri.path.isEmpty &&
+        uri.query.isEmpty &&
+        uri.fragment.isEmpty &&
+        !value.endsWith('/');
+    if (!valid) {
+      throw StateError(
+        'SHARE_BASE_URL must be an absolute https URL without a trailing slash, got "$raw".',
+      );
+    }
+    return value;
   }
 
   static bool get pushNotificationsEnabled {
