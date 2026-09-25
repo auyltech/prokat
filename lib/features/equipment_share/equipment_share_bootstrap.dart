@@ -6,6 +6,7 @@ import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_link.dart';
+import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 
 final equipmentShareBootstrapProvider = Provider<void>((ref) {
@@ -16,11 +17,49 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
   String? lastCanonical;
   DateTime? lastAt;
   var initialHandled = false;
+  var consumeInFlight = false;
 
-  bool ready(AppStartupRouteState state) {
-    return state == AppStartupRouteState.guest ||
-        state == AppStartupRouteState.client ||
-        state == AppStartupRouteState.owner;
+  Future<void> writeOverlay({
+    required String equipmentId,
+    required bool afterAuth,
+  }) async {
+    await storage.saveOverlay(
+      EquipmentShareOverlay(
+        path: AppRoutes.equipmentSharePath(equipmentId),
+        afterAuth: afterAuth,
+      ),
+    );
+  }
+
+  Future<void> consumeOverlayIfAny() async {
+    if (consumeInFlight) return;
+    consumeInFlight = true;
+    try {
+      final overlay = await storage.readOverlay();
+      final decision = decideShareOverlay(
+        overlay: overlay,
+        routeState: ref.read(appStartupProvider).routeState,
+        currentPath: router.state.uri.path,
+      );
+
+      switch (decision.action) {
+        case ShareOverlayAction.wait:
+          return;
+        case ShareOverlayAction.clear:
+          await storage.clearOverlay();
+          return;
+        case ShareOverlayAction.push:
+          final path = decision.path;
+          if (path == null || path.isEmpty) {
+            await storage.clearOverlay();
+            return;
+          }
+          await storage.clearOverlay();
+          unawaited(router.push(path));
+      }
+    } finally {
+      consumeInFlight = false;
+    }
   }
 
   Future<void> openOrStore(Uri uri) async {
@@ -37,31 +76,38 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
     lastCanonical = canonical;
     lastAt = now;
 
-    if (!ready(ref.read(appStartupProvider).routeState)) {
+    if (!shareStartupReady(ref.read(appStartupProvider).routeState)) {
       await storage.savePendingUri(canonical);
       return;
     }
 
-    router.go(AppRoutes.equipmentSharePath(link.equipmentId));
+    await writeOverlay(equipmentId: link.equipmentId, afterAuth: false);
+    await storage.clearPendingUri();
+    await consumeOverlayIfAny();
   }
 
   Future<void> flushPendingUriIfAny() async {
     final pending = await storage.readPendingUri();
-    if (pending == null) return;
+    if (pending == null) {
+      await consumeOverlayIfAny();
+      return;
+    }
 
     final link = EquipmentShareLink.tryParse(Uri.parse(pending));
     if (link == null) {
       await storage.clearPendingUri();
+      await consumeOverlayIfAny();
       return;
     }
 
-    if (!ready(ref.read(appStartupProvider).routeState)) {
+    if (!shareStartupReady(ref.read(appStartupProvider).routeState)) {
       await storage.savePendingUri(link.canonical.toString());
       return;
     }
 
+    await writeOverlay(equipmentId: link.equipmentId, afterAuth: false);
     await storage.clearPendingUri();
-    router.go(AppRoutes.equipmentSharePath(link.equipmentId));
+    await consumeOverlayIfAny();
   }
 
   Future<void> start() async {
@@ -78,12 +124,19 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
     });
   }
 
+  void onRouterChanged() {
+    unawaited(consumeOverlayIfAny());
+  }
+
+  router.routerDelegate.addListener(onRouterChanged);
+
   ref.listen(appStartupProvider, (previous, next) {
     unawaited(flushPendingUriIfAny());
   });
 
   ref.onDispose(() {
     unawaited(subscription?.cancel());
+    router.routerDelegate.removeListener(onRouterChanged);
   });
 
   unawaited(start());

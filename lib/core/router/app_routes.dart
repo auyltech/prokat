@@ -26,6 +26,8 @@ class AppRoutes {
   static const String supportUs = '/support-us';
   static const String equipmentShare = '/e/:id';
   static String equipmentSharePath(String id) => '/e/$id';
+  static const String equipmentShareAddress = '/e/:id/address';
+  static String equipmentShareAddressPath(String id) => '/e/$id/address';
 
   static const String equipmentDemand = '/equipment-demand/:campaignId';
   static String equipmentDemandPath(String campaignId) =>

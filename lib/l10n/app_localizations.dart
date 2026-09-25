@@ -7012,6 +7012,30 @@ abstract class AppLocalizations {
   /// **'Browse catalog'**
   String get shareEquipmentOpenCatalog;
 
+  /// No description provided for @shareCannotBookOwnEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot book your own equipment.'**
+  String get shareCannotBookOwnEquipment;
+
+  /// No description provided for @bookingActiveLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum number of active bookings reached.'**
+  String get bookingActiveLimitReached;
+
+  /// No description provided for @shareEquipmentPriceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The price changed. Check the tariff and tap Book again.'**
+  String get shareEquipmentPriceChanged;
+
+  /// No description provided for @shareEquipmentTariffUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected tariff is no longer available. Choose another.'**
+  String get shareEquipmentTariffUnavailable;
+
   /// No description provided for @shareEquipmentMessage.
   ///
   /// In en, this message translates to:

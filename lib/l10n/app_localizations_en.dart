@@ -3747,6 +3747,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareEquipmentOpenCatalog => 'Browse catalog';
 
   @override
+  String get shareCannotBookOwnEquipment =>
+      'You cannot book your own equipment.';
+
+  @override
+  String get bookingActiveLimitReached =>
+      'Maximum number of active bookings reached.';
+
+  @override
+  String get shareEquipmentPriceChanged =>
+      'The price changed. Check the tariff and tap Book again.';
+
+  @override
+  String get shareEquipmentTariffUnavailable =>
+      'The selected tariff is no longer available. Choose another.';
+
+  @override
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }

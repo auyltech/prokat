@@ -1353,6 +1353,10 @@
   "shareEquipmentCta": "Book in PROKAT",
   "shareEquipmentUnavailable": "This equipment is not available in the catalog.",
   "shareEquipmentOpenCatalog": "Browse catalog",
+  "shareCannotBookOwnEquipment": "You cannot book your own equipment.",
+  "bookingActiveLimitReached": "Maximum number of active bookings reached.",
+  "shareEquipmentPriceChanged": "The price changed. Check the tariff and tap Book again.",
+  "shareEquipmentTariffUnavailable": "The selected tariff is no longer available. Choose another.",
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {

@@ -1351,6 +1351,10 @@
   "shareEquipmentCta": "PROKAT-та брондау",
   "shareEquipmentUnavailable": "Бұл техника каталогта жоқ.",
   "shareEquipmentOpenCatalog": "Каталогқа",
+  "shareCannotBookOwnEquipment": "Өз техникаңызды брондай алмайсыз.",
+  "bookingActiveLimitReached": "Белсенді тапсырыстардың ең көп санына жеттіңіз.",
+  "shareEquipmentPriceChanged": "Баға өзгерді. Тарифті тексеріп, «Брондау» түймесін қайта басыңыз.",
+  "shareEquipmentTariffUnavailable": "Таңдалған тариф енді жоқ. Басқасын таңдаңыз.",
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {

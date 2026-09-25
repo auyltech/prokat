@@ -3748,6 +3748,21 @@ class AppLocalizationsKk extends AppLocalizations {
   String get shareEquipmentOpenCatalog => 'Каталогқа';
 
   @override
+  String get shareCannotBookOwnEquipment => 'Өз техникаңызды брондай алмайсыз.';
+
+  @override
+  String get bookingActiveLimitReached =>
+      'Белсенді тапсырыстардың ең көп санына жеттіңіз.';
+
+  @override
+  String get shareEquipmentPriceChanged =>
+      'Баға өзгерді. Тарифті тексеріп, «Брондау» түймесін қайта басыңыз.';
+
+  @override
+  String get shareEquipmentTariffUnavailable =>
+      'Таңдалған тариф енді жоқ. Басқасын таңдаңыз.';
+
+  @override
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }

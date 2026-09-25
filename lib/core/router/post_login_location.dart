@@ -1,8 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/features/appstartup/app_startup_provider.dart';
 
 /// Guest login button that is still waiting for OTP (`from` query on `/login`).
 final postLoginFromProvider = StateProvider<String?>((ref) => null);
+
+/// Canonical home after cold start for a ready [AppStartupRouteState].
+String? startupLandingLocation(AppStartupRouteState state) {
+  return switch (state) {
+    AppStartupRouteState.guest => AppRoutes.main,
+    AppStartupRouteState.client => AppRoutes.searchList,
+    AppStartupRouteState.owner => AppRoutes.ownerEquipment,
+    _ => null,
+  };
+}
 
 /// Where to go after a successful OTP while still on `/login`.
 ///

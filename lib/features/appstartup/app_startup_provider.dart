@@ -227,7 +227,10 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.invalidate(ownerEquipmentProvider);
     ref.invalidate(ownerEquipmentDetailsProvider);
     ref.invalidate(equipmentMutationProvider);
-    await ref.read(equipmentShareStorageProvider).clearPendingUri();
+    final shareStorage = ref.read(equipmentShareStorageProvider);
+    await shareStorage.clearPendingUri();
+    await shareStorage.clearBookingIntent();
+    await shareStorage.clearOverlay();
 
     // Map state can retain selected/personalized equipment.
     // ref.invalidate(equipmentMapProvider);

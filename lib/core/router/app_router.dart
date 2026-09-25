@@ -98,8 +98,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           return AppRoutes.login;
 
         case AppStartupRouteState.guest:
+        case AppStartupRouteState.owner:
+        case AppStartupRouteState.client:
           if (location == AppRoutes.launch) {
-            return AppRoutes.main;
+            return startupLandingLocation(startupState);
           }
           break;
 
@@ -108,18 +110,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             return null;
           }
           return AppRoutes.login;
-
-        case AppStartupRouteState.owner:
-          if (location == AppRoutes.launch) {
-            return AppRoutes.ownerEquipment;
-          }
-          break;
-
-        case AppStartupRouteState.client:
-          if (location == AppRoutes.launch) {
-            return AppRoutes.searchList;
-          }
-          break;
       }
 
       final isLoggedIn =
@@ -156,11 +146,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         // This value is already automatically decoded by GoRouter
         final from = state.uri.queryParameters['from'];
 
-        return resolvePostLoginLocation(
+        final dest = resolvePostLoginLocation(
           from: from,
           ownerModeActive: isOwner,
           accountIsOwner: jwtIsOwner,
         );
+        if (dest.startsWith('/e/')) {
+          return startupLandingLocation(startupState);
+        }
+        return dest;
       }
 
       return null;
@@ -176,6 +170,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.equipmentShare,
         builder: (_, state) =>
             GuestCreateBookingScreen(equipmentId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'address',
+            builder: (_, state) => MapClientPinAddressScreen(
+              from: 'guest_share',
+              redirectRoute: AppRoutes.equipmentSharePath(
+                state.pathParameters['id']!,
+              ),
+              showFallback: true,
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.equipmentDemand,

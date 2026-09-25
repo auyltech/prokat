@@ -9,6 +9,7 @@ import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/features/bookings/widgets/service_tariff_block.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
@@ -171,7 +172,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .createBooking();
 
     AppToast.show(
-      message: result.message,
+      message: result.success
+          ? l10n.orderCreated
+          : bookingCreateErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: result.message,
+            ),
       type: result.success ? AppToastType.success : AppToastType.error,
     );
 

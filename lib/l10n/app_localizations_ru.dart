@@ -3782,6 +3782,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shareEquipmentOpenCatalog => 'В каталог';
 
   @override
+  String get shareCannotBookOwnEquipment =>
+      'Нельзя забронировать свою технику.';
+
+  @override
+  String get bookingActiveLimitReached =>
+      'Достигнуто максимальное число активных заказов.';
+
+  @override
+  String get shareEquipmentPriceChanged =>
+      'Цена изменилась. Проверьте тариф и нажмите «Забронировать» ещё раз.';
+
+  @override
+  String get shareEquipmentTariffUnavailable =>
+      'Выбранный тариф больше недоступен. Выберите другой.';
+
+  @override
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
