@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +16,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     expect(find.text('Landing'), findsOneWidget);
 
-    router.push('/e/eq-1');
+    unawaited(router.push('/e/eq-1'));
     await tester.pumpAndSettle();
     expect(find.text('Share eq-1'), findsOneWidget);
 
@@ -33,7 +35,7 @@ void main() {
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
     expect(find.text('Orders'), findsOneWidget);
 
-    router.push('/e/eq-1');
+    unawaited(router.push('/e/eq-1'));
     await tester.pumpAndSettle();
     expect(find.text('Share eq-1'), findsOneWidget);
 
@@ -50,9 +52,9 @@ void main() {
     addTearDown(router.dispose);
 
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-    router.push('/e/eq-1');
+    unawaited(router.push('/e/eq-1'));
     await tester.pumpAndSettle();
-    router.push('/e/eq-1/address');
+    unawaited(router.push('/e/eq-1/address'));
     await tester.pumpAndSettle();
     expect(find.text('Address eq-1'), findsOneWidget);
 
@@ -100,7 +102,7 @@ void main() {
     addTearDown(router.dispose);
 
     await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-    router.push('/card');
+    unawaited(router.push('/card'));
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
@@ -169,7 +171,7 @@ void main() {
       }
       pending = null;
       pushCount += 1;
-      router.push(decision.path!);
+      unawaited(router.push(decision.path!));
     }
 
     router.routerDelegate.addListener(() {
