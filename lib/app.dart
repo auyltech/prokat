@@ -62,8 +62,9 @@ class _MyAppState extends ConsumerState<MyApp> {
     return MaterialApp.router(
       title: 'Prokat',
       debugShowCheckedModeBanner: false,
-      builder: (context, child) =>
-          AppToastHost(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => MediaQuery.withNoTextScaling(
+        child: AppToastHost(child: child ?? const SizedBox.shrink()),
+      ),
       routerConfig: router,
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
