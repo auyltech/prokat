@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
@@ -48,19 +49,22 @@ class PushNotificationService {
   });
 
   Future<void> initialize({required AuthSession session}) async {
+    _pushDiag('initialize called alreadyInitialized=$_initialized');
     if (_initialized) return;
     _initialized = true;
 
     try {
       if (!kIsWeb) {
         await _initLocalNotifications();
+        _pushDiag('local notifications ready');
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Best-effort: local notifications shouldn't crash startup.
+      _pushDiag('local notifications init failed: $error\n$stackTrace');
     }
 
     try {
-      await messaging.requestPermission(
+      final permission = await messaging.requestPermission(
         alert: true,
         badge: true,
         sound: true,
@@ -69,33 +73,57 @@ class PushNotificationService {
         criticalAlert: false,
         provisional: false,
       );
-    } catch (_) {
+      _pushDiag(
+        'requestPermission authorizationStatus=${permission.authorizationStatus}',
+      );
+    } catch (error, stackTrace) {
       // Best-effort: missing OS permission should not crash startup.
+      _pushDiag('requestPermission failed: $error\n$stackTrace');
     }
 
     // Register this device only when OS permission is granted.
     try {
       await syncCurrentDevice(session: session);
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Best-effort: push setup should not crash startup.
+      _pushDiag('syncCurrentDevice failed: $error\n$stackTrace');
     }
 
     // Future token changes are also permission-gated.
     try {
       listenForTokenRefresh(session: session);
-    } catch (_) {}
+      _pushDiag('onTokenRefresh listener attached');
+    } catch (error, stackTrace) {
+      _pushDiag('listenForTokenRefresh failed: $error\n$stackTrace');
+    }
 
     try {
       handleForegroundMessages();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushDiag('handleForegroundMessages failed: $error\n$stackTrace');
+    }
 
     try {
       handleBackgroundNotificationTap();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushDiag('handleBackgroundNotificationTap failed: $error\n$stackTrace');
+    }
 
     try {
       await handleTerminatedNotificationTap();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushDiag('handleTerminatedNotificationTap failed: $error\n$stackTrace');
+    }
+  }
+
+  void _pushDiag(String message) {
+    Logger.log('[push-diag] $message');
+  }
+
+  String _tokenPresence(String? token) {
+    final value = token?.trim() ?? '';
+    if (value.isEmpty) return 'null';
+    return 'present len=${value.length}';
   }
 
   Future<String?> getFcmToken() async {
@@ -109,9 +137,15 @@ class PushNotificationService {
     String? locale,
     bool force = false,
   }) async {
-    if (kIsWeb) return;
+    if (kIsWeb) {
+      _pushDiag('registerDeviceToken skipped: web');
+      return;
+    }
     final normalizedToken = token.trim();
-    if (normalizedToken.isEmpty) return;
+    if (normalizedToken.isEmpty) {
+      _pushDiag('registerDeviceToken skipped: empty token');
+      return;
+    }
 
     final userId = session.user?.id ?? session.user?.phoneNumber;
     final resolvedLocale = (locale ?? currentLocale?.call() ?? '')
@@ -136,10 +170,14 @@ class PushNotificationService {
         lastUserId == userId &&
         tooSoon &&
         !localeChanged) {
+      _pushDiag(
+        'registerDeviceToken skipped: same token already sent within 12h',
+      );
       return;
     }
 
     final platform = _platformName();
+    _pushDiag('registerDeviceToken called platform=$platform');
 
     await api.registerDeviceToken(
       token: normalizedToken,
@@ -172,18 +210,26 @@ class PushNotificationService {
   void listenForTokenRefresh({required AuthSession session}) {
     unawaited(_onTokenRefreshSub?.cancel());
     _onTokenRefreshSub = messaging.onTokenRefresh.listen((token) async {
+      _pushDiag('onTokenRefresh ${_tokenPresence(token)}');
       try {
         final settings = await messaging.getNotificationSettings();
+        _pushDiag(
+          'onTokenRefresh authorizationStatus=${settings.authorizationStatus}',
+        );
 
         final authorized =
             settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional;
 
-        if (!authorized) return;
+        if (!authorized) {
+          _pushDiag('onTokenRefresh skipped: not authorized');
+          return;
+        }
 
         await registerTokenWithBackend(session: session, token: token);
-      } catch (_) {
+      } catch (error, stackTrace) {
         // Best-effort.
+        _pushDiag('onTokenRefresh failed: $error\n$stackTrace');
       }
     });
   }
@@ -397,18 +443,33 @@ class PushNotificationService {
     if (kIsWeb) return false;
 
     final settings = await messaging.getNotificationSettings();
+    _pushDiag(
+      'getNotificationSettings authorizationStatus=${settings.authorizationStatus}',
+    );
 
     final authorized =
         settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
 
     if (!authorized) {
+      _pushDiag('syncCurrentDevice skipped: notification permission not granted');
       return false;
     }
 
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        final apnsToken = await messaging.getAPNSToken();
+        _pushDiag('getAPNSToken ${_tokenPresence(apnsToken)}');
+      } catch (error, stackTrace) {
+        _pushDiag('getAPNSToken failed: $error\n$stackTrace');
+      }
+    }
+
     final token = await getFcmToken();
+    _pushDiag('getToken ${_tokenPresence(token)}');
 
     if ((token ?? '').trim().isEmpty) {
+      _pushDiag('syncCurrentDevice skipped: FCM token empty');
       return false;
     }
 

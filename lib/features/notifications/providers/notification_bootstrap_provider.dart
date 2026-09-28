@@ -57,10 +57,12 @@ final notificationBootstrapProvider = Provider<void>((ref) {
         startup == AppStartupRouteState.owner;
 
     if (!isAuthenticated || session == null) {
+      Logger.log('[push-diag] startIfReady skipped: not authenticated');
       return;
     }
 
     if (lifecyclePaused) {
+      Logger.log('[push-diag] startIfReady skipped: app paused');
       return;
     }
 
@@ -86,13 +88,29 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     }());
 
     // Push notifications.
-    if (push != null && !pushStarted) {
+    if (push == null) {
+      Logger.log(
+        '[push-diag] PushNotificationService.initialize skipped: '
+        'push notifications disabled',
+      );
+    } else if (pushStarted) {
+      Logger.log(
+        '[push-diag] PushNotificationService.initialize skipped: already started',
+      );
+    } else {
       pushStarted = true;
 
       unawaited(() async {
         try {
+          Logger.log('[push-diag] calling PushNotificationService.initialize');
           await push.initialize(session: session);
-        } catch (_) {}
+          Logger.log('[push-diag] PushNotificationService.initialize returned');
+        } catch (error, stackTrace) {
+          Logger.log(
+            '[push-diag] PushNotificationService.initialize failed: '
+            '$error\n$stackTrace',
+          );
+        }
       }());
     }
 
