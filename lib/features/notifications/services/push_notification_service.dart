@@ -63,22 +63,20 @@ class PushNotificationService {
   });
 
   Future<void> initialize({required AuthSession session}) async {
-    _pushDiag('initialize called alreadyInitialized=$_initialized');
     if (_initialized) return;
     _initialized = true;
 
     try {
       if (!kIsWeb) {
         await _initLocalNotifications();
-        _pushDiag('local notifications ready');
       }
     } catch (error, stackTrace) {
       // Best-effort: local notifications shouldn't crash startup.
-      _pushDiag('local notifications init failed: $error\n$stackTrace');
+      _pushLog('local notifications init failed: $error\n$stackTrace');
     }
 
     try {
-      final permission = await messaging.requestPermission(
+      await messaging.requestPermission(
         alert: true,
         badge: true,
         sound: true,
@@ -87,12 +85,9 @@ class PushNotificationService {
         criticalAlert: false,
         provisional: false,
       );
-      _pushDiag(
-        'requestPermission authorizationStatus=${permission.authorizationStatus}',
-      );
     } catch (error, stackTrace) {
       // Best-effort: missing OS permission should not crash startup.
-      _pushDiag('requestPermission failed: $error\n$stackTrace');
+      _pushLog('notification permission request failed: $error\n$stackTrace');
     }
 
     // Register this device only when OS permission is granted.
@@ -100,44 +95,37 @@ class PushNotificationService {
       await syncCurrentDevice(session: session);
     } catch (error, stackTrace) {
       // Best-effort: push setup should not crash startup.
-      _pushDiag('syncCurrentDevice failed: $error\n$stackTrace');
+      _pushLog('syncCurrentDevice failed: $error\n$stackTrace');
     }
 
     // Future token changes are also permission-gated.
     try {
       listenForTokenRefresh(session: session);
-      _pushDiag('onTokenRefresh listener attached');
     } catch (error, stackTrace) {
-      _pushDiag('listenForTokenRefresh failed: $error\n$stackTrace');
+      _pushLog('listenForTokenRefresh failed: $error\n$stackTrace');
     }
 
     try {
       handleForegroundMessages();
     } catch (error, stackTrace) {
-      _pushDiag('handleForegroundMessages failed: $error\n$stackTrace');
+      _pushLog('handleForegroundMessages failed: $error\n$stackTrace');
     }
 
     try {
       handleBackgroundNotificationTap();
     } catch (error, stackTrace) {
-      _pushDiag('handleBackgroundNotificationTap failed: $error\n$stackTrace');
+      _pushLog('handleBackgroundNotificationTap failed: $error\n$stackTrace');
     }
 
     try {
       await handleTerminatedNotificationTap();
     } catch (error, stackTrace) {
-      _pushDiag('handleTerminatedNotificationTap failed: $error\n$stackTrace');
+      _pushLog('handleTerminatedNotificationTap failed: $error\n$stackTrace');
     }
   }
 
-  void _pushDiag(String message) {
-    Logger.log('[push-diag] $message');
-  }
-
-  String _tokenPresence(String? token) {
-    final value = token?.trim() ?? '';
-    if (value.isEmpty) return 'null';
-    return 'present len=${value.length}';
+  void _pushLog(String message) {
+    Logger.log('push: $message');
   }
 
   Future<String?> getFcmToken() async {
@@ -145,7 +133,7 @@ class PushNotificationService {
     if (_isApplePushPlatform) {
       final apnsToken = await messaging.getAPNSToken();
       if ((apnsToken ?? '').trim().isEmpty) {
-        _pushDiag('getToken skipped: APNs token null');
+        _pushLog('getToken skipped: APNs token unavailable');
         return null;
       }
     }
@@ -155,29 +143,25 @@ class PushNotificationService {
   /// Polls until iOS/macOS delivers an APNs token, or the short window ends.
   /// Does not call FCM [FirebaseMessaging.getToken].
   Future<String?> _waitForApnsToken() async {
+    Object? lastError;
     for (var attempt = 1; attempt <= _apnsTokenAttempts; attempt++) {
       try {
         final apnsToken = await messaging.getAPNSToken();
-        _pushDiag(
-          'getAPNSToken ${_tokenPresence(apnsToken)} '
-          'attempt=$attempt/$_apnsTokenAttempts',
-        );
-        final value = apnsToken?.trim() ?? '';
-        if (value.isNotEmpty) {
-          _pushDiag('APNs token present len=${value.length}');
-          return value;
+        if ((apnsToken ?? '').trim().isNotEmpty) {
+          return apnsToken!.trim();
         }
-      } catch (error, stackTrace) {
-        _pushDiag(
-          'getAPNSToken attempt=$attempt/$_apnsTokenAttempts failed: '
-          '$error\n$stackTrace',
-        );
+      } catch (error) {
+        lastError = error;
       }
       if (attempt < _apnsTokenAttempts) {
         await Future.delayed(_apnsTokenDelay);
       }
     }
-    _pushDiag('APNs token still unavailable after retries');
+    _pushLog(
+      lastError == null
+          ? 'APNs token still unavailable after $_apnsTokenAttempts attempts'
+          : 'APNs token still unavailable after $_apnsTokenAttempts attempts: $lastError',
+    );
     return null;
   }
 
@@ -187,13 +171,10 @@ class PushNotificationService {
     String? locale,
     bool force = false,
   }) async {
-    if (kIsWeb) {
-      _pushDiag('registerDeviceToken skipped: web');
-      return;
-    }
+    if (kIsWeb) return;
     final normalizedToken = token.trim();
     if (normalizedToken.isEmpty) {
-      _pushDiag('registerDeviceToken skipped: empty token');
+      _pushLog('device token registration skipped: empty FCM token');
       return;
     }
 
@@ -220,14 +201,10 @@ class PushNotificationService {
         lastUserId == userId &&
         tooSoon &&
         !localeChanged) {
-      _pushDiag(
-        'registerDeviceToken skipped: same token already sent within 12h',
-      );
       return;
     }
 
     final platform = _platformName();
-    _pushDiag('registerDeviceToken called platform=$platform');
 
     await api.registerDeviceToken(
       token: normalizedToken,
@@ -260,26 +237,25 @@ class PushNotificationService {
   void listenForTokenRefresh({required AuthSession session}) {
     unawaited(_onTokenRefreshSub?.cancel());
     _onTokenRefreshSub = messaging.onTokenRefresh.listen((token) async {
-      _pushDiag('onTokenRefresh ${_tokenPresence(token)}');
       try {
         final settings = await messaging.getNotificationSettings();
-        _pushDiag(
-          'onTokenRefresh authorizationStatus=${settings.authorizationStatus}',
-        );
 
         final authorized =
             settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional;
 
         if (!authorized) {
-          _pushDiag('onTokenRefresh skipped: not authorized');
+          _pushLog(
+            'onTokenRefresh skipped: notification permission not granted '
+            '(${settings.authorizationStatus})',
+          );
           return;
         }
 
         await registerTokenWithBackend(session: session, token: token);
       } catch (error, stackTrace) {
         // Best-effort.
-        _pushDiag('onTokenRefresh failed: $error\n$stackTrace');
+        _pushLog('onTokenRefresh failed: $error\n$stackTrace');
       }
     });
   }
@@ -492,7 +468,6 @@ class PushNotificationService {
   }) async {
     if (kIsWeb) return false;
     if (_syncInFlight) {
-      _pushDiag('syncCurrentDevice skipped: already in progress');
       return false;
     }
     _syncInFlight = true;
@@ -513,16 +488,15 @@ class PushNotificationService {
     bool force = false,
   }) async {
     final settings = await messaging.getNotificationSettings();
-    _pushDiag(
-      'getNotificationSettings authorizationStatus=${settings.authorizationStatus}',
-    );
 
     final authorized =
         settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
 
     if (!authorized) {
-      _pushDiag('syncCurrentDevice skipped: notification permission not granted');
+      _pushLog(
+        'notification permission not granted (${settings.authorizationStatus})',
+      );
       return false;
     }
 
@@ -530,24 +504,19 @@ class PushNotificationService {
       final apnsToken = await _waitForApnsToken();
       if (apnsToken == null) {
         _apnsSyncPending = true;
-        _pushDiag(
-          'syncCurrentDevice skipped: APNs token unavailable; getToken not called',
-        );
         return false;
       }
     }
 
     final token = await getFcmToken();
-    _pushDiag('getToken ${_tokenPresence(token)}');
     final fcmToken = token?.trim() ?? '';
 
     if (fcmToken.isEmpty) {
-      _pushDiag('syncCurrentDevice skipped: FCM token empty');
+      _pushLog('FCM token unavailable');
       return false;
     }
 
     _apnsSyncPending = false;
-    _pushDiag('FCM token present len=${fcmToken.length}');
 
     await registerTokenWithBackend(
       session: session,

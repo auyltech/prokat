@@ -20,46 +20,22 @@ class NotificationApiService {
     required String platform,
     Map<String, dynamic>? metadata,
   }) async {
-    final tokenState = token.trim().isEmpty
-        ? 'null'
-        : 'present len=${token.trim().length}';
-    Logger.log(
-      '[push-diag] POST $_registerTokenPath platform=$platform token=$tokenState',
-    );
     try {
-      final response = await dio.post(
+      await dio.post(
         _registerTokenPath,
         data: {'token': token, 'platform': platform, ...?metadata},
       );
-      Logger.log(
-        '[push-diag] POST $_registerTokenPath status=${response.statusCode} '
-        'response=${_pushDiagBody(response.data)}',
-      );
     } on DioException catch (error, stackTrace) {
       Logger.log(
-        '[push-diag] POST $_registerTokenPath failed '
+        'push: POST $_registerTokenPath failed '
         'status=${error.response?.statusCode} '
-        'response=${_pushDiagBody(error.response?.data)} '
-        'error=$error\n$stackTrace',
+        'message=${extractBackendMessage(error.response?.data)}\n$stackTrace',
       );
       throw Exception(extractBackendMessage(error));
     } catch (error, stackTrace) {
-      Logger.log(
-        '[push-diag] POST $_registerTokenPath failed error=$error\n$stackTrace',
-      );
+      Logger.log('push: POST $_registerTokenPath failed\n$stackTrace');
       throw Exception(error.toString());
     }
-  }
-
-  String _pushDiagBody(dynamic data) {
-    if (data is Map) {
-      final copy = Map<String, dynamic>.from(data);
-      for (final key in ['token', 'fcmToken', 'deviceToken', 'apnsToken']) {
-        if (copy.containsKey(key)) copy[key] = '[redacted]';
-      }
-      return copy.toString();
-    }
-    return data?.toString() ?? 'null';
   }
 
   Future<void> deactivateDeviceToken({required String token}) async {

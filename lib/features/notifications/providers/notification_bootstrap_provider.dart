@@ -57,12 +57,10 @@ final notificationBootstrapProvider = Provider<void>((ref) {
         startup == AppStartupRouteState.owner;
 
     if (!isAuthenticated || session == null) {
-      Logger.log('[push-diag] startIfReady skipped: not authenticated');
       return;
     }
 
     if (lifecyclePaused) {
-      Logger.log('[push-diag] startIfReady skipped: app paused');
       return;
     }
 
@@ -89,25 +87,14 @@ final notificationBootstrapProvider = Provider<void>((ref) {
 
     // Push notifications.
     if (push == null) {
-      Logger.log(
-        '[push-diag] PushNotificationService.initialize skipped: '
-        'push notifications disabled',
-      );
+      Logger.log('push: notifications disabled');
     } else if (pushStarted) {
-      Logger.log(
-        '[push-diag] PushNotificationService.initialize skipped: already started',
-      );
       if (push.apnsSyncPending) {
-        Logger.log(
-          '[push-diag] retry syncCurrentDevice: previous attempt had no APNs token',
-        );
         unawaited(() async {
           try {
             await push.syncCurrentDevice(session: session);
           } catch (error, stackTrace) {
-            Logger.log(
-              '[push-diag] retry syncCurrentDevice failed: $error\n$stackTrace',
-            );
+            Logger.log('push: retry syncCurrentDevice failed: $error\n$stackTrace');
           }
         }());
       }
@@ -116,14 +103,9 @@ final notificationBootstrapProvider = Provider<void>((ref) {
 
       unawaited(() async {
         try {
-          Logger.log('[push-diag] calling PushNotificationService.initialize');
           await push.initialize(session: session);
-          Logger.log('[push-diag] PushNotificationService.initialize returned');
         } catch (error, stackTrace) {
-          Logger.log(
-            '[push-diag] PushNotificationService.initialize failed: '
-            '$error\n$stackTrace',
-          );
+          Logger.log('push: initialize failed: $error\n$stackTrace');
         }
       }());
     }
