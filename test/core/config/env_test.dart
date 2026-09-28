@@ -74,6 +74,39 @@ void main() {
     expect(Env.pushNotificationsEnabled, pushEnabled);
     expect(Env.firebaseServicesEnabled, firebaseEnabled);
   });
+
+  test('builds an equipment share URL on the default host', () {
+    expect(Env.shareBaseUrl, 'https://prokat-bfbec.web.app');
+    expect(
+      Env.equipmentShareUrl('equipment-1'),
+      'https://prokat-bfbec.web.app/e/equipment-1',
+    );
+    expect(Env.shareTrustedHosts, {
+      'prokat-bfbec.web.app',
+      'prokat-bfbec.firebaseapp.com',
+    });
+  });
+
+  test('rejects a share URL that is not bare https', () {
+    expect(
+      () => Env.parseShareBaseUrl('http://prokat-bfbec.web.app'),
+      throwsStateError,
+    );
+    expect(
+      () => Env.parseShareBaseUrl('https://prokat-bfbec.web.app/'),
+      throwsStateError,
+    );
+    expect(
+      () => Env.parseShareBaseUrl('https://prokat-bfbec.web.app/e/1'),
+      throwsStateError,
+    );
+    expect(
+      Env.parseShareBaseUrl('https://links.example.com'),
+      'https://links.example.com',
+    );
+    expect(() => Env.equipmentShareUrl(''), throwsArgumentError);
+    expect(() => Env.equipmentShareUrl('a/b'), throwsArgumentError);
+  });
 }
 
 String _withoutTrailingSlash(String value) {

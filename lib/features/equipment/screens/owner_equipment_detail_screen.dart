@@ -18,6 +18,7 @@ import 'package:prokat/features/equipment/widgets/owner/delete_equipment_section
 import 'package:prokat/features/equipment/widgets/owner/equipment_moderation_status_card.dart';
 import 'package:prokat/features/equipment/widgets/owner/general_info_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_header.dart';
+import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_specs.dart';
 import 'package:prokat/features/equipment/widgets/owner/registration_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -180,11 +181,23 @@ class _OwnerEquipmentDetailScreenState
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
-                  OwnerEquipmentImageHeader(
-                    equipmentId: equipment.id,
-                    images: equipment.images,
-                    legacyImageUrl: equipment.imageUrl ?? '',
-                    canEditImages: equipment.isDraft,
+                  Stack(
+                    children: [
+                      OwnerEquipmentImageHeader(
+                        equipmentId: equipment.id,
+                        images: equipment.images,
+                        legacyImageUrl: equipment.imageUrl ?? '',
+                        canEditImages: equipment.isDraft,
+                      ),
+                      Positioned(
+                        top: AppDimens.s16$base,
+                        right: AppDimens.s16$base,
+                        child: ShareEquipmentButton(
+                          equipment: equipment,
+                          refreshOwnerDetails: true,
+                        ),
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(

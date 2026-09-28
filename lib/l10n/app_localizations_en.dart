@@ -3725,4 +3725,45 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get somethingWentWrongTryAgain =>
       'Something went wrong. Please try again.';
+
+  @override
+  String get shareEquipment => 'Share';
+
+  @override
+  String get shareEquipmentTitle => 'Share';
+
+  @override
+  String get shareEquipmentNeedPublish =>
+      'To share this equipment, publish it in the catalog: status “available”, the visibility toggle on, and a price set.';
+
+  @override
+  String get shareEquipmentCta => 'Book in PROKAT';
+
+  @override
+  String get shareEquipmentUnavailable =>
+      'This equipment is not available in the catalog.';
+
+  @override
+  String get shareEquipmentOpenCatalog => 'Browse catalog';
+
+  @override
+  String get shareCannotBookOwnEquipment =>
+      'You cannot book your own equipment.';
+
+  @override
+  String get bookingActiveLimitReached =>
+      'Maximum number of active bookings reached.';
+
+  @override
+  String get shareEquipmentPriceChanged =>
+      'The price changed. Check the tariff and tap Book again.';
+
+  @override
+  String get shareEquipmentTariffUnavailable =>
+      'The selected tariff is no longer available. Choose another.';
+
+  @override
+  String shareEquipmentMessage(String name, String priceLine, String url) {
+    return '$name\n$priceLine\n$url';
+  }
 }

@@ -13,6 +13,7 @@ import 'location_state.dart';
 class LocationNotifier extends StateNotifier<LocationState> {
   final LocationService api;
   final Ref ref;
+  Future<void>? _clientLocationsInFlight;
 
   LocationNotifier(this.api, this.ref) : super(const LocationState());
 
@@ -57,6 +58,20 @@ class LocationNotifier extends StateNotifier<LocationState> {
 
   // Fetch user Addresses
   Future<void> getClientLocations() async {
+    final inFlight = _clientLocationsInFlight;
+    if (inFlight != null) return inFlight;
+
+    late final Future<void> tracked;
+    tracked = _fetchClientLocations().whenComplete(() {
+      if (identical(_clientLocationsInFlight, tracked)) {
+        _clientLocationsInFlight = null;
+      }
+    });
+    _clientLocationsInFlight = tracked;
+    return tracked;
+  }
+
+  Future<void> _fetchClientLocations() async {
     try {
       final hasData = state.clientLocations.isNotEmpty;
 
@@ -95,6 +110,41 @@ class LocationNotifier extends StateNotifier<LocationState> {
         ),
       );
     }
+  }
+
+  /// Fresh GET for one authenticated share-card instance.
+  Future<bool> refreshClientLocationsForShare() async {
+    await getClientLocations();
+    final status = state.fetchStatus;
+    return status == FetchStatus.success || status == FetchStatus.empty;
+  }
+
+  /// Known successful load before picking or creating an address.
+  Future<bool> ensureClientLocations({bool retryOnError = false}) async {
+    final status = state.fetchStatus;
+    if (status == FetchStatus.success || status == FetchStatus.empty) {
+      return true;
+    }
+
+    if (status == FetchStatus.loading ||
+        status == FetchStatus.refreshing ||
+        _clientLocationsInFlight != null) {
+      await getClientLocations();
+      final next = state.fetchStatus;
+      return next == FetchStatus.success || next == FetchStatus.empty;
+    }
+
+    if (status == FetchStatus.error) {
+      if (!retryOnError) return false;
+      await getClientLocations();
+      final next = state.fetchStatus;
+      return next == FetchStatus.success || next == FetchStatus.empty;
+    }
+
+    // initial / stale / other
+    await getClientLocations();
+    final next = state.fetchStatus;
+    return next == FetchStatus.success || next == FetchStatus.empty;
   }
 
   // Fetch owner equipment locations

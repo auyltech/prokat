@@ -150,6 +150,12 @@ class _MapClientPinAddressContainerState
         longitude: longitude,
       );
 
+      if (widget.from == 'guest_share') {
+        if (!mounted) return;
+        if (context.canPop()) context.pop(location);
+        return;
+      }
+
       final created = await ref
           .read(locationProvider.notifier)
           .createLocation(location, widget.from);
@@ -167,6 +173,9 @@ class _MapClientPinAddressContainerState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final savingAddress =
+        widget.from != 'guest_share' &&
+        ref.watch(locationProvider).isActionActive("location:create");
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -197,17 +206,11 @@ class _MapClientPinAddressContainerState
             confirmButton: SizedBox(
               width: double.infinity,
               child: AppElevatedButton(
-                onTap:
-                    selectedAddress == null ||
-                        ref
-                            .watch(locationProvider)
-                            .isActionActive("location:create")
+                onTap: selectedAddress == null || savingAddress
                     ? null
                     : createAddress,
                 title: l10n.saveAddress,
-                isLoading: ref
-                    .watch(locationProvider)
-                    .isActionActive("location:create"),
+                isLoading: savingAddress,
                 isExpanded: false,
               ),
             ),

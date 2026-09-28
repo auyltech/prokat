@@ -156,6 +156,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
       return MutationResponse(
         success: result.success,
         message: result.success ? "Order created" : result.message,
+        errorCode: result.success ? null : result.errorCode,
       );
     } catch (error) {
       finishAction(

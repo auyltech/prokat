@@ -28,3 +28,16 @@ plugins {
 }
 
 include(":app")
+
+// play_install_referrer 0.5.0 always applies kotlin-android and the old
+// compileSdkVersion DSL. AGP 9 with built-in Kotlin rejects that. Copy a
+// compatible build file over the pub-cache project before it is evaluated.
+gradle.beforeProject {
+    if (name != "play_install_referrer") return@beforeProject
+    val patched = settingsDir.resolve("patches/play_install_referrer.build.gradle")
+    val target = projectDir.resolve("build.gradle")
+    if (!patched.isFile || !target.isFile) return@beforeProject
+    if (target.readText() != patched.readText()) {
+        target.writeText(patched.readText())
+    }
+}

@@ -6,8 +6,15 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class MapClientPinAddressScreen extends StatelessWidget {
   final String from;
+  final String? redirectRoute;
+  final bool? showFallback;
 
-  const MapClientPinAddressScreen({super.key, required this.from});
+  const MapClientPinAddressScreen({
+    super.key,
+    required this.from,
+    this.redirectRoute,
+    this.showFallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +22,10 @@ class MapClientPinAddressScreen extends StatelessWidget {
 
     return MapContainer(
       title: l10n.setDeliveryAddress,
-      redirectRoute: "${AppRoutes.clientCreateAddress}?service=address",
+      redirectRoute:
+          redirectRoute ?? "${AppRoutes.clientCreateAddress}?service=address",
       redirectLabel: l10n.back,
+      showFallback: showFallback,
       mobileMap: MapClientPinAddressContainer(from: from),
     );
   }
