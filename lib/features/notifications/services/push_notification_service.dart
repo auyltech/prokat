@@ -35,7 +35,21 @@ class PushNotificationService {
 
   bool _initialized = false;
   bool _localNotificationsReady = false;
+  bool _syncInFlight = false;
+  bool _apnsSyncPending = false;
   final Map<String, DateTime> _displayedIds = {};
+
+  static const int _apnsTokenAttempts = 10;
+  static const Duration _apnsTokenDelay = Duration(milliseconds: 500);
+
+  /// True after an Apple sync stopped because the APNs token was still null.
+  /// Cleared when a later [syncCurrentDevice] obtains the token.
+  bool get apnsSyncPending => _apnsSyncPending;
+
+  bool get _isApplePushPlatform =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS);
 
   PushNotificationService({
     required this.messaging,
@@ -128,7 +142,43 @@ class PushNotificationService {
 
   Future<String?> getFcmToken() async {
     if (kIsWeb) return null;
+    if (_isApplePushPlatform) {
+      final apnsToken = await messaging.getAPNSToken();
+      if ((apnsToken ?? '').trim().isEmpty) {
+        _pushDiag('getToken skipped: APNs token null');
+        return null;
+      }
+    }
     return messaging.getToken();
+  }
+
+  /// Polls until iOS/macOS delivers an APNs token, or the short window ends.
+  /// Does not call FCM [FirebaseMessaging.getToken].
+  Future<String?> _waitForApnsToken() async {
+    for (var attempt = 1; attempt <= _apnsTokenAttempts; attempt++) {
+      try {
+        final apnsToken = await messaging.getAPNSToken();
+        _pushDiag(
+          'getAPNSToken ${_tokenPresence(apnsToken)} '
+          'attempt=$attempt/$_apnsTokenAttempts',
+        );
+        final value = apnsToken?.trim() ?? '';
+        if (value.isNotEmpty) {
+          _pushDiag('APNs token present len=${value.length}');
+          return value;
+        }
+      } catch (error, stackTrace) {
+        _pushDiag(
+          'getAPNSToken attempt=$attempt/$_apnsTokenAttempts failed: '
+          '$error\n$stackTrace',
+        );
+      }
+      if (attempt < _apnsTokenAttempts) {
+        await Future.delayed(_apnsTokenDelay);
+      }
+    }
+    _pushDiag('APNs token still unavailable after retries');
+    return null;
   }
 
   Future<void> registerTokenWithBackend({
@@ -441,7 +491,27 @@ class PushNotificationService {
     bool force = false,
   }) async {
     if (kIsWeb) return false;
+    if (_syncInFlight) {
+      _pushDiag('syncCurrentDevice skipped: already in progress');
+      return false;
+    }
+    _syncInFlight = true;
+    try {
+      return await _syncCurrentDevice(
+        session: session,
+        locale: locale,
+        force: force,
+      );
+    } finally {
+      _syncInFlight = false;
+    }
+  }
 
+  Future<bool> _syncCurrentDevice({
+    required AuthSession session,
+    String? locale,
+    bool force = false,
+  }) async {
     final settings = await messaging.getNotificationSettings();
     _pushDiag(
       'getNotificationSettings authorizationStatus=${settings.authorizationStatus}',
@@ -456,26 +526,32 @@ class PushNotificationService {
       return false;
     }
 
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-      try {
-        final apnsToken = await messaging.getAPNSToken();
-        _pushDiag('getAPNSToken ${_tokenPresence(apnsToken)}');
-      } catch (error, stackTrace) {
-        _pushDiag('getAPNSToken failed: $error\n$stackTrace');
+    if (_isApplePushPlatform) {
+      final apnsToken = await _waitForApnsToken();
+      if (apnsToken == null) {
+        _apnsSyncPending = true;
+        _pushDiag(
+          'syncCurrentDevice skipped: APNs token unavailable; getToken not called',
+        );
+        return false;
       }
     }
 
     final token = await getFcmToken();
     _pushDiag('getToken ${_tokenPresence(token)}');
+    final fcmToken = token?.trim() ?? '';
 
-    if ((token ?? '').trim().isEmpty) {
+    if (fcmToken.isEmpty) {
       _pushDiag('syncCurrentDevice skipped: FCM token empty');
       return false;
     }
 
+    _apnsSyncPending = false;
+    _pushDiag('FCM token present len=${fcmToken.length}');
+
     await registerTokenWithBackend(
       session: session,
-      token: token!,
+      token: fcmToken,
       locale: locale,
       force: force,
     );
@@ -505,5 +581,7 @@ class PushNotificationService {
     _displayedIds.clear();
     _initialized = false;
     _localNotificationsReady = false;
+    _apnsSyncPending = false;
+    _syncInFlight = false;
   }
 }

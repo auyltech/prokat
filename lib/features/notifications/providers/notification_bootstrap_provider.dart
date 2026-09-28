@@ -97,6 +97,20 @@ final notificationBootstrapProvider = Provider<void>((ref) {
       Logger.log(
         '[push-diag] PushNotificationService.initialize skipped: already started',
       );
+      if (push.apnsSyncPending) {
+        Logger.log(
+          '[push-diag] retry syncCurrentDevice: previous attempt had no APNs token',
+        );
+        unawaited(() async {
+          try {
+            await push.syncCurrentDevice(session: session);
+          } catch (error, stackTrace) {
+            Logger.log(
+              '[push-diag] retry syncCurrentDevice failed: $error\n$stackTrace',
+            );
+          }
+        }());
+      }
     } else {
       pushStarted = true;
 
