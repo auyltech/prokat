@@ -18,6 +18,8 @@ class CategoryPickerResult {
 }
 
 class CategoryPickerSheet {
+  CategoryPickerSheet._();
+
   static Future<CategoryPickerResult?> show(
     BuildContext context, {
     required List<Category> categories,
@@ -26,14 +28,20 @@ class CategoryPickerSheet {
   }) {
     final l10n = AppLocalizations.of(context)!;
 
-    return AppBottomSheet.show<CategoryPickerResult>(
+    return AppBottomSheet.showScrollable<CategoryPickerResult>(
       context,
       title: l10n.selectCategory,
-      contentBuilder: (context) {
+      initialChildSize: 0.4,
+      minChildSize: 0.2,
+      maxChildSize: 0.85,
+      headerBuilder: (_) => const SizedBox.shrink(),
+      footerBuilder: (_) => const SizedBox.shrink(),
+      scrollableListBuilder: (context, scrollController) {
         return _CategoryPickerList(
           categories: categories,
           group: group,
           selectedId: selectedId,
+          scrollController: scrollController,
         );
       },
     );
@@ -44,11 +52,13 @@ class _CategoryPickerList extends StatelessWidget {
   final List<Category> categories;
   final CatalogGroup group;
   final String? selectedId;
+  final ScrollController scrollController;
 
   const _CategoryPickerList({
     required this.categories,
     required this.group,
     required this.selectedId,
+    required this.scrollController,
   });
 
   @override
@@ -62,29 +72,32 @@ class _CategoryPickerList extends StatelessWidget {
         ? AppImages.equipmentStd
         : AppImages.machineryStd;
 
-    return ListView(
-      shrinkWrap: true,
-      physics: const ClampingScrollPhysics(),
-      children: [
-        _CategoryPickerTile(
-          title: l10n.allCategories,
-          description: allDescription,
-          selected: selectedId == null,
-          image: allImage(size: 48, fit: BoxFit.cover),
-          onTap: () =>
-              Navigator.of(context).pop(const CategoryPickerResult.all()),
-        ),
-        for (final category in categories)
-          _CategoryPickerTile(
-            title: category.localizedName(languageCode),
-            description: category.localizedDescription(languageCode),
-            selected: selectedId == category.id,
-            image: _categoryImage(category),
+    return ListView.builder(
+      controller: scrollController,
+      itemCount: categories.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _CategoryPickerTile(
+            title: l10n.allCategories,
+            description: allDescription,
+            selected: selectedId == null,
+            image: allImage(size: 48, fit: BoxFit.contain),
             onTap: () =>
-                Navigator.of(context)
-                    .pop(CategoryPickerResult.category(category)),
-          ),
-      ],
+                Navigator.of(context).pop(const CategoryPickerResult.all()),
+          );
+        }
+
+        final category = categories[index - 1];
+        return _CategoryPickerTile(
+          title: category.localizedName(languageCode),
+          description: category.localizedDescription(languageCode),
+          selected: selectedId == category.id,
+          image: _categoryImage(category),
+          onTap: () =>
+              Navigator.of(context)
+                  .pop(CategoryPickerResult.category(category)),
+        );
+      },
     );
   }
 
@@ -93,7 +106,7 @@ class _CategoryPickerList extends StatelessWidget {
     if (url != null && url.isNotEmpty) {
       return OptimizedNetworkImage(
         imageUrl: url,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         height: 48,
         width: 48,
       );
@@ -134,14 +147,8 @@ class _CategoryPickerTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              SizedBox.square(
-                dimension: 48,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimens.r08$md),
-                  child: image,
-                ),
-              ),
-              const SizedBox(width: AppDimens.s12$md),
+              SizedBox.square(dimension: 64, child: image),
+              const SizedBox(width: AppDimens.s08$sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +163,7 @@ class _CategoryPickerTile extends StatelessWidget {
                       const SizedBox(height: AppDimens.s04$xs),
                       Text(
                         description,
-                        maxLines: 2,
+                        maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: AppFonts.caption(context),
                       ),

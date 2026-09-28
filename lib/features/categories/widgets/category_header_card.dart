@@ -27,7 +27,7 @@ class CategoryHeaderCard extends ConsumerStatefulWidget {
 }
 
 class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
-  static const _imageSize = 56.0;
+  static const _imageSize = 100.0;
 
   late final TextEditingController _searchController;
   Timer? _debounce;
@@ -176,7 +176,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
     final searchExpanded = session.searchExpanded;
 
     return BaseTile(
-      padding: const EdgeInsets.all(AppDimens.s12$md),
+      padding: const EdgeInsets.all(AppDimens.s08$sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -195,22 +195,18 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
                     ),
                     child: Row(
                       children: [
-                        SizedBox.square(
-                          dimension: _imageSize,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              AppDimens.r08$md,
-                            ),
-                            child: imageUrl != null && imageUrl.isNotEmpty
-                                ? OptimizedNetworkImage(
-                                    imageUrl: imageUrl,
-                                    fit: BoxFit.cover,
-                                  )
-                                : _allCategoriesImage(group)(
-                                    size: _imageSize,
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
+                        SizedBox(
+                          width: _imageSize,
+                          height: _imageSize * 0.8,
+                          child: imageUrl != null && imageUrl.isNotEmpty
+                              ? OptimizedNetworkImage(
+                                  imageUrl: imageUrl,
+                                  fit: BoxFit.contain,
+                                )
+                              : _allCategoriesImage(group)(
+                                  size: _imageSize,
+                                  fit: BoxFit.contain,
+                                ),
                         ),
                         const SizedBox(width: AppDimens.s12$md),
                         Expanded(
@@ -221,13 +217,13 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
                                 title,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: AppFonts.body16SemiBold(context),
+                                style: AppFonts.headingM(context),
                               ),
                               if (description.isNotEmpty) ...[
-                                const SizedBox(height: AppDimens.s04$xs),
+                                const SizedBox(height: AppDimens.s08$sm),
                                 Text(
                                   description,
-                                  maxLines: 2,
+                                  maxLines: 4,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppFonts.caption(context),
                                 ),
@@ -241,28 +237,32 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
                 ),
               ),
               const SizedBox(width: AppDimens.s08$sm),
-              AppIconButton(
-                icon: LucideIcons.funnel,
-                tooltip: l10n.categoryFilters,
-                variant: _hasActiveFilters
-                    ? AppIconButtonVariant.soft
-                    : AppIconButtonVariant.plain,
-                tone: _hasActiveFilters
-                    ? AppIconButtonTone.primary
-                    : AppIconButtonTone.neutral,
-                onTap: _openFilters,
-              ),
-              const SizedBox(width: AppDimens.s04$xs),
-              AppIconButton(
-                icon: LucideIcons.search,
-                tooltip: l10n.search,
-                variant: searchExpanded
-                    ? AppIconButtonVariant.soft
-                    : AppIconButtonVariant.plain,
-                tone: searchExpanded
-                    ? AppIconButtonTone.primary
-                    : AppIconButtonTone.neutral,
-                onTap: _toggleSearch,
+              Column(
+                spacing: AppDimens.s04$xs,
+                children: [
+                  // AppIconButton(
+                  //   icon: LucideIcons.funnel,
+                  //   tooltip: l10n.categoryFilters,
+                  //   variant: _hasActiveFilters
+                  //       ? AppIconButtonVariant.soft
+                  //       : AppIconButtonVariant.plain,
+                  //   tone: _hasActiveFilters
+                  //       ? AppIconButtonTone.primary
+                  //       : AppIconButtonTone.neutral,
+                  //   onTap: _openFilters,
+                  // ),
+                  AppIconButton(
+                    icon: LucideIcons.search,
+                    tooltip: l10n.search,
+                    variant: searchExpanded
+                        ? AppIconButtonVariant.soft
+                        : AppIconButtonVariant.plain,
+                    tone: searchExpanded
+                        ? AppIconButtonTone.primary
+                        : AppIconButtonTone.neutral,
+                    onTap: _toggleSearch,
+                  ),
+                ],
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -22,44 +23,35 @@ enum CategorySheetMode {
   editEquipment,
 }
 
-class CategorySelectionSheet extends ConsumerWidget {
-  final CategorySheetMode service;
-  const CategorySelectionSheet({super.key, required this.service});
+class CategorySelectionSheet {
+  CategorySelectionSheet._();
 
-  static Future<Category?> show(
-    BuildContext context, {
-    required CategorySheetMode service,
-  }) async {
-    return await showModalBottomSheet<Category?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => CategorySelectionSheet(service: service),
-    );
-  }
-
-  bool get _isOwnerMutation =>
+  static bool _isOwnerMutation(CategorySheetMode service) =>
       service == CategorySheetMode.createEquipment ||
       service == CategorySheetMode.editEquipment;
 
-  bool get _isMutation =>
+  static bool _isMutation(CategorySheetMode service) =>
       service == CategorySheetMode.createRequest ||
       service == CategorySheetMode.createEquipment ||
       service == CategorySheetMode.editEquipment;
 
-  List<CatalogGroup> _availableGroups(WidgetRef ref) {
-    final catalog = ref.watch(catalogProvider).valueOrNull;
-    return _isOwnerMutation
+  static List<CatalogGroup> _availableGroups(
+    WidgetRef ref,
+    CategorySheetMode service,
+  ) {
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    return _isOwnerMutation(service)
         ? ownerVisibleCatalogGroups(catalog)
         : userVisibleCatalogGroups(catalog);
   }
 
-  List<Category> _categoriesForSheet(WidgetRef ref, CatalogGroup group) {
-    final catalog = ref.watch(catalogProvider).valueOrNull;
-    if (_isOwnerMutation) {
+  static List<Category> _categoriesForSheet(
+    WidgetRef ref,
+    CategorySheetMode service,
+    CatalogGroup group,
+  ) {
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    if (_isOwnerMutation(service)) {
       return catalog
               ?.ownerCategoriesFor(group)
               .map(Category.fromCatalog)
@@ -67,11 +59,11 @@ class CategorySelectionSheet extends ConsumerWidget {
           const [];
     }
 
-    final items = ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
+    final items = ref.read(categoriesProvider).valueOrNull?.items ?? const [];
     return items.where((item) => item.catalogGroup == group).toList();
   }
 
-  Future<void> _openSuggestEquipment(
+  static Future<void> _openSuggestEquipment(
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
@@ -104,52 +96,49 @@ class CategorySelectionSheet extends ConsumerWidget {
     await router.push(AppRoutes.equipmentDemandPath(campaignId));
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+  static Widget _categoryImage(Category category) {
+    final url = category.imageUrl;
+    if (url != null && url.isNotEmpty) {
+      return OptimizedNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.contain,
+        height: 48,
+        width: 48,
+      );
+    }
+    return const Icon(Icons.image_not_supported, size: 32);
+  }
+
+  static Future<Category?> show(
+    BuildContext context, {
+    required CategorySheetMode service,
+  }) {
     final l10n = AppLocalizations.of(context)!;
-    final groups = _availableGroups(ref);
-    final selectedGroup = coerceCatalogGroup(
-      ref.watch(mutationCatalogGroupProvider),
-      groups,
-    );
-    final categories = _categoriesForSheet(ref, selectedGroup);
-    final demandEligible =
-        service == CategorySheetMode.createEquipment ||
-        service == CategorySheetMode.createRequest;
-    final showSuggest =
-        demandEligible &&
-        (ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false);
-    final itemCount = categories.length + (showSuggest ? 1 : 0);
     final sheetTitle = service == CategorySheetMode.createRequest
         ? l10n.requestCategoryTitle
         : l10n.selectService;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
+    return AppBottomSheet.showScrollable<Category?>(
+      context,
+      title: sheetTitle,
+      initialChildSize: 0.4,
+      minChildSize: 0.2,
+      maxChildSize: 0.85,
+      headerBuilder: (context) {
+        if (!_isMutation(service)) {
+          return const SizedBox.shrink();
+        }
 
-          Text(sheetTitle, style: theme.textTheme.titleLarge),
+        return Consumer(
+          builder: (context, ref, _) {
+            final groups = _availableGroups(ref, service);
+            final selectedGroup = coerceCatalogGroup(
+              ref.watch(mutationCatalogGroupProvider),
+              groups,
+            );
 
-          if (_isMutation) ...[
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
               child: CatalogGroupTabs(
                 groups: groups,
                 selected: selectedGroup,
@@ -164,37 +153,45 @@ class CategorySelectionSheet extends ConsumerWidget {
                   }
                 },
               ),
-            ),
-          ],
+            );
+          },
+        );
+      },
+      scrollableListBuilder: (context, scrollController) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final locale = Localizations.localeOf(context).languageCode;
+            final groups = _availableGroups(ref, service);
+            final selectedGroup = coerceCatalogGroup(
+              ref.watch(mutationCatalogGroupProvider),
+              groups,
+            );
+            final categories = _categoriesForSheet(ref, service, selectedGroup);
+            final demandEligible =
+                service == CategorySheetMode.createEquipment ||
+                service == CategorySheetMode.createRequest;
+            final showSuggest =
+                demandEligible &&
+                (ref.watch(demandConfigProvider).valueOrNull?.shouldShow ??
+                    false);
+            final itemCount = categories.length + (showSuggest ? 1 : 0);
+            final selectedId = service == CategorySheetMode.createRequest
+                ? ref.watch(requestMutationProvider).selectedCategory?.id
+                : ref.watch(equipmentMutationProvider).category?.id;
 
-          const SizedBox(height: 16),
-
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
+            return ListView.builder(
+              controller: scrollController,
               itemCount: itemCount,
               itemBuilder: (context, index) {
                 if (showSuggest && index == categories.length) {
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 4,
-                    ),
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.add_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 20,
-                      ),
-                    ),
-                    title: Text(
-                      l10n.demandSurveyCardTitle,
-                      style: theme.textTheme.bodyLarge,
+                  return _SelectionTile(
+                    title: l10n.demandSurveyCardTitle,
+                    description: '',
+                    selected: false,
+                    image: Icon(
+                      Icons.add_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 32,
                     ),
                     onTap: () => _openSuggestEquipment(context, ref, l10n),
                   );
@@ -202,35 +199,11 @@ class CategorySelectionSheet extends ConsumerWidget {
 
                 final category = categories[index];
 
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 4,
-                  ),
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.construction_rounded,
-                      color: theme.colorScheme.primary,
-                      size: 20,
-                    ),
-                  ),
-                  title: Text(
-                    category.localizedName(
-                      Localizations.localeOf(context).languageCode,
-                    ),
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  trailing: service == CategorySheetMode.createRequest
-                      ? Icon(
-                          Icons.check_rounded,
-                          color: theme.colorScheme.primary,
-                        )
-                      : null,
+                return _SelectionTile(
+                  title: category.localizedName(locale),
+                  description: category.localizedDescription(locale),
+                  selected: selectedId == category.id,
+                  image: _categoryImage(category),
                   onTap: () {
                     if (service == CategorySheetMode.createRequest) {
                       Navigator.pop(context, category);
@@ -247,9 +220,74 @@ class CategorySelectionSheet extends ConsumerWidget {
                   },
                 );
               },
-            ),
+            );
+          },
+        );
+      },
+      footerBuilder: (context) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _SelectionTile extends StatelessWidget {
+  final String title;
+  final String description;
+  final bool selected;
+  final Widget image;
+  final VoidCallback onTap;
+
+  const _SelectionTile({
+    required this.title,
+    required this.description,
+    required this.selected,
+    required this.image,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Material(
+      color: selected
+          ? colors.selection.fillSelected.withValues(alpha: 0.16)
+          : Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.s04$xs,
+            vertical: AppDimens.s12$md,
           ),
-        ],
+          child: Row(
+            children: [
+              SizedBox.square(dimension: 64, child: image),
+              const SizedBox(width: AppDimens.s08$sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.body16SemiBold(context),
+                    ),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: AppDimens.s04$xs),
+                      Text(
+                        description,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.caption(context),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
