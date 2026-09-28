@@ -1174,6 +1174,36 @@ class AppLocalizationsKk extends AppLocalizations {
   String get navEquipment => 'Техника';
 
   @override
+  String get catalogGroupMachinery => 'Техника';
+
+  @override
+  String get catalogGroupEquipment => 'Жабдық';
+
+  @override
+  String get allCategories => 'Барлық санаттар';
+
+  @override
+  String get allCategoriesMachineryDescription =>
+      'Түр бойынша сүзгісіз барлық техниканы көрсету';
+
+  @override
+  String get allCategoriesEquipmentDescription =>
+      'Түр бойынша сүзгісіз барлық жабдықты көрсету';
+
+  @override
+  String get categoryFilters => 'Сүзгілер';
+
+  @override
+  String get resetFilters => 'Сүзгілерді тазалау';
+
+  @override
+  String get categoryFiltersComingSoon =>
+      'Каталогта позициялар көбейгенде сүзгілер пайда болады';
+
+  @override
+  String get selectCategory => 'Санатты таңдау';
+
+  @override
   String get navBookings => 'Брондаулар';
 
   @override

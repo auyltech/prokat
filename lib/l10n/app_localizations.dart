@@ -2284,6 +2284,60 @@ abstract class AppLocalizations {
   /// **'Equipment'**
   String get navEquipment;
 
+  /// No description provided for @catalogGroupMachinery.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery'**
+  String get catalogGroupMachinery;
+
+  /// No description provided for @catalogGroupEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get catalogGroupEquipment;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get allCategories;
+
+  /// No description provided for @allCategoriesMachineryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all machinery without filtering by type'**
+  String get allCategoriesMachineryDescription;
+
+  /// No description provided for @allCategoriesEquipmentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all equipment without filtering by type'**
+  String get allCategoriesEquipmentDescription;
+
+  /// No description provided for @categoryFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get categoryFilters;
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get resetFilters;
+
+  /// No description provided for @categoryFiltersComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters will appear once the catalog has more listings'**
+  String get categoryFiltersComingSoon;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select category'**
+  String get selectCategory;
+
   /// No description provided for @navBookings.
   ///
   /// In en, this message translates to:

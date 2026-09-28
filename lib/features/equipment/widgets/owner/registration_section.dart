@@ -11,6 +11,7 @@ import 'package:prokat/features/equipment/providers/equipment_mutation_provider.
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
+import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -88,9 +89,11 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
         _plateController.text.trim() != _baselinePlate;
   }
 
+  bool get _plateRequired => equipmentRequiresPlate(widget.equipment);
+
   bool get _isComplete {
     return _modelController.text.trim().isNotEmpty &&
-        _plateController.text.trim().isNotEmpty;
+        (!_plateRequired || _plateController.text.trim().isNotEmpty);
   }
 
   bool get _hasValidationErrors => _modelError != null || _plateError != null;
@@ -133,6 +136,10 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   }
 
   void _validatePlateField() {
+    if (!_plateRequired) {
+      _plateError = null;
+      return;
+    }
     _plateError = _plateController.text.trim().isEmpty ? 'required' : null;
   }
 
@@ -271,7 +278,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
           ),
           AppTextField(
             title: l10n.plateNumberLabel,
-            isRequired: true,
+            isRequired: _plateRequired,
             controller: _plateController,
             onChanged: (_) => _onChanged(),
             onFocusLost: _onPlateFocusLost,

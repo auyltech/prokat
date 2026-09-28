@@ -74,7 +74,13 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final categoriesAsync = ref.watch(categoriesProvider);
-    final categories = categoriesAsync.valueOrNull?.items ?? const [];
+    final group = widget.mode == "create_request"
+        ? ref.watch(mutationCatalogGroupProvider)
+        : ref.watch(browseCatalogGroupProvider);
+    final allCategories = categoriesAsync.valueOrNull?.items ?? const [];
+    final categories = allCategories
+        .where((item) => item.catalogGroup == group)
+        .toList();
     final showDemand =
         ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false;
 

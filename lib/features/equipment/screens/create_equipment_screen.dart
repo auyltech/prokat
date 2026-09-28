@@ -8,7 +8,9 @@ import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
@@ -38,13 +40,15 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     final isValid = _formKey.currentState?.validate() ?? false;
     final nameOk = _name.text.trim().isNotEmpty;
     final modelOk = _model.text.trim().isNotEmpty;
-    final plateOk = sanitizeKzPlate(_plateNumber.text).trim().isNotEmpty;
+    final category = ref.read(equipmentMutationProvider).category;
+    final plateRequired = category?.catalogGroup != CatalogGroup.equipment;
+    final plateOk =
+        !plateRequired || sanitizeKzPlate(_plateNumber.text).trim().isNotEmpty;
     if (!isValid || !nameOk || !modelOk || !plateOk) {
       setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
       return;
     }
 
-    final category = ref.read(equipmentMutationProvider).category;
     if (category == null) {
       setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
       return;
@@ -62,6 +66,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     setState(() => _loading = true);
 
     try {
+      final plate = sanitizeKzPlate(_plateNumber.text).trim();
       final result = await ref
           .read(equipmentMutationProvider.notifier)
           .createEquipment({
@@ -69,7 +74,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             "city": city,
             "name": _name.text.trim(),
             "model": _model.text.trim(),
-            "plateNumber": sanitizeKzPlate(_plateNumber.text).trim(),
+            if (plate.isNotEmpty) "plateNumber": plate,
           });
 
       if (result == true && mounted) {
@@ -165,6 +170,27 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CatalogGroupTabs(
+                      groups: ownerVisibleCatalogGroups(
+                        ref.watch(catalogProvider).valueOrNull,
+                      ),
+                      selected: coerceCatalogGroup(
+                        ref.watch(mutationCatalogGroupProvider),
+                        ownerVisibleCatalogGroups(
+                          ref.watch(catalogProvider).valueOrNull,
+                        ),
+                      ),
+                      onChanged: (group) {
+                        ref
+                            .read(mutationCatalogGroupProvider.notifier)
+                            .select(group);
+                        ref
+                            .read(equipmentMutationProvider.notifier)
+                            .clearCategory();
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
                     FormField<String>(
                       validator: (_) {
                         if (ref.read(equipmentMutationProvider).category ==
@@ -230,14 +256,20 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                     AppTextField(
                       prefix: const Icon(Icons.mp_outlined),
                       title: l10n.plateNumberLabel,
-                      isRequired: true,
+                      isRequired:
+                          category?.catalogGroup != CatalogGroup.equipment,
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
                       textInputAction: TextInputAction.done,
                       inputFormatters: const [KzPlateInputFormatter()],
-                      validator: (value) => sanitizeKzPlate(value ?? '').isEmpty
-                          ? l10n.fieldRequired
-                          : null,
+                      validator: (value) {
+                        if (category?.catalogGroup == CatalogGroup.equipment) {
+                          return null;
+                        }
+                        return sanitizeKzPlate(value ?? '').isEmpty
+                            ? l10n.fieldRequired
+                            : null;
+                      },
                     ),
 
                     const SizedBox(height: 24),

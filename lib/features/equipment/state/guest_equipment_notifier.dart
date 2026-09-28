@@ -3,6 +3,7 @@ import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
+import 'package:prokat/features/equipment/state/catalog_group_list_cache.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 
@@ -16,12 +17,25 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? _query;
   String? _city;
   String? _categoryId;
+  String? _catalogGroup;
   List<String> _spec = const [];
+
+  final _groupCache = CatalogGroupListCache();
+  String? _lastCity;
 
   @override
   Future<QueryState<Equipment>> build() async {
-    _city = _normalizeFilter(ref.watch(locationProvider.select((s) => s.city)));
-    return _fetchPage(1);
+    final nextCity = _normalizeFilter(
+      ref.watch(locationProvider.select((s) => s.city)),
+    );
+    if (_lastCity != nextCity) {
+      _lastCity = nextCity;
+      _groupCache.clear();
+    }
+    _city = nextCity;
+    final next = await _fetchPage(1);
+    _rememberCurrent(AsyncData(next));
+    return next;
   }
 
   Future<QueryState<Equipment>> _fetchPage(int page) async {
@@ -34,6 +48,7 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       query: _query,
       city: _city,
       categoryId: _categoryId,
+      catalogGroup: _catalogGroup,
       spec: _spec,
     );
 
@@ -86,7 +101,10 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
         if (generation != _requestGeneration) return;
         state = const AsyncLoading();
         final next = await AsyncValue.guard(() => _fetchPage(1));
-        if (generation == _requestGeneration) state = next;
+        if (generation == _requestGeneration) {
+          state = next;
+          _rememberCurrent(next);
+        }
         return;
       }
 
@@ -94,7 +112,10 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       state = AsyncData(previous.copyWith(isRefreshing: true));
       try {
         final next = await _fetchPage(1);
-        if (generation == _requestGeneration) state = AsyncData(next);
+        if (generation == _requestGeneration) {
+          state = AsyncData(next);
+          _rememberCurrent(AsyncData(next));
+        }
       } catch (error) {
         if (generation == _requestGeneration) {
           state = AsyncData(previous.withRefreshError(error));
@@ -113,20 +134,42 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     String? query,
     String? city,
     String? categoryId,
+    String? catalogGroup,
     List<String>? spec,
   }) async {
     try {
+      _rememberCurrent(state);
+
+      final nextQuery = _normalizeFilter(query);
+      final nextCity = _normalizeFilter(city);
+      final nextCategoryId = _normalizeFilter(categoryId);
+      final nextCatalogGroup = _normalizeFilter(catalogGroup);
+      final nextSpec = spec ?? _spec;
+
+      final restored = _groupCache.restoreIfMatch(
+        catalogGroup: nextCatalogGroup,
+        query: nextQuery,
+        city: nextCity,
+        categoryId: nextCategoryId,
+        spec: nextSpec,
+      );
+
       final changed = _replaceFilters(
         query: query,
         city: city,
         categoryId: categoryId,
+        catalogGroup: catalogGroup,
         spec: spec,
       );
 
-      if (!changed) {
-        await refreshIfStale();
+      if (restored != null) {
+        state = restored;
+        if (!changed) {
+          await refreshIfStale();
+        }
         return;
       }
+
       final generation = ++_requestGeneration;
       if (state.isLoading) {
         try {
@@ -145,11 +188,14 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
           _query != null ||
           _city != null ||
           _categoryId != null ||
+          _catalogGroup != null ||
           _spec.isNotEmpty;
       _query = null;
       _city = null;
       _categoryId = null;
+      _catalogGroup = null;
       _spec = const [];
+      _groupCache.clear();
 
       if (changed) {
         final generation = ++_requestGeneration;
@@ -192,6 +238,18 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     }
   }
 
+  void _rememberCurrent(AsyncValue<QueryState<Equipment>> value) {
+    if (value.isLoading && value.valueOrNull == null) return;
+    _groupCache.save(
+      catalogGroup: _catalogGroup,
+      query: _query,
+      city: _city,
+      categoryId: _categoryId,
+      spec: _spec,
+      value: value,
+    );
+  }
+
   String? get query => _query;
 
   String? get city => _city;
@@ -202,20 +260,24 @@ class GuestEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     String? query,
     String? city,
     String? categoryId,
+    String? catalogGroup,
     List<String>? spec,
   }) {
     final nextQuery = _normalizeFilter(query);
     final nextCity = _normalizeFilter(city);
     final nextCategoryId = _normalizeFilter(categoryId);
+    final nextCatalogGroup = _normalizeFilter(catalogGroup);
     final nextSpec = spec ?? _spec;
     final changed =
         _query != nextQuery ||
         _city != nextCity ||
         _categoryId != nextCategoryId ||
+        _catalogGroup != nextCatalogGroup ||
         !_sameSpec(_spec, nextSpec);
     _query = nextQuery;
     _city = nextCity;
     _categoryId = nextCategoryId;
+    _catalogGroup = nextCatalogGroup;
     _spec = List<String>.from(nextSpec);
     return changed;
   }

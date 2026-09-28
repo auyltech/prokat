@@ -1,7 +1,12 @@
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 
 bool hasEquipmentText(String? value) => value?.trim().isNotEmpty == true;
+
+bool equipmentRequiresPlate(Equipment equipment) {
+  return equipment.category?.catalogGroup != CatalogGroup.equipment;
+}
 
 bool equipmentHasImage(Equipment equipment) {
   return equipment.images.any((image) => hasEquipmentText(image.imageUrl)) ||
@@ -13,7 +18,8 @@ bool equipmentHasIdentity(Equipment equipment) {
           hasEquipmentText(equipment.category?.id)) &&
       hasEquipmentText(equipment.name) &&
       hasEquipmentText(equipment.model) &&
-      hasEquipmentText(equipment.plateNumber);
+      (!equipmentRequiresPlate(equipment) ||
+          hasEquipmentText(equipment.plateNumber));
 }
 
 bool equipmentHasPrice(Equipment equipment) {
@@ -61,7 +67,8 @@ bool ownerGeneralSectionComplete(Equipment equipment) {
 
 bool ownerRegistrationSectionComplete(Equipment equipment) {
   return hasEquipmentText(equipment.model) &&
-      hasEquipmentText(equipment.plateNumber);
+      (!equipmentRequiresPlate(equipment) ||
+          hasEquipmentText(equipment.plateNumber));
 }
 
 bool ownerSpecsSectionComplete(Equipment equipment) {

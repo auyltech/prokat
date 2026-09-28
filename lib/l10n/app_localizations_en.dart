@@ -1185,6 +1185,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navEquipment => 'Equipment';
 
   @override
+  String get catalogGroupMachinery => 'Machinery';
+
+  @override
+  String get catalogGroupEquipment => 'Equipment';
+
+  @override
+  String get allCategories => 'All categories';
+
+  @override
+  String get allCategoriesMachineryDescription =>
+      'Show all machinery without filtering by type';
+
+  @override
+  String get allCategoriesEquipmentDescription =>
+      'Show all equipment without filtering by type';
+
+  @override
+  String get categoryFilters => 'Filters';
+
+  @override
+  String get resetFilters => 'Reset filters';
+
+  @override
+  String get categoryFiltersComingSoon =>
+      'Filters will appear once the catalog has more listings';
+
+  @override
+  String get selectCategory => 'Select category';
+
+  @override
   String get navBookings => 'Bookings';
 
   @override

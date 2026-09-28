@@ -13,7 +13,8 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/address_picker_card.dart';
@@ -45,7 +46,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _syncSelectedAddress();
-      _syncVacuumCategory();
     });
   }
 
@@ -58,12 +58,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     if (address?.id != null) {
       ref.read(requestMutationProvider.notifier).selectLocation(address!);
     }
-  }
-
-  void _syncVacuumCategory() {
-    final vacuum = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull);
-    if (vacuum == null) return;
-    ref.read(requestMutationProvider.notifier).selectCategory(vacuum);
   }
 
   void _selectWaitOwnerPrice() {
@@ -101,10 +95,12 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   }
 
   Future<void> _openCategorySheet() async {
-    await CategorySelectionSheet.show(
+    final picked = await CategorySelectionSheet.show(
       context,
       service: CategorySheetMode.createRequest,
     );
+    if (!mounted || picked == null) return;
+    ref.read(requestMutationProvider.notifier).selectCategory(picked);
   }
 
   Future<void> _pickDate() async {
@@ -231,6 +227,11 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final locale = l10n.localeName;
     final locationState = ref.watch(locationProvider);
     final catalog = ref.watch(catalogProvider).valueOrNull;
+    final groupTabs = userVisibleCatalogGroups(catalog);
+    final mutationGroup = coerceCatalogGroup(
+      ref.watch(mutationCatalogGroupProvider),
+      groupTabs,
+    );
 
     final requestState = ref.watch(requestMutationProvider);
 
@@ -240,20 +241,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ref.read(requestMutationProvider.notifier).selectLocation(address!);
       }
     });
-
-    ref.listen(catalogProvider, (previous, next) {
-      final nextVacuum = vacuumTrucksCategory(next.valueOrNull);
-      if (nextVacuum == null) return;
-      ref.read(requestMutationProvider.notifier).selectCategory(nextVacuum);
-    });
-
-    final vacuum = vacuumTrucksCategory(catalog);
-    if (vacuum != null && requestState.selectedCategory?.id != vacuum.id) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _syncVacuumCategory();
-      });
-    }
 
     final hasBudget =
         _priceMode == _PriceMode.waitOwner ||
@@ -281,13 +268,22 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         : action.status == MutationStatus.submitting;
 
     final categoryName =
-        vacuum?.localizedName(locale) ??
         requestState.selectedCategory?.localizedName(locale) ??
-        'Вакуумные машины';
+        l10n.pleaseSelectCategory;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        CatalogGroupTabs(
+          groups: groupTabs,
+          selected: mutationGroup,
+          onChanged: (group) {
+            ref.read(mutationCatalogGroupProvider.notifier).select(group);
+            ref.read(requestMutationProvider.notifier).clearCategory();
+          },
+        ),
+        if (groupTabs.length > 1) const SizedBox(height: 12),
+
         _CategoryPickerCard(
           title: l10n.requestCategoryTitle,
           categoryName: categoryName,

@@ -7,7 +7,10 @@ import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_fleet_groups_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -25,7 +28,10 @@ class _OwnerEquipmentListScreenState
     extends ConsumerState<OwnerEquipmentListScreen>
     with WidgetsBindingObserver {
   Future<void> loadData() async {
-    await ref.read(ownerEquipmentProvider.notifier).refresh();
+    await Future.wait([
+      ref.read(ownerEquipmentProvider.notifier).refresh(),
+      ref.refresh(ownerFleetGroupsProvider.future),
+    ]);
   }
 
   @override
@@ -37,6 +43,7 @@ class _OwnerEquipmentListScreenState
     unawaited(
       Future.microtask(() {
         unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
+        unawaited(ref.refresh(ownerFleetGroupsProvider.future));
       }),
     );
   }
@@ -53,6 +60,12 @@ class _OwnerEquipmentListScreenState
     final l10n = AppLocalizations.of(context)!;
 
     final equipmentState = ref.watch(ownerEquipmentProvider);
+    final fleetGroups =
+        ref.watch(ownerFleetGroupsProvider).valueOrNull ?? const [];
+    final selectedGroup = coerceCatalogGroup(
+      ref.watch(ownerFleetCatalogGroupProvider),
+      fleetGroups,
+    );
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -89,10 +102,31 @@ class _OwnerEquipmentListScreenState
           ),
 
           data: (query) {
+            final items = fleetGroups.length < 2
+                ? query.items
+                : query.items
+                      .where(
+                        (item) => item.category?.catalogGroup == selectedGroup,
+                      )
+                      .toList();
+
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                if (query.items.isEmpty)
+                if (fleetGroups.length > 1)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: CatalogGroupTabs(
+                      groups: fleetGroups,
+                      selected: selectedGroup,
+                      onChanged: (group) {
+                        ref
+                            .read(ownerFleetCatalogGroupProvider.notifier)
+                            .select(group);
+                      },
+                    ),
+                  ),
+                if (items.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: EmptyStateTile(
@@ -119,11 +153,11 @@ class _OwnerEquipmentListScreenState
                       endIndent: 16,
                       color: legacy_colors.AppColors.teal700,
                     ),
-                    itemCount: query.items.length,
+                    itemCount: items.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) =>
-                        OwnerEquipmentCard(equipment: query.items[index]),
+                        OwnerEquipmentCard(equipment: items[index]),
                   ),
                 ],
               ],

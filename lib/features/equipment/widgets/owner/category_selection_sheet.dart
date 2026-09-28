@@ -4,11 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
+import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 enum CategorySheetMode {
@@ -38,15 +41,34 @@ class CategorySelectionSheet extends ConsumerWidget {
     );
   }
 
-  List<Category> _categoriesForSheet(WidgetRef ref) {
+  bool get _isOwnerMutation =>
+      service == CategorySheetMode.createEquipment ||
+      service == CategorySheetMode.editEquipment;
+
+  bool get _isMutation =>
+      service == CategorySheetMode.createRequest ||
+      service == CategorySheetMode.createEquipment ||
+      service == CategorySheetMode.editEquipment;
+
+  List<CatalogGroup> _availableGroups(WidgetRef ref) {
     final catalog = ref.watch(catalogProvider).valueOrNull;
-    if (service == CategorySheetMode.createEquipment ||
-        service == CategorySheetMode.editEquipment) {
-      return catalog?.ownerCategories.map(Category.fromCatalog).toList() ??
+    return _isOwnerMutation
+        ? ownerVisibleCatalogGroups(catalog)
+        : userVisibleCatalogGroups(catalog);
+  }
+
+  List<Category> _categoriesForSheet(WidgetRef ref, CatalogGroup group) {
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    if (_isOwnerMutation) {
+      return catalog
+              ?.ownerCategoriesFor(group)
+              .map(Category.fromCatalog)
+              .toList() ??
           const [];
     }
 
-    return ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
+    final items = ref.watch(categoriesProvider).valueOrNull?.items ?? const [];
+    return items.where((item) => item.catalogGroup == group).toList();
   }
 
   Future<void> _openSuggestEquipment(
@@ -86,7 +108,12 @@ class CategorySelectionSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final categories = _categoriesForSheet(ref);
+    final groups = _availableGroups(ref);
+    final selectedGroup = coerceCatalogGroup(
+      ref.watch(mutationCatalogGroupProvider),
+      groups,
+    );
+    final categories = _categoriesForSheet(ref, selectedGroup);
     final demandEligible =
         service == CategorySheetMode.createEquipment ||
         service == CategorySheetMode.createRequest;
@@ -107,7 +134,6 @@ class CategorySelectionSheet extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
           Container(
             width: 40,
             height: 4,
@@ -120,9 +146,29 @@ class CategorySelectionSheet extends ConsumerWidget {
 
           Text(sheetTitle, style: theme.textTheme.titleLarge),
 
+          if (_isMutation) ...[
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: CatalogGroupTabs(
+                groups: groups,
+                selected: selectedGroup,
+                onChanged: (group) {
+                  ref.read(mutationCatalogGroupProvider.notifier).select(group);
+                  if (service == CategorySheetMode.createRequest) {
+                    ref.read(requestMutationProvider.notifier).clearCategory();
+                  } else if (service == CategorySheetMode.createEquipment) {
+                    ref
+                        .read(equipmentMutationProvider.notifier)
+                        .clearCategory();
+                  }
+                },
+              ),
+            ),
+          ],
+
           const SizedBox(height: 16),
 
-          // List the categories
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,

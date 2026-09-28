@@ -1190,6 +1190,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navEquipment => 'Техника';
 
   @override
+  String get catalogGroupMachinery => 'Техника';
+
+  @override
+  String get catalogGroupEquipment => 'Оборудование';
+
+  @override
+  String get allCategories => 'Все категории';
+
+  @override
+  String get allCategoriesMachineryDescription =>
+      'Показать всю технику без фильтра по типу';
+
+  @override
+  String get allCategoriesEquipmentDescription =>
+      'Показать всё оборудование без фильтра по типу';
+
+  @override
+  String get categoryFilters => 'Фильтры';
+
+  @override
+  String get resetFilters => 'Сбросить фильтры';
+
+  @override
+  String get categoryFiltersComingSoon =>
+      'Фильтры появятся, когда в каталоге будет больше позиций';
+
+  @override
+  String get selectCategory => 'Выбрать категорию';
+
+  @override
   String get navBookings => 'Брони';
 
   @override

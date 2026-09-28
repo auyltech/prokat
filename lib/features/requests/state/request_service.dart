@@ -230,6 +230,7 @@ class RequestService {
     required int page,
     required int itemsPerPage,
     required String status,
+    String? catalogGroup,
   }) async {
     try {
       final response = await _dio.get(
@@ -238,6 +239,8 @@ class RequestService {
           "page": page,
           "itemsPerPage": itemsPerPage,
           "status": status,
+          if (catalogGroup != null && catalogGroup.isNotEmpty)
+            "catalogGroup": catalogGroup,
         },
       );
 
