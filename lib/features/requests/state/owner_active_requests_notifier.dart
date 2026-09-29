@@ -1,4 +1,5 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
@@ -19,6 +20,7 @@ class OwnerActiveRequestsNotifier
   @override
   Future<QueryState<RequestModel>> build() async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
+    ref.watch(ownerFleetCatalogGroupProvider);
     _stateScope = null;
     if (scope == null) {
       return const QueryState(itemsPerPage: 10, count: 0);
@@ -27,6 +29,9 @@ class OwnerActiveRequestsNotifier
     if (isAuthenticatedSessionScopeCurrent(ref, scope)) _stateScope = scope;
     return next;
   }
+
+  String? get _catalogGroupFilter =>
+      ref.read(ownerFleetCatalogGroupProvider).apiValue;
 
   Future<QueryState<RequestModel>> _fetchPage(
     int page,
@@ -39,6 +44,7 @@ class OwnerActiveRequestsNotifier
       page: page,
       itemsPerPage: 10,
       status: "ACTIVE",
+      catalogGroup: _catalogGroupFilter,
     );
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
@@ -176,6 +182,7 @@ class OwnerActiveRequestsNotifier
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         status: "ACTIVE",
+        catalogGroup: _catalogGroupFilter,
       );
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 

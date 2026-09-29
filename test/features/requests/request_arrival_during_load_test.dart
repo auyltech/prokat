@@ -26,6 +26,7 @@ class Requests extends RequestService {
     required int page,
     required int itemsPerPage,
     required String status,
+    String? catalogGroup,
   }) async {
     final call = ++calls;
     if (call == 1) await gate.future;

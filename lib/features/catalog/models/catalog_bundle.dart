@@ -1,4 +1,5 @@
 import 'package:prokat/features/catalog/models/catalog_spec_type.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
 
 int _asInt(dynamic value, {int fallback = 0}) {
@@ -80,19 +81,23 @@ class CatalogCategory {
   final String id;
   final String slug;
   final LocalizedNames names;
+  final LocalizedNames descriptions;
   final String? imageUrl;
   final int sortIndex;
   final bool isUserVisible;
   final bool isOwnerVisible;
+  final CatalogGroup catalogGroup;
 
   const CatalogCategory({
     required this.id,
     required this.slug,
     required this.names,
+    this.descriptions = const LocalizedNames(),
     this.imageUrl,
     required this.sortIndex,
     required this.isUserVisible,
     required this.isOwnerVisible,
+    this.catalogGroup = CatalogGroup.machinery,
   });
 
   factory CatalogCategory.fromJson(Map<String, dynamic> json) {
@@ -100,10 +105,12 @@ class CatalogCategory {
       id: _asString(json['id']),
       slug: _asString(json['slug']),
       names: LocalizedNames.fromJson(json['names']),
+      descriptions: LocalizedNames.fromJson(json['descriptions']),
       imageUrl: json['imageUrl']?.toString(),
       sortIndex: _asInt(json['sortIndex']),
       isUserVisible: _asBool(json['isUserVisible'], fallback: true),
       isOwnerVisible: _asBool(json['isOwnerVisible'], fallback: true),
+      catalogGroup: CatalogGroup.fromApi(json['catalogGroup']?.toString()),
     );
   }
 
@@ -111,14 +118,20 @@ class CatalogCategory {
     'id': id,
     'slug': slug,
     'names': names.toJson(),
+    'descriptions': descriptions.toJson(),
     'imageUrl': imageUrl,
     'sortIndex': sortIndex,
     'isUserVisible': isUserVisible,
     'isOwnerVisible': isOwnerVisible,
+    'catalogGroup': catalogGroup.apiValue,
   };
 
   String label(String languageCode) {
     return names.pick(languageCode, fallback: slug);
+  }
+
+  String description(String languageCode) {
+    return descriptions.pick(languageCode);
   }
 }
 
@@ -385,6 +398,24 @@ class CatalogBundle {
 
   List<CatalogCategory> get ownerCategories =>
       categories.where((item) => item.isOwnerVisible).toList();
+
+  List<CatalogCategory> userCategoriesFor(CatalogGroup group) =>
+      userCategories.where((item) => item.catalogGroup == group).toList();
+
+  List<CatalogCategory> ownerCategoriesFor(CatalogGroup group) =>
+      ownerCategories.where((item) => item.catalogGroup == group).toList();
+
+  bool get hasUserVisibleMachinery =>
+      userCategoriesFor(CatalogGroup.machinery).isNotEmpty;
+
+  bool get hasUserVisibleEquipment =>
+      userCategoriesFor(CatalogGroup.equipment).isNotEmpty;
+
+  bool get hasOwnerVisibleMachinery =>
+      ownerCategoriesFor(CatalogGroup.machinery).isNotEmpty;
+
+  bool get hasOwnerVisibleEquipment =>
+      ownerCategoriesFor(CatalogGroup.equipment).isNotEmpty;
 
   CatalogCity? cityById(String? id) {
     if (id == null || id.isEmpty) return null;

@@ -59,6 +59,10 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
     state = state.copyWith(categoryId: category.id, selectedCategory: category);
   }
 
+  void clearCategory() {
+    state = state.copyWith(clearSelectedCategory: true);
+  }
+
   void setDate(DateTime date) {
     state = state.copyWith(selectedDate: date);
   }

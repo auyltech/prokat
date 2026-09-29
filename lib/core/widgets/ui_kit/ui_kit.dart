@@ -6,6 +6,7 @@ export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_label_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_outlined_button.dart';
+export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_segmented_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/buttons/app_text_button.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/selection/app_checkbox.dart';
 export 'package:prokat/core/widgets/ui_kit/controls/selection/app_radio.dart';

@@ -574,8 +574,8 @@ class _GuestCreateBookingScreenState
                   _selectedTime = when;
                 });
               },
-              onPickDate: () => unawaited(_pickDate()),
-              onPickTime: () => unawaited(_pickTime()),
+              onPickDate: _pickDate,
+              onPickTime: _pickTime,
               onBook: () => unawaited(_book(item)),
             ),
           );
@@ -634,8 +634,8 @@ class _Card extends StatelessWidget {
   final VoidCallback onAddress;
   final VoidCallback onScheduled;
   final VoidCallback onAsap;
-  final VoidCallback onPickDate;
-  final VoidCallback onPickTime;
+  final Future<void> Function() onPickDate;
+  final Future<void> Function() onPickTime;
   final VoidCallback onBook;
 
   const _Card({

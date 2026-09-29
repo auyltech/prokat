@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/section_title.dart';
-import 'package:prokat/features/appstatic/widgets/search_box.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
-import 'package:prokat/features/categories/widgets/user_category_selector.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
+import 'package:prokat/features/categories/widgets/category_header_card.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
-import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/widgets/client_equipment_tile.dart';
 import 'package:prokat/features/equipment/widgets/equipment_list_skeleton.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_empty_tile.dart';
@@ -20,7 +20,6 @@ import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart'
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
   final String? query;
@@ -36,6 +35,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   Timer? _debounce;
 
   ProviderSubscription? _categoriesSub;
+  ProviderSubscription? _catalogGroupSub;
   ProviderSubscription? _locationSub;
   ProviderSubscription? _equipmentSub;
 
@@ -43,8 +43,12 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     if (!mounted) return;
 
     final categoryId = ref.read(selectedCategoryProvider)?.id;
+    final catalogGroup = ref.read(browseCatalogGroupProvider);
     final city = ref.read(locationProvider).city;
-    final query = ref.read(searchEquipmentProvider).query;
+    final query = ref
+        .read(browseGroupSessionsProvider.notifier)
+        .ensure(catalogGroup)
+        .query;
     final equipment = ref.read(clientEquipmentProvider.notifier);
     final favorites = ref.read(favoritesProvider.notifier);
     final categories = ref.read(categoriesProvider.notifier);
@@ -52,6 +56,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
     await equipment.search(
       categoryId: categoryId,
+      catalogGroup: catalogGroup.apiValue,
       city: city,
       query: query,
       spec: const [],
@@ -106,13 +111,18 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
       (_, _) => _onFiltersChanged(),
     );
 
+    _catalogGroupSub = ref.listenManual(
+      browseCatalogGroupProvider,
+      (_, _) => _onFiltersChanged(),
+    );
+
     _locationSub = ref.listenManual(
       locationProvider.select((s) => s.city),
       (_, _) => _onFiltersChanged(),
     );
 
     _equipmentSub = ref.listenManual(
-      searchEquipmentProvider.select((s) => s.query),
+      currentBrowseGroupSessionProvider.select((s) => s.query),
       (_, _) {
         if (!mounted) return;
         unawaited(_fetchData());
@@ -122,6 +132,9 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     unawaited(
       Future.microtask(() async {
         if (!mounted) return;
+        ref
+            .read(browseGroupSessionsProvider.notifier)
+            .ensure(ref.read(browseCatalogGroupProvider));
         await _fetchData();
       }),
     );
@@ -131,6 +144,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
   void dispose() {
     _debounce?.cancel();
     _categoriesSub?.close();
+    _catalogGroupSub?.close();
     _locationSub?.close();
     _equipmentSub?.close();
     super.dispose();
@@ -138,8 +152,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     final equipmentAsync = ref.watch(clientEquipmentProvider);
     final queryState = equipmentAsync.valueOrNull;
 
@@ -148,7 +160,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
     final bookingNotifier = ref.read(bookingMutationProvider.notifier);
 
     ref.watch(categoriesProvider);
-    final selectedCategoryId = ref.watch(selectedCategoryProvider)?.id;
 
     return Scaffold(
       body: SafeArea(
@@ -157,23 +168,27 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
           child: RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppDimens.s16$base),
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                SearchBox(placeholder: l10n.searchEquipment),
-
-                const SizedBox(height: 12),
-
-                UserCategorySelector(
-                  mode: "search",
-                  selectedCategoryId: selectedCategoryId,
+                CatalogGroupTabs(
+                  groups: userVisibleCatalogGroups(
+                    ref.watch(catalogProvider).valueOrNull,
+                  ),
+                  selected: ref.watch(browseCatalogGroupProvider),
+                  onChanged: (group) {
+                    ref
+                        .read(browseGroupSessionsProvider.notifier)
+                        .ensure(group);
+                    ref.read(browseCatalogGroupProvider.notifier).select(group);
+                  },
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: AppDimens.s12$md),
 
-                SectionTitle(title: l10n.search),
+                const CategoryHeaderCard(),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: AppDimens.s16$base),
 
                 if (equipmentAsync.isLoading && items.isEmpty)
                   const EquipmentListSkeleton()

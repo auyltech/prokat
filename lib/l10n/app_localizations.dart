@@ -2284,6 +2284,60 @@ abstract class AppLocalizations {
   /// **'Equipment'**
   String get navEquipment;
 
+  /// No description provided for @catalogGroupMachinery.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery'**
+  String get catalogGroupMachinery;
+
+  /// No description provided for @catalogGroupEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get catalogGroupEquipment;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get allCategories;
+
+  /// No description provided for @allCategoriesMachineryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all machinery without filtering by type'**
+  String get allCategoriesMachineryDescription;
+
+  /// No description provided for @allCategoriesEquipmentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all equipment without filtering by type'**
+  String get allCategoriesEquipmentDescription;
+
+  /// No description provided for @categoryFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get categoryFilters;
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get resetFilters;
+
+  /// No description provided for @categoryFiltersComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters will appear once the catalog has more listings'**
+  String get categoryFiltersComingSoon;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select category'**
+  String get selectCategory;
+
   /// No description provided for @navBookings.
   ///
   /// In en, this message translates to:
@@ -2752,10 +2806,22 @@ abstract class AppLocalizations {
   /// **'Example: Septic truck'**
   String get equipmentNameHint;
 
+  /// No description provided for @equipmentCatalogNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit name'**
+  String get equipmentCatalogNameLabel;
+
+  /// No description provided for @equipmentCatalogNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Generator'**
+  String get equipmentCatalogNameHint;
+
   /// No description provided for @modelLabel.
   ///
   /// In en, this message translates to:
-  /// **'Make and model'**
+  /// **'Model'**
   String get modelLabel;
 
   /// No description provided for @modelHint.
@@ -2763,6 +2829,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Example: AV-10 KAMAZ 65115'**
   String get modelHint;
+
+  /// No description provided for @equipmentCatalogModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Honda EU70is'**
+  String get equipmentCatalogModelHint;
 
   /// No description provided for @plateNumberLabel.
   ///
@@ -3085,13 +3157,13 @@ abstract class AppLocalizations {
   /// No description provided for @requestWaitOwnerPrice.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for owner price'**
+  /// **'from owner'**
   String get requestWaitOwnerPrice;
 
   /// No description provided for @requestSetBudget.
   ///
   /// In en, this message translates to:
-  /// **'I\'ll set a budget'**
+  /// **'my budget'**
   String get requestSetBudget;
 
   /// No description provided for @requestMyBudget.
@@ -3106,11 +3178,29 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get requestCategoryTitle;
 
+  /// No description provided for @requestCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get requestCommentTitle;
+
   /// No description provided for @asSoonAsPossible.
   ///
   /// In en, this message translates to:
   /// **'As soon as possible'**
   String get asSoonAsPossible;
+
+  /// No description provided for @jobScheduleSet.
+  ///
+  /// In en, this message translates to:
+  /// **'set'**
+  String get jobScheduleSet;
+
+  /// No description provided for @jobScheduleNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'nearest'**
+  String get jobScheduleNearest;
 
   /// No description provided for @requestCommentHint.
   ///

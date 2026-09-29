@@ -107,18 +107,17 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    // TODO(Vadim): Пока слишком сырое
-                    // ProkatListTile(
-                    //   icon: Icons.favorite_outline,
-                    //   iconColor: theme.colorScheme.onPrimary,
-                    //   iconBgColor: theme.colorScheme.primary.withValues(
-                    //     alpha: 0.2,
-                    //   ),
-                    //   title: l10n.supportUsTitle,
-                    //   subtitle: l10n.donateOrHelp,
-                    //   onTap: () => context.push(AppRoutes.supportUs),
-                    // ),
-                    // const SizedBox(height: 20),
+                    ProkatListTile(
+                      icon: LucideIcons.heart,
+                      iconColor: theme.colorScheme.onPrimary,
+                      iconBgColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
+                      title: l10n.supportUsTitle,
+                      subtitle: l10n.donateOrHelp,
+                      onTap: () => context.push(AppRoutes.supportUs),
+                    ),
+                    const SizedBox(height: 20),
 
                     ProkatListTile(
                       icon: LucideIcons.fileText,

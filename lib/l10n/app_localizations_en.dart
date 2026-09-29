@@ -1185,6 +1185,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navEquipment => 'Equipment';
 
   @override
+  String get catalogGroupMachinery => 'Machinery';
+
+  @override
+  String get catalogGroupEquipment => 'Equipment';
+
+  @override
+  String get allCategories => 'All categories';
+
+  @override
+  String get allCategoriesMachineryDescription =>
+      'Show all machinery without filtering by type';
+
+  @override
+  String get allCategoriesEquipmentDescription =>
+      'Show all equipment without filtering by type';
+
+  @override
+  String get categoryFilters => 'Filters';
+
+  @override
+  String get resetFilters => 'Reset filters';
+
+  @override
+  String get categoryFiltersComingSoon =>
+      'Filters will appear once the catalog has more listings';
+
+  @override
+  String get selectCategory => 'Select category';
+
+  @override
   String get navBookings => 'Bookings';
 
   @override
@@ -1430,10 +1460,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentNameHint => 'Example: Septic truck';
 
   @override
-  String get modelLabel => 'Make and model';
+  String get equipmentCatalogNameLabel => 'Equipment unit name';
+
+  @override
+  String get equipmentCatalogNameHint => 'Example: Generator';
+
+  @override
+  String get modelLabel => 'Model';
 
   @override
   String get modelHint => 'Example: AV-10 KAMAZ 65115';
+
+  @override
+  String get equipmentCatalogModelHint => 'Example: Honda EU70is';
 
   @override
   String get plateNumberLabel => 'State registration number';
@@ -1599,10 +1638,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the equipment delivery address';
 
   @override
-  String get requestWaitOwnerPrice => 'Waiting for owner price';
+  String get requestWaitOwnerPrice => 'from owner';
 
   @override
-  String get requestSetBudget => 'I\'ll set a budget';
+  String get requestSetBudget => 'my budget';
 
   @override
   String get requestMyBudget => 'My budget';
@@ -1611,7 +1650,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestCategoryTitle => 'Category';
 
   @override
+  String get requestCommentTitle => 'Comment';
+
+  @override
   String get asSoonAsPossible => 'As soon as possible';
+
+  @override
+  String get jobScheduleSet => 'set';
+
+  @override
+  String get jobScheduleNearest => 'nearest';
 
   @override
   String get requestCommentHint => 'Describe the job or important details';

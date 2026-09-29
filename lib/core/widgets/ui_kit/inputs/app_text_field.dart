@@ -119,7 +119,7 @@ class _AppTextFieldState extends State<AppTextField> {
   }
 
   void _onControllerChanged() {
-    if (mounted && widget.maxLength != null) setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -158,7 +158,9 @@ class _AppTextFieldState extends State<AppTextField> {
     );
     final title = widget.title?.trim();
     final hasTitle = title != null && title.isNotEmpty;
-    final showRequiredMark = widget.isRequired && hasTitle && !chromeReadOnly;
+    final hasValue = widget.controller.text.trim().isNotEmpty;
+    final showRequiredMark =
+        widget.isRequired && hasTitle && !chromeReadOnly && !hasValue;
 
     final obscureActive = widget.obscure && _obscured;
     final field = widget.validator != null

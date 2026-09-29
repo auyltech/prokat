@@ -540,6 +540,7 @@ class _ControlledEquipmentService extends EquipmentService {
   Future<ApiResponse<List<Equipment>>> getClientEquipment({
     required String locale,
     String? categoryId,
+    String? catalogGroup,
     String? query,
     String? city,
     List<String>? spec,
@@ -553,6 +554,7 @@ class _ControlledEquipmentService extends EquipmentService {
   Future<ApiResponse<List<Equipment>>> getGuestEquipment({
     required String locale,
     String? categoryId,
+    String? catalogGroup,
     String? query,
     String? city,
     List<String>? spec,

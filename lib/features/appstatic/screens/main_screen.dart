@@ -12,6 +12,7 @@ import 'package:prokat/features/appstatic/widgets/guest_owner_invite_card.dart';
 import 'package:prokat/features/appstatic/widgets/hero_banner.dart';
 import 'package:prokat/features/appstatic/widgets/language_sheet.dart';
 import 'package:prokat/features/appstatic/state/guest_landing_scroll.dart';
+import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/providers/guest_equipment_provider.dart';
@@ -35,18 +36,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   GuestLandingScroll? _landingScroll;
 
   ProviderSubscription? _categoriesSub;
+  ProviderSubscription? _catalogGroupSub;
   ProviderSubscription? _locationSub;
+  ProviderSubscription? _querySub;
 
   Future<void> _fetchData() async {
     if (!mounted) return;
 
     try {
       final categoryId = ref.read(selectedCategoryProvider)?.id;
+      final catalogGroup = ref.read(browseCatalogGroupProvider);
       final city = ref.read(locationProvider).city;
+      final query = ref
+          .read(browseGroupSessionsProvider.notifier)
+          .ensure(catalogGroup)
+          .query;
 
       await ref
           .read(guestEquipmentProvider.notifier)
-          .setFilters(categoryId: categoryId, city: city);
+          .setFilters(
+            categoryId: categoryId,
+            catalogGroup: catalogGroup.apiValue,
+            city: city,
+            query: query,
+          );
 
       if (!mounted) return;
 
@@ -106,14 +119,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       (_, _) => _onFiltersChanged(),
     );
 
+    _catalogGroupSub = ref.listenManual(browseCatalogGroupProvider, (
+      previous,
+      next,
+    ) {
+      ref.read(browseGroupSessionsProvider.notifier).ensure(next);
+      _onFiltersChanged();
+    });
+
     _locationSub = ref.listenManual(
       locationProvider.select((s) => s.city),
+      (_, _) => _onFiltersChanged(),
+    );
+
+    _querySub = ref.listenManual(
+      currentBrowseGroupSessionProvider.select((s) => s.query),
       (_, _) => _onFiltersChanged(),
     );
 
     unawaited(
       Future.microtask(() async {
         if (!mounted) return;
+        ref
+            .read(browseGroupSessionsProvider.notifier)
+            .ensure(ref.read(browseCatalogGroupProvider));
         await _fetchData();
       }),
     );
@@ -123,7 +152,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   void dispose() {
     _debounce?.cancel();
     _categoriesSub?.close();
+    _catalogGroupSub?.close();
     _locationSub?.close();
+    _querySub?.close();
     _landingScroll?.detach();
     _scrollController.dispose();
     super.dispose();
@@ -187,9 +218,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
-            SliverToBoxAdapter(
-              child: HeroBanner(selectedCity: selectedCity),
-            ),
+            SliverToBoxAdapter(child: HeroBanner(selectedCity: selectedCity)),
 
             const SliverToBoxAdapter(child: GuestCategorySection()),
 

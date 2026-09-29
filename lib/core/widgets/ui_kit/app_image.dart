@@ -5,9 +5,9 @@ class AppImage {
 
   const AppImage(this.iconKey);
 
-  static final RegExp _pngFileRegex = RegExp(r'\.png$');
+  static final RegExp _rasterFileRegex = RegExp(r'\.(png|webp)$');
 
-  bool get isPNG => _pngFileRegex.hasMatch(iconKey);
+  bool get isRaster => _rasterFileRegex.hasMatch(iconKey);
 
   Widget call({
     Color? color,
@@ -16,7 +16,7 @@ class AppImage {
     VoidCallback? onTap,
     double padding = 0,
   }) {
-    assert(isPNG, 'AppImage currently supports png only');
+    assert(isRaster, 'AppImage currently supports png/webp only');
 
     return ClipRRect(
       child: GestureDetector(

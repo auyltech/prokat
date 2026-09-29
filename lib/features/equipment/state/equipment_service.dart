@@ -22,6 +22,7 @@ class EquipmentService {
   Future<ApiResponse<List<Equipment>>> getGuestEquipment({
     required String locale,
     String? categoryId,
+    String? catalogGroup,
     String? query,
     String? city,
     List<String>? spec,
@@ -36,6 +37,7 @@ class EquipmentService {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (catalogGroup?.isNotEmpty ?? false) 'catalogGroup': catalogGroup,
           if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
@@ -82,6 +84,7 @@ class EquipmentService {
   Future<ApiResponse<List<Equipment>>> getClientEquipment({
     required String locale,
     String? categoryId,
+    String? catalogGroup,
     String? query,
     String? city,
     List<String>? spec,
@@ -96,6 +99,7 @@ class EquipmentService {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (catalogGroup?.isNotEmpty ?? false) 'catalogGroup': catalogGroup,
           if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
@@ -172,6 +176,7 @@ class EquipmentService {
     String? query,
     String? city,
     String? categoryId,
+    String? catalogGroup,
     List<String>? spec,
     int page = 1,
     int itemsPerPage = 100,
@@ -183,6 +188,7 @@ class EquipmentService {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
           if (categoryId?.isNotEmpty ?? false) 'categoryId': categoryId,
+          if (catalogGroup?.isNotEmpty ?? false) 'catalogGroup': catalogGroup,
           if (spec != null && spec.isNotEmpty) 'spec': spec,
           'page': page,
           'itemsPerPage': itemsPerPage,
@@ -249,6 +255,42 @@ class EquipmentService {
       return ApiResponse.failure(
         message: "Unexpected error",
         error: error.toString(),
+      );
+    }
+  }
+
+  Future<ApiResponse<List<String>>> getOwnerCatalogGroups() async {
+    try {
+      final response = await _dio.get(
+        '${ApiRoutes.ownerEquipment}/catalog-groups',
+      );
+
+      return handleApiResponse<List<String>>(
+        response: response,
+        parser: (data) {
+          final payload = data is Map ? data['data'] : null;
+          final groups = payload is Map ? payload['groups'] : null;
+          if (groups is! List) {
+            throw const FormatException('Expected catalog groups list');
+          }
+          return groups.map((item) => item.toString()).toList();
+        },
+        fallbackMessage: 'Failed to load catalog groups',
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+
+      return ApiResponse.failure(
+        message: exception.message.isNotEmpty
+            ? exception.message
+            : 'Request failed',
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.failure(
+        message: 'Unexpected error',
+        error: e.toString(),
       );
     }
   }
