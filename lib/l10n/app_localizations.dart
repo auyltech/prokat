@@ -3139,13 +3139,13 @@ abstract class AppLocalizations {
   /// No description provided for @requestWaitOwnerPrice.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for owner price'**
+  /// **'Owner price'**
   String get requestWaitOwnerPrice;
 
   /// No description provided for @requestSetBudget.
   ///
   /// In en, this message translates to:
-  /// **'I\'ll set a budget'**
+  /// **'My budget'**
   String get requestSetBudget;
 
   /// No description provided for @requestMyBudget.

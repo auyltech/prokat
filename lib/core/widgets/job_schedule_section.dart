@@ -419,7 +419,7 @@ class JobScheduleSection extends StatelessWidget {
           showRequired: mode == JobScheduleMode.none,
           requiredHint: requiredHint,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppDimens.inputLabelGap),
         ChoicePair(
           leftLabel: l10n.dateAndTime,
           rightLabel: l10n.asSoonAsPossible,
@@ -429,7 +429,7 @@ class JobScheduleSection extends StatelessWidget {
           onRight: onAsap,
         ),
         if (mode == JobScheduleMode.scheduled) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: AppDimens.s12$md),
           Row(
             children: [
               Expanded(
@@ -440,7 +440,7 @@ class JobScheduleSection extends StatelessWidget {
                   onTap: onPickDate,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppDimens.s12$md),
               Expanded(
                 child: OutlinePickerField(
                   label: l10n.selectTime,

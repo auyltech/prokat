@@ -1629,10 +1629,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the equipment delivery address';
 
   @override
-  String get requestWaitOwnerPrice => 'Waiting for owner price';
+  String get requestWaitOwnerPrice => 'Owner price';
 
   @override
-  String get requestSetBudget => 'I\'ll set a budget';
+  String get requestSetBudget => 'My budget';
 
   @override
   String get requestMyBudget => 'My budget';

@@ -1634,10 +1634,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestSelectDeliveryAddress => 'Выберите адрес подачи техники';
 
   @override
-  String get requestWaitOwnerPrice => 'Жду цену владельца';
+  String get requestWaitOwnerPrice => 'Цена владельца';
 
   @override
-  String get requestSetBudget => 'Укажу бюджет';
+  String get requestSetBudget => 'Мой бюджет';
 
   @override
   String get requestMyBudget => 'Мой бюджет';

@@ -1618,10 +1618,10 @@ class AppLocalizationsKk extends AppLocalizations {
       'Техниканы беру мекенжайын таңдаңыз';
 
   @override
-  String get requestWaitOwnerPrice => 'Иесінің бағасын күтемін';
+  String get requestWaitOwnerPrice => 'Ие бағасы';
 
   @override
-  String get requestSetBudget => 'Бюджетті көрсетемін';
+  String get requestSetBudget => 'Менің бюджетім';
 
   @override
   String get requestMyBudget => 'Менің бюджетім';

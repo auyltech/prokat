@@ -25,6 +25,7 @@ class CategoryPickerSheet {
     required List<Category> categories,
     required CatalogGroup group,
     String? selectedId,
+    bool includeAllOption = true,
   }) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -41,6 +42,7 @@ class CategoryPickerSheet {
           categories: categories,
           group: group,
           selectedId: selectedId,
+          includeAllOption: includeAllOption,
           scrollController: scrollController,
         );
       },
@@ -54,12 +56,14 @@ class _CategoryPickerList extends StatelessWidget {
   final List<Category> categories;
   final CatalogGroup group;
   final String? selectedId;
+  final bool includeAllOption;
   final ScrollController scrollController;
 
   const _CategoryPickerList({
     required this.categories,
     required this.group,
     required this.selectedId,
+    required this.includeAllOption,
     required this.scrollController,
   });
 
@@ -73,12 +77,13 @@ class _CategoryPickerList extends StatelessWidget {
     final allImage = group == CatalogGroup.equipment
         ? AppImages.equipmentStd
         : AppImages.machineryStd;
+    final allOffset = includeAllOption ? 1 : 0;
 
     return ListView.builder(
       controller: scrollController,
-      itemCount: categories.length + 1,
+      itemCount: categories.length + allOffset,
       itemBuilder: (context, index) {
-        if (index == 0) {
+        if (includeAllOption && index == 0) {
           return _CategoryPickerTile(
             title: l10n.allCategories,
             description: allDescription,
@@ -95,7 +100,7 @@ class _CategoryPickerList extends StatelessWidget {
           );
         }
 
-        final category = categories[index - 1];
+        final category = categories[index - allOffset];
         return _CategoryPickerTile(
           title: category.localizedName(languageCode),
           description: category.localizedDescription(languageCode),

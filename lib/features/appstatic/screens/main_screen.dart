@@ -218,9 +218,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
-            SliverToBoxAdapter(
-              child: HeroBanner(selectedCity: selectedCity),
-            ),
+            SliverToBoxAdapter(child: HeroBanner(selectedCity: selectedCity)),
 
             const SliverToBoxAdapter(child: GuestCategorySection()),
 

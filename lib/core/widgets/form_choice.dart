@@ -1,34 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
+import 'package:prokat/core/theme/app_fonts.dart';
+import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 
 class RequiredFieldLabel extends StatelessWidget {
   const RequiredFieldLabel({
     super.key,
     required this.title,
     required this.showRequired,
-    required this.requiredHint,
+    this.requiredHint,
   });
 
   final String title;
   final bool showRequired;
-  final String requiredHint;
+
+  /// Ignored — required mark matches [AppTextField] (` *`).
+  final String? requiredHint;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Text.rich(
       TextSpan(
         text: title,
-        style: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppFonts.headingS(context),
         children: [
           if (showRequired)
             TextSpan(
-              text: ' $requiredHint',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.w500,
-              ),
+              text: ' *',
+              style: AppFonts.headingS(context)
+                  .copyWith(color: colors.text.error),
             ),
         ],
       ),
@@ -65,7 +66,7 @@ class ChoicePair extends StatelessWidget {
             onTap: onLeft,
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: AppDimens.s08$sm),
         Expanded(
           child: ChoiceButton(
             label: rightLabel,
@@ -92,34 +93,38 @@ class ChoiceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
+    final colors = context.colors;
+    final elevated = colors.elevatedButton;
+    final field = colors.textField;
+    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
 
     return Material(
-      color: selected ? primary : theme.colorScheme.surface,
+      color: selected ? elevated.background : field.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: borderRadius,
         side: BorderSide(
-          color: selected
-              ? primary
-              : theme.colorScheme.outline.withValues(alpha: 0.5),
+          width: AppDimens.buttonBorderWidth,
+          color: selected ? elevated.background : colors.borders.main,
         ),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: borderRadius,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
+          constraints: const BoxConstraints(minHeight: AppDimens.inputHeight),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.s08$sm,
+              vertical: AppDimens.s08$sm,
+            ),
             child: Center(
               child: Text(
                 label,
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: selected ? Colors.white : theme.colorScheme.onSurface,
+                style: AppFonts.label(context).copyWith(
+                  color: selected ? elevated.content : colors.text.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -147,43 +152,43 @@ class OutlinePickerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
+    final field = colors.textField;
+    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 6),
+        Text(label, style: AppFonts.headingS(context)),
+        const SizedBox(height: AppDimens.inputLabelGap),
         Material(
-          color: theme.colorScheme.surface,
+          color: field.background,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: borderRadius,
             side: BorderSide(
-              color: theme.colorScheme.outline.withValues(alpha: 0.4),
+              width: AppDimens.inputBorderWidth,
+              color: field.border,
             ),
           ),
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: borderRadius,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.s12$md,
+                vertical: AppDimens.s12$md,
+              ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       value ?? '—',
-                      style: theme.textTheme.bodyMedium,
+                      style: AppFonts.body16(context),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  Icon(icon, size: AppDimens.s20$lg, color: colors.icons.main),
                 ],
               ),
             ),
