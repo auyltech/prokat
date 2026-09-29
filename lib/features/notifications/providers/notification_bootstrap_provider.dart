@@ -86,13 +86,27 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     }());
 
     // Push notifications.
-    if (push != null && !pushStarted) {
+    if (push == null) {
+      Logger.log('push: notifications disabled');
+    } else if (pushStarted) {
+      if (push.apnsSyncPending) {
+        unawaited(() async {
+          try {
+            await push.syncCurrentDevice(session: session);
+          } catch (error, stackTrace) {
+            Logger.log('push: retry syncCurrentDevice failed: $error\n$stackTrace');
+          }
+        }());
+      }
+    } else {
       pushStarted = true;
 
       unawaited(() async {
         try {
           await push.initialize(session: session);
-        } catch (_) {}
+        } catch (error, stackTrace) {
+          Logger.log('push: initialize failed: $error\n$stackTrace');
+        }
       }());
     }
 

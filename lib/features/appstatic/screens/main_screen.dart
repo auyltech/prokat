@@ -187,16 +187,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               ),
             ),
 
-            SliverAppBar(
-              primary: false,
-              expandedHeight: 340,
-              backgroundColor: darkBlueBg,
-              automaticallyImplyLeading: false,
-              elevation: 0,
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.parallax,
-                background: HeroBanner(selectedCity: selectedCity),
-              ),
+            SliverToBoxAdapter(
+              child: HeroBanner(selectedCity: selectedCity),
             ),
 
             const SliverToBoxAdapter(child: GuestCategorySection()),

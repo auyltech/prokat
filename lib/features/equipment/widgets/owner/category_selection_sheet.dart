@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/models/category.dart';
@@ -161,16 +162,18 @@ class CategorySelectionSheet extends ConsumerWidget {
                     horizontal: 24,
                     vertical: 4,
                   ),
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.construction_rounded,
-                      color: theme.colorScheme.primary,
-                      size: 20,
+                  leading: ClipOval(
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: OptimizedNetworkImage(
+                        imageUrl: category.imageUrl,
+                        fit: BoxFit.cover,
+                        fallbackIcon: Icons.construction_rounded,
+                        backgroundColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
                     ),
                   ),
                   title: Text(

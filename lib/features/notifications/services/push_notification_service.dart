@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
@@ -34,7 +35,21 @@ class PushNotificationService {
 
   bool _initialized = false;
   bool _localNotificationsReady = false;
+  bool _syncInFlight = false;
+  bool _apnsSyncPending = false;
   final Map<String, DateTime> _displayedIds = {};
+
+  static const int _apnsTokenAttempts = 10;
+  static const Duration _apnsTokenDelay = Duration(milliseconds: 500);
+
+  /// True after an Apple sync stopped because the APNs token was still null.
+  /// Cleared when a later [syncCurrentDevice] obtains the token.
+  bool get apnsSyncPending => _apnsSyncPending;
+
+  bool get _isApplePushPlatform =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS);
 
   PushNotificationService({
     required this.messaging,
@@ -55,8 +70,9 @@ class PushNotificationService {
       if (!kIsWeb) {
         await _initLocalNotifications();
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Best-effort: local notifications shouldn't crash startup.
+      _pushLog('local notifications init failed: $error\n$stackTrace');
     }
 
     try {
@@ -69,38 +85,84 @@ class PushNotificationService {
         criticalAlert: false,
         provisional: false,
       );
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Best-effort: missing OS permission should not crash startup.
+      _pushLog('notification permission request failed: $error\n$stackTrace');
     }
 
     // Register this device only when OS permission is granted.
     try {
       await syncCurrentDevice(session: session);
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Best-effort: push setup should not crash startup.
+      _pushLog('syncCurrentDevice failed: $error\n$stackTrace');
     }
 
     // Future token changes are also permission-gated.
     try {
       listenForTokenRefresh(session: session);
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushLog('listenForTokenRefresh failed: $error\n$stackTrace');
+    }
 
     try {
       handleForegroundMessages();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushLog('handleForegroundMessages failed: $error\n$stackTrace');
+    }
 
     try {
       handleBackgroundNotificationTap();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushLog('handleBackgroundNotificationTap failed: $error\n$stackTrace');
+    }
 
     try {
       await handleTerminatedNotificationTap();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      _pushLog('handleTerminatedNotificationTap failed: $error\n$stackTrace');
+    }
+  }
+
+  void _pushLog(String message) {
+    Logger.log('push: $message');
   }
 
   Future<String?> getFcmToken() async {
     if (kIsWeb) return null;
+    if (_isApplePushPlatform) {
+      final apnsToken = await messaging.getAPNSToken();
+      if ((apnsToken ?? '').trim().isEmpty) {
+        _pushLog('getToken skipped: APNs token unavailable');
+        return null;
+      }
+    }
     return messaging.getToken();
+  }
+
+  /// Polls until iOS/macOS delivers an APNs token, or the short window ends.
+  /// Does not call FCM [FirebaseMessaging.getToken].
+  Future<String?> _waitForApnsToken() async {
+    Object? lastError;
+    for (var attempt = 1; attempt <= _apnsTokenAttempts; attempt++) {
+      try {
+        final apnsToken = await messaging.getAPNSToken();
+        if ((apnsToken ?? '').trim().isNotEmpty) {
+          return apnsToken!.trim();
+        }
+      } catch (error) {
+        lastError = error;
+      }
+      if (attempt < _apnsTokenAttempts) {
+        await Future.delayed(_apnsTokenDelay);
+      }
+    }
+    _pushLog(
+      lastError == null
+          ? 'APNs token still unavailable after $_apnsTokenAttempts attempts'
+          : 'APNs token still unavailable after $_apnsTokenAttempts attempts: $lastError',
+    );
+    return null;
   }
 
   Future<void> registerTokenWithBackend({
@@ -111,7 +173,10 @@ class PushNotificationService {
   }) async {
     if (kIsWeb) return;
     final normalizedToken = token.trim();
-    if (normalizedToken.isEmpty) return;
+    if (normalizedToken.isEmpty) {
+      _pushLog('device token registration skipped: empty FCM token');
+      return;
+    }
 
     final userId = session.user?.id ?? session.user?.phoneNumber;
     final resolvedLocale = (locale ?? currentLocale?.call() ?? '')
@@ -179,11 +244,18 @@ class PushNotificationService {
             settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional;
 
-        if (!authorized) return;
+        if (!authorized) {
+          _pushLog(
+            'onTokenRefresh skipped: notification permission not granted '
+            '(${settings.authorizationStatus})',
+          );
+          return;
+        }
 
         await registerTokenWithBackend(session: session, token: token);
-      } catch (_) {
+      } catch (error, stackTrace) {
         // Best-effort.
+        _pushLog('onTokenRefresh failed: $error\n$stackTrace');
       }
     });
   }
@@ -395,7 +467,26 @@ class PushNotificationService {
     bool force = false,
   }) async {
     if (kIsWeb) return false;
+    if (_syncInFlight) {
+      return false;
+    }
+    _syncInFlight = true;
+    try {
+      return await _syncCurrentDevice(
+        session: session,
+        locale: locale,
+        force: force,
+      );
+    } finally {
+      _syncInFlight = false;
+    }
+  }
 
+  Future<bool> _syncCurrentDevice({
+    required AuthSession session,
+    String? locale,
+    bool force = false,
+  }) async {
     final settings = await messaging.getNotificationSettings();
 
     final authorized =
@@ -403,18 +494,33 @@ class PushNotificationService {
         settings.authorizationStatus == AuthorizationStatus.provisional;
 
     if (!authorized) {
+      _pushLog(
+        'notification permission not granted (${settings.authorizationStatus})',
+      );
       return false;
+    }
+
+    if (_isApplePushPlatform) {
+      final apnsToken = await _waitForApnsToken();
+      if (apnsToken == null) {
+        _apnsSyncPending = true;
+        return false;
+      }
     }
 
     final token = await getFcmToken();
+    final fcmToken = token?.trim() ?? '';
 
-    if ((token ?? '').trim().isEmpty) {
+    if (fcmToken.isEmpty) {
+      _pushLog('FCM token unavailable');
       return false;
     }
 
+    _apnsSyncPending = false;
+
     await registerTokenWithBackend(
       session: session,
-      token: token!,
+      token: fcmToken,
       locale: locale,
       force: force,
     );
@@ -444,5 +550,7 @@ class PushNotificationService {
     _displayedIds.clear();
     _initialized = false;
     _localNotificationsReady = false;
+    _apnsSyncPending = false;
+    _syncInFlight = false;
   }
 }
