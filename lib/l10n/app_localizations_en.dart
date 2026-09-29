@@ -1629,10 +1629,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the equipment delivery address';
 
   @override
-  String get requestWaitOwnerPrice => 'Owner price';
+  String get requestWaitOwnerPrice => 'from owner';
 
   @override
-  String get requestSetBudget => 'My budget';
+  String get requestSetBudget => 'my budget';
 
   @override
   String get requestMyBudget => 'My budget';
@@ -1641,7 +1641,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestCategoryTitle => 'Category';
 
   @override
+  String get requestCommentTitle => 'Comment';
+
+  @override
   String get asSoonAsPossible => 'As soon as possible';
+
+  @override
+  String get jobScheduleSet => 'set';
+
+  @override
+  String get jobScheduleNearest => 'nearest';
 
   @override
   String get requestCommentHint => 'Describe the job or important details';

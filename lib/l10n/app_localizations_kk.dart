@@ -1618,19 +1618,28 @@ class AppLocalizationsKk extends AppLocalizations {
       'Техниканы беру мекенжайын таңдаңыз';
 
   @override
-  String get requestWaitOwnerPrice => 'Ие бағасы';
+  String get requestWaitOwnerPrice => 'иеден';
 
   @override
-  String get requestSetBudget => 'Менің бюджетім';
+  String get requestSetBudget => 'менің бюджетім';
 
   @override
   String get requestMyBudget => 'Менің бюджетім';
 
   @override
-  String get requestCategoryTitle => 'Санатты таңдау';
+  String get requestCategoryTitle => 'Санат';
+
+  @override
+  String get requestCommentTitle => 'Пікір';
 
   @override
   String get asSoonAsPossible => 'Мүмкіндігінше тез';
+
+  @override
+  String get jobScheduleSet => 'орнату';
+
+  @override
+  String get jobScheduleNearest => 'жақын';
 
   @override
   String get requestCommentHint =>

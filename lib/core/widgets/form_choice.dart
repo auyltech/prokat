@@ -77,65 +77,87 @@ class ChoicePair extends StatelessWidget {
   }
 }
 
-class OutlinePickerField extends StatelessWidget {
+/// Select-only field styled like [AppTextField], with [icon] as a leading prefix.
+class OutlinePickerField extends StatefulWidget {
   const OutlinePickerField({
     super.key,
     required this.label,
     required this.value,
     required this.icon,
     required this.onTap,
+    this.isRequired = false,
+    this.hint,
   });
 
   final String label;
   final String? value;
   final IconData icon;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
+  final bool isRequired;
+  final String? hint;
+
+  @override
+  State<OutlinePickerField> createState() => _OutlinePickerFieldState();
+}
+
+class _OutlinePickerFieldState extends State<OutlinePickerField> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+  bool _pickerOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value ?? '');
+    _focusNode = FocusNode(canRequestFocus: false);
+  }
+
+  @override
+  void didUpdateWidget(covariant OutlinePickerField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.value ?? '';
+    if (_controller.text != next) _controller.text = next;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _open() async {
+    if (_pickerOpen) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _pickerOpen = true);
+    try {
+      await widget.onTap();
+    } finally {
+      if (mounted) {
+        setState(() => _pickerOpen = false);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _focusNode.unfocus();
+          FocusManager.instance.primaryFocus?.unfocus();
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final field = colors.textField;
-    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
+    final field = context.colors.textField;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppFonts.headingS(context)),
-        const SizedBox(height: AppDimens.inputLabelGap),
-        Material(
-          color: field.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: borderRadius,
-            side: BorderSide(
-              width: AppDimens.inputBorderWidth,
-              color: field.border,
-            ),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: borderRadius,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.s12$md,
-                vertical: AppDimens.s12$md,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      value ?? '—',
-                      style: AppFonts.body16(context),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Icon(icon, size: AppDimens.s20$lg, color: colors.icons.main),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+    return AppTextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      title: widget.label,
+      hint: widget.hint,
+      isRequired: widget.isRequired,
+      selectOnly: true,
+      forceFocused: _pickerOpen,
+      onTap: _open,
+      prefix: Icon(widget.icon, size: AppDimens.s20$lg, color: field.hint),
     );
   }
 }

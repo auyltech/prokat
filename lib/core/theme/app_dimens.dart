@@ -15,14 +15,14 @@ abstract final class AppDimens {
   static const double r20$xxl = 20;
   static const double r999$full = 999;
 
-  static const double buttonHeight = 52;
+  static const double buttonHeight = 50;
   static const double compactButtonHeight = 40;
   static const double iconButtonSize = 44;
-  static const double iconButtonLargeSize = 56;
+  static const double iconButtonLargeSize = 50;
   static const double iconButtonIconSize = 24;
   static const double buttonLoadingIndicatorSize = 18;
   static const double buttonBorderWidth = 1.6;
-  static const double inputHeight = 46;
+  static const double inputHeight = 50;
   static const double inputLabelGap = 8;
   static const double inputHelperGap = 6;
   static const double inputBorderWidth = 1.6;

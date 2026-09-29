@@ -3139,13 +3139,13 @@ abstract class AppLocalizations {
   /// No description provided for @requestWaitOwnerPrice.
   ///
   /// In en, this message translates to:
-  /// **'Owner price'**
+  /// **'from owner'**
   String get requestWaitOwnerPrice;
 
   /// No description provided for @requestSetBudget.
   ///
   /// In en, this message translates to:
-  /// **'My budget'**
+  /// **'my budget'**
   String get requestSetBudget;
 
   /// No description provided for @requestMyBudget.
@@ -3160,11 +3160,29 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get requestCategoryTitle;
 
+  /// No description provided for @requestCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get requestCommentTitle;
+
   /// No description provided for @asSoonAsPossible.
   ///
   /// In en, this message translates to:
   /// **'As soon as possible'**
   String get asSoonAsPossible;
+
+  /// No description provided for @jobScheduleSet.
+  ///
+  /// In en, this message translates to:
+  /// **'set'**
+  String get jobScheduleSet;
+
+  /// No description provided for @jobScheduleNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'nearest'**
+  String get jobScheduleNearest;
 
   /// No description provided for @requestCommentHint.
   ///

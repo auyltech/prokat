@@ -43,8 +43,8 @@ class AppSegmentedButton<T> extends StatelessWidget {
          'AppSegmentedButton needs at least 2 segments',
        );
 
-  static const _outerBorderWidth = 1.0;
-  static const _sharedIdleBorderWidth = 0.5;
+  static const _outerBorderWidth = AppDimens.buttonBorderWidth;
+  static const _sharedIdleBorderWidth = AppDimens.buttonBorderWidth * 0.5;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +195,7 @@ class _Segment extends StatelessWidget {
         : theme.unselectedBackground;
     final contentColor = selected
         ? theme.selectedContent
-        : theme.unselectedContent;
+        : context.colors.textField.hint;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -209,7 +209,7 @@ class _Segment extends StatelessWidget {
           onTap: onTap,
           borderRadius: borderRadius,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.s16$base),
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.s20$lg),
             child: IconTheme.merge(
               data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),
               child: Row(

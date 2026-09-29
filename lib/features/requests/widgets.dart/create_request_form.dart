@@ -37,12 +37,14 @@ class CreateRequestForm extends ConsumerStatefulWidget {
 class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   final rateController = TextEditingController();
   final commentController = TextEditingController();
+  late final FocusNode _rateFocus;
   _PriceMode _priceMode = _PriceMode.none;
   JobScheduleMode _scheduleMode = JobScheduleMode.none;
 
   @override
   void initState() {
     super.initState();
+    _rateFocus = FocusNode();
     rateController.addListener(_onRateChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -171,6 +173,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     rateController.removeListener(_onRateChanged);
     rateController.dispose();
     commentController.dispose();
+    _rateFocus.dispose();
     super.dispose();
   }
 
@@ -356,20 +359,27 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ),
         if (_priceMode == _PriceMode.budget) ...[
           const SizedBox(height: AppDimens.s16$base),
-          AppTextField(
-            title: l10n.requestMyBudget,
-            isRequired: true,
-            hint: l10n.offeredRateHint,
-            controller: rateController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              const MaxIntInputFormatter(_offeredRateMax),
-            ],
-            prefix: Text(
-              '₸',
-              style: AppFonts.body16SemiBold(context)
-                  .copyWith(color: context.colors.text.secondary),
+          TapRegion(
+            onTapOutside: (_) {
+              _rateFocus.unfocus();
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: AppTextField(
+              controller: rateController,
+              focusNode: _rateFocus,
+              title: l10n.requestMyBudget,
+              isRequired: true,
+              hint: l10n.offeredRateHint,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                const MaxIntInputFormatter(_offeredRateMax),
+              ],
+              prefix: Text(
+                '₸',
+                style: AppFonts.body16SemiBold(context)
+                    .copyWith(color: context.colors.text.secondary),
+              ),
             ),
           ),
         ],
@@ -387,7 +397,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ),
         const SizedBox(height: AppDimens.s20$lg),
         AppTextArea(
-          title: l10n.comments,
+          title: l10n.requestCommentTitle,
           hint: l10n.requestCommentHint,
           controller: commentController,
           minLines: 2,
