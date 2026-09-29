@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -21,7 +20,6 @@ import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart'
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
   final String? query;
@@ -154,8 +152,6 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     final equipmentAsync = ref.watch(clientEquipmentProvider);
     final queryState = equipmentAsync.valueOrNull;
 

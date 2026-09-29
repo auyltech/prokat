@@ -69,6 +69,7 @@ class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
 
   void _scheduleCategoryImagePrefetch(CatalogBundle bundle) {
     final generation = ++_prefetchGeneration;
+    // Defer past build so catalog completion never waits on media plugins.
     unawaited(_prefetchCategoryImages(bundle, generation));
   }
 
@@ -76,14 +77,16 @@ class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
     CatalogBundle bundle,
     int generation,
   ) async {
+    await Future<void>.delayed(Duration.zero);
     try {
+      final rawUrls = bundle.categories.map((category) => category.imageUrl);
+      // Skip CacheManager when there is nothing to warm (unit tests, empty catalog).
+      if (mediaPrefetchUrls(rawUrls).isEmpty) return;
       final manager = ref.read(mediaCacheManagerProvider);
-      await MediaImagePrefetcher(cacheManager: manager).warm(
-        bundle.categories.map((category) => category.imageUrl),
-        isCurrent: () => generation == _prefetchGeneration,
-      );
+      await MediaImagePrefetcher(cacheManager: manager)
+          .warm(rawUrls, isCurrent: () => generation == _prefetchGeneration);
     } catch (_) {
-      // Prefetch is best-effort.
+      // Prefetch is best-effort (missing plugins must not fail catalog).
     }
   }
 

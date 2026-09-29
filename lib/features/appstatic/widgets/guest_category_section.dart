@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/categories/widgets/category_header_card.dart';
-import 'package:prokat/l10n/app_localizations.dart';
 
 class GuestCategorySection extends ConsumerWidget {
   const GuestCategorySection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final groups = userVisibleCatalogGroups(catalog);
     final group = coerceCatalogGroup(

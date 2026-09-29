@@ -10,12 +10,11 @@ import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/widgets/category_filters_stub_sheet.dart';
 import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-/// Expandable category header: image + title/description + filter/search.
+/// Expandable category header: image + title/description + search.
 ///
 /// Search UI is per catalog-group session (lazy + sticky across tabs).
 /// Filter modal is a stub until catalog filters ship.
@@ -90,8 +89,6 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     super.dispose();
   }
 
-  bool get _hasActiveFilters => false;
-
   void _clearSearchFocus() {
     if (_searchFocus.hasFocus) {
       _searchFocus.unfocus();
@@ -137,13 +134,6 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     _clearSearchFocus();
     sessions.setSearchExpanded(true);
     unawaited(_searchReveal.forward());
-    setState(() {});
-  }
-
-  Future<void> _openFilters() async {
-    _clearSearchFocus();
-    await CategoryFiltersStubSheet.show(context);
-    if (!mounted) return;
     setState(() {});
   }
 
@@ -314,17 +304,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
                       : AppIconButtonTone.neutral,
                   onTap: _toggleSearch,
                 ),
-                // AppIconButton(
-                //   icon: LucideIcons.funnel,
-                //   tooltip: l10n.categoryFilters,
-                //   variant: _hasActiveFilters
-                //       ? AppIconButtonVariant.soft
-                //       : AppIconButtonVariant.plain,
-                //   tone: _hasActiveFilters
-                //       ? AppIconButtonTone.primary
-                //       : AppIconButtonTone.neutral,
-                //   onTap: _openFilters,
-                // ),
+                // Filters stub kept out of the tree until catalog filters ship.
               ],
             ),
           ),

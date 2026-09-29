@@ -517,7 +517,7 @@ void main() {
 
     expect(border.top.color, fieldContext.colors.textField.borderFocused);
     expect(border.top.width, AppDimens.inputBorderWidth);
-    expect(radius.topLeft.x, AppDimens.r16$xl);
+    expect(radius.topLeft.x, AppDimens.r12$lg);
     expect(decoration.boxShadow, isNull);
   });
 

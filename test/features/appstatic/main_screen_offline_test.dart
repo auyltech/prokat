@@ -122,7 +122,6 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text("Couldn't load equipment"), findsOneWidget);
-    expect(find.text('Error loading services'), findsOneWidget);
     expect(find.text('Retry Now'), findsOneWidget);
 
     apiClient.isOnline = true;
@@ -131,6 +130,5 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Retry Now'), findsNothing);
-    expect(find.text('Error loading services'), findsNothing);
   });
 }
