@@ -3,6 +3,7 @@
 - Config: `GET /equipment-demand/config` → `demandConfigProvider` (`DemandConfig`).
   Backend also gates on `X-App-Build` ≥ `DEMAND_SURVEY_INTENTS_MIN_BUILD` (shared iOS/Android build from `pubspec.yaml`).
 - Show entry UI only when `DemandConfig.shouldShow` (`enabled && campaignId && !hasResponded`). Hide while config is loading or after submit (`markResponded` / refresh).
+- Entry point: profile menu «Поддержать нас» → `SupportUsScreen` (`AppRoutes.supportUs`) → button opens survey. Do **not** put demand tiles in category lists / pickers.
 - Open survey with `campaignId` from that config → `AppRoutes.equipmentDemandPath`. Route guard awaits config; mount the form only when `enabled`, `config.campaignId == routeCampaignId`, and `!hasResponded`. Otherwise toast + pop (do not toast from a null `valueOrNull` while still loading).
 - Form: `demandFormProvider(campaignId)` → `GET /equipment-demand/options`.
 - UI: `PageView` with `padEnds: true` and `viewportFraction` derived from width so first/last card outer edges align with «Готово» (`s20$lg`); neighbors still peek. Page dots show a success check when that card has intent/Other text; active dot uses `text.main`, inactive dots are lighter. Scaffold uses `resizeToAvoidBottomInset: false`; Other card scrolls the focused field above the keyboard.

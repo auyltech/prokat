@@ -26,10 +26,14 @@ class CategoryHeaderCard extends ConsumerStatefulWidget {
   ConsumerState<CategoryHeaderCard> createState() => _CategoryHeaderCardState();
 }
 
-class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
-  static const _imageSize = 100.0;
+class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
+    with SingleTickerProviderStateMixin {
+  static const _imageSize = 110.0;
+  static const _searchRevealDuration = Duration(milliseconds: 200);
 
   late final TextEditingController _searchController;
+  late final FocusNode _searchFocus;
+  late final AnimationController _searchReveal;
   Timer? _debounce;
   ProviderSubscription<CatalogGroup>? _groupSub;
 
@@ -41,16 +45,24 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
     // Peek only — do not mutate providers during initState/build.
     final existing = sessions.peek(group);
     _searchController = TextEditingController(text: existing?.query ?? '');
+    _searchFocus = FocusNode(debugLabel: 'categoryHeaderSearch');
+    _searchReveal = AnimationController(
+      vsync: this,
+      duration: _searchRevealDuration,
+      value: (existing?.searchExpanded ?? false) ? 1 : 0,
+    );
 
     _groupSub = ref.listenManual(browseCatalogGroupProvider, (previous, next) {
       if (previous == next) return;
       final restored = sessions.ensure(next);
       _debounce?.cancel();
+      _clearSearchFocus();
       _searchController.value = TextEditingValue(
         text: restored.query,
         selection: TextSelection.collapsed(offset: restored.query.length),
       );
       _syncSearchProvider(restored.query);
+      _searchReveal.value = restored.searchExpanded ? 1 : 0;
       setState(() {});
     });
 
@@ -64,6 +76,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
         );
       }
       _syncSearchProvider(session.query);
+      _searchReveal.value = session.searchExpanded ? 1 : 0;
     });
   }
 
@@ -71,11 +84,20 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
   void dispose() {
     _debounce?.cancel();
     _groupSub?.close();
+    _searchReveal.dispose();
+    _searchFocus.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   bool get _hasActiveFilters => false;
+
+  void _clearSearchFocus() {
+    if (_searchFocus.hasFocus) {
+      _searchFocus.unfocus();
+    }
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
 
   void _syncSearchProvider(String query) {
     ref.read(searchEquipmentProvider.notifier).setQuery(query);
@@ -92,6 +114,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
 
   void _collapseSearch({required bool clearQuery}) {
     _debounce?.cancel();
+    _clearSearchFocus();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
     if (clearQuery) {
       _searchController.clear();
@@ -100,6 +123,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
     } else {
       sessions.setSearchExpanded(false);
     }
+    unawaited(_searchReveal.reverse());
     setState(() {});
   }
 
@@ -110,11 +134,14 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
       _collapseSearch(clearQuery: true);
       return;
     }
+    _clearSearchFocus();
     sessions.setSearchExpanded(true);
+    unawaited(_searchReveal.forward());
     setState(() {});
   }
 
   Future<void> _openFilters() async {
+    _clearSearchFocus();
     await CategoryFiltersStubSheet.show(context);
     if (!mounted) return;
     setState(() {});
@@ -124,6 +151,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
     required List<Category> categories,
     required CatalogGroup group,
   }) async {
+    _clearSearchFocus();
     final selected = await CategoryPickerSheet.show(
       context,
       categories: categories,
@@ -177,107 +205,87 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
 
     return BaseTile(
       padding: const EdgeInsets.all(AppDimens.s08$sm),
+      onTap: () =>
+          unawaited(_openCategoryPicker(categories: categories, group: group)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(AppDimens.r10$base),
-                  onTap: () => unawaited(
-                    _openCategoryPicker(categories: categories, group: group),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppDimens.s04$xs,
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: _imageSize,
-                          height: _imageSize * 0.8,
-                          child: imageUrl != null && imageUrl.isNotEmpty
-                              ? OptimizedNetworkImage(
-                                  imageUrl: imageUrl,
-                                  fit: BoxFit.contain,
-                                )
-                              : _allCategoriesImage(group)(
-                                  size: _imageSize,
-                                  fit: BoxFit.contain,
-                                ),
-                        ),
-                        const SizedBox(width: AppDimens.s12$md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppFonts.headingM(context),
-                              ),
-                              if (description.isNotEmpty) ...[
-                                const SizedBox(height: AppDimens.s08$sm),
-                                Text(
-                                  description,
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppFonts.caption(context),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              _CategoryHeaderImage(
+                width: _imageSize,
+                imageUrl: imageUrl,
+                fallbackAsset: _allCategoriesImage(group),
               ),
-              const SizedBox(width: AppDimens.s08$sm),
-              Column(
-                spacing: AppDimens.s04$xs,
-                children: [
-                  // AppIconButton(
-                  //   icon: LucideIcons.funnel,
-                  //   tooltip: l10n.categoryFilters,
-                  //   variant: _hasActiveFilters
-                  //       ? AppIconButtonVariant.soft
-                  //       : AppIconButtonVariant.plain,
-                  //   tone: _hasActiveFilters
-                  //       ? AppIconButtonTone.primary
-                  //       : AppIconButtonTone.neutral,
-                  //   onTap: _openFilters,
-                  // ),
-                  AppIconButton(
-                    icon: LucideIcons.search,
-                    tooltip: l10n.search,
-                    variant: searchExpanded
-                        ? AppIconButtonVariant.soft
-                        : AppIconButtonVariant.plain,
-                    tone: searchExpanded
-                        ? AppIconButtonTone.primary
-                        : AppIconButtonTone.neutral,
-                    onTap: _toggleSearch,
-                  ),
-                ],
+              const SizedBox(width: AppDimens.s12$md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.headingM(context),
+                    ),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: AppDimens.s08$sm),
+                      Text(
+                        description,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.caption(context),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ],
           ),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            alignment: Alignment.topCenter,
-            child: searchExpanded
-                ? Padding(
-                    padding: const EdgeInsets.only(top: AppDimens.s12$md),
-                    child: Row(
-                      children: [
-                        Expanded(
+          const SizedBox(height: AppDimens.s08$sm),
+          // Fixed to inputHeight so 46px field vs 44px icon buttons don't
+          // bump the card when search expands.
+          SizedBox(
+            height: AppDimens.inputHeight,
+            child: Row(
+              spacing: AppDimens.s04$xs,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return AnimatedBuilder(
+                        animation: _searchReveal,
+                        builder: (context, child) {
+                          final t = Curves.linear.transform(
+                            _searchReveal.value,
+                          );
+                          return Align(
+                            alignment: Alignment.centerRight,
+                            child: SizedBox(
+                              width: constraints.maxWidth * t,
+                              height: AppDimens.inputHeight,
+                              child: ClipRect(
+                                child: OverflowBox(
+                                  alignment: Alignment.centerRight,
+                                  minWidth: constraints.maxWidth,
+                                  maxWidth: constraints.maxWidth,
+                                  minHeight: AppDimens.inputHeight,
+                                  maxHeight: AppDimens.inputHeight,
+                                  child: IgnorePointer(
+                                    ignoring: t < 1,
+                                    child: child,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        child: TapRegion(
+                          onTapOutside: (_) => _clearSearchFocus(),
                           child: AppTextField(
                             controller: _searchController,
+                            focusNode: _searchFocus,
                             hint: l10n.searchEquipment,
                             textInputAction: TextInputAction.search,
                             onChanged: _setQuery,
@@ -287,21 +295,88 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard> {
                                   .read(browseGroupSessionsProvider.notifier)
                                   .setQuery(value);
                               _syncSearchProvider(value);
+                              _clearSearchFocus();
                             },
                           ),
                         ),
-                        const SizedBox(width: AppDimens.s08$sm),
-                        AppIconButton(
-                          icon: LucideIcons.x,
-                          tooltip: l10n.search,
-                          onTap: () => _collapseSearch(clearQuery: true),
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                      );
+                    },
+                  ),
+                ),
+                AppIconButton(
+                  icon: LucideIcons.search,
+                  tooltip: l10n.search,
+                  variant: searchExpanded
+                      ? AppIconButtonVariant.soft
+                      : AppIconButtonVariant.plain,
+                  tone: searchExpanded
+                      ? AppIconButtonTone.primary
+                      : AppIconButtonTone.neutral,
+                  onTap: _toggleSearch,
+                ),
+                // AppIconButton(
+                //   icon: LucideIcons.funnel,
+                //   tooltip: l10n.categoryFilters,
+                //   variant: _hasActiveFilters
+                //       ? AppIconButtonVariant.soft
+                //       : AppIconButtonVariant.plain,
+                //   tone: _hasActiveFilters
+                //       ? AppIconButtonTone.primary
+                //       : AppIconButtonTone.neutral,
+                //   onTap: _openFilters,
+                // ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Fixed [width]; height is always category 4:3 so the shimmer placeholder
+/// matches the loaded image and does not bump the header.
+class _CategoryHeaderImage extends StatelessWidget {
+  const _CategoryHeaderImage({
+    required this.width,
+    required this.imageUrl,
+    required this.fallbackAsset,
+  });
+
+  /// Category artwork is authored at 4:3.
+  static const aspectRatio = 4 / 3;
+
+  final double width;
+  final String? imageUrl;
+  final AppImage fallbackAsset;
+
+  bool get _hasNetworkImage {
+    final url = imageUrl;
+    return url != null && url.isNotEmpty;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final height = width / aspectRatio;
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppDimens.r08$md),
+        child: _hasNetworkImage
+            ? OptimizedNetworkImage(
+                imageUrl: imageUrl,
+                width: width,
+                height: height,
+                fit: BoxFit.contain,
+              )
+            : Image.asset(
+                fallbackAsset.iconKey,
+                width: width,
+                height: height,
+                fit: BoxFit.contain,
+              ),
       ),
     );
   }

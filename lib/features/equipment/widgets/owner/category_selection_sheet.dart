@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -10,8 +8,6 @@ import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
-import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
-import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -61,39 +57,6 @@ class CategorySelectionSheet {
 
     final items = ref.read(categoriesProvider).valueOrNull?.items ?? const [];
     return items.where((item) => item.catalogGroup == group).toList();
-  }
-
-  static Future<void> _openSuggestEquipment(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
-    final router = GoRouter.of(context);
-
-    DemandConfig? config = ref.read(demandConfigProvider).valueOrNull;
-    if (config == null || !config.shouldShow) {
-      try {
-        config = await ref.read(demandConfigProvider.future);
-      } catch (_) {
-        config = null;
-      }
-    }
-
-    if (!context.mounted) return;
-    Navigator.of(context).pop();
-
-    final campaignId = config?.campaignId;
-    if (campaignId == null ||
-        campaignId.isEmpty ||
-        !(config?.shouldShow ?? false)) {
-      AppToast.show(
-        message: l10n.demandSurveyLoadError,
-        type: AppToastType.error,
-      );
-      return;
-    }
-
-    await router.push(AppRoutes.equipmentDemandPath(campaignId));
   }
 
   static Widget _categoryImage(Category category) {
@@ -167,36 +130,14 @@ class CategorySelectionSheet {
               groups,
             );
             final categories = _categoriesForSheet(ref, service, selectedGroup);
-            final demandEligible =
-                service == CategorySheetMode.createEquipment ||
-                service == CategorySheetMode.createRequest;
-            final showSuggest =
-                demandEligible &&
-                (ref.watch(demandConfigProvider).valueOrNull?.shouldShow ??
-                    false);
-            final itemCount = categories.length + (showSuggest ? 1 : 0);
             final selectedId = service == CategorySheetMode.createRequest
                 ? ref.watch(requestMutationProvider).selectedCategory?.id
                 : ref.watch(equipmentMutationProvider).category?.id;
 
             return ListView.builder(
               controller: scrollController,
-              itemCount: itemCount,
+              itemCount: categories.length,
               itemBuilder: (context, index) {
-                if (showSuggest && index == categories.length) {
-                  return _SelectionTile(
-                    title: l10n.demandSurveyCardTitle,
-                    description: '',
-                    selected: false,
-                    image: Icon(
-                      Icons.add_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 32,
-                    ),
-                    onTap: () => _openSuggestEquipment(context, ref, l10n),
-                  );
-                }
-
                 final category = categories[index];
 
                 return _SelectionTile(

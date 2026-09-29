@@ -10,6 +10,7 @@ abstract final class AppDimens {
 
   static const double r08$md = 8;
   static const double r10$base = 10;
+  static const double r12$lg = 12;
   static const double r16$xl = 16;
   static const double r20$xxl = 20;
   static const double r999$full = 999;

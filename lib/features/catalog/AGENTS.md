@@ -6,6 +6,7 @@
 - Category has localized `descriptions` (ru/en/kk) alongside `names`. Missing/empty → empty string; pick locally like names.
 - Disk cache: app support via `path_provider` (`catalog/catalog_bundle.json`). Not secure storage. First launch uses `assets/catalog/catalog_bundle.json`.
 - Category `imageUrl` values are `/media/user-content/category/...` keys (not Flutter assets, not supabase public URLs). Load them through `OptimizedNetworkImage` / the account media cache.
+- After a catalog bundle is available (`build` / `refresh`), `CatalogNotifier` fire-and-forgets `MediaImagePrefetcher` to warm those URLs in `mediaCacheManager` (disk only, concurrency 3, skip hits). Prefetch must never block or fail catalog load.
 - Browse header: `CategoryHeaderCard` (image + name + description + filter stub + expandable search). All-categories uses `AppImages.machineryStd` / `equipmentStd` and l10n description. Picker sheet resets search/filters on pick.
 - `catalogProvider` does not watch `localeProvider`. Names/descriptions are picked locally from `names` / `descriptions` / `symbols`.
 - `categoriesProvider` reads this bundle (no extra category HTTP). City pickers use catalog cities only.

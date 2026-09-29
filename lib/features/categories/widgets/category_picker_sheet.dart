@@ -46,6 +46,8 @@ class CategoryPickerSheet {
       },
     );
   }
+
+  static const double imageWidth = 100;
 }
 
 class _CategoryPickerList extends StatelessWidget {
@@ -81,7 +83,13 @@ class _CategoryPickerList extends StatelessWidget {
             title: l10n.allCategories,
             description: allDescription,
             selected: selectedId == null,
-            image: allImage(size: 48, fit: BoxFit.contain),
+            image: SizedBox(
+              height: CategoryPickerSheet.imageWidth * 3 / 4,
+              child: allImage(
+                size: CategoryPickerSheet.imageWidth,
+                fit: BoxFit.contain,
+              ),
+            ),
             onTap: () =>
                 Navigator.of(context).pop(const CategoryPickerResult.all()),
           );
@@ -107,8 +115,8 @@ class _CategoryPickerList extends StatelessWidget {
       return OptimizedNetworkImage(
         imageUrl: url,
         fit: BoxFit.contain,
-        height: 48,
-        width: 48,
+        height: CategoryPickerSheet.imageWidth * 3 / 4,
+        width: CategoryPickerSheet.imageWidth,
       );
     }
     return const Icon(Icons.image_not_supported, size: 32);
@@ -142,13 +150,13 @@ class _CategoryPickerTile extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppDimens.s04$xs,
-            vertical: AppDimens.s12$md,
+            horizontal: AppDimens.s08$sm,
+            vertical: AppDimens.s04$xs,
           ),
           child: Row(
             children: [
-              SizedBox.square(dimension: 64, child: image),
-              const SizedBox(width: AppDimens.s08$sm),
+              image,
+              const SizedBox(width: AppDimens.s12$md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +165,7 @@ class _CategoryPickerTile extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppFonts.body16SemiBold(context),
+                      style: AppFonts.headingS(context),
                     ),
                     if (description.isNotEmpty) ...[
                       const SizedBox(height: AppDimens.s04$xs),

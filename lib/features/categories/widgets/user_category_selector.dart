@@ -8,11 +8,6 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/category_row_skeleton.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
-import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart';
 
 class UserCategorySelector extends ConsumerStatefulWidget {
   final String mode;
@@ -31,9 +26,14 @@ class UserCategorySelector extends ConsumerStatefulWidget {
 
 class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
   static const _horizontalBleed = 16.0;
-  static const _tileExtent = 132.0;
   static const _tileWidth = 140.0;
   static const _tileSpacing = 12.0;
+
+  /// Category artwork is 4:3; keep row height = image + gap + label.
+  static const _tileExtent =
+      _tileWidth / CategoryCard.imageAspectRatio +
+      CategoryCard.imageLabelGap +
+      CategoryCard.labelHeight;
 
   void onCategorySelected(BuildContext context, Category category) {
     if (widget.mode == "create_request") {
@@ -44,30 +44,6 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     if (widget.mode == "search") {
       ref.read(selectedCategoryProvider.notifier).toggle(category);
     }
-  }
-
-  Future<void> _openSuggestEquipment() async {
-    final l10n = AppLocalizations.of(context)!;
-    DemandConfig? config = ref.read(demandConfigProvider).valueOrNull;
-    if (config == null || !config.shouldShow) {
-      try {
-        config = await ref.read(demandConfigProvider.future);
-      } catch (_) {
-        config = null;
-      }
-    }
-    if (!mounted) return;
-    final campaignId = config?.campaignId;
-    if (campaignId == null ||
-        campaignId.isEmpty ||
-        !(config?.shouldShow ?? false)) {
-      AppToast.show(
-        message: l10n.demandSurveyLoadError,
-        type: AppToastType.error,
-      );
-      return;
-    }
-    await context.push(AppRoutes.equipmentDemandPath(campaignId));
   }
 
   @override
@@ -81,19 +57,19 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
     final categories = allCategories
         .where((item) => item.catalogGroup == group)
         .toList();
-    final showDemand =
-        ref.watch(demandConfigProvider).valueOrNull?.shouldShow ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (categoriesAsync.isLoading && categories.isEmpty && !showDemand)
+        if (categoriesAsync.isLoading && categories.isEmpty)
           const _FullWidthCategoryRow(
             child: CategoryRowSkeleton(
               padding: EdgeInsets.symmetric(horizontal: _horizontalBleed),
+              tileWidth: _tileWidth,
+              tileExtent: _tileExtent,
             ),
           )
-        else if (categoriesAsync.hasError && categories.isEmpty && !showDemand)
+        else if (categoriesAsync.hasError && categories.isEmpty)
           EmptyStateTile(
             icon: LucideIcons.router,
             title: l10n.errorLoadingServices,
@@ -105,22 +81,13 @@ class _UserCategorySelectorState extends ConsumerState<UserCategorySelector> {
               height: _tileExtent,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: categories.length + (showDemand ? 1 : 0),
+                itemCount: categories.length,
                 padding: const EdgeInsets.symmetric(
                   horizontal: _horizontalBleed,
                 ),
                 separatorBuilder: (context, index) =>
                     const SizedBox(width: _tileSpacing),
                 itemBuilder: (context, index) {
-                  if (showDemand && index == categories.length) {
-                    return SizedBox(
-                      width: _tileWidth,
-                      child: DemandCategoryCard(
-                        title: l10n.demandSurveyCardTitle,
-                        onTap: _openSuggestEquipment,
-                      ),
-                    );
-                  }
                   final cat = categories[index];
                   final isSelected = widget.selectedCategoryId == cat.id;
 

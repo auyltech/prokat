@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
@@ -171,7 +172,7 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
           child: RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppDimens.s16$base),
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
                 CatalogGroupTabs(
@@ -187,15 +188,11 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                   },
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: AppDimens.s12$md),
 
                 const CategoryHeaderCard(),
 
-                const SizedBox(height: 12),
-
-                SectionTitle(title: l10n.search),
-
-                const SizedBox(height: 12),
+                const SizedBox(height: AppDimens.s16$base),
 
                 if (equipmentAsync.isLoading && items.isEmpty)
                   const EquipmentListSkeleton()
