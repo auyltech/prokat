@@ -67,9 +67,10 @@ class CategorySelectionSheet {
         fit: BoxFit.contain,
         height: 48,
         width: 48,
+        fallbackIcon: Icons.construction_rounded,
       );
     }
-    return const Icon(Icons.image_not_supported, size: 32);
+    return const Icon(Icons.construction_rounded, size: 32);
   }
 
   static Future<Category?> show(
@@ -124,6 +125,7 @@ class CategorySelectionSheet {
         return Consumer(
           builder: (context, ref, _) {
             final locale = Localizations.localeOf(context).languageCode;
+            final theme = Theme.of(context);
             final groups = _availableGroups(ref, service);
             final selectedGroup = coerceCatalogGroup(
               ref.watch(mutationCatalogGroupProvider),
@@ -145,6 +147,12 @@ class CategorySelectionSheet {
                   description: category.localizedDescription(locale),
                   selected: selectedId == category.id,
                   image: _categoryImage(category),
+                  trailing: service == CategorySheetMode.createRequest
+                      ? Icon(
+                          Icons.check_rounded,
+                          color: theme.colorScheme.primary,
+                        )
+                      : null,
                   onTap: () {
                     if (service == CategorySheetMode.createRequest) {
                       Navigator.pop(context, category);
@@ -175,6 +183,7 @@ class _SelectionTile extends StatelessWidget {
   final String description;
   final bool selected;
   final Widget image;
+  final Widget? trailing;
   final VoidCallback onTap;
 
   const _SelectionTile({
@@ -183,6 +192,7 @@ class _SelectionTile extends StatelessWidget {
     required this.selected,
     required this.image,
     required this.onTap,
+    this.trailing,
   });
 
   @override
@@ -226,6 +236,10 @@ class _SelectionTile extends StatelessWidget {
                   ],
                 ),
               ),
+              if (trailing != null) ...[
+                const SizedBox(width: AppDimens.s08$sm),
+                trailing!,
+              ],
             ],
           ),
         ),

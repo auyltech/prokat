@@ -34,10 +34,10 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   late FocusNode _priceFocus;
   late FocusNode _customNameFocus;
 
-  bool _serviceTypeError = false;
   bool _customNameError = false;
   bool _priceError = false;
   bool _billingUnitError = false;
+  bool _nameSeeded = false;
 
   @override
   void initState() {
@@ -50,6 +50,21 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
     );
     _priceFocus = FocusNode()..addListener(_onPriceFocusChange);
     _customNameFocus = FocusNode()..addListener(_onCustomNameFocusChange);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_nameSeeded) return;
+    _nameSeeded = true;
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null || _customNameController.text.trim().isNotEmpty) return;
+    if (!isKnownTariffKey(widget.draft.labelKey)) return;
+    _customNameController.text = tariffServiceTitle(
+      widget.draft.labelKey,
+      '',
+      l10n,
+    );
   }
 
   @override
@@ -90,14 +105,9 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
     }
   }
 
-  void _validateServiceType() {
-    _serviceTypeError = !widget.draft.isPreset && widget.draft.labelKey.isEmpty;
-  }
-
   void _validateCustomName() {
-    _customNameError =
-        widget.draft.labelKey == vacuumTariffOther &&
-        _customNameController.text.trim().isEmpty;
+    final name = _customNameController.text.trim();
+    _customNameError = name.isEmpty || name.length > 50;
   }
 
   void _validatePrice() {
@@ -125,11 +135,6 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
     setState(_validateCustomName);
     if (_customNameError || !widget.draft.isSavable) return;
     widget.onCommit?.call();
-  }
-
-  void _onServiceTypeFocusLost() {
-    if (!widget.canEdit) return;
-    setState(_validateServiceType);
   }
 
   void _onBillingUnitFocusLost() {
@@ -241,54 +246,32 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: AppDimens.s16$base,
                 children: [
-                  if (!draft.isPreset) ...[
-                    AppDropdownField<String>(
-                      title: l10n.serviceType,
+                  if (!draft.isPreset)
+                    AppTextField(
+                      title: l10n.customServiceName,
                       isRequired: true,
-                      value: draft.labelKey.isEmpty ? null : draft.labelKey,
-                      hint: l10n.serviceType,
+                      controller: _customNameController,
+                      focusNode: _customNameFocus,
                       enabled: widget.canEdit,
                       readOnly: !widget.canEdit,
-                      sheetTitle: l10n.serviceType,
-                      errorText: _serviceTypeError ? emptyError : null,
-                      onFocusLost: _onServiceTypeFocusLost,
-                      options: vacuumServiceTypeKeys
-                          .map(
-                            (key) => DropdownOption(
-                              value: key,
-                              label: tariffServiceOptionLabel(key, l10n),
-                            ),
-                          )
-                          .toList(),
+                      maxLength: 50,
+                      errorText: _customNameError ? emptyError : null,
                       onChanged: (value) {
-                        setState(() {
-                          _serviceTypeError = false;
-                          if (value != vacuumTariffOther) {
-                            _customNameError = false;
-                          }
-                        });
-                        _emitAndCommit(draft.copyWith(labelKey: value));
+                        final name = value.trim();
+                        if (_customNameError &&
+                            name.isNotEmpty &&
+                            name.length <= 50) {
+                          setState(() => _customNameError = false);
+                        }
+                        _emit(
+                          draft.copyWith(
+                            labelKey: vacuumTariffOther,
+                            customName: value,
+                          ),
+                        );
                       },
+                      hint: l10n.customServiceNameHint,
                     ),
-                    if (draft.labelKey == vacuumTariffOther)
-                      AppTextField(
-                        title: l10n.customServiceName,
-                        isRequired: true,
-                        controller: _customNameController,
-                        focusNode: _customNameFocus,
-                        enabled: widget.canEdit,
-                        readOnly: !widget.canEdit,
-                        maxLength: 40,
-                        errorText: _customNameError ? emptyError : null,
-                        onChanged: (value) {
-                          if (_customNameError && value.trim().isNotEmpty) {
-                            setState(() => _customNameError = false);
-                          }
-                          _emit(draft.copyWith(customName: value));
-                        },
-                        hint: l10n.customServiceNameHint,
-                      ),
-                  ],
                   AppTextField(
                     title: l10n.priceFieldLabel,
                     isRequired: true,
