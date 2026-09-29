@@ -2806,10 +2806,22 @@ abstract class AppLocalizations {
   /// **'Example: Septic truck'**
   String get equipmentNameHint;
 
+  /// No description provided for @equipmentCatalogNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit name'**
+  String get equipmentCatalogNameLabel;
+
+  /// No description provided for @equipmentCatalogNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Generator'**
+  String get equipmentCatalogNameHint;
+
   /// No description provided for @modelLabel.
   ///
   /// In en, this message translates to:
-  /// **'Make and model'**
+  /// **'Model'**
   String get modelLabel;
 
   /// No description provided for @modelHint.
@@ -2817,6 +2829,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Example: AV-10 KAMAZ 65115'**
   String get modelHint;
+
+  /// No description provided for @equipmentCatalogModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Honda EU70is'**
+  String get equipmentCatalogModelHint;
 
   /// No description provided for @plateNumberLabel.
   ///

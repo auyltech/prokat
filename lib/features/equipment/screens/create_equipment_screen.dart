@@ -5,18 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
-import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
+import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
+import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
+import 'package:prokat/features/user/widgets/city_picker_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateEquipmentScreen extends ConsumerStatefulWidget {
@@ -35,31 +36,111 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
 
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   bool _loading = false;
+  String _city = '';
+  bool _citySeeded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _name.addListener(_onFieldsChanged);
+    _model.addListener(_onFieldsChanged);
+    _plateNumber.addListener(_onFieldsChanged);
+
+    unawaited(
+      Future.microtask(() async {
+        await Future.wait([
+          ref.read(categoriesProvider.notifier).refreshIfStale(),
+          ref.read(ownerProfileProvider.notifier).refreshIfStale(),
+        ]);
+        if (!mounted) return;
+        _seedCityIfNeeded();
+        setState(() {});
+      }),
+    );
+  }
+
+  void _onFieldsChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _seedCityIfNeeded() {
+    if (_citySeeded) return;
+    final seed = _accountCity();
+    if (seed.isEmpty) return;
+    _city = seed;
+    _citySeeded = true;
+  }
+
+  String _accountCity() {
+    final ownerCity = (ref.read(ownerProfileProvider).valueOrNull?.city ?? '')
+        .trim();
+    if (ownerCity.isNotEmpty) return ownerCity;
+
+    final requestCity =
+        (ref.read(ownerRegistrationRequestProvider).valueOrNull?.city ?? '')
+            .trim();
+    if (requestCity.isNotEmpty) return requestCity;
+
+    final clientCity = (ref.read(clientProfileProvider).userProfile?.city ?? '')
+        .trim();
+    if (clientCity.isNotEmpty) return clientCity;
+
+    return (ref.read(locationProvider).city ?? '').trim();
+  }
+
+  Future<Category?> _openCategorySheet() async {
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    final groupTabs = ownerVisibleCatalogGroups(catalog);
+    final group = coerceCatalogGroup(
+      ref.read(mutationCatalogGroupProvider),
+      groupTabs,
+    );
+    final categories =
+        catalog?.ownerCategoriesFor(group).map(Category.fromCatalog).toList() ??
+        const [];
+    final selectedId = ref.read(equipmentMutationProvider).category?.id;
+
+    final picked = await CategoryPickerSheet.show(
+      context,
+      categories: categories,
+      group: group,
+      selectedId: selectedId,
+      includeAllOption: false,
+    );
+    if (!mounted || picked == null || picked.isAll) return null;
+    return picked.category;
+  }
+
+  Future<String?> _openCitySheet() async {
+    final selected = await CityPickerSheet.show(
+      context: context,
+      service: CitySelectorService.createequipment,
+      highlightedCity: _city,
+    );
+    if (!mounted || selected == null || selected.trim().isEmpty) return null;
+    return selected.trim();
+  }
 
   Future<void> onSubmit(AppLocalizations l10n) async {
     final isValid = _formKey.currentState?.validate() ?? false;
     final nameOk = _name.text.trim().isNotEmpty;
     final modelOk = _model.text.trim().isNotEmpty;
     final category = ref.read(equipmentMutationProvider).category;
-    final plateRequired = category?.catalogGroup != CatalogGroup.equipment;
+    final plateRequired = !_isEquipmentGroup;
     final plateOk =
         !plateRequired || sanitizeKzPlate(_plateNumber.text).trim().isNotEmpty;
-    if (!isValid || !nameOk || !modelOk || !plateOk) {
+    final city = _city.trim();
+
+    if (!isValid ||
+        !nameOk ||
+        !modelOk ||
+        !plateOk ||
+        category == null ||
+        city.isEmpty) {
       setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
-      return;
-    }
-
-    if (category == null) {
-      setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
-      return;
-    }
-
-    await ref.read(ownerProfileProvider.notifier).refreshIfStale();
-    if (!mounted) return;
-
-    final city = _selectedCity();
-    if (city.isEmpty) {
-      AppToast.show(message: l10n.cityRequired, type: AppToastType.error);
+      if (city.isEmpty) {
+        AppToast.show(message: l10n.cityRequired, type: AppToastType.error);
+      }
       return;
     }
 
@@ -74,7 +155,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             "city": city,
             "name": _name.text.trim(),
             "model": _model.text.trim(),
-            if (plate.isNotEmpty) "plateNumber": plate,
+            if (plateRequired && plate.isNotEmpty) "plateNumber": plate,
           });
 
       if (result == true && mounted) {
@@ -98,39 +179,20 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    unawaited(
-      Future.microtask(() async {
-        await Future.wait([
-          ref.read(categoriesProvider.notifier).refreshIfStale(),
-          ref.read(ownerProfileProvider.notifier).refreshIfStale(),
-        ]);
-      }),
+  bool get _isEquipmentGroup {
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    final group = coerceCatalogGroup(
+      ref.read(mutationCatalogGroupProvider),
+      ownerVisibleCatalogGroups(catalog),
     );
-  }
-
-  String _selectedCity() {
-    final ownerCity = (ref.read(ownerProfileProvider).valueOrNull?.city ?? '')
-        .trim();
-    if (ownerCity.isNotEmpty) return ownerCity;
-
-    final requestCity =
-        (ref.read(ownerRegistrationRequestProvider).valueOrNull?.city ?? '')
-            .trim();
-    if (requestCity.isNotEmpty) return requestCity;
-
-    final clientCity = (ref.read(clientProfileProvider).userProfile?.city ?? '')
-        .trim();
-    if (clientCity.isNotEmpty) return clientCity;
-
-    return (ref.read(locationProvider).city ?? '').trim();
+    return group == CatalogGroup.equipment;
   }
 
   @override
   void dispose() {
+    _name.removeListener(_onFieldsChanged);
+    _model.removeListener(_onFieldsChanged);
+    _plateNumber.removeListener(_onFieldsChanged);
     _name.dispose();
     _model.dispose();
     _plateNumber.dispose();
@@ -141,14 +203,33 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final locale = l10n.localeName;
 
     final equipmentState = ref.watch(equipmentMutationProvider);
     final category = equipmentState.category;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final groupTabs = ownerVisibleCatalogGroups(catalog);
+    final mutationGroup = coerceCatalogGroup(
+      ref.watch(mutationCatalogGroupProvider),
+      groupTabs,
+    );
+
     ref.watch(ownerProfileProvider);
     ref.watch(ownerRegistrationRequestProvider);
     ref.watch(clientProfileProvider);
     ref.watch(locationProvider.select((state) => state.city));
-    final accountCity = _selectedCity();
+    _seedCityIfNeeded();
+
+    final plateRequired = mutationGroup != CatalogGroup.equipment;
+    final cityOk = _city.trim().isNotEmpty;
+    final canContinue =
+        category != null &&
+        cityOk &&
+        _name.text.trim().isNotEmpty &&
+        _model.text.trim().isNotEmpty &&
+        (!plateRequired ||
+            sanitizeKzPlate(_plateNumber.text).trim().isNotEmpty) &&
+        !_loading;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -158,193 +239,140 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             ref.read(categoriesProvider.notifier).refresh(),
             ref.read(ownerProfileProvider.notifier).refresh(),
           ]);
+          if (!mounted) return;
+          if (!_citySeeded) {
+            _seedCityIfNeeded();
+            setState(() {});
+          }
         },
         child: ListView(
-          padding: EdgeInsets.zero,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
           children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                autovalidateMode: _autovalidateMode,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CatalogGroupTabs(
-                      groups: ownerVisibleCatalogGroups(
-                        ref.watch(catalogProvider).valueOrNull,
+            Form(
+              key: _formKey,
+              autovalidateMode: _autovalidateMode,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CatalogGroupTabs(
+                    groups: groupTabs,
+                    selected: mutationGroup,
+                    onChanged: (group) {
+                      ref
+                          .read(mutationCatalogGroupProvider.notifier)
+                          .select(group);
+                      ref
+                          .read(equipmentMutationProvider.notifier)
+                          .clearCategory();
+                      if (group == CatalogGroup.equipment) {
+                        _plateNumber.clear();
+                      }
+                    },
+                  ),
+                  if (groupTabs.length > 1)
+                    const SizedBox(height: AppDimens.s12$md),
+                  AppDropdownField<Category>(
+                    title: l10n.equipmentCategoryLabel,
+                    hint: l10n.pleaseSelectCategory,
+                    isRequired: true,
+                    sheetTitle: l10n.selectCategory,
+                    value: category,
+                    selectedLabel: category?.localizedName(locale),
+                    openCustomSheet: _openCategorySheet,
+                    onChanged: (picked) {
+                      ref
+                          .read(equipmentMutationProvider.notifier)
+                          .selectCategory(picked);
+                    },
+                  ),
+                  const SizedBox(height: AppDimens.s16$base),
+                  AppDropdownField<String>(
+                    title: l10n.city,
+                    hint: l10n.selectCity,
+                    isRequired: true,
+                    sheetTitle: l10n.selectCity,
+                    value: cityOk ? _city : null,
+                    selectedLabel: cityOk
+                        ? catalogCityLabelOf(ref, context, _city)
+                        : null,
+                    openCustomSheet: _openCitySheet,
+                    onChanged: (picked) {
+                      setState(() {
+                        _city = picked.trim();
+                        _citySeeded = true;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: AppDimens.s16$base),
+                  AppTextField(
+                    title: mutationGroup == CatalogGroup.equipment
+                        ? l10n.equipmentCatalogNameLabel
+                        : l10n.equipmentNameLabel,
+                    isRequired: true,
+                    controller: _name,
+                    hint: mutationGroup == CatalogGroup.equipment
+                        ? l10n.equipmentCatalogNameHint
+                        : l10n.equipmentNameHint,
+                    maxLength: ownerEquipmentTextMaxLength,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(
+                        ownerEquipmentTextMaxLength,
                       ),
-                      selected: coerceCatalogGroup(
-                        ref.watch(mutationCatalogGroupProvider),
-                        ownerVisibleCatalogGroups(
-                          ref.watch(catalogProvider).valueOrNull,
-                        ),
+                    ],
+                    validator: (value) => (value ?? '').trim().isEmpty
+                        ? l10n.fieldRequired
+                        : null,
+                  ),
+                  const SizedBox(height: AppDimens.s16$base),
+                  AppTextField(
+                    title: l10n.modelLabel,
+                    isRequired: true,
+                    controller: _model,
+                    hint: mutationGroup == CatalogGroup.equipment
+                        ? l10n.equipmentCatalogModelHint
+                        : l10n.modelHint,
+                    maxLength: ownerEquipmentTextMaxLength,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(
+                        ownerEquipmentTextMaxLength,
                       ),
-                      onChanged: (group) {
-                        ref
-                            .read(mutationCatalogGroupProvider.notifier)
-                            .select(group);
-                        ref
-                            .read(equipmentMutationProvider.notifier)
-                            .clearCategory();
-                      },
-                    ),
-                    const SizedBox(height: 12),
-
-                    FormField<String>(
-                      validator: (_) {
-                        if (ref.read(equipmentMutationProvider).category ==
-                            null) {
-                          return l10n.fieldRequired;
-                        }
-                        return null;
-                      },
-                      builder: (state) {
-                        return CategorySelectorTile(
-                          mode: CategorySheetMode.createEquipment,
-                          selectedCategoryId: category?.id,
-                          errorText: state.errorText,
-                          onChanged: (picked) => state.didChange(picked?.id),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    _AccountCityRow(city: accountCity),
-
-                    const SizedBox(height: 16),
-
+                    ],
+                    validator: (value) => (value ?? '').trim().isEmpty
+                        ? l10n.fieldRequired
+                        : null,
+                  ),
+                  if (plateRequired) ...[
+                    const SizedBox(height: AppDimens.s16$base),
                     AppTextField(
-                      prefix: const Icon(Icons.badge_outlined),
-                      title: l10n.equipmentNameLabel,
-                      isRequired: true,
-                      controller: _name,
-                      hint: l10n.equipmentNameHint,
-                      maxLength: ownerEquipmentTextMaxLength,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                          ownerEquipmentTextMaxLength,
-                        ),
-                      ],
-                      validator: (value) => (value ?? '').trim().isEmpty
-                          ? l10n.fieldRequired
-                          : null,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    AppTextField(
-                      prefix: const Icon(Icons.view_column_outlined),
-                      title: l10n.modelLabel,
-                      isRequired: true,
-                      controller: _model,
-                      hint: l10n.modelHint,
-                      maxLength: ownerEquipmentTextMaxLength,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                          ownerEquipmentTextMaxLength,
-                        ),
-                      ],
-                      validator: (value) => (value ?? '').trim().isEmpty
-                          ? l10n.fieldRequired
-                          : null,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    AppTextField(
-                      prefix: const Icon(Icons.mp_outlined),
                       title: l10n.plateNumberLabel,
-                      isRequired:
-                          category?.catalogGroup != CatalogGroup.equipment,
+                      isRequired: true,
                       controller: _plateNumber,
                       hint: l10n.plateNumberHint,
                       textInputAction: TextInputAction.done,
                       inputFormatters: const [KzPlateInputFormatter()],
-                      validator: (value) {
-                        if (category?.catalogGroup == CatalogGroup.equipment) {
-                          return null;
-                        }
-                        return sanitizeKzPlate(value ?? '').isEmpty
-                            ? l10n.fieldRequired
-                            : null;
-                      },
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    _DraftCreateInfo(
-                      title: l10n.draftWillBeCreated,
-                      body: l10n.draftNextStepsHint,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    AppElevatedButton(
-                      title: l10n.continueAction,
-                      isLoading: _loading,
-                      onTap: _loading ? null : () => onSubmit(l10n),
+                      validator: (value) => sanitizeKzPlate(value ?? '').isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                     ),
                   ],
-                ),
+                  const SizedBox(height: AppDimens.s24$xl),
+                  _DraftCreateInfo(
+                    title: l10n.draftWillBeCreated,
+                    body: l10n.draftNextStepsHint,
+                  ),
+                  const SizedBox(height: AppDimens.s16$base),
+                  AppElevatedButton(
+                    title: l10n.continueAction,
+                    isLoading: _loading,
+                    onTap: canContinue ? () => onSubmit(l10n) : null,
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _AccountCityRow extends ConsumerWidget {
-  final String city;
-
-  const _AccountCityRow({required this.city});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-    final hasCity = city.trim().isNotEmpty;
-    final cityLabel = hasCity
-        ? catalogCityLabelOf(ref, context, city)
-        : l10n.selectCity;
-
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: hasCity
-                ? theme.colorScheme.primary
-                : theme.colorScheme.surfaceDim,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.location_on_outlined,
-            color: hasCity ? Colors.white : Colors.white.withValues(alpha: 0.3),
-            size: 24,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.city, style: theme.textTheme.labelLarge),
-              Text(
-                cityLabel,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: hasCity
-                      ? null
-                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -362,10 +390,10 @@ class _DraftCreateInfo extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppDimens.s16$base),
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppDimens.s12$md),
         border: Border.all(color: colorScheme.primary.withValues(alpha: 0.28)),
       ),
       child: Column(
@@ -378,7 +406,7 @@ class _DraftCreateInfo extends StatelessWidget {
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppDimens.s08$sm),
           Text(
             body,
             style: theme.textTheme.bodySmall?.copyWith(

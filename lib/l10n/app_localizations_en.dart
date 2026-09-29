@@ -1460,10 +1460,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentNameHint => 'Example: Septic truck';
 
   @override
-  String get modelLabel => 'Make and model';
+  String get equipmentCatalogNameLabel => 'Equipment unit name';
+
+  @override
+  String get equipmentCatalogNameHint => 'Example: Generator';
+
+  @override
+  String get modelLabel => 'Model';
 
   @override
   String get modelHint => 'Example: AV-10 KAMAZ 65115';
+
+  @override
+  String get equipmentCatalogModelHint => 'Example: Honda EU70is';
 
   @override
   String get plateNumberLabel => 'State registration number';

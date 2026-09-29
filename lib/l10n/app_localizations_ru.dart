@@ -1465,10 +1465,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentNameHint => 'Пример: Ассенизатор';
 
   @override
-  String get modelLabel => 'Марка и модель';
+  String get equipmentCatalogNameLabel => 'Название оборудования';
+
+  @override
+  String get equipmentCatalogNameHint => 'Пример: Генератор';
+
+  @override
+  String get modelLabel => 'Модель';
 
   @override
   String get modelHint => 'Пример: АВ-10 КамАЗ 65115';
+
+  @override
+  String get equipmentCatalogModelHint => 'Пример: Honda EU70is';
 
   @override
   String get plateNumberLabel => 'Государственный номер';

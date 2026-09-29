@@ -10,7 +10,7 @@ class CatalogGroupTabs extends StatelessWidget {
     required this.groups,
     required this.selected,
     required this.onChanged,
-    this.isExpanded = false,
+    this.isExpanded = true,
   });
 
   final List<CatalogGroup> groups;

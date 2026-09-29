@@ -1448,10 +1448,19 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentNameHint => 'Мысал: Ассенизатор';
 
   @override
-  String get modelLabel => 'Маркасы мен үлгісі';
+  String get equipmentCatalogNameLabel => 'Жабдық аты';
+
+  @override
+  String get equipmentCatalogNameHint => 'Мысал: Генератор';
+
+  @override
+  String get modelLabel => 'Модель';
 
   @override
   String get modelHint => 'Мысал: АВ-10 КамАЗ 65115';
+
+  @override
+  String get equipmentCatalogModelHint => 'Мысал: Honda EU70is';
 
   @override
   String get plateNumberLabel => 'Мемлекеттік нөмір';
