@@ -30,6 +30,8 @@
 		<true/>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Prokat uses your location to show nearby rental equipment on the map.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Prokat uses your location while you are using the map to show nearby rental equipment. Location is not tracked in the background.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>
