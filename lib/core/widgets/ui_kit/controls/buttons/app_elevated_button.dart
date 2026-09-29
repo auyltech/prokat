@@ -45,7 +45,7 @@ class AppElevatedButton extends StatelessWidget {
       AppElevatedButtonStyle.primary => buttonTheme.background,
       AppElevatedButtonStyle.destructive => buttonTheme.destructiveBackground,
     };
-    final borderRadius = BorderRadius.circular(AppDimens.r16$xl);
+    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
 
     return Opacity(
       opacity: onTap == null ? buttonTheme.disabledOpacity : 1,

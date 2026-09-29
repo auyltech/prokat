@@ -8,6 +8,7 @@ export 'package:prokat/core/theme/colors/component_themes/app_label_button_theme
 export 'package:prokat/core/theme/colors/component_themes/app_navigation_bar_theme.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_outlined_button_theme.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_radio_theme.dart';
+export 'package:prokat/core/theme/colors/component_themes/app_segmented_button_theme.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_selection_theme.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_switch_theme.dart';
 export 'package:prokat/core/theme/colors/component_themes/app_text_button_theme.dart';

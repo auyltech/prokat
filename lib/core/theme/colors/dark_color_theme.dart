@@ -176,6 +176,15 @@ class DarkColorTheme extends AppColorsTheme {
   );
 
   @override
+  AppSegmentedButtonTheme get segmentedButton => const AppSegmentedButtonTheme(
+    selectedBackground: AppColorsDark.primaryInteractive,
+    selectedContent: AppColorsDark.white,
+    unselectedBackground: AppColorsDark.surface,
+    unselectedBorder: AppColorsDark.border,
+    unselectedContent: AppColorsDark.border,
+  );
+
+  @override
   AppTextButtonTheme get textButton => const AppTextButtonTheme(
     content: AppColorsDark.primaryInteractive,
     contentDestructive: AppColorsDark.danger,

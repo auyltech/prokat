@@ -89,7 +89,7 @@ class AppIconButton extends StatelessWidget {
     final buttonShape = switch (shape) {
       AppIconButtonShape.circle => CircleBorder(side: borderSide),
       AppIconButtonShape.rounded => RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.r16$xl),
+        borderRadius: BorderRadius.circular(AppDimens.r12$lg),
         side: borderSide,
       ),
     };

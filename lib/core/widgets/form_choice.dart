@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/theme/app_dimens.dart';
-import 'package:prokat/core/theme/app_fonts.dart';
-import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class RequiredFieldLabel extends StatelessWidget {
   const RequiredFieldLabel({
@@ -57,81 +55,24 @@ class ChoicePair extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: ChoiceButton(
-            label: leftLabel,
-            selected: leftSelected,
-            onTap: onLeft,
-          ),
-        ),
-        const SizedBox(width: AppDimens.s08$sm),
-        Expanded(
-          child: ChoiceButton(
-            label: rightLabel,
-            selected: rightSelected,
-            onTap: onRight,
-          ),
-        ),
+    return AppSegmentedButton<int>(
+      isExpanded: true,
+      value: leftSelected
+          ? 0
+          : rightSelected
+          ? 1
+          : null,
+      segments: [
+        AppSegmentedOption(title: leftLabel, value: 0),
+        AppSegmentedOption(title: rightLabel, value: 1),
       ],
-    );
-  }
-}
-
-class ChoiceButton extends StatelessWidget {
-  const ChoiceButton({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final elevated = colors.elevatedButton;
-    final field = colors.textField;
-    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
-
-    return Material(
-      color: selected ? elevated.background : field.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
-        side: BorderSide(
-          width: AppDimens.buttonBorderWidth,
-          color: selected ? elevated.background : colors.borders.main,
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: borderRadius,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: AppDimens.inputHeight),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimens.s08$sm,
-              vertical: AppDimens.s08$sm,
-            ),
-            child: Center(
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppFonts.label(context).copyWith(
-                  color: selected ? elevated.content : colors.text.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      onChanged: (value) {
+        if (value == 0) {
+          onLeft();
+        } else {
+          onRight();
+        }
+      },
     );
   }
 }

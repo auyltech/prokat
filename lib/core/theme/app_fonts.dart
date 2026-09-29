@@ -88,8 +88,8 @@ abstract final class AppFonts {
   ).copyWith(color: _colors(context).text.secondary);
 
   static TextStyle button(BuildContext context) => _base(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontSize: 18,
+    fontWeight: FontWeight.w800,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle price(BuildContext context) => _base(

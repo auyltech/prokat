@@ -1,6 +1,6 @@
 # Categories
 
-- Browse UI: `CatalogGroupTabs` + `CategoryHeaderCard` (not the old horizontal `UserCategorySelector` row on search/guest).
+- Browse UI: `CatalogGroupTabs` (`AppSegmentedButton`) + `CategoryHeaderCard` (not the old horizontal `UserCategorySelector` row on search/guest).
 - Header shows selected category or all-categories (hardcoded `machinery_std` / `equipment_std` + l10n title/description).
 - Category images are **4:3**; header/selector placeholders use that ratio so load does not bump layout.
 - Tap on header body opens `CategoryPickerSheet` via `AppBottomSheet.showScrollable` (initial 0.4 / min 0.2 / max 0.85); same tiles for MACHINERY and EQUIPMENT (all-row uses group std image + l10n). Pick clears search query and (future) filters **for the active group only**.
