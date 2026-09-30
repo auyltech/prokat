@@ -17,6 +17,11 @@ TextStyle _categoryTileLabelStyle(ThemeData theme, {bool selected = false}) {
 }
 
 class CategoryCard extends StatelessWidget {
+  /// Category artwork is authored at 4:3 — placeholder uses the same box.
+  static const imageAspectRatio = 4 / 3;
+  static const imageLabelGap = 4.0;
+  static const labelHeight = 40.0;
+
   final Category category;
   final bool isSelected;
   final VoidCallback onTap;
@@ -31,27 +36,25 @@ class CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final url = category.imageUrl;
 
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          Expanded(
-            child: (category.imageUrl != null && category.imageUrl!.isNotEmpty)
-                ? OptimizedNetworkImage(
-                    imageUrl: category.imageUrl,
-                    height: 50,
-                    fit: BoxFit.contain,
-                  )
+          AspectRatio(
+            aspectRatio: imageAspectRatio,
+            child: (url != null && url.isNotEmpty)
+                ? OptimizedNetworkImage(imageUrl: url, fit: BoxFit.contain)
                 : const Icon(
                     Icons.image_not_supported,
                     size: 48,
                     color: Colors.grey,
                   ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: imageLabelGap),
           SizedBox(
-            height: 40,
+            height: labelHeight,
             child: Text(
               category.localizedName(
                 Localizations.localeOf(context).languageCode,
@@ -86,10 +89,13 @@ class DemandCategoryCard extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Expanded(child: AppImages.demand.call()),
-          const SizedBox(height: 4),
+          AspectRatio(
+            aspectRatio: CategoryCard.imageAspectRatio,
+            child: AppImages.demand.call(),
+          ),
+          const SizedBox(height: CategoryCard.imageLabelGap),
           SizedBox(
-            height: 40,
+            height: CategoryCard.labelHeight,
             child: Text(
               title,
               maxLines: 2,

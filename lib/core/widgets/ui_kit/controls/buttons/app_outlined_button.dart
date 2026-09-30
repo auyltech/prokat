@@ -52,7 +52,7 @@ class AppOutlinedButton extends StatelessWidget {
             AppOutlinedButtonStyle.primary => buttonTheme.border,
             AppOutlinedButtonStyle.destructive => buttonTheme.borderDestructive,
           };
-    final borderRadius = BorderRadius.circular(AppDimens.r16$xl);
+    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
 
     return Opacity(
       opacity: onTap == null ? buttonTheme.disabledOpacity : 1,

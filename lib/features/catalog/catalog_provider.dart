@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_provider.dart';
+import 'package:prokat/core/media/media_image_prefetcher.dart';
+import 'package:prokat/core/media/media_providers.dart';
 import 'package:prokat/features/catalog/catalog_cache.dart';
 import 'package:prokat/features/catalog/catalog_service.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
@@ -32,6 +36,7 @@ class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
 
   DateTime? _fetchedAt;
   Future<void>? _refreshing;
+  int _prefetchGeneration = 0;
 
   @override
   Future<CatalogBundle> build() async {
@@ -43,14 +48,46 @@ class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
 
     try {
       final next = await _fetchAndStore(ifNoneMatch: local?.version);
-      if (next != null) return next;
+      if (next != null) {
+        _scheduleCategoryImagePrefetch(next);
+        return next;
+      }
     } catch (_) {
-      if (local != null) return local;
+      if (local != null) {
+        _scheduleCategoryImagePrefetch(local);
+        return local;
+      }
       rethrow;
     }
 
-    if (local != null) return local;
+    if (local != null) {
+      _scheduleCategoryImagePrefetch(local);
+      return local;
+    }
     throw Exception('Catalog unavailable');
+  }
+
+  void _scheduleCategoryImagePrefetch(CatalogBundle bundle) {
+    final generation = ++_prefetchGeneration;
+    // Defer past build so catalog completion never waits on media plugins.
+    unawaited(_prefetchCategoryImages(bundle, generation));
+  }
+
+  Future<void> _prefetchCategoryImages(
+    CatalogBundle bundle,
+    int generation,
+  ) async {
+    await Future<void>.delayed(Duration.zero);
+    try {
+      final rawUrls = bundle.categories.map((category) => category.imageUrl);
+      // Skip CacheManager when there is nothing to warm (unit tests, empty catalog).
+      if (mediaPrefetchUrls(rawUrls).isEmpty) return;
+      final manager = ref.read(mediaCacheManagerProvider);
+      await MediaImagePrefetcher(cacheManager: manager)
+          .warm(rawUrls, isCurrent: () => generation == _prefetchGeneration);
+    } catch (_) {
+      // Prefetch is best-effort (missing plugins must not fail catalog).
+    }
   }
 
   Future<CatalogBundle?> _loadAsset() async {
@@ -94,12 +131,17 @@ class CatalogNotifier extends AsyncNotifier<CatalogBundle> {
       final next = await _fetchAndStore(ifNoneMatch: previous?.version);
       if (next != null) {
         state = AsyncData(next);
+        _scheduleCategoryImagePrefetch(next);
         return;
       }
-      if (previous != null) state = AsyncData(previous);
+      if (previous != null) {
+        state = AsyncData(previous);
+        _scheduleCategoryImagePrefetch(previous);
+      }
     } catch (error, stackTrace) {
       if (previous != null) {
         state = AsyncData(previous);
+        _scheduleCategoryImagePrefetch(previous);
       } else {
         state = AsyncError(error, stackTrace);
       }

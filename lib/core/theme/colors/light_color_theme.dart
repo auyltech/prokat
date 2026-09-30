@@ -181,6 +181,15 @@ class LightColorTheme extends AppColorsTheme {
   );
 
   @override
+  AppSegmentedButtonTheme get segmentedButton => const AppSegmentedButtonTheme(
+    selectedBackground: AppColors.primary,
+    selectedContent: AppColors.white,
+    unselectedBackground: AppColors.surface,
+    unselectedBorder: AppColors.border,
+    unselectedContent: AppColors.border,
+  );
+
+  @override
   AppTextButtonTheme get textButton => const AppTextButtonTheme(
     content: AppColors.primary,
     contentDestructive: AppColors.danger,

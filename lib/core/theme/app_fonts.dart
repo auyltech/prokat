@@ -37,19 +37,19 @@ abstract final class AppFonts {
 
   static TextStyle headingL(BuildContext context) => _base(
     fontSize: 24,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w800,
     fontFamily: displayFamily,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle headingM(BuildContext context) => _base(
-    fontSize: 22,
-    fontWeight: FontWeight.w600,
+    fontSize: 20,
+    fontWeight: FontWeight.w800,
     fontFamily: displayFamily,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle headingS(BuildContext context) => _base(
     fontSize: 18,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w800,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle body16(BuildContext context) => _base(
@@ -67,9 +67,9 @@ abstract final class AppFonts {
     fontWeight: FontWeight.w400,
   ).copyWith(color: _colors(context).text.main);
 
-  static TextStyle body14Bold(BuildContext context) => _base(
+  static TextStyle body14SemiBold(BuildContext context) => _base(
     fontSize: 14,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle label(BuildContext context) => _base(
@@ -88,8 +88,8 @@ abstract final class AppFonts {
   ).copyWith(color: _colors(context).text.secondary);
 
   static TextStyle button(BuildContext context) => _base(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontSize: 18,
+    fontWeight: FontWeight.w800,
   ).copyWith(color: _colors(context).text.main);
 
   static TextStyle price(BuildContext context) => _base(

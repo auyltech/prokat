@@ -19,6 +19,7 @@ abstract class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   AppLabelButtonTheme get labelButton;
   AppElevatedButtonTheme get elevatedButton;
   AppOutlinedButtonTheme get outlinedButton;
+  AppSegmentedButtonTheme get segmentedButton;
   AppTextButtonTheme get textButton;
   AppTextFieldTheme get textField;
   AppSelectionTheme get selection;

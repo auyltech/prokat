@@ -3,7 +3,7 @@ import 'package:prokat/core/theme/app_dimens.dart';
 
 abstract final class AppInputFieldStyle {
   static BorderRadius get borderRadius =>
-      BorderRadius.circular(AppDimens.r16$xl);
+      BorderRadius.circular(AppDimens.r12$lg);
 
   static EdgeInsets get contentPadding => const EdgeInsets.symmetric(
     horizontal: AppDimens.s16$base,

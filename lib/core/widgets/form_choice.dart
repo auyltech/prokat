@@ -1,34 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class RequiredFieldLabel extends StatelessWidget {
   const RequiredFieldLabel({
     super.key,
     required this.title,
     required this.showRequired,
-    required this.requiredHint,
+    this.requiredHint,
   });
 
   final String title;
   final bool showRequired;
-  final String requiredHint;
+
+  /// Ignored — required mark matches [AppTextField] (` *`).
+  final String? requiredHint;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.colors;
     return Text.rich(
       TextSpan(
         text: title,
-        style: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppFonts.headingS(context),
         children: [
           if (showRequired)
             TextSpan(
-              text: ' $requiredHint',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.w500,
-              ),
+              text: ' *',
+              style: AppFonts.headingS(context)
+                  .copyWith(color: colors.text.error),
             ),
         ],
       ),
@@ -56,140 +55,109 @@ class ChoicePair extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: ChoiceButton(
-            label: leftLabel,
-            selected: leftSelected,
-            onTap: onLeft,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: ChoiceButton(
-            label: rightLabel,
-            selected: rightSelected,
-            onTap: onRight,
-          ),
-        ),
+    return AppSegmentedButton<int>(
+      isExpanded: true,
+      value: leftSelected
+          ? 0
+          : rightSelected
+          ? 1
+          : null,
+      segments: [
+        AppSegmentedOption(title: leftLabel, value: 0),
+        AppSegmentedOption(title: rightLabel, value: 1),
       ],
+      onChanged: (value) {
+        if (value == 0) {
+          onLeft();
+        } else {
+          onRight();
+        }
+      },
     );
   }
 }
 
-class ChoiceButton extends StatelessWidget {
-  const ChoiceButton({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-
-    return Material(
-      color: selected ? primary : theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: selected
-              ? primary
-              : theme.colorScheme.outline.withValues(alpha: 0.5),
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-            child: Center(
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: selected ? Colors.white : theme.colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class OutlinePickerField extends StatelessWidget {
+/// Select-only field styled like [AppTextField], with [icon] as a leading prefix.
+class OutlinePickerField extends StatefulWidget {
   const OutlinePickerField({
     super.key,
     required this.label,
     required this.value,
     required this.icon,
     required this.onTap,
+    this.isRequired = false,
+    this.hint,
   });
 
   final String label;
   final String? value;
   final IconData icon;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
+  final bool isRequired;
+  final String? hint;
+
+  @override
+  State<OutlinePickerField> createState() => _OutlinePickerFieldState();
+}
+
+class _OutlinePickerFieldState extends State<OutlinePickerField> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+  bool _pickerOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value ?? '');
+    _focusNode = FocusNode(canRequestFocus: false);
+  }
+
+  @override
+  void didUpdateWidget(covariant OutlinePickerField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.value ?? '';
+    if (_controller.text != next) _controller.text = next;
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _open() async {
+    if (_pickerOpen) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _pickerOpen = true);
+    try {
+      await widget.onTap();
+    } finally {
+      if (mounted) {
+        setState(() => _pickerOpen = false);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _focusNode.unfocus();
+          FocusManager.instance.primaryFocus?.unfocus();
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Material(
-          color: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: theme.colorScheme.outline.withValues(alpha: 0.4),
-            ),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      value ?? '—',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ),
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+    final field = context.colors.textField;
+
+    return AppTextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      title: widget.label,
+      hint: widget.hint,
+      isRequired: widget.isRequired,
+      selectOnly: true,
+      forceFocused: _pickerOpen,
+      onTap: _open,
+      prefix: Icon(widget.icon, size: AppDimens.s20$lg, color: field.hint),
     );
   }
 }

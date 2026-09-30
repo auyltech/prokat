@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:prokat/core/api/api_helper.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
 
 class NotificationApiService {
@@ -24,9 +25,15 @@ class NotificationApiService {
         _registerTokenPath,
         data: {'token': token, 'platform': platform, ...?metadata},
       );
-    } on DioException catch (error) {
+    } on DioException catch (error, stackTrace) {
+      Logger.log(
+        'push: POST $_registerTokenPath failed '
+        'status=${error.response?.statusCode} '
+        'message=${extractBackendMessage(error.response?.data)}\n$stackTrace',
+      );
       throw Exception(extractBackendMessage(error));
-    } catch (error) {
+    } catch (error, stackTrace) {
+      Logger.log('push: POST $_registerTokenPath failed\n$stackTrace');
       throw Exception(error.toString());
     }
   }

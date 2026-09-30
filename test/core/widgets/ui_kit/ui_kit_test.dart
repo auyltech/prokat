@@ -131,6 +131,58 @@ void main() {
     );
   });
 
+  testWidgets('AppSegmentedButton selects and allows empty selection', (
+    tester,
+  ) async {
+    String? value;
+    await tester.pumpWidget(
+      _wrap(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return AppSegmentedButton<String>(
+              value: value,
+              segments: const [
+                AppSegmentedOption(title: 'Left', value: 'l'),
+                AppSegmentedOption(title: 'Right longer', value: 'r'),
+              ],
+              onChanged: (next) => setState(() => value = next),
+            );
+          },
+        ),
+      ),
+    );
+
+    expect(value, isNull);
+    await tester.tap(find.text('Right longer'));
+    await tester.pump();
+    expect(value, 'r');
+    await tester.tap(find.text('Left'));
+    await tester.pump();
+    expect(value, 'l');
+  });
+
+  testWidgets('AppSegmentedButton expanded fills width', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        SizedBox(
+          width: 320,
+          child: AppSegmentedButton<int>(
+            isExpanded: true,
+            value: 0,
+            segments: const [
+              AppSegmentedOption(title: 'A', value: 0),
+              AppSegmentedOption(title: 'BBBB', value: 1),
+            ],
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final segmented = tester.getSize(find.byType(AppSegmentedButton<int>));
+    expect(segmented.width, 320);
+  });
+
   testWidgets(
     'AppOutlinedButton passes disabled content color to prefix icons',
     (tester) async {
@@ -465,7 +517,7 @@ void main() {
 
     expect(border.top.color, fieldContext.colors.textField.borderFocused);
     expect(border.top.width, AppDimens.inputBorderWidth);
-    expect(radius.topLeft.x, AppDimens.r16$xl);
+    expect(radius.topLeft.x, AppDimens.r12$lg);
     expect(decoration.boxShadow, isNull);
   });
 

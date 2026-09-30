@@ -120,6 +120,7 @@ class RequestState {
     String? selectedLocationId,
     Category? selectedCategory,
     String? categoryId,
+    bool clearSelectedCategory = false,
   }) {
     return RequestState(
       fetchStatus: fetchStatus ?? this.fetchStatus,
@@ -140,8 +141,12 @@ class RequestState {
           : (selectedTime ?? this.selectedTime),
       selectedLocation: selectedLocation ?? this.selectedLocation,
       selectedLocationId: selectedLocationId ?? this.selectedLocationId,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
-      categoryId: categoryId ?? this.categoryId,
+      selectedCategory: clearSelectedCategory
+          ? null
+          : (selectedCategory ?? this.selectedCategory),
+      categoryId: clearSelectedCategory
+          ? null
+          : (categoryId ?? this.categoryId),
     );
   }
 }

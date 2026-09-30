@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_fleet_groups_provider.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -53,6 +56,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
       unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
+      unawaited(ref.refresh(ownerFleetGroupsProvider.future));
       unawaited(
         ref
             .read(ownerOffersProvider(const OfferQuery.active()).notifier)
@@ -72,6 +76,13 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+
+    final fleetGroups =
+        ref.watch(ownerFleetGroupsProvider).valueOrNull ?? const [];
+    final selectedGroup = coerceCatalogGroup(
+      ref.watch(ownerFleetCatalogGroupProvider),
+      fleetGroups,
+    );
 
     final requestsAsync = ref.watch(ownerActiveRequestsProvider);
 
@@ -96,6 +107,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
           await Future.wait([
             ref.read(ownerActiveRequestsProvider.notifier).refresh(),
             ref.read(ownerEquipmentProvider.notifier).refresh(),
+            ref.refresh(ownerFleetGroupsProvider.future),
             ref
                 .read(ownerOffersProvider(const OfferQuery.active()).notifier)
                 .refresh(),
@@ -130,6 +142,20 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
+                if (fleetGroups.length > 1)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: CatalogGroupTabs(
+                      groups: fleetGroups,
+                      selected: selectedGroup,
+                      onChanged: (group) {
+                        ref
+                            .read(ownerFleetCatalogGroupProvider.notifier)
+                            .select(group);
+                      },
+                    ),
+                  ),
+
                 if (requests.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(12),

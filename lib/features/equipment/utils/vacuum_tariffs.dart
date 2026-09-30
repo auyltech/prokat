@@ -151,9 +151,9 @@ class TariffDraft {
   bool get isSavable {
     if (!hasPrice) return false;
     if (isPreset) return true;
-    if (labelKey.isEmpty) return false;
-    if (labelKey == vacuumTariffOther) return customName.trim().isNotEmpty;
-    return true;
+    final typed = customName.trim();
+    if (typed.isNotEmpty) return typed.length <= 50;
+    return isKnownTariffKey(labelKey);
   }
 
   String persistedLabel() {
