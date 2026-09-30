@@ -15,6 +15,9 @@ import 'package:prokat/features/user/widgets/client_profile_header.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/features/user/widgets/client_rental_preferences_section.dart';
+import 'package:prokat/features/companies/company_models.dart';
+import 'package:prokat/features/companies/company_service.dart';
+import 'package:prokat/features/companies/company_widgets.dart';
 
 class ClientProfileScreen extends ConsumerStatefulWidget {
   const ClientProfileScreen({super.key});
@@ -57,10 +60,14 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
+          ref.invalidate(companyContextProvider);
           await Future.wait([
             ref.read(clientProfileProvider.notifier).refresh(),
             ref.read(ownerRegistrationRequestProvider.notifier).refresh(),
             ref.read(categoriesProvider.notifier).refresh(),
+            ref.read(companyContextProvider.future).catchError(
+              (_) => const CompanyContext(),
+            ),
           ]);
         },
         child: CustomScrollView(
@@ -157,6 +164,13 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                     const SizedBox(height: 40),
                   ],
                 ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CompanyProfileTile(),
               ),
             ),
 

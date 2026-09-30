@@ -3814,4 +3814,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
+
+  @override
+  String get companyRegister => 'Register a company';
+
+  @override
+  String get companyWorkspace => 'Company workspace';
+
+  @override
+  String get companyEntrySubtitle => 'Company fleet and staff access';
+
+  @override
+  String get companyApplicationIntro =>
+      'Enter the company BIN and name. An administrator will review the application. Your personal account stays separate.';
+
+  @override
+  String get companyBin => 'Business identification number (BIN)';
+
+  @override
+  String get companyBinInvalid => 'Enter the 12-digit BIN';
+
+  @override
+  String get companyNameInvalid => 'The name must contain 2–100 characters';
+
+  @override
+  String get companySubmitApplication => 'Submit application';
+
+  @override
+  String get companyApplicationPending => 'Application under review';
+
+  @override
+  String get companyApplicationApproved => 'Company approved';
+
+  @override
+  String get companyApplicationRejected => 'Application rejected';
+
+  @override
+  String get companyApplicationUnknown => 'Application status is updating';
+
+  @override
+  String get companyPendingHint =>
+      'The workspace will appear here after approval. Pull down to refresh the status.';
+
+  @override
+  String get companyRequestSent => 'Application submitted for review';
+
+  @override
+  String get companyLoadFailed =>
+      'Could not load company data. Please try again.';
+
+  @override
+  String get companyActionFailed =>
+      'Could not save changes. Check your connection and try again.';
+
+  @override
+  String get companyConflict =>
+      'The data changed or an application with this BIN already exists. Refresh this screen.';
+
+  @override
+  String get companyAccessDenied =>
+      'Company access is unavailable. Refresh or contact the company manager.';
+
+  @override
+  String get companyInvitation => 'Company invitation';
+
+  @override
+  String get companyAcceptInvitation => 'Accept invitation';
+
+  @override
+  String get companyPersonalAccess =>
+      'Each team member signs in with their own number. There is no need to share sign-in codes.';
+
+  @override
+  String get companyManager => 'Manager';
+
+  @override
+  String get companyDispatcher => 'Dispatcher';
+
+  @override
+  String get companyFleet => 'Company fleet';
+
+  @override
+  String get companyFleetEmpty =>
+      'The fleet is empty. Add your first machine or equipment item.';
+
+  @override
+  String get companyDraftHint =>
+      'New items are saved as hidden drafts. Publishing the company fleet and receiving orders will be connected in the next stage.';
+
+  @override
+  String get companyPilotNotice =>
+      'Company profile and fleet. Company requests and orders will be connected separately.';
+
+  @override
+  String get companyDescription => 'Short company description';
+
+  @override
+  String get companyEditProfile => 'Edit company';
+
+  @override
+  String get companyAddEquipment => 'Add machinery or equipment';
+
+  @override
+  String get companyEditEquipment => 'Edit item';
+
+  @override
+  String get companyDraft => 'Draft';
+
+  @override
+  String get companyBusy => 'Busy';
+
+  @override
+  String get companyMaintenance => 'Under maintenance';
+
+  @override
+  String get companyReview => 'Under review';
+
+  @override
+  String get companyRejectedEquipment => 'Rejected';
+
+  @override
+  String get companyStatusUnknown => 'Status unavailable';
+
+  @override
+  String get companyModel => 'Model';
+
+  @override
+  String get companyComment => 'Equipment description';
+
+  @override
+  String get companyCategoryRequired => 'Choose a category';
+
+  @override
+  String get companyFieldRequired => 'This field is required';
+
+  @override
+  String get companyProfileSaved => 'Company details saved';
+
+  @override
+  String get companyEquipmentSaved => 'Item saved';
+
+  @override
+  String get companyCategoryChangeHint =>
+      'You can change the category only for a draft or rejected item.';
+
+  @override
+  String companyFleetCounts(int total, int visible, int busy) {
+    return 'Total: $total · Shown: $visible · Busy: $busy';
+  }
+
+  @override
+  String get companyPhoto => 'Company photo';
 }

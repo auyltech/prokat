@@ -3814,4 +3814,157 @@ class AppLocalizationsKk extends AppLocalizations {
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
+
+  @override
+  String get companyRegister => 'Компанияны тіркеу';
+
+  @override
+  String get companyWorkspace => 'Компания кабинеті';
+
+  @override
+  String get companyEntrySubtitle =>
+      'Компания паркі және қызметкерлердің қолжетімділігі';
+
+  @override
+  String get companyApplicationIntro =>
+      'Компанияның БСН-і мен атауын енгізіңіз. Әкімші өтінімді тексереді. Жеке аккаунтыңыз сақталады.';
+
+  @override
+  String get companyBin => 'БСН';
+
+  @override
+  String get companyBinInvalid => 'БСН-нің 12 цифрын енгізіңіз';
+
+  @override
+  String get companyNameInvalid =>
+      'Атауда 2-ден 100-ға дейін таңба болуы керек';
+
+  @override
+  String get companySubmitApplication => 'Өтінім жіберу';
+
+  @override
+  String get companyApplicationPending => 'Өтінім тексерілуде';
+
+  @override
+  String get companyApplicationApproved => 'Компания расталды';
+
+  @override
+  String get companyApplicationRejected => 'Өтінім қабылданбады';
+
+  @override
+  String get companyApplicationUnknown => 'Өтінім күйі жаңартылуда';
+
+  @override
+  String get companyPendingHint =>
+      'Расталғаннан кейін компания кабинеті ашылады. Күйді жаңарту үшін төмен тартыңыз.';
+
+  @override
+  String get companyRequestSent => 'Өтінім тексеруге жіберілді';
+
+  @override
+  String get companyLoadFailed =>
+      'Компания деректері жүктелмеді. Қайталап көріңіз.';
+
+  @override
+  String get companyActionFailed =>
+      'Өзгерістер сақталмады. Байланысты тексеріп, қайталап көріңіз.';
+
+  @override
+  String get companyConflict =>
+      'Деректер өзгерді немесе осы БСН бойынша өтінім бар. Экранды жаңартыңыз.';
+
+  @override
+  String get companyAccessDenied =>
+      'Компанияға қолжетімділік жоқ. Экранды жаңартыңыз немесе жетекшіге хабарласыңыз.';
+
+  @override
+  String get companyInvitation => 'Компанияға шақыру';
+
+  @override
+  String get companyAcceptInvitation => 'Шақыруды қабылдау';
+
+  @override
+  String get companyPersonalAccess =>
+      'Әр қызметкер өз нөмірімен кіреді. Кіру кодтарын басқа адамға берудің қажеті жоқ.';
+
+  @override
+  String get companyManager => 'Жетекші';
+
+  @override
+  String get companyDispatcher => 'Диспетчер';
+
+  @override
+  String get companyFleet => 'Компания паркі';
+
+  @override
+  String get companyFleetEmpty =>
+      'Парк әзірге бос. Алғашқы техника немесе жабдық бірлігін қосыңыз.';
+
+  @override
+  String get companyDraftHint =>
+      'Жаңа техника жасырын нобай ретінде сақталады. Компания паркін жариялау және тапсырыстарды қабылдау келесі кезеңде қосылады.';
+
+  @override
+  String get companyPilotNotice =>
+      'Компания паркі мен профилі. Компания атынан өтінімдер мен тапсырыстарды қабылдау кейін қосылады.';
+
+  @override
+  String get companyDescription => 'Компания туралы қысқаша';
+
+  @override
+  String get companyEditProfile => 'Компанияны өңдеу';
+
+  @override
+  String get companyAddEquipment => 'Техника немесе жабдық қосу';
+
+  @override
+  String get companyEditEquipment => 'Карточканы өңдеу';
+
+  @override
+  String get companyDraft => 'Нобай';
+
+  @override
+  String get companyBusy => 'Бос емес';
+
+  @override
+  String get companyMaintenance => 'Қызмет көрсетуде';
+
+  @override
+  String get companyReview => 'Тексерілуде';
+
+  @override
+  String get companyRejectedEquipment => 'Қабылданбады';
+
+  @override
+  String get companyStatusUnknown => 'Күйі нақтылануда';
+
+  @override
+  String get companyModel => 'Модель';
+
+  @override
+  String get companyComment => 'Техника сипаттамасы';
+
+  @override
+  String get companyCategoryRequired => 'Санатты таңдаңыз';
+
+  @override
+  String get companyFieldRequired => 'Өрісті толтырыңыз';
+
+  @override
+  String get companyProfileSaved => 'Компания деректері сақталды';
+
+  @override
+  String get companyEquipmentSaved => 'Карточка сақталды';
+
+  @override
+  String get companyCategoryChangeHint =>
+      'Санатты тек нобай немесе қабылданбаған карточкада өзгертуге болады.';
+
+  @override
+  String companyFleetCounts(int total, int visible, int busy) {
+    return 'Барлығы: $total · Көрсетіледі: $visible · Бос емес: $busy';
+  }
+
+  @override
+  String get companyPhoto => 'Компания фотосы';
 }

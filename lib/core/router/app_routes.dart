@@ -76,6 +76,7 @@ class AppRoutes {
   static const String clientPinAddress = '$clientAddresses/map';
 
   static const String becomeOwner = '$clientMain/become-owner';
+  static const String companies = '/companies';
 
   // Owner Screens
   static const String ownerMain = '/owner';

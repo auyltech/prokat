@@ -1379,5 +1379,64 @@
       "priceLine": { "type": "String" },
       "url": { "type": "String" }
     }
-  }
+  },
+  "companyRegister": "Register a company",
+  "companyWorkspace": "Company workspace",
+  "companyEntrySubtitle": "Company fleet and staff access",
+  "companyApplicationIntro": "Enter the company BIN and name. An administrator will review the application. Your personal account stays separate.",
+  "companyBin": "Business identification number (BIN)",
+  "companyBinInvalid": "Enter the 12-digit BIN",
+  "companyNameInvalid": "The name must contain 2–100 characters",
+  "companySubmitApplication": "Submit application",
+  "companyApplicationPending": "Application under review",
+  "companyApplicationApproved": "Company approved",
+  "companyApplicationRejected": "Application rejected",
+  "companyApplicationUnknown": "Application status is updating",
+  "companyPendingHint": "The workspace will appear here after approval. Pull down to refresh the status.",
+  "companyRequestSent": "Application submitted for review",
+  "companyLoadFailed": "Could not load company data. Please try again.",
+  "companyActionFailed": "Could not save changes. Check your connection and try again.",
+  "companyConflict": "The data changed or an application with this BIN already exists. Refresh this screen.",
+  "companyAccessDenied": "Company access is unavailable. Refresh or contact the company manager.",
+  "companyInvitation": "Company invitation",
+  "companyAcceptInvitation": "Accept invitation",
+  "companyPersonalAccess": "Each team member signs in with their own number. There is no need to share sign-in codes.",
+  "companyManager": "Manager",
+  "companyDispatcher": "Dispatcher",
+  "companyFleet": "Company fleet",
+  "companyFleetEmpty": "The fleet is empty. Add your first machine or equipment item.",
+  "companyDraftHint": "New items are saved as hidden drafts. Publishing the company fleet and receiving orders will be connected in the next stage.",
+  "companyPilotNotice": "Company profile and fleet. Company requests and orders will be connected separately.",
+  "companyDescription": "Short company description",
+  "companyEditProfile": "Edit company",
+  "companyAddEquipment": "Add machinery or equipment",
+  "companyEditEquipment": "Edit item",
+  "companyDraft": "Draft",
+  "companyBusy": "Busy",
+  "companyMaintenance": "Under maintenance",
+  "companyReview": "Under review",
+  "companyRejectedEquipment": "Rejected",
+  "companyStatusUnknown": "Status unavailable",
+  "companyModel": "Model",
+  "companyComment": "Equipment description",
+  "companyCategoryRequired": "Choose a category",
+  "companyFieldRequired": "This field is required",
+  "companyProfileSaved": "Company details saved",
+  "companyEquipmentSaved": "Item saved",
+  "companyCategoryChangeHint": "You can change the category only for a draft or rejected item.",
+  "companyFleetCounts": "Total: {total} · Shown: {visible} · Busy: {busy}",
+  "@companyFleetCounts": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "visible": {
+        "type": "int"
+      },
+      "busy": {
+        "type": "int"
+      }
+    }
+  },
+  "companyPhoto": "Company photo"
 }

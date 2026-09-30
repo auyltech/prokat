@@ -7131,6 +7131,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}\n{priceLine}\n{url}'**
   String shareEquipmentMessage(String name, String priceLine, String url);
+
+  /// No description provided for @companyRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Register a company'**
+  String get companyRegister;
+
+  /// No description provided for @companyWorkspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Company workspace'**
+  String get companyWorkspace;
+
+  /// No description provided for @companyEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company fleet and staff access'**
+  String get companyEntrySubtitle;
+
+  /// No description provided for @companyApplicationIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the company BIN and name. An administrator will review the application. Your personal account stays separate.'**
+  String get companyApplicationIntro;
+
+  /// No description provided for @companyBin.
+  ///
+  /// In en, this message translates to:
+  /// **'Business identification number (BIN)'**
+  String get companyBin;
+
+  /// No description provided for @companyBinInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 12-digit BIN'**
+  String get companyBinInvalid;
+
+  /// No description provided for @companyNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The name must contain 2–100 characters'**
+  String get companyNameInvalid;
+
+  /// No description provided for @companySubmitApplication.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit application'**
+  String get companySubmitApplication;
+
+  /// No description provided for @companyApplicationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Application under review'**
+  String get companyApplicationPending;
+
+  /// No description provided for @companyApplicationApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Company approved'**
+  String get companyApplicationApproved;
+
+  /// No description provided for @companyApplicationRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Application rejected'**
+  String get companyApplicationRejected;
+
+  /// No description provided for @companyApplicationUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Application status is updating'**
+  String get companyApplicationUnknown;
+
+  /// No description provided for @companyPendingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The workspace will appear here after approval. Pull down to refresh the status.'**
+  String get companyPendingHint;
+
+  /// No description provided for @companyRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Application submitted for review'**
+  String get companyRequestSent;
+
+  /// No description provided for @companyLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load company data. Please try again.'**
+  String get companyLoadFailed;
+
+  /// No description provided for @companyActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save changes. Check your connection and try again.'**
+  String get companyActionFailed;
+
+  /// No description provided for @companyConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The data changed or an application with this BIN already exists. Refresh this screen.'**
+  String get companyConflict;
+
+  /// No description provided for @companyAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Company access is unavailable. Refresh or contact the company manager.'**
+  String get companyAccessDenied;
+
+  /// No description provided for @companyInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Company invitation'**
+  String get companyInvitation;
+
+  /// No description provided for @companyAcceptInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept invitation'**
+  String get companyAcceptInvitation;
+
+  /// No description provided for @companyPersonalAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Each team member signs in with their own number. There is no need to share sign-in codes.'**
+  String get companyPersonalAccess;
+
+  /// No description provided for @companyManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get companyManager;
+
+  /// No description provided for @companyDispatcher.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatcher'**
+  String get companyDispatcher;
+
+  /// No description provided for @companyFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Company fleet'**
+  String get companyFleet;
+
+  /// No description provided for @companyFleetEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The fleet is empty. Add your first machine or equipment item.'**
+  String get companyFleetEmpty;
+
+  /// No description provided for @companyDraftHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New items are saved as hidden drafts. Publishing the company fleet and receiving orders will be connected in the next stage.'**
+  String get companyDraftHint;
+
+  /// No description provided for @companyPilotNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Company profile and fleet. Company requests and orders will be connected separately.'**
+  String get companyPilotNotice;
+
+  /// No description provided for @companyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Short company description'**
+  String get companyDescription;
+
+  /// No description provided for @companyEditProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit company'**
+  String get companyEditProfile;
+
+  /// No description provided for @companyAddEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add machinery or equipment'**
+  String get companyAddEquipment;
+
+  /// No description provided for @companyEditEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item'**
+  String get companyEditEquipment;
+
+  /// No description provided for @companyDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get companyDraft;
+
+  /// No description provided for @companyBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy'**
+  String get companyBusy;
+
+  /// No description provided for @companyMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Under maintenance'**
+  String get companyMaintenance;
+
+  /// No description provided for @companyReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Under review'**
+  String get companyReview;
+
+  /// No description provided for @companyRejectedEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get companyRejectedEquipment;
+
+  /// No description provided for @companyStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Status unavailable'**
+  String get companyStatusUnknown;
+
+  /// No description provided for @companyModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get companyModel;
+
+  /// No description provided for @companyComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment description'**
+  String get companyComment;
+
+  /// No description provided for @companyCategoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get companyCategoryRequired;
+
+  /// No description provided for @companyFieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get companyFieldRequired;
+
+  /// No description provided for @companyProfileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Company details saved'**
+  String get companyProfileSaved;
+
+  /// No description provided for @companyEquipmentSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Item saved'**
+  String get companyEquipmentSaved;
+
+  /// No description provided for @companyCategoryChangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change the category only for a draft or rejected item.'**
+  String get companyCategoryChangeHint;
+
+  /// No description provided for @companyFleetCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {total} · Shown: {visible} · Busy: {busy}'**
+  String companyFleetCounts(int total, int visible, int busy);
+
+  /// No description provided for @companyPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Company photo'**
+  String get companyPhoto;
 }
 
 class _AppLocalizationsDelegate

@@ -3849,4 +3849,156 @@ class AppLocalizationsRu extends AppLocalizations {
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
+
+  @override
+  String get companyRegister => 'Зарегистрировать компанию';
+
+  @override
+  String get companyWorkspace => 'Кабинет компании';
+
+  @override
+  String get companyEntrySubtitle => 'Парк компании и доступ сотрудников';
+
+  @override
+  String get companyApplicationIntro =>
+      'Укажите БИН и название компании. Администратор проверит заявку. Ваш личный аккаунт сохранится.';
+
+  @override
+  String get companyBin => 'БИН';
+
+  @override
+  String get companyBinInvalid => 'Введите 12 цифр БИН';
+
+  @override
+  String get companyNameInvalid =>
+      'Название должно содержать от 2 до 100 символов';
+
+  @override
+  String get companySubmitApplication => 'Отправить заявку';
+
+  @override
+  String get companyApplicationPending => 'Заявка на проверке';
+
+  @override
+  String get companyApplicationApproved => 'Компания подтверждена';
+
+  @override
+  String get companyApplicationRejected => 'Заявка отклонена';
+
+  @override
+  String get companyApplicationUnknown => 'Статус заявки обновляется';
+
+  @override
+  String get companyPendingHint =>
+      'После подтверждения здесь откроется кабинет компании. Потяните вниз, чтобы обновить статус.';
+
+  @override
+  String get companyRequestSent => 'Заявка отправлена на проверку';
+
+  @override
+  String get companyLoadFailed =>
+      'Не удалось загрузить данные компании. Повторите попытку.';
+
+  @override
+  String get companyActionFailed =>
+      'Не удалось сохранить изменения. Проверьте соединение и попробуйте снова.';
+
+  @override
+  String get companyConflict =>
+      'Данные уже изменились или заявка с этим БИН уже существует. Обновите экран.';
+
+  @override
+  String get companyAccessDenied =>
+      'Доступ к компании недоступен. Обновите экран или обратитесь к руководителю.';
+
+  @override
+  String get companyInvitation => 'Приглашение в компанию';
+
+  @override
+  String get companyAcceptInvitation => 'Принять приглашение';
+
+  @override
+  String get companyPersonalAccess =>
+      'Каждый сотрудник входит по своему номеру. Передавать коды входа другим людям не нужно.';
+
+  @override
+  String get companyManager => 'Руководитель';
+
+  @override
+  String get companyDispatcher => 'Диспетчер';
+
+  @override
+  String get companyFleet => 'Парк компании';
+
+  @override
+  String get companyFleetEmpty =>
+      'Парк пока пуст. Добавьте первую единицу техники или оборудования.';
+
+  @override
+  String get companyDraftHint =>
+      'Новая техника сохраняется как скрытый черновик. Публикация парка компании и приём заказов будут подключены следующим этапом.';
+
+  @override
+  String get companyPilotNotice =>
+      'Парк и профиль компании. Приём заявок и заказы от имени компании подключим отдельно.';
+
+  @override
+  String get companyDescription => 'Кратко о компании';
+
+  @override
+  String get companyEditProfile => 'Редактировать компанию';
+
+  @override
+  String get companyAddEquipment => 'Добавить технику или оборудование';
+
+  @override
+  String get companyEditEquipment => 'Редактировать карточку';
+
+  @override
+  String get companyDraft => 'Черновик';
+
+  @override
+  String get companyBusy => 'Занята';
+
+  @override
+  String get companyMaintenance => 'На обслуживании';
+
+  @override
+  String get companyReview => 'На проверке';
+
+  @override
+  String get companyRejectedEquipment => 'Отклонена';
+
+  @override
+  String get companyStatusUnknown => 'Статус уточняется';
+
+  @override
+  String get companyModel => 'Модель';
+
+  @override
+  String get companyComment => 'Описание техники';
+
+  @override
+  String get companyCategoryRequired => 'Выберите категорию';
+
+  @override
+  String get companyFieldRequired => 'Заполните поле';
+
+  @override
+  String get companyProfileSaved => 'Данные компании сохранены';
+
+  @override
+  String get companyEquipmentSaved => 'Карточка сохранена';
+
+  @override
+  String get companyCategoryChangeHint =>
+      'Смена категории допускается только для черновика или отклонённой карточки.';
+
+  @override
+  String companyFleetCounts(int total, int visible, int busy) {
+    return 'Всего: $total · Показывается: $visible · Занято: $busy';
+  }
+
+  @override
+  String get companyPhoto => 'Фото компании';
 }

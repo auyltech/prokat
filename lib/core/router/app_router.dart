@@ -55,6 +55,7 @@ import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 import 'package:prokat/features/notifications/screens/notifications_screen.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_screen.dart';
+import 'package:prokat/features/companies/company_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = GoRouterRefreshNotifier<AppStartupStatus>(
@@ -126,7 +127,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOwnerRoute = location.startsWith(AppRoutes.ownerMain);
 
       /// USER AUTH GUARD
-      if (!isLoggedIn && (isClientRoute || isOwnerRoute)) {
+      if (!isLoggedIn &&
+          (isClientRoute || isOwnerRoute || location == AppRoutes.companies)) {
         final from = Uri.encodeComponent(fullLocation);
         return '${AppRoutes.login}?from=$from';
       }
@@ -166,6 +168,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: AppRoutes.companies,
+        builder: (_, _) => const CompanyScreen(),
+      ),
       GoRoute(
         path: AppRoutes.equipmentShare,
         builder: (_, state) =>

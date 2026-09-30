@@ -19,6 +19,8 @@ import 'package:prokat/features/owner/widgets/rent_an_equipment_tile.dart';
 import 'package:prokat/features/user/widgets/owner_stat_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/features/companies/company_service.dart';
+import 'package:prokat/features/companies/company_widgets.dart';
 
 class OwnerProfileScreen extends ConsumerStatefulWidget {
   const OwnerProfileScreen({super.key});
@@ -77,6 +79,10 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
             ref.read(billingProvider.notifier).getOwnerBalance(),
             ref.read(billingProvider.notifier).getVolumeDiscounts(),
           ]);
+          ref.invalidate(companyContextProvider);
+          try {
+            await ref.read(companyContextProvider.future);
+          } catch (_) {}
         },
         child: CustomScrollView(
           slivers: [
@@ -188,6 +194,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: CompanyProfileTile(),
               ),
             ),
 
