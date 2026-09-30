@@ -1670,6 +1670,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestCommentHint => 'Опишите задачу или важные детали';
 
   @override
+  String get requestCommentOtherMachineryHint =>
+      'Обязательно уточните какая техника вам нужна';
+
+  @override
+  String get requestCommentOtherEquipmentHint =>
+      'Обязательно уточните какое оборудование вам нужно';
+
+  @override
   String get requestRequiredHint => '(Обязательно)';
 
   @override

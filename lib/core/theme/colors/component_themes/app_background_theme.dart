@@ -7,8 +7,6 @@ final class AppBackgroundTheme {
   final Color primarySoft;
   final Color peachSoft;
   final Color amberSoft;
-  final Color hover;
-  final Color pressed;
   final Color successSoft;
   final Color dangerSoft;
   final Color warningSoft;
@@ -20,8 +18,6 @@ final class AppBackgroundTheme {
     required this.primarySoft,
     required this.peachSoft,
     required this.amberSoft,
-    required this.hover,
-    required this.pressed,
     required this.successSoft,
     required this.dangerSoft,
     required this.warningSoft,

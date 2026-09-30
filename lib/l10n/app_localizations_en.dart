@@ -1665,6 +1665,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestCommentHint => 'Describe the job or important details';
 
   @override
+  String get requestCommentOtherMachineryHint =>
+      'Please specify which machinery you need';
+
+  @override
+  String get requestCommentOtherEquipmentHint =>
+      'Please specify which equipment you need';
+
+  @override
   String get requestRequiredHint => '(Required)';
 
   @override

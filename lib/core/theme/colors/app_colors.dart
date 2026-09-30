@@ -9,6 +9,7 @@ abstract final class AppColors {
   static const Color background = Color(0xFFFFFFFF);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFFFFFFF);
+  static const Color surfaceMuted = Color(0xFFF5F5F5);
   static const Color border = Color(0xFFCFCFD3);
 
   static const Color textPrimary = Color(0xFF1C1E21);
@@ -48,6 +49,7 @@ abstract final class AppColorsDark {
   static const Color background = Color(0xFF121417);
   static const Color surface = Color(0xFF1E2125);
   static const Color surfaceElevated = Color(0xFF262A30);
+  static const Color surfaceMuted = Color(0xFF181B1F);
   static const Color border = Color(0xFF2E333A);
 
   static const Color textPrimary = Color(0xFFE3E6EB);
@@ -67,6 +69,10 @@ abstract final class AppColorsDark {
   static const Color dangerSoft = Color(0xFF27181A);
   static const Color warning = Color(0xFFFFCC80);
   static const Color warningSoft = Color(0xFF271C14);
+
+  /// Solid fills under white content ([success] / [danger] are too pale here).
+  static const Color successFill = Color(0xFF1B5E20);
+  static const Color dangerFill = Color(0xFFB71C1C);
 
   static const Color validBlockIndicator = Color(0xFF00E676);
 

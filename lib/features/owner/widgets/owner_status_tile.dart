@@ -10,8 +10,6 @@ import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-import '../../../core/widgets/base_tile.dart';
-
 class OwnerStatusTile extends ConsumerStatefulWidget {
   const OwnerStatusTile({super.key});
 
@@ -117,7 +115,7 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
         hasKnownBalance &&
         !isOutOfPaidMinutes;
 
-    return BaseTile(
+    return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

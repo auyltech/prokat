@@ -617,6 +617,8 @@
   "jobScheduleSet": "установить",
   "jobScheduleNearest": "ближайшее",
   "requestCommentHint": "Опишите задачу или важные детали",
+  "requestCommentOtherMachineryHint": "Обязательно уточните какая техника вам нужна",
+  "requestCommentOtherEquipmentHint": "Обязательно уточните какое оборудование вам нужно",
   "requestRequiredHint": "(Обязательно)",
   "newRequestBadge": "НОВЫЙ ЗАПРОС",
   "offerSentBadge": "ПРЕДЛОЖЕНИЕ ОТПРАВЛЕНО",

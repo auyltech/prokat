@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 
 enum ActionBarButtonVariant { primary, secondary, destructive, danger }
 
@@ -84,7 +85,7 @@ class ActionBarButton extends StatelessWidget {
     final VoidCallback? nativeOnPressed = isButtonActive ? onPressed : null;
 
     // Explicitly clamp minimum sizes and compress padding metrics dynamically
-    final buttonStyle = variant == ActionBarButtonVariant.secondary
+    final baseStyle = variant == ActionBarButtonVariant.secondary
         ? OutlinedButton.styleFrom(
             foregroundColor: theme.colorScheme.primary,
             side: BorderSide(
@@ -137,6 +138,9 @@ class ActionBarButton extends StatelessWidget {
             // Compressed padding
             shape: const StadiumBorder(),
           );
+    final buttonStyle = baseStyle.copyWith(
+      overlayColor: context.colors.ripple.overlay,
+    );
 
     return variant == ActionBarButtonVariant.secondary
         ? OutlinedButton(

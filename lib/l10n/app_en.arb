@@ -618,6 +618,8 @@
   "jobScheduleSet": "set",
   "jobScheduleNearest": "nearest",
   "requestCommentHint": "Describe the job or important details",
+  "requestCommentOtherMachineryHint": "Please specify which machinery you need",
+  "requestCommentOtherEquipmentHint": "Please specify which equipment you need",
   "requestRequiredHint": "(Required)",
   "additionalDetails": "describe the job or important details",
   "newRequestBadge": "NEW REQUEST",

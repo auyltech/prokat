@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/colors/app_colors_theme.dart';
+import 'package:prokat/core/theme/colors/component_themes/app_ripple_theme.dart';
 
 class AppTheme {
   // A professional, deep and vibrant orange accent color
@@ -84,11 +85,23 @@ class AppTheme {
   static Color brandTintFg(Brightness brightness) =>
       _tone(brightness, accent, lightBubbleMe);
 
+  static ButtonStyle _rippleButtonStyle(AppRippleTheme ripple) =>
+      ButtonStyle(overlayColor: ripple.overlay);
+
   /// Light Theme Configuration
   static ThemeData get lightTheme {
+    final ripple = const LightColorTheme().ripple;
+    final rippleButtonStyle = _rippleButtonStyle(ripple);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      splashColor: ripple.splash,
+      highlightColor: ripple.highlight,
+      textButtonTheme: TextButtonThemeData(style: rippleButtonStyle),
+      elevatedButtonTheme: ElevatedButtonThemeData(style: rippleButtonStyle),
+      outlinedButtonTheme: OutlinedButtonThemeData(style: rippleButtonStyle),
+      filledButtonTheme: FilledButtonThemeData(style: rippleButtonStyle),
+      iconButtonTheme: IconButtonThemeData(style: rippleButtonStyle),
       colorScheme: ColorScheme.fromSeed(
         seedColor: accent,
         primary: accent,
@@ -220,9 +233,16 @@ class AppTheme {
 
   /// Dark Theme Configuration
   static ThemeData get darkTheme {
+    final ripple = const DarkColorTheme().ripple;
+    final rippleButtonStyle = _rippleButtonStyle(ripple);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      splashColor: ripple.splash,
+      highlightColor: ripple.highlight,
+      outlinedButtonTheme: OutlinedButtonThemeData(style: rippleButtonStyle),
+      filledButtonTheme: FilledButtonThemeData(style: rippleButtonStyle),
+      iconButtonTheme: IconButtonThemeData(style: rippleButtonStyle),
       colorScheme: ColorScheme.fromSeed(
         seedColor: accent,
         primary: accent,
@@ -248,10 +268,12 @@ class AppTheme {
       ),
       iconTheme: const IconThemeData(color: darkTextSecondary),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: darkTextPrimary),
+        style: TextButton.styleFrom(foregroundColor: darkTextPrimary)
+            .copyWith(overlayColor: ripple.overlay),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(foregroundColor: darkTextPrimary),
+        style: ElevatedButton.styleFrom(foregroundColor: darkTextPrimary)
+            .copyWith(overlayColor: ripple.overlay),
       ),
       textTheme: const TextTheme(
         displayLarge: TextStyle(color: darkTextPrimary),

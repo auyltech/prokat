@@ -428,33 +428,36 @@ class JobScheduleSection extends StatelessWidget {
           onLeft: onScheduled,
           onRight: onAsap,
         ),
-        if (mode == JobScheduleMode.scheduled) ...[
-          const SizedBox(height: AppDimens.s16$base),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: OutlinePickerField(
-                  label: l10n.selectDate,
-                  value: dateLabel,
-                  isRequired: true,
-                  icon: Icons.calendar_today_outlined,
-                  onTap: onPickDate,
+        AppReveal(
+          visible: mode == JobScheduleMode.scheduled,
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppDimens.s16$base),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: OutlinePickerField(
+                    label: l10n.selectDate,
+                    value: dateLabel,
+                    isRequired: true,
+                    icon: Icons.calendar_today_outlined,
+                    onTap: onPickDate,
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppDimens.s12$md),
-              Expanded(
-                child: OutlinePickerField(
-                  label: l10n.selectTime,
-                  value: timeLabel,
-                  isRequired: true,
-                  icon: Icons.access_time,
-                  onTap: onPickTime,
+                const SizedBox(width: AppDimens.s12$md),
+                Expanded(
+                  child: OutlinePickerField(
+                    label: l10n.selectTime,
+                    value: timeLabel,
+                    isRequired: true,
+                    icon: Icons.access_time,
+                    onTap: onPickTime,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
+        ),
       ],
     );
   }

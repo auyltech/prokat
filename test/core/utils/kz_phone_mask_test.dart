@@ -54,6 +54,57 @@ void main() {
     );
   });
 
+  test('backspace over a mask separator deletes the digit before it', () {
+    final formatter = KzPhoneMaskFormatter();
+
+    final afterBracket = _apply(formatter, '+7(706)', '+7(706');
+    expect(afterBracket.text, '+7(70');
+    expect(afterBracket.selection.baseOffset, afterBracket.text.length);
+
+    final afterDash = formatter.formatEditUpdate(
+      const TextEditingValue(
+        text: '+7(705)111-11-11',
+        selection: TextSelection.collapsed(offset: 11),
+      ),
+      const TextEditingValue(
+        text: '+7(705)11111-11',
+        selection: TextSelection.collapsed(offset: 10),
+      ),
+    );
+    expect(afterDash.text, '+7(705)111-11-1');
+    expect(afterDash.selection.baseOffset, 9);
+
+    final midText = formatter.formatEditUpdate(
+      const TextEditingValue(
+        text: '+7(705)111-11-11',
+        selection: TextSelection.collapsed(offset: 7),
+      ),
+      const TextEditingValue(
+        text: '+7(705111-11-11',
+        selection: TextSelection.collapsed(offset: 6),
+      ),
+    );
+    expect(midText.text, '+7(701)111-11-1');
+    expect(midText.selection.baseOffset, 5);
+  });
+
+  test('forward delete over a mask separator deletes the digit after it', () {
+    final formatter = KzPhoneMaskFormatter();
+
+    final result = formatter.formatEditUpdate(
+      const TextEditingValue(
+        text: '+7(705)111-11-11',
+        selection: TextSelection.collapsed(offset: 6),
+      ),
+      const TextEditingValue(
+        text: '+7(705111-11-11',
+        selection: TextSelection.collapsed(offset: 6),
+      ),
+    );
+    expect(result.text, '+7(705)111-11-1');
+    expect(result.selection.baseOffset, 6);
+  });
+
   test('masked input normalizes to E.164 without mask', () {
     expect(normalizeKzPhone('+7(705)111-11-11'), '+77051111111');
     expect(normalizeKzPhone('+7'), isNull);

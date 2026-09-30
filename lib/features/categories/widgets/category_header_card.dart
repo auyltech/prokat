@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -193,8 +192,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     final imageUrl = selected?.imageUrl;
     final searchExpanded = session.searchExpanded;
 
-    return BaseTile(
-      padding: const EdgeInsets.all(AppDimens.s08$sm),
+    return AppCard(
       onTap: () =>
           unawaited(_openCategoryPicker(categories: categories, group: group)),
       child: Column(

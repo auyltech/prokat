@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class OwnerStatCard extends StatelessWidget {
   final IconData icon;
@@ -24,8 +24,8 @@ class OwnerStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return BaseTile(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    return AppCard(
+      padding: const EdgeInsets.all(AppDimens.s12$md),
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

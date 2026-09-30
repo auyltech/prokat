@@ -1655,6 +1655,14 @@ class AppLocalizationsKk extends AppLocalizations {
       'Тапсырманы немесе маңызды детальдарды жазыңыз';
 
   @override
+  String get requestCommentOtherMachineryHint =>
+      'Қандай техника керек екенін міндетті түрде нақтылаңыз';
+
+  @override
+  String get requestCommentOtherEquipmentHint =>
+      'Қандай жабдық керек екенін міндетті түрде нақтылаңыз';
+
+  @override
   String get requestRequiredHint => '(Міндетті)';
 
   @override

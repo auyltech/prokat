@@ -21,12 +21,12 @@ abstract final class AppDimens {
   static const double iconButtonLargeSize = 50;
   static const double iconButtonIconSize = 24;
   static const double buttonLoadingIndicatorSize = 18;
-  static const double buttonBorderWidth = 1.6;
+  static const double buttonBorderWidth = 1;
   static const double inputHeight = 50;
   static const double inputLabelGap = 8;
   static const double inputHelperGap = 6;
-  static const double inputBorderWidth = 1.6;
-  static const double inputBorderWidthError = 1.6;
+  static const double inputBorderWidth = 1;
+  static const double inputBorderWidthError = 1;
 
   static const double appBarHeight = 56;
   static const double appBarDividerHeight = 1;
@@ -48,6 +48,12 @@ abstract final class AppDimens {
   static const double switchTrackHeight = 24;
   static const double switchTrackPadding = 2;
   static const double switchTapArea = 44;
+
+  static const double cardRadius = r12$lg;
+  static const double cardPadding = s08$sm;
+  static const double cardBorderWidth = 1;
+  static const double cardShadowBlurRadius = 2;
+  static const double cardShadowOffsetY = s04$xs;
 
   static const double sheetTopRadius = s24$xl;
   static const double sheetHandleWidth = 36;

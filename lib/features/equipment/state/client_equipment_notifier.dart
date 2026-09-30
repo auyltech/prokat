@@ -283,6 +283,11 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       return;
     }
 
+    if (!changed) {
+      await refreshIfStale();
+      return;
+    }
+
     final generation = ++_requestGeneration;
     if (state.isLoading) {
       try {

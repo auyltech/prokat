@@ -78,8 +78,8 @@ void main() {
       ),
     );
     expect(selectedIcon.color, colors.navigationBar.ownerSelected);
-    expect(selectedInkWell.splashColor, colors.navigationBar.ownerSplash);
-    expect(selectedInkWell.highlightColor, colors.navigationBar.ownerHighlight);
+    expect(selectedInkWell.splashColor, colors.ripple.splash);
+    expect(selectedInkWell.highlightColor, colors.ripple.highlight);
 
     await tester.tap(find.text('Profile'));
     expect(tappedIndex, 1);

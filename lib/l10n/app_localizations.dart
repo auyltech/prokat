@@ -3208,6 +3208,18 @@ abstract class AppLocalizations {
   /// **'Describe the job or important details'**
   String get requestCommentHint;
 
+  /// No description provided for @requestCommentOtherMachineryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please specify which machinery you need'**
+  String get requestCommentOtherMachineryHint;
+
+  /// No description provided for @requestCommentOtherEquipmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please specify which equipment you need'**
+  String get requestCommentOtherEquipmentHint;
+
   /// No description provided for @requestRequiredHint.
   ///
   /// In en, this message translates to:

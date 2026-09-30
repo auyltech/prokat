@@ -617,6 +617,8 @@
   "jobScheduleSet": "орнату",
   "jobScheduleNearest": "жақын",
   "requestCommentHint": "Тапсырманы немесе маңызды детальдарды жазыңыз",
+  "requestCommentOtherMachineryHint": "Қандай техника керек екенін міндетті түрде нақтылаңыз",
+  "requestCommentOtherEquipmentHint": "Қандай жабдық керек екенін міндетті түрде нақтылаңыз",
   "requestRequiredHint": "(Міндетті)",
   "additionalDetails": "тапсырманы немесе маңызды детальдарды жазыңыз",
   "newRequestBadge": "ЖАҢА СҰРАНЫС",
