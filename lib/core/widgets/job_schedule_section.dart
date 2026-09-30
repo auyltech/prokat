@@ -398,8 +398,8 @@ class JobScheduleSection extends StatelessWidget {
   final String locale;
   final VoidCallback onScheduled;
   final VoidCallback onAsap;
-  final VoidCallback onPickDate;
-  final VoidCallback onPickTime;
+  final Future<void> Function() onPickDate;
+  final Future<void> Function() onPickTime;
 
   @override
   Widget build(BuildContext context) {
@@ -419,32 +419,35 @@ class JobScheduleSection extends StatelessWidget {
           showRequired: mode == JobScheduleMode.none,
           requiredHint: requiredHint,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppDimens.inputLabelGap),
         ChoicePair(
-          leftLabel: l10n.dateAndTime,
-          rightLabel: l10n.asSoonAsPossible,
+          leftLabel: l10n.jobScheduleSet,
+          rightLabel: l10n.jobScheduleNearest,
           leftSelected: mode == JobScheduleMode.scheduled,
           rightSelected: mode == JobScheduleMode.asap,
           onLeft: onScheduled,
           onRight: onAsap,
         ),
         if (mode == JobScheduleMode.scheduled) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: AppDimens.s16$base),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: OutlinePickerField(
                   label: l10n.selectDate,
                   value: dateLabel,
+                  isRequired: true,
                   icon: Icons.calendar_today_outlined,
                   onTap: onPickDate,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppDimens.s12$md),
               Expanded(
                 child: OutlinePickerField(
                   label: l10n.selectTime,
                   value: timeLabel,
+                  isRequired: true,
                   icon: Icons.access_time,
                   onTap: onPickTime,
                 ),

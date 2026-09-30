@@ -10,6 +10,7 @@ class SearchEquipmentNotifier extends StateNotifier<EquipmentState> {
   SearchEquipmentNotifier(this.api, this.ref) : super(EquipmentState());
 
   void setQuery(String query) {
+    if (state.query == query) return;
     state = state.copyWith(query: query);
   }
 

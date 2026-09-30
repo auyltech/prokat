@@ -51,6 +51,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(tester.getSize(find.byType(UserCategorySelector)).height, 132);
+    expect(tester.getSize(find.byType(UserCategorySelector)).height, 149);
   });
 }

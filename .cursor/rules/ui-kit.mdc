@@ -10,7 +10,7 @@ Before creating a new UI widget, search `lib/core/widgets/ui_kit/` **and** `lib/
 
 ## New screens / widgets
 
-- Buttons → `AppElevatedButton` / `AppOutlinedButton` / `AppTextButton`
+- Buttons → `AppElevatedButton` / `AppOutlinedButton` / `AppTextButton` / `AppSegmentedButton`
 - Fields → `AppTextField` / `AppTextArea` / `AppDropdownField` / `AppKzPhoneField`
 - Selectors → `AppCheckbox` / `AppRadio` / `AppSwitch`
 - Modals → bottom sheets only (`AppBottomSheet.show` / `showScrollable`) via a `*Sheet.show` class — no new `AlertDialog`

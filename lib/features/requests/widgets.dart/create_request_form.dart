@@ -4,19 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
 import 'package:prokat/core/utils/parse.dart';
-import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
-import 'package:prokat/features/categories/vacuum_trucks.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
+import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
+import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
+import 'package:prokat/features/locations/location_label.dart';
+import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -35,17 +37,18 @@ class CreateRequestForm extends ConsumerStatefulWidget {
 class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   final rateController = TextEditingController();
   final commentController = TextEditingController();
+  late final FocusNode _rateFocus;
   _PriceMode _priceMode = _PriceMode.none;
   JobScheduleMode _scheduleMode = JobScheduleMode.none;
 
   @override
   void initState() {
     super.initState();
+    _rateFocus = FocusNode();
     rateController.addListener(_onRateChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _syncSelectedAddress();
-      _syncVacuumCategory();
     });
   }
 
@@ -58,12 +61,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     if (address?.id != null) {
       ref.read(requestMutationProvider.notifier).selectLocation(address!);
     }
-  }
-
-  void _syncVacuumCategory() {
-    final vacuum = vacuumTrucksCategory(ref.read(catalogProvider).valueOrNull);
-    if (vacuum == null) return;
-    ref.read(requestMutationProvider.notifier).selectCategory(vacuum);
   }
 
   void _selectWaitOwnerPrice() {
@@ -100,11 +97,41 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         .setDateAndTime(date: date, time: time);
   }
 
-  Future<void> _openCategorySheet() async {
-    await CategorySelectionSheet.show(
-      context,
-      service: CategorySheetMode.createRequest,
+  Future<Category?> _openCategorySheet() async {
+    final catalog = ref.read(catalogProvider).valueOrNull;
+    final groupTabs = userVisibleCatalogGroups(catalog);
+    final group = coerceCatalogGroup(
+      ref.read(mutationCatalogGroupProvider),
+      groupTabs,
     );
+    final categories =
+        (ref.read(categoriesProvider).valueOrNull?.items ?? const [])
+            .where((item) => item.catalogGroup == group)
+            .toList();
+    final selectedId = ref.read(requestMutationProvider).selectedCategory?.id;
+
+    final picked = await CategoryPickerSheet.show(
+      context,
+      categories: categories,
+      group: group,
+      selectedId: selectedId,
+      includeAllOption: false,
+    );
+    if (!mounted || picked == null || picked.isAll) return null;
+    return picked.category;
+  }
+
+  Future<LocationModel?> _openAddressSheet() async {
+    final beforeId = ref.read(locationProvider).selectedAddress?.id;
+    await SelectAddressSheet.show(
+      context,
+      service: 'address',
+      from: 'create_request',
+    );
+    if (!mounted) return null;
+    final after = ref.read(locationProvider).selectedAddress;
+    if (after == null || after.id == beforeId) return null;
+    return after;
   }
 
   Future<void> _pickDate() async {
@@ -146,6 +173,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     rateController.removeListener(_onRateChanged);
     rateController.dispose();
     commentController.dispose();
+    _rateFocus.dispose();
     super.dispose();
   }
 
@@ -157,7 +185,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ? null
         : parseNullableInt(rateController.text.trim());
 
-    String message = "";
+    String message = '';
 
     if (selectedCategoryId == null) {
       message = l10n.pleaseSelectCategory;
@@ -209,7 +237,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final result = await ref
         .read(requestMutationProvider.notifier)
         .createRequest(
-          categoryId: selectedCategoryId ?? "",
+          categoryId: selectedCategoryId ?? '',
           offeredRate: offeredRate,
           comment: commentController.text.trim(),
           allowPastSchedule: _scheduleMode == JobScheduleMode.asap,
@@ -231,8 +259,16 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     final locale = l10n.localeName;
     final locationState = ref.watch(locationProvider);
     final catalog = ref.watch(catalogProvider).valueOrNull;
+    final groupTabs = userVisibleCatalogGroups(catalog);
+    final mutationGroup = coerceCatalogGroup(
+      ref.watch(mutationCatalogGroupProvider),
+      groupTabs,
+    );
 
     final requestState = ref.watch(requestMutationProvider);
+    final selectedCategory = requestState.selectedCategory;
+    final selectedAddress =
+        requestState.selectedLocation ?? locationState.selectedAddress;
 
     ref.listen(locationProvider, (previous, next) {
       final address = next.selectedAddress;
@@ -240,20 +276,6 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         ref.read(requestMutationProvider.notifier).selectLocation(address!);
       }
     });
-
-    ref.listen(catalogProvider, (previous, next) {
-      final nextVacuum = vacuumTrucksCategory(next.valueOrNull);
-      if (nextVacuum == null) return;
-      ref.read(requestMutationProvider.notifier).selectCategory(nextVacuum);
-    });
-
-    final vacuum = vacuumTrucksCategory(catalog);
-    if (vacuum != null && requestState.selectedCategory?.id != vacuum.id) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _syncVacuumCategory();
-      });
-    }
 
     final hasBudget =
         _priceMode == _PriceMode.waitOwner ||
@@ -267,53 +289,66 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               requestState.selectedTime != null;
 
     final canSubmit =
-        requestState.selectedCategory != null &&
+        selectedCategory != null &&
         requestState.selectedLocation != null &&
         hasBudget &&
         hasSchedule;
 
     final action = requestState.activeActions
-        .where((item) => item.id == "request:create")
+        .where((item) => item.id == 'request:create')
         .firstOrNull;
 
     final isSubmitting = action == null
         ? false
         : action.status == MutationStatus.submitting;
 
-    final categoryName =
-        vacuum?.localizedName(locale) ??
-        requestState.selectedCategory?.localizedName(locale) ??
-        'Вакуумные машины';
+    final addressLabel = selectedAddress == null
+        ? ''
+        : formatLocationModel(ref, context, selectedAddress);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _CategoryPickerCard(
+        CatalogGroupTabs(
+          groups: groupTabs,
+          selected: mutationGroup,
+          onChanged: (group) {
+            ref.read(mutationCatalogGroupProvider.notifier).select(group);
+            ref.read(requestMutationProvider.notifier).clearCategory();
+          },
+        ),
+        if (groupTabs.length > 1) const SizedBox(height: AppDimens.s12$md),
+        AppDropdownField<Category>(
           title: l10n.requestCategoryTitle,
-          categoryName: categoryName,
-          onTap: _openCategorySheet,
-        ),
-
-        AddressPickerCard(
-          selectedAddress: locationState.selectedAddress,
-          onTap: () => SelectAddressSheet.show(
-            context,
-            service: "address",
-            from: "create_request",
-          ),
+          hint: l10n.pleaseSelectCategory,
           isRequired: true,
-          emptyHint: l10n.requestSelectDeliveryAddress,
-          requiredHintText: l10n.requestRequiredHint,
+          sheetTitle: l10n.selectCategory,
+          value: selectedCategory,
+          selectedLabel: selectedCategory?.localizedName(locale),
+          openCustomSheet: _openCategorySheet,
+          onChanged: (category) {
+            ref.read(requestMutationProvider.notifier).selectCategory(category);
+          },
         ),
-
-        const SizedBox(height: 20),
-
+        const SizedBox(height: AppDimens.s16$base),
+        AppDropdownField<LocationModel>(
+          title: l10n.deliveryLocation,
+          hint: l10n.requestSelectDeliveryAddress,
+          isRequired: true,
+          sheetTitle: l10n.selectAddress,
+          value: selectedAddress,
+          selectedLabel: addressLabel,
+          openCustomSheet: _openAddressSheet,
+          onChanged: (address) {
+            ref.read(requestMutationProvider.notifier).selectLocation(address);
+          },
+        ),
+        const SizedBox(height: AppDimens.s20$lg),
         RequiredFieldLabel(
           title: l10n.price,
           showRequired: _priceMode == _PriceMode.none,
-          requiredHint: l10n.requestRequiredHint,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppDimens.inputLabelGap),
         ChoicePair(
           leftLabel: l10n.requestWaitOwnerPrice,
           rightLabel: l10n.requestSetBudget,
@@ -322,29 +357,33 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           onLeft: _selectWaitOwnerPrice,
           onRight: _selectBudget,
         ),
-
         if (_priceMode == _PriceMode.budget) ...[
-          const SizedBox(height: 14),
-          AppTextField(
-            title: l10n.requestMyBudget,
-            isRequired: true,
-            hint: l10n.offeredRateHint,
-            controller: rateController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              const MaxIntInputFormatter(_offeredRateMax),
-            ],
-            prefix: Text(
-              '₸',
-              style: AppFonts.body16SemiBold(context)
-                  .copyWith(color: context.colors.text.secondary),
+          const SizedBox(height: AppDimens.s16$base),
+          TapRegion(
+            onTapOutside: (_) {
+              _rateFocus.unfocus();
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: AppTextField(
+              controller: rateController,
+              focusNode: _rateFocus,
+              title: l10n.requestMyBudget,
+              isRequired: true,
+              hint: l10n.offeredRateHint,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                const MaxIntInputFormatter(_offeredRateMax),
+              ],
+              prefix: Text(
+                '₸',
+                style: AppFonts.body16SemiBold(context)
+                    .copyWith(color: context.colors.text.secondary),
+              ),
             ),
           ),
         ],
-
-        const SizedBox(height: 20),
-
+        const SizedBox(height: AppDimens.s20$lg),
         JobScheduleSection(
           mode: _scheduleMode,
           requiredHint: l10n.requestRequiredHint,
@@ -356,104 +395,21 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           onPickDate: _pickDate,
           onPickTime: _pickTime,
         ),
-
-        const SizedBox(height: 20),
-
+        const SizedBox(height: AppDimens.s20$lg),
         AppTextArea(
-          title: l10n.comments,
+          title: l10n.requestCommentTitle,
           hint: l10n.requestCommentHint,
           controller: commentController,
           minLines: 2,
           maxLines: 4,
         ),
-
-        const SizedBox(height: 40),
-
+        const SizedBox(height: AppDimens.s32$xxl),
         AppElevatedButton(
           title: l10n.create,
           onTap: (!canSubmit || isSubmitting) ? null : onSubmit,
           isLoading: isSubmitting,
         ),
       ],
-    );
-  }
-}
-
-class _CategoryPickerCard extends StatelessWidget {
-  const _CategoryPickerCard({
-    required this.title,
-    required this.categoryName,
-    required this.onTap,
-  });
-
-  final String title;
-  final String categoryName;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        color: Colors.transparent,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 45,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                LucideIcons.truck,
-                color: colorScheme.onSurface,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          categoryName,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: colorScheme.onSurface.withValues(alpha: 0.4),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1190,6 +1190,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navEquipment => 'Техника';
 
   @override
+  String get catalogGroupMachinery => 'Техника';
+
+  @override
+  String get catalogGroupEquipment => 'Оборудование';
+
+  @override
+  String get allCategories => 'Все категории';
+
+  @override
+  String get allCategoriesMachineryDescription =>
+      'Показать всю технику без фильтра по типу';
+
+  @override
+  String get allCategoriesEquipmentDescription =>
+      'Показать всё оборудование без фильтра по типу';
+
+  @override
+  String get categoryFilters => 'Фильтры';
+
+  @override
+  String get resetFilters => 'Сбросить фильтры';
+
+  @override
+  String get categoryFiltersComingSoon =>
+      'Фильтры появятся, когда в каталоге будет больше позиций';
+
+  @override
+  String get selectCategory => 'Выбрать категорию';
+
+  @override
   String get navBookings => 'Брони';
 
   @override
@@ -1435,10 +1465,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentNameHint => 'Пример: Ассенизатор';
 
   @override
-  String get modelLabel => 'Марка и модель';
+  String get equipmentCatalogNameLabel => 'Название оборудования';
+
+  @override
+  String get equipmentCatalogNameHint => 'Пример: Генератор';
+
+  @override
+  String get modelLabel => 'Модель';
 
   @override
   String get modelHint => 'Пример: АВ-10 КамАЗ 65115';
+
+  @override
+  String get equipmentCatalogModelHint => 'Пример: Honda EU70is';
 
   @override
   String get plateNumberLabel => 'Государственный номер';
@@ -1604,19 +1643,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestSelectDeliveryAddress => 'Выберите адрес подачи техники';
 
   @override
-  String get requestWaitOwnerPrice => 'Жду цену владельца';
+  String get requestWaitOwnerPrice => 'от владельца';
 
   @override
-  String get requestSetBudget => 'Укажу бюджет';
+  String get requestSetBudget => 'мой бюджет';
 
   @override
   String get requestMyBudget => 'Мой бюджет';
 
   @override
-  String get requestCategoryTitle => 'Выбор категории';
+  String get requestCategoryTitle => 'Категория';
+
+  @override
+  String get requestCommentTitle => 'Комментарий';
 
   @override
   String get asSoonAsPossible => 'Как можно скорее';
+
+  @override
+  String get jobScheduleSet => 'установить';
+
+  @override
+  String get jobScheduleNearest => 'ближайшее';
 
   @override
   String get requestCommentHint => 'Опишите задачу или важные детали';

@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/features/appstatic/widgets/category_card.dart';
 
 class CategorySkeleton extends StatelessWidget {
-  const CategorySkeleton({super.key});
+  final double tileWidth;
+
+  const CategorySkeleton({this.tileWidth = 140, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final imageHeight = tileWidth / CategoryCard.imageAspectRatio;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 1. Vehicle Image Block
         Container(
-          width: 128,
-          height: 80,
+          width: tileWidth,
+          height: imageHeight,
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        const SizedBox(height: 12),
-        // 2. Service Label Text Line
+        const SizedBox(height: CategoryCard.imageLabelGap),
         Container(
-          width: 128,
+          width: tileWidth,
           height: 18,
           decoration: BoxDecoration(
             color: Colors.black,

@@ -19,6 +19,9 @@ class AppDropdownField<T> extends StatefulWidget {
   final String? hint;
   final String? errorText;
   final T? value;
+
+  /// Shown when [value] is set. Defaults to the matching [options] label.
+  final String? selectedLabel;
   final List<DropdownOption<T>> options;
   final ValueChanged<T> onChanged;
   final bool enabled;
@@ -26,6 +29,10 @@ class AppDropdownField<T> extends StatefulWidget {
   final bool isRequired;
   final Widget? prefix;
   final String sheetTitle;
+
+  /// Custom picker (category / address sheets). When set, [options] is not used
+  /// for the sheet — only for optional label lookup if [selectedLabel] is null.
+  final Future<T?> Function()? openCustomSheet;
 
   /// Called when the picker sheet closes (field leaves the active state).
   final VoidCallback? onFocusLost;
@@ -36,13 +43,15 @@ class AppDropdownField<T> extends StatefulWidget {
     this.hint,
     this.errorText,
     this.value,
-    required this.options,
+    this.selectedLabel,
+    this.options = const [],
     required this.onChanged,
     this.enabled = true,
     this.readOnly = false,
     this.isRequired = false,
     this.prefix,
     this.sheetTitle = 'Select',
+    this.openCustomSheet,
     this.onFocusLost,
   });
 
@@ -78,6 +87,10 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
 
   String _labelFor(T? value) {
     if (value == null) return '';
+    final selectedLabel = widget.selectedLabel?.trim();
+    if (selectedLabel != null && selectedLabel.isNotEmpty) {
+      return selectedLabel;
+    }
     for (final option in widget.options) {
       if (option.value == value) return option.label;
     }
@@ -86,72 +99,16 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
 
   Future<void> _openSheet() async {
     if (!widget.enabled || widget.readOnly || _pickerOpen) return;
-    final colors = context.colors;
-    final useScrollable = widget.options.length >= 6;
 
     // Chrome is driven by [_pickerOpen], not TextField focus — avoid sticky
     // focus after the sheet route restores the previous primary focus.
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _pickerOpen = true);
 
-    Future<T?> open() {
-      if (useScrollable) {
-        return AppBottomSheet.showScrollable<T>(
-          context,
-          title: widget.sheetTitle,
-          headerBuilder: (_) => const SizedBox.shrink(),
-          footerBuilder: (_) => const SizedBox.shrink(),
-          scrollableListBuilder: (context, controller) {
-            return ListView.builder(
-              controller: controller,
-              itemCount: widget.options.length,
-              itemBuilder: (context, index) {
-                final option = widget.options[index];
-                final selected = option.value == widget.value;
-                return ListTile(
-                  leading: option.prefix,
-                  title: Text(option.label, style: AppFonts.body14(context)),
-                  trailing: selected
-                      ? AppIcons.check.call(
-                          size: AppDimens.s20$lg,
-                          color: colors.icons.primary,
-                        )
-                      : null,
-                  onTap: () => Navigator.of(context).pop(option.value),
-                );
-              },
-            );
-          },
-        );
-      }
-
-      return AppBottomSheet.show<T>(
-        context,
-        title: widget.sheetTitle,
-        contentBuilder: (context) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final option in widget.options)
-                ListTile(
-                  leading: option.prefix,
-                  title: Text(option.label, style: AppFonts.body14(context)),
-                  trailing: option.value == widget.value
-                      ? AppIcons.check.call(
-                          size: AppDimens.s20$lg,
-                          color: colors.icons.primary,
-                        )
-                      : null,
-                  onTap: () => Navigator.of(context).pop(option.value),
-                ),
-            ],
-          );
-        },
-      );
-    }
-
     try {
-      final selected = await open();
+      final selected = widget.openCustomSheet != null
+          ? await widget.openCustomSheet!()
+          : await _openOptionsSheet();
       if (!mounted) return;
       setState(() => _pickerOpen = false);
       // Route pop may restore focus to this field on the next frame.
@@ -173,6 +130,65 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
         setState(() => _pickerOpen = false);
       }
     }
+  }
+
+  Future<T?> _openOptionsSheet() {
+    final colors = context.colors;
+    final useScrollable = widget.options.length >= 6;
+
+    if (useScrollable) {
+      return AppBottomSheet.showScrollable<T>(
+        context,
+        title: widget.sheetTitle,
+        headerBuilder: (_) => const SizedBox.shrink(),
+        footerBuilder: (_) => const SizedBox.shrink(),
+        scrollableListBuilder: (context, controller) {
+          return ListView.builder(
+            controller: controller,
+            itemCount: widget.options.length,
+            itemBuilder: (context, index) {
+              final option = widget.options[index];
+              final selected = option.value == widget.value;
+              return ListTile(
+                leading: option.prefix,
+                title: Text(option.label, style: AppFonts.body14(context)),
+                trailing: selected
+                    ? AppIcons.check.call(
+                        size: AppDimens.s20$lg,
+                        color: colors.icons.primary,
+                      )
+                    : null,
+                onTap: () => Navigator.of(context).pop(option.value),
+              );
+            },
+          );
+        },
+      );
+    }
+
+    return AppBottomSheet.show<T>(
+      context,
+      title: widget.sheetTitle,
+      contentBuilder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final option in widget.options)
+              ListTile(
+                leading: option.prefix,
+                title: Text(option.label, style: AppFonts.body14(context)),
+                trailing: option.value == widget.value
+                    ? AppIcons.check.call(
+                        size: AppDimens.s20$lg,
+                        color: colors.icons.primary,
+                      )
+                    : null,
+                onTap: () => Navigator.of(context).pop(option.value),
+              ),
+          ],
+        );
+      },
+    );
   }
 
   @override

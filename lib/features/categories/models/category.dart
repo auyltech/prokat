@@ -1,4 +1,5 @@
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
 
 class Category {
@@ -8,6 +9,8 @@ class Category {
   final String? imageUrl;
   final String? slug;
   final LocalizedNames names;
+  final LocalizedNames descriptions;
+  final CatalogGroup catalogGroup;
 
   const Category({
     required this.id,
@@ -16,6 +19,8 @@ class Category {
     this.imageUrl,
     this.slug,
     this.names = const LocalizedNames(),
+    this.descriptions = const LocalizedNames(),
+    this.catalogGroup = CatalogGroup.machinery,
   });
 
   factory Category.fromCatalog(CatalogCategory item) {
@@ -27,6 +32,8 @@ class Category {
       imageUrl: item.imageUrl,
       slug: item.slug,
       names: item.names,
+      descriptions: item.descriptions,
+      catalogGroup: item.catalogGroup,
     );
   }
 
@@ -40,6 +47,8 @@ class Category {
       imageUrl: json['imageUrl'] ?? '',
       slug: json['slug']?.toString(),
       names: names,
+      descriptions: LocalizedNames.fromJson(json['descriptions']),
+      catalogGroup: CatalogGroup.fromApi(json['catalogGroup']?.toString()),
     );
   }
 
@@ -51,10 +60,16 @@ class Category {
       'imageUrl': imageUrl,
       'slug': slug,
       'names': names.toJson(),
+      'descriptions': descriptions.toJson(),
+      'catalogGroup': catalogGroup.apiValue,
     };
   }
 
   String localizedName(String languageCode) {
     return names.pick(languageCode, fallback: name);
+  }
+
+  String localizedDescription(String languageCode) {
+    return descriptions.pick(languageCode);
   }
 }

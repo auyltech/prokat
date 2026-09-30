@@ -94,7 +94,9 @@ final notificationBootstrapProvider = Provider<void>((ref) {
           try {
             await push.syncCurrentDevice(session: session);
           } catch (error, stackTrace) {
-            Logger.log('push: retry syncCurrentDevice failed: $error\n$stackTrace');
+            Logger.log(
+              'push: retry syncCurrentDevice failed: $error\n$stackTrace',
+            );
           }
         }());
       }

@@ -1174,6 +1174,36 @@ class AppLocalizationsKk extends AppLocalizations {
   String get navEquipment => 'Техника';
 
   @override
+  String get catalogGroupMachinery => 'Техника';
+
+  @override
+  String get catalogGroupEquipment => 'Жабдық';
+
+  @override
+  String get allCategories => 'Барлық санаттар';
+
+  @override
+  String get allCategoriesMachineryDescription =>
+      'Түр бойынша сүзгісіз барлық техниканы көрсету';
+
+  @override
+  String get allCategoriesEquipmentDescription =>
+      'Түр бойынша сүзгісіз барлық жабдықты көрсету';
+
+  @override
+  String get categoryFilters => 'Сүзгілер';
+
+  @override
+  String get resetFilters => 'Сүзгілерді тазалау';
+
+  @override
+  String get categoryFiltersComingSoon =>
+      'Каталогта позициялар көбейгенде сүзгілер пайда болады';
+
+  @override
+  String get selectCategory => 'Санатты таңдау';
+
+  @override
   String get navBookings => 'Брондаулар';
 
   @override
@@ -1418,10 +1448,19 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentNameHint => 'Мысал: Ассенизатор';
 
   @override
-  String get modelLabel => 'Маркасы мен үлгісі';
+  String get equipmentCatalogNameLabel => 'Жабдық аты';
+
+  @override
+  String get equipmentCatalogNameHint => 'Мысал: Генератор';
+
+  @override
+  String get modelLabel => 'Модель';
 
   @override
   String get modelHint => 'Мысал: АВ-10 КамАЗ 65115';
+
+  @override
+  String get equipmentCatalogModelHint => 'Мысал: Honda EU70is';
 
   @override
   String get plateNumberLabel => 'Мемлекеттік нөмір';
@@ -1588,19 +1627,28 @@ class AppLocalizationsKk extends AppLocalizations {
       'Техниканы беру мекенжайын таңдаңыз';
 
   @override
-  String get requestWaitOwnerPrice => 'Иесінің бағасын күтемін';
+  String get requestWaitOwnerPrice => 'иеден';
 
   @override
-  String get requestSetBudget => 'Бюджетті көрсетемін';
+  String get requestSetBudget => 'менің бюджетім';
 
   @override
   String get requestMyBudget => 'Менің бюджетім';
 
   @override
-  String get requestCategoryTitle => 'Санатты таңдау';
+  String get requestCategoryTitle => 'Санат';
+
+  @override
+  String get requestCommentTitle => 'Пікір';
 
   @override
   String get asSoonAsPossible => 'Мүмкіндігінше тез';
+
+  @override
+  String get jobScheduleSet => 'орнату';
+
+  @override
+  String get jobScheduleNearest => 'жақын';
 
   @override
   String get requestCommentHint =>
