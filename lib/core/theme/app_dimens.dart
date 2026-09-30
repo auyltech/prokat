@@ -55,6 +55,12 @@ abstract final class AppDimens {
   static const double cardShadowBlurRadius = 2;
   static const double cardShadowOffsetY = s04$xs;
 
+  static const double categoryInfoImageWidth = 110;
+  static const double categoryInfoImageAspectRatio = 4 / 3;
+  static const double categoryInfoImageRadius = r08$md;
+  static const double categoryInfoImageGap = s12$md;
+  static const double categoryInfoTitleGap = s08$sm;
+
   static const double sheetTopRadius = s24$xl;
   static const double sheetHandleWidth = 36;
   static const double sheetHandleHeight = s04$xs;

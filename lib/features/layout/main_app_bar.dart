@@ -9,6 +9,7 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/widgets/chat_header_tile.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_equipment_detail_title.dart';
 import 'package:prokat/features/layout/resolve_app_bar_title.dart';
 import 'package:prokat/features/layout/section_root_routes.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
@@ -38,12 +39,20 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
         segments[3].isNotEmpty;
     final isSearchListScreen =
         segments.contains('search') && segments.contains('list');
+    final isOwnerEquipmentDetailScreen =
+        segments.length == 3 &&
+        '/${segments[0]}/${segments[1]}' == AppRoutes.ownerEquipment &&
+        segments[2] != AppRoutes.create &&
+        segments[2] != AppRoutes.map;
     final showBackButton = !isSectionRootPath(currentPath);
 
     final Widget title;
     final int titleMaxLines;
     if (isChatByIdScreen) {
       title = ChatHeaderTile(chatId: segments[3], currentUserId: currentUserId);
+      titleMaxLines = 1;
+    } else if (isOwnerEquipmentDetailScreen) {
+      title = OwnerEquipmentDetailTitle(equipmentId: segments[2]);
       titleMaxLines = 1;
     } else {
       title = Text(resolveAppBarTitle(currentPath, segments, l10n));

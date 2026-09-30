@@ -561,6 +561,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentCategoryLabel => 'Equipment category';
 
   @override
+  String get equipmentCatalogCategoryLabel => 'Equipment unit category';
+
+  @override
+  String get machineryDetailsTitle => 'Machinery details';
+
+  @override
+  String get equipmentCatalogDetailsTitle => 'Equipment unit details';
+
+  @override
+  String get equipmentCatalogData => 'Equipment unit data';
+
+  @override
+  String get equipmentCatalogSubmitPhotoHint =>
+      'Don\'t forget to add a photo of your equipment so clients can find it in the catalog more easily';
+
+  @override
+  String get equipmentCatalogDeleteWarning =>
+      'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.';
+
+  @override
+  String get equipmentCatalogDelete => 'Delete equipment unit';
+
+  @override
+  String get equipmentCatalogDeleteQuestion => 'Delete equipment unit?';
+
+  @override
+  String get equipmentCatalogDeleted => 'Equipment unit deleted';
+
+  @override
+  String get equipmentCatalogDeleteFailed => 'Failed to delete equipment unit';
+
+  @override
   String get deletePriceEntry => 'Delete Price Entry';
 
   @override
@@ -2051,9 +2083,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseFillMissingInfo => 'Please provide missing information';
-
-  @override
-  String get noSpecsConfigured => 'No specs configured yet';
 
   @override
   String get invalidNumber => 'Invalid number';

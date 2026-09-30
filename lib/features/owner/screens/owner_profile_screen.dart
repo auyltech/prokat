@@ -148,15 +148,16 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
                 child: Column(
                   children: [
-                    ProkatListTile(
-                      icon: LucideIcons.heart,
-                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
-                      iconColor: AppColors.teal800,
-                      title: l10n.supportUsTitle,
-                      subtitle: l10n.donateOrHelp,
-                      onTap: () => context.push(AppRoutes.supportUs),
-                    ),
-                    const SizedBox(height: 20),
+                    // TODO(Vadim): hided
+                    // ProkatListTile(
+                    //   icon: LucideIcons.heart,
+                    //   iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
+                    //   iconColor: AppColors.teal800,
+                    //   title: l10n.supportUsTitle,
+                    //   subtitle: l10n.donateOrHelp,
+                    //   onTap: () => context.push(AppRoutes.supportUs),
+                    // ),
+                    // const SizedBox(height: 20),
 
                     ProkatListTile(
                       icon: LucideIcons.fileText,

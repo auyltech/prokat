@@ -8,6 +8,7 @@ import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/localized_city.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -530,6 +531,9 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
 
     final editor = ref.watch(ownerEquipmentEditorProvider(widget.equipment.id));
     final view = editor.block(OwnerEquipmentBlockId.general);
+    final isEquipmentGroup =
+        ref.watch(ownerEquipmentCatalogGroupProvider(widget.equipment.id)) ==
+        CatalogGroup.equipment;
     final hasLocation = _city.trim().isNotEmpty;
     final cityLabel = hasLocation
         ? catalogCityLabel(
@@ -579,12 +583,16 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
             ),
           ),
           AppTextField(
-            title: l10n.equipmentNameLabel,
+            title: isEquipmentGroup
+                ? l10n.equipmentCatalogNameLabel
+                : l10n.equipmentNameLabel,
             isRequired: true,
             controller: _nameController,
             onChanged: (_) => _onChanged(),
             onFocusLost: _onNameFocusLost,
-            hint: l10n.equipmentNameHint,
+            hint: isEquipmentGroup
+                ? l10n.equipmentCatalogNameHint
+                : l10n.equipmentNameHint,
             readOnly: !_canEdit,
             errorText: _nameError == null ? null : l10n.cannotBeEmpty,
             maxLength: ownerEquipmentTextMaxLength,

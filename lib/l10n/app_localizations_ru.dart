@@ -565,6 +565,38 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentCategoryLabel => 'Категория техники';
 
   @override
+  String get equipmentCatalogCategoryLabel => 'Категория оборудования';
+
+  @override
+  String get machineryDetailsTitle => 'Детали техники';
+
+  @override
+  String get equipmentCatalogDetailsTitle => 'Детали оборудования';
+
+  @override
+  String get equipmentCatalogData => 'Данные оборудования';
+
+  @override
+  String get equipmentCatalogSubmitPhotoHint =>
+      'Не забудьте добавить фотографию вашего оборудования, чтобы клиентам было легче его выбрать в каталоге';
+
+  @override
+  String get equipmentCatalogDeleteWarning =>
+      'Удаление оборудования навсегда уберёт его из инвентаря, включая все данные о ценах и истории.';
+
+  @override
+  String get equipmentCatalogDelete => 'Удалить оборудование';
+
+  @override
+  String get equipmentCatalogDeleteQuestion => 'Удалить оборудование?';
+
+  @override
+  String get equipmentCatalogDeleted => 'Оборудование удалено';
+
+  @override
+  String get equipmentCatalogDeleteFailed => 'Не удалось удалить оборудование';
+
+  @override
   String get deletePriceEntry => 'Удалить тариф';
 
   @override
@@ -2058,9 +2090,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pleaseFillMissingInfo =>
       'Пожалуйста, заполните все обязательные поля';
-
-  @override
-  String get noSpecsConfigured => 'Характеристики пока не настроены';
 
   @override
   String get invalidNumber => 'Неверное число';

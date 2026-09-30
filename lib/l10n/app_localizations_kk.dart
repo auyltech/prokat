@@ -559,6 +559,38 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentCategoryLabel => 'Техника санаты';
 
   @override
+  String get equipmentCatalogCategoryLabel => 'Жабдық санаты';
+
+  @override
+  String get machineryDetailsTitle => 'Техника мәліметтері';
+
+  @override
+  String get equipmentCatalogDetailsTitle => 'Жабдық мәліметтері';
+
+  @override
+  String get equipmentCatalogData => 'Жабдық деректері';
+
+  @override
+  String get equipmentCatalogSubmitPhotoHint =>
+      'Клиенттер каталогтан оңай таңдай алуы үшін жабдықтың фотосын қосуды ұмытпаңыз';
+
+  @override
+  String get equipmentCatalogDeleteWarning =>
+      'Жабдықты жою оны инвентарьдан, барлық баға және тарих деректерімен бірге біржола өшіреді.';
+
+  @override
+  String get equipmentCatalogDelete => 'Жабдықты жою';
+
+  @override
+  String get equipmentCatalogDeleteQuestion => 'Жабдықты жою керек пе?';
+
+  @override
+  String get equipmentCatalogDeleted => 'Жабдық жойылды';
+
+  @override
+  String get equipmentCatalogDeleteFailed => 'Жабдықты жою мүмкін болмады';
+
+  @override
   String get deletePriceEntry => 'Тарифті жою';
 
   @override
@@ -2042,9 +2074,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pleaseFillMissingInfo => 'Барлық міндетті өрістерді толтырыңыз';
-
-  @override
-  String get noSpecsConfigured => 'Сипаттамалар әлі конфигурацияланбаған';
 
   @override
   String get invalidNumber => 'Жарамсыз сан';

@@ -1102,6 +1102,66 @@ abstract class AppLocalizations {
   /// **'Equipment category'**
   String get equipmentCategoryLabel;
 
+  /// No description provided for @equipmentCatalogCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit category'**
+  String get equipmentCatalogCategoryLabel;
+
+  /// No description provided for @machineryDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery details'**
+  String get machineryDetailsTitle;
+
+  /// No description provided for @equipmentCatalogDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit details'**
+  String get equipmentCatalogDetailsTitle;
+
+  /// No description provided for @equipmentCatalogData.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit data'**
+  String get equipmentCatalogData;
+
+  /// No description provided for @equipmentCatalogSubmitPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to add a photo of your equipment so clients can find it in the catalog more easily'**
+  String get equipmentCatalogSubmitPhotoHint;
+
+  /// No description provided for @equipmentCatalogDeleteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.'**
+  String get equipmentCatalogDeleteWarning;
+
+  /// No description provided for @equipmentCatalogDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete equipment unit'**
+  String get equipmentCatalogDelete;
+
+  /// No description provided for @equipmentCatalogDeleteQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete equipment unit?'**
+  String get equipmentCatalogDeleteQuestion;
+
+  /// No description provided for @equipmentCatalogDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit deleted'**
+  String get equipmentCatalogDeleted;
+
+  /// No description provided for @equipmentCatalogDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete equipment unit'**
+  String get equipmentCatalogDeleteFailed;
+
   /// No description provided for @deletePriceEntry.
   ///
   /// In en, this message translates to:
@@ -3969,12 +4029,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please provide missing information'**
   String get pleaseFillMissingInfo;
-
-  /// No description provided for @noSpecsConfigured.
-  ///
-  /// In en, this message translates to:
-  /// **'No specs configured yet'**
-  String get noSpecsConfigured;
 
   /// No description provided for @invalidNumber.
   ///

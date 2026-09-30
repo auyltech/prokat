@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/app_category_info.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_image.dart';
 import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -26,7 +27,6 @@ class CategoryHeaderCard extends ConsumerStatefulWidget {
 
 class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     with SingleTickerProviderStateMixin {
-  static const _imageSize = 110.0;
   static const _searchRevealDuration = Duration(milliseconds: 200);
 
   late final TextEditingController _searchController;
@@ -166,12 +166,6 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
         : l10n.allCategoriesMachineryDescription;
   }
 
-  AppImage _allCategoriesImage(CatalogGroup group) {
-    return group == CatalogGroup.equipment
-        ? AppImages.equipmentStd
-        : AppImages.machineryStd;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -198,37 +192,11 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              _CategoryHeaderImage(
-                width: _imageSize,
-                imageUrl: imageUrl,
-                fallbackAsset: _allCategoriesImage(group),
-              ),
-              const SizedBox(width: AppDimens.s12$md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFonts.headingM(context),
-                    ),
-                    if (description.isNotEmpty) ...[
-                      const SizedBox(height: AppDimens.s08$sm),
-                      Text(
-                        description,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppFonts.caption(context),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+          AppCategoryInfo(
+            title: title,
+            description: description,
+            imageUrl: imageUrl,
+            fallbackImage: group.stdImage,
           ),
           const SizedBox(height: AppDimens.s08$sm),
           // Fixed to inputHeight so 46px field vs 44px icon buttons don't
@@ -307,54 +275,6 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Fixed [width]; height is always category 4:3 so the shimmer placeholder
-/// matches the loaded image and does not bump the header.
-class _CategoryHeaderImage extends StatelessWidget {
-  const _CategoryHeaderImage({
-    required this.width,
-    required this.imageUrl,
-    required this.fallbackAsset,
-  });
-
-  /// Category artwork is authored at 4:3.
-  static const aspectRatio = 4 / 3;
-
-  final double width;
-  final String? imageUrl;
-  final AppImage fallbackAsset;
-
-  bool get _hasNetworkImage {
-    final url = imageUrl;
-    return url != null && url.isNotEmpty;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final height = width / aspectRatio;
-
-    return SizedBox(
-      width: width,
-      height: height,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppDimens.r08$md),
-        child: _hasNetworkImage
-            ? OptimizedNetworkImage(
-                imageUrl: imageUrl,
-                width: width,
-                height: height,
-                fit: BoxFit.contain,
-              )
-            : Image.asset(
-                fallbackAsset.iconKey,
-                width: width,
-                height: height,
-                fit: BoxFit.contain,
-              ),
       ),
     );
   }
