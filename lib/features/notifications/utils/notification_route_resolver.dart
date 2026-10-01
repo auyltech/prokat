@@ -11,6 +11,12 @@ String resolveNotificationRoute({
   required bool opensOwner,
   required String notificationsHome,
 }) {
+  if (notification.data['companyInvitationId'] is String ||
+      notification.data['companyRequestId'] is String)
+    return AppRoutes.companies;
+  final inquiry = notification.data['companyBookingRequestId'];
+  if (inquiry is String && RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(inquiry))
+    return '/company-inquiries/$inquiry';
   String bookingsOrOrders() =>
       opensOwner ? AppRoutes.ownerBookings : AppRoutes.clientOrders;
 
@@ -151,6 +157,8 @@ String resolveNotificationRoute({
 }
 
 bool isTrustedNotificationAppRoute(String route) {
-  return route.startsWith(AppRoutes.clientMain) ||
+  return route == AppRoutes.companies ||
+      RegExp(r'^/company-inquiries/[0-9a-fA-F-]{36}$').hasMatch(route) ||
+      route.startsWith(AppRoutes.clientMain) ||
       route.startsWith(AppRoutes.ownerMain);
 }

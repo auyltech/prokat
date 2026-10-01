@@ -7,6 +7,7 @@ import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/companies/company_service.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
@@ -28,10 +29,30 @@ class _OwnerEquipmentListScreenState
     extends ConsumerState<OwnerEquipmentListScreen>
     with WidgetsBindingObserver {
   Future<void> loadData() async {
+    ref.invalidate(companyContextProvider);
     await Future.wait([
       ref.read(ownerEquipmentProvider.notifier).refresh(),
       ref.refresh(ownerFleetGroupsProvider.future),
     ]);
+  }
+
+  Widget _companyEntry(AppLocalizations l10n) {
+    final memberships =
+        ref.watch(companyContextProvider).valueOrNull?.memberships ?? const [];
+    if (memberships.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        child: ListTile(
+          title: Text(memberships.first.organization.name),
+          subtitle: Text(l10n.companyFleet),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push(AppRoutes.companies),
+        ),
+      ),
+    );
   }
 
   @override
@@ -110,9 +131,25 @@ class _OwnerEquipmentListScreenState
                       )
                       .toList();
 
+            final hasCompany =
+                ref
+                    .watch(companyContextProvider)
+                    .valueOrNull
+                    ?.memberships
+                    .isNotEmpty ==
+                true;
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
+                _companyEntry(l10n),
+                if (hasCompany)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                    child: Text(
+                      l10n.companyPersonalFleet,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
                 if (fleetGroups.length > 1)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),

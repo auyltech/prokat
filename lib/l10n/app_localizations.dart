@@ -7291,13 +7291,13 @@ abstract class AppLocalizations {
   /// No description provided for @companyPilotNotice.
   ///
   /// In en, this message translates to:
-  /// **'Company profile and fleet. Company requests and orders will be connected separately.'**
+  /// **'Clients open this fleet from Companies in the catalog. It stays out of the general equipment list.'**
   String get companyPilotNotice;
 
   /// No description provided for @companyDescription.
   ///
   /// In en, this message translates to:
-  /// **'Short company description'**
+  /// **'About the company'**
   String get companyDescription;
 
   /// No description provided for @companyEditProfile.
@@ -7309,7 +7309,7 @@ abstract class AppLocalizations {
   /// No description provided for @companyAddEquipment.
   ///
   /// In en, this message translates to:
-  /// **'Add machinery or equipment'**
+  /// **'Add equipment'**
   String get companyAddEquipment;
 
   /// No description provided for @companyEditEquipment.
@@ -7407,6 +7407,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Company photo'**
   String get companyPhoto;
+
+  /// No description provided for @companyAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet: {free} · Busy now: {busy}'**
+  String companyAvailability(int free, int busy);
+
+  /// No description provided for @companyTariffs.
+  ///
+  /// In en, this message translates to:
+  /// **'Tariffs'**
+  String get companyTariffs;
+
+  /// No description provided for @companyTariffsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No tariffs yet. Open an item and set a price.'**
+  String get companyTariffsEmpty;
+
+  /// No description provided for @companyPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get companyPrice;
+
+  /// No description provided for @companyPersonalFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal equipment'**
+  String get companyPersonalFleet;
+
+  /// No description provided for @companyCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get companyCatalog;
+
+  /// No description provided for @companyAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get companyAddPhoto;
+
+  /// No description provided for @companyCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Companies'**
+  String get companyCatalogTitle;
+
+  /// No description provided for @companyPublicEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No companies are listed yet.'**
+  String get companyPublicEmpty;
+
+  /// No description provided for @companySendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get companySendRequest;
+
+  /// No description provided for @companyBookingRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent. This is not a confirmed order.'**
+  String get companyBookingRequestSent;
+
+  /// No description provided for @companyRequestInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get companyRequestInbox;
+
+  /// No description provided for @companyRequestEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No company requests yet.'**
+  String get companyRequestEmpty;
+
+  /// No description provided for @companyRequestChatFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Discuss the request in chat. The company proposes equipment, times and price; the client confirms the terms.'**
+  String get companyRequestChatFirst;
+
+  /// No description provided for @companyBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget'**
+  String get companyBudget;
+
+  /// No description provided for @companyWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When the machines are needed'**
+  String get companyWhen;
+
+  /// No description provided for @companySelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected machines: {count}'**
+  String companySelected(int count);
+
+  /// No description provided for @companyBookingComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Request comment'**
+  String get companyBookingComment;
+
+  /// No description provided for @companyFutureDateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a future date and time'**
+  String get companyFutureDateRequired;
+
+  /// No description provided for @companyAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount from 0 to 100,000,000 ₸'**
+  String get companyAmountInvalid;
+
+  /// No description provided for @companyOrderDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get companyOrderDiscussion;
+
+  /// No description provided for @companyOrderProposed.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting client confirmation'**
+  String get companyOrderProposed;
+
+  /// No description provided for @companyOrderConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get companyOrderConfirmed;
+
+  /// No description provided for @companyOrderInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get companyOrderInProgress;
+
+  /// No description provided for @companyOrderCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get companyOrderCompleted;
+
+  /// No description provided for @companyOrderCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get companyOrderCancelled;
+
+  /// No description provided for @companyMyInquiries.
+  ///
+  /// In en, this message translates to:
+  /// **'My company inquiries'**
+  String get companyMyInquiries;
+
+  /// No description provided for @companyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Company orders'**
+  String get companyOrders;
+
+  /// No description provided for @companyOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company order'**
+  String get companyOrderTitle;
+
+  /// No description provided for @companyActionConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the equipment, time and price before confirming this action.'**
+  String get companyActionConfirmation;
+
+  /// No description provided for @companyWholeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'for the whole order'**
+  String get companyWholeOrder;
+
+  /// No description provided for @companyProposeTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree equipment and price'**
+  String get companyProposeTerms;
+
+  /// No description provided for @companyConfirmTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm terms'**
+  String get companyConfirmTerms;
+
+  /// No description provided for @companyStartWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Start work'**
+  String get companyStartWork;
+
+  /// No description provided for @companyCompleteOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete order'**
+  String get companyCompleteOrder;
+
+  /// No description provided for @companyCancelOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get companyCancelOrder;
+
+  /// No description provided for @companyOrderChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Order chat'**
+  String get companyOrderChat;
+
+  /// No description provided for @companyDiscussFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Discuss the task in chat. The company proposes equipment, times and price; the client confirms the terms.'**
+  String get companyDiscussFirst;
+
+  /// No description provided for @companyReadOnlyChat.
+  ///
+  /// In en, this message translates to:
+  /// **'The order is closed. Chat is saved for viewing.'**
+  String get companyReadOnlyChat;
+
+  /// No description provided for @companyMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message…'**
+  String get companyMessageHint;
+
+  /// No description provided for @companySendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get companySendMessage;
+
+  /// No description provided for @companySelectFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one machine'**
+  String get companySelectFleet;
+
+  /// No description provided for @companyPeriodInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a future start and a valid end time'**
+  String get companyPeriodInvalid;
+
+  /// No description provided for @companyStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get companyStartTime;
+
+  /// No description provided for @companyEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get companyEndTime;
+
+  /// No description provided for @companyTotalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Total order price, ₸'**
+  String get companyTotalPrice;
+
+  /// No description provided for @companySendTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Send terms to client'**
+  String get companySendTerms;
+
+  /// No description provided for @companyExitCabinet.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave company workspace'**
+  String get companyExitCabinet;
+
+  /// No description provided for @companyInviteDispatcher.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite dispatcher'**
+  String get companyInviteDispatcher;
+
+  /// No description provided for @companyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get companyPhone;
+
+  /// No description provided for @companyInvitationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent'**
+  String get companyInvitationSent;
+
+  /// No description provided for @companyPlateNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration number'**
+  String get companyPlateNumber;
+
+  /// No description provided for @companyNextStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get companyNextStep;
+
+  /// No description provided for @companyBackToBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to basic information'**
+  String get companyBackToBasics;
+
+  /// No description provided for @companyFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get companyFree;
+
+  /// No description provided for @companyExitCabinetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find equipment and place personal orders'**
+  String get companyExitCabinetSubtitle;
+
+  /// No description provided for @companyInviteDispatcherSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a colleague using their phone number'**
+  String get companyInviteDispatcherSubtitle;
+
+  /// No description provided for @companyBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Company balance'**
+  String get companyBalance;
+
+  /// No description provided for @companyOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Company online'**
+  String get companyOnline;
+
+  /// No description provided for @companyOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Company offline'**
+  String get companyOffline;
+
+  /// No description provided for @companyAcceptingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepting new orders'**
+  String get companyAcceptingOrders;
+
+  /// No description provided for @companyNotAcceptingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Not accepting new orders'**
+  String get companyNotAcceptingOrders;
+
+  /// No description provided for @companySharedBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared company wallet. Online status applies to the manager and all dispatchers. Minutes are spent on the fleet listed in the company card.'**
+  String get companySharedBalanceHint;
+
+  /// No description provided for @companyMinutesPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'min/h'**
+  String get companyMinutesPerHour;
+
+  /// No description provided for @companyBillingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to change company status. Try again.'**
+  String get companyBillingFailed;
+
+  /// No description provided for @companyListing.
+  ///
+  /// In en, this message translates to:
+  /// **'Company listing'**
+  String get companyListing;
+
+  /// No description provided for @companyRemoveEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove equipment from fleet?'**
+  String get companyRemoveEquipment;
 }
 
 class _AppLocalizationsDelegate

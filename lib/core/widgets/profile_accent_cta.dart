@@ -10,6 +10,7 @@ class ProfileAccentCta extends StatelessWidget {
   static const double iconSize = 40;
   static const double inkRadius = 16;
 
+  final double verticalInset;
   final String title;
   final String subtitle;
   final Widget leading;
@@ -26,6 +27,7 @@ class ProfileAccentCta extends StatelessWidget {
     required this.leading,
     required this.onTap,
     this.isLoading = false,
+    this.verticalInset = verticalPadding,
     this.backgroundColor = AppTheme.accent,
     this.contentColor = AppTheme.white,
     this.trailingIcon = LucideIcons.chevronRight,
@@ -70,9 +72,9 @@ class ProfileAccentCta extends StatelessWidget {
       onTap: isLoading ? null : onTap,
       borderRadius: BorderRadius.circular(inkRadius),
       child: Container(
-        padding: const EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding,
-          vertical: verticalPadding,
+          vertical: verticalInset,
         ),
         decoration: BoxDecoration(
           color: backgroundColor,

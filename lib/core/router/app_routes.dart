@@ -77,6 +77,7 @@ class AppRoutes {
 
   static const String becomeOwner = '$clientMain/become-owner';
   static const String companies = '/companies';
+  static const String companyFleet = '$clientMain/company-fleet';
 
   // Owner Screens
   static const String ownerMain = '/owner';

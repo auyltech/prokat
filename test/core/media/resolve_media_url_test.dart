@@ -4,6 +4,20 @@ import 'package:prokat/core/media/resolve_media_url.dart';
 
 void main() {
   test(
+    'company fleet photos use authenticated transport only on the API origin',
+    () {
+      const path = '/companies/company-1/fleet/asset-1/images/image-1';
+      expect(isApiMediaUrl(path), isTrue);
+      expect(isApiMediaUrl('${Env.baseUrl}$path'), isTrue);
+      expect(isApiMediaUrl('https://external.example$path'), isFalse);
+      expect(isApiMediaUrl('//external.example$path'), isFalse);
+      expect(
+        isApiMediaUrl('${Env.baseUrl}/companies/public/company-1/logo'),
+        isFalse,
+      );
+    },
+  );
+  test(
     'joins relative user-content keys onto /media without a double slash',
     () {
       final resolved = resolveMediaUrl('user-content/category/icon.png');

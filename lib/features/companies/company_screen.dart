@@ -1,5 +1,7 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
@@ -8,7 +10,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'company_models.dart';
 import 'company_service.dart';
 import 'company_widgets.dart';
-import 'company_workspace_screen.dart';
+import 'company_order_screen.dart';
 
 class CompanyScreen extends ConsumerStatefulWidget {
   const CompanyScreen({super.key});
@@ -63,6 +65,8 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
     try {
       await ref.read(companyServiceProvider).acceptInvitation(invitation.id);
       await _refresh();
+      if (mounted && invitation.organizationId.isNotEmpty)
+        context.go('/company-cabinet/${invitation.organizationId}/profile');
     } catch (error) {
       if (mounted) companySnack(context, companyErrorText(context, error));
     } finally {
@@ -91,6 +95,15 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(20),
             children: [
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const CompanyOrdersScreen(),
+                  ),
+                ),
+                icon: const Icon(LucideIcons.messageCircle400),
+                label: Text(l10n.companyMyInquiries),
+              ),
               CompanyNotice(l10n.companyLoadFailed),
               const SizedBox(height: 16),
               AppElevatedButton(title: l10n.retry, onTap: _refresh),
@@ -102,28 +115,24 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
             children: [
               CompanyNotice(
                 l10n.companyPersonalAccess,
-                icon: Icons.badge_outlined,
+                icon: LucideIcons.badgeCheck,
               ),
               const SizedBox(height: 20),
               for (final membership in company.memberships)
                 CompanySection(
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.apartment_rounded, size: 32),
+                    leading: const Icon(LucideIcons.building2, size: 32),
                     title: Text(membership.organization.name),
                     subtitle: Text(
                       membership.canManageProfile
                           ? l10n.companyManager
                           : l10n.companyDispatcher,
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: const Icon(LucideIcons.chevronRight),
                     onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => CompanyWorkspaceScreen(
-                            companyId: membership.organization.id,
-                          ),
-                        ),
+                      await context.push(
+                        '/company-cabinet/${membership.organization.id}/profile',
                       );
                       if (mounted) await _refresh();
                     },

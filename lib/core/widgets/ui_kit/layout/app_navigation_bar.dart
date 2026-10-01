@@ -3,7 +3,7 @@ import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 
-enum AppNavigationBarTone { primary, owner }
+enum AppNavigationBarTone { primary, owner, company }
 
 final class AppNavigationBarItem {
   final IconData icon;
@@ -39,6 +39,10 @@ class AppNavigationBar extends StatelessWidget {
     final selectedColor = switch (tone) {
       AppNavigationBarTone.primary => navigationBarTheme.selected,
       AppNavigationBarTone.owner => navigationBarTheme.ownerSelected,
+      AppNavigationBarTone.company =>
+        Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFFE6A6BA)
+            : const Color(0xFF762E47),
     };
     final (splashColor, highlightColor) = switch (tone) {
       AppNavigationBarTone.primary => (
@@ -48,6 +52,10 @@ class AppNavigationBar extends StatelessWidget {
       AppNavigationBarTone.owner => (
         navigationBarTheme.ownerSplash,
         navigationBarTheme.ownerHighlight,
+      ),
+      AppNavigationBarTone.company => (
+        const Color(0x22762E47),
+        const Color(0x11762E47),
       ),
     };
 

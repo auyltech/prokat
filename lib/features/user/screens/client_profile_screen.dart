@@ -65,9 +65,9 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
             ref.read(clientProfileProvider.notifier).refresh(),
             ref.read(ownerRegistrationRequestProvider.notifier).refresh(),
             ref.read(categoriesProvider.notifier).refresh(),
-            ref.read(companyContextProvider.future).catchError(
-              (_) => const CompanyContext(),
-            ),
+            ref
+                .read(companyContextProvider.future)
+                .catchError((_) => const CompanyContext()),
           ]);
         },
         child: CustomScrollView(
@@ -169,7 +169,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: EdgeInsets.only(top: 8),
                 child: CompanyProfileTile(),
               ),
             ),

@@ -3940,16 +3940,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get companyPilotNotice =>
-      'Парк и профиль компании. Приём заявок и заказы от имени компании подключим отдельно.';
+      'Клиент открывает этот парк через «Компании» в каталоге. В общем списке техники его нет.';
 
   @override
-  String get companyDescription => 'Кратко о компании';
+  String get companyDescription => 'О компании';
 
   @override
   String get companyEditProfile => 'Редактировать компанию';
 
   @override
-  String get companyAddEquipment => 'Добавить технику или оборудование';
+  String get companyAddEquipment => 'Добавить технику';
 
   @override
   String get companyEditEquipment => 'Редактировать карточку';
@@ -4001,4 +4001,220 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get companyPhoto => 'Фото компании';
+
+  @override
+  String companyAvailability(int free, int busy) {
+    return 'В парке: $free · Занято сейчас: $busy';
+  }
+
+  @override
+  String get companyTariffs => 'Тарифы';
+
+  @override
+  String get companyTariffsEmpty =>
+      'Тарифы пока не указаны. Откройте карточку техники и укажите цену.';
+
+  @override
+  String get companyPrice => 'Цена';
+
+  @override
+  String get companyPersonalFleet => 'Личная техника';
+
+  @override
+  String get companyCatalog => 'Каталог';
+
+  @override
+  String get companyAddPhoto => 'Добавить фото';
+
+  @override
+  String get companyCatalogTitle => 'Компании';
+
+  @override
+  String get companyPublicEmpty => 'Компаний в каталоге пока нет.';
+
+  @override
+  String get companySendRequest => 'Отправить заявку';
+
+  @override
+  String get companyBookingRequestSent =>
+      'Заявка отправлена компании. Это ещё не подтверждённый заказ.';
+
+  @override
+  String get companyRequestInbox => 'Заявки';
+
+  @override
+  String get companyRequestEmpty => 'Заявок компании пока нет.';
+
+  @override
+  String get companyRequestChatFirst =>
+      'Обсудите запрос в чате. Компания предложит технику, сроки и стоимость, затем клиент подтвердит условия.';
+
+  @override
+  String get companyBudget => 'Бюджет';
+
+  @override
+  String get companyWhen => 'Когда нужна техника';
+
+  @override
+  String companySelected(int count) {
+    return 'Выбрано машин: $count';
+  }
+
+  @override
+  String get companyBookingComment => 'Комментарий к заявке';
+
+  @override
+  String get companyFutureDateRequired => 'Выберите будущие дату и время';
+
+  @override
+  String get companyAmountInvalid => 'Укажите сумму от 0 до 100 000 000 ₸';
+
+  @override
+  String get companyOrderDiscussion => 'Обсуждение';
+
+  @override
+  String get companyOrderProposed => 'Ожидает подтверждения клиента';
+
+  @override
+  String get companyOrderConfirmed => 'Подтверждён';
+
+  @override
+  String get companyOrderInProgress => 'В работе';
+
+  @override
+  String get companyOrderCompleted => 'Выполнен';
+
+  @override
+  String get companyOrderCancelled => 'Отменён';
+
+  @override
+  String get companyMyInquiries => 'Мои заявки компаниям';
+
+  @override
+  String get companyOrders => 'Заказы компании';
+
+  @override
+  String get companyOrderTitle => 'Заказ компании';
+
+  @override
+  String get companyActionConfirmation =>
+      'Проверьте технику, время и стоимость перед подтверждением действия.';
+
+  @override
+  String get companyWholeOrder => 'за весь заказ';
+
+  @override
+  String get companyProposeTerms => 'Предложить технику и цену';
+
+  @override
+  String get companyConfirmTerms => 'Подтвердить условия';
+
+  @override
+  String get companyStartWork => 'Начать выполнение';
+
+  @override
+  String get companyCompleteOrder => 'Завершить заказ';
+
+  @override
+  String get companyCancelOrder => 'Отменить заказ';
+
+  @override
+  String get companyOrderChat => 'Чат по заказу';
+
+  @override
+  String get companyDiscussFirst =>
+      'Обсудите задачу в чате. Компания предложит технику, сроки и цену, а клиент подтвердит условия.';
+
+  @override
+  String get companyReadOnlyChat =>
+      'Заказ завершён. Переписка сохранена для просмотра.';
+
+  @override
+  String get companyMessageHint => 'Напишите сообщение…';
+
+  @override
+  String get companySendMessage => 'Отправить сообщение';
+
+  @override
+  String get companySelectFleet => 'Выберите хотя бы одну машину';
+
+  @override
+  String get companyPeriodInvalid =>
+      'Укажите будущие дату начала и корректное время окончания';
+
+  @override
+  String get companyStartTime => 'Начало';
+
+  @override
+  String get companyEndTime => 'Окончание';
+
+  @override
+  String get companyTotalPrice => 'Цена за весь заказ, ₸';
+
+  @override
+  String get companySendTerms => 'Отправить условия клиенту';
+
+  @override
+  String get companyExitCabinet => 'Выйти из кабинета компании';
+
+  @override
+  String get companyInviteDispatcher => 'Пригласить диспетчера';
+
+  @override
+  String get companyPhone => 'Номер телефона';
+
+  @override
+  String get companyInvitationSent => 'Приглашение отправлено';
+
+  @override
+  String get companyPlateNumber => 'Госномер';
+
+  @override
+  String get companyNextStep => 'Далее';
+
+  @override
+  String get companyBackToBasics => 'Назад к основным данным';
+
+  @override
+  String get companyFree => 'Свободна';
+
+  @override
+  String get companyExitCabinetSubtitle =>
+      'Искать технику и оформлять личные заказы';
+
+  @override
+  String get companyInviteDispatcherSubtitle =>
+      'Добавить сотрудника по его номеру телефона';
+
+  @override
+  String get companyBalance => 'Баланс компании';
+
+  @override
+  String get companyOnline => 'Компания онлайн';
+
+  @override
+  String get companyOffline => 'Компания офлайн';
+
+  @override
+  String get companyAcceptingOrders => 'Принимает новые заказы';
+
+  @override
+  String get companyNotAcceptingOrders => 'Не принимает новые заказы';
+
+  @override
+  String get companySharedBalanceHint =>
+      'Общий баланс компании. Онлайн-статус действует для руководителя и всех диспетчеров. Минуты расходуются на парк, опубликованный в карточке компании.';
+
+  @override
+  String get companyMinutesPerHour => 'мин/ч';
+
+  @override
+  String get companyBillingFailed =>
+      'Не удалось изменить статус компании. Повторите попытку.';
+
+  @override
+  String get companyListing => 'Объявление компании';
+
+  @override
+  String get companyRemoveEquipment => 'Удалить технику из парка?';
 }

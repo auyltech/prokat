@@ -55,7 +55,10 @@ import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 import 'package:prokat/features/notifications/screens/notifications_screen.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_screen.dart';
+import 'package:prokat/features/companies/company_fleet_home.dart';
 import 'package:prokat/features/companies/company_screen.dart';
+import 'package:prokat/features/companies/company_order_screen.dart';
+import 'package:prokat/features/companies/company_cabinet_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = GoRouterRefreshNotifier<AppStartupStatus>(
@@ -128,7 +131,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       /// USER AUTH GUARD
       if (!isLoggedIn &&
-          (isClientRoute || isOwnerRoute || location == AppRoutes.companies)) {
+          (isClientRoute ||
+              isOwnerRoute ||
+              location == AppRoutes.companies ||
+              location.startsWith('/company-cabinet/') ||
+              location.startsWith('/company-inquiries/') ||
+              location == '/company-orders')) {
         final from = Uri.encodeComponent(fullLocation);
         return '${AppRoutes.login}?from=$from';
       }
@@ -163,11 +171,40 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
+      GoRoute(
+        path: '/company-cabinet/:companyId/:section',
+        routes: [
+          GoRoute(path: 'support', builder: (_, _) => const SupportUsScreen()),
+          GoRoute(
+            path: 'documents',
+            builder: (_, _) => const LegalDocumentsScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (_, _) => const ClientSettingsScreen(),
+          ),
+          GoRoute(path: 'help', builder: (_, _) => const HelpScreen()),
+        ],
+        builder: (_, state) => CompanyCabinetScreen(
+          companyId: state.pathParameters['companyId']!,
+          section: state.pathParameters['section']!,
+        ),
+      ),
+
       /// 🚀 PUBLIC
       /// Routes outside StatefulShellRoute are fully separate navigation trees.
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: '/company-inquiries/:id',
+        builder: (_, state) =>
+            CompanyOrderScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/company-orders',
+        builder: (_, _) => const CompanyOrdersScreen(),
+      ),
       GoRoute(
         path: AppRoutes.companies,
         builder: (_, _) => const CompanyScreen(),
@@ -260,6 +297,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   return const SearchEquipmentScreen();
                 },
+              ),
+              GoRoute(
+                path: AppRoutes.companyFleet,
+                builder: (_, _) => const CompanyFleetHome(),
               ),
               // Map screen which displays equipment for rent
               GoRoute(

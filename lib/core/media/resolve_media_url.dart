@@ -36,11 +36,18 @@ bool isApiMediaUrl(String? url) {
   if (url == null || url.isEmpty) return false;
   final parsed = Uri.tryParse(url);
   if (parsed == null || !parsed.hasScheme) {
-    return url.contains('/media/');
+    return !url.startsWith('//') &&
+        (url.startsWith('/media/') ||
+            RegExp(r'^/companies/[^/]+/fleet/[^/]+/images/[^/]+$')
+                .hasMatch(url));
   }
 
   final api = Uri.tryParse(Env.baseUrl);
   if (api == null) return parsed.path.contains('/media/');
 
-  return parsed.host == api.host && parsed.path.contains('/media/');
+  if (parsed.scheme != 'http' && parsed.scheme != 'https') return false;
+  return parsed.origin == api.origin &&
+      (parsed.path.startsWith('/media/') ||
+          RegExp(r'^/companies/[^/]+/fleet/[^/]+/images/[^/]+$')
+              .hasMatch(parsed.path));
 }

@@ -7,9 +7,14 @@ import 'package:prokat/features/user/widgets/display_name.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class ClientProfileHeader extends StatelessWidget {
+  final List<Color>? gradientColors;
   final UserProfileModel? userProfile;
 
-  const ClientProfileHeader({super.key, required this.userProfile});
+  const ClientProfileHeader({
+    super.key,
+    required this.userProfile,
+    this.gradientColors,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +24,16 @@ class ClientProfileHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       // margin: EdgeInsets.symmetric(vertical: 24, horizontal: 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF002C63), // Your original primary color
-            Color(0xFF004B87), // A lighter blue for the gradient effect
-          ],
+          colors:
+              gradientColors ??
+              const [
+                Color(0xFF002C63), // Your original primary color
+                Color(0xFF004B87), // A lighter blue for the gradient effect
+              ],
         ),
         // borderRadius: const BorderRadius.all(Radius.circular(28)),
       ),

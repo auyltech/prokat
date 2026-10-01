@@ -3906,16 +3906,16 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get companyPilotNotice =>
-      'Компания паркі мен профилі. Компания атынан өтінімдер мен тапсырыстарды қабылдау кейін қосылады.';
+      'Клиент бұл паркті каталогтағы «Компаниялар» арқылы ашады. Жалпы техника тізімінде ол жоқ.';
 
   @override
-  String get companyDescription => 'Компания туралы қысқаша';
+  String get companyDescription => 'Компания туралы';
 
   @override
   String get companyEditProfile => 'Компанияны өңдеу';
 
   @override
-  String get companyAddEquipment => 'Техника немесе жабдық қосу';
+  String get companyAddEquipment => 'Техника қосу';
 
   @override
   String get companyEditEquipment => 'Карточканы өңдеу';
@@ -3967,4 +3967,221 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get companyPhoto => 'Компания фотосы';
+
+  @override
+  String companyAvailability(int free, int busy) {
+    return 'Паркте: $free · Қазір бос емес: $busy';
+  }
+
+  @override
+  String get companyTariffs => 'Тарифтер';
+
+  @override
+  String get companyTariffsEmpty =>
+      'Тарифтер әлі көрсетілмеген. Техника карточкасын ашып, бағасын жазыңыз.';
+
+  @override
+  String get companyPrice => 'Баға';
+
+  @override
+  String get companyPersonalFleet => 'Жеке техника';
+
+  @override
+  String get companyCatalog => 'Каталог';
+
+  @override
+  String get companyAddPhoto => 'Фото қосу';
+
+  @override
+  String get companyCatalogTitle => 'Компаниялар';
+
+  @override
+  String get companyPublicEmpty => 'Каталогта компаниялар әзірге жоқ.';
+
+  @override
+  String get companySendRequest => 'Өтінім жіберу';
+
+  @override
+  String get companyBookingRequestSent =>
+      'Өтінім жіберілді. Бұл расталған тапсырыс емес.';
+
+  @override
+  String get companyRequestInbox => 'Өтінімдер';
+
+  @override
+  String get companyRequestEmpty => 'Компания өтінімдері әзірге жоқ.';
+
+  @override
+  String get companyRequestChatFirst =>
+      'Өтінімді чатта талқылаңыз. Компания техника, уақыт пен бағаны ұсынады, ал клиент шарттарды растайды.';
+
+  @override
+  String get companyBudget => 'Бюджет';
+
+  @override
+  String get companyWhen => 'Техника қашан керек';
+
+  @override
+  String companySelected(int count) {
+    return 'Таңдалған техника: $count';
+  }
+
+  @override
+  String get companyBookingComment => 'Өтінімге түсініктеме';
+
+  @override
+  String get companyFutureDateRequired => 'Алдағы күн мен уақытты таңдаңыз';
+
+  @override
+  String get companyAmountInvalid =>
+      '0 мен 100 000 000 ₸ арасындағы соманы енгізіңіз';
+
+  @override
+  String get companyOrderDiscussion => 'Талқылау';
+
+  @override
+  String get companyOrderProposed => 'Клиенттің растауын күтуде';
+
+  @override
+  String get companyOrderConfirmed => 'Расталған';
+
+  @override
+  String get companyOrderInProgress => 'Орындалуда';
+
+  @override
+  String get companyOrderCompleted => 'Орындалды';
+
+  @override
+  String get companyOrderCancelled => 'Бас тартылды';
+
+  @override
+  String get companyMyInquiries => 'Компанияларға өтінімдерім';
+
+  @override
+  String get companyOrders => 'Компания тапсырыстары';
+
+  @override
+  String get companyOrderTitle => 'Компания тапсырысы';
+
+  @override
+  String get companyActionConfirmation =>
+      'Әрекетті растамас бұрын техниканы, уақытты және бағаны тексеріңіз.';
+
+  @override
+  String get companyWholeOrder => 'бүкіл тапсырыс үшін';
+
+  @override
+  String get companyProposeTerms => 'Техника мен бағаны келісу';
+
+  @override
+  String get companyConfirmTerms => 'Шарттарды растау';
+
+  @override
+  String get companyStartWork => 'Жұмысты бастау';
+
+  @override
+  String get companyCompleteOrder => 'Тапсырысты аяқтау';
+
+  @override
+  String get companyCancelOrder => 'Тапсырыстан бас тарту';
+
+  @override
+  String get companyOrderChat => 'Тапсырыс чаты';
+
+  @override
+  String get companyDiscussFirst =>
+      'Тапсырманы чатта талқылаңыз. Компания техника, уақыт пен бағаны ұсынады, ал клиент шарттарды растайды.';
+
+  @override
+  String get companyReadOnlyChat =>
+      'Тапсырыс аяқталды. Хат алмасу қарау үшін сақталды.';
+
+  @override
+  String get companyMessageHint => 'Хабарлама жазыңыз…';
+
+  @override
+  String get companySendMessage => 'Хабарлама жіберу';
+
+  @override
+  String get companySelectFleet => 'Кемінде бір техниканы таңдаңыз';
+
+  @override
+  String get companyPeriodInvalid =>
+      'Болашақ басталу күні мен дұрыс аяқталу уақытын таңдаңыз';
+
+  @override
+  String get companyStartTime => 'Басталуы';
+
+  @override
+  String get companyEndTime => 'Аяқталуы';
+
+  @override
+  String get companyTotalPrice => 'Тапсырыстың жалпы бағасы, ₸';
+
+  @override
+  String get companySendTerms => 'Шарттарды клиентке жіберу';
+
+  @override
+  String get companyExitCabinet => 'Компания кабинетінен шығу';
+
+  @override
+  String get companyInviteDispatcher => 'Диспетчерді шақыру';
+
+  @override
+  String get companyPhone => 'Телефон нөмірі';
+
+  @override
+  String get companyInvitationSent => 'Шақыру жіберілді';
+
+  @override
+  String get companyPlateNumber => 'Мемлекеттік нөмір';
+
+  @override
+  String get companyNextStep => 'Әрі қарай';
+
+  @override
+  String get companyBackToBasics => 'Негізгі деректерге оралу';
+
+  @override
+  String get companyFree => 'Бос';
+
+  @override
+  String get companyExitCabinetSubtitle =>
+      'Техниканы іздеу және жеке тапсырыс беру';
+
+  @override
+  String get companyInviteDispatcherSubtitle =>
+      'Қызметкерді телефон нөмірі бойынша қосу';
+
+  @override
+  String get companyBalance => 'Компания балансы';
+
+  @override
+  String get companyOnline => 'Компания онлайн';
+
+  @override
+  String get companyOffline => 'Компания офлайн';
+
+  @override
+  String get companyAcceptingOrders => 'Жаңа тапсырыстарды қабылдайды';
+
+  @override
+  String get companyNotAcceptingOrders => 'Жаңа тапсырыстарды қабылдамайды';
+
+  @override
+  String get companySharedBalanceHint =>
+      'Компанияның ортақ балансы. Онлайн мәртебесі басшыға және барлық диспетчерлерге ортақ. Минуттар компания карточкасындағы техникаға жұмсалады.';
+
+  @override
+  String get companyMinutesPerHour => 'мин/сағ';
+
+  @override
+  String get companyBillingFailed =>
+      'Компания мәртебесін өзгерту мүмкін болмады. Қайталап көріңіз.';
+
+  @override
+  String get companyListing => 'Компания хабарландыруы';
+
+  @override
+  String get companyRemoveEquipment => 'Техниканы парктен жою керек пе?';
 }

@@ -18,6 +18,7 @@ class CompanyProfile {
   final String city;
   final String? logoUrl;
   final String status;
+  final bool catalogVisible;
 
   const CompanyProfile({
     required this.id,
@@ -27,6 +28,7 @@ class CompanyProfile {
     required this.city,
     this.logoUrl,
     required this.status,
+    this.catalogVisible = true,
   });
 
   factory CompanyProfile.fromJson(Map<String, dynamic> json) => CompanyProfile(
@@ -37,6 +39,7 @@ class CompanyProfile {
     city: _text(json['city']),
     logoUrl: json['logoUrl'] as String?,
     status: _text(json['status']),
+    catalogVisible: json['catalogVisible'] != false,
   );
 }
 
@@ -90,16 +93,19 @@ class CompanyInvitation {
   final String id;
   final String role;
   final String companyName;
+  final String organizationId;
   const CompanyInvitation({
     required this.id,
     required this.role,
     required this.companyName,
+    this.organizationId = '',
   });
   factory CompanyInvitation.fromJson(Map<String, dynamic> json) =>
       CompanyInvitation(
         id: _text(json['id']),
         role: _text(json['role']),
         companyName: _text(_object(json['organization'])['name']),
+        organizationId: _text(_object(json['organization'])['id']),
       );
 }
 
@@ -127,26 +133,53 @@ class CompanyContext {
   );
 }
 
+class CompanyPrice {
+  final int amount;
+  final String rate;
+  final String? label;
+  final bool isStartingFrom;
+  const CompanyPrice({
+    required this.amount,
+    required this.rate,
+    this.label,
+    this.isStartingFrom = false,
+  });
+  factory CompanyPrice.fromJson(Map<String, dynamic> json) => CompanyPrice(
+    amount: json['price'] is num
+        ? (json['price'] as num).toInt()
+        : int.tryParse('${json['price']}') ?? 0,
+    rate: json['priceRate'] as String? ?? '',
+    label: json['label'] as String?,
+    isStartingFrom: json['isStartingFrom'] == true,
+  );
+}
+
 class CompanyFleetItem {
   final String id;
   final String name;
   final String model;
+  final String plateNumber;
   final String categoryId;
   final String? serviceCityId;
   final String ownerComment;
   final String status;
   final bool isVisible;
+  final bool busy;
   final String? imageUrl;
+  final List<CompanyPrice> prices;
   const CompanyFleetItem({
     required this.id,
     required this.name,
     required this.model,
+    this.plateNumber = '',
     required this.categoryId,
     this.serviceCityId,
     required this.ownerComment,
     required this.status,
     required this.isVisible,
+    this.busy = false,
     this.imageUrl,
+    this.prices = const [],
   });
   factory CompanyFleetItem.fromJson(Map<String, dynamic> json) {
     final images = companyObjectList(json['images']);
@@ -154,14 +187,19 @@ class CompanyFleetItem {
       id: _text(json['id']),
       name: _text(json['name']),
       model: _text(json['model']),
+      plateNumber: _text(json['plateNumber']),
       categoryId: _text(json['categoryId']),
       serviceCityId: json['serviceCityId'] as String?,
       ownerComment: _text(json['ownerComment']),
       status: _text(json['status']),
       isVisible: json['isVisible'] == true,
+      busy: json['busy'] == true,
       imageUrl:
           json['mainImageUrl'] as String? ??
           (images.isEmpty ? null : images.first['imageUrl'] as String?),
+      prices: companyObjectList(json['prices'])
+          .map(CompanyPrice.fromJson)
+          .toList(),
     );
   }
 }
@@ -221,6 +259,120 @@ class CompanyFleetGroup {
       );
 }
 
+class PublicCompanySummary {
+  final String id;
+  final String name;
+  final String description;
+  final String city;
+  final String? logoUrl;
+  final List<String> photoUrls;
+  final int total;
+  final int busy;
+  const PublicCompanySummary({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.city,
+    this.logoUrl,
+    this.photoUrls = const [],
+    required this.total,
+    this.busy = 0,
+  });
+  factory PublicCompanySummary.fromJson(Map<String, dynamic> json) =>
+      PublicCompanySummary(
+        id: _text(json['id']),
+        name: _text(json['name']),
+        description: _text(json['description']),
+        city: _text(json['city']),
+        logoUrl: json['logoUrl'] as String?,
+        photoUrls: (json['photoUrls'] as List? ?? [])
+            .whereType<String>()
+            .toList(),
+        total: _count(json['total']),
+        busy: _count(json['busy']),
+      );
+}
+
+class PublicCompanyCard {
+  final PublicCompanySummary company;
+  final List<CompanyFleetGroup> groups;
+  final int total;
+  final int busy;
+  const PublicCompanyCard({
+    required this.company,
+    required this.groups,
+    required this.total,
+    required this.busy,
+  });
+  List<CompanyFleetItem> get items => [
+    for (final group in groups)
+      for (final category in group.categories) ...category.items,
+  ];
+  factory PublicCompanyCard.fromJson(Map<String, dynamic> json) {
+    final totals = _object(json['totals']);
+    final company = _object(json['company']);
+    return PublicCompanyCard(
+      company: PublicCompanySummary.fromJson({
+        ...company,
+        'total': totals['total'],
+      }),
+      groups: companyObjectList(json['groups'])
+          .map(CompanyFleetGroup.fromJson)
+          .toList(),
+      total: _count(totals['total']),
+      busy: _count(totals['busy']),
+    );
+  }
+}
+
+class CompanyBookingMachine {
+  final String id;
+  final String name;
+  final String model;
+  const CompanyBookingMachine({
+    required this.id,
+    required this.name,
+    required this.model,
+  });
+  factory CompanyBookingMachine.fromJson(Map<String, dynamic> json) =>
+      CompanyBookingMachine(
+        id: _text(json['id']),
+        name: _text(json['name']),
+        model: _text(json['model']),
+      );
+}
+
+class CompanyBookingRequest {
+  final String id;
+  final String status;
+  final String comment;
+  final int? budget;
+  final DateTime? startsAt;
+  final String? phoneNumber;
+  final List<CompanyBookingMachine> machines;
+  const CompanyBookingRequest({
+    required this.id,
+    required this.status,
+    required this.comment,
+    this.budget,
+    this.startsAt,
+    this.phoneNumber,
+    required this.machines,
+  });
+  factory CompanyBookingRequest.fromJson(Map<String, dynamic> json) =>
+      CompanyBookingRequest(
+        id: _text(json['id']),
+        status: _text(json['status']),
+        comment: _text(json['comment']),
+        budget: json['budget'] is num ? (json['budget'] as num).toInt() : null,
+        startsAt: DateTime.tryParse(_text(json['startsAt'])),
+        phoneNumber: json['phoneNumber'] as String?,
+        machines: companyObjectList(json['machines'])
+            .map(CompanyBookingMachine.fromJson)
+            .toList(),
+      );
+}
+
 class CompanyFleet {
   final List<CompanyFleetGroup> groups;
   final int total;
@@ -232,6 +384,10 @@ class CompanyFleet {
     required this.visible,
     required this.busy,
   });
+  List<CompanyFleetItem> get items => [
+    for (final group in groups)
+      for (final category in group.categories) ...category.items,
+  ];
   factory CompanyFleet.fromJson(Map<String, dynamic> json) {
     final totals = _object(json['totals']);
     return CompanyFleet(

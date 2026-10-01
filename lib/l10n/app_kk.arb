@@ -1,17 +1,20 @@
 {
   "@@locale": "kk",
-
   "appLanguage": "Қолданба тілі",
   "offerCount": "{count, plural, =1{1 ұсыныс} other{{count} ұсыныс}}",
   "@offerCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "offersReceivedCount": "{count, plural, =1{1 ұсыныс алынды} other{{count} ұсыныс алынды}}",
   "@offersReceivedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "activeRequestAlreadyExists": "Сізде белсенді сұрау бар.",
@@ -115,13 +118,17 @@
   "resendOtpIn": "Кодты {seconds} секундтан кейін қайта жіберу",
   "@resendOtpIn": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "otpRetryIn": "Кодты {seconds} секундтан кейін қайта сұратуға болады",
   "@otpRetryIn": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "resendOtp": "Кодты қайта жіберу",
@@ -147,24 +154,44 @@
   "noEquipmentListedInCity": "Қазір {city} қаласында «{category}» санатындағы техника жоқ.",
   "noActiveOffers": "Қазір белсенді ұсыныстар жоқ",
   "@noEquipmentForCategory": {
-    "placeholders": { "category": { "type": "String" } }
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
   },
   "@noEquipmentListedInCity": {
     "placeholders": {
-      "category": { "type": "String" },
-      "city": { "type": "String" }
+      "category": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
     }
   },
   "@failedToLoadMessage": {
-    "placeholders": { "message": { "type": "String" } }
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
   },
   "equipmentIsNow": "Техника енді {status}",
   "failedToToggleEquipment": "Техниканы «{status}» күйіне ауыстыру мүмкін болмады",
   "@equipmentIsNow": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "@failedToToggleEquipment": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "requestReceived": "Сұрау алынды",
   "ok": "Жарайды",
@@ -185,8 +212,12 @@
   "versionLabel": "Нұсқа: {version} ({buildNumber})",
   "@versionLabel": {
     "placeholders": {
-      "version": { "type": "String" },
-      "buildNumber": { "type": "String" }
+      "version": {
+        "type": "String"
+      },
+      "buildNumber": {
+        "type": "String"
+      }
     }
   },
   "markCompletedQuestion": "Аяқталды деп белгілеу керек пе?",
@@ -237,7 +268,9 @@
   "newMessageFrom": "Жаңа хабарлама: {name}",
   "@newMessageFrom": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "typeMessageHint": "Хабарлама жазыңыз...",
@@ -277,7 +310,9 @@
   "offeredPrice": "Ұсынылғаны: {price}",
   "@offeredPrice": {
     "placeholders": {
-      "price": { "type": "String" }
+      "price": {
+        "type": "String"
+      }
     }
   },
   "topUpAdded": "Толықтыру қосылды",
@@ -287,13 +322,17 @@
   "activeRequestCount": "{count, plural, =1{1 белсенді сұрау} other{{count} белсенді сұрау}}",
   "@activeRequestCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "minutesRead": "{count} мин оқу",
   "@minutesRead": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pleaseSelectCategory": "Санатты таңдаңыз",
@@ -336,7 +375,6 @@
   "heavyEquipmentRentals": "АУЫР ТЕХНИКА ЖАЛДАУ",
   "initializingSystems": "ЖҮЙЕ ІСКЕ ҚОСЫЛУДА...",
   "serverWarmingUp": "Сервер іске қосылуда, күте тұрыңыз...",
-
   "save": "Сақтау",
   "cancel": "Болдырмау",
   "confirm": "Растау",
@@ -361,7 +399,6 @@
   "somethingWentWrong": "Бірдеңе дұрыс болмады!",
   "loading": "Жүктелуде...",
   "noCategories": "Санаттар қолжетімді емес",
-
   "phoneNumber": "Телефон нөмірі",
   "email": "Email",
   "password": "Құпия сөз",
@@ -384,7 +421,6 @@
   "priceKZT": "Баға (₸)",
   "priceRateLabel": "Тариф",
   "privateOwner": "ЖЕКЕ ИЕ",
-
   "loginSubtitle": "Тоқтаған жеріңізден жалғастырыңыз",
   "signingIn": "Кіру...",
   "sendOtp": "Код жіберу",
@@ -395,7 +431,6 @@
   "enterCode": "Кодты енгізіңіз",
   "otpSubtitle": "Жіберілген 6 санды кодты енгізіңіз",
   "creating": "ЖАСАЛУДА...",
-
   "sendCode": "КОД ЖІБЕРУ",
   "sending": "ЖІБЕРІЛУДЕ...",
   "pleaseEnterPhone": "Телефон нөміріңізді енгізіңіз",
@@ -423,10 +458,11 @@
   "recoverySentTo": "Қалпына келтіру сілтемесі {email} мекенжайына жіберілді",
   "@recoverySentTo": {
     "placeholders": {
-      "email": { "type": "String" }
+      "email": {
+        "type": "String"
+      }
     }
   },
-
   "navHome": "Басты бет",
   "navMyFleet": "Менің паркім",
   "navOrders": "Тапсырыстар",
@@ -454,7 +490,6 @@
   "navSettings": "Параметрлер",
   "navLogin": "Кіру",
   "selectService": "Қызметті таңдаңыз",
-
   "myOrders": "Менің тапсырыстарым",
   "orderHistory": "Тапсырыстар тарихы",
   "loginToViewBookings": "Брондауларды көру үшін кіріңіз",
@@ -487,7 +522,9 @@
   "acceptBookingFor": "{name} үшін брондауды қабылдау?",
   "@acceptBookingFor": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "yesReject": "Иә, қабылдамау",
@@ -497,13 +534,17 @@
   "minutesLeft": "{minutes} мин қалды",
   "@minutesLeft": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "hoursLeft": "{hours} сағ қалды",
   "@hoursLeft": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "volume": "Көлем",
@@ -527,7 +568,6 @@
   "workStatusResumeWork": "Жұмысты жалғастыру",
   "workStatusCompleteWork": "Жұмысты аяқтау",
   "workStatusCancelJob": "Тапсырманы жою",
-
   "myEquipment": "Менің технікам",
   "addEquipment": "Техника қосу",
   "noEquipmentListed": "Техника әлі қосылмаған",
@@ -556,8 +596,12 @@
   "draftSectionsFilled": "{total} бөлімнің {filled} толтырылған",
   "@draftSectionsFilled": {
     "placeholders": {
-      "filled": { "type": "int" },
-      "total": { "type": "int" }
+      "filled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "availableForRent": "Жалдауға қолжетімді",
@@ -596,7 +640,6 @@
   "updateDetails": "Деректерді жаңарту",
   "status": "Күй",
   "perM3": "/ м³",
-
   "myRequests": "Менің сұраныстарым",
   "createRequest": "Сұраныс жасау",
   "loginToViewRequests": "Сұраныстарды көру үшін кіріңіз",
@@ -623,13 +666,11 @@
   "offerSentBadge": "ҰСЫНЫС ЖІБЕРІЛДІ",
   "cancelRequest": "Сұранысты жою?",
   "requestCancelled": "Сұраныс жойылды",
-
   "noChats": "Чаттар жоқ",
   "chatsActiveTab": "Белсенді",
   "chatsArchiveTab": "Мұрағат",
   "noArchivedChats": "Мұрағатталған чаттар жоқ",
   "youHaveNoArchivedChats": "Аяқталған және болдырылмаған чаттар осында пайда болады.",
-
   "deliverTo": "ЖЕТКІЗУ ОРНЫ",
   "houseBuilding": "Үй / Корпус / Кіреберіс",
   "myHouseHint": "Менің үйім",
@@ -650,9 +691,7 @@
   "setEquipmentLocation": "Техника орнын белгілеу",
   "equipmentMap": "Техника картасы",
   "failedCreateLocation": "Орынды жасау сәтсіз аяқталды",
-
   "loginToViewFavorites": "Таңдаулыларды көру үшін кіріңіз",
-
   "displayName": "Аты-жөні",
   "supportUsTitle": "Бізді қолдаңыз",
   "donateOrHelp": "Бізге өсуге көмектесіңіз",
@@ -696,12 +735,10 @@
   "camera": "Камера",
   "photoGallery": "Галерея",
   "cropProfilePicture": "Профиль фотосын қию",
-
   "initializationError": "ИНИЦИАЛИЗАЦИЯ ҚАТЕСІ",
   "initializationErrorMessage": "Сессия жүктелмеді немесе байланыс үзілді. Желіні тексеріп, қайталаңыз.",
   "retryConnection": "ҚОСЫЛУДЫ ҚАЙТАЛАУ",
   "reconnecting": "ҚАЙТА ҚОСЫЛУДА...",
-
   "information": "Ақпарат",
   "generalInformation": "Жалпы ақпарат",
   "forClients": "Клиенттерге",
@@ -774,7 +811,6 @@
   "takePhoto": "Фото түсіру",
   "setAsCover": "Мұқаба ретінде орнату",
   "deletePhoto": "Фотоны жою",
-
   "cancelRequestAction": "Сұранысты болдырмау",
   "cancelRequestContent": "Бұл сұранысты болдырмағыңыз келе ме? Бұл әрекетті кері қайтару мүмкін емес.",
   "newRequest": "Жаңа сұраныс",
@@ -802,11 +838,9 @@
   "acceptedBadge": "ҚАБЫЛДАНДЫ",
   "hiddenBadge": "ЖАСЫРЫЛҒАН",
   "requestLabel": "Сұраныс",
-
   "addLocation": "Орынды қосу",
   "addAddress": "Мекен-жай қосу",
   "addressCreated": "Мекен-жай жасалды",
-
   "selectAddress": "МЕКЕН-ЖАЙ ТАҢДАУ",
   "noRecentAddresses": "Жақында қолданылған мекен-жайлар жоқ",
   "chooseOnMap": "КАРТАДАН ТАҢДАУ",
@@ -817,10 +851,8 @@
   "back": "Артқа",
   "backToEquipment": "Техникаға оралу",
   "selectCapacityModel": "СЫЙЫМДЫЛЫҚ / МОДЕЛЬ ТАҢДАУ",
-
   "pricingRates": "БАҒАЛАР",
   "startBooking": "БРОНДАУ",
-
   "addDisplayName": "Атыңызды қосыңыз",
   "helpSupportSubtitle": "Сұрақтарға жауаптар және қолдау қызметі",
   "ownerDashboardSubtitle": "Техниканы, тапсырыстарды және кірісті басқарыңыз",
@@ -839,7 +871,6 @@
   "zeroOrders": "0 тапсырыс",
   "newOrderCount": "жаңа тапсырыс",
   "confirmedOrderCount": "расталған тапсырыс",
-
   "paymentHistory": "Төлем тарихы",
   "billingTiers": "Тариф деңгейлері",
   "runningLow": "Минуттар азайып барады?",
@@ -852,7 +883,6 @@
   "fullyVerified": "Аккаунт",
   "activeEquipment": "Белсенді техника",
   "dailyCost": "Күнделікті шығын",
-
   "ownerProfile": "Иесінің профилі",
   "selectPackage": "Пакет таңдаңыз",
   "recentPayments": "Соңғы төлемдер",
@@ -862,20 +892,28 @@
   "equipmentCountLabel": "{count, plural, one{{count} техника} other{{count} техника}}",
   "@equipmentCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "remainingAtOnlineEquipment": "{time}, желіде {count, plural, one{{count} техника} other{{count} техника}}",
   "@remainingAtOnlineEquipment": {
     "placeholders": {
-      "time": { "type": "String" },
-      "count": { "type": "int" }
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "minutesPerHourValue": "{rate} мин/сағ",
   "@minutesPerHourValue": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "completeRegistration": "Тіркелуді аяқтаңыз",
@@ -896,7 +934,9 @@
   "ownerProfileChangesRejectedUntil": "{date} дейін түзетіңіз",
   "@ownerProfileChangesRejectedUntil": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "ownerProfileCorrectionOverdue": "Түзету мерзімі өтті. Қолжетімділік тоқтатылуы мүмкін.",
@@ -966,7 +1006,9 @@
   "burnRateValue": "~{rate} мин/сағ",
   "@burnRateValue": {
     "placeholders": {
-      "rate": { "type": "int" }
+      "rate": {
+        "type": "int"
+      }
     }
   },
   "noActiveDepletion": "Белсенді жұмсалу жоқ",
@@ -974,7 +1016,9 @@
   "equipmentOnlineCount": "{count, plural, one{{count} техника желіде} other{{count} техника желіде}}",
   "@equipmentOnlineCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statTotal": "барлығы",
@@ -1138,7 +1182,6 @@
   "demandSurveySubmitError": "Нысанды тексеріп, қайталап көріңіз.",
   "demandSurveyAlreadySubmitted": "Сіз бұл сауалнамаға жауап бердіңіз.",
   "demandSurveyInactive": "Бұл сауалнама енді белсенді емес.",
-
   "aboutProkat": "Prokat туралы",
   "aboutProkatEyebrow": "ТЕХНИКАНЫ ЖАЛҒА АЛУ — ОҢАЙ",
   "aboutProkatIntro": "Prokat техника іздеген адамдарды сенімді жергілікті иелермен және сервистік компаниялармен байланыстырады. Бір платформада іздеңіз, салыстырыңыз және тікелей сөйлесіңіз.",
@@ -1151,14 +1194,12 @@
   "newToProkat": "PROKAT-ТА ЖАҢАСЫЗ БА?",
   "exploreHowItWorks": "Қалай жұмыс істейді",
   "aboutProkatBannerSubtitle": "Ауыр техника мен сенімді орындаушыларды бір қадамда табыңыз немесе жалға беріңіз.",
-
   "userConsent": "Деректерді өңдеуге келісім",
   "privacyPolicySubtitle": "Деректеріңізді қалай қолданамыз және қорғаймыз",
   "userAgreementSubtitle": "Қолданбаны пайдалану ережелері",
   "personalDataSharingSubtitle": "Дербес деректерді жинау және өңдеу",
   "legalDocuments": "Құжаттар мен ережелер",
   "legalDocumentsSubtitle": "Пайдалану шарттары және құпиялылық саясаты",
-
   "applicationTheme": "Қолданба тақырыбы",
   "themeChooseHint": "Prokat осы құрылғыда қалай көрінетінін таңдаңыз.",
   "themeSystemDefault": "Жүйе бойынша",
@@ -1171,7 +1212,6 @@
   "serviceAndSafetyNoticesSubtitle": "Аккаунт, қауіпсіздік және платформаның маңызды ескертулері",
   "ownerServiceAndSafetyNoticesSubtitle": "Қауіпсіздік, аккаунт шектеулері және шұғыл хабарламалар",
   "requiredNoticesAlwaysAvailable": "Бұл хабарламалар қолданбада әрқашан қолжетімді.",
-
   "checkingPermission": "Рұқсат тексерілуде",
   "pushEnabled": "Қосулы",
   "pushEnabledQuietly": "Дыбыссыз қосулы",
@@ -1183,7 +1223,6 @@
   "pushPermissionNotRequested": "Рұқсат сұралмаған",
   "pushPermissionUnavailable": "Рұқсат қолжетімсіз",
   "failedToSaveNotificationPreferences": "Хабарландыру параметрлерін сақтау мүмкін болмады.",
-
   "notifRentalRequestsAndOffers": "Сұраныстар мен ұсыныстар",
   "notifRentalRequestsAndOffersSubtitle": "Жаңа ұсыныстар, қарсы бағалар және сұраныс жаңартулары",
   "notifOrderUpdates": "Тапсырыс жаңартулары",
@@ -1202,7 +1241,6 @@
   "notifEquipmentAndVerificationSubtitle": "Техника модерациясы, құжаттар және профиль мәртебесі",
   "notifBalanceAlerts": "Баланс ескертулері",
   "notifBalanceAlertsSubtitle": "Төмен баланс, толықтыру және төлем мәртебесі",
-
   "noAddressSelected": "Мекенжай таңдалмаған",
   "selectedAddress": "Менің мекенжайым",
   "youHaveNoSavedAddresses": "Сақталған мекенжайларыңыз жоқ.",
@@ -1210,7 +1248,6 @@
   "addressPrivacy": "Мекенжай құпиялылығы",
   "addressPrivacyBody": "Таңдалған мекенжай техника иесіне тек белсенді тапсырыс кезінде, жалға алу үшін қажет болғанда беріледі. Ол көпшілікке көрсетілмейді және басқа пайдаланушыларға берілмейді.",
   "morePrivacyOptionsContactSupport": "Басқа құпиялылық параметрлері керек пе? Қолдауға жазыңыз",
-
   "businessPreferences": "Бизнес параметрлері",
   "businessProfile": "Сіздің профиліңіз",
   "manageMyEquipment": "Техниканы басқару",
@@ -1218,12 +1255,13 @@
   "fleetItemsCount": "{count, plural, one{{count} бірлік паркте} other{{count} бірлік паркте}}",
   "@fleetItemsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "organization": "Ұйым",
   "individualOwner": "Жеке иесі",
-
   "chatSection": "Чат",
   "chatContext": "Мәтінмән",
   "participant": "Қатысушы",
@@ -1233,7 +1271,6 @@
   "clientRole": "Клиент",
   "priceOfferReceived": "Баға ұсынысы келді",
   "waitingClientResponse": "Клиенттің жауабы күтілуде",
-
   "didntReceiveCodeResend": "Код келмеді ме? Қайта жіберу",
   "youHaveNoActiveOrders": "Белсенді тапсырыстарыңыз жоқ",
   "youHaveNoNotifications": "Хабарландыруларыңыз жоқ",
@@ -1250,37 +1287,49 @@
   "minutesAgo": "{count} мин бұрын",
   "@minutesAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "hoursAgo": "{count} сағ бұрын",
   "@hoursAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationDays": "{count, plural, =1{1 күн} other{{count} күн}}",
   "@durationDays": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationHours": "{count, plural, =1{1 сағ} other{{count} сағ}}",
   "@durationHours": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationMinutes": "{count, plural, =1{1 мин} other{{count} мин}}",
   "@durationMinutes": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationSeconds": "{count, plural, =1{1 сек} other{{count} сек}}",
   "@durationSeconds": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "invalidSecondsValue": "Секунд мәні жарамсыз",
@@ -1320,7 +1369,9 @@
   "capacityKub": "{capacity} м³",
   "@capacityKub": {
     "placeholders": {
-      "capacity": { "type": "String" }
+      "capacity": {
+        "type": "String"
+      }
     }
   },
   "unitMeters": "м",
@@ -1347,19 +1398,19 @@
   "ordersCount": "{count, plural, one{{count} тапсырыс} other{{count} тапсырыс}}",
   "@ordersCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "ratePerTrip": "рейске",
   "ratePerCubicMeter": "м³",
   "ratePerDay": "күніне",
   "ratePerHour": "сағатына",
-
   "connectionTimedOut": "Күту уақыты аяқталды. Сервер іске қосылып жатқан болуы мүмкін — қайталап көріңіз.",
   "noConnectionCheckNetwork": "Байланыс жоқ. Желіні тексеріп, қайталап көріңіз.",
   "networkErrorTryAgain": "Желі қатесі. Қайталап көріңіз.",
   "somethingWentWrongTryAgain": "Бірдеңе дұрыс болмады. Қайталап көріңіз.",
-
   "shareEquipment": "Бөлісу",
   "shareEquipmentTitle": "Бөлісу",
   "shareEquipmentNeedPublish": "Техникамен бөлісу үшін оны каталогқа жариялаңыз: күйі «қолжетімді», көрсету қосқышы қосулы, бағасы көрсетілген.",
@@ -1373,9 +1424,15 @@
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {
-      "name": { "type": "String" },
-      "priceLine": { "type": "String" },
-      "url": { "type": "String" }
+      "name": {
+        "type": "String"
+      },
+      "priceLine": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
     }
   },
   "companyRegister": "Компанияны тіркеу",
@@ -1404,10 +1461,10 @@
   "companyFleet": "Компания паркі",
   "companyFleetEmpty": "Парк әзірге бос. Алғашқы техника немесе жабдық бірлігін қосыңыз.",
   "companyDraftHint": "Жаңа техника жасырын нобай ретінде сақталады. Компания паркін жариялау және тапсырыстарды қабылдау келесі кезеңде қосылады.",
-  "companyPilotNotice": "Компания паркі мен профилі. Компания атынан өтінімдер мен тапсырыстарды қабылдау кейін қосылады.",
-  "companyDescription": "Компания туралы қысқаша",
+  "companyPilotNotice": "Клиент бұл паркті каталогтағы «Компаниялар» арқылы ашады. Жалпы техника тізімінде ол жоқ.",
+  "companyDescription": "Компания туралы",
   "companyEditProfile": "Компанияны өңдеу",
-  "companyAddEquipment": "Техника немесе жабдық қосу",
+  "companyAddEquipment": "Техника қосу",
   "companyEditEquipment": "Карточканы өңдеу",
   "companyDraft": "Нобай",
   "companyBusy": "Бос емес",
@@ -1423,5 +1480,73 @@
   "companyEquipmentSaved": "Карточка сақталды",
   "companyCategoryChangeHint": "Санатты тек нобай немесе қабылданбаған карточкада өзгертуге болады.",
   "companyFleetCounts": "Барлығы: {total} · Көрсетіледі: {visible} · Бос емес: {busy}",
-  "companyPhoto": "Компания фотосы"
+  "companyPhoto": "Компания фотосы",
+  "companyAvailability": "Паркте: {free} · Қазір бос емес: {busy}",
+  "companyTariffs": "Тарифтер",
+  "companyTariffsEmpty": "Тарифтер әлі көрсетілмеген. Техника карточкасын ашып, бағасын жазыңыз.",
+  "companyPrice": "Баға",
+  "companyPersonalFleet": "Жеке техника",
+  "companyCatalog": "Каталог",
+  "companyAddPhoto": "Фото қосу",
+  "companyCatalogTitle": "Компаниялар",
+  "companyPublicEmpty": "Каталогта компаниялар әзірге жоқ.",
+  "companySendRequest": "Өтінім жіберу",
+  "companyBookingRequestSent": "Өтінім жіберілді. Бұл расталған тапсырыс емес.",
+  "companyRequestInbox": "Өтінімдер",
+  "companyRequestEmpty": "Компания өтінімдері әзірге жоқ.",
+  "companyRequestChatFirst": "Өтінімді чатта талқылаңыз. Компания техника, уақыт пен бағаны ұсынады, ал клиент шарттарды растайды.",
+  "companyBudget": "Бюджет",
+  "companyWhen": "Техника қашан керек",
+  "companySelected": "Таңдалған техника: {count}",
+  "companyBookingComment": "Өтінімге түсініктеме",
+  "companyFutureDateRequired": "Алдағы күн мен уақытты таңдаңыз",
+  "companyAmountInvalid": "0 мен 100 000 000 ₸ арасындағы соманы енгізіңіз",
+  "companyOrderDiscussion": "Талқылау",
+  "companyOrderProposed": "Клиенттің растауын күтуде",
+  "companyOrderConfirmed": "Расталған",
+  "companyOrderInProgress": "Орындалуда",
+  "companyOrderCompleted": "Орындалды",
+  "companyOrderCancelled": "Бас тартылды",
+  "companyMyInquiries": "Компанияларға өтінімдерім",
+  "companyOrders": "Компания тапсырыстары",
+  "companyOrderTitle": "Компания тапсырысы",
+  "companyActionConfirmation": "Әрекетті растамас бұрын техниканы, уақытты және бағаны тексеріңіз.",
+  "companyWholeOrder": "бүкіл тапсырыс үшін",
+  "companyProposeTerms": "Техника мен бағаны келісу",
+  "companyConfirmTerms": "Шарттарды растау",
+  "companyStartWork": "Жұмысты бастау",
+  "companyCompleteOrder": "Тапсырысты аяқтау",
+  "companyCancelOrder": "Тапсырыстан бас тарту",
+  "companyOrderChat": "Тапсырыс чаты",
+  "companyDiscussFirst": "Тапсырманы чатта талқылаңыз. Компания техника, уақыт пен бағаны ұсынады, ал клиент шарттарды растайды.",
+  "companyReadOnlyChat": "Тапсырыс аяқталды. Хат алмасу қарау үшін сақталды.",
+  "companyMessageHint": "Хабарлама жазыңыз…",
+  "companySendMessage": "Хабарлама жіберу",
+  "companySelectFleet": "Кемінде бір техниканы таңдаңыз",
+  "companyPeriodInvalid": "Болашақ басталу күні мен дұрыс аяқталу уақытын таңдаңыз",
+  "companyStartTime": "Басталуы",
+  "companyEndTime": "Аяқталуы",
+  "companyTotalPrice": "Тапсырыстың жалпы бағасы, ₸",
+  "companySendTerms": "Шарттарды клиентке жіберу",
+  "companyExitCabinet": "Компания кабинетінен шығу",
+  "companyInviteDispatcher": "Диспетчерді шақыру",
+  "companyPhone": "Телефон нөмірі",
+  "companyInvitationSent": "Шақыру жіберілді",
+  "companyPlateNumber": "Мемлекеттік нөмір",
+  "companyNextStep": "Әрі қарай",
+  "companyBackToBasics": "Негізгі деректерге оралу",
+  "companyFree": "Бос",
+  "companyExitCabinetSubtitle": "Техниканы іздеу және жеке тапсырыс беру",
+  "companyInviteDispatcherSubtitle": "Қызметкерді телефон нөмірі бойынша қосу",
+  "companyBalance": "Компания балансы",
+  "companyOnline": "Компания онлайн",
+  "companyOffline": "Компания офлайн",
+  "companyAcceptingOrders": "Жаңа тапсырыстарды қабылдайды",
+  "companyNotAcceptingOrders": "Жаңа тапсырыстарды қабылдамайды",
+  "companySharedBalanceHint": "Компанияның ортақ балансы. Онлайн мәртебесі басшыға және барлық диспетчерлерге ортақ. Минуттар компания карточкасындағы техникаға жұмсалады.",
+  "companyMinutesPerHour": "мин/сағ",
+  "companyBillingFailed": "Компания мәртебесін өзгерту мүмкін болмады. Қайталап көріңіз.",
+  "companyListing": "Компания хабарландыруы",
+  "companyRemoveEquipment": "Техниканы парктен жою керек пе?",
+  "companyAddPhoto": "Фото қосу"
 }

@@ -20,6 +20,8 @@ import 'package:prokat/features/equipment_demand/equipment_demand_provider.dart'
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/favorites/widgets/favorites_section.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
+import 'package:prokat/features/companies/public_company_screen.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
 class SearchEquipmentScreen extends ConsumerStatefulWidget {
   final String? query;
@@ -185,6 +187,18 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                 ),
 
                 const SizedBox(height: AppDimens.s12$md),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const PublicCompaniesScreen(),
+                      ),
+                    ),
+                    child: Text(AppLocalizations.of(context)!.companyCatalogTitle),
+                  ),
+                ),
 
                 const CategoryHeaderCard(),
 

@@ -3904,16 +3904,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get companyPilotNotice =>
-      'Company profile and fleet. Company requests and orders will be connected separately.';
+      'Clients open this fleet from Companies in the catalog. It stays out of the general equipment list.';
 
   @override
-  String get companyDescription => 'Short company description';
+  String get companyDescription => 'About the company';
 
   @override
   String get companyEditProfile => 'Edit company';
 
   @override
-  String get companyAddEquipment => 'Add machinery or equipment';
+  String get companyAddEquipment => 'Add equipment';
 
   @override
   String get companyEditEquipment => 'Edit item';
@@ -3965,4 +3965,220 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get companyPhoto => 'Company photo';
+
+  @override
+  String companyAvailability(int free, int busy) {
+    return 'Fleet: $free · Busy now: $busy';
+  }
+
+  @override
+  String get companyTariffs => 'Tariffs';
+
+  @override
+  String get companyTariffsEmpty =>
+      'No tariffs yet. Open an item and set a price.';
+
+  @override
+  String get companyPrice => 'Price';
+
+  @override
+  String get companyPersonalFleet => 'Personal equipment';
+
+  @override
+  String get companyCatalog => 'Catalog';
+
+  @override
+  String get companyAddPhoto => 'Add photo';
+
+  @override
+  String get companyCatalogTitle => 'Companies';
+
+  @override
+  String get companyPublicEmpty => 'No companies are listed yet.';
+
+  @override
+  String get companySendRequest => 'Send request';
+
+  @override
+  String get companyBookingRequestSent =>
+      'Request sent. This is not a confirmed order.';
+
+  @override
+  String get companyRequestInbox => 'Requests';
+
+  @override
+  String get companyRequestEmpty => 'No company requests yet.';
+
+  @override
+  String get companyRequestChatFirst =>
+      'Discuss the request in chat. The company proposes equipment, times and price; the client confirms the terms.';
+
+  @override
+  String get companyBudget => 'Budget';
+
+  @override
+  String get companyWhen => 'When the machines are needed';
+
+  @override
+  String companySelected(int count) {
+    return 'Selected machines: $count';
+  }
+
+  @override
+  String get companyBookingComment => 'Request comment';
+
+  @override
+  String get companyFutureDateRequired => 'Choose a future date and time';
+
+  @override
+  String get companyAmountInvalid => 'Enter an amount from 0 to 100,000,000 ₸';
+
+  @override
+  String get companyOrderDiscussion => 'Discussion';
+
+  @override
+  String get companyOrderProposed => 'Awaiting client confirmation';
+
+  @override
+  String get companyOrderConfirmed => 'Confirmed';
+
+  @override
+  String get companyOrderInProgress => 'In progress';
+
+  @override
+  String get companyOrderCompleted => 'Completed';
+
+  @override
+  String get companyOrderCancelled => 'Cancelled';
+
+  @override
+  String get companyMyInquiries => 'My company inquiries';
+
+  @override
+  String get companyOrders => 'Company orders';
+
+  @override
+  String get companyOrderTitle => 'Company order';
+
+  @override
+  String get companyActionConfirmation =>
+      'Review the equipment, time and price before confirming this action.';
+
+  @override
+  String get companyWholeOrder => 'for the whole order';
+
+  @override
+  String get companyProposeTerms => 'Agree equipment and price';
+
+  @override
+  String get companyConfirmTerms => 'Confirm terms';
+
+  @override
+  String get companyStartWork => 'Start work';
+
+  @override
+  String get companyCompleteOrder => 'Complete order';
+
+  @override
+  String get companyCancelOrder => 'Cancel order';
+
+  @override
+  String get companyOrderChat => 'Order chat';
+
+  @override
+  String get companyDiscussFirst =>
+      'Discuss the task in chat. The company proposes equipment, times and price; the client confirms the terms.';
+
+  @override
+  String get companyReadOnlyChat =>
+      'The order is closed. Chat is saved for viewing.';
+
+  @override
+  String get companyMessageHint => 'Write a message…';
+
+  @override
+  String get companySendMessage => 'Send message';
+
+  @override
+  String get companySelectFleet => 'Select at least one machine';
+
+  @override
+  String get companyPeriodInvalid =>
+      'Choose a future start and a valid end time';
+
+  @override
+  String get companyStartTime => 'Start';
+
+  @override
+  String get companyEndTime => 'End';
+
+  @override
+  String get companyTotalPrice => 'Total order price, ₸';
+
+  @override
+  String get companySendTerms => 'Send terms to client';
+
+  @override
+  String get companyExitCabinet => 'Leave company workspace';
+
+  @override
+  String get companyInviteDispatcher => 'Invite dispatcher';
+
+  @override
+  String get companyPhone => 'Phone number';
+
+  @override
+  String get companyInvitationSent => 'Invitation sent';
+
+  @override
+  String get companyPlateNumber => 'Registration number';
+
+  @override
+  String get companyNextStep => 'Next';
+
+  @override
+  String get companyBackToBasics => 'Back to basic information';
+
+  @override
+  String get companyFree => 'Available';
+
+  @override
+  String get companyExitCabinetSubtitle =>
+      'Find equipment and place personal orders';
+
+  @override
+  String get companyInviteDispatcherSubtitle =>
+      'Add a colleague using their phone number';
+
+  @override
+  String get companyBalance => 'Company balance';
+
+  @override
+  String get companyOnline => 'Company online';
+
+  @override
+  String get companyOffline => 'Company offline';
+
+  @override
+  String get companyAcceptingOrders => 'Accepting new orders';
+
+  @override
+  String get companyNotAcceptingOrders => 'Not accepting new orders';
+
+  @override
+  String get companySharedBalanceHint =>
+      'Shared company wallet. Online status applies to the manager and all dispatchers. Minutes are spent on the fleet listed in the company card.';
+
+  @override
+  String get companyMinutesPerHour => 'min/h';
+
+  @override
+  String get companyBillingFailed =>
+      'Unable to change company status. Try again.';
+
+  @override
+  String get companyListing => 'Company listing';
+
+  @override
+  String get companyRemoveEquipment => 'Remove equipment from fleet?';
 }

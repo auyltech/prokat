@@ -1,6 +1,9 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
@@ -10,11 +13,17 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'company_equipment_screen.dart';
 import 'company_models.dart';
 import 'company_service.dart';
+import 'company_category_screen.dart';
 import 'company_widgets.dart';
 
 class CompanyWorkspaceScreen extends ConsumerStatefulWidget {
   final String companyId;
-  const CompanyWorkspaceScreen({super.key, required this.companyId});
+  final bool showCatalogLink;
+  const CompanyWorkspaceScreen({
+    super.key,
+    required this.companyId,
+    this.showCatalogLink = false,
+  });
   @override
   ConsumerState<CompanyWorkspaceScreen> createState() =>
       _CompanyWorkspaceScreenState();
@@ -25,6 +34,7 @@ class _CompanyWorkspaceScreenState
   bool _uploading = false;
 
   Future<void> _refresh() async {
+    ref.invalidate(companyBookingRequestsProvider(widget.companyId));
     ref.invalidate(companyContextProvider);
     ref.invalidate(companyFleetProvider(widget.companyId));
     try {
@@ -58,7 +68,7 @@ class _CompanyWorkspaceScreenState
     }
   }
 
-  Future<void> _uploadLogo() async {
+  Future<void> _uploadLogo({bool additional = false}) async {
     if (_uploading) return;
     setState(() => _uploading = true);
     try {
@@ -69,9 +79,16 @@ class _CompanyWorkspaceScreenState
         imageQuality: 85,
       );
       if (image == null || !mounted) return;
-      await ref
-          .read(companyServiceProvider)
-          .uploadLogo(widget.companyId, image.path);
+      if (additional) {
+        await ref
+            .read(companyServiceProvider)
+            .addPhoto(widget.companyId, image.path);
+      } else {
+        await ref
+            .read(companyServiceProvider)
+            .uploadLogo(widget.companyId, image.path);
+      }
+      ref.invalidate(companyPhotosProvider(widget.companyId));
       ref.invalidate(companyLogoProvider(widget.companyId));
       ref.invalidate(companyContextProvider);
       if (mounted)
@@ -95,11 +112,25 @@ class _CompanyWorkspaceScreenState
         .firstOrNull;
     final fleet = ref.watch(companyFleetProvider(widget.companyId));
     final logo = ref.watch(companyLogoProvider(widget.companyId)).valueOrNull;
+    final photos =
+        ref.watch(companyPhotosProvider(widget.companyId)).valueOrNull ?? [];
     final locale = Localizations.localeOf(context).languageCode;
     final catalog = ref.watch(catalogProvider).valueOrNull;
     return Scaffold(
       appBar: AppBar(
-        title: Text(membership?.organization.name ?? l10n.companyWorkspace),
+        title: Text(
+          membership?.organization.name ?? l10n.companyWorkspace,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        actions: [
+          if (widget.showCatalogLink)
+            TextButton(
+              onPressed: () => context.go(AppRoutes.searchList),
+              child: Text(l10n.companyCatalog),
+            ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
@@ -122,58 +153,143 @@ class _CompanyWorkspaceScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: logo == null
-                                ? ColoredBox(
-                                    color: Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.08),
-                                    child: Icon(
-                                      Icons.apartment_rounded,
-                                      size: 40,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        height: 200,
+                        width: double.infinity,
+                        child: logo == null && photos.isEmpty
+                            ? ColoredBox(
+                                color: Theme.of(context).colorScheme.primary
+                                    .withValues(alpha: 0.08),
+                                child: const Icon(
+                                  LucideIcons.building2,
+                                  size: 64,
+                                ),
+                              )
+                            : PageView(
+                                children: [
+                                  if (logo != null)
+                                    Image.memory(logo, fit: BoxFit.cover),
+                                  for (final photo in photos)
+                                    Image.memory(
+                                      photo.bytes,
+                                      fit: BoxFit.cover,
                                     ),
-                                  )
-                                : Image.memory(logo, fit: BoxFit.cover),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                membership.organization.name,
-                                style: Theme.of(context).textTheme.titleLarge,
+                                ],
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '${l10n.companyBin}: ${membership.organization.bin}',
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                membership.canManageProfile
-                                    ? l10n.companyManager
-                                    : l10n.companyDispatcher,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                    const SizedBox(height: 16),
+                    Text(
+                      membership.organization.name,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 6),
+                    Text('${l10n.companyBin}: ${membership.organization.bin}'),
+                    if (photos.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          '${photos.length + (logo == null ? 0 : 1)} фото',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    if (membership.canManageProfile && photos.isNotEmpty)
+                      Wrap(
+                        children: [
+                          for (final photo in photos)
+                            IconButton(
+                              tooltip: l10n.delete,
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(l10n.delete),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: Text(l10n.cancel),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        child: Text(l10n.delete),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed != true) return;
+                                try {
+                                  await ref
+                                      .read(companyServiceProvider)
+                                      .removePhoto(widget.companyId, photo.id);
+                                  ref.invalidate(
+                                    companyPhotosProvider(widget.companyId),
+                                  );
+                                } catch (error) {
+                                  if (context.mounted)
+                                    companySnack(
+                                      context,
+                                      companyErrorText(context, error),
+                                    );
+                                }
+                              },
+                              icon: SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: Stack(
+                                  children: [
+                                    Image.memory(
+                                      photo.bytes,
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    const Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: Icon(LucideIcons.trash2, size: 18),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     if (membership.organization.description.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(membership.organization.description),
                     ],
+                    Material(
+                      type: MaterialType.transparency,
+                      child: SwitchListTile.adaptive(
+                        title: Text(l10n.companyListing),
+                        subtitle: Text(
+                          membership.organization.catalogVisible
+                              ? l10n.equipmentShown
+                              : l10n.equipmentHidden,
+                        ),
+                        value: membership.organization.catalogVisible,
+                        onChanged: (visible) async {
+                          try {
+                            await ref
+                                .read(companyServiceProvider)
+                                .visibility(widget.companyId, visible);
+                            ref.invalidate(
+                              companyBillingProvider(widget.companyId),
+                            );
+                            await _refresh();
+                          } catch (e) {
+                            if (context.mounted)
+                              companySnack(
+                                context,
+                                companyErrorText(context, e),
+                              );
+                          }
+                        },
+                      ),
+                    ),
                     if (membership.canManageProfile) ...[
                       const SizedBox(height: 12),
                       Wrap(
@@ -182,11 +298,18 @@ class _CompanyWorkspaceScreenState
                           TextButton.icon(
                             onPressed: () =>
                                 _editProfile(membership.organization),
-                            icon: const Icon(Icons.edit_outlined),
+                            icon: const Icon(LucideIcons.pencil),
                             label: Text(l10n.companyEditProfile),
                           ),
                           TextButton.icon(
-                            onPressed: _uploading ? null : _uploadLogo,
+                            onPressed: _uploading
+                                ? null
+                                : () => _uploadLogo(additional: true),
+                            icon: const Icon(LucideIcons.imagePlus),
+                            label: Text(l10n.companyAddPhoto),
+                          ),
+                          TextButton.icon(
+                            onPressed: _uploading ? null : () => _uploadLogo(),
                             icon: _uploading
                                 ? const SizedBox(
                                     width: 18,
@@ -195,7 +318,7 @@ class _CompanyWorkspaceScreenState
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Icon(Icons.add_a_photo_outlined),
+                                : const Icon(LucideIcons.camera),
                             label: Text(l10n.companyPhoto),
                           ),
                         ],
@@ -204,7 +327,6 @@ class _CompanyWorkspaceScreenState
                   ],
                 ),
               ),
-              CompanyNotice(l10n.companyPilotNotice),
               const SizedBox(height: 24),
               Text(
                 l10n.companyFleet,
@@ -214,7 +336,7 @@ class _CompanyWorkspaceScreenState
               AppElevatedButton(
                 title: l10n.companyAddEquipment,
                 onTap: () => _editEquipment(),
-                prefix: const Icon(Icons.add),
+                prefix: const Icon(LucideIcons.plus),
               ),
               const SizedBox(height: 16),
               fleet.when(
@@ -231,20 +353,14 @@ class _CompanyWorkspaceScreenState
                 data: (park) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.companyFleetCounts(
-                        park.total,
-                        park.visible,
-                        park.busy,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     if (park.total == 0)
                       CompanyNotice(
                         l10n.companyFleetEmpty,
-                        icon: Icons.garage_outlined,
+                        icon: LucideIcons.truck400,
                       ),
-                    for (final group in park.groups) ...[
+                    for (final group in park.groups.where(
+                      (group) => group.categories.isNotEmpty,
+                    )) ...[
                       Padding(
                         padding: const EdgeInsets.only(top: 8, bottom: 12),
                         child: Text(
@@ -256,54 +372,54 @@ class _CompanyWorkspaceScreenState
                       ),
                       for (final category in group.categories)
                         CompanySection(
-                          child: Theme(
-                            data: Theme.of(context)
-                                .copyWith(dividerColor: Colors.transparent),
-                            child: ExpansionTile(
-                              tilePadding: EdgeInsets.zero,
-                              childrenPadding: EdgeInsets.zero,
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: OptimizedNetworkImage(
-                                  imageUrl: catalog?.categories
-                                      .where((entry) => entry.id == category.id)
-                                      .firstOrNull
-                                      ?.imageUrl,
-                                  width: 56,
-                                  height: 48,
-                                  fallbackIcon:
-                                      Icons.precision_manufacturing_outlined,
+                          child: InkWell(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => CompanyCategoryScreen(
+                                  companyId: widget.companyId,
+                                  categoryId: category.id,
                                 ),
                               ),
-                              title: Text(category.label(locale)),
-                              subtitle: Text(
-                                l10n.companyFleetCounts(
-                                  category.total,
-                                  category.visible,
-                                  category.busy,
-                                ),
-                              ),
+                            ),
+                            child: Row(
                               children: [
-                                for (final item in category.items)
-                                  ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    leading: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: OptimizedNetworkImage(
-                                        imageUrl: item.imageUrl,
-                                        width: 56,
-                                        height: 48,
-                                        fallbackIcon:
-                                            Icons.local_shipping_outlined,
-                                      ),
-                                    ),
-                                    title: Text(item.name),
-                                    subtitle: Text(
-                                      '${item.model}\n${companyEquipmentStatus(l10n, item)}',
-                                    ),
-                                    trailing: const Icon(Icons.chevron_right),
-                                    onTap: () => _editEquipment(item),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: OptimizedNetworkImage(
+                                    imageUrl: catalog?.categories
+                                        .where(
+                                          (entry) => entry.id == category.id,
+                                        )
+                                        .firstOrNull
+                                        ?.imageUrl,
+                                    width: 56,
+                                    height: 48,
+                                    fallbackIcon: LucideIcons.wrench,
                                   ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        category.label(locale),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        l10n.companyAvailability(
+                                          category.total,
+                                          category.busy,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(LucideIcons.chevronRight),
                               ],
                             ),
                           ),
@@ -319,18 +435,6 @@ class _CompanyWorkspaceScreenState
     );
   }
 }
-
-String companyEquipmentStatus(AppLocalizations l10n, CompanyFleetItem item) =>
-    switch (item.status) {
-      'DRAFT' => l10n.companyDraft,
-      'CREATED' => l10n.companyReview,
-      'REJECTED' => l10n.companyRejectedEquipment,
-      'BOOKED' => l10n.companyBusy,
-      'MAINTENANCE' => l10n.companyMaintenance,
-      'AVAILABLE' =>
-        item.isVisible ? l10n.equipmentShown : l10n.equipmentHidden,
-      _ => l10n.companyStatusUnknown,
-    };
 
 class _CompanyProfileEditor extends ConsumerStatefulWidget {
   final CompanyProfile profile;
@@ -402,8 +506,8 @@ class _CompanyProfileEditorState extends ConsumerState<_CompanyProfileEditor> {
             AppTextField(
               controller: _description,
               title: l10n.companyDescription,
-              maxLength: 50,
-              maxLines: 3,
+              maxLength: 2000,
+              maxLines: 6,
               enabled: !_saving,
             ),
             const SizedBox(height: 24),

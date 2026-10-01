@@ -1,3 +1,5 @@
+import 'account_status_card.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -9,8 +11,6 @@ import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_service.dart';
 import 'package:prokat/l10n/app_localizations.dart';
-
-import '../../../core/widgets/base_tile.dart';
 
 class OwnerStatusTile extends ConsumerStatefulWidget {
   const OwnerStatusTile({super.key});
@@ -94,8 +94,6 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     ref.listen(billingProvider, (previous, next) {
       unawaited(_goOfflineIfNoCredit());
     });
@@ -117,42 +115,11 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
         hasKnownBalance &&
         !isOutOfPaidMinutes;
 
-    return BaseTile(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            leading: CircleAvatar(
-              radius: 6,
-              backgroundColor: isOnline ? Colors.green : Colors.grey,
-            ),
-            title: Text(
-              isOnline ? l10n.youAreOnline : l10n.youAreOffline,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-            subtitle: Text(
-              isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-            ),
-            trailing: Switch.adaptive(
-              value: isOnline,
-              activeThumbColor: const Color(0xFF0F5A56),
-              onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
-                  ? null
-                  : _onToggleMethod,
-            ),
-          ),
-          if (!isOnline && hasProfile)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Text(
-                l10n.ownerOfflineMustBeOnlineToAccept,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-              ),
-            ),
-        ],
-      ),
+    return AccountStatusCard(
+      online: isOnline,
+      changing: ref.watch(ownerRegistrationMutationProvider).isLoading,
+      showHint: hasProfile,
+      onChanged: _onToggleMethod,
     );
   }
 }

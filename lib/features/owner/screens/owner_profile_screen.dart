@@ -199,7 +199,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: EdgeInsets.only(top: 8),
                 child: CompanyProfileTile(),
               ),
             ),

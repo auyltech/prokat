@@ -1,17 +1,20 @@
 {
   "@@locale": "en",
-
   "appLanguage": "App Language",
   "offerCount": "{count, plural, =1{1 offer} other{{count} offers}}",
   "@offerCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "offersReceivedCount": "{count, plural, =1{Received 1 offer} other{Received {count} offers}}",
   "@offersReceivedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "activeRequestAlreadyExists": "You already have an active request.",
@@ -115,13 +118,17 @@
   "resendOtpIn": "Resend OTP in {seconds} seconds",
   "@resendOtpIn": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "otpRetryIn": "You can request another code in {seconds} seconds",
   "@otpRetryIn": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "resendOtp": "Resend OTP",
@@ -147,24 +154,44 @@
   "noEquipmentListedInCity": "There are no {category} listed in {city} at the moment.",
   "noActiveOffers": "There are no active listings right now.",
   "@noEquipmentForCategory": {
-    "placeholders": { "category": { "type": "String" } }
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
   },
   "@noEquipmentListedInCity": {
     "placeholders": {
-      "category": { "type": "String" },
-      "city": { "type": "String" }
+      "category": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
     }
   },
   "@failedToLoadMessage": {
-    "placeholders": { "message": { "type": "String" } }
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
   },
   "equipmentIsNow": "Equipment is now {status}",
   "failedToToggleEquipment": "Failed to set equipment {status}",
   "@equipmentIsNow": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "@failedToToggleEquipment": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "requestReceived": "Request Received",
   "legalNoticePrefix": "By continuing, you accept the ",
@@ -193,8 +220,12 @@
   "versionLabel": "Version: {version} ({buildNumber})",
   "@versionLabel": {
     "placeholders": {
-      "version": { "type": "String" },
-      "buildNumber": { "type": "String" }
+      "version": {
+        "type": "String"
+      },
+      "buildNumber": {
+        "type": "String"
+      }
     }
   },
   "markCompletedQuestion": "Mark completed?",
@@ -245,7 +276,9 @@
   "newMessageFrom": "New message from: {name}",
   "@newMessageFrom": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "typeMessageHint": "Type a message...",
@@ -285,7 +318,9 @@
   "offeredPrice": "Offered: {price}",
   "@offeredPrice": {
     "placeholders": {
-      "price": { "type": "String" }
+      "price": {
+        "type": "String"
+      }
     }
   },
   "topUpAdded": "Top up added",
@@ -295,13 +330,17 @@
   "activeRequestCount": "{count, plural, =1{1 active request} other{{count} active requests}}",
   "@activeRequestCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "minutesRead": "{count, plural, =1{1 min read} other{{count} min read}}",
   "@minutesRead": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pleaseSelectCategory": "Please select category",
@@ -317,7 +356,6 @@
   "failedToCancelOrder": "Failed to cancel order",
   "failedToCancelRequest": "Failed to cancel request",
   "saveFailed": "Failed to save",
-
   "heroPlatformTag": "A CONVENIENT RENTAL PLATFORM IN KAZAKHSTAN",
   "heroTitle": "Need special equipment?\nFind a machine nearby!",
   "allLocations": "All Locations",
@@ -337,7 +375,6 @@
   "heavyEquipmentRentals": "HEAVY EQUIPMENT RENTALS",
   "initializingSystems": "INITIALIZING SYSTEMS...",
   "serverWarmingUp": "Server is warming up, please wait...",
-
   "save": "Save",
   "cancel": "Cancel",
   "confirm": "Confirm",
@@ -362,7 +399,6 @@
   "somethingWentWrong": "Something went wrong!",
   "loading": "Loading...",
   "noCategories": "No categories available",
-
   "phoneNumber": "Phone Number",
   "email": "Email",
   "password": "Password",
@@ -385,7 +421,6 @@
   "priceKZT": "Price (₸)",
   "priceRateLabel": "Price Rate",
   "privateOwner": "PRIVATE OWNER",
-
   "loginSubtitle": "Pick up where you left off",
   "signingIn": "Signing in...",
   "sendOtp": "Send Code",
@@ -396,7 +431,6 @@
   "enterCode": "Enter the code",
   "otpSubtitle": "Enter the 6-digit code sent to",
   "creating": "CREATING...",
-
   "sendCode": "SEND CODE",
   "sending": "SENDING...",
   "pleaseEnterPhone": "Please enter your phone number",
@@ -424,10 +458,11 @@
   "recoverySentTo": "We've sent a recovery link to {email}",
   "@recoverySentTo": {
     "placeholders": {
-      "email": { "type": "String" }
+      "email": {
+        "type": "String"
+      }
     }
   },
-
   "navHome": "Home",
   "navMyFleet": "My Fleet",
   "navOrders": "Orders",
@@ -455,7 +490,6 @@
   "navSettings": "Settings",
   "navLogin": "Login",
   "selectService": "Select Service",
-
   "myOrders": "My Orders",
   "orderHistory": "Order History",
   "loginToViewBookings": "Login to create and view bookings",
@@ -488,7 +522,9 @@
   "acceptBookingFor": "Accept booking for {name}?",
   "@acceptBookingFor": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "yesReject": "Yes, Reject",
@@ -498,13 +534,17 @@
   "minutesLeft": "{minutes} min left",
   "@minutesLeft": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "hoursLeft": "{hours} h left",
   "@hoursLeft": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "volume": "Volume",
@@ -528,7 +568,6 @@
   "workStatusResumeWork": "Resume work",
   "workStatusCompleteWork": "Complete work",
   "workStatusCancelJob": "Cancel job",
-
   "myEquipment": "My Equipment",
   "addEquipment": "Add Equipment",
   "noEquipmentListed": "No equipment listed yet",
@@ -557,8 +596,12 @@
   "draftSectionsFilled": "{filled} of {total} sections completed",
   "@draftSectionsFilled": {
     "placeholders": {
-      "filled": { "type": "int" },
-      "total": { "type": "int" }
+      "filled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "availableForRent": "Available for rent",
@@ -597,7 +640,6 @@
   "updateDetails": "Update Details",
   "status": "Status",
   "perM3": "/ m³",
-
   "myRequests": "My Requests",
   "createRequest": "Create Request",
   "loginToViewRequests": "Login to create and view requests",
@@ -624,13 +666,11 @@
   "offerSentBadge": "OFFER SENT",
   "cancelRequest": "Cancel Request?",
   "requestCancelled": "Request cancelled",
-
   "noChats": "No Chats",
   "chatsActiveTab": "Active",
   "chatsArchiveTab": "Archive",
   "noArchivedChats": "No archived chats",
   "youHaveNoArchivedChats": "Completed and cancelled chats will appear here.",
-
   "deliverTo": "DELIVER TO",
   "houseBuilding": "House / Building / Staircase",
   "myHouseHint": "My House",
@@ -651,9 +691,7 @@
   "setEquipmentLocation": "Set Equipment Location",
   "equipmentMap": "Equipment Map",
   "failedCreateLocation": "Failed to create location",
-
   "loginToViewFavorites": "Login to add and view favorites",
-
   "displayName": "Display Name",
   "supportUsTitle": "Support Us",
   "donateOrHelp": "Donate or help us grow",
@@ -697,12 +735,10 @@
   "camera": "Camera",
   "photoGallery": "Photo Gallery",
   "cropProfilePicture": "Crop Profile Picture",
-
   "initializationError": "INITIALIZATION ERROR",
   "initializationErrorMessage": "We couldn't load your session or connection was lost. Please check your network and try again.",
   "retryConnection": "RETRY CONNECTION",
   "reconnecting": "RECONNECTING...",
-
   "information": "Information",
   "generalInformation": "General information",
   "forClients": "For clients",
@@ -775,7 +811,6 @@
   "takePhoto": "Take photo",
   "setAsCover": "Set as cover",
   "deletePhoto": "Delete photo",
-
   "cancelRequestAction": "Cancel Request",
   "cancelRequestContent": "Are you sure you want to cancel this request? This action cannot be undone.",
   "newRequest": "New Request",
@@ -803,11 +838,9 @@
   "acceptedBadge": "ACCEPTED",
   "hiddenBadge": "HIDDEN",
   "requestLabel": "Request",
-
   "addLocation": "Add Location",
   "addAddress": "Add Address",
   "addressCreated": "Address created",
-
   "selectAddress": "SELECT ADDRESS",
   "noRecentAddresses": "No recent addresses",
   "chooseOnMap": "CHOOSE ON MAP",
@@ -818,10 +851,8 @@
   "back": "Back",
   "backToEquipment": "Back to equipment",
   "selectCapacityModel": "SELECT CAPACITY / MODEL",
-
   "pricingRates": "PRICING RATES",
   "startBooking": "START BOOKING",
-
   "addDisplayName": "Add Display Name",
   "helpSupportSubtitle": "Answers and contact support",
   "ownerDashboardSubtitle": "Manage equipment, orders, and income",
@@ -840,7 +871,6 @@
   "zeroOrders": "0 orders",
   "newOrderCount": "new order",
   "confirmedOrderCount": "confirmed order",
-
   "paymentHistory": "Payment History",
   "billingTiers": "Billing Tiers",
   "runningLow": "Running low?",
@@ -853,7 +883,6 @@
   "fullyVerified": "Account",
   "activeEquipment": "Active Equipment",
   "dailyCost": "Daily cost",
-
   "ownerProfile": "Owner Profile",
   "selectPackage": "Select Package",
   "recentPayments": "Recent Payments",
@@ -863,20 +892,28 @@
   "equipmentCountLabel": "{count, plural, one{{count} machine} other{{count} machines}}",
   "@equipmentCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "remainingAtOnlineEquipment": "{time} with {count, plural, one{{count} machine online} other{{count} machines online}}",
   "@remainingAtOnlineEquipment": {
     "placeholders": {
-      "time": { "type": "String" },
-      "count": { "type": "int" }
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "minutesPerHourValue": "{rate} min/h",
   "@minutesPerHourValue": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "completeRegistration": "Complete your registration",
@@ -897,7 +934,9 @@
   "ownerProfileChangesRejectedUntil": "fix by {date}",
   "@ownerProfileChangesRejectedUntil": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "ownerProfileCorrectionOverdue": "Correction deadline has passed. Access may be suspended.",
@@ -909,7 +948,6 @@
   "resubmitDocuments": "Resubmit Documents",
   "uploaded": "Uploaded",
   "requiredDoc": "Required",
-
   "becomeServiceProvider": "Become a service provider",
   "joinTeamHint": "Fill in a short form — our administrators will check that everything is in order and you can start working!",
   "requiredInParens": "(required)",
@@ -968,7 +1006,9 @@
   "burnRateValue": "~{rate} min/hr",
   "@burnRateValue": {
     "placeholders": {
-      "rate": { "type": "int" }
+      "rate": {
+        "type": "int"
+      }
     }
   },
   "noActiveDepletion": "No active depletion",
@@ -976,7 +1016,9 @@
   "equipmentOnlineCount": "{count, plural, =1{{count} equipment online} other{{count} equipment online}}",
   "@equipmentOnlineCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statTotal": "total",
@@ -1140,7 +1182,6 @@
   "demandSurveySubmitError": "Check the form and try again.",
   "demandSurveyAlreadySubmitted": "You have already responded.",
   "demandSurveyInactive": "This survey is no longer active.",
-
   "aboutProkat": "About Prokat",
   "aboutProkatEyebrow": "EQUIPMENT RENTAL MADE SIMPLE",
   "aboutProkatIntro": "Prokat connects people looking for equipment with trusted local owners and service providers. Search, compare and communicate directly in one simple platform.",
@@ -1153,14 +1194,12 @@
   "newToProkat": "NEW TO PROKAT?",
   "exploreHowItWorks": "Explore How It Works",
   "aboutProkatBannerSubtitle": "Find or rent heavy equipment and trusted service providers instantly in one tap.",
-
   "userConsent": "Consent to data processing",
   "privacyPolicySubtitle": "How we use and protect your data",
   "userAgreementSubtitle": "App usage rules",
   "personalDataSharingSubtitle": "Collection and processing of personal data",
   "legalDocuments": "Documents and rules",
   "legalDocumentsSubtitle": "Terms of use and privacy policy",
-
   "applicationTheme": "Application theme",
   "themeChooseHint": "Choose how Prokat should look on this device.",
   "themeSystemDefault": "System default",
@@ -1173,7 +1212,6 @@
   "serviceAndSafetyNoticesSubtitle": "Account, security and important platform alerts",
   "ownerServiceAndSafetyNoticesSubtitle": "Security, account restrictions and urgent platform notices",
   "requiredNoticesAlwaysAvailable": "These notices are always available in the app.",
-
   "checkingPermission": "Checking permission",
   "pushEnabled": "Enabled",
   "pushEnabledQuietly": "Enabled quietly",
@@ -1185,7 +1223,6 @@
   "pushPermissionNotRequested": "Permission not requested",
   "pushPermissionUnavailable": "Permission unavailable",
   "failedToSaveNotificationPreferences": "Failed to save notification preferences.",
-
   "notifRentalRequestsAndOffers": "Rental requests and offers",
   "notifRentalRequestsAndOffersSubtitle": "New offers, counteroffers and request updates",
   "notifOrderUpdates": "Order updates",
@@ -1204,7 +1241,6 @@
   "notifEquipmentAndVerificationSubtitle": "Equipment moderation, documents and profile status",
   "notifBalanceAlerts": "Balance alerts",
   "notifBalanceAlertsSubtitle": "Low balance, top-up and payment-status alerts",
-
   "noAddressSelected": "No address selected",
   "selectedAddress": "My address",
   "youHaveNoSavedAddresses": "You have no saved addresses.",
@@ -1212,7 +1248,6 @@
   "addressPrivacy": "Address privacy",
   "addressPrivacyBody": "Your selected address is shared only with the equipment owner during an active order when it is needed to fulfil the rental. It is not displayed publicly or shared with other users.",
   "morePrivacyOptionsContactSupport": "More privacy options? Contact support",
-
   "businessPreferences": "Business preferences",
   "businessProfile": "Your profile",
   "manageMyEquipment": "Manage my equipment",
@@ -1220,12 +1255,13 @@
   "fleetItemsCount": "{count, plural, =1{{count} item in your fleet} other{{count} items in your fleet}}",
   "@fleetItemsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "organization": "Organization",
   "individualOwner": "Individual owner",
-
   "chatSection": "Chat",
   "chatContext": "Context",
   "participant": "Participant",
@@ -1235,7 +1271,6 @@
   "clientRole": "Client",
   "priceOfferReceived": "Price Offer Received",
   "waitingClientResponse": "Waiting client response",
-
   "didntReceiveCodeResend": "Didn't receive the code? Resend Now",
   "youHaveNoActiveOrders": "You don't have any active orders",
   "youHaveNoNotifications": "You don't have any notifications",
@@ -1252,37 +1287,49 @@
   "minutesAgo": "{count} min ago",
   "@minutesAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "hoursAgo": "{count} h ago",
   "@hoursAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationDays": "{count, plural, =1{1 day} other{{count} days}}",
   "@durationDays": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationHours": "{count, plural, =1{1 hr} other{{count} hrs}}",
   "@durationHours": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationMinutes": "{count, plural, =1{1 min} other{{count} min}}",
   "@durationMinutes": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationSeconds": "{count, plural, =1{1 sec} other{{count} sec}}",
   "@durationSeconds": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "invalidSecondsValue": "Invalid seconds value",
@@ -1322,7 +1369,9 @@
   "capacityKub": "{capacity} m³",
   "@capacityKub": {
     "placeholders": {
-      "capacity": { "type": "String" }
+      "capacity": {
+        "type": "String"
+      }
     }
   },
   "unitMeters": "m",
@@ -1349,19 +1398,19 @@
   "ordersCount": "{count, plural, =1{{count} order} other{{count} orders}}",
   "@ordersCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "ratePerTrip": "per trip",
   "ratePerCubicMeter": "per m³",
   "ratePerDay": "per day",
   "ratePerHour": "per hour",
-
   "connectionTimedOut": "Connection timed out. The server may be warming up — please try again.",
   "noConnectionCheckNetwork": "No connection. Check your network and try again.",
   "networkErrorTryAgain": "Network error. Please try again.",
   "somethingWentWrongTryAgain": "Something went wrong. Please try again.",
-
   "shareEquipment": "Share",
   "shareEquipmentTitle": "Share",
   "shareEquipmentNeedPublish": "To share this equipment, publish it in the catalog: status “available”, the visibility toggle on, and a price set.",
@@ -1375,9 +1424,15 @@
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {
-      "name": { "type": "String" },
-      "priceLine": { "type": "String" },
-      "url": { "type": "String" }
+      "name": {
+        "type": "String"
+      },
+      "priceLine": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
     }
   },
   "companyRegister": "Register a company",
@@ -1406,10 +1461,10 @@
   "companyFleet": "Company fleet",
   "companyFleetEmpty": "The fleet is empty. Add your first machine or equipment item.",
   "companyDraftHint": "New items are saved as hidden drafts. Publishing the company fleet and receiving orders will be connected in the next stage.",
-  "companyPilotNotice": "Company profile and fleet. Company requests and orders will be connected separately.",
-  "companyDescription": "Short company description",
+  "companyPilotNotice": "Clients open this fleet from Companies in the catalog. It stays out of the general equipment list.",
+  "companyDescription": "About the company",
   "companyEditProfile": "Edit company",
-  "companyAddEquipment": "Add machinery or equipment",
+  "companyAddEquipment": "Add equipment",
   "companyEditEquipment": "Edit item",
   "companyDraft": "Draft",
   "companyBusy": "Busy",
@@ -1438,5 +1493,90 @@
       }
     }
   },
-  "companyPhoto": "Company photo"
+  "companyPhoto": "Company photo",
+  "companyAvailability": "Fleet: {free} · Busy now: {busy}",
+  "@companyAvailability": {
+    "placeholders": {
+      "free": {
+        "type": "int"
+      },
+      "busy": {
+        "type": "int"
+      }
+    }
+  },
+  "companyTariffs": "Tariffs",
+  "companyTariffsEmpty": "No tariffs yet. Open an item and set a price.",
+  "companyPrice": "Price",
+  "companyPersonalFleet": "Personal equipment",
+  "companyCatalog": "Catalog",
+  "companyAddPhoto": "Add photo",
+  "companyCatalogTitle": "Companies",
+  "companyPublicEmpty": "No companies are listed yet.",
+  "companySendRequest": "Send request",
+  "companyBookingRequestSent": "Request sent. This is not a confirmed order.",
+  "companyRequestInbox": "Requests",
+  "companyRequestEmpty": "No company requests yet.",
+  "companyRequestChatFirst": "Discuss the request in chat. The company proposes equipment, times and price; the client confirms the terms.",
+  "companyBudget": "Budget",
+  "companyWhen": "When the machines are needed",
+  "companySelected": "Selected machines: {count}",
+  "@companySelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "companyBookingComment": "Request comment",
+  "companyFutureDateRequired": "Choose a future date and time",
+  "companyAmountInvalid": "Enter an amount from 0 to 100,000,000 ₸",
+  "companyOrderDiscussion": "Discussion",
+  "companyOrderProposed": "Awaiting client confirmation",
+  "companyOrderConfirmed": "Confirmed",
+  "companyOrderInProgress": "In progress",
+  "companyOrderCompleted": "Completed",
+  "companyOrderCancelled": "Cancelled",
+  "companyMyInquiries": "My company inquiries",
+  "companyOrders": "Company orders",
+  "companyOrderTitle": "Company order",
+  "companyActionConfirmation": "Review the equipment, time and price before confirming this action.",
+  "companyWholeOrder": "for the whole order",
+  "companyProposeTerms": "Agree equipment and price",
+  "companyConfirmTerms": "Confirm terms",
+  "companyStartWork": "Start work",
+  "companyCompleteOrder": "Complete order",
+  "companyCancelOrder": "Cancel order",
+  "companyOrderChat": "Order chat",
+  "companyDiscussFirst": "Discuss the task in chat. The company proposes equipment, times and price; the client confirms the terms.",
+  "companyReadOnlyChat": "The order is closed. Chat is saved for viewing.",
+  "companyMessageHint": "Write a message…",
+  "companySendMessage": "Send message",
+  "companySelectFleet": "Select at least one machine",
+  "companyPeriodInvalid": "Choose a future start and a valid end time",
+  "companyStartTime": "Start",
+  "companyEndTime": "End",
+  "companyTotalPrice": "Total order price, ₸",
+  "companySendTerms": "Send terms to client",
+  "companyExitCabinet": "Leave company workspace",
+  "companyInviteDispatcher": "Invite dispatcher",
+  "companyPhone": "Phone number",
+  "companyInvitationSent": "Invitation sent",
+  "companyPlateNumber": "Registration number",
+  "companyNextStep": "Next",
+  "companyBackToBasics": "Back to basic information",
+  "companyFree": "Available",
+  "companyExitCabinetSubtitle": "Find equipment and place personal orders",
+  "companyInviteDispatcherSubtitle": "Add a colleague using their phone number",
+  "companyBalance": "Company balance",
+  "companyOnline": "Company online",
+  "companyOffline": "Company offline",
+  "companyAcceptingOrders": "Accepting new orders",
+  "companyNotAcceptingOrders": "Not accepting new orders",
+  "companySharedBalanceHint": "Shared company wallet. Online status applies to the manager and all dispatchers. Minutes are spent on the fleet listed in the company card.",
+  "companyMinutesPerHour": "min/h",
+  "companyBillingFailed": "Unable to change company status. Try again.",
+  "companyListing": "Company listing",
+  "companyRemoveEquipment": "Remove equipment from fleet?",
+  "companyAddPhoto": "Add photo"
 }

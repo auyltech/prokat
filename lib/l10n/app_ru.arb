@@ -1,17 +1,20 @@
 {
   "@@locale": "ru",
-
   "appLanguage": "Язык приложения",
   "offerCount": "{count, plural, =1{1 предложение} few{{count} предложения} many{{count} предложений} other{{count} предложения}}",
   "@offerCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "offersReceivedCount": "{count, plural, =1{Получено 1 предложение} few{Получено {count} предложения} many{Получено {count} предложений} other{Получено {count} предложения}}",
   "@offersReceivedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "activeRequestAlreadyExists": "У вас уже есть активный запрос.",
@@ -115,13 +118,17 @@
   "resendOtpIn": "Отправить код повторно через {seconds} сек.",
   "@resendOtpIn": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "otpRetryIn": "Повторно запросить код можно через {seconds} сек.",
   "@otpRetryIn": {
     "placeholders": {
-      "seconds": { "type": "int" }
+      "seconds": {
+        "type": "int"
+      }
     }
   },
   "resendOtp": "Отправить код повторно",
@@ -147,24 +154,44 @@
   "noEquipmentListedInCity": "Сейчас техника в категории «{category}» в городе {city} отсутствует.",
   "noActiveOffers": "Сейчас нет активных предложений",
   "@noEquipmentForCategory": {
-    "placeholders": { "category": { "type": "String" } }
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
   },
   "@noEquipmentListedInCity": {
     "placeholders": {
-      "category": { "type": "String" },
-      "city": { "type": "String" }
+      "category": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
     }
   },
   "@failedToLoadMessage": {
-    "placeholders": { "message": { "type": "String" } }
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
   },
   "equipmentIsNow": "Техника теперь {status}",
   "failedToToggleEquipment": "Не удалось перевести технику в статус «{status}»",
   "@equipmentIsNow": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "@failedToToggleEquipment": {
-    "placeholders": { "status": { "type": "String" } }
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
   },
   "requestReceived": "Запрос получен",
   "ok": "ОК",
@@ -185,8 +212,12 @@
   "versionLabel": "Версия: {version} ({buildNumber})",
   "@versionLabel": {
     "placeholders": {
-      "version": { "type": "String" },
-      "buildNumber": { "type": "String" }
+      "version": {
+        "type": "String"
+      },
+      "buildNumber": {
+        "type": "String"
+      }
     }
   },
   "markCompletedQuestion": "Отметить завершённым?",
@@ -237,7 +268,9 @@
   "newMessageFrom": "Новое сообщение от: {name}",
   "@newMessageFrom": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "typeMessageHint": "Введите сообщение...",
@@ -277,7 +310,9 @@
   "offeredPrice": "Предложено: {price}",
   "@offeredPrice": {
     "placeholders": {
-      "price": { "type": "String" }
+      "price": {
+        "type": "String"
+      }
     }
   },
   "topUpAdded": "Пополнение добавлено",
@@ -287,13 +322,17 @@
   "activeRequestCount": "{count, plural, =1{1 активный запрос} few{{count} активных запроса} many{{count} активных запросов} other{{count} активного запроса}}",
   "@activeRequestCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "minutesRead": "{count, plural, =1{1 мин чтения} few{{count} мин чтения} many{{count} мин чтения} other{{count} мин чтения}}",
   "@minutesRead": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pleaseSelectCategory": "Выберите категорию",
@@ -360,7 +399,6 @@
   "somethingWentWrong": "Что-то пошло не так!",
   "loading": "Загрузка...",
   "noCategories": "Категории недоступны",
-
   "phoneNumber": "Номер телефона",
   "email": "Email",
   "password": "Пароль",
@@ -383,7 +421,6 @@
   "priceKZT": "Цена (₸)",
   "priceRateLabel": "Тариф",
   "privateOwner": "ЧАСТНЫЙ ВЛАДЕЛЕЦ",
-
   "loginSubtitle": "Продолжите с того места, где остановились",
   "signingIn": "Вход...",
   "sendOtp": "Отправить код",
@@ -394,7 +431,6 @@
   "enterCode": "Введите код",
   "otpSubtitle": "Введите 6-значный код, отправленный на",
   "creating": "СОЗДАНИЕ...",
-
   "sendCode": "ОТПРАВИТЬ КОД",
   "sending": "ОТПРАВКА...",
   "pleaseEnterPhone": "Введите номер телефона",
@@ -422,10 +458,11 @@
   "recoverySentTo": "Ссылка для восстановления отправлена на {email}",
   "@recoverySentTo": {
     "placeholders": {
-      "email": { "type": "String" }
+      "email": {
+        "type": "String"
+      }
     }
   },
-
   "navHome": "Главная",
   "navMyFleet": "Мой парк",
   "navOrders": "Заказы",
@@ -453,7 +490,6 @@
   "navSettings": "Настройки",
   "navLogin": "Войти",
   "selectService": "Выбрать услугу",
-
   "myOrders": "Мои заказы",
   "orderHistory": "История заказов",
   "loginToViewBookings": "Войдите для просмотра заказов",
@@ -486,7 +522,9 @@
   "acceptBookingFor": "Принять бронирование для {name}?",
   "@acceptBookingFor": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "yesReject": "Да, отклонить",
@@ -496,13 +534,17 @@
   "minutesLeft": "{minutes} мин осталось",
   "@minutesLeft": {
     "placeholders": {
-      "minutes": { "type": "int" }
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "hoursLeft": "{hours} ч осталось",
   "@hoursLeft": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "volume": "Объём",
@@ -526,7 +568,6 @@
   "workStatusResumeWork": "Возобновить работу",
   "workStatusCompleteWork": "Завершить работу",
   "workStatusCancelJob": "Отменить задание",
-
   "myEquipment": "Моя техника",
   "addEquipment": "Добавить технику",
   "noEquipmentListed": "Техника ещё не добавлена",
@@ -555,8 +596,12 @@
   "draftSectionsFilled": "Заполнено {filled} из {total} разделов",
   "@draftSectionsFilled": {
     "placeholders": {
-      "filled": { "type": "int" },
-      "total": { "type": "int" }
+      "filled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "availableForRent": "Доступна для аренды",
@@ -595,7 +640,6 @@
   "updateDetails": "Обновить данные",
   "status": "Статус",
   "perM3": "/ м³",
-
   "myRequests": "Мои заявки",
   "createRequest": "Создать заявку",
   "loginToViewRequests": "Войдите для просмотра заявок",
@@ -622,13 +666,11 @@
   "offerSentBadge": "ПРЕДЛОЖЕНИЕ ОТПРАВЛЕНО",
   "cancelRequest": "Отменить заявку?",
   "requestCancelled": "Заявка отменена",
-
   "noChats": "Нет чатов",
   "chatsActiveTab": "Активные",
   "chatsArchiveTab": "Архив",
   "noArchivedChats": "Нет архивных чатов",
   "youHaveNoArchivedChats": "Здесь появятся завершённые и отменённые чаты.",
-
   "deliverTo": "ДОСТАВИТЬ К",
   "houseBuilding": "Дом / Корпус / Подъезд",
   "myHouseHint": "Мой дом",
@@ -649,9 +691,7 @@
   "setEquipmentLocation": "Указать адрес техники",
   "equipmentMap": "Карта техники",
   "failedCreateLocation": "Не удалось создать местоположение",
-
   "loginToViewFavorites": "Войдите для просмотра избранного",
-
   "displayName": "Имя",
   "supportUsTitle": "Поддержать нас",
   "donateOrHelp": "Помогите нам развиваться",
@@ -695,12 +735,10 @@
   "camera": "Камера",
   "photoGallery": "Галерея",
   "cropProfilePicture": "Обрезать фото профиля",
-
   "initializationError": "ОШИБКА ИНИЦИАЛИЗАЦИИ",
   "initializationErrorMessage": "Не удалось загрузить сессию или соединение потеряно. Проверьте подключение и повторите попытку.",
   "retryConnection": "ПОВТОРИТЬ ПОДКЛЮЧЕНИЕ",
   "reconnecting": "ПЕРЕПОДКЛЮЧЕНИЕ...",
-
   "information": "Информация",
   "generalInformation": "Общая информация",
   "forClients": "Для клиентов",
@@ -773,7 +811,6 @@
   "takePhoto": "Сделать фото",
   "setAsCover": "Установить как обложку",
   "deletePhoto": "Удалить фото",
-
   "cancelRequestAction": "Отменить запрос",
   "cancelRequestContent": "Вы уверены, что хотите отменить этот запрос? Это действие нельзя отменить.",
   "newRequest": "Новый запрос",
@@ -801,11 +838,9 @@
   "acceptedBadge": "ПРИНЯТО",
   "hiddenBadge": "СКРЫТО",
   "requestLabel": "Запрос",
-
   "addLocation": "Добавить локацию",
   "addAddress": "Добавить адрес",
   "addressCreated": "Адрес создан",
-
   "selectAddress": "ВЫБРАТЬ АДРЕС",
   "noRecentAddresses": "Нет недавних адресов",
   "chooseOnMap": "ВЫБРАТЬ НА КАРТЕ",
@@ -816,10 +851,8 @@
   "back": "Назад",
   "backToEquipment": "Назад к технике",
   "selectCapacityModel": "ВЫБРАТЬ ОБЪЁМ / МОДЕЛЬ",
-
   "pricingRates": "ТАРИФЫ",
   "startBooking": "ЗАБРОНИРОВАТЬ",
-
   "addDisplayName": "Добавить имя",
   "helpSupportSubtitle": "Ответы на вопросы и связь с поддержкой",
   "ownerDashboardSubtitle": "Управляйте техникой, заказами и доходом",
@@ -838,7 +871,6 @@
   "zeroOrders": "0 заказов",
   "newOrderCount": "новый заказ",
   "confirmedOrderCount": "подтверждённый заказ",
-
   "paymentHistory": "История платежей",
   "billingTiers": "Тарифные уровни",
   "runningLow": "Заканчиваются минуты?",
@@ -851,7 +883,6 @@
   "fullyVerified": "Аккаунт",
   "activeEquipment": "Активная техника",
   "dailyCost": "Дневная стоимость",
-
   "ownerProfile": "Профиль владельца",
   "selectPackage": "Выбрать пакет",
   "recentPayments": "Последние платежи",
@@ -861,20 +892,28 @@
   "equipmentCountLabel": "{count, plural, one{{count} техника} few{{count} техники} many{{count} техник} other{{count} техник}}",
   "@equipmentCountLabel": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "remainingAtOnlineEquipment": "{time} при {count, plural, one{{count} технике онлайн} few{{count} техниках онлайн} many{{count} техниках онлайн} other{{count} техниках онлайн}}",
   "@remainingAtOnlineEquipment": {
     "placeholders": {
-      "time": { "type": "String" },
-      "count": { "type": "int" }
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "minutesPerHourValue": "{rate} мин/ч",
   "@minutesPerHourValue": {
     "placeholders": {
-      "rate": { "type": "String" }
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "completeRegistration": "Завершите регистрацию",
@@ -895,7 +934,9 @@
   "ownerProfileChangesRejectedUntil": "исправить до {date}",
   "@ownerProfileChangesRejectedUntil": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "ownerProfileCorrectionOverdue": "Срок исправления истёк. Доступ может быть приостановлен.",
@@ -965,7 +1006,9 @@
   "burnRateValue": "~{rate} мин/ч",
   "@burnRateValue": {
     "placeholders": {
-      "rate": { "type": "int" }
+      "rate": {
+        "type": "int"
+      }
     }
   },
   "noActiveDepletion": "Нет активного расхода",
@@ -973,7 +1016,9 @@
   "equipmentOnlineCount": "{count, plural, one{{count} единица онлайн} few{{count} единицы онлайн} many{{count} единиц онлайн} other{{count} единиц онлайн}}",
   "@equipmentOnlineCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "statTotal": "всего",
@@ -1137,7 +1182,6 @@
   "demandSurveySubmitError": "Проверьте форму и попробуйте снова.",
   "demandSurveyAlreadySubmitted": "Вы уже ответили на этот опрос.",
   "demandSurveyInactive": "Этот опрос больше не активен.",
-
   "aboutProkat": "О Prokat",
   "aboutProkatEyebrow": "АРЕНДА ТЕХНИКИ — ПРОСТО",
   "aboutProkatIntro": "Prokat соединяет тех, кому нужна техника, с проверенными владельцами и сервисными компаниями рядом. Ищите, сравнивайте и общайтесь напрямую на одной платформе.",
@@ -1150,14 +1194,12 @@
   "newToProkat": "ВПЕРВЫЕ В PROKAT?",
   "exploreHowItWorks": "Как это работает",
   "aboutProkatBannerSubtitle": "Находите или сдавайте технику и проверенных исполнителей в один шаг.",
-
   "userConsent": "Согласие на обработку данных",
   "privacyPolicySubtitle": "Как мы используем и защищаем ваши данные",
   "userAgreementSubtitle": "Правила использования приложения",
   "personalDataSharingSubtitle": "Сбор и обработка персональных данных",
   "legalDocuments": "Документы и правила",
   "legalDocumentsSubtitle": "Условия использования и политика конфиденциальности",
-
   "applicationTheme": "Тема приложения",
   "themeChooseHint": "Выберите, как Prokat будет выглядеть на этом устройстве.",
   "themeSystemDefault": "Как в системе",
@@ -1170,7 +1212,6 @@
   "serviceAndSafetyNoticesSubtitle": "Аккаунт, безопасность и важные оповещения платформы",
   "ownerServiceAndSafetyNoticesSubtitle": "Безопасность, ограничения аккаунта и срочные уведомления",
   "requiredNoticesAlwaysAvailable": "Эти уведомления всегда доступны в приложении.",
-
   "checkingPermission": "Проверка разрешения",
   "pushEnabled": "Включены",
   "pushEnabledQuietly": "Включены без звука",
@@ -1182,7 +1223,6 @@
   "pushPermissionNotRequested": "Разрешение не запрошено",
   "pushPermissionUnavailable": "Разрешение недоступно",
   "failedToSaveNotificationPreferences": "Не удалось сохранить настройки уведомлений.",
-
   "notifRentalRequestsAndOffers": "Запросы и предложения",
   "notifRentalRequestsAndOffersSubtitle": "Новые предложения, встречные цены и обновления запросов",
   "notifOrderUpdates": "Обновления заказов",
@@ -1201,7 +1241,6 @@
   "notifEquipmentAndVerificationSubtitle": "Модерация техники, документы и статус профиля",
   "notifBalanceAlerts": "Баланс",
   "notifBalanceAlertsSubtitle": "Низкий баланс, пополнение и статус платежей",
-
   "noAddressSelected": "Адрес не выбран",
   "selectedAddress": "Мой адрес",
   "youHaveNoSavedAddresses": "У вас нет сохранённых адресов.",
@@ -1209,7 +1248,6 @@
   "addressPrivacy": "Конфиденциальность адреса",
   "addressPrivacyBody": "Выбранный адрес передаётся владельцу техники только во время активного заказа, когда он нужен для аренды. Он не показывается публично и не передаётся другим пользователям.",
   "morePrivacyOptionsContactSupport": "Нужны другие настройки приватности? Напишите в поддержку",
-
   "businessPreferences": "Бизнес-настройки",
   "businessProfile": "Ваш профиль",
   "manageMyEquipment": "Управлять техникой",
@@ -1217,12 +1255,13 @@
   "fleetItemsCount": "{count, plural, one{{count} единица в парке} few{{count} единицы в парке} many{{count} единиц в парке} other{{count} единиц в парке}}",
   "@fleetItemsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "organization": "Организация",
   "individualOwner": "Частный владелец",
-
   "chatSection": "Чат",
   "chatContext": "Контекст",
   "participant": "Участник",
@@ -1232,7 +1271,6 @@
   "clientRole": "Клиент",
   "priceOfferReceived": "Получено предложение цены",
   "waitingClientResponse": "Ожидание ответа клиента",
-
   "didntReceiveCodeResend": "Не получили код? Отправить снова",
   "youHaveNoActiveOrders": "У вас нет активных заказов",
   "youHaveNoNotifications": "У вас нет уведомлений",
@@ -1249,37 +1287,49 @@
   "minutesAgo": "{count} мин назад",
   "@minutesAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "hoursAgo": "{count} ч назад",
   "@hoursAgo": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationDays": "{count, plural, =1{1 день} few{{count} дня} many{{count} дней} other{{count} дня}}",
   "@durationDays": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationHours": "{count, plural, =1{1 час} few{{count} часа} many{{count} часов} other{{count} часа}}",
   "@durationHours": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationMinutes": "{count, plural, =1{1 мин} few{{count} мин} many{{count} мин} other{{count} мин}}",
   "@durationMinutes": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "durationSeconds": "{count, plural, =1{1 сек} few{{count} сек} many{{count} сек} other{{count} сек}}",
   "@durationSeconds": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "invalidSecondsValue": "Некорректное значение секунд",
@@ -1319,7 +1369,9 @@
   "capacityKub": "{capacity} м³",
   "@capacityKub": {
     "placeholders": {
-      "capacity": { "type": "String" }
+      "capacity": {
+        "type": "String"
+      }
     }
   },
   "unitMeters": "м",
@@ -1346,19 +1398,19 @@
   "ordersCount": "{count, plural, one{{count} заказ} few{{count} заказа} many{{count} заказов} other{{count} заказа}}",
   "@ordersCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "ratePerTrip": "за рейс",
   "ratePerCubicMeter": "за м³",
   "ratePerDay": "за день",
   "ratePerHour": "за час",
-
   "connectionTimedOut": "Время ожидания истекло. Сервер может запускаться — попробуйте ещё раз.",
   "noConnectionCheckNetwork": "Нет соединения. Проверьте сеть и попробуйте снова.",
   "networkErrorTryAgain": "Ошибка сети. Попробуйте ещё раз.",
   "somethingWentWrongTryAgain": "Что-то пошло не так. Попробуйте ещё раз.",
-
   "shareEquipment": "Поделиться",
   "shareEquipmentTitle": "Поделиться",
   "shareEquipmentNeedPublish": "Чтобы поделиться техникой, опубликуйте её в каталоге: статус «доступна», тумблер показа включён, указана цена.",
@@ -1372,9 +1424,15 @@
   "shareEquipmentMessage": "{name}\n{priceLine}\n{url}",
   "@shareEquipmentMessage": {
     "placeholders": {
-      "name": { "type": "String" },
-      "priceLine": { "type": "String" },
-      "url": { "type": "String" }
+      "name": {
+        "type": "String"
+      },
+      "priceLine": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
     }
   },
   "companyRegister": "Зарегистрировать компанию",
@@ -1403,10 +1461,10 @@
   "companyFleet": "Парк компании",
   "companyFleetEmpty": "Парк пока пуст. Добавьте первую единицу техники или оборудования.",
   "companyDraftHint": "Новая техника сохраняется как скрытый черновик. Публикация парка компании и приём заказов будут подключены следующим этапом.",
-  "companyPilotNotice": "Парк и профиль компании. Приём заявок и заказы от имени компании подключим отдельно.",
-  "companyDescription": "Кратко о компании",
+  "companyPilotNotice": "Клиент открывает этот парк через «Компании» в каталоге. В общем списке техники его нет.",
+  "companyDescription": "О компании",
   "companyEditProfile": "Редактировать компанию",
-  "companyAddEquipment": "Добавить технику или оборудование",
+  "companyAddEquipment": "Добавить технику",
   "companyEditEquipment": "Редактировать карточку",
   "companyDraft": "Черновик",
   "companyBusy": "Занята",
@@ -1422,5 +1480,73 @@
   "companyEquipmentSaved": "Карточка сохранена",
   "companyCategoryChangeHint": "Смена категории допускается только для черновика или отклонённой карточки.",
   "companyFleetCounts": "Всего: {total} · Показывается: {visible} · Занято: {busy}",
-  "companyPhoto": "Фото компании"
+  "companyPhoto": "Фото компании",
+  "companyAvailability": "В парке: {free} · Занято сейчас: {busy}",
+  "companyTariffs": "Тарифы",
+  "companyTariffsEmpty": "Тарифы пока не указаны. Откройте карточку техники и укажите цену.",
+  "companyPrice": "Цена",
+  "companyPersonalFleet": "Личная техника",
+  "companyCatalog": "Каталог",
+  "companyAddPhoto": "Добавить фото",
+  "companyCatalogTitle": "Компании",
+  "companyPublicEmpty": "Компаний в каталоге пока нет.",
+  "companySendRequest": "Отправить заявку",
+  "companyBookingRequestSent": "Заявка отправлена компании. Это ещё не подтверждённый заказ.",
+  "companyRequestInbox": "Заявки",
+  "companyRequestEmpty": "Заявок компании пока нет.",
+  "companyRequestChatFirst": "Обсудите запрос в чате. Компания предложит технику, сроки и стоимость, затем клиент подтвердит условия.",
+  "companyBudget": "Бюджет",
+  "companyWhen": "Когда нужна техника",
+  "companySelected": "Выбрано машин: {count}",
+  "companyBookingComment": "Комментарий к заявке",
+  "companyFutureDateRequired": "Выберите будущие дату и время",
+  "companyAmountInvalid": "Укажите сумму от 0 до 100 000 000 ₸",
+  "companyOrderDiscussion": "Обсуждение",
+  "companyOrderProposed": "Ожидает подтверждения клиента",
+  "companyOrderConfirmed": "Подтверждён",
+  "companyOrderInProgress": "В работе",
+  "companyOrderCompleted": "Выполнен",
+  "companyOrderCancelled": "Отменён",
+  "companyMyInquiries": "Мои заявки компаниям",
+  "companyOrders": "Заказы компании",
+  "companyOrderTitle": "Заказ компании",
+  "companyActionConfirmation": "Проверьте технику, время и стоимость перед подтверждением действия.",
+  "companyWholeOrder": "за весь заказ",
+  "companyProposeTerms": "Предложить технику и цену",
+  "companyConfirmTerms": "Подтвердить условия",
+  "companyStartWork": "Начать выполнение",
+  "companyCompleteOrder": "Завершить заказ",
+  "companyCancelOrder": "Отменить заказ",
+  "companyOrderChat": "Чат по заказу",
+  "companyDiscussFirst": "Обсудите задачу в чате. Компания предложит технику, сроки и цену, а клиент подтвердит условия.",
+  "companyReadOnlyChat": "Заказ завершён. Переписка сохранена для просмотра.",
+  "companyMessageHint": "Напишите сообщение…",
+  "companySendMessage": "Отправить сообщение",
+  "companySelectFleet": "Выберите хотя бы одну машину",
+  "companyPeriodInvalid": "Укажите будущие дату начала и корректное время окончания",
+  "companyStartTime": "Начало",
+  "companyEndTime": "Окончание",
+  "companyTotalPrice": "Цена за весь заказ, ₸",
+  "companySendTerms": "Отправить условия клиенту",
+  "companyExitCabinet": "Выйти из кабинета компании",
+  "companyInviteDispatcher": "Пригласить диспетчера",
+  "companyPhone": "Номер телефона",
+  "companyInvitationSent": "Приглашение отправлено",
+  "companyPlateNumber": "Госномер",
+  "companyNextStep": "Далее",
+  "companyBackToBasics": "Назад к основным данным",
+  "companyFree": "Свободна",
+  "companyExitCabinetSubtitle": "Искать технику и оформлять личные заказы",
+  "companyInviteDispatcherSubtitle": "Добавить сотрудника по его номеру телефона",
+  "companyBalance": "Баланс компании",
+  "companyOnline": "Компания онлайн",
+  "companyOffline": "Компания офлайн",
+  "companyAcceptingOrders": "Принимает новые заказы",
+  "companyNotAcceptingOrders": "Не принимает новые заказы",
+  "companySharedBalanceHint": "Общий баланс компании. Онлайн-статус действует для руководителя и всех диспетчеров. Минуты расходуются на парк, опубликованный в карточке компании.",
+  "companyMinutesPerHour": "мин/ч",
+  "companyBillingFailed": "Не удалось изменить статус компании. Повторите попытку.",
+  "companyListing": "Объявление компании",
+  "companyRemoveEquipment": "Удалить технику из парка?",
+  "companyAddPhoto": "Добавить фото"
 }
