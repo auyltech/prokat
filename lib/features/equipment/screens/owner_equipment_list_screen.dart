@@ -7,8 +7,9 @@ import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
-import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
+import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_fleet_groups_provider.dart';
 import 'package:prokat/features/equipment/widgets/list/equipment_error_tile.dart';
@@ -60,19 +61,14 @@ class _OwnerEquipmentListScreenState
     final l10n = AppLocalizations.of(context)!;
 
     final equipmentState = ref.watch(ownerEquipmentProvider);
-    final fleetGroups =
-        ref.watch(ownerFleetGroupsProvider).valueOrNull ?? const [];
-    final selectedGroup = coerceCatalogGroup(
-      ref.watch(ownerFleetCatalogGroupProvider),
-      fleetGroups,
-    );
+    final fetchedGroups = ref.watch(ownerFleetGroupsProvider).valueOrNull;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: RefreshIndicator(
-        onRefresh: loadData,
-        child: equipmentState.when(
-          loading: () => ListView(
+      body: equipmentState.when(
+        loading: () => RefreshIndicator(
+          onRefresh: loadData,
+          child: ListView(
             children: [
               ListView.builder(
                 itemCount: 4,
@@ -93,77 +89,124 @@ class _OwnerEquipmentListScreenState
               ),
             ],
           ),
+        ),
 
-          error: (error, stackTrace) => ListView(
+        error: (error, stackTrace) => RefreshIndicator(
+          onRefresh: loadData,
+          child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               EquipmentErrorTile(onRetry: () => unawaited(loadData())),
             ],
           ),
-
-          data: (query) {
-            final items = fleetGroups.length < 2
-                ? query.items
-                : query.items
-                      .where(
-                        (item) => item.category?.catalogGroup == selectedGroup,
-                      )
-                      .toList();
-
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                if (fleetGroups.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                    child: CatalogGroupTabs(
-                      groups: fleetGroups,
-                      selected: selectedGroup,
-                      onChanged: (group) {
-                        ref
-                            .read(ownerFleetCatalogGroupProvider.notifier)
-                            .select(group);
-                      },
-                    ),
-                  ),
-                if (items.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: EmptyStateTile(
-                      title: l10n.noEquipmentListed,
-                      imageName: 'empty_equipment.png',
-                      imageHeight: 168,
-                      imageFit: BoxFit.contain,
-                      actionButton: AppElevatedButton(
-                        title: l10n.add,
-                        onTap: () =>
-                            context.push(AppRoutes.ownerEquipmentCreate),
-                      ),
-                    ),
-                  )
-                else ...[
-                  if (query.isRefreshing)
-                    const LinearProgressIndicator(minHeight: 2),
-
-                  ListView.separated(
-                    separatorBuilder: (context, index) => const Divider(
-                      height: 1,
-                      thickness: 1,
-                      indent: 16,
-                      endIndent: 16,
-                      color: legacy_colors.AppColors.teal700,
-                    ),
-                    itemCount: items.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) =>
-                        OwnerEquipmentCard(equipment: items[index]),
-                  ),
-                ],
-              ],
-            );
-          },
         ),
+
+        data: (query) {
+          final fleetGroups = resolveOwnerFleetGroups(
+            fetched: fetchedGroups,
+            items: query.items,
+          );
+          final selectedGroup = coerceCatalogGroup(
+            ref.watch(ownerFleetCatalogGroupProvider),
+            fleetGroups,
+          );
+          if (fleetGroups.length < 2) {
+            return _OwnerFleetPage(
+              items: query.items,
+              isRefreshing: query.isRefreshing,
+              onRefresh: loadData,
+            );
+          }
+
+          final selectedIndex = fleetGroups.indexOf(selectedGroup);
+          return AppTabs(
+            initialIndex: selectedIndex < 0 ? 0 : selectedIndex,
+            titles: [
+              for (final group in fleetGroups) _fleetTabTitle(l10n, group),
+            ],
+            onChanged: (index) {
+              ref
+                  .read(ownerFleetCatalogGroupProvider.notifier)
+                  .select(fleetGroups[index]);
+            },
+            children: [
+              for (final group in fleetGroups)
+                _OwnerFleetPage(
+                  key: ValueKey(group),
+                  items: query.items
+                      .where((item) => item.category?.catalogGroup == group)
+                      .toList(),
+                  isRefreshing: query.isRefreshing,
+                  onRefresh: loadData,
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+String _fleetTabTitle(AppLocalizations l10n, CatalogGroup group) {
+  return switch (group) {
+    CatalogGroup.machinery => l10n.ownerFleetMachineryTab,
+    CatalogGroup.equipment => l10n.ownerFleetEquipmentTab,
+  };
+}
+
+class _OwnerFleetPage extends StatelessWidget {
+  const _OwnerFleetPage({
+    super.key,
+    required this.items,
+    required this.isRefreshing,
+    required this.onRefresh,
+  });
+
+  final List<Equipment> items;
+  final bool isRefreshing;
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: EmptyStateTile(
+                title: l10n.noEquipmentListed,
+                imageName: 'empty_equipment.png',
+                imageHeight: 168,
+                imageFit: BoxFit.contain,
+                actionButton: AppElevatedButton(
+                  title: l10n.add,
+                  onTap: () => context.push(AppRoutes.ownerEquipmentCreate),
+                ),
+              ),
+            )
+          else ...[
+            if (isRefreshing) const LinearProgressIndicator(minHeight: 2),
+            ListView.separated(
+              separatorBuilder: (context, index) => const Divider(
+                height: 1,
+                thickness: 1,
+                indent: 16,
+                endIndent: 16,
+                color: legacy_colors.AppColors.teal700,
+              ),
+              itemCount: items.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) =>
+                  OwnerEquipmentCard(equipment: items[index]),
+            ),
+          ],
+        ],
       ),
     );
   }

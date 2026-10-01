@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -12,8 +13,7 @@ import 'package:prokat/features/equipment/providers/owner_equipment_editor_provi
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
 import 'package:prokat/features/equipment/equipment_status_error_message.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selection_sheet.dart';
-import 'package:prokat/features/equipment/widgets/owner/category_selector_tile.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_equipment_category_card.dart';
 import 'package:prokat/features/equipment/widgets/owner/delete_equipment_section.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_moderation_status_card.dart';
 import 'package:prokat/features/equipment/widgets/owner/general_info_section.dart';
@@ -175,6 +175,9 @@ class _OwnerEquipmentDetailScreenState
                 status: equipment.status,
                 anyDirty: editor.anyDirty,
               );
+              final isEquipmentGroup =
+                  ref.watch(ownerEquipmentCatalogGroupProvider(equipment.id)) ==
+                  CatalogGroup.equipment;
 
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -208,10 +211,7 @@ class _OwnerEquipmentDetailScreenState
                     ),
                     child: Column(
                       children: [
-                        CategorySelectorTile(
-                          mode: CategorySheetMode.editEquipment,
-                          selectedCategoryId: equipment.categoryId,
-                        ),
+                        OwnerEquipmentCategoryCard(equipment: equipment),
                         if (equipment.isPendingReview ||
                             equipment.isRejected) ...[
                           const SizedBox(height: AppDimens.s16$base),
@@ -228,7 +228,9 @@ class _OwnerEquipmentDetailScreenState
                             reviewUi.showResubmit) ...[
                           const SizedBox(height: AppDimens.s12$md),
                           Text(
-                            l10n.equipmentSubmitPhotoHint,
+                            isEquipmentGroup
+                                ? l10n.equipmentCatalogSubmitPhotoHint
+                                : l10n.equipmentSubmitPhotoHint,
                             style: AppFonts.caption(context),
                           ),
                           const SizedBox(height: AppDimens.s12$md),

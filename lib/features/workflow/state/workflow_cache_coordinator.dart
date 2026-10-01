@@ -91,8 +91,8 @@ class WorkflowCacheCoordinator {
     if (ref.exists(clientActiveRequestsProvider)) {
       refreshes.add(ref.read(clientActiveRequestsProvider.notifier).refresh());
     }
-    if (ref.exists(ownerActiveRequestsProvider)) {
-      refreshes.add(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+    for (final feed in loadedOwnerActiveRequestFeeds(ref)) {
+      refreshes.add(feed.refresh());
     }
     if (ref.exists(clientHistoryRequestsProvider)) {
       refreshes.add(ref.read(clientHistoryRequestsProvider.notifier).refresh());
@@ -239,10 +239,8 @@ class WorkflowCacheCoordinator {
 
   void _applyRequests(WorkflowUpdate update) {
     if (update.reason == 'REQUEST_CREATED') {
-      if (ref.exists(ownerActiveRequestsProvider)) {
-        unawaited(
-          ref.read(ownerActiveRequestsProvider.notifier).refreshForNewRequest(),
-        );
+      for (final feed in loadedOwnerActiveRequestFeeds(ref)) {
+        unawaited(feed.refreshForNewRequest());
       }
       return;
     }
@@ -252,8 +250,8 @@ class WorkflowCacheCoordinator {
 
     final isHistory = isArchivedRequestStatus(request.status);
 
-    if (ref.exists(ownerActiveRequestsProvider)) {
-      ref.read(ownerActiveRequestsProvider.notifier).applyRequestDelta(request);
+    for (final feed in loadedOwnerActiveRequestFeeds(ref)) {
+      feed.applyRequestDelta(request);
     }
 
     // Global tender updates also reach clients who do not own this request.

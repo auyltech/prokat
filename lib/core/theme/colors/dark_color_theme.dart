@@ -15,16 +15,18 @@ class DarkColorTheme extends AppColorsTheme {
   );
 
   @override
-  AppNavigationBarTheme get navigationBar => AppNavigationBarTheme(
+  AppNavigationBarTheme get navigationBar => const AppNavigationBarTheme(
     background: AppColorsDark.surface,
     divider: AppColorsDark.border,
     selected: AppColorsDark.primaryInteractive,
     ownerSelected: AppColorsDark.success,
     unselected: AppColorsDark.textSecondary,
-    splash: AppColorsDark.primaryInteractive.withValues(alpha: 0.18),
-    highlight: AppColorsDark.primaryInteractive.withValues(alpha: 0.1),
-    ownerSplash: AppColorsDark.success.withValues(alpha: 0.18),
-    ownerHighlight: AppColorsDark.success.withValues(alpha: 0.1),
+  );
+
+  @override
+  AppRippleTheme get ripple => AppRippleTheme(
+    splash: AppColorsDark.textTertiary.withValues(alpha: 0.24),
+    highlight: AppColorsDark.textTertiary.withValues(alpha: 0.12),
   );
 
   @override
@@ -52,17 +54,19 @@ class DarkColorTheme extends AppColorsTheme {
   ];
 
   @override
-  AppBackgroundTheme get background => const AppBackgroundTheme(
+  AppBackgroundTheme get background => AppBackgroundTheme(
     main: AppColorsDark.background,
     secondaryCard: AppColorsDark.surface,
     elevated: AppColorsDark.surfaceElevated,
     primarySoft: AppColorsDark.primarySoft,
     peachSoft: AppColorsDark.peachSoft,
     amberSoft: AppColorsDark.amberSoft,
-    hover: AppColorsDark.primarySoft,
-    pressed: Color(0xFF1A2F4A),
     successSoft: AppColorsDark.successSoft,
-    dangerSoft: AppColorsDark.dangerSoft,
+    // Pale red at 16% over the sheet, so weekend columns stay a step off the surface.
+    dangerSoft: Color.alphaBlend(
+      AppColors.dangerSoft.withValues(alpha: 0.16),
+      AppColorsDark.surfaceElevated,
+    ),
     warningSoft: AppColorsDark.warningSoft,
   );
 
@@ -84,6 +88,13 @@ class DarkColorTheme extends AppColorsTheme {
     main: AppColorsDark.border,
     active: AppColorsDark.primaryInteractive,
     error: AppColorsDark.danger,
+  );
+
+  @override
+  AppCardTheme get card => AppCardTheme(
+    background: AppColorsDark.surface,
+    border: AppColorsDark.border,
+    shadow: AppColorsDark.black.withValues(alpha: 0.35),
   );
 
   @override
@@ -128,13 +139,13 @@ class DarkColorTheme extends AppColorsTheme {
     destructive: const AppButtonToneTheme(
       content: AppColorsDark.danger,
       contentOnFill: AppColorsDark.white,
-      fill: AppColors.danger,
+      fill: AppColorsDark.dangerFill,
       softFill: AppColorsDark.dangerSoft,
       border: AppColorsDark.danger,
     ),
     inverse: AppButtonToneTheme(
       content: AppColorsDark.white,
-      contentOnFill: AppColors.primary,
+      contentOnFill: AppColorsDark.primary,
       fill: AppColorsDark.white,
       softFill: AppColorsDark.black.withValues(alpha: 0.5),
       border: AppColorsDark.white.withValues(alpha: 0.6),
@@ -161,7 +172,7 @@ class DarkColorTheme extends AppColorsTheme {
     background: AppColorsDark.primaryInteractive,
     content: AppColorsDark.white,
     contentDisabled: AppColorsDark.white,
-    destructiveBackground: Color(0xFFC62828),
+    destructiveBackground: AppColorsDark.dangerFill,
   );
 
   @override
@@ -181,7 +192,7 @@ class DarkColorTheme extends AppColorsTheme {
     selectedContent: AppColorsDark.white,
     unselectedBackground: AppColorsDark.surface,
     unselectedBorder: AppColorsDark.border,
-    unselectedContent: AppColorsDark.border,
+    unselectedContent: AppColorsDark.textTertiary,
   );
 
   @override
@@ -194,7 +205,7 @@ class DarkColorTheme extends AppColorsTheme {
   @override
   AppTextFieldTheme get textField => const AppTextFieldTheme(
     background: AppColorsDark.surface,
-    backgroundDisabled: Color(0xFF181B1F),
+    backgroundDisabled: AppColorsDark.surfaceMuted,
     backgroundFocused: AppColorsDark.surface,
     border: AppColorsDark.border,
     borderFocused: AppColorsDark.primaryInteractive,
@@ -253,8 +264,8 @@ class DarkColorTheme extends AppColorsTheme {
   @override
   AppToastTheme get toast => const AppToastTheme(
     info: AppColorsDark.bubbleHim,
-    success: AppColors.success,
-    error: AppColors.danger,
+    success: AppColorsDark.successFill,
+    error: AppColorsDark.dangerFill,
     content: AppColorsDark.white,
   );
 }

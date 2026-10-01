@@ -11,6 +11,7 @@ alwaysApply: false
 - New UI: `context.colors` (`AppColorsTheme`) only
 - Never use raw `AppColors.*` / `AppColorsDark.*` in widgets
 - Never hardcode `Color(0xFF…)` in feature UI
+- Press feedback (ink splash / highlight / button overlay) → one token `context.colors.ripple`; already wired into `ThemeData`, so don't set `splashColor` / `highlightColor` / `overlayColor` locally. A local `styleFrom(foregroundColor:)` recolors the overlay, so add `.copyWith(overlayColor: context.colors.ripple.overlay)`
 
 ## Typography
 

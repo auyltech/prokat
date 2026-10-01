@@ -265,15 +265,14 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                       ref
                           .read(equipmentMutationProvider.notifier)
                           .clearCategory();
-                      if (group == CatalogGroup.equipment) {
-                        _plateNumber.clear();
-                      }
                     },
                   ),
                   if (groupTabs.length > 1)
                     const SizedBox(height: AppDimens.s12$md),
                   AppDropdownField<Category>(
-                    title: l10n.equipmentCategoryLabel,
+                    title: mutationGroup == CatalogGroup.equipment
+                        ? l10n.equipmentCatalogCategoryLabel
+                        : l10n.equipmentCategoryLabel,
                     hint: l10n.pleaseSelectCategory,
                     isRequired: true,
                     sheetTitle: l10n.selectCategory,
@@ -342,20 +341,28 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                         ? l10n.fieldRequired
                         : null,
                   ),
-                  if (plateRequired) ...[
-                    const SizedBox(height: AppDimens.s16$base),
-                    AppTextField(
-                      title: l10n.plateNumberLabel,
-                      isRequired: true,
-                      controller: _plateNumber,
-                      hint: l10n.plateNumberHint,
-                      textInputAction: TextInputAction.done,
-                      inputFormatters: const [KzPlateInputFormatter()],
-                      validator: (value) => sanitizeKzPlate(value ?? '').isEmpty
-                          ? l10n.fieldRequired
-                          : null,
+                  AppReveal(
+                    visible: plateRequired,
+                    child: ExcludeFocus(
+                      excluding: !plateRequired,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: AppDimens.s16$base),
+                        child: AppTextField(
+                          title: l10n.plateNumberLabel,
+                          isRequired: true,
+                          controller: _plateNumber,
+                          hint: l10n.plateNumberHint,
+                          textInputAction: TextInputAction.done,
+                          inputFormatters: const [KzPlateInputFormatter()],
+                          validator: (value) =>
+                              plateRequired &&
+                                  sanitizeKzPlate(value ?? '').isEmpty
+                              ? l10n.fieldRequired
+                              : null,
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                   const SizedBox(height: AppDimens.s24$xl),
                   _DraftCreateInfo(
                     title: l10n.draftWillBeCreated,

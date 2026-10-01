@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
 import 'package:prokat/features/map/widgets/equipment_browse_sheet.dart';
@@ -15,7 +16,8 @@ class MapClientEquipmentContainer extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final mapState = ref.watch(equipmentMapProvider);
-    final equipmentAsync = ref.watch(clientEquipmentProvider);
+    final group = ref.watch(browseCatalogGroupProvider);
+    final equipmentAsync = ref.watch(clientEquipmentProvider(group));
 
     final equipment = equipmentAsync.value?.items ?? [];
 

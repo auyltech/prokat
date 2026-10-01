@@ -8,7 +8,11 @@ import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -58,13 +62,32 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
     final equipmentItems =
         ref.watch(ownerEquipmentProvider).valueOrNull?.items ?? const [];
-    final ownerEquipmentCount = equipmentItems.length;
-    final onlineEquipmentCount = equipmentItems
-        .where((item) => item.isVisible)
-        .length;
     final activeOrders =
         ref.watch(ownerActiveBookingsProvider).valueOrNull?.count ?? 0;
     final completedOrders = ownerProfile?.orderCount ?? 0;
+
+    final itemsByGroup = {
+      for (final group in CatalogGroup.values)
+        group: equipmentItems.where((item) => _groupOf(item) == group).toList(),
+    };
+    final fleetGroups = [
+      for (final group in CatalogGroup.values)
+        if (itemsByGroup[group]!.isNotEmpty) group,
+    ];
+    final fleetCards = [
+      for (final group
+          in fleetGroups.isEmpty ? const [CatalogGroup.machinery] : fleetGroups)
+        _fleetCard(context, l10n, group, itemsByGroup[group]!),
+    ];
+    final ordersCard = OwnerStatCard(
+      icon: LucideIcons.scrollText,
+      title: l10n.navOrders,
+      firstLabel: l10n.statActive,
+      firstValue: activeOrders.toString(),
+      secondLabel: l10n.statCompleted,
+      secondValue: completedOrders.toString(),
+      onTap: () => context.go(AppRoutes.ownerBookings),
+    );
 
     return Scaffold(
       body: RefreshIndicator(
@@ -101,33 +124,13 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OwnerStatCard(
-                            icon: LucideIcons.truck,
-                            title: l10n.navEquipment,
-                            firstLabel: l10n.statTotal,
-                            firstValue: ownerEquipmentCount.toString(),
-                            secondLabel: l10n.statOnline,
-                            secondValue: onlineEquipmentCount.toString(),
-                            onTap: () => context.go(AppRoutes.ownerEquipment),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OwnerStatCard(
-                            icon: LucideIcons.package,
-                            title: l10n.navOrders,
-                            firstLabel: l10n.statActive,
-                            firstValue: activeOrders.toString(),
-                            secondLabel: l10n.statCompleted,
-                            secondValue: completedOrders.toString(),
-                            onTap: () => context.go(AppRoutes.ownerBookings),
-                          ),
-                        ),
-                      ],
-                    ),
+                    if (fleetCards.length == 1)
+                      _StatRow(cards: [fleetCards.single, ordersCard])
+                    else ...[
+                      _StatRow(cards: fleetCards),
+                      const SizedBox(height: AppDimens.statCardGap),
+                      ordersCard,
+                    ],
 
                     const SizedBox(height: 20),
 
@@ -148,15 +151,16 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
                 child: Column(
                   children: [
-                    ProkatListTile(
-                      icon: LucideIcons.heart,
-                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
-                      iconColor: AppColors.teal800,
-                      title: l10n.supportUsTitle,
-                      subtitle: l10n.donateOrHelp,
-                      onTap: () => context.push(AppRoutes.supportUs),
-                    ),
-                    const SizedBox(height: 20),
+                    // TODO(Vadim): hided
+                    // ProkatListTile(
+                    //   icon: LucideIcons.heart,
+                    //   iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
+                    //   iconColor: AppColors.teal800,
+                    //   title: l10n.supportUsTitle,
+                    //   subtitle: l10n.donateOrHelp,
+                    //   onTap: () => context.push(AppRoutes.supportUs),
+                    // ),
+                    // const SizedBox(height: 20),
 
                     ProkatListTile(
                       icon: LucideIcons.fileText,
@@ -206,6 +210,52 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _fleetCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    CatalogGroup group,
+    List<Equipment> items,
+  ) {
+    return OwnerStatCard(
+      icon: switch (group) {
+        CatalogGroup.machinery => LucideIcons.truck,
+        CatalogGroup.equipment => LucideIcons.package,
+      },
+      title: switch (group) {
+        CatalogGroup.machinery => l10n.catalogGroupMachinery,
+        CatalogGroup.equipment => l10n.catalogGroupEquipment,
+      },
+      firstLabel: l10n.statTotal,
+      firstValue: items.length.toString(),
+      secondLabel: l10n.statOnline,
+      secondValue: items.where((item) => item.isVisible).length.toString(),
+      onTap: () {
+        ref.read(ownerFleetCatalogGroupProvider.notifier).select(group);
+        context.go(AppRoutes.ownerEquipment);
+      },
+    );
+  }
+}
+
+CatalogGroup _groupOf(Equipment item) =>
+    item.category?.catalogGroup ?? CatalogGroup.machinery;
+
+class _StatRow extends StatelessWidget {
+  const _StatRow({required this.cards});
+
+  final List<Widget> cards;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppDimens.statCardGap,
+        children: [for (final card in cards) Expanded(child: card)],
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/map/containers/map_container.dart';
 import 'package:prokat/features/map/containers/map_client_equipment_container.dart';
@@ -25,7 +26,14 @@ class _MapRenterEquipmentScreenState
 
     unawaited(
       Future.microtask(() {
-        unawaited(ref.read(clientEquipmentProvider.notifier).refreshIfStale());
+        unawaited(
+          ref
+              .read(
+                clientEquipmentProvider(ref.read(browseCatalogGroupProvider))
+                    .notifier,
+              )
+              .refreshIfStale(),
+        );
       }),
     );
   }

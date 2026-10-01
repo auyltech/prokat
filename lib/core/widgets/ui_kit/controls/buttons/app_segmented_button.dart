@@ -195,7 +195,7 @@ class _Segment extends StatelessWidget {
         : theme.unselectedBackground;
     final contentColor = selected
         ? theme.selectedContent
-        : context.colors.textField.hint;
+        : theme.unselectedContent;
 
     return DecoratedBox(
       decoration: BoxDecoration(

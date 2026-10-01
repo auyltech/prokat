@@ -63,6 +63,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get rentalRequests => 'Жалдау сұраулары';
 
   @override
+  String get rentalRequestsMachinery => 'Техника сұраулары';
+
+  @override
+  String get rentalRequestsEquipment => 'Жабдық сұраулары';
+
+  @override
+  String get rentalRequestsMachineryTab => 'техника';
+
+  @override
+  String get rentalRequestsEquipmentTab => 'жабдық';
+
+  @override
   String get registration => 'Тіркелу';
 
   @override
@@ -559,6 +571,38 @@ class AppLocalizationsKk extends AppLocalizations {
   String get equipmentCategoryLabel => 'Техника санаты';
 
   @override
+  String get equipmentCatalogCategoryLabel => 'Жабдық санаты';
+
+  @override
+  String get machineryDetailsTitle => 'Техника мәліметтері';
+
+  @override
+  String get equipmentCatalogDetailsTitle => 'Жабдық мәліметтері';
+
+  @override
+  String get equipmentCatalogData => 'Жабдық деректері';
+
+  @override
+  String get equipmentCatalogSubmitPhotoHint =>
+      'Клиенттер каталогтан оңай таңдай алуы үшін жабдықтың фотосын қосуды ұмытпаңыз';
+
+  @override
+  String get equipmentCatalogDeleteWarning =>
+      'Жабдықты жою оны инвентарьдан, барлық баға және тарих деректерімен бірге біржола өшіреді.';
+
+  @override
+  String get equipmentCatalogDelete => 'Жабдықты жою';
+
+  @override
+  String get equipmentCatalogDeleteQuestion => 'Жабдықты жою керек пе?';
+
+  @override
+  String get equipmentCatalogDeleted => 'Жабдық жойылды';
+
+  @override
+  String get equipmentCatalogDeleteFailed => 'Жабдықты жою мүмкін болмады';
+
+  @override
   String get deletePriceEntry => 'Тарифті жою';
 
   @override
@@ -948,6 +992,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get search => 'Іздеу';
 
   @override
+  String get catalogMachinery => 'Техника каталогы';
+
+  @override
+  String get catalogEquipment => 'Жабдық каталогы';
+
+  @override
+  String get searchMachineryTab => 'техника';
+
+  @override
+  String get searchEquipmentTab => 'жабдық';
+
+  @override
   String get repeat => 'Қайталау';
 
   @override
@@ -1172,6 +1228,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get navEquipment => 'Техника';
+
+  @override
+  String get navPark => 'Парк';
+
+  @override
+  String get navCatalog => 'Каталог';
 
   @override
   String get catalogGroupMachinery => 'Техника';
@@ -1402,6 +1464,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get myEquipment => 'Менің технікам';
+
+  @override
+  String get ownerFleet => 'Менің паркім';
+
+  @override
+  String get ownerFleetEquipment => 'Менің жабдығым';
+
+  @override
+  String get ownerFleetMachineryTab => 'техника';
+
+  @override
+  String get ownerFleetEquipmentTab => 'жабдық';
 
   @override
   String get addEquipment => 'Техника қосу';
@@ -1655,6 +1729,14 @@ class AppLocalizationsKk extends AppLocalizations {
       'Тапсырманы немесе маңызды детальдарды жазыңыз';
 
   @override
+  String get requestCommentOtherMachineryHint =>
+      'Қандай техника керек екенін міндетті түрде нақтылаңыз';
+
+  @override
+  String get requestCommentOtherEquipmentHint =>
+      'Қандай жабдық керек екенін міндетті түрде нақтылаңыз';
+
+  @override
   String get requestRequiredHint => '(Міндетті)';
 
   @override
@@ -1677,10 +1759,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noChats => 'Чаттар жоқ';
 
   @override
-  String get chatsActiveTab => 'Белсенді';
+  String get chatsActiveTab => 'белсенді';
 
   @override
-  String get chatsArchiveTab => 'Мұрағат';
+  String get chatsArchiveTab => 'мұрағаттағы';
 
   @override
   String get noArchivedChats => 'Мұрағатталған чаттар жоқ';
@@ -2034,9 +2116,6 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get pleaseFillMissingInfo => 'Барлық міндетті өрістерді толтырыңыз';
-
-  @override
-  String get noSpecsConfigured => 'Сипаттамалар әлі конфигурацияланбаған';
 
   @override
   String get invalidNumber => 'Жарамсыз сан';
@@ -3020,6 +3099,29 @@ class AppLocalizationsKk extends AppLocalizations {
   String get bookingSelectOfferedService => 'Ұсынылатын қызметті таңдаңыз';
 
   @override
+  String get bookingDestinationTitle => 'Баратын мекенжайды көрсетіңіз';
+
+  @override
+  String get bookingDestinationMachineryHint =>
+      'Техника қайда қолданылатынын көрсетіңіз';
+
+  @override
+  String get bookingDestinationEquipmentHint =>
+      'Жабдық қайда қолданылатынын көрсетіңіз';
+
+  @override
+  String get bookingTariffSingleTitle => 'Қызмет тарифі';
+
+  @override
+  String get bookingTariffSelectTitle => 'Тарифті таңдаңыз';
+
+  @override
+  String get bookingTariffSelectHint => 'Ұсынылған тарифтердің ішінен таңдаңыз';
+
+  @override
+  String get bookingOrderCommentTitle => 'Тапсырысқа пікір';
+
+  @override
   String get accountOnline => 'Онлайн';
 
   @override
@@ -3804,7 +3906,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get shareEquipmentPriceChanged =>
-      'Баға өзгерді. Тарифті тексеріп, «Брондау» түймесін қайта басыңыз.';
+      'Баға өзгерді. Тарифті тексеріп, «Тапсырыс жасау» түймесін қайта басыңыз.';
 
   @override
   String get shareEquipmentTariffUnavailable =>

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
@@ -42,9 +41,9 @@ class ClientEquipmentTile extends ConsumerWidget {
 
     final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
 
-    return BaseTile(
-      borderRadius: 16,
-      padding: const EdgeInsets.all(0),
+    return AppCard(
+      radius: AppDimens.r16$xl,
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
           /// 1. IMAGE SECTION (Clean & Floating Elements)

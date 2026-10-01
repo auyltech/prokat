@@ -172,6 +172,30 @@ abstract class AppLocalizations {
   /// **'Rental Requests'**
   String get rentalRequests;
 
+  /// No description provided for @rentalRequestsMachinery.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery requests'**
+  String get rentalRequestsMachinery;
+
+  /// No description provided for @rentalRequestsEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment requests'**
+  String get rentalRequestsEquipment;
+
+  /// No description provided for @rentalRequestsMachineryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'machinery'**
+  String get rentalRequestsMachineryTab;
+
+  /// No description provided for @rentalRequestsEquipmentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'equipment'**
+  String get rentalRequestsEquipmentTab;
+
   /// No description provided for @registration.
   ///
   /// In en, this message translates to:
@@ -1102,6 +1126,66 @@ abstract class AppLocalizations {
   /// **'Equipment category'**
   String get equipmentCategoryLabel;
 
+  /// No description provided for @equipmentCatalogCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit category'**
+  String get equipmentCatalogCategoryLabel;
+
+  /// No description provided for @machineryDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery details'**
+  String get machineryDetailsTitle;
+
+  /// No description provided for @equipmentCatalogDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit details'**
+  String get equipmentCatalogDetailsTitle;
+
+  /// No description provided for @equipmentCatalogData.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit data'**
+  String get equipmentCatalogData;
+
+  /// No description provided for @equipmentCatalogSubmitPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to add a photo of your equipment so clients can find it in the catalog more easily'**
+  String get equipmentCatalogSubmitPhotoHint;
+
+  /// No description provided for @equipmentCatalogDeleteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.'**
+  String get equipmentCatalogDeleteWarning;
+
+  /// No description provided for @equipmentCatalogDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete equipment unit'**
+  String get equipmentCatalogDelete;
+
+  /// No description provided for @equipmentCatalogDeleteQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete equipment unit?'**
+  String get equipmentCatalogDeleteQuestion;
+
+  /// No description provided for @equipmentCatalogDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment unit deleted'**
+  String get equipmentCatalogDeleted;
+
+  /// No description provided for @equipmentCatalogDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete equipment unit'**
+  String get equipmentCatalogDeleteFailed;
+
   /// No description provided for @deletePriceEntry.
   ///
   /// In en, this message translates to:
@@ -1840,6 +1924,30 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
+  /// No description provided for @catalogMachinery.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery catalog'**
+  String get catalogMachinery;
+
+  /// No description provided for @catalogEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment catalog'**
+  String get catalogEquipment;
+
+  /// No description provided for @searchMachineryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'machinery'**
+  String get searchMachineryTab;
+
+  /// No description provided for @searchEquipmentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'equipment'**
+  String get searchEquipmentTab;
+
   /// No description provided for @repeat.
   ///
   /// In en, this message translates to:
@@ -2284,6 +2392,18 @@ abstract class AppLocalizations {
   /// **'Equipment'**
   String get navEquipment;
 
+  /// No description provided for @navPark.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get navPark;
+
+  /// No description provided for @navCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get navCatalog;
+
   /// No description provided for @catalogGroupMachinery.
   ///
   /// In en, this message translates to:
@@ -2721,6 +2841,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Equipment'**
   String get myEquipment;
+
+  /// No description provided for @ownerFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'My fleet'**
+  String get ownerFleet;
+
+  /// No description provided for @ownerFleetEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'My equipment'**
+  String get ownerFleetEquipment;
+
+  /// No description provided for @ownerFleetMachineryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'machinery'**
+  String get ownerFleetMachineryTab;
+
+  /// No description provided for @ownerFleetEquipmentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'equipment'**
+  String get ownerFleetEquipmentTab;
 
   /// No description provided for @addEquipment.
   ///
@@ -3208,6 +3352,18 @@ abstract class AppLocalizations {
   /// **'Describe the job or important details'**
   String get requestCommentHint;
 
+  /// No description provided for @requestCommentOtherMachineryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please specify which machinery you need'**
+  String get requestCommentOtherMachineryHint;
+
+  /// No description provided for @requestCommentOtherEquipmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please specify which equipment you need'**
+  String get requestCommentOtherEquipmentHint;
+
   /// No description provided for @requestRequiredHint.
   ///
   /// In en, this message translates to:
@@ -3253,13 +3409,13 @@ abstract class AppLocalizations {
   /// No description provided for @chatsActiveTab.
   ///
   /// In en, this message translates to:
-  /// **'Active'**
+  /// **'active'**
   String get chatsActiveTab;
 
   /// No description provided for @chatsArchiveTab.
   ///
   /// In en, this message translates to:
-  /// **'Archive'**
+  /// **'archived'**
   String get chatsArchiveTab;
 
   /// No description provided for @noArchivedChats.
@@ -3957,12 +4113,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please provide missing information'**
   String get pleaseFillMissingInfo;
-
-  /// No description provided for @noSpecsConfigured.
-  ///
-  /// In en, this message translates to:
-  /// **'No specs configured yet'**
-  String get noSpecsConfigured;
 
   /// No description provided for @invalidNumber.
   ///
@@ -5758,6 +5908,48 @@ abstract class AppLocalizations {
   /// **'Choose the offered service'**
   String get bookingSelectOfferedService;
 
+  /// No description provided for @bookingDestinationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the destination address'**
+  String get bookingDestinationTitle;
+
+  /// No description provided for @bookingDestinationMachineryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify where the machinery will be used'**
+  String get bookingDestinationMachineryHint;
+
+  /// No description provided for @bookingDestinationEquipmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify where the equipment will be used'**
+  String get bookingDestinationEquipmentHint;
+
+  /// No description provided for @bookingTariffSingleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service rate'**
+  String get bookingTariffSingleTitle;
+
+  /// No description provided for @bookingTariffSelectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a rate'**
+  String get bookingTariffSelectTitle;
+
+  /// No description provided for @bookingTariffSelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one of the offered rates'**
+  String get bookingTariffSelectHint;
+
+  /// No description provided for @bookingOrderCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order comment'**
+  String get bookingOrderCommentTitle;
+
   /// No description provided for @accountOnline.
   ///
   /// In en, this message translates to:
@@ -7117,7 +7309,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareEquipmentPriceChanged.
   ///
   /// In en, this message translates to:
-  /// **'The price changed. Check the tariff and tap Book again.'**
+  /// **'The price changed. Check the rate and tap Create Order again.'**
   String get shareEquipmentPriceChanged;
 
   /// No description provided for @shareEquipmentTariffUnavailable.

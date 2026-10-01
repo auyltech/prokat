@@ -63,6 +63,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rentalRequests => 'Rental Requests';
 
   @override
+  String get rentalRequestsMachinery => 'Machinery requests';
+
+  @override
+  String get rentalRequestsEquipment => 'Equipment requests';
+
+  @override
+  String get rentalRequestsMachineryTab => 'machinery';
+
+  @override
+  String get rentalRequestsEquipmentTab => 'equipment';
+
+  @override
   String get registration => 'Registration';
 
   @override
@@ -561,6 +573,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentCategoryLabel => 'Equipment category';
 
   @override
+  String get equipmentCatalogCategoryLabel => 'Equipment unit category';
+
+  @override
+  String get machineryDetailsTitle => 'Machinery details';
+
+  @override
+  String get equipmentCatalogDetailsTitle => 'Equipment unit details';
+
+  @override
+  String get equipmentCatalogData => 'Equipment unit data';
+
+  @override
+  String get equipmentCatalogSubmitPhotoHint =>
+      'Don\'t forget to add a photo of your equipment so clients can find it in the catalog more easily';
+
+  @override
+  String get equipmentCatalogDeleteWarning =>
+      'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.';
+
+  @override
+  String get equipmentCatalogDelete => 'Delete equipment unit';
+
+  @override
+  String get equipmentCatalogDeleteQuestion => 'Delete equipment unit?';
+
+  @override
+  String get equipmentCatalogDeleted => 'Equipment unit deleted';
+
+  @override
+  String get equipmentCatalogDeleteFailed => 'Failed to delete equipment unit';
+
+  @override
   String get deletePriceEntry => 'Delete Price Entry';
 
   @override
@@ -959,6 +1003,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search => 'Search';
 
   @override
+  String get catalogMachinery => 'Machinery catalog';
+
+  @override
+  String get catalogEquipment => 'Equipment catalog';
+
+  @override
+  String get searchMachineryTab => 'machinery';
+
+  @override
+  String get searchEquipmentTab => 'equipment';
+
+  @override
   String get repeat => 'Repeat';
 
   @override
@@ -1183,6 +1239,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navEquipment => 'Equipment';
+
+  @override
+  String get navPark => 'Fleet';
+
+  @override
+  String get navCatalog => 'Catalog';
 
   @override
   String get catalogGroupMachinery => 'Machinery';
@@ -1414,6 +1476,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myEquipment => 'My Equipment';
+
+  @override
+  String get ownerFleet => 'My fleet';
+
+  @override
+  String get ownerFleetEquipment => 'My equipment';
+
+  @override
+  String get ownerFleetMachineryTab => 'machinery';
+
+  @override
+  String get ownerFleetEquipmentTab => 'equipment';
 
   @override
   String get addEquipment => 'Add Equipment';
@@ -1665,6 +1739,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestCommentHint => 'Describe the job or important details';
 
   @override
+  String get requestCommentOtherMachineryHint =>
+      'Please specify which machinery you need';
+
+  @override
+  String get requestCommentOtherEquipmentHint =>
+      'Please specify which equipment you need';
+
+  @override
   String get requestRequiredHint => '(Required)';
 
   @override
@@ -1686,10 +1768,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noChats => 'No Chats';
 
   @override
-  String get chatsActiveTab => 'Active';
+  String get chatsActiveTab => 'active';
 
   @override
-  String get chatsArchiveTab => 'Archive';
+  String get chatsArchiveTab => 'archived';
 
   @override
   String get noArchivedChats => 'No archived chats';
@@ -2043,9 +2125,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseFillMissingInfo => 'Please provide missing information';
-
-  @override
-  String get noSpecsConfigured => 'No specs configured yet';
 
   @override
   String get invalidNumber => 'Invalid number';
@@ -3024,6 +3103,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingSelectOfferedService => 'Choose the offered service';
 
   @override
+  String get bookingDestinationTitle => 'Enter the destination address';
+
+  @override
+  String get bookingDestinationMachineryHint =>
+      'Specify where the machinery will be used';
+
+  @override
+  String get bookingDestinationEquipmentHint =>
+      'Specify where the equipment will be used';
+
+  @override
+  String get bookingTariffSingleTitle => 'Service rate';
+
+  @override
+  String get bookingTariffSelectTitle => 'Choose a rate';
+
+  @override
+  String get bookingTariffSelectHint => 'Choose one of the offered rates';
+
+  @override
+  String get bookingOrderCommentTitle => 'Order comment';
+
+  @override
   String get accountOnline => 'Online';
 
   @override
@@ -3804,7 +3906,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareEquipmentPriceChanged =>
-      'The price changed. Check the tariff and tap Book again.';
+      'The price changed. Check the rate and tap Create Order again.';
 
   @override
   String get shareEquipmentTariffUnavailable =>

@@ -89,6 +89,8 @@ class SelectedBrowseCategoryNotifier extends Notifier<Category?> {
     _byGroup[group] = null;
     state = null;
   }
+
+  Category? stored(CatalogGroup group) => _byGroup[group];
 }
 
 /// Backward-compatible alias used by existing search/guest screens.

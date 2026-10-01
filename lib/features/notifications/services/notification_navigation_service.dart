@@ -79,7 +79,9 @@ class NotificationNavigationService {
       }
     } else if (notification.category == "REQUEST") {
       if (goingOwner) {
-        unawaited(ref.read(ownerActiveRequestsProvider.notifier).invalidate());
+        for (final feed in loadedOwnerActiveRequestFeeds(ref)) {
+          unawaited(feed.invalidate());
+        }
       } else {
         unawaited(ref.read(clientActiveRequestsProvider.notifier).invalidate());
       }

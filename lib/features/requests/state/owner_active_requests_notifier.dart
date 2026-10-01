@@ -1,5 +1,5 @@
 import 'package:prokat/features/bookings/models/query_state.dart';
-import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
@@ -10,7 +10,7 @@ import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
 
 class OwnerActiveRequestsNotifier
-    extends AsyncNotifier<QueryState<RequestModel>> {
+    extends FamilyAsyncNotifier<QueryState<RequestModel>, CatalogGroup> {
   RequestService get api => ref.read(requestServiceProvider);
   Future<void>? _refreshing;
   int _requestEventRevision = 0;
@@ -18,9 +18,8 @@ class OwnerActiveRequestsNotifier
   AuthenticatedSessionScopeKey? _stateScope;
 
   @override
-  Future<QueryState<RequestModel>> build() async {
+  Future<QueryState<RequestModel>> build(CatalogGroup _) async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
-    ref.watch(ownerFleetCatalogGroupProvider);
     _stateScope = null;
     if (scope == null) {
       return const QueryState(itemsPerPage: 10, count: 0);
@@ -30,8 +29,7 @@ class OwnerActiveRequestsNotifier
     return next;
   }
 
-  String? get _catalogGroupFilter =>
-      ref.read(ownerFleetCatalogGroupProvider).apiValue;
+  String get _catalogGroupFilter => arg.apiValue;
 
   Future<QueryState<RequestModel>> _fetchPage(
     int page,

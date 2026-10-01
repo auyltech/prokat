@@ -36,19 +36,10 @@ class AppNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navigationBarTheme = context.colors.navigationBar;
+    final ripple = context.colors.ripple;
     final selectedColor = switch (tone) {
       AppNavigationBarTone.primary => navigationBarTheme.selected,
       AppNavigationBarTone.owner => navigationBarTheme.ownerSelected,
-    };
-    final (splashColor, highlightColor) = switch (tone) {
-      AppNavigationBarTone.primary => (
-        navigationBarTheme.splash,
-        navigationBarTheme.highlight,
-      ),
-      AppNavigationBarTone.owner => (
-        navigationBarTheme.ownerSplash,
-        navigationBarTheme.ownerHighlight,
-      ),
     };
 
     return Material(
@@ -75,8 +66,8 @@ class AppNavigationBar extends StatelessWidget {
                       isSelected: index == currentIndex,
                       selectedColor: selectedColor,
                       unselectedColor: navigationBarTheme.unselected,
-                      splashColor: splashColor,
-                      highlightColor: highlightColor,
+                      splashColor: ripple.splash,
+                      highlightColor: ripple.highlight,
                       onTap: () => onItemTap(index),
                     ),
                   ),

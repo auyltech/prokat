@@ -5,7 +5,6 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
@@ -71,7 +70,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
     // ── Error state (only when we have nothing to show) ──
     if (hasBalanceError && balanceUnknown) {
-      return BaseTile(
+      return AppCard(
         child: Row(
           children: [
             Container(
@@ -121,7 +120,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
 
     // ── Loading / unknown wallet ──
     if (billingState.isBalanceLoading || balanceUnknown) {
-      return const BaseTile(
+      return const AppCard(
         child: SizedBox(
           height: 120,
           child: Center(child: CircularProgressIndicator()),
@@ -130,7 +129,7 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
     }
 
     // ── Normal state ──
-    return BaseTile(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

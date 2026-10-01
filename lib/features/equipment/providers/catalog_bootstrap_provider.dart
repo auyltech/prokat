@@ -19,7 +19,7 @@ final catalogBootstrapProvider = Provider<void>((ref) {
   var sawInitialConnect = false;
 
   void refreshCatalog() {
-    unawaited(ref.read(clientEquipmentProvider.notifier).refresh());
+    refreshLoadedClientEquipment(ref);
     if (ref.exists(guestEquipmentProvider)) {
       unawaited(ref.read(guestEquipmentProvider.notifier).refresh());
     }

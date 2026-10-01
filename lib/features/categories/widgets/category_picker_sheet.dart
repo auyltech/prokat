@@ -3,6 +3,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_image.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CategoryPickerResult {
@@ -74,9 +75,7 @@ class _CategoryPickerList extends StatelessWidget {
     final allDescription = group == CatalogGroup.equipment
         ? l10n.allCategoriesEquipmentDescription
         : l10n.allCategoriesMachineryDescription;
-    final allImage = group == CatalogGroup.equipment
-        ? AppImages.equipmentStd
-        : AppImages.machineryStd;
+    final allImage = group.stdImage;
     final allOffset = includeAllOption ? 1 : 0;
 
     return ListView.builder(

@@ -46,7 +46,7 @@ class AppTextButton extends StatelessWidget {
             AppDimens.buttonHeight,
           ),
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.s16$base),
-        ),
+        ).copyWith(overlayColor: context.colors.ripple.overlay),
         onPressed: enabled ? onTap : null,
         child: IconTheme.merge(
           data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),

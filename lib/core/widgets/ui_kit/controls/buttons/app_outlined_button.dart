@@ -71,7 +71,7 @@ class AppOutlinedButton extends StatelessWidget {
               horizontal: VisualDensity.minimumDensity,
               vertical: VisualDensity.minimumDensity,
             ),
-          ),
+          ).copyWith(overlayColor: context.colors.ripple.overlay),
           onPressed: enabled ? onTap : null,
           child: IconTheme.merge(
             data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),

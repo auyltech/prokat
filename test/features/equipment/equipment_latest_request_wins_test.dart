@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart'
@@ -111,11 +112,15 @@ Future<void> _verifyClientLatestRequestWins({
     container.dispose();
   });
 
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   service.complete(0, 'initial');
   await initial;
 
-  final notifier = container.read(clientEquipmentProvider.notifier);
+  final notifier = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).notifier,
+  );
   final olderSearch = notifier.search(query: 'older');
   await _waitForRequestCount(service, 2);
   final newerSearch = notifier.search(query: 'newer');
@@ -128,7 +133,9 @@ Future<void> _verifyClientLatestRequestWins({
     newerCompletesFirst: newerCompletesFirst,
   );
 
-  final result = container.read(clientEquipmentProvider).requireValue;
+  final result = container
+      .read(clientEquipmentProvider(CatalogGroup.machinery))
+      .requireValue;
   expect(service.queries, [null, 'older', 'newer']);
   expect(notifier.query, 'newer');
   expect(result.items.map((item) => item.id), ['newer']);
@@ -194,11 +201,15 @@ Future<void> _verifyClientOldPageIsIgnored() async {
     container.dispose();
   });
 
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   service.complete(0, 'initial', itemCount: 10);
   await initial;
 
-  final notifier = container.read(clientEquipmentProvider.notifier);
+  final notifier = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).notifier,
+  );
   final oldPage = notifier.loadMore();
   await _waitForRequestCount(service, 2);
   final newSearch = notifier.search(query: 'newer');
@@ -209,7 +220,9 @@ Future<void> _verifyClientOldPageIsIgnored() async {
   service.complete(1, 'old-page');
   await oldPage;
 
-  final result = container.read(clientEquipmentProvider).requireValue;
+  final result = container
+      .read(clientEquipmentProvider(CatalogGroup.machinery))
+      .requireValue;
   expect(service.pages, [1, 2, 1]);
   expect(result.items.map((item) => item.id), ['newer']);
   expect(result.isLoadingMore, isFalse);
@@ -298,12 +311,16 @@ Future<void> _verifyClientInitialLoadUsesSelectedCity() async {
   });
 
   container.read(locationProvider.notifier).selectCity('almaty');
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   await _waitForRequestCount(service, 1);
   service.complete(0, 'almaty-item');
   await initial;
 
-  final result = container.read(clientEquipmentProvider).requireValue;
+  final result = container
+      .read(clientEquipmentProvider(CatalogGroup.machinery))
+      .requireValue;
   expect(service.cities, ['almaty']);
   expect(result.items.map((item) => item.id), ['almaty-item']);
 }
@@ -350,9 +367,13 @@ Future<void> _verifyClientSearchCityDuringInitialLoad() async {
     container.dispose();
   });
 
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   await _waitForRequestCount(service, 1);
-  final notifier = container.read(clientEquipmentProvider.notifier);
+  final notifier = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).notifier,
+  );
   final searchFuture = notifier.search(city: 'almaty');
   service.complete(0, 'all-cities');
   await _waitForRequestCount(service, 2);
@@ -360,7 +381,9 @@ Future<void> _verifyClientSearchCityDuringInitialLoad() async {
   await searchFuture;
   await initial;
 
-  final result = container.read(clientEquipmentProvider).requireValue;
+  final result = container
+      .read(clientEquipmentProvider(CatalogGroup.machinery))
+      .requireValue;
   expect(service.cities, [null, 'almaty']);
   expect(notifier.city, 'almaty');
   expect(result.items.map((item) => item.id), ['almaty-item']);
@@ -382,12 +405,16 @@ Future<void> _verifyClientBlankSearchDoesNotRefetch() async {
   });
 
   container.read(locationProvider.notifier).selectCity('almaty');
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   await _waitForRequestCount(service, 1);
   service.complete(0, 'almaty-item');
   await initial;
 
-  final notifier = container.read(clientEquipmentProvider.notifier);
+  final notifier = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).notifier,
+  );
   await notifier.search(query: '', city: 'almaty', spec: const []);
 
   expect(service.requests, hasLength(1));
@@ -412,9 +439,13 @@ Future<void> _verifyClientBlankSearchDuringInitialLoad() async {
   });
 
   container.read(locationProvider.notifier).selectCity('almaty');
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   await _waitForRequestCount(service, 1);
-  final notifier = container.read(clientEquipmentProvider.notifier);
+  final notifier = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).notifier,
+  );
   final searchFuture = notifier.search(
     query: '',
     city: 'almaty',
@@ -476,19 +507,26 @@ Future<void> _verifyClientLoadMoreIgnoredWhileRefreshing() async {
     container.dispose();
   });
 
-  final initial = container.read(clientEquipmentProvider.future);
+  final initial = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).future,
+  );
   await _waitForRequestCount(service, 1);
   service.complete(0, 'initial', itemCount: 10);
   await initial;
 
-  final notifier = container.read(clientEquipmentProvider.notifier);
+  final notifier = container.read(
+    clientEquipmentProvider(CatalogGroup.machinery).notifier,
+  );
   final refresh = notifier.refresh();
   await _waitForRequestCount(service, 2);
   await notifier.loadMore();
 
   expect(service.pages, [1, 1]);
   expect(
-    container.read(clientEquipmentProvider).requireValue.isLoadingMore,
+    container
+        .read(clientEquipmentProvider(CatalogGroup.machinery))
+        .requireValue
+        .isLoadingMore,
     isFalse,
   );
 

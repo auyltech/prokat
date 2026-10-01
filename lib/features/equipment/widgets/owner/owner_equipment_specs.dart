@@ -461,28 +461,22 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     final catalog = ref.watch(catalogProvider).valueOrNull;
-    final colorScheme = theme.colorScheme;
-    final ghostGray = colorScheme.onSurfaceVariant;
 
     _bind();
 
-    final hasSpecs = _sortedSpecs.isNotEmpty;
+    final hasSpecs = _sortedSpecs.any(
+      (spec) => spec.resolvedType(catalog?.specById(spec.specId)).isKnown,
+    );
+    if (!hasSpecs) return const SizedBox.shrink();
+
     final view = ref
         .watch(ownerEquipmentEditorProvider(widget.equipment.id))
         .block(OwnerEquipmentBlockId.specs);
 
     Widget specFields() {
-      if (!hasSpecs) {
-        return Text(
-          l10n.noSpecsConfigured,
-          style: AppFonts.body14(context).copyWith(color: ghostGray),
-        );
-      }
-
       final fields = <Widget>[];
       for (var i = 0; i < _sortedSpecs.length; i++) {
         final spec = _sortedSpecs[i];

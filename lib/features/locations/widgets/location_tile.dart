@@ -24,41 +24,51 @@ class LocationTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
+    final radius = BorderRadius.circular(AppDimens.r16$xl);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.s08$sm),
+      child: Material(
         color: theme.colorScheme.surfaceBright,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(
-          Icons.location_on_outlined,
-          color: theme.colorScheme.onSurface,
-          size: 24,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: theme.colorScheme.outline.withAlpha(50)),
         ),
-        title: Text(
-          formatLocationModel(ref, context, location),
-          style: theme.textTheme.bodyMedium?.copyWith(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(
+            Icons.location_on_outlined,
             color: theme.colorScheme.onSurface,
+            size: AppDimens.iconButtonIconSize,
           ),
-        ),
-        contentPadding: const EdgeInsets.fromLTRB(12, 0, 8, 0),
-        trailing: isDeleting
-            ? const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: SizedBox.square(
-                  dimension: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+          title: Text(
+            formatLocationModel(ref, context, location),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(
+            AppDimens.s12$md,
+            0,
+            AppDimens.s08$sm,
+            0,
+          ),
+          trailing: isDeleting
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: SizedBox.square(
+                    dimension: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : AppIconButton(
+                  tooltip: l10n.deleteAddress,
+                  onTap: onDelete,
+                  icon: Icons.delete_outline,
+                  tone: AppIconButtonTone.destructive,
                 ),
-              )
-            : AppIconButton(
-                tooltip: l10n.deleteAddress,
-                onTap: onDelete,
-                icon: Icons.delete_outline,
-                tone: AppIconButtonTone.destructive,
-              ),
+        ),
       ),
     );
   }

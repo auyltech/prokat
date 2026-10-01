@@ -67,6 +67,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rentalRequests => 'Запросы на аренду';
 
   @override
+  String get rentalRequestsMachinery => 'Запросы на технику';
+
+  @override
+  String get rentalRequestsEquipment => 'Запросы на оборудование';
+
+  @override
+  String get rentalRequestsMachineryTab => 'техники';
+
+  @override
+  String get rentalRequestsEquipmentTab => 'оборудования';
+
+  @override
   String get registration => 'Регистрация';
 
   @override
@@ -565,6 +577,38 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentCategoryLabel => 'Категория техники';
 
   @override
+  String get equipmentCatalogCategoryLabel => 'Категория оборудования';
+
+  @override
+  String get machineryDetailsTitle => 'Детали техники';
+
+  @override
+  String get equipmentCatalogDetailsTitle => 'Детали оборудования';
+
+  @override
+  String get equipmentCatalogData => 'Данные оборудования';
+
+  @override
+  String get equipmentCatalogSubmitPhotoHint =>
+      'Не забудьте добавить фотографию вашего оборудования, чтобы клиентам было легче его выбрать в каталоге';
+
+  @override
+  String get equipmentCatalogDeleteWarning =>
+      'Удаление оборудования навсегда уберёт его из инвентаря, включая все данные о ценах и истории.';
+
+  @override
+  String get equipmentCatalogDelete => 'Удалить оборудование';
+
+  @override
+  String get equipmentCatalogDeleteQuestion => 'Удалить оборудование?';
+
+  @override
+  String get equipmentCatalogDeleted => 'Оборудование удалено';
+
+  @override
+  String get equipmentCatalogDeleteFailed => 'Не удалось удалить оборудование';
+
+  @override
   String get deletePriceEntry => 'Удалить тариф';
 
   @override
@@ -965,6 +1009,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get search => 'Поиск';
 
   @override
+  String get catalogMachinery => 'Каталог техники';
+
+  @override
+  String get catalogEquipment => 'Каталог оборудования';
+
+  @override
+  String get searchMachineryTab => 'техники';
+
+  @override
+  String get searchEquipmentTab => 'оборудования';
+
+  @override
   String get repeat => 'Повторить';
 
   @override
@@ -1178,7 +1234,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navMap => 'Карта';
 
   @override
-  String get navMyRequests => 'Мои заявки';
+  String get navMyRequests => 'Мои запросы';
 
   @override
   String get navFavorites => 'Избранное';
@@ -1188,6 +1244,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get navEquipment => 'Техника';
+
+  @override
+  String get navPark => 'Парк';
+
+  @override
+  String get navCatalog => 'Каталог';
 
   @override
   String get catalogGroupMachinery => 'Техника';
@@ -1223,7 +1285,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navBookings => 'Брони';
 
   @override
-  String get navRequests => 'Заявки';
+  String get navRequests => 'Запросы';
 
   @override
   String get navProfile => 'Профиль';
@@ -1421,6 +1483,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get myEquipment => 'Моя техника';
 
   @override
+  String get ownerFleet => 'Мой парк';
+
+  @override
+  String get ownerFleetEquipment => 'Моё оборудование';
+
+  @override
+  String get ownerFleetMachineryTab => 'техника';
+
+  @override
+  String get ownerFleetEquipmentTab => 'оборудование';
+
+  @override
   String get addEquipment => 'Добавить технику';
 
   @override
@@ -1609,7 +1683,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get perM3 => '/ м³';
 
   @override
-  String get myRequests => 'Мои заявки';
+  String get myRequests => 'Мои запросы';
 
   @override
   String get createRequest => 'Создать заявку';
@@ -1670,6 +1744,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestCommentHint => 'Опишите задачу или важные детали';
 
   @override
+  String get requestCommentOtherMachineryHint =>
+      'Обязательно уточните какая техника вам нужна';
+
+  @override
+  String get requestCommentOtherEquipmentHint =>
+      'Обязательно уточните какое оборудование вам нужно';
+
+  @override
   String get requestRequiredHint => '(Обязательно)';
 
   @override
@@ -1691,10 +1773,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noChats => 'Нет чатов';
 
   @override
-  String get chatsActiveTab => 'Активные';
+  String get chatsActiveTab => 'активные';
 
   @override
-  String get chatsArchiveTab => 'Архив';
+  String get chatsArchiveTab => 'архивные';
 
   @override
   String get noArchivedChats => 'Нет архивных чатов';
@@ -2050,9 +2132,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pleaseFillMissingInfo =>
       'Пожалуйста, заполните все обязательные поля';
-
-  @override
-  String get noSpecsConfigured => 'Характеристики пока не настроены';
 
   @override
   String get invalidNumber => 'Неверное число';
@@ -3044,6 +3123,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bookingSelectOfferedService => 'Выберите предлагаемую услугу';
 
   @override
+  String get bookingDestinationTitle => 'Укажите адрес назначения';
+
+  @override
+  String get bookingDestinationMachineryHint =>
+      'Укажите где будет использоваться техника';
+
+  @override
+  String get bookingDestinationEquipmentHint =>
+      'Укажите где будет использоваться оборудование';
+
+  @override
+  String get bookingTariffSingleTitle => 'Тариф за услугу';
+
+  @override
+  String get bookingTariffSelectTitle => 'Выберите тариф';
+
+  @override
+  String get bookingTariffSelectHint => 'Выберите тариф среди предложенных';
+
+  @override
+  String get bookingOrderCommentTitle => 'Комментарий к заказу';
+
+  @override
   String get accountOnline => 'Онлайн';
 
   @override
@@ -3839,7 +3941,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shareEquipmentPriceChanged =>
-      'Цена изменилась. Проверьте тариф и нажмите «Забронировать» ещё раз.';
+      'Цена изменилась. Проверьте тариф и нажмите «Создать заказ» ещё раз.';
 
   @override
   String get shareEquipmentTariffUnavailable =>
