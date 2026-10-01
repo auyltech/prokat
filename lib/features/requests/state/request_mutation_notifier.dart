@@ -29,8 +29,8 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
 
   void _refreshOwnerActive() {
     refreshNavigationCounts(ref);
-    if (ref.exists(ownerActiveRequestsProvider)) {
-      unawaited(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+    for (final feed in loadedOwnerActiveRequestFeeds(ref)) {
+      unawaited(feed.refresh());
     }
   }
 

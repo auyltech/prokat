@@ -21,6 +21,7 @@ export 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
 export 'package:prokat/core/widgets/ui_kit/layout/app_navigation_bar.dart';
 export 'package:prokat/core/widgets/ui_kit/layout/app_reveal.dart';
 export 'package:prokat/core/widgets/ui_kit/layout/prokat_app_bar.dart';
+export 'package:prokat/core/widgets/ui_kit/tabs/app_tabs.dart';
 export 'package:prokat/core/widgets/ui_kit/sheets/app_alert_bottom_sheet.dart';
 export 'package:prokat/core/widgets/ui_kit/sheets/app_bottom_sheet.dart';
 export 'package:prokat/core/widgets/ui_kit/toasts/app_toast.dart';

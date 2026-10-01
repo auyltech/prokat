@@ -19,7 +19,11 @@ import 'package:prokat/l10n/app_localizations.dart';
 /// Search UI is per catalog-group session (lazy + sticky across tabs).
 /// Filter modal is a stub until catalog filters ship.
 class CategoryHeaderCard extends ConsumerStatefulWidget {
-  const CategoryHeaderCard({super.key});
+  const CategoryHeaderCard({super.key, this.group});
+
+  /// When set, the card stays on this catalog group instead of following the
+  /// active browse tab. Used by swipeable search pages.
+  final CatalogGroup? group;
 
   @override
   ConsumerState<CategoryHeaderCard> createState() => _CategoryHeaderCardState();
@@ -39,7 +43,8 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   void initState() {
     super.initState();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
-    final group = ref.read(browseCatalogGroupProvider);
+    final CatalogGroup group =
+        widget.group ?? ref.read(browseCatalogGroupProvider);
     // Peek only — do not mutate providers during initState/build.
     final existing = sessions.peek(group);
     _searchController = TextEditingController(text: existing?.query ?? '');
@@ -50,19 +55,24 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
       value: (existing?.searchExpanded ?? false) ? 1 : 0,
     );
 
-    _groupSub = ref.listenManual(browseCatalogGroupProvider, (previous, next) {
-      if (previous == next) return;
-      final restored = sessions.ensure(next);
-      _debounce?.cancel();
-      _clearSearchFocus();
-      _searchController.value = TextEditingValue(
-        text: restored.query,
-        selection: TextSelection.collapsed(offset: restored.query.length),
-      );
-      _syncSearchProvider(restored.query);
-      _searchReveal.value = restored.searchExpanded ? 1 : 0;
-      setState(() {});
-    });
+    if (widget.group == null) {
+      _groupSub = ref.listenManual(browseCatalogGroupProvider, (
+        previous,
+        next,
+      ) {
+        if (previous == next) return;
+        final restored = sessions.ensure(next);
+        _debounce?.cancel();
+        _clearSearchFocus();
+        _searchController.value = TextEditingValue(
+          text: restored.query,
+          selection: TextSelection.collapsed(offset: restored.query.length),
+        );
+        _syncSearchProvider(restored.query);
+        _searchReveal.value = restored.searchExpanded ? 1 : 0;
+        setState(() {});
+      });
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -99,7 +109,16 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     ref.read(searchEquipmentProvider.notifier).setQuery(query);
   }
 
+  void _usePinnedGroup() {
+    final group = widget.group;
+    if (group == null) return;
+    if (ref.read(browseCatalogGroupProvider) == group) return;
+    ref.read(browseGroupSessionsProvider.notifier).ensure(group);
+    ref.read(browseCatalogGroupProvider.notifier).select(group);
+  }
+
   void _setQuery(String value) {
+    _usePinnedGroup();
     ref.read(browseGroupSessionsProvider.notifier).setQuery(value);
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -109,6 +128,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   }
 
   void _collapseSearch({required bool clearQuery}) {
+    _usePinnedGroup();
     _debounce?.cancel();
     _clearSearchFocus();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
@@ -124,6 +144,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   }
 
   void _toggleSearch() {
+    _usePinnedGroup();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
     final session = sessions.forCurrentGroup();
     if (session.searchExpanded) {
@@ -141,14 +162,18 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     required CatalogGroup group,
   }) async {
     _clearSearchFocus();
+    final selectedId = widget.group == null
+        ? ref.read(selectedBrowseCategoryProvider)?.id
+        : ref.read(selectedBrowseCategoryProvider.notifier).stored(group)?.id;
     final selected = await CategoryPickerSheet.show(
       context,
       categories: categories,
       group: group,
-      selectedId: ref.read(selectedBrowseCategoryProvider)?.id,
+      selectedId: selectedId,
     );
     if (!mounted || selected == null) return;
 
+    _usePinnedGroup();
     _collapseSearch(clearQuery: true);
 
     if (selected.isAll) {
@@ -158,6 +183,11 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
           .read(selectedBrowseCategoryProvider.notifier)
           .select(selected.category);
     }
+  }
+
+  Category? _selectedForPinnedGroup(CatalogGroup group) {
+    ref.watch(selectedBrowseCategoryProvider);
+    return ref.read(selectedBrowseCategoryProvider.notifier).stored(group);
   }
 
   String _allCategoriesDescription(AppLocalizations l10n, CatalogGroup group) {
@@ -170,9 +200,15 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final languageCode = Localizations.localeOf(context).languageCode;
-    final group = ref.watch(browseCatalogGroupProvider);
-    final session = ref.watch(currentBrowseGroupSessionProvider);
-    final selected = ref.watch(selectedBrowseCategoryProvider);
+    final CatalogGroup group =
+        widget.group ?? ref.watch(browseCatalogGroupProvider);
+    final session = widget.group == null
+        ? ref.watch(currentBrowseGroupSessionProvider)
+        : ref.watch(browseGroupSessionsProvider)[group] ??
+              const BrowseGroupSession();
+    final selected = widget.group == null
+        ? ref.watch(selectedBrowseCategoryProvider)
+        : _selectedForPinnedGroup(group);
     final categoriesAsync = ref.watch(categoriesProvider);
     final categories =
         (categoriesAsync.valueOrNull?.items ?? const <Category>[])

@@ -616,6 +616,47 @@ void main() {
     expect(find.text('Required'), findsOneWidget);
   });
 
+  testWidgets('AppTabs rejects mismatched titles and children', (tester) async {
+    expect(
+      () => AppTabs(
+        titles: const ['One'],
+        children: const [Text('a'), Text('b')],
+      ),
+      throwsAssertionError,
+    );
+  });
+
+  testWidgets('AppTabs uses the app bar surface and switches pages', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(
+        AppTabs(
+          titles: const ['активные', 'архивные'],
+          children: const [Text('active-page'), Text('archive-page')],
+        ),
+        theme: AppTheme.darkTheme,
+      ),
+    );
+
+    expect(find.text('активные'), findsOneWidget);
+    expect(find.text('active-page'), findsOneWidget);
+
+    final colors = AppTheme.darkTheme.extension<AppColorsTheme>()!;
+    final strip = tester.widget<Material>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Material && widget.elevation == AppDimens.appBarElevation,
+      ),
+    );
+    expect(strip.color, colors.appBar.background);
+    expect(strip.shadowColor, colors.appBar.shadow);
+
+    await tester.tap(find.text('архивные'));
+    await tester.pumpAndSettle();
+    expect(find.text('archive-page'), findsOneWidget);
+  });
+
   testWidgets('AppIcons.check builds', (tester) async {
     await tester.pumpWidget(_wrap(AppIcons.check.call(size: 16)));
     expect(tester.takeException(), isNull);

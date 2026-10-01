@@ -172,6 +172,30 @@ abstract class AppLocalizations {
   /// **'Rental Requests'**
   String get rentalRequests;
 
+  /// No description provided for @rentalRequestsMachinery.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery requests'**
+  String get rentalRequestsMachinery;
+
+  /// No description provided for @rentalRequestsEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment requests'**
+  String get rentalRequestsEquipment;
+
+  /// No description provided for @rentalRequestsMachineryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'machinery'**
+  String get rentalRequestsMachineryTab;
+
+  /// No description provided for @rentalRequestsEquipmentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'equipment'**
+  String get rentalRequestsEquipmentTab;
+
   /// No description provided for @registration.
   ///
   /// In en, this message translates to:
@@ -1900,6 +1924,30 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
+  /// No description provided for @catalogMachinery.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery catalog'**
+  String get catalogMachinery;
+
+  /// No description provided for @catalogEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment catalog'**
+  String get catalogEquipment;
+
+  /// No description provided for @searchMachineryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'machinery'**
+  String get searchMachineryTab;
+
+  /// No description provided for @searchEquipmentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'equipment'**
+  String get searchEquipmentTab;
+
   /// No description provided for @repeat.
   ///
   /// In en, this message translates to:
@@ -2344,6 +2392,18 @@ abstract class AppLocalizations {
   /// **'Equipment'**
   String get navEquipment;
 
+  /// No description provided for @navPark.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleet'**
+  String get navPark;
+
+  /// No description provided for @navCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get navCatalog;
+
   /// No description provided for @catalogGroupMachinery.
   ///
   /// In en, this message translates to:
@@ -2781,6 +2841,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Equipment'**
   String get myEquipment;
+
+  /// No description provided for @ownerFleet.
+  ///
+  /// In en, this message translates to:
+  /// **'My fleet'**
+  String get ownerFleet;
+
+  /// No description provided for @ownerFleetEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'My equipment'**
+  String get ownerFleetEquipment;
+
+  /// No description provided for @ownerFleetMachineryTab.
+  ///
+  /// In en, this message translates to:
+  /// **'machinery'**
+  String get ownerFleetMachineryTab;
+
+  /// No description provided for @ownerFleetEquipmentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'equipment'**
+  String get ownerFleetEquipmentTab;
 
   /// No description provided for @addEquipment.
   ///
@@ -3325,13 +3409,13 @@ abstract class AppLocalizations {
   /// No description provided for @chatsActiveTab.
   ///
   /// In en, this message translates to:
-  /// **'Active'**
+  /// **'active'**
   String get chatsActiveTab;
 
   /// No description provided for @chatsArchiveTab.
   ///
   /// In en, this message translates to:
-  /// **'Archive'**
+  /// **'archived'**
   String get chatsArchiveTab;
 
   /// No description provided for @noArchivedChats.

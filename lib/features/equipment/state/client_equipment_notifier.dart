@@ -4,13 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
-import 'package:prokat/features/equipment/state/catalog_group_list_cache.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 
-class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
+/// One catalog list per [CatalogGroup]. Filters and pages never cross groups.
+class ClientEquipmentNotifier
+    extends FamilyAsyncNotifier<QueryState<Equipment>, CatalogGroup> {
   EquipmentService get api => ref.read(equipmentServiceProvider);
   Future<void>? _refreshing;
   int? _refreshingGeneration;
@@ -23,16 +25,14 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
   String? _query;
   String? _city;
   String? _categoryId;
-  String? _catalogGroup;
   List<String> _spec = const [];
-
-  final _groupCache = CatalogGroupListCache();
-  String? _lastCity;
 
   static const _itemsPerPage = 10;
 
+  String get _catalogGroup => arg.apiValue;
+
   @override
-  Future<QueryState<Equipment>> build() async {
+  Future<QueryState<Equipment>> build(CatalogGroup group) async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
     final city = ref.watch(locationProvider.select((s) => s.city));
     _stateScope = null;
@@ -40,24 +40,16 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       _filterScope = scope;
       _query = null;
       _categoryId = null;
-      _catalogGroup = null;
       _spec = const [];
-      _groupCache.clear();
       _requestGeneration++;
     }
-    final nextCity = _normalizeFilter(city);
-    if (_lastCity != nextCity) {
-      _lastCity = nextCity;
-      _groupCache.clear();
-    }
-    _city = nextCity;
+    _city = _normalizeFilter(city);
     if (scope == null) {
       return const QueryState(itemsPerPage: _itemsPerPage, count: 0);
     }
     final next = await _fetchPage(1, scope);
     if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
       _stateScope = scope;
-      _rememberCurrent(AsyncData(next));
     }
     return next;
   }
@@ -245,43 +237,17 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     String? query,
     String? city,
     String? categoryId,
-    String? catalogGroup,
     List<String>? spec,
   }) async {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
-    _rememberCurrent(state);
-
-    final nextQuery = _normalizeFilter(query);
-    final nextCity = _normalizeFilter(city);
-    final nextCategoryId = _normalizeFilter(categoryId);
-    final nextCatalogGroup = _normalizeFilter(catalogGroup);
-    final nextSpec = spec ?? _spec;
-
-    final restored = _groupCache.restoreIfMatch(
-      catalogGroup: nextCatalogGroup,
-      query: nextQuery,
-      city: nextCity,
-      categoryId: nextCategoryId,
-      spec: nextSpec,
-    );
-
     final changed = _replaceFilters(
       query: query,
       city: city,
       categoryId: categoryId,
-      catalogGroup: catalogGroup,
       spec: spec,
     );
-
-    if (restored != null) {
-      state = restored;
-      if (!changed) {
-        await refreshIfStale();
-      }
-      return;
-    }
 
     if (!changed) {
       await refreshIfStale();
@@ -295,46 +261,20 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
       } catch (_) {}
     }
     await _refreshForGeneration(generation, scope);
-    if (_isRequestCurrent(generation, scope)) {
-      _rememberCurrent(state);
-    }
-  }
-
-  void _rememberCurrent(AsyncValue<QueryState<Equipment>> value) {
-    if (value.isLoading && value.valueOrNull == null) return;
-    _groupCache.save(
-      catalogGroup: _catalogGroup,
-      query: _query,
-      city: _city,
-      categoryId: _categoryId,
-      spec: _spec,
-      value: value,
-    );
   }
 
   Future<void> clearSearch() async {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;
 
-    final changed =
-        _query != null ||
-        _city != null ||
-        _categoryId != null ||
-        _catalogGroup != null ||
-        _spec.isNotEmpty;
+    final changed = _query != null || _categoryId != null || _spec.isNotEmpty;
     _query = null;
-    _city = null;
     _categoryId = null;
-    _catalogGroup = null;
     _spec = const [];
-    _groupCache.clear();
 
     if (changed) {
       final generation = ++_requestGeneration;
       await _refreshForGeneration(generation, scope);
-      if (_isRequestCurrent(generation, scope)) {
-        _rememberCurrent(state);
-      }
     } else {
       await refreshIfStale();
     }
@@ -380,24 +320,20 @@ class ClientEquipmentNotifier extends AsyncNotifier<QueryState<Equipment>> {
     String? query,
     String? city,
     String? categoryId,
-    String? catalogGroup,
     List<String>? spec,
   }) {
     final nextQuery = _normalizeFilter(query);
     final nextCity = _normalizeFilter(city);
     final nextCategoryId = _normalizeFilter(categoryId);
-    final nextCatalogGroup = _normalizeFilter(catalogGroup);
     final nextSpec = spec ?? _spec;
     final changed =
         _query != nextQuery ||
         _city != nextCity ||
         _categoryId != nextCategoryId ||
-        _catalogGroup != nextCatalogGroup ||
         !_sameSpec(_spec, nextSpec);
     _query = nextQuery;
     _city = nextCity;
     _categoryId = nextCategoryId;
-    _catalogGroup = nextCatalogGroup;
     _spec = List<String>.from(nextSpec);
     return changed;
   }

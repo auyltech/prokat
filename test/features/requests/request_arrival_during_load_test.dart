@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/bookings/models/query_result.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
@@ -55,15 +56,14 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      final initial = container.read(ownerActiveRequestsProvider.future);
-      final arrival = container
-          .read(ownerActiveRequestsProvider.notifier)
-          .refreshForNewRequest();
+      final feed = ownerActiveRequestsProvider(CatalogGroup.machinery);
+      final initial = container.read(feed.future);
+      final arrival = container.read(feed.notifier).refreshForNewRequest();
       api.gate.complete();
       await initial;
       await arrival;
       expect(api.calls, 2);
-      expect(container.read(ownerActiveRequestsProvider).valueOrNull?.count, 1);
+      expect(container.read(feed).valueOrNull?.count, 1);
     },
   );
 }

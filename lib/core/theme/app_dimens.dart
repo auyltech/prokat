@@ -34,6 +34,8 @@ abstract final class AppDimens {
   static const double appBarLeadingWidth = s04$xs * 2 + iconButtonSize;
   static const double appBarTitleSpacing = s16$base;
   static const double appBarTitleGap = 0;
+  static const double appTabsHeight = s24$xl + s24$xl;
+  static const double appTabsIndicatorWeight = s04$xs;
 
   static const double navigationBarHeight = 60;
   static const double navigationBarDividerHeight = 1;
@@ -60,6 +62,10 @@ abstract final class AppDimens {
   static const double categoryInfoImageRadius = r08$md;
   static const double categoryInfoImageGap = s12$md;
   static const double categoryInfoTitleGap = s08$sm;
+
+  static const double statCardGap = 10;
+  static const double statCardIconSize = s24$xl;
+  static const double statCardIconBoxSize = s24$xl * 2;
 
   static const double sheetTopRadius = s24$xl;
   static const double sheetHandleWidth = 36;

@@ -16,6 +16,7 @@ Before creating a new UI widget, search `lib/core/widgets/ui_kit/` **and** `lib/
 - Cards / bordered tiles → `AppCard` (colors from `context.colors.card`, metrics `AppDimens.card*`)
 - Category image + name + description → `AppCategoryInfo` (`lib/core/widgets/`, metrics `AppDimens.categoryInfo*`)
 - Fields that appear after a choice → `AppReveal` (do not pop them in with `if`)
+- Tabs that continue the app bar → `AppTabs` (`lib/core/widgets/ui_kit/tabs/`)
 - Modals → bottom sheets only (`AppBottomSheet.show` / `showScrollable`) via a `*Sheet.show` class — no new `AlertDialog`
 - Toasts → `AppToast.show(message:, type:)` (`AppToastType.info` / `success` / `error`) only for passive transient feedback; renders above modals via `AppToastHost` — no raw `SnackBar` / `ScaffoldMessenger`
 - Icons → `AppIcons.*.call(...)`; images → `AppImages.*.call(...)`

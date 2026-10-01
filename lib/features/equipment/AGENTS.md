@@ -1,14 +1,14 @@
 # Equipment
 
 - Guest catalog is a demo of at most 10 items. `loadMore` is a no-op; `count` is the page length so `hasMore` is false.
-- Client search paginates with `page` + `itemsPerPage`. Prefer backend `count` for `hasMore`.
+- Client search is `clientEquipmentProvider(CatalogGroup)`, one list per group, paginated with `page` + `itemsPerPage`. Prefer backend `count` for `hasMore`. Category and query changes reload only that group. A catalog tab switch does not call `search` or `GET /favorites`.
 - Search order comes from the API: owner `ONLINE` first, then listing recency. Do not re-sort locally. Card corner badge is the **owner account** online/offline status, not equipment `AVAILABLE`.
 - Empty `query` / `city` / `categoryId` (`""` or whitespace) is unset. Search/map init must not refetch when filters already match; map uses `refreshIfStale`. Do not `loadMore` while `isRefreshing`.
 - First catalog page uses `locationProvider.city`. Do not load every city when the header already has one (cold start and guest→auth).
 - Search screen favorites sit in `FavoritesOverlay` above the nav, not in the catalog list.
 - Tapping the already-selected search category clears it: highlight off, spec filters hide, list is unfiltered.
 - Spec filters: label is `name, unit`. NUMBER is min/max fields; STRING is text; SELECT/BOOLEAN open a city-style sheet; MULTI_SELECT uses checkboxes + Apply. Search refetches `spec` after 500ms.
-- Owner list sends `itemsPerPage: 100`. Spec writes go to `PUT /equipment/:id/spec-values`.
+- Owner list sends `itemsPerPage: 100`. `AppTabs` («техника» / «оборудование») when the loaded listings already contain both groups, so returning to Park does not flash one mixed list while `GET /equipment/owner/catalog-groups` reloads. Title then is «Мой парк». One group: no tabs, title «Моя техника» or «Моё оборудование». Spec writes go to `PUT /equipment/:id/spec-values`.
 - Owner detail order: photos → `OwnerEquipmentCategoryCard` (read-only `AppCategoryInfo`) → pending/rejected banner → general info → registration → specs (hidden when the category has no known-type specs) → Save all / Submit / Resubmit → delete (`DRAFT` only). Documents and VIN/serial are not in the API — do not stub them.
 - Owner detail always `refresh()`es `ownerEquipmentDetailsProvider` on open (and on pull-to-refresh). Do not only `read(...future)` — the family cache is not autoDispose and can keep a stale moderation status after the owner list already updated. `refresh()` seeds from the owner-list row when its status differs, then refetches by id.
 - `CREATED` is pending review: the whole card is view-only (no photo camera, no field edits, no submit/resubmit).

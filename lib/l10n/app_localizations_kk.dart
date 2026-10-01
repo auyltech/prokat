@@ -63,6 +63,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get rentalRequests => 'Жалдау сұраулары';
 
   @override
+  String get rentalRequestsMachinery => 'Техника сұраулары';
+
+  @override
+  String get rentalRequestsEquipment => 'Жабдық сұраулары';
+
+  @override
+  String get rentalRequestsMachineryTab => 'техника';
+
+  @override
+  String get rentalRequestsEquipmentTab => 'жабдық';
+
+  @override
   String get registration => 'Тіркелу';
 
   @override
@@ -980,6 +992,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get search => 'Іздеу';
 
   @override
+  String get catalogMachinery => 'Техника каталогы';
+
+  @override
+  String get catalogEquipment => 'Жабдық каталогы';
+
+  @override
+  String get searchMachineryTab => 'техника';
+
+  @override
+  String get searchEquipmentTab => 'жабдық';
+
+  @override
   String get repeat => 'Қайталау';
 
   @override
@@ -1204,6 +1228,12 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get navEquipment => 'Техника';
+
+  @override
+  String get navPark => 'Парк';
+
+  @override
+  String get navCatalog => 'Каталог';
 
   @override
   String get catalogGroupMachinery => 'Техника';
@@ -1434,6 +1464,18 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get myEquipment => 'Менің технікам';
+
+  @override
+  String get ownerFleet => 'Менің паркім';
+
+  @override
+  String get ownerFleetEquipment => 'Менің жабдығым';
+
+  @override
+  String get ownerFleetMachineryTab => 'техника';
+
+  @override
+  String get ownerFleetEquipmentTab => 'жабдық';
 
   @override
   String get addEquipment => 'Техника қосу';
@@ -1717,10 +1759,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get noChats => 'Чаттар жоқ';
 
   @override
-  String get chatsActiveTab => 'Белсенді';
+  String get chatsActiveTab => 'белсенді';
 
   @override
-  String get chatsArchiveTab => 'Мұрағат';
+  String get chatsArchiveTab => 'мұрағаттағы';
 
   @override
   String get noArchivedChats => 'Мұрағатталған чаттар жоқ';

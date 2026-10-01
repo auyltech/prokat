@@ -63,6 +63,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rentalRequests => 'Rental Requests';
 
   @override
+  String get rentalRequestsMachinery => 'Machinery requests';
+
+  @override
+  String get rentalRequestsEquipment => 'Equipment requests';
+
+  @override
+  String get rentalRequestsMachineryTab => 'machinery';
+
+  @override
+  String get rentalRequestsEquipmentTab => 'equipment';
+
+  @override
   String get registration => 'Registration';
 
   @override
@@ -991,6 +1003,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search => 'Search';
 
   @override
+  String get catalogMachinery => 'Machinery catalog';
+
+  @override
+  String get catalogEquipment => 'Equipment catalog';
+
+  @override
+  String get searchMachineryTab => 'machinery';
+
+  @override
+  String get searchEquipmentTab => 'equipment';
+
+  @override
   String get repeat => 'Repeat';
 
   @override
@@ -1215,6 +1239,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navEquipment => 'Equipment';
+
+  @override
+  String get navPark => 'Fleet';
+
+  @override
+  String get navCatalog => 'Catalog';
 
   @override
   String get catalogGroupMachinery => 'Machinery';
@@ -1446,6 +1476,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myEquipment => 'My Equipment';
+
+  @override
+  String get ownerFleet => 'My fleet';
+
+  @override
+  String get ownerFleetEquipment => 'My equipment';
+
+  @override
+  String get ownerFleetMachineryTab => 'machinery';
+
+  @override
+  String get ownerFleetEquipmentTab => 'equipment';
 
   @override
   String get addEquipment => 'Add Equipment';
@@ -1726,10 +1768,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noChats => 'No Chats';
 
   @override
-  String get chatsActiveTab => 'Active';
+  String get chatsActiveTab => 'active';
 
   @override
-  String get chatsArchiveTab => 'Archive';
+  String get chatsArchiveTab => 'archived';
 
   @override
   String get noArchivedChats => 'No archived chats';

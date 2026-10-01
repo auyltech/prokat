@@ -9,7 +9,14 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/widgets/chat_header_tile.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_fleet_groups_provider.dart';
 import 'package:prokat/features/equipment/widgets/owner/owner_equipment_detail_title.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_fleet_title.dart';
+import 'package:prokat/features/equipment/widgets/search_browse_title.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_requests_title.dart';
 import 'package:prokat/features/layout/resolve_app_bar_title.dart';
 import 'package:prokat/features/layout/section_root_routes.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
@@ -44,6 +51,36 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
         '/${segments[0]}/${segments[1]}' == AppRoutes.ownerEquipment &&
         segments[2] != AppRoutes.create &&
         segments[2] != AppRoutes.map;
+    final isOwnerEquipmentList = currentPath == AppRoutes.ownerEquipment;
+    final isOwnerRequestsScreen = currentPath == AppRoutes.ownerRequests;
+    final isChatListScreen =
+        currentPath == AppRoutes.clientChatList ||
+        currentPath == AppRoutes.ownerChatList;
+    final fleetGroups = isOwnerRequestsScreen || isOwnerEquipmentList
+        ? ref.watch(ownerFleetGroupsProvider).valueOrNull
+        : null;
+    final requestGroups = isOwnerRequestsScreen ? fleetGroups : null;
+    final ownerListGroups = isOwnerEquipmentList
+        ? resolveOwnerFleetGroups(
+            fetched: fleetGroups,
+            items:
+                ref.watch(ownerEquipmentProvider).valueOrNull?.items ??
+                const [],
+          )
+        : null;
+    final searchCatalog = isSearchListScreen
+        ? ref.watch(catalogProvider)
+        : null;
+    final searchGroups = searchCatalog == null
+        ? null
+        : userVisibleCatalogGroups(searchCatalog.valueOrNull);
+    final blendWithTabs =
+        isChatListScreen ||
+        (requestGroups != null && requestGroups.length > 1) ||
+        (ownerListGroups != null && ownerListGroups.length > 1) ||
+        (searchCatalog != null &&
+            searchCatalog.hasValue &&
+            searchGroups!.length > 1);
     final showBackButton = !isSectionRootPath(currentPath);
 
     final Widget title;
@@ -53,6 +90,15 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
       titleMaxLines = 1;
     } else if (isOwnerEquipmentDetailScreen) {
       title = OwnerEquipmentDetailTitle(equipmentId: segments[2]);
+      titleMaxLines = 1;
+    } else if (isOwnerRequestsScreen) {
+      title = const OwnerRequestsTitle();
+      titleMaxLines = 1;
+    } else if (isSearchListScreen) {
+      title = const SearchBrowseTitle();
+      titleMaxLines = 1;
+    } else if (isOwnerEquipmentList) {
+      title = const OwnerFleetTitle();
       titleMaxLines = 1;
     } else {
       title = Text(resolveAppBarTitle(currentPath, segments, l10n));
@@ -125,6 +171,7 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return ProkatAppBar(
       title: title,
       titleMaxLines: titleMaxLines,
+      blendWithTabs: blendWithTabs,
       actions: actions,
       onBack: showBackButton
           ? () => _handleBack(
