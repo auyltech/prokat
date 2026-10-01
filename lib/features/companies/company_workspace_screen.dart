@@ -34,7 +34,6 @@ class _CompanyWorkspaceScreenState
   bool _uploading = false;
 
   Future<void> _refresh() async {
-    ref.invalidate(companyBookingRequestsProvider(widget.companyId));
     ref.invalidate(companyContextProvider);
     ref.invalidate(companyFleetProvider(widget.companyId));
     try {
@@ -91,11 +90,12 @@ class _CompanyWorkspaceScreenState
       ref.invalidate(companyPhotosProvider(widget.companyId));
       ref.invalidate(companyLogoProvider(widget.companyId));
       ref.invalidate(companyContextProvider);
-      if (mounted)
+      if (mounted) {
         companySnack(
           context,
           AppLocalizations.of(context)!.companyProfileSaved,
         );
+      }
     } catch (error) {
       if (mounted) companySnack(context, companyErrorText(context, error));
     } finally {
@@ -229,11 +229,12 @@ class _CompanyWorkspaceScreenState
                                     companyPhotosProvider(widget.companyId),
                                   );
                                 } catch (error) {
-                                  if (context.mounted)
+                                  if (context.mounted) {
                                     companySnack(
                                       context,
                                       companyErrorText(context, error),
                                     );
+                                  }
                                 }
                               },
                               icon: SizedBox(
@@ -281,11 +282,12 @@ class _CompanyWorkspaceScreenState
                             );
                             await _refresh();
                           } catch (e) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               companySnack(
                                 context,
                                 companyErrorText(context, e),
                               );
+                            }
                           }
                         },
                       ),

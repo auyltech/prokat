@@ -31,8 +31,9 @@ class _CompanyBillingPanelState extends ConsumerState<CompanyBillingPanel> {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted &&
-          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed)
+          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
         ref.invalidate(companyBillingProvider(widget.companyId));
+      }
     });
   }
 
@@ -48,7 +49,7 @@ class _CompanyBillingPanelState extends ConsumerState<CompanyBillingPanel> {
       await ref.read(companyServiceProvider).setOnline(widget.companyId, value);
       ref.invalidate(companyBillingProvider(widget.companyId));
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -58,6 +59,7 @@ class _CompanyBillingPanelState extends ConsumerState<CompanyBillingPanel> {
             ),
           ),
         );
+      }
     } finally {
       if (mounted) setState(() => changing = false);
     }

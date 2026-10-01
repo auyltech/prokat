@@ -163,11 +163,12 @@ class CompanyCategoryScreen extends ConsumerWidget {
                                   .availability(companyId, item.id, !free);
                               ref.invalidate(companyFleetProvider(companyId));
                             } catch (e) {
-                              if (context.mounted)
+                              if (context.mounted) {
                                 companySnack(
                                   context,
                                   companyErrorText(context, e),
                                 );
+                              }
                             }
                           },
                         ),
@@ -211,11 +212,12 @@ class CompanyCategoryScreen extends ConsumerWidget {
                               ref.invalidate(companyFleetProvider(companyId));
                               ref.invalidate(companyBillingProvider(companyId));
                             } catch (e) {
-                              if (context.mounted)
+                              if (context.mounted) {
                                 companySnack(
                                   context,
                                   companyErrorText(context, e),
                                 );
+                              }
                             }
                           },
                         ),

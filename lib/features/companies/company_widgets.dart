@@ -105,7 +105,7 @@ class CompanyProfileTile extends ConsumerWidget {
           ? '/company-cabinet/${memberships.first.organization.id}/profile'
           : AppRoutes.companies,
     );
-    if (memberships.isNotEmpty)
+    if (memberships.isNotEmpty) {
       return CompanyAccentBorder(
         child: ProfileAccentCta(
           title: title,
@@ -120,6 +120,7 @@ class CompanyProfileTile extends ConsumerWidget {
           onTap: enter,
         ),
       );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ProkatListTile(
@@ -182,11 +183,13 @@ String companyErrorText(BuildContext context, Object error) {
   final l10n = AppLocalizations.of(context)!;
   if (error is CompanyApiException) {
     if ([400, 409].contains(error.statusCode) &&
-        error.message?.isNotEmpty == true)
+        error.message?.isNotEmpty == true) {
       return error.message!;
+    }
     if (error.statusCode == 409) return l10n.companyConflict;
-    if (error.statusCode == 401 || error.statusCode == 403)
+    if (error.statusCode == 401 || error.statusCode == 403) {
       return l10n.companyAccessDenied;
+    }
   }
   return l10n.companyActionFailed;
 }

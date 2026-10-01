@@ -80,8 +80,9 @@ class CompanyService {
     );
     if ((response.statusCode ?? 500) >= 400 ||
         response.data is! Map ||
-        response.data['data'] is! List)
+        response.data['data'] is! List) {
       throw CompanyApiException(response.statusCode, 'INQUIRIES');
+    }
     return companyObjectList(response.data['data']);
   }
 
@@ -154,13 +155,14 @@ class CompanyService {
       if (response.statusCode != 200 || response.data == null) {
         throw CompanyApiException(response.statusCode, 'PHOTO_UNAVAILABLE');
       }
-      if (response.data != null)
+      if (response.data != null) {
         result.add(
           CompanyPhoto(
             item['id'] as String,
             Uint8List.fromList(response.data!),
           ),
         );
+      }
     }
     return result;
   }
@@ -261,8 +263,9 @@ class CompanyService {
       throw CompanyApiException(response.statusCode, 'PUBLIC_COMPANIES');
     }
     final data = body['data'];
-    if (data is! List)
+    if (data is! List) {
       throw const CompanyApiException(null, 'INVALID_RESPONSE');
+    }
     return data
         .whereType<Map>()
         .map(
@@ -287,31 +290,11 @@ class CompanyService {
           'startsAt': startsAt.toUtc().toIso8601String(),
           if (comment != null && comment.trim().isNotEmpty)
             'comment': comment.trim(),
-          if (budget != null) 'budget': budget,
+          'budget': ?budget,
         },
       ),
     );
     return '${created['id']}';
-  }
-
-  Future<List<CompanyBookingRequest>> bookingRequests(String companyId) async {
-    final response = await dio.get(
-      '/companies/${Uri.encodeComponent(companyId)}/booking-requests',
-    );
-    final body = response.data;
-    if ((response.statusCode ?? 500) >= 400 || body is! Map) {
-      throw CompanyApiException(response.statusCode, 'BOOKING_REQUESTS');
-    }
-    final data = body['data'];
-    if (data is! List)
-      throw const CompanyApiException(null, 'INVALID_RESPONSE');
-    return data
-        .whereType<Map>()
-        .map(
-          (item) =>
-              CompanyBookingRequest.fromJson(Map<String, dynamic>.from(item)),
-        )
-        .toList();
   }
 
   Future<PublicCompanyCard> publicCompany(String id) async =>
@@ -364,15 +347,6 @@ final companySelectionProvider = StateProvider.family<Set<String>, String>((
   return <String>{};
 });
 
-final companyBookingRequestsProvider = FutureProvider.autoDispose
-    .family<List<CompanyBookingRequest>, String>((ref, id) async {
-      final userId = ref.watch(
-        authProvider.select((state) => state.currentUserId),
-      );
-      if (userId == null) return const [];
-      return ref.watch(companyServiceProvider).bookingRequests(id);
-    });
-
 final publicCompaniesProvider =
     FutureProvider.autoDispose<List<PublicCompanySummary>>((ref) async {
       return ref.watch(companyServiceProvider).publicCompanies();
@@ -399,9 +373,13 @@ final companyBillingProvider = FutureProvider.autoDispose
     });
 
 final companyPhotosProvider = FutureProvider.autoDispose
-    .family<List<CompanyPhoto>, String>(
-      (ref, id) => ref.watch(companyServiceProvider).photos(id),
-    );
+    .family<List<CompanyPhoto>, String>((ref, id) {
+      final userId = ref.watch(
+        authProvider.select((state) => state.currentUserId),
+      );
+      if (userId == null) return Future.value(<CompanyPhoto>[]);
+      return ref.watch(companyServiceProvider).photos(id);
+    });
 
 class CompanyPhoto {
   final String id;

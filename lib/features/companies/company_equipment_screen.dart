@@ -102,8 +102,9 @@ class _CompanyEquipmentScreenState
     if (_saving ||
         !_editable ||
         !(_form.currentState?.validate() ?? false) ||
-        _categoryId == null)
+        _categoryId == null) {
       return;
+    }
     setState(() => _saving = true);
     try {
       final equipmentId = await ref
@@ -298,8 +299,9 @@ class _CompanyEquipmentScreenState
                     AppElevatedButton(
                       title: l10n.companyNextStep,
                       onTap: () {
-                        if (_form.currentState?.validate() ?? false)
+                        if (_form.currentState?.validate() ?? false) {
                           setState(() => _details = true);
+                        }
                       },
                     ),
                 ],

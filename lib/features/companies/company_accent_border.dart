@@ -28,8 +28,9 @@ class _CompanyAccentBorderState extends State<CompanyAccentBorder>
     timer = null;
     if (!resumed ||
         MediaQuery.disableAnimationsOf(context) ||
-        !TickerMode.valuesOf(context).enabled)
+        !TickerMode.valuesOf(context).enabled) {
       return;
+    }
     timer = Timer.periodic(const Duration(milliseconds: 50), (_) {
       final box = context.findRenderObject();
       if (box is! RenderBox || !box.attached || !box.hasSize) return;

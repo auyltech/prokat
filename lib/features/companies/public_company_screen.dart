@@ -1,3 +1,5 @@
+import 'company_orders_screen.dart';
+
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +11,6 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'company_booking_screen.dart';
 import 'company_service.dart';
 import 'company_widgets.dart';
-import 'company_order_screen.dart';
 
 class PublicCompaniesScreen extends ConsumerWidget {
   const PublicCompaniesScreen({super.key});

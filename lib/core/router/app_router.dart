@@ -57,6 +57,7 @@ import 'package:prokat/features/notifications/screens/notifications_screen.dart'
 import 'package:prokat/features/equipment_demand/equipment_demand_screen.dart';
 import 'package:prokat/features/companies/company_fleet_home.dart';
 import 'package:prokat/features/companies/company_screen.dart';
+import 'package:prokat/features/companies/company_orders_screen.dart';
 import 'package:prokat/features/companies/company_order_screen.dart';
 import 'package:prokat/features/companies/company_cabinet_screen.dart';
 

@@ -7,7 +7,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_elevated_button.dart';
@@ -16,22 +15,8 @@ import 'package:prokat/core/widgets/ui_kit/inputs/app_text_field.dart';
 import 'company_service.dart';
 import 'company_widgets.dart';
 
-String companyOrderStatus(AppLocalizations l, String status) =>
-    switch (status) {
-      'NEW' => l.companyOrderDiscussion,
-      'PROPOSED' => l.companyOrderProposed,
-      'CONFIRMED' => l.companyOrderConfirmed,
-      'IN_PROGRESS' => l.companyOrderInProgress,
-      'COMPLETED' => l.companyOrderCompleted,
-      'CANCELLED' => l.companyOrderCancelled,
-      _ => status,
-    };
-String _date(dynamic value) {
-  final d = DateTime.tryParse('$value')?.toLocal();
-  return d == null
-      ? '—'
-      : '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-}
+import 'company_order_state.dart';
+export 'company_order_state.dart';
 
 String _messageId() {
   final r = Random.secure();
@@ -40,107 +25,6 @@ String _messageId() {
   bytes[8] = (bytes[8] & 63) | 128;
   final h = bytes.map((n) => n.toRadixString(16).padLeft(2, '0')).join();
   return '${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-${h.substring(16, 20)}-${h.substring(20)}';
-}
-
-final companyInquiryProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, String>((ref, id) {
-      final user = ref.watch(authProvider.select((s) => s.currentUserId));
-      if (user == null) throw const CompanyApiException(401, 'UNAUTHORIZED');
-      return ref.watch(companyServiceProvider).inquiry(id);
-    });
-final companyInquiryListProvider = FutureProvider.autoDispose
-    .family<List<Map<String, dynamic>>, String?>((ref, companyId) {
-      final user = ref.watch(authProvider.select((s) => s.currentUserId));
-      if (user == null) throw const CompanyApiException(401, 'UNAUTHORIZED');
-      return ref.watch(companyServiceProvider).inquiryList(companyId);
-    });
-
-class CompanyOrdersScreen extends ConsumerWidget {
-  final String? companyId;
-  final Set<String>? statuses;
-  final String? screenTitle;
-  const CompanyOrdersScreen({
-    super.key,
-    this.companyId,
-    this.statuses,
-    this.screenTitle,
-  });
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          screenTitle ??
-              (companyId == null ? l.companyMyInquiries : l.companyOrders),
-          style: AppFonts.headingM(context),
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(companyInquiryListProvider(companyId));
-          await ref.read(companyInquiryListProvider(companyId).future);
-        },
-        child: ref
-            .watch(companyInquiryListProvider(companyId))
-            .when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20),
-                children: [
-                  CompanyNotice(companyErrorText(context, e)),
-                  TextButton(
-                    onPressed: () =>
-                        ref.invalidate(companyInquiryListProvider(companyId)),
-                    child: Text(l.retry),
-                  ),
-                ],
-              ),
-              data: (items) => ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-                children: [
-                  if (items
-                      .where(
-                        (item) =>
-                            statuses == null ||
-                            statuses!.contains(item['status']),
-                      )
-                      .isEmpty)
-                    CompanyNotice(l.companyRequestEmpty),
-                  for (final item in items.where(
-                    (item) =>
-                        statuses == null || statuses!.contains(item['status']),
-                  ))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: CompanySection(
-                        child: ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            '${companyId == null ? item['companyName'] : item['clientName']}',
-                          ),
-                          subtitle: Text(
-                            '${companyOrderStatus(l, '${item['status']}')}\n${_date(item['startsAt'])}',
-                          ),
-                          isThreeLine: true,
-                          trailing: const Icon(LucideIcons.chevronRight),
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  CompanyOrderScreen(id: '${item['id']}'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-      ),
-    );
-  }
 }
 
 class CompanyOrderScreen extends ConsumerStatefulWidget {
@@ -184,8 +68,9 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
         _busy ||
         !mounted ||
         !_foreground ||
-        !(ModalRoute.of(context)?.isCurrent ?? false))
+        !(ModalRoute.of(context)?.isCurrent ?? false)) {
       return;
+    }
     _polling = true;
     try {
       ref.invalidate(companyInquiryProvider(widget.id));
@@ -202,6 +87,9 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
     bool clear = false,
   }) async {
     if (_busy) return;
+    final company = ref
+        .read(companyInquiryProvider(widget.id))
+        .valueOrNull?['company'];
     setState(() => _busy = true);
     try {
       await ref
@@ -213,7 +101,10 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
       }
       ref.invalidate(companyInquiryProvider(widget.id));
       ref.invalidate(companyInquiryListProvider);
-      ref.invalidate(companyBookingRequestsProvider);
+      if (company is Map && company['id'] is String) {
+        ref.invalidate(companyFleetProvider(company['id'] as String));
+        ref.invalidate(companyBillingProvider(company['id'] as String));
+      }
     } catch (e) {
       if (mounted) companySnack(context, companyErrorText(context, e));
     } finally {
@@ -244,8 +135,9 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
         ],
       ),
     );
-    if (yes == true && mounted)
+    if (yes == true && mounted) {
       await _act(action, {'version': order['version']});
+    }
   }
 
   @override
@@ -316,7 +208,7 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                '${_date(order['startsAt'])}${order['endsAt'] == null ? '' : ' — ${_date(order['endsAt'])}'}',
+                                '${companyOrderDate(order['startsAt'])}${order['endsAt'] == null ? '' : ' — ${companyOrderDate(order['endsAt'])}'}',
                               ),
                               if (order['comment'] != null) ...[
                                 const SizedBox(height: 8),
@@ -368,8 +260,9 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
                                                 ),
                                           ),
                                         );
-                                    if (saved == true && mounted)
+                                    if (saved == true && mounted) {
                                       await _refresh();
+                                    }
                                   },
                                 ),
                               if (!side && status == 'PROPOSED')
@@ -485,7 +378,7 @@ class _CompanyOrderScreenState extends ConsumerState<CompanyOrderScreen>
                                           Text('${m['content'] ?? ''}'),
                                           const SizedBox(height: 4),
                                           Text(
-                                            _date(m['createdAt']),
+                                            companyOrderDate(m['createdAt']),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .labelSmall,
@@ -608,7 +501,7 @@ class _CompanyProposalScreenState extends ConsumerState<CompanyProposalScreen> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(current),
     );
-    if (time != null && mounted)
+    if (time != null && mounted) {
       setState(() {
         final d = DateTime(
           date.year,
@@ -623,6 +516,7 @@ class _CompanyProposalScreenState extends ConsumerState<CompanyProposalScreen> {
           _from = d;
         }
       });
+    }
   }
 
   Future<void> _save() async {
@@ -717,12 +611,12 @@ class _CompanyProposalScreenState extends ConsumerState<CompanyProposalScreen> {
                 const SizedBox(height: 16),
                 AppOutlinedButton(
                   onTap: _saving ? null : () => _time(false),
-                  title: '${l.companyStartTime}: ${_date(_from)}',
+                  title: '${l.companyStartTime}: ${companyOrderDate(_from)}',
                 ),
                 const SizedBox(height: 8),
                 AppOutlinedButton(
                   onTap: _saving ? null : () => _time(true),
-                  title: '${l.companyEndTime}: ${_date(_end)}',
+                  title: '${l.companyEndTime}: ${companyOrderDate(_end)}',
                 ),
                 const SizedBox(height: 16),
                 AppTextField(

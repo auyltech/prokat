@@ -1,3 +1,5 @@
+import 'company_orders_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +15,6 @@ import 'company_profile_screen.dart';
 import 'company_service.dart';
 import 'company_widgets.dart';
 import 'company_workspace_screen.dart';
-import 'company_order_screen.dart';
 
 class CompanyCabinetScreen extends ConsumerWidget {
   final String companyId;
@@ -58,25 +59,29 @@ class CompanyCabinetScreen extends ConsumerWidget {
             ),
           ),
           data: (_) {
-            if (member == null)
+            if (member == null) {
               return Center(
                 child: TextButton(
                   onPressed: () => context.go(AppRoutes.clientProfile),
                   child: Text(l.companyAccessDenied),
                 ),
               );
-            if (section == 'fleet')
+            }
+            if (section == 'fleet') {
               return CompanyWorkspaceScreen(companyId: companyId);
-            if (section != 'profile')
+            }
+            if (section != 'profile') {
               return CompanyOrdersScreen(
                 companyId: companyId,
                 screenTitle: labels[selected < 0 ? 0 : selected],
+                chatsOnly: section == 'chats',
                 statuses: section == 'requests'
                     ? {'NEW', 'PROPOSED'}
                     : section == 'orders'
                     ? {'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'}
                     : null,
               );
+            }
             return CompanyProfileScreen(
               membership: member,
               onInvite: () => Navigator.of(context).push(
@@ -161,8 +166,9 @@ class _InviteDispatcherState extends ConsumerState<_InviteDispatcher> {
                           Navigator.of(context).pop();
                         }
                       } catch (e) {
-                        if (context.mounted)
+                        if (context.mounted) {
                           companySnack(context, companyErrorText(context, e));
+                        }
                       } finally {
                         if (mounted) setState(() => saving = false);
                       }

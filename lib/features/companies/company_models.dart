@@ -325,54 +325,6 @@ class PublicCompanyCard {
   }
 }
 
-class CompanyBookingMachine {
-  final String id;
-  final String name;
-  final String model;
-  const CompanyBookingMachine({
-    required this.id,
-    required this.name,
-    required this.model,
-  });
-  factory CompanyBookingMachine.fromJson(Map<String, dynamic> json) =>
-      CompanyBookingMachine(
-        id: _text(json['id']),
-        name: _text(json['name']),
-        model: _text(json['model']),
-      );
-}
-
-class CompanyBookingRequest {
-  final String id;
-  final String status;
-  final String comment;
-  final int? budget;
-  final DateTime? startsAt;
-  final String? phoneNumber;
-  final List<CompanyBookingMachine> machines;
-  const CompanyBookingRequest({
-    required this.id,
-    required this.status,
-    required this.comment,
-    this.budget,
-    this.startsAt,
-    this.phoneNumber,
-    required this.machines,
-  });
-  factory CompanyBookingRequest.fromJson(Map<String, dynamic> json) =>
-      CompanyBookingRequest(
-        id: _text(json['id']),
-        status: _text(json['status']),
-        comment: _text(json['comment']),
-        budget: json['budget'] is num ? (json['budget'] as num).toInt() : null,
-        startsAt: DateTime.tryParse(_text(json['startsAt'])),
-        phoneNumber: json['phoneNumber'] as String?,
-        machines: companyObjectList(json['machines'])
-            .map(CompanyBookingMachine.fromJson)
-            .toList(),
-      );
-}
-
 class CompanyFleet {
   final List<CompanyFleetGroup> groups;
   final int total;

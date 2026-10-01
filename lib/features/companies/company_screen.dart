@@ -1,3 +1,5 @@
+import 'company_orders_screen.dart';
+
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +12,6 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'company_models.dart';
 import 'company_service.dart';
 import 'company_widgets.dart';
-import 'company_order_screen.dart';
 
 class CompanyScreen extends ConsumerStatefulWidget {
   const CompanyScreen({super.key});
@@ -50,8 +51,9 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
       _name.clear();
       _bin.clear();
       await _refresh();
-      if (mounted)
+      if (mounted) {
         companySnack(context, AppLocalizations.of(context)!.companyRequestSent);
+      }
     } catch (error) {
       if (mounted) companySnack(context, companyErrorText(context, error));
     } finally {
@@ -65,8 +67,9 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
     try {
       await ref.read(companyServiceProvider).acceptInvitation(invitation.id);
       await _refresh();
-      if (mounted && invitation.organizationId.isNotEmpty)
+      if (mounted && invitation.organizationId.isNotEmpty) {
         context.go('/company-cabinet/${invitation.organizationId}/profile');
+      }
     } catch (error) {
       if (mounted) companySnack(context, companyErrorText(context, error));
     } finally {
