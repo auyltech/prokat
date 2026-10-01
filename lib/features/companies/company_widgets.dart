@@ -182,7 +182,7 @@ class CompanySection extends StatelessWidget {
 String companyErrorText(BuildContext context, Object error) {
   final l10n = AppLocalizations.of(context)!;
   if (error is CompanyApiException) {
-    if ([400, 409].contains(error.statusCode) &&
+    if ([400, 403, 409].contains(error.statusCode) &&
         error.message?.isNotEmpty == true) {
       return error.message!;
     }

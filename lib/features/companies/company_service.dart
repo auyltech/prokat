@@ -101,6 +101,8 @@ class CompanyService {
             : '',
         error is Map && error['message'] is String
             ? error['message'] as String
+            : body is Map && body['message'] is String
+            ? body['message'] as String
             : null,
       );
     }

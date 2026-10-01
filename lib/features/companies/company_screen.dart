@@ -89,7 +89,13 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
     final l10n = AppLocalizations.of(context)!;
     final data = ref.watch(companyContextProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.companyWorkspace)),
+      appBar: AppBar(
+        title: Text(
+          data.valueOrNull?.memberships.isNotEmpty == true
+              ? l10n.companyWorkspace
+              : l10n.companyRegister,
+        ),
+      ),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: data.when(
@@ -107,7 +113,7 @@ class _CompanyScreenState extends ConsumerState<CompanyScreen> {
                 icon: const Icon(LucideIcons.messageCircle400),
                 label: Text(l10n.companyMyInquiries),
               ),
-              CompanyNotice(l10n.companyLoadFailed),
+              CompanyNotice(companyErrorText(context, error)),
               const SizedBox(height: 16),
               AppElevatedButton(title: l10n.retry, onTap: _refresh),
             ],
