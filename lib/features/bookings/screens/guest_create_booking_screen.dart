@@ -12,8 +12,8 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/bookings/widgets/booking_order_fields.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
-import 'package:prokat/features/bookings/widgets/service_tariff_block.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/public_equipment_provider.dart';
@@ -23,7 +23,6 @@ import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/locations/widgets/address_picker_card.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -130,7 +129,25 @@ class _GuestCreateBookingScreenState
     final equipment = ref
         .read(publicEquipmentProvider(widget.equipmentId))
         .valueOrNull;
-    if (equipment != null) _announceTariff(equipment);
+    if (equipment != null) {
+      _announceTariff(equipment);
+      _selectOnlyTariff(equipment);
+    }
+  }
+
+  void _selectOnlyTariff(Equipment equipment) {
+    final prices = bookablePrices(equipment);
+    if (prices.length != 1) return;
+    final onlyId = prices.first.id;
+    if (_selectedPriceId == onlyId) return;
+    setState(() => _selectedPriceId = onlyId);
+  }
+
+  PriceEntry? _resolvedPrice(Equipment equipment) {
+    final prices = bookablePrices(equipment);
+    if (prices.length == 1) return prices.first;
+    if (_selectedPriceId == null) return null;
+    return prices.where((entry) => entry.id == _selectedPriceId).firstOrNull;
   }
 
   Future<void> _refreshLocationsIfAuthenticated() async {
@@ -202,8 +219,8 @@ class _GuestCreateBookingScreenState
     );
   }
 
-  String? _validationMessage(AppLocalizations l10n) {
-    if (_selectedPriceId == null) return l10n.pleaseSelectPrice;
+  String? _validationMessage(AppLocalizations l10n, Equipment equipment) {
+    if (_resolvedPrice(equipment) == null) return l10n.pleaseSelectPrice;
     if (_address == null) return l10n.pleaseSelectLocation;
     if (_scheduleMode == JobScheduleMode.none) return l10n.pleaseSelectDate;
     if (_scheduleMode == JobScheduleMode.scheduled &&
@@ -234,8 +251,8 @@ class _GuestCreateBookingScreenState
     return EquipmentShareBookingIntent(
       userId: null,
       equipmentId: widget.equipmentId,
-      priceEntryId: _selectedPriceId!,
-      priceSnapshot: _selectedPrice(equipment)?.price ?? _restoredSnapshot ?? 0,
+      priceEntryId: _resolvedPrice(equipment)!.id,
+      priceSnapshot: _resolvedPrice(equipment)?.price ?? _restoredSnapshot ?? 0,
       comment: _commentController.text,
       scheduleMode: _scheduleMode == JobScheduleMode.asap
           ? 'asap'
@@ -246,12 +263,12 @@ class _GuestCreateBookingScreenState
     );
   }
 
-  PriceEntry? _selectedPrice(Equipment? equipment) {
-    if (equipment == null || _selectedPriceId == null) return null;
-    for (final entry in equipment.prices) {
-      if (entry.id == _selectedPriceId && entry.price > 0) return entry;
-    }
-    return null;
+  Future<LocationModel?> _openAddressSheet() async {
+    final before = _address;
+    await _pickAddress();
+    if (!mounted) return null;
+    if (identical(_address, before)) return null;
+    return _address;
   }
 
   Future<void> _pickAddress() async {
@@ -289,21 +306,45 @@ class _GuestCreateBookingScreenState
     setState(() => _address = picked);
   }
 
+  void _selectScheduled() {
+    final today = jobScheduleToday();
+    final date = _selectedDate ?? today;
+    final time = jobScheduleResolveTimeOn(
+      date,
+      _selectedTime ?? jobScheduleDefaultTimeOn(date),
+    );
+    setState(() {
+      _scheduleMode = JobScheduleMode.scheduled;
+      _selectedDate = date;
+      _selectedTime = time;
+    });
+  }
+
+  void _selectAsap() {
+    final when = jobScheduleAsapWhen();
+    setState(() {
+      _scheduleMode = JobScheduleMode.asap;
+      _selectedDate = DateTime(when.year, when.month, when.day);
+      _selectedTime = when;
+    });
+  }
+
   Future<void> _pickDate() async {
     final picked = await showJobDatePicker(
       context: context,
       current: _selectedDate,
     );
     if (!mounted || picked == null) return;
+
+    final day = DateTime(picked.year, picked.month, picked.day);
+    final time = jobScheduleResolveTimeOn(
+      day,
+      _selectedTime ?? jobScheduleDefaultTimeOn(day),
+    );
     setState(() {
       _scheduleMode = JobScheduleMode.scheduled;
-      _selectedDate = DateTime(picked.year, picked.month, picked.day);
-      if (_selectedTime != null) {
-        _selectedTime = jobScheduleResolveTimeOn(
-          _selectedDate!,
-          _selectedTime!,
-        );
-      }
+      _selectedDate = day;
+      _selectedTime = time;
     });
   }
 
@@ -318,13 +359,13 @@ class _GuestCreateBookingScreenState
     setState(() {
       _scheduleMode = JobScheduleMode.scheduled;
       _selectedDate = DateTime(date.year, date.month, date.day);
-      _selectedTime = picked;
+      _selectedTime = jobScheduleResolveTimeOn(date, picked);
     });
   }
 
   Future<void> _book(Equipment equipment) async {
     final l10n = AppLocalizations.of(context)!;
-    final message = _validationMessage(l10n);
+    final message = _validationMessage(l10n, equipment);
     if (message != null) {
       AppToast.show(message: message, type: AppToastType.error);
       return;
@@ -423,7 +464,7 @@ class _GuestCreateBookingScreenState
       if (!mounted) return;
     }
 
-    final entry = _selectedPrice(equipment);
+    final entry = _resolvedPrice(equipment);
     if (entry == null) {
       setState(() => _selectedPriceId = null);
       AppToast.show(
@@ -509,7 +550,10 @@ class _GuestCreateBookingScreenState
 
     ref.listen(publicEquipmentProvider(widget.equipmentId), (previous, next) {
       next.when(
-        data: _announceTariff,
+        data: (item) {
+          _announceTariff(item);
+          _selectOnlyTariff(item);
+        },
         error: (error, _) {
           if (error is PublicEquipmentException && error.statusCode == 404) {
             unawaited(
@@ -554,7 +598,7 @@ class _GuestCreateBookingScreenState
             ),
             data: (item) => _Card(
               equipment: item,
-              selectedPriceId: _selectedPriceId,
+              selectedPrice: _resolvedPrice(item),
               address: _address,
               scheduleMode: _scheduleMode,
               selectedDate: _selectedDate,
@@ -562,18 +606,12 @@ class _GuestCreateBookingScreenState
               commentController: _commentController,
               locale: l10n.localeName,
               submitting: _submitting || creating || savingAddress,
-              onSelectPrice: (id) => setState(() => _selectedPriceId = id),
-              onAddress: () => unawaited(_pickAddress()),
-              onScheduled: () =>
-                  setState(() => _scheduleMode = JobScheduleMode.scheduled),
-              onAsap: () {
-                final when = jobScheduleAsapWhen();
-                setState(() {
-                  _scheduleMode = JobScheduleMode.asap;
-                  _selectedDate = DateTime(when.year, when.month, when.day);
-                  _selectedTime = when;
-                });
-              },
+              openAddressSheet: _openAddressSheet,
+              onAddressChanged: (address) => setState(() => _address = address),
+              onPriceChanged: (entry) =>
+                  setState(() => _selectedPriceId = entry.id),
+              onScheduled: _selectScheduled,
+              onAsap: _selectAsap,
               onPickDate: _pickDate,
               onPickTime: _pickTime,
               onBook: () => unawaited(_book(item)),
@@ -608,7 +646,7 @@ class _Unavailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppDimens.s16$base),
       children: [
         EmptyStateTile(
           imageName: 'empty_equipment.png',
@@ -622,7 +660,7 @@ class _Unavailable extends StatelessWidget {
 
 class _Card extends StatelessWidget {
   final Equipment equipment;
-  final String? selectedPriceId;
+  final PriceEntry? selectedPrice;
   final LocationModel? address;
   final JobScheduleMode scheduleMode;
   final DateTime? selectedDate;
@@ -630,8 +668,9 @@ class _Card extends StatelessWidget {
   final TextEditingController commentController;
   final String locale;
   final bool submitting;
-  final ValueChanged<String> onSelectPrice;
-  final VoidCallback onAddress;
+  final Future<LocationModel?> Function() openAddressSheet;
+  final ValueChanged<LocationModel> onAddressChanged;
+  final ValueChanged<PriceEntry> onPriceChanged;
   final VoidCallback onScheduled;
   final VoidCallback onAsap;
   final Future<void> Function() onPickDate;
@@ -640,7 +679,7 @@ class _Card extends StatelessWidget {
 
   const _Card({
     required this.equipment,
-    required this.selectedPriceId,
+    required this.selectedPrice,
     required this.address,
     required this.scheduleMode,
     required this.selectedDate,
@@ -648,8 +687,9 @@ class _Card extends StatelessWidget {
     required this.commentController,
     required this.locale,
     required this.submitting,
-    required this.onSelectPrice,
-    required this.onAddress,
+    required this.openAddressSheet,
+    required this.onAddressChanged,
+    required this.onPriceChanged,
     required this.onScheduled,
     required this.onAsap,
     required this.onPickDate,
@@ -659,54 +699,48 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
     final description = shortDescriptionOf(equipment);
-    final prices = equipment.prices.where((entry) => entry.price > 0).toList();
+    final prices = bookablePrices(equipment);
+    final hasSchedule = scheduleMode == JobScheduleMode.asap
+        ? true
+        : scheduleMode == JobScheduleMode.scheduled &&
+              selectedDate != null &&
+              selectedTime != null;
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: AppDimens.s24$xl),
       children: [
         EquipmentImageHeader(imageUrls: equipment.displayImageUrls),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          padding: const EdgeInsets.fromLTRB(
+            AppDimens.s16$base,
+            AppDimens.s16$base,
+            AppDimens.s16$base,
+            0,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 equipment.name,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.headingM(context),
               ),
               if (description.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(description, style: theme.textTheme.bodyMedium),
+                const SizedBox(height: AppDimens.s08$sm),
+                Text(description, style: AppFonts.body14(context)),
               ],
-              if (prices.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                ...prices.map(
-                  (entry) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: ServiceTariffBlock(
-                      entry: entry,
-                      selected: selectedPriceId == entry.id,
-                      onTap: () => onSelectPrice(entry.id),
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 8),
-              AddressPickerCard(
-                selectedAddress: address,
-                isRequired: address == null,
-                requiredHintText: l10n.requestRequiredHint,
-                onTap: onAddress,
-              ),
-              const SizedBox(height: 12),
-              JobScheduleSection(
-                mode: scheduleMode,
-                requiredHint: l10n.requestRequiredHint,
+              const SizedBox(height: AppDimens.s16$base),
+              BookingOrderFields(
+                isEquipmentGroup: bookingIsEquipmentGroup(equipment),
+                address: address,
+                openAddressSheet: openAddressSheet,
+                onAddressChanged: onAddressChanged,
+                prices: prices,
+                selectedPrice: selectedPrice,
+                onPriceChanged: onPriceChanged,
+                scheduleMode: scheduleMode,
                 selectedDate: selectedDate,
                 selectedTime: selectedTime,
                 locale: locale,
@@ -714,20 +748,13 @@ class _Card extends StatelessWidget {
                 onAsap: onAsap,
                 onPickDate: onPickDate,
                 onPickTime: onPickTime,
-              ),
-              const SizedBox(height: 20),
-              AppTextArea(
-                title: l10n.comments,
-                hint: l10n.requestCommentHint,
-                controller: commentController,
-                minLines: 2,
-                maxLines: 4,
-              ),
-              const SizedBox(height: 24),
-              AppElevatedButton(
-                title: l10n.reserveNow,
-                onTap: submitting ? null : onBook,
-                isLoading: submitting,
+                commentController: commentController,
+                canSubmit:
+                    (selectedPrice != null || prices.length == 1) &&
+                    address != null &&
+                    hasSchedule,
+                submitting: submitting,
+                onSubmit: onBook,
               ),
             ],
           ),

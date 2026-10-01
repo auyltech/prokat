@@ -3061,6 +3061,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingSelectOfferedService => 'Choose the offered service';
 
   @override
+  String get bookingDestinationTitle => 'Enter the destination address';
+
+  @override
+  String get bookingDestinationMachineryHint =>
+      'Specify where the machinery will be used';
+
+  @override
+  String get bookingDestinationEquipmentHint =>
+      'Specify where the equipment will be used';
+
+  @override
+  String get bookingTariffSingleTitle => 'Service rate';
+
+  @override
+  String get bookingTariffSelectTitle => 'Choose a rate';
+
+  @override
+  String get bookingTariffSelectHint => 'Choose one of the offered rates';
+
+  @override
+  String get bookingOrderCommentTitle => 'Order comment';
+
+  @override
   String get accountOnline => 'Online';
 
   @override
@@ -3841,7 +3864,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareEquipmentPriceChanged =>
-      'The price changed. Check the tariff and tap Book again.';
+      'The price changed. Check the rate and tap Create Order again.';
 
   @override
   String get shareEquipmentTariffUnavailable =>

@@ -5,9 +5,9 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
-import 'package:prokat/features/bookings/widgets/service_tariff_block.dart';
+import 'package:prokat/features/bookings/widgets/booking_order_fields.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -15,7 +15,7 @@ import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
-import 'package:prokat/features/locations/widgets/address_picker_card.dart';
+import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -53,7 +53,34 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       if (address != null) {
         ref.read(bookingMutationProvider.notifier).selectLocation(address);
       }
+      _selectOnlyTariff();
     });
+  }
+
+  void _selectOnlyTariff() {
+    final equipment = ref.read(bookingMutationProvider).selectedEquipment;
+    if (equipment == null) return;
+    final prices = bookablePrices(equipment);
+    if (prices.length != 1) return;
+    final only = prices.first;
+    final current = ref.read(bookingMutationProvider).selectedPriceEntry;
+    if (current?.id == only.id) return;
+    ref.read(bookingMutationProvider.notifier).selectPriceEntry(only);
+  }
+
+  Future<LocationModel?> _openAddressSheet(String equipmentId) async {
+    final before = ref.read(locationProvider).selectedAddress;
+    await SelectAddressSheet.show(
+      context,
+      service: 'address',
+      from: 'create_booking',
+      equipmentId: equipmentId,
+    );
+    if (!mounted) return null;
+    final next = ref.read(locationProvider).selectedAddress;
+    if (next == null) return null;
+    if (next.id == before?.id && next.street == before?.street) return null;
+    return next;
   }
 
   @override
@@ -123,6 +150,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
+    _selectOnlyTariff();
     final bookingState = ref.read(bookingMutationProvider);
     String message = "";
 
@@ -221,17 +249,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         ) ??
         false;
 
-    final priceEntries = equipment?.prices;
     final ownerComment = equipment?.ownerComment?.trim() ?? '';
 
     final imageUrls = equipment?.displayImageUrls ?? const <String>[];
 
-    final isPriceEntrySelected =
-        bookingState.selectedPriceEntry != null &&
-        equipment?.prices
-                .where((item) => item.id == bookingState.selectedPriceEntry?.id)
-                .firstOrNull !=
-            null;
+    final prices = equipment == null
+        ? const <PriceEntry>[]
+        : bookablePrices(equipment);
+    final selectedPrice = prices
+        .where((entry) => entry.id == bookingState.selectedPriceEntry?.id)
+        .firstOrNull;
 
     final hasSchedule = _scheduleMode == JobScheduleMode.asap
         ? true
@@ -241,7 +268,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final canSubmit =
         bookingState.selectedEquipment != null &&
-        isPriceEntrySelected &&
+        (selectedPrice != null || prices.length == 1) &&
         bookingState.selectedLocation != null &&
         hasSchedule;
 
@@ -250,7 +277,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .isActionActive("booking:create");
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: theme.colorScheme.surface,
       body: ListView(
         children: [
           if (equipment == null)
@@ -267,45 +294,35 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                 EquipmentImageHeader(imageUrls: imageUrls),
 
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppDimens.s16$base),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Favorite Button, equipment Name, model, owner
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   equipment.name,
-                                  style: theme.textTheme.titleLarge,
-                                  maxLines:
-                                      2, // Caps rendering at two lines max
-                                  overflow: TextOverflow
-                                      .ellipsis, // Clips extra text with "..."
+                                  style: AppFonts.headingM(context),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-
                                 Text(
                                   equipment.model,
-                                  style: theme.textTheme.titleMedium,
-                                  maxLines:
-                                      2, // Caps rendering at two lines max
-                                  overflow: TextOverflow
-                                      .ellipsis, // Clips extra text with "..."
+                                  style: AppFonts.caption(context),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
                           ),
-
-                          const SizedBox(width: 8),
-
+                          const SizedBox(width: AppDimens.s08$sm),
                           ShareEquipmentButton(equipment: equipment),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppDimens.s08$sm),
                           AppIconButton(
                             icon: isFavorite
                                 ? Icons.favorite
@@ -321,70 +338,31 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 12),
-
+                      const SizedBox(height: AppDimens.s12$md),
                       UserInfoTile(user: equipment.owner, showPresence: true),
-
-                      const SizedBox(height: 12),
-
                       if (ownerComment.isNotEmpty) ...[
-                        Text(
-                          ownerComment,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.8,
-                            ),
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppDimens.s12$md),
+                        Text(ownerComment, style: AppFonts.body14(context)),
                       ],
-
-                      AddressPickerCard(
-                        selectedAddress: selectedAddress,
-                        onTap: () => SelectAddressSheet.show(
-                          context,
-                          service: "address",
-                          from: "create_booking",
-                          equipmentId: equipment.id,
-                        ),
-                        isRequired: true,
-                        emptyHint: l10n.requestSelectDeliveryAddress,
-                        requiredHintText: l10n.requestRequiredHint,
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      RequiredFieldLabel(
-                        title: l10n.bookingSelectOfferedService,
-                        showRequired: !isPriceEntrySelected,
-                        requiredHint: l10n.requestRequiredHint,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      ...?priceEntries?.map(
-                        (entry) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: ServiceTariffBlock(
-                            entry: entry,
-                            selected:
-                                bookingState.selectedPriceEntry?.id == entry.id,
-                            onTap: () {
-                              ref
-                                  .read(bookingMutationProvider.notifier)
-                                  .selectPriceEntry(entry);
-                            },
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      JobScheduleSection(
-                        mode: _scheduleMode,
-                        requiredHint: l10n.requestRequiredHint,
+                      const SizedBox(height: AppDimens.s16$base),
+                      BookingOrderFields(
+                        isEquipmentGroup: bookingIsEquipmentGroup(equipment),
+                        address:
+                            selectedAddress ?? bookingState.selectedLocation,
+                        openAddressSheet: () => _openAddressSheet(equipment.id),
+                        onAddressChanged: (address) {
+                          ref
+                              .read(bookingMutationProvider.notifier)
+                              .selectLocation(address);
+                        },
+                        prices: prices,
+                        selectedPrice: selectedPrice,
+                        onPriceChanged: (entry) {
+                          ref
+                              .read(bookingMutationProvider.notifier)
+                              .selectPriceEntry(entry);
+                        },
+                        scheduleMode: _scheduleMode,
                         selectedDate: bookingState.selectedDate,
                         selectedTime: bookingState.selectedTime,
                         locale: locale,
@@ -392,36 +370,12 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         onAsap: _selectAsap,
                         onPickDate: _pickDate,
                         onPickTime: _pickTime,
+                        commentController: _commentController,
+                        onCommentChanged: bookingNotifier.setComment,
+                        canSubmit: canSubmit,
+                        submitting: isSubmitting,
+                        onSubmit: () => unawaited(onSubmit()),
                       ),
-
-                      const SizedBox(height: 20),
-
-                      AppTextArea(
-                        title: l10n.comments,
-                        hint: l10n.requestCommentHint,
-                        controller: _commentController,
-                        minLines: 2,
-                        maxLines: 4,
-                        onChanged: bookingNotifier.setComment,
-                      ),
-
-                      const SizedBox(height: 40),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AppElevatedButton(
-                              title: l10n.placeOrder,
-                              onTap: (!canSubmit || isSubmitting)
-                                  ? null
-                                  : onSubmit,
-                              isLoading: isSubmitting,
-                              isExpanded: false,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 40),
                     ],
                   ),
                 ),

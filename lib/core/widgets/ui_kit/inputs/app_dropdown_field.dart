@@ -197,7 +197,12 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
     final selectedOption = widget.options
         .where((o) => o.value == widget.value)
         .firstOrNull;
-    final canOpen = widget.enabled && !widget.readOnly;
+    // One preset choice is not a picker: same fill as a normal field, no chevron.
+    final lockedToOnlyOption =
+        widget.openCustomSheet == null &&
+        widget.options.length == 1 &&
+        widget.value != null;
+    final canOpen = widget.enabled && !widget.readOnly && !lockedToOnlyOption;
 
     return AppTextField(
       controller: _controller,
@@ -205,18 +210,20 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
       title: widget.title,
       hint: widget.hint,
       errorText: widget.errorText,
-      enabled: widget.enabled,
-      readOnly: widget.readOnly,
+      enabled: lockedToOnlyOption || widget.enabled,
+      readOnly: lockedToOnlyOption ? false : widget.readOnly,
       isRequired: widget.isRequired,
       selectOnly: true,
       forceFocused: _pickerOpen,
       onTap: canOpen ? _openSheet : null,
       prefix: widget.prefix ?? selectedOption?.prefix,
-      suffix: Icon(
-        Icons.expand_more_rounded,
-        size: AppDimens.s24$xl,
-        color: colors.text.secondary,
-      ),
+      suffix: lockedToOnlyOption
+          ? null
+          : Icon(
+              Icons.expand_more_rounded,
+              size: AppDimens.s24$xl,
+              color: colors.text.secondary,
+            ),
     );
   }
 }

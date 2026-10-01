@@ -573,6 +573,34 @@ void main() {
     expect(value, '2');
   });
 
+  testWidgets('AppDropdownField locks a single preset value', (tester) async {
+    var changes = 0;
+    await tester.pumpWidget(
+      _wrap(
+        AppDropdownField<String>(
+          sheetTitle: 'Pick',
+          enabled: false,
+          value: '1',
+          options: const [DropdownOption(label: 'Only', value: '1')],
+          onChanged: (_) => changes++,
+        ),
+        theme: AppTheme.darkTheme,
+      ),
+    );
+
+    expect(find.byIcon(Icons.expand_more_rounded), findsNothing);
+    expect(find.text('Only'), findsOneWidget);
+
+    final box = tester.widget<AppInputFieldBox>(find.byType(AppInputFieldBox));
+    final colors = AppTheme.darkTheme.extension<AppColorsTheme>()!;
+    expect(box.backgroundColor, colors.textField.background);
+
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+    expect(find.text('Pick'), findsNothing);
+    expect(changes, 0);
+  });
+
   testWidgets('AppDropdownField forwards field errors', (tester) async {
     await tester.pumpWidget(
       _wrap(

@@ -5824,6 +5824,48 @@ abstract class AppLocalizations {
   /// **'Choose the offered service'**
   String get bookingSelectOfferedService;
 
+  /// No description provided for @bookingDestinationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the destination address'**
+  String get bookingDestinationTitle;
+
+  /// No description provided for @bookingDestinationMachineryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify where the machinery will be used'**
+  String get bookingDestinationMachineryHint;
+
+  /// No description provided for @bookingDestinationEquipmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify where the equipment will be used'**
+  String get bookingDestinationEquipmentHint;
+
+  /// No description provided for @bookingTariffSingleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service rate'**
+  String get bookingTariffSingleTitle;
+
+  /// No description provided for @bookingTariffSelectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a rate'**
+  String get bookingTariffSelectTitle;
+
+  /// No description provided for @bookingTariffSelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one of the offered rates'**
+  String get bookingTariffSelectHint;
+
+  /// No description provided for @bookingOrderCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order comment'**
+  String get bookingOrderCommentTitle;
+
   /// No description provided for @accountOnline.
   ///
   /// In en, this message translates to:
@@ -7183,7 +7225,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareEquipmentPriceChanged.
   ///
   /// In en, this message translates to:
-  /// **'The price changed. Check the tariff and tap Book again.'**
+  /// **'The price changed. Check the rate and tap Create Order again.'**
   String get shareEquipmentPriceChanged;
 
   /// No description provided for @shareEquipmentTariffUnavailable.

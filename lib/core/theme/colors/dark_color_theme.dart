@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/theme/colors/app_colors.dart' show AppColorsDark;
+import 'package:prokat/core/theme/colors/app_colors.dart';
 import 'package:prokat/core/theme/colors/app_colors_theme.dart';
 import 'package:prokat/core/theme/colors/component_themes/component_themes.dart';
 
@@ -54,7 +54,7 @@ class DarkColorTheme extends AppColorsTheme {
   ];
 
   @override
-  AppBackgroundTheme get background => const AppBackgroundTheme(
+  AppBackgroundTheme get background => AppBackgroundTheme(
     main: AppColorsDark.background,
     secondaryCard: AppColorsDark.surface,
     elevated: AppColorsDark.surfaceElevated,
@@ -62,7 +62,11 @@ class DarkColorTheme extends AppColorsTheme {
     peachSoft: AppColorsDark.peachSoft,
     amberSoft: AppColorsDark.amberSoft,
     successSoft: AppColorsDark.successSoft,
-    dangerSoft: AppColorsDark.dangerSoft,
+    // Pale red at 16% over the sheet, so weekend columns stay a step off the surface.
+    dangerSoft: Color.alphaBlend(
+      AppColors.dangerSoft.withValues(alpha: 0.16),
+      AppColorsDark.surfaceElevated,
+    ),
     warningSoft: AppColorsDark.warningSoft,
   );
 

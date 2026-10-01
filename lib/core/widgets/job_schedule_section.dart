@@ -9,6 +9,15 @@ const jobScheduleDefaultHour = 16;
 const jobScheduleDefaultMinute = 20;
 const jobScheduleMinuteInterval = 10;
 
+/// Cupertino time wheel magnifies the centered row by 2.35 / 2.1.
+const _timeWheelCenterMagnification = 2.35 / 2.1;
+
+/// Colon sits between the wheels, a step paler than the digit color.
+const _timeSeparatorOpacity = 0.55;
+
+/// Manrope ExtraBold draws ":" this far below the digit ink center, in ems.
+const _timeSeparatorLiftEm = 180 / 2000;
+
 enum JobScheduleMode { none, scheduled, asap }
 
 DateTime jobScheduleToday() {
@@ -118,7 +127,7 @@ Future<DateTime?> showJobDatePicker({
 
   return AppBottomSheet.show<DateTime>(
     context,
-    title: l10n.dateAndTime,
+    title: l10n.date,
     contentBuilder: (context) {
       return _JobDatePickerContent(
         initialDate: initial,
@@ -146,30 +155,63 @@ Future<DateTime?> showJobTimePicker({
   final l10n = AppLocalizations.of(context)!;
   return AppBottomSheet.show<DateTime>(
     context,
-    title: l10n.dateAndTime,
+    title: l10n.time,
     contentBuilder: (context) {
       final material = MaterialLocalizations.of(context);
+      final digitStyle = AppFonts.headingL(context);
       return Column(
         mainAxisSize: MainAxisSize.min,
         spacing: AppDimens.s24$xl,
         children: [
           SizedBox(
             height: 216,
-            child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.time,
-              use24hFormat: true,
-              minuteInterval: jobScheduleMinuteInterval,
-              initialDateTime: draft,
-              minimumDate: minimumDate,
-              onDateTimeChanged: (value) {
-                draft = DateTime(
-                  day.year,
-                  day.month,
-                  day.day,
-                  value.hour,
-                  value.minute,
-                );
-              },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CupertinoTheme(
+                  data: CupertinoTheme.of(context).copyWith(
+                    textTheme: CupertinoTheme.of(context).textTheme
+                        .copyWith(dateTimePickerTextStyle: digitStyle),
+                  ),
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    use24hFormat: true,
+                    minuteInterval: jobScheduleMinuteInterval,
+                    initialDateTime: draft,
+                    minimumDate: minimumDate,
+                    onDateTimeChanged: (value) {
+                      draft = DateTime(
+                        day.year,
+                        day.month,
+                        day.day,
+                        value.hour,
+                        value.minute,
+                      );
+                    },
+                  ),
+                ),
+                IgnorePointer(
+                  child: Transform.translate(
+                    offset: Offset(
+                      0,
+                      -digitStyle.fontSize! *
+                          _timeSeparatorLiftEm *
+                          _timeWheelCenterMagnification,
+                    ),
+                    child: Transform.scale(
+                      scale: _timeWheelCenterMagnification,
+                      child: Text(
+                        ':',
+                        style: digitStyle.copyWith(
+                          color: context.colors.text.main.withValues(
+                            alpha: _timeSeparatorOpacity,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Row(
@@ -211,56 +253,54 @@ class _JobDatePickerContent extends StatefulWidget {
 }
 
 class _JobDatePickerContentState extends State<_JobDatePickerContent> {
-  late DateTime _visibleMonth;
+  static const _gridSpacing = 4.0;
+  static const _weekRows = 6;
+
+  late final List<DateTime> _months;
+  late final PageController _pages;
   late DateTime _selected;
+  late int _page;
 
   @override
   void initState() {
     super.initState();
     _selected = widget.initialDate;
-    _visibleMonth = DateTime(_selected.year, _selected.month);
+    _months = _monthsBetween(widget.firstDate, widget.lastDate);
+    final initial = DateTime(_selected.year, _selected.month);
+    final index = _months.indexWhere(
+      (month) => month.year == initial.year && month.month == initial.month,
+    );
+    _page = index < 0 ? 0 : index;
+    _pages = PageController(initialPage: _page);
   }
 
-  bool get _canGoPrev {
-    final prev = DateTime(_visibleMonth.year, _visibleMonth.month - 1);
-    final prevLast = DateTime(prev.year, prev.month + 1, 0);
-    return !prevLast.isBefore(widget.firstDate);
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
   }
 
-  bool get _canGoNext {
-    final next = DateTime(_visibleMonth.year, _visibleMonth.month + 1);
-    return !next.isAfter(DateTime(widget.lastDate.year, widget.lastDate.month));
-  }
+  DateTime get _visibleMonth => _months[_page];
+
+  bool get _canGoPrev => _page > 0;
+
+  bool get _canGoNext => _page < _months.length - 1;
 
   void _shiftMonth(int delta) {
-    final next = DateTime(_visibleMonth.year, _visibleMonth.month + delta);
-    if (delta < 0 && !_canGoPrev) return;
-    if (delta > 0 && !_canGoNext) return;
-    setState(() => _visibleMonth = next);
+    final next = _page + delta;
+    if (next < 0 || next >= _months.length) return;
+    _pages.animateToPage(
+      next,
+      duration: AppDimens.defaultAnimationDuration,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
     final material = MaterialLocalizations.of(context);
     final monthLabel = DateFormat.yMMMM(locale).format(_visibleMonth);
-
-    final firstOfMonth = DateTime(_visibleMonth.year, _visibleMonth.month);
-    // Monday-based week index (0 = Mon … 6 = Sun), matching Material RU calendars.
-    final leadingEmpty = (firstOfMonth.weekday + 6) % 7;
-    final daysInMonth = DateTime(
-      _visibleMonth.year,
-      _visibleMonth.month + 1,
-      0,
-    ).day;
-
-    final weekdayLabels = List.generate(7, (index) {
-      // 2024-01-01 is Monday.
-      final day = DateTime(2024, 1, 1 + index);
-      return DateFormat.E(locale).format(day);
-    });
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -274,12 +314,7 @@ class _JobDatePickerContentState extends State<_JobDatePickerContent> {
         Row(
           children: [
             Expanded(
-              child: Text(
-                monthLabel,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: Text(monthLabel, style: AppFonts.headingS(context)),
             ),
             AppIconButton(
               onTap: _canGoPrev ? () => _shiftMonth(-1) : null,
@@ -292,64 +327,33 @@ class _JobDatePickerContentState extends State<_JobDatePickerContent> {
           ],
         ),
         const SizedBox(height: AppDimens.s04$xs),
-        Row(
-          children: [
-            for (final label in weekdayLabels)
-              Expanded(
-                child: Center(
-                  child: Text(
-                    label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: leadingEmpty + daysInMonth,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-          ),
-          itemBuilder: (context, index) {
-            if (index < leadingEmpty) {
-              return const SizedBox.shrink();
-            }
-            final day = index - leadingEmpty + 1;
-            final date = DateTime(_visibleMonth.year, _visibleMonth.month, day);
-            final enabled =
-                !date.isBefore(widget.firstDate) &&
-                !date.isAfter(widget.lastDate);
-            final selected = enabled && jobScheduleIsSameDay(date, _selected);
-
-            return InkWell(
-              borderRadius: BorderRadius.circular(24),
-              onTap: enabled ? () => setState(() => _selected = date) : null,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selected ? colorScheme.primary : null,
-                ),
-                child: Center(
-                  child: Text(
-                    '$day',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: selected
-                          ? context.colors.text.white
-                          : enabled
-                          ? colorScheme.onSurface
-                          : colorScheme.onSurface.withValues(alpha: 0.28),
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                  ),
-                ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final cell =
+                (constraints.maxWidth -
+                    _gridSpacing * (DateTime.daysPerWeek - 1)) /
+                DateTime.daysPerWeek;
+            final height =
+                cell * (_weekRows + 1) +
+                _gridSpacing * (_weekRows - 1) +
+                AppDimens.s08$sm;
+            return SizedBox(
+              height: height,
+              child: PageView.builder(
+                controller: _pages,
+                itemCount: _months.length,
+                onPageChanged: (index) => setState(() => _page = index),
+                itemBuilder: (context, index) {
+                  return _MonthPage(
+                    month: _months[index],
+                    firstDate: widget.firstDate,
+                    lastDate: widget.lastDate,
+                    selected: _selected,
+                    spacing: _gridSpacing,
+                    locale: locale,
+                    onSelect: (date) => setState(() => _selected = date),
+                  );
+                },
               ),
             );
           },
@@ -376,6 +380,148 @@ class _JobDatePickerContentState extends State<_JobDatePickerContent> {
     );
   }
 }
+
+List<DateTime> _monthsBetween(DateTime first, DateTime last) {
+  final start = DateTime(first.year, first.month);
+  final end = DateTime(last.year, last.month);
+  final months = <DateTime>[];
+  var cursor = start;
+  while (!cursor.isAfter(end)) {
+    months.add(cursor);
+    cursor = DateTime(cursor.year, cursor.month + 1);
+  }
+  if (months.isEmpty) months.add(start);
+  return months;
+}
+
+class _MonthPage extends StatelessWidget {
+  const _MonthPage({
+    required this.month,
+    required this.firstDate,
+    required this.lastDate,
+    required this.selected,
+    required this.spacing,
+    required this.locale,
+    required this.onSelect,
+  });
+
+  final DateTime month;
+  final DateTime firstDate;
+  final DateTime lastDate;
+  final DateTime selected;
+  final double spacing;
+  final String locale;
+  final ValueChanged<DateTime> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final weekendFill = context.colors.background.dangerSoft;
+    final firstOfMonth = DateTime(month.year, month.month);
+    // Monday-based week index (0 = Mon … 6 = Sun), matching Material RU calendars.
+    final leadingEmpty = (firstOfMonth.weekday + 6) % 7;
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    final weekdayLabels = List.generate(DateTime.daysPerWeek, (index) {
+      // 2024-01-01 is Monday.
+      return DateFormat.E(locale).format(DateTime(2024, 1, 1 + index));
+    });
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const columns = DateTime.daysPerWeek;
+        final cell = (constraints.maxWidth - spacing * (columns - 1)) / columns;
+
+        return Stack(
+          children: [
+            for (var index = 0; index < columns; index++)
+              if (_isWeekendColumn(index))
+                Positioned(
+                  left: index * (cell + spacing),
+                  width: cell,
+                  top: 0,
+                  bottom: 0,
+                  child: ColoredBox(color: weekendFill),
+                ),
+            Column(
+              children: [
+                Row(
+                  spacing: spacing,
+                  children: [
+                    for (final label in weekdayLabels)
+                      Expanded(
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: Center(
+                            child: Text(
+                              label,
+                              style: AppFonts.body16SemiBold(
+                                context,
+                              ).copyWith(color: context.colors.text.secondary),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppDimens.s08$sm),
+                Expanded(
+                  child: GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: leadingEmpty + daysInMonth,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      mainAxisSpacing: spacing,
+                      crossAxisSpacing: spacing,
+                    ),
+                    itemBuilder: (context, index) {
+                      if (index < leadingEmpty) return const SizedBox.shrink();
+                      final day = index - leadingEmpty + 1;
+                      final date = DateTime(month.year, month.month, day);
+                      final enabled =
+                          !date.isBefore(firstDate) && !date.isAfter(lastDate);
+                      final isSelected =
+                          enabled && jobScheduleIsSameDay(date, selected);
+
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: enabled ? () => onSelect(date) : null,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isSelected ? colorScheme.primary : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '$day',
+                              style: isSelected
+                                  ? AppFonts.headingS(
+                                      context,
+                                    ).copyWith(color: context.colors.text.white)
+                                  : enabled
+                                  ? AppFonts.headingS(context)
+                                  : AppFonts.headingS(context).copyWith(
+                                      color: context.colors.text.main
+                                          .withValues(alpha: 0.28),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Monday-based column: 0 = Mon … 5 = Sat, 6 = Sun.
+bool _isWeekendColumn(int mondayIndex) => mondayIndex >= 5;
 
 class JobScheduleSection extends StatelessWidget {
   const JobScheduleSection({

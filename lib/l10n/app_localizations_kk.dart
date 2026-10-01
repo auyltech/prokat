@@ -3057,6 +3057,29 @@ class AppLocalizationsKk extends AppLocalizations {
   String get bookingSelectOfferedService => 'Ұсынылатын қызметті таңдаңыз';
 
   @override
+  String get bookingDestinationTitle => 'Баратын мекенжайды көрсетіңіз';
+
+  @override
+  String get bookingDestinationMachineryHint =>
+      'Техника қайда қолданылатынын көрсетіңіз';
+
+  @override
+  String get bookingDestinationEquipmentHint =>
+      'Жабдық қайда қолданылатынын көрсетіңіз';
+
+  @override
+  String get bookingTariffSingleTitle => 'Қызмет тарифі';
+
+  @override
+  String get bookingTariffSelectTitle => 'Тарифті таңдаңыз';
+
+  @override
+  String get bookingTariffSelectHint => 'Ұсынылған тарифтердің ішінен таңдаңыз';
+
+  @override
+  String get bookingOrderCommentTitle => 'Тапсырысқа пікір';
+
+  @override
   String get accountOnline => 'Онлайн';
 
   @override
@@ -3841,7 +3864,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get shareEquipmentPriceChanged =>
-      'Баға өзгерді. Тарифті тексеріп, «Брондау» түймесін қайта басыңыз.';
+      'Баға өзгерді. Тарифті тексеріп, «Тапсырыс жасау» түймесін қайта басыңыз.';
 
   @override
   String get shareEquipmentTariffUnavailable =>

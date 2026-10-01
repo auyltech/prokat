@@ -3081,6 +3081,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bookingSelectOfferedService => 'Выберите предлагаемую услугу';
 
   @override
+  String get bookingDestinationTitle => 'Укажите адрес назначения';
+
+  @override
+  String get bookingDestinationMachineryHint =>
+      'Укажите где будет использоваться техника';
+
+  @override
+  String get bookingDestinationEquipmentHint =>
+      'Укажите где будет использоваться оборудование';
+
+  @override
+  String get bookingTariffSingleTitle => 'Тариф за услугу';
+
+  @override
+  String get bookingTariffSelectTitle => 'Выберите тариф';
+
+  @override
+  String get bookingTariffSelectHint => 'Выберите тариф среди предложенных';
+
+  @override
+  String get bookingOrderCommentTitle => 'Комментарий к заказу';
+
+  @override
   String get accountOnline => 'Онлайн';
 
   @override
@@ -3876,7 +3899,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shareEquipmentPriceChanged =>
-      'Цена изменилась. Проверьте тариф и нажмите «Забронировать» ещё раз.';
+      'Цена изменилась. Проверьте тариф и нажмите «Создать заказ» ещё раз.';
 
   @override
   String get shareEquipmentTariffUnavailable =>
