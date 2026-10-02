@@ -15,7 +15,16 @@ import 'dart:io';
 class EquipmentService {
   final ApiClient apiClient;
 
-  EquipmentService(this.apiClient);
+  final String? companyId;
+  final String? companyCity;
+  String? lastCreatedEquipmentId;
+  EquipmentService(this.apiClient, {this.companyId, this.companyCity});
+  String _path(String path) => companyId == null
+      ? path
+      : path.replaceFirst(
+          '/equipment',
+          '/company-profile/$companyId/equipment',
+        );
 
   Dio get _dio => apiClient.dio;
 
@@ -183,7 +192,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.get(
-        ApiRoutes.ownerEquipment,
+        _path(ApiRoutes.ownerEquipment),
         queryParameters: {
           if (query?.isNotEmpty ?? false) 'query': query,
           if (city?.isNotEmpty ?? false) 'city': city,
@@ -262,7 +271,7 @@ class EquipmentService {
   Future<ApiResponse<List<String>>> getOwnerCatalogGroups() async {
     try {
       final response = await _dio.get(
-        '${ApiRoutes.ownerEquipment}/catalog-groups',
+        _path('${ApiRoutes.ownerEquipment}/catalog-groups'),
       );
 
       return handleApiResponse<List<String>>(
@@ -297,7 +306,7 @@ class EquipmentService {
 
   Future<ApiResponse<Equipment?>> getOwnerEquipmentById(String id) async {
     try {
-      final response = await _dio.get("/equipment/owner/id/$id");
+      final response = await _dio.get(_path("/equipment/owner/id/$id"));
 
       return handleApiResponse<Equipment>(
         response: response,
@@ -325,7 +334,7 @@ class EquipmentService {
   Future<ApiResponse<void>> createEquipment(Map<String, dynamic> data) async {
     try {
       final response = await _dio.post(
-        ApiRoutes.equipment,
+        _path(ApiRoutes.equipment),
         data: {
           "name": data["name"],
           "model": data["model"] ?? "",
@@ -335,6 +344,7 @@ class EquipmentService {
         },
       );
 
+      lastCreatedEquipmentId = response.data['data']?['id'] as String?;
       return handleEmptyApiResponse(
         response: response,
         fallbackMessage: "Equipment created successfully",
@@ -360,7 +370,7 @@ class EquipmentService {
   Future<ApiResponse<void>> updateEquipment(Map<String, dynamic> data) async {
     try {
       final response = await _dio.patch(
-        '/equipment/${data["id"]}',
+        _path('/equipment/${data["id"]}'),
         data: {
           "id": data["id"],
           "name": data["name"],
@@ -401,7 +411,7 @@ class EquipmentService {
   ) async {
     try {
       final response = await _dio.patch(
-        '/equipment/$equipmentId/location',
+        _path('/equipment/$equipmentId/location'),
         data: data,
       );
 
@@ -433,7 +443,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.patch(
-        '/equipment/$equipmentId/category',
+        _path('/equipment/$equipmentId/category'),
         data: {"id": equipmentId, "categoryId": categoryId},
       );
 
@@ -465,7 +475,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.patch(
-        '/equipment/$equipmentId/status',
+        _path('/equipment/$equipmentId/status'),
         data: {"id": equipmentId, "status": status.name.toUpperCase()},
       );
 
@@ -497,7 +507,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.patch(
-        '/equipment/$equipmentId/online',
+        _path('/equipment/$equipmentId/online'),
         data: {"id": equipmentId, "isVisible": isVisible},
       );
 
@@ -529,7 +539,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.put(
-        '/equipment/$equipmentId/spec-values',
+        _path('/equipment/$equipmentId/spec-values'),
         data: {
           'id': equipmentId,
           'specs': specs.map((item) => item.toJson()).toList(),
@@ -560,7 +570,7 @@ class EquipmentService {
 
   Future<ApiResponse<void>> deleteEquipment(String equipmentId) async {
     try {
-      final response = await _dio.delete('/equipment/$equipmentId');
+      final response = await _dio.delete(_path('/equipment/$equipmentId'));
 
       return handleEmptyApiResponse(
         response: response,
@@ -593,7 +603,7 @@ class EquipmentService {
   }) async {
     try {
       final response = await _dio.post(
-        "/equipment/$equipmentId/priceEntry",
+        _path("/equipment/$equipmentId/priceEntry"),
         data: {
           "equipmentId": equipmentId,
           "price": price,
@@ -633,7 +643,7 @@ class EquipmentService {
       final priceEntryId = entry.id;
 
       final response = await _dio.patch(
-        '/equipment/$equipmentId/priceEntry/$priceEntryId',
+        _path('/equipment/$equipmentId/priceEntry/$priceEntryId'),
         data: {
           "id": priceEntryId,
           "equipmentId": equipmentId,
@@ -673,7 +683,7 @@ class EquipmentService {
   ) async {
     try {
       final response = await _dio.delete(
-        '/equipment/$equipmentId/priceEntry/${entry.id}',
+        _path('/equipment/$equipmentId/priceEntry/${entry.id}'),
       );
 
       return handleEmptyApiResponse(
@@ -714,7 +724,7 @@ class EquipmentService {
       });
 
       final response = await _dio.post(
-        '/equipment/$equipmentId/images',
+        _path('/equipment/$equipmentId/images'),
         data: formData,
       );
 
@@ -746,7 +756,7 @@ class EquipmentService {
   ) async {
     try {
       final response = await _dio.delete(
-        '/equipment/$equipmentId/images/$imageId',
+        _path('/equipment/$equipmentId/images/$imageId'),
       );
 
       return handleEmptyApiResponse(
@@ -777,7 +787,7 @@ class EquipmentService {
   ) async {
     try {
       final response = await _dio.patch(
-        '/equipment/$equipmentId/images/$imageId/primary',
+        _path('/equipment/$equipmentId/images/$imageId/primary'),
       );
 
       return handleEmptyApiResponse(

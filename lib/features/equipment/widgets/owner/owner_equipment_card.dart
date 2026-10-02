@@ -20,10 +20,21 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentCard extends ConsumerWidget {
   final Equipment equipment;
+  final VoidCallback? onOpen;
+  final bool showShare;
 
-  const OwnerEquipmentCard({super.key, required this.equipment});
+  const OwnerEquipmentCard({
+    super.key,
+    required this.equipment,
+    this.onOpen,
+    this.showShare = true,
+  });
 
   void _openEditor(BuildContext context, WidgetRef ref) {
+    if (onOpen != null) {
+      onOpen!();
+      return;
+    }
     ref
         .read(equipmentMutationProvider.notifier)
         .selectEditEquipment(equipment.id);
@@ -125,7 +136,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   EquipmentStatusBadge(status: equipment.status),
-                  if (canShowShareButton(equipment)) ...[
+                  if (showShare && canShowShareButton(equipment)) ...[
                     const SizedBox(height: 8),
                     ShareEquipmentButton(
                       equipment: equipment,

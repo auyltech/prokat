@@ -265,9 +265,11 @@ class EquipmentMutationNotifier
         finishAction(actionId);
 
         await _refreshEquipmentCaches(equipmentId);
-        unawaited(
-          ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
-        );
+        if (api.companyId == null) {
+          unawaited(
+            ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+          );
+        }
 
         return MutationResponse(success: true, message: result.message);
       }
@@ -345,10 +347,12 @@ class EquipmentMutationNotifier
       if (result.success) {
         finishAction(actionId);
 
-        unawaited(
-          ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
-        );
-        unawaited(ref.read(ownerProfileProvider.notifier).refresh());
+        if (api.companyId == null) {
+          unawaited(
+            ref.read(billingProvider.notifier).getOwnerBalance(silent: true),
+          );
+          unawaited(ref.read(ownerProfileProvider.notifier).refresh());
+        }
         await _refreshEquipmentCaches(equipmentId);
 
         return true;

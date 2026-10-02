@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/company_profile/company_access_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -161,6 +163,12 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
               ),
             ),
 
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: CompanyEntryTile(),
+              ),
+            ),
             const SliverFillRemaining(
               hasScrollBody: false, // Prevents nested inner scrollbars
               fillOverscroll: true,

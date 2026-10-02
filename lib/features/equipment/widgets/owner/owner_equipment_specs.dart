@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
@@ -301,7 +303,9 @@ class _OwnerEquipmentSpecsState extends ConsumerState<OwnerEquipmentSpecs> {
       final type = spec.resolvedType(catalog?.specById(spec.specId));
       if (!type.isKnown) continue;
 
-      final isRequired = equipmentSpecIsRequired(spec);
+      final isRequired =
+          ref.read(equipmentServiceProvider).companyId == null &&
+          equipmentSpecIsRequired(spec);
       final value = _currentWireValue(spec, catalog, type, key: key);
 
       if (isRequired && value.isEmpty) {

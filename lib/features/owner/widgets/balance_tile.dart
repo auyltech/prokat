@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/billing/state/billing_provider.dart';
+import 'package:prokat/features/billing/state/billing_state.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -63,8 +64,6 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
       ),
     );
 
-    final billingActive = ownerOnline && billingState.hasActiveBurn;
-    final burnRate = billingActive ? billingState.burnRateMinutesPerHour : 0;
     final hasBalanceError = billingState.errors.containsKey('balance');
     final balanceUnknown = billingState.accountBalance == null;
 
@@ -128,7 +127,39 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
       );
     }
 
-    // ── Normal state ──
+    return BalanceSummaryCard(
+      billingState: billingState,
+      ownerOnline: ownerOnline,
+      onlineEquipment: onlineEquipment,
+      onTopUp: () => context.push(AppRoutes.ownerPayment),
+      onHistory: () => context.push(AppRoutes.ownerPaymentHistory),
+    );
+  }
+}
+
+/// Shared presentation; the caller supplies the correctly scoped wallet.
+class BalanceSummaryCard extends StatelessWidget {
+  final BillingState billingState;
+  final bool ownerOnline;
+  final int onlineEquipment;
+  final String? title;
+  final VoidCallback onTopUp;
+  final VoidCallback? onHistory;
+  const BalanceSummaryCard({
+    super.key,
+    required this.billingState,
+    required this.ownerOnline,
+    required this.onlineEquipment,
+    required this.onTopUp,
+    this.title,
+    this.onHistory,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final billingActive = ownerOnline && billingState.hasActiveBurn;
+    final burnRate = billingActive ? billingState.burnRateMinutesPerHour : 0;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,10 +168,12 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l10n.accountBalance,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.onSurface,
+              Flexible(
+                child: Text(
+                  title ?? l10n.accountBalance,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ),
               if (ownerOnline && onlineEquipment > 0)
@@ -190,18 +223,18 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
                 ),
               ),
               const Spacer(),
-              if (_showHistoryButton) ...[
+              if (_showHistoryButton && onHistory != null) ...[
                 _ActionButton(
                   icon: Icons.history_rounded,
                   filled: false,
-                  onTap: () => context.push(AppRoutes.ownerPaymentHistory),
+                  onTap: onHistory!,
                 ),
                 const SizedBox(width: 8),
               ],
               _ActionButton(
                 icon: Icons.add_rounded,
                 filled: true,
-                onTap: () => context.push(AppRoutes.ownerPayment),
+                onTap: onTopUp,
               ),
             ],
           ),
@@ -224,24 +257,29 @@ class _BalanceTileState extends ConsumerState<BalanceTile> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _FooterMetric(
-                  label: l10n.burnRate,
-                  value: l10n.burnRateValue(burnRate),
-                  align: CrossAxisAlignment.start,
-                  valueColor: theme.colorScheme.onSurface,
+                Expanded(
+                  child: _FooterMetric(
+                    label: l10n.burnRate,
+                    value: l10n.burnRateValue(burnRate),
+                    align: CrossAxisAlignment.start,
+                    valueColor: theme.colorScheme.onSurface,
+                  ),
                 ),
-                _FooterMetric(
-                  label: l10n.estimatedExhaustion,
-                  value: billingActive
-                      ? (billingState.formattedExhaustionTime(
-                              l10n.localeName,
-                            ) ??
-                            l10n.noActiveDepletion)
-                      : l10n.noActiveDepletion,
-                  align: CrossAxisAlignment.end,
-                  valueColor: billingActive
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _FooterMetric(
+                    label: l10n.estimatedExhaustion,
+                    value: billingActive
+                        ? (billingState.formattedExhaustionTime(
+                                l10n.localeName,
+                              ) ??
+                              l10n.noActiveDepletion)
+                        : l10n.noActiveDepletion,
+                    align: CrossAxisAlignment.end,
+                    valueColor: billingActive
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),

@@ -1,3 +1,5 @@
+import 'package:prokat/core/widgets/profile_read_only_row.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -281,28 +283,28 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
               ),
             ))
               const SizedBox(height: AppDimens.s16$base),
-            _ProfileReadOnlyRow(
+            ProfileReadOnlyRow(
               label: l10n.firstName,
               value: displayProfile.firstName,
             ),
             const SizedBox(height: AppDimens.s12$md),
-            _ProfileReadOnlyRow(
+            ProfileReadOnlyRow(
               label: l10n.lastName,
               value: displayProfile.lastName,
             ),
             const SizedBox(height: AppDimens.s12$md),
-            _ProfileReadOnlyRow(
+            ProfileReadOnlyRow(
               label: l10n.phoneNumber,
               value: maskedKzPhone(displayProfile.phoneNumber),
               helperText: l10n.ownerContactPhoneHint,
             ),
             const SizedBox(height: AppDimens.s12$md),
-            _ProfileReadOnlyRow(
+            ProfileReadOnlyRow(
               label: l10n.city,
               value: catalogCityLabelOf(ref, context, displayProfile.city),
             ),
             const SizedBox(height: AppDimens.s12$md),
-            _ProfileReadOnlyRow(
+            ProfileReadOnlyRow(
               label: l10n.serviceDetails,
               value: displayProfile.serviceDescription,
             ),
@@ -490,51 +492,5 @@ class _OwnerProfileStatusBlock extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
-  }
-}
-
-class _ProfileReadOnlyRow extends StatelessWidget {
-  final String label;
-  final String? value;
-  final String? helperText;
-
-  const _ProfileReadOnlyRow({
-    required this.label,
-    required this.value,
-    this.helperText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final display = (value ?? '').trim();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.labelLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: AppDimens.s04$xs),
-        Text(
-          display.isEmpty ? '—' : display,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: display.isEmpty
-                ? theme.colorScheme.onSurface.withValues(alpha: 0.45)
-                : null,
-          ),
-        ),
-        if (helperText != null && helperText!.trim().isNotEmpty) ...[
-          const SizedBox(height: AppDimens.s04$xs),
-          Text(
-            helperText!,
-            style: AppFonts.caption(context)
-                .copyWith(color: context.colors.text.tertiary),
-          ),
-        ],
-      ],
-    );
   }
 }

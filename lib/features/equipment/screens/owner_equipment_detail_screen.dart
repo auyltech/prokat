@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
@@ -113,7 +115,11 @@ class _OwnerEquipmentDetailScreenState
       AppToast.show(message: l10n.equipmentSubmitPhotoRequired);
       return;
     }
-    if (!isEquipmentReadyForReview(latest)) {
+    if (!(ref.read(equipmentServiceProvider).companyId == null
+        ? isEquipmentReadyForReview(latest)
+        : equipmentHasIdentity(latest) &&
+              equipmentHasCity(latest) &&
+              equipmentHasPrice(latest))) {
       setState(() => _submitting = false);
       AppToast.show(message: l10n.pleaseCompleteRequiredFields);
       return;
@@ -195,10 +201,14 @@ class _OwnerEquipmentDetailScreenState
                       Positioned(
                         top: AppDimens.s16$base,
                         right: AppDimens.s16$base,
-                        child: ShareEquipmentButton(
-                          equipment: equipment,
-                          refreshOwnerDetails: true,
-                        ),
+                        child:
+                            ref.watch(equipmentServiceProvider).companyId !=
+                                null
+                            ? const SizedBox.shrink()
+                            : ShareEquipmentButton(
+                                equipment: equipment,
+                                refreshOwnerDetails: true,
+                              ),
                       ),
                     ],
                   ),

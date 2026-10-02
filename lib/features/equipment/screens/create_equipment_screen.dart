@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
+import 'package:prokat/features/company_profile/company_workspace.dart';
+import 'package:prokat/features/company_profile/company_profile_api.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +54,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       Future.microtask(() async {
         await Future.wait([
           ref.read(categoriesProvider.notifier).refreshIfStale(),
-          ref.read(ownerProfileProvider.notifier).refreshIfStale(),
+          if (ref.read(equipmentServiceProvider).companyId == null)
+            ref.read(ownerProfileProvider.notifier).refreshIfStale(),
         ]);
         if (!mounted) return;
         _seedCityIfNeeded();
@@ -72,6 +77,15 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   }
 
   String _accountCity() {
+    final service = ref.read(equipmentServiceProvider);
+    if (service.companyId != null) {
+      return ref
+                  .read(companyDashboardProvider(service.companyId!))
+                  .valueOrNull?['company']?['city']
+              as String? ??
+          service.companyCity ??
+          '';
+    }
     final ownerCity = (ref.read(ownerProfileProvider).valueOrNull?.city ?? '')
         .trim();
     if (ownerCity.isNotEmpty) return ownerCity;
@@ -159,7 +173,19 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
           });
 
       if (result == true && mounted) {
-        context.pop();
+        final service = ref.read(equipmentServiceProvider);
+        if (service.companyId != null &&
+            service.lastCreatedEquipmentId != null) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => CompanyEquipmentDetailsPage(
+                id: service.lastCreatedEquipmentId!,
+              ),
+            ),
+          );
+        } else {
+          context.pop();
+        }
         AppToast.show(message: l10n.equipmentAdded, type: AppToastType.success);
       } else if (mounted) {
         AppToast.show(
@@ -214,8 +240,10 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
       groupTabs,
     );
 
-    ref.watch(ownerProfileProvider);
-    ref.watch(ownerRegistrationRequestProvider);
+    if (ref.watch(equipmentServiceProvider).companyId == null) {
+      ref.watch(ownerProfileProvider);
+      ref.watch(ownerRegistrationRequestProvider);
+    }
     ref.watch(clientProfileProvider);
     ref.watch(locationProvider.select((state) => state.city));
     _seedCityIfNeeded();
@@ -237,7 +265,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
         onRefresh: () async {
           await Future.wait([
             ref.read(categoriesProvider.notifier).refresh(),
-            ref.read(ownerProfileProvider.notifier).refresh(),
+            if (ref.read(equipmentServiceProvider).companyId == null)
+              ref.read(ownerProfileProvider.notifier).refresh(),
           ]);
           if (!mounted) return;
           if (!_citySeeded) {
@@ -286,23 +315,24 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                     },
                   ),
                   const SizedBox(height: AppDimens.s16$base),
-                  AppDropdownField<String>(
-                    title: l10n.city,
-                    hint: l10n.selectCity,
-                    isRequired: true,
-                    sheetTitle: l10n.selectCity,
-                    value: cityOk ? _city : null,
-                    selectedLabel: cityOk
-                        ? catalogCityLabelOf(ref, context, _city)
-                        : null,
-                    openCustomSheet: _openCitySheet,
-                    onChanged: (picked) {
-                      setState(() {
-                        _city = picked.trim();
-                        _citySeeded = true;
-                      });
-                    },
-                  ),
+                  if (ref.watch(equipmentServiceProvider).companyId == null)
+                    AppDropdownField<String>(
+                      title: l10n.city,
+                      hint: l10n.selectCity,
+                      isRequired: true,
+                      sheetTitle: l10n.selectCity,
+                      value: cityOk ? _city : null,
+                      selectedLabel: cityOk
+                          ? catalogCityLabelOf(ref, context, _city)
+                          : null,
+                      openCustomSheet: _openCitySheet,
+                      onChanged: (picked) {
+                        setState(() {
+                          _city = picked.trim();
+                          _citySeeded = true;
+                        });
+                      },
+                    ),
                   const SizedBox(height: AppDimens.s16$base),
                   AppTextField(
                     title: mutationGroup == CatalogGroup.equipment
@@ -364,10 +394,11 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
                     ),
                   ),
                   const SizedBox(height: AppDimens.s24$xl),
-                  _DraftCreateInfo(
-                    title: l10n.draftWillBeCreated,
-                    body: l10n.draftNextStepsHint,
-                  ),
+                  if (ref.watch(equipmentServiceProvider).companyId == null)
+                    _DraftCreateInfo(
+                      title: l10n.draftWillBeCreated,
+                      body: l10n.draftNextStepsHint,
+                    ),
                   const SizedBox(height: AppDimens.s16$base),
                   AppElevatedButton(
                     title: l10n.continueAction,

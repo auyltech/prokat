@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
@@ -562,26 +564,27 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppDimens.s16$base,
         children: [
-          AppTextField(
-            controller: _cityController,
-            title: l10n.workCity,
-            isRequired: true,
-            hint: l10n.selectCity,
-            enabled: _canEdit,
-            readOnly: !_canEdit,
-            selectOnly: true,
-            forceFocused: _cityPickerOpen,
-            onTap: _canEdit ? _pickCity : null,
-            errorText: _cityError == null ? null : l10n.cannotBeEmpty,
-            prefix: Icon(
-              hasLocation ? Icons.location_on : Icons.location_on_outlined,
+          if (ref.watch(equipmentServiceProvider).companyId == null)
+            AppTextField(
+              controller: _cityController,
+              title: l10n.workCity,
+              isRequired: true,
+              hint: l10n.selectCity,
+              enabled: _canEdit,
+              readOnly: !_canEdit,
+              selectOnly: true,
+              forceFocused: _cityPickerOpen,
+              onTap: _canEdit ? _pickCity : null,
+              errorText: _cityError == null ? null : l10n.cannotBeEmpty,
+              prefix: Icon(
+                hasLocation ? Icons.location_on : Icons.location_on_outlined,
+              ),
+              suffix: Icon(
+                Icons.expand_more_rounded,
+                size: AppDimens.s24$xl,
+                color: context.colors.text.secondary,
+              ),
             ),
-            suffix: Icon(
-              Icons.expand_more_rounded,
-              size: AppDimens.s24$xl,
-              color: context.colors.text.secondary,
-            ),
-          ),
           AppTextField(
             title: isEquipmentGroup
                 ? l10n.equipmentCatalogNameLabel
