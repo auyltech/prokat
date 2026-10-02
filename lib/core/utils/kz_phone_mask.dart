@@ -90,6 +90,9 @@ class KzPhoneMaskFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
+    final separatorDelete = _deleteDigitAcrossSeparator(oldValue, newValue);
+    if (separatorDelete != null) return separatorDelete;
+
     final national = nationalKzPhoneDigits(newValue.text);
     final formatted = formatKzPhoneMask(national);
     final cursor = newValue.selection.end.clamp(0, newValue.text.length);
@@ -106,6 +109,49 @@ class KzPhoneMaskFormatter extends TextInputFormatter {
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: offset),
+    );
+  }
+
+  /// Deleting only mask chars (`(`, `)`, `-`) would be re-added by the mask,
+  /// so drop the adjacent digit instead: before the gap on backspace,
+  /// after it on forward delete.
+  TextEditingValue? _deleteDigitAcrossSeparator(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final oldText = oldValue.text;
+    final newText = newValue.text;
+    final removed = oldText.length - newText.length;
+    if (removed <= 0 ||
+        !oldValue.selection.isValid ||
+        !newValue.selection.isCollapsed) {
+      return null;
+    }
+
+    final start = newValue.selection.start;
+    final end = start + removed;
+    if (start < 0 || end > oldText.length) return null;
+    if (oldText.substring(0, start) != newText.substring(0, start) ||
+        oldText.substring(end) != newText.substring(start)) {
+      return null;
+    }
+    if (oldText.substring(start, end).contains(_digit)) return null;
+
+    final national = nationalKzPhoneDigits(oldText);
+    final digitsBefore = nationalKzPhoneDigits(oldText.substring(0, start))
+        .length;
+    final isBackspace = oldValue.selection.end == end;
+    final index = isBackspace ? digitsBefore - 1 : digitsBefore;
+    if (index < 0 || index >= national.length) return null;
+
+    final formatted = formatKzPhoneMask(
+      national.replaceRange(index, index + 1, ''),
+    );
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(
+        offset: kzPhoneMaskCursorOffset(formatted, index),
+      ),
     );
   }
 }

@@ -12,6 +12,7 @@ import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
@@ -21,6 +22,7 @@ import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
+import 'package:prokat/features/requests/state/request_comment_requirement.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 const _offeredRateMax = 100000;
@@ -46,6 +48,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
     super.initState();
     _rateFocus = FocusNode();
     rateController.addListener(_onRateChanged);
+    commentController.addListener(_onRateChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _syncSelectedAddress();
@@ -171,6 +174,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   @override
   void dispose() {
     rateController.removeListener(_onRateChanged);
+    commentController.removeListener(_onRateChanged);
     rateController.dispose();
     commentController.dispose();
     _rateFocus.dispose();
@@ -180,7 +184,11 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
     final requestState = ref.read(requestMutationProvider);
-    final selectedCategoryId = requestState.selectedCategory?.id;
+    final selectedCategory = requestState.selectedCategory;
+    final selectedCategoryId = selectedCategory?.id;
+    final commentRequired =
+        selectedCategory != null &&
+        requestCategoryRequiresComment(selectedCategory);
     final offeredRate = _priceMode == _PriceMode.waitOwner
         ? null
         : parseNullableInt(rateController.text.trim());
@@ -217,6 +225,12 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       if (merged.isBefore(DateTime.now())) {
         message = l10n.pleaseSelectTime;
       }
+    }
+
+    if (message.isEmpty &&
+        commentRequired &&
+        commentController.text.trim().isEmpty) {
+      message = _commentHint(l10n, selectedCategory);
     }
 
     if (message.isNotEmpty) {
@@ -288,11 +302,18 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               requestState.selectedDate != null &&
               requestState.selectedTime != null;
 
+    final commentRequired =
+        selectedCategory != null &&
+        requestCategoryRequiresComment(selectedCategory);
+    final hasComment =
+        !commentRequired || commentController.text.trim().isNotEmpty;
+
     final canSubmit =
         selectedCategory != null &&
         requestState.selectedLocation != null &&
         hasBudget &&
-        hasSchedule;
+        hasSchedule &&
+        hasComment;
 
     final action = requestState.activeActions
         .where((item) => item.id == 'request:create')
@@ -357,32 +378,35 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           onLeft: _selectWaitOwnerPrice,
           onRight: _selectBudget,
         ),
-        if (_priceMode == _PriceMode.budget) ...[
-          const SizedBox(height: AppDimens.s16$base),
-          TapRegion(
-            onTapOutside: (_) {
-              _rateFocus.unfocus();
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-            child: AppTextField(
-              controller: rateController,
-              focusNode: _rateFocus,
-              title: l10n.requestMyBudget,
-              isRequired: true,
-              hint: l10n.offeredRateHint,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                const MaxIntInputFormatter(_offeredRateMax),
-              ],
-              prefix: Text(
-                '₸',
-                style: AppFonts.body16SemiBold(context)
-                    .copyWith(color: context.colors.text.secondary),
+        AppReveal(
+          visible: _priceMode == _PriceMode.budget,
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppDimens.s16$base),
+            child: TapRegion(
+              onTapOutside: (_) {
+                _rateFocus.unfocus();
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: AppTextField(
+                controller: rateController,
+                focusNode: _rateFocus,
+                title: l10n.requestMyBudget,
+                isRequired: true,
+                hint: l10n.offeredRateHint,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  const MaxIntInputFormatter(_offeredRateMax),
+                ],
+                prefix: Text(
+                  '₸',
+                  style: AppFonts.body16SemiBold(context)
+                      .copyWith(color: context.colors.text.secondary),
+                ),
               ),
             ),
           ),
-        ],
+        ),
         const SizedBox(height: AppDimens.s20$lg),
         JobScheduleSection(
           mode: _scheduleMode,
@@ -398,7 +422,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         const SizedBox(height: AppDimens.s20$lg),
         AppTextArea(
           title: l10n.requestCommentTitle,
-          hint: l10n.requestCommentHint,
+          hint: _commentHint(l10n, selectedCategory),
+          isRequired: commentRequired,
           controller: commentController,
           minLines: 2,
           maxLines: 4,
@@ -412,4 +437,13 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
       ],
     );
   }
+}
+
+String _commentHint(AppLocalizations l10n, Category? category) {
+  if (category == null || !requestCategoryRequiresComment(category)) {
+    return l10n.requestCommentHint;
+  }
+  return category.catalogGroup == CatalogGroup.equipment
+      ? l10n.requestCommentOtherEquipmentHint
+      : l10n.requestCommentOtherMachineryHint;
 }

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -53,13 +52,8 @@ class _SearchBoxState extends ConsumerState<SearchBox> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return BaseTile(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      // decoration: BoxDecoration(
-      //   color: theme.cardColor,
-      //   border: Border.all(color: theme.dividerColor.withValues(alpha: 0.7)),
-      //   borderRadius: BorderRadius.circular(16),
-      // ),
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s12$md),
       child: TextField(
         controller: _searchController,
         onChanged: _onChange,

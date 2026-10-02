@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
-import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/core/widgets/app_category_info.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
+import 'package:prokat/features/categories/widgets/catalog_group_image.dart';
 import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -19,7 +19,11 @@ import 'package:prokat/l10n/app_localizations.dart';
 /// Search UI is per catalog-group session (lazy + sticky across tabs).
 /// Filter modal is a stub until catalog filters ship.
 class CategoryHeaderCard extends ConsumerStatefulWidget {
-  const CategoryHeaderCard({super.key});
+  const CategoryHeaderCard({super.key, this.group});
+
+  /// When set, the card stays on this catalog group instead of following the
+  /// active browse tab. Used by swipeable search pages.
+  final CatalogGroup? group;
 
   @override
   ConsumerState<CategoryHeaderCard> createState() => _CategoryHeaderCardState();
@@ -27,7 +31,6 @@ class CategoryHeaderCard extends ConsumerStatefulWidget {
 
 class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     with SingleTickerProviderStateMixin {
-  static const _imageSize = 110.0;
   static const _searchRevealDuration = Duration(milliseconds: 200);
 
   late final TextEditingController _searchController;
@@ -40,7 +43,8 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   void initState() {
     super.initState();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
-    final group = ref.read(browseCatalogGroupProvider);
+    final CatalogGroup group =
+        widget.group ?? ref.read(browseCatalogGroupProvider);
     // Peek only — do not mutate providers during initState/build.
     final existing = sessions.peek(group);
     _searchController = TextEditingController(text: existing?.query ?? '');
@@ -51,19 +55,24 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
       value: (existing?.searchExpanded ?? false) ? 1 : 0,
     );
 
-    _groupSub = ref.listenManual(browseCatalogGroupProvider, (previous, next) {
-      if (previous == next) return;
-      final restored = sessions.ensure(next);
-      _debounce?.cancel();
-      _clearSearchFocus();
-      _searchController.value = TextEditingValue(
-        text: restored.query,
-        selection: TextSelection.collapsed(offset: restored.query.length),
-      );
-      _syncSearchProvider(restored.query);
-      _searchReveal.value = restored.searchExpanded ? 1 : 0;
-      setState(() {});
-    });
+    if (widget.group == null) {
+      _groupSub = ref.listenManual(browseCatalogGroupProvider, (
+        previous,
+        next,
+      ) {
+        if (previous == next) return;
+        final restored = sessions.ensure(next);
+        _debounce?.cancel();
+        _clearSearchFocus();
+        _searchController.value = TextEditingValue(
+          text: restored.query,
+          selection: TextSelection.collapsed(offset: restored.query.length),
+        );
+        _syncSearchProvider(restored.query);
+        _searchReveal.value = restored.searchExpanded ? 1 : 0;
+        setState(() {});
+      });
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -100,7 +109,16 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     ref.read(searchEquipmentProvider.notifier).setQuery(query);
   }
 
+  void _usePinnedGroup() {
+    final group = widget.group;
+    if (group == null) return;
+    if (ref.read(browseCatalogGroupProvider) == group) return;
+    ref.read(browseGroupSessionsProvider.notifier).ensure(group);
+    ref.read(browseCatalogGroupProvider.notifier).select(group);
+  }
+
   void _setQuery(String value) {
+    _usePinnedGroup();
     ref.read(browseGroupSessionsProvider.notifier).setQuery(value);
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -110,6 +128,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   }
 
   void _collapseSearch({required bool clearQuery}) {
+    _usePinnedGroup();
     _debounce?.cancel();
     _clearSearchFocus();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
@@ -125,6 +144,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   }
 
   void _toggleSearch() {
+    _usePinnedGroup();
     final sessions = ref.read(browseGroupSessionsProvider.notifier);
     final session = sessions.forCurrentGroup();
     if (session.searchExpanded) {
@@ -142,14 +162,18 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     required CatalogGroup group,
   }) async {
     _clearSearchFocus();
+    final selectedId = widget.group == null
+        ? ref.read(selectedBrowseCategoryProvider)?.id
+        : ref.read(selectedBrowseCategoryProvider.notifier).stored(group)?.id;
     final selected = await CategoryPickerSheet.show(
       context,
       categories: categories,
       group: group,
-      selectedId: ref.read(selectedBrowseCategoryProvider)?.id,
+      selectedId: selectedId,
     );
     if (!mounted || selected == null) return;
 
+    _usePinnedGroup();
     _collapseSearch(clearQuery: true);
 
     if (selected.isAll) {
@@ -161,25 +185,30 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     }
   }
 
+  Category? _selectedForPinnedGroup(CatalogGroup group) {
+    ref.watch(selectedBrowseCategoryProvider);
+    return ref.read(selectedBrowseCategoryProvider.notifier).stored(group);
+  }
+
   String _allCategoriesDescription(AppLocalizations l10n, CatalogGroup group) {
     return group == CatalogGroup.equipment
         ? l10n.allCategoriesEquipmentDescription
         : l10n.allCategoriesMachineryDescription;
   }
 
-  AppImage _allCategoriesImage(CatalogGroup group) {
-    return group == CatalogGroup.equipment
-        ? AppImages.equipmentStd
-        : AppImages.machineryStd;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final languageCode = Localizations.localeOf(context).languageCode;
-    final group = ref.watch(browseCatalogGroupProvider);
-    final session = ref.watch(currentBrowseGroupSessionProvider);
-    final selected = ref.watch(selectedBrowseCategoryProvider);
+    final CatalogGroup group =
+        widget.group ?? ref.watch(browseCatalogGroupProvider);
+    final session = widget.group == null
+        ? ref.watch(currentBrowseGroupSessionProvider)
+        : ref.watch(browseGroupSessionsProvider)[group] ??
+              const BrowseGroupSession();
+    final selected = widget.group == null
+        ? ref.watch(selectedBrowseCategoryProvider)
+        : _selectedForPinnedGroup(group);
     final categoriesAsync = ref.watch(categoriesProvider);
     final categories =
         (categoriesAsync.valueOrNull?.items ?? const <Category>[])
@@ -193,44 +222,17 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     final imageUrl = selected?.imageUrl;
     final searchExpanded = session.searchExpanded;
 
-    return BaseTile(
-      padding: const EdgeInsets.all(AppDimens.s08$sm),
+    return AppCard(
       onTap: () =>
           unawaited(_openCategoryPicker(categories: categories, group: group)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              _CategoryHeaderImage(
-                width: _imageSize,
-                imageUrl: imageUrl,
-                fallbackAsset: _allCategoriesImage(group),
-              ),
-              const SizedBox(width: AppDimens.s12$md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFonts.headingM(context),
-                    ),
-                    if (description.isNotEmpty) ...[
-                      const SizedBox(height: AppDimens.s08$sm),
-                      Text(
-                        description,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppFonts.caption(context),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+          AppCategoryInfo(
+            title: title,
+            description: description,
+            imageUrl: imageUrl,
+            fallbackImage: group.stdImage,
           ),
           const SizedBox(height: AppDimens.s08$sm),
           // Fixed to inputHeight so 46px field vs 44px icon buttons don't
@@ -309,54 +311,6 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Fixed [width]; height is always category 4:3 so the shimmer placeholder
-/// matches the loaded image and does not bump the header.
-class _CategoryHeaderImage extends StatelessWidget {
-  const _CategoryHeaderImage({
-    required this.width,
-    required this.imageUrl,
-    required this.fallbackAsset,
-  });
-
-  /// Category artwork is authored at 4:3.
-  static const aspectRatio = 4 / 3;
-
-  final double width;
-  final String? imageUrl;
-  final AppImage fallbackAsset;
-
-  bool get _hasNetworkImage {
-    final url = imageUrl;
-    return url != null && url.isNotEmpty;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final height = width / aspectRatio;
-
-    return SizedBox(
-      width: width,
-      height: height,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppDimens.r08$md),
-        child: _hasNetworkImage
-            ? OptimizedNetworkImage(
-                imageUrl: imageUrl,
-                width: width,
-                height: height,
-                fit: BoxFit.contain,
-              )
-            : Image.asset(
-                fallbackAsset.iconKey,
-                width: width,
-                height: height,
-                fit: BoxFit.contain,
-              ),
       ),
     );
   }

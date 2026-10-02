@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_map_provider.dart';
@@ -374,7 +375,13 @@ class MapController {
       _styleReady = true;
 
       final items =
-          _ref.read(clientEquipmentProvider).value?.items ?? _equipments;
+          _ref
+              .read(
+                clientEquipmentProvider(_ref.read(browseCatalogGroupProvider)),
+              )
+              .value
+              ?.items ??
+          _equipments;
       await syncEquipmentMarkers(items);
     } catch (error) {
       if (_isDisposedChannel(error)) _clearAttachedMap();
@@ -573,7 +580,8 @@ class MapController {
 final mapControllerProvider = Provider<MapController>((ref) {
   final controller = MapController(ref);
 
-  ref.listen(clientEquipmentProvider, (previous, next) {
+  final group = ref.watch(browseCatalogGroupProvider);
+  ref.listen(clientEquipmentProvider(group), (previous, next) {
     unawaited(controller.syncEquipmentMarkers(next.value?.items ?? []));
   });
 

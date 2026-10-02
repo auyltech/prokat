@@ -14,6 +14,8 @@ abstract class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   AppBackgroundTheme get background;
   AppTextColors get text;
   AppBorderTheme get borders;
+  AppCardTheme get card;
+  AppRippleTheme get ripple;
   AppIconsTheme get icons;
   AppIconButtonTheme get iconButton;
   AppLabelButtonTheme get labelButton;

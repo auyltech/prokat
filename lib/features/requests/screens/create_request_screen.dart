@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -103,13 +102,11 @@ class _ActiveRequestLimitView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    return BaseTile(
-      color: theme.cardColor,
+    return AppCard(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppDimens.s20$lg),
         child: Column(
           children: [
             const Icon(Icons.pending_actions_outlined, size: 48),

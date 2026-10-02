@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class DeleteEquipmentSection extends ConsumerStatefulWidget {
@@ -25,6 +27,10 @@ class _DeleteEquipmentSectionState
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final isEquipmentGroup =
+        ref.watch(ownerEquipmentCatalogGroupProvider(widget.equipmentId)) ==
+        CatalogGroup.equipment;
+    final texts = _DeleteTexts(l10n, isEquipmentGroup: isEquipmentGroup);
 
     final danger = colorScheme.error;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.7);
@@ -67,7 +73,7 @@ class _DeleteEquipmentSectionState
 
           /// DESCRIPTION
           Text(
-            l10n.deleteEquipmentWarning,
+            texts.warning,
             textAlign: TextAlign.center,
             style: AppFonts.body14(context)
                 .copyWith(color: ghostGray, height: 1.6),
@@ -77,13 +83,13 @@ class _DeleteEquipmentSectionState
 
           /// DELETE BUTTON
           AppOutlinedButton.destructive(
-            title: l10n.deleteEquipment,
+            title: texts.button,
             prefix: const Icon(LucideIcons.trash),
             isLoading: ref
                 .watch(equipmentMutationProvider)
                 .isActionActive("equipment:delete:${widget.equipmentId}"),
             onTap: () => unawaited(
-              _confirmDelete(context, ref, widget.equipmentId, l10n),
+              _confirmDelete(context, ref, widget.equipmentId, l10n, texts),
             ),
           ),
         ],
@@ -92,17 +98,43 @@ class _DeleteEquipmentSectionState
   }
 }
 
+class _DeleteTexts {
+  final String warning;
+  final String button;
+  final String question;
+  final String deleted;
+  final String failed;
+
+  _DeleteTexts(AppLocalizations l10n, {required bool isEquipmentGroup})
+    : warning = isEquipmentGroup
+          ? l10n.equipmentCatalogDeleteWarning
+          : l10n.deleteEquipmentWarning,
+      button = isEquipmentGroup
+          ? l10n.equipmentCatalogDelete
+          : l10n.deleteEquipment,
+      question = isEquipmentGroup
+          ? l10n.equipmentCatalogDeleteQuestion
+          : l10n.deleteEquipmentQuestion,
+      deleted = isEquipmentGroup
+          ? l10n.equipmentCatalogDeleted
+          : l10n.equipmentDeleted,
+      failed = isEquipmentGroup
+          ? l10n.equipmentCatalogDeleteFailed
+          : l10n.failedToDeleteEquipment;
+}
+
 Future<void> _confirmDelete(
   BuildContext context,
   WidgetRef ref,
   String equipmentId,
   AppLocalizations l10n,
+  _DeleteTexts texts,
 ) async {
   FocusManager.instance.primaryFocus?.unfocus();
 
   final confirmed = await AppAlertBottomSheet.show(
     context,
-    title: l10n.deleteEquipmentQuestion,
+    title: texts.question,
     description: l10n.deleteEquipmentConfirmation,
     primaryLabel: l10n.delete,
     secondaryLabel: l10n.cancel,
@@ -122,7 +154,7 @@ Future<void> _confirmDelete(
   }
 
   AppToast.show(
-    message: result ? l10n.equipmentDeleted : l10n.failedToDeleteEquipment,
+    message: result ? texts.deleted : texts.failed,
     type: result ? AppToastType.success : AppToastType.error,
   );
 }

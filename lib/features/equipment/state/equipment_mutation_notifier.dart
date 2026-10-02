@@ -12,6 +12,7 @@ import 'package:prokat/features/equipment/models/equipment_spec_value_input.dart
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_fleet_groups_provider.dart';
 import 'package:prokat/features/equipment/state/equipment_mutation_state.dart';
 import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,6 +53,7 @@ class EquipmentMutationNotifier
   Future<void> _refreshEquipmentCaches(String equipmentId) async {
     ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
     await ref.read(ownerEquipmentProvider.notifier).refresh();
+    ref.invalidate(ownerFleetGroupsProvider);
   }
 
   /// CREATE
@@ -76,6 +78,7 @@ class EquipmentMutationNotifier
 
       if (result.success) {
         await ref.read(ownerEquipmentProvider.notifier).refresh();
+        ref.invalidate(ownerFleetGroupsProvider);
       }
 
       return result.success;

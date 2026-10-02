@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/map/widgets/map_controls.dart';
@@ -106,7 +107,9 @@ class _MobileMapScreenState extends ConsumerState<MobileMapScreen> {
     _annotationManager!.tapEvents(onTap: _onAnnotationTapped);
 
     // 🔑 Read equipment data ONCE
-    final equipmentAsync = ref.read(clientEquipmentProvider);
+    final equipmentAsync = ref.read(
+      clientEquipmentProvider(ref.read(browseCatalogGroupProvider)),
+    );
 
     if (_markersAdded || equipmentAsync.value?.items.isEmpty == true) return;
 

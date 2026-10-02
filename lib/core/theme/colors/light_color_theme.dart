@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/theme/colors/app_colors.dart';
+import 'package:prokat/core/theme/colors/app_colors.dart' show AppColors;
 import 'package:prokat/core/theme/colors/app_colors_theme.dart';
 import 'package:prokat/core/theme/colors/component_themes/component_themes.dart';
 
@@ -15,16 +15,18 @@ class LightColorTheme extends AppColorsTheme {
   );
 
   @override
-  AppNavigationBarTheme get navigationBar => AppNavigationBarTheme(
+  AppNavigationBarTheme get navigationBar => const AppNavigationBarTheme(
     background: AppColors.surface,
     divider: AppColors.border,
     selected: AppColors.primary,
     ownerSelected: AppColors.success,
     unselected: AppColors.textSecondary,
-    splash: AppColors.primary.withValues(alpha: 0.12),
-    highlight: AppColors.primary.withValues(alpha: 0.06),
-    ownerSplash: AppColors.success.withValues(alpha: 0.12),
-    ownerHighlight: AppColors.success.withValues(alpha: 0.06),
+  );
+
+  @override
+  AppRippleTheme get ripple => AppRippleTheme(
+    splash: AppColors.textTertiary.withValues(alpha: 0.24),
+    highlight: AppColors.textTertiary.withValues(alpha: 0.12),
   );
 
   @override
@@ -64,8 +66,6 @@ class LightColorTheme extends AppColorsTheme {
     primarySoft: AppColors.primarySoft,
     peachSoft: AppColors.peach,
     amberSoft: AppColors.peach,
-    hover: AppColors.primarySoft,
-    pressed: Color(0xFFB3D4EF),
     successSoft: AppColors.successSoft,
     dangerSoft: AppColors.dangerSoft,
     warningSoft: AppColors.warningSoft,
@@ -89,6 +89,13 @@ class LightColorTheme extends AppColorsTheme {
     main: AppColors.border,
     active: AppColors.primary,
     error: AppColors.danger,
+  );
+
+  @override
+  AppCardTheme get card => AppCardTheme(
+    background: AppColors.surface,
+    border: AppColors.border,
+    shadow: AppColors.black.withValues(alpha: 0.2),
   );
 
   @override
@@ -186,7 +193,7 @@ class LightColorTheme extends AppColorsTheme {
     selectedContent: AppColors.white,
     unselectedBackground: AppColors.surface,
     unselectedBorder: AppColors.border,
-    unselectedContent: AppColors.border,
+    unselectedContent: AppColors.textTertiary,
   );
 
   @override
@@ -199,7 +206,7 @@ class LightColorTheme extends AppColorsTheme {
   @override
   AppTextFieldTheme get textField => const AppTextFieldTheme(
     background: AppColors.surface,
-    backgroundDisabled: Color(0xFFF5F5F5),
+    backgroundDisabled: AppColors.surfaceMuted,
     backgroundFocused: AppColors.surface,
     border: AppColors.border,
     borderFocused: AppColors.primary,
@@ -219,7 +226,7 @@ class LightColorTheme extends AppColorsTheme {
   @override
   AppSelectionTheme get selection => const AppSelectionTheme(
     fillSelected: AppColors.primary,
-    fillUnselected: AppColors.white,
+    fillUnselected: AppColors.surface,
     border: AppColors.border,
     borderError: AppColors.danger,
     iconOnFill: AppColors.white,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class OwnerStatCard extends StatelessWidget {
   final IconData icon;
@@ -23,32 +23,53 @@ class OwnerStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return BaseTile(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    final colors = context.colors;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppDimens.s12$md),
       onTap: onTap,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text(
+            title,
+            maxLines: 1,
+            softWrap: false,
+            style: AppFonts.headingS(context),
+          ),
+          const SizedBox(height: AppDimens.s08$sm),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 14,
+            spacing: AppDimens.s12$md,
             children: [
-              Icon(icon, size: 20, color: theme.colorScheme.onPrimary),
-              Expanded(
-                child: Text(
-                  '$title:',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
+              Container(
+                width: AppDimens.statCardIconBoxSize,
+                height: AppDimens.statCardIconBoxSize,
+                decoration: BoxDecoration(
+                  border: Border.all(color: colors.card.border),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(AppDimens.r08$md),
                   ),
+                ),
+                child: Center(
+                  child: Icon(
+                    icon,
+                    size: AppDimens.statCardIconSize,
+                    color: colors.icons.main,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: AppDimens.s04$xs,
+                  children: [
+                    _MetricLine(label: firstLabel, value: firstValue),
+                    _MetricLine(label: secondLabel, value: secondValue),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          _MetricLine(label: firstLabel, value: firstValue),
-          const SizedBox(height: 4),
-          _MetricLine(label: secondLabel, value: secondValue),
         ],
       ),
     );
@@ -65,19 +86,21 @@ class _MetricLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
-      spacing: 14,
+      spacing: AppDimens.s08$sm,
       children: [
         Expanded(
           child: Text(
             label,
-            style: theme.textTheme.labelMedium?.copyWith(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppFonts.body16(context).copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ),
         Text(
           value,
-          style: theme.textTheme.bodyMedium?.copyWith(
+          style: AppFonts.body16SemiBold(context).copyWith(
             color: theme.colorScheme.onPrimary,
             fontWeight: FontWeight.w600,
           ),

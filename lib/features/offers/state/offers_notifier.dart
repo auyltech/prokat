@@ -105,9 +105,11 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
 
   Future<void> _refreshRequestQuery(bool owner) async {
     refreshNavigationCounts(ref);
-    if (owner && ref.exists(ownerActiveRequestsProvider)) {
-      await ref.read(ownerActiveRequestsProvider.notifier).refresh();
-    } else if (!owner && ref.exists(clientActiveRequestsProvider)) {
+    if (owner) {
+      await Future.wait([
+        for (final feed in loadedOwnerActiveRequestFeeds(ref)) feed.refresh(),
+      ]);
+    } else if (ref.exists(clientActiveRequestsProvider)) {
       await ref.read(clientActiveRequestsProvider.notifier).refresh();
     }
   }
@@ -133,8 +135,8 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
         ref.read(clientHistoryRequestsProvider.notifier).invalidate(),
       );
     }
-    if (ref.exists(ownerActiveRequestsProvider)) {
-      updates.add(ref.read(ownerActiveRequestsProvider.notifier).refresh());
+    for (final feed in loadedOwnerActiveRequestFeeds(ref)) {
+      updates.add(feed.refresh());
     }
     await Future.wait(updates);
   }

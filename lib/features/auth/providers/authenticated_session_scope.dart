@@ -109,12 +109,18 @@ class _AuthenticatedSessionScopeTracker
 }
 
 AuthenticatedSessionScopeKey? readAuthenticatedSessionScope(Ref ref) {
-  return ref.read(authenticatedSessionScopeKeyProvider);
+  try {
+    return ref.read(authenticatedSessionScopeKeyProvider);
+  } on StateError {
+    // The container (or this provider) was disposed while a request was
+    // still in flight. Callers treat a missing scope as "stop".
+    return null;
+  }
 }
 
 bool isAuthenticatedSessionScopeCurrent(
   Ref ref,
   AuthenticatedSessionScopeKey scope,
 ) {
-  return ref.read(authenticatedSessionScopeKeyProvider) == scope;
+  return readAuthenticatedSessionScope(ref) == scope;
 }

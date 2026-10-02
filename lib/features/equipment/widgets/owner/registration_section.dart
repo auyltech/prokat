@@ -7,11 +7,12 @@ import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_editor_provider.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
-import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -89,7 +90,9 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
         _plateController.text.trim() != _baselinePlate;
   }
 
-  bool get _plateRequired => equipmentRequiresPlate(widget.equipment);
+  bool get _plateRequired =>
+      ref.read(ownerEquipmentCatalogGroupProvider(widget.equipment.id)) !=
+      CatalogGroup.equipment;
 
   bool get _isComplete {
     return _modelController.text.trim().isNotEmpty &&
@@ -247,9 +250,12 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
     final view = ref
         .watch(ownerEquipmentEditorProvider(widget.equipment.id))
         .block(OwnerEquipmentBlockId.registration);
+    final isEquipmentGroup =
+        ref.watch(ownerEquipmentCatalogGroupProvider(widget.equipment.id)) ==
+        CatalogGroup.equipment;
 
     return EquipmentEditorSection(
-      title: l10n.equipmentData,
+      title: isEquipmentGroup ? l10n.equipmentCatalogData : l10n.equipmentData,
       indicator: view.indicator,
       expanded: view.isExpanded,
       onToggleExpanded: () {
@@ -268,7 +274,9 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
             controller: _modelController,
             onChanged: (_) => _onChanged(),
             onFocusLost: _onModelFocusLost,
-            hint: l10n.modelHint,
+            hint: isEquipmentGroup
+                ? l10n.equipmentCatalogModelHint
+                : l10n.modelHint,
             readOnly: !_canEdit,
             errorText: _modelError == null ? null : l10n.cannotBeEmpty,
             maxLength: ownerEquipmentTextMaxLength,
@@ -276,18 +284,19 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
-          AppTextField(
-            title: l10n.plateNumberLabel,
-            isRequired: _plateRequired,
-            controller: _plateController,
-            onChanged: (_) => _onChanged(),
-            onFocusLost: _onPlateFocusLost,
-            hint: l10n.plateNumberHint,
-            textInputAction: TextInputAction.done,
-            readOnly: !_canEdit,
-            errorText: _plateError == null ? null : l10n.cannotBeEmpty,
-            inputFormatters: const [KzPlateInputFormatter()],
-          ),
+          if (!isEquipmentGroup)
+            AppTextField(
+              title: l10n.plateNumberLabel,
+              isRequired: true,
+              controller: _plateController,
+              onChanged: (_) => _onChanged(),
+              onFocusLost: _onPlateFocusLost,
+              hint: l10n.plateNumberHint,
+              textInputAction: TextInputAction.done,
+              readOnly: !_canEdit,
+              errorText: _plateError == null ? null : l10n.cannotBeEmpty,
+              inputFormatters: const [KzPlateInputFormatter()],
+            ),
         ],
       ),
     );

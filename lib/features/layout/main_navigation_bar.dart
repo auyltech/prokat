@@ -32,8 +32,8 @@ final _ownerNavigationItems = <_MainNavigationItem>[
     basePath: AppRoutes.ownerProfile,
   ),
   _MainNavigationItem(
-    icon: LucideIcons.truck400,
-    label: (l10n) => l10n.navEquipment,
+    icon: LucideIcons.warehouse400,
+    label: (l10n) => l10n.navPark,
     path: AppRoutes.ownerEquipment,
     basePath: AppRoutes.ownerEquipment,
   ),
@@ -66,7 +66,7 @@ final _clientNavigationItems = <_MainNavigationItem>[
   ),
   _MainNavigationItem(
     icon: LucideIcons.search400,
-    label: (l10n) => l10n.navEquipment,
+    label: (l10n) => l10n.navCatalog,
     path: AppRoutes.searchList,
     basePath: AppRoutes.search,
   ),

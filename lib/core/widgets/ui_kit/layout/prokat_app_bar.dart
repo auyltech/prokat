@@ -14,11 +14,16 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> actions;
   final int titleMaxLines;
 
+  /// Drops the shadow and paints the bottom hairline in the bar color so a
+  /// following AppTabs strip reads as the next line of this bar.
+  final bool blendWithTabs;
+
   const ProkatAppBar({
     required this.title,
     this.onBack,
     this.actions = const [],
     this.titleMaxLines = 1,
+    this.blendWithTabs = false,
     super.key,
   }) : assert(titleMaxLines > 0);
 
@@ -32,10 +37,12 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
     final backButtonTooltip = MaterialLocalizations.of(context)
         .backButtonTooltip;
 
+    final elevation = blendWithTabs ? 0.0 : AppDimens.appBarElevation;
+
     return AppBar(
       toolbarHeight: AppDimens.appBarHeight,
-      elevation: AppDimens.appBarElevation,
-      scrolledUnderElevation: AppDimens.appBarElevation,
+      elevation: elevation,
+      scrolledUnderElevation: elevation,
       backgroundColor: appBarTheme.background,
       foregroundColor: appBarTheme.content,
       shadowColor: appBarTheme.shadow,
@@ -87,7 +94,9 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
         preferredSize: const Size.fromHeight(AppDimens.appBarDividerHeight),
         child: SizedBox(
           height: AppDimens.appBarDividerHeight,
-          child: ColoredBox(color: appBarTheme.divider),
+          child: ColoredBox(
+            color: blendWithTabs ? appBarTheme.background : appBarTheme.divider,
+          ),
         ),
       ),
     );

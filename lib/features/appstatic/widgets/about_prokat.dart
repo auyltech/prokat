@@ -74,8 +74,6 @@ class AboutProkatSection extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () => context.push('/about'),
-                    splashColor: brandElectricBlue.withValues(alpha: 0.2),
-                    highlightColor: Colors.transparent,
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: Row(

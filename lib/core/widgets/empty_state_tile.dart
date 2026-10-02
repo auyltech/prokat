@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prokat/core/widgets/base_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class EmptyStateTile extends StatelessWidget {
   final String? title;
@@ -29,10 +29,10 @@ class EmptyStateTile extends StatelessWidget {
     final displayColor = color ?? theme.colorScheme.outline;
     final hasImage = imageName?.trim().isNotEmpty ?? false;
 
-    return BaseTile(
+    return AppCard(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      borderRadius: 20,
+      padding: const EdgeInsets.all(AppDimens.s20$lg),
+      radius: AppDimens.r20$xxl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

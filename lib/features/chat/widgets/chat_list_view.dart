@@ -26,16 +26,13 @@ class ChatListView extends ConsumerStatefulWidget {
   ConsumerState<ChatListView> createState() => _ChatListViewState();
 }
 
-class _ChatListViewState extends ConsumerState<ChatListView>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+class _ChatListViewState extends ConsumerState<ChatListView> {
   late final ScrollController _activeScrollController;
   late final ScrollController _archivedScrollController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _activeScrollController = ScrollController()
       ..addListener(() => _loadMoreIfNeeded(ChatListFilter.active));
     _archivedScrollController = ScrollController()
@@ -43,15 +40,6 @@ class _ChatListViewState extends ConsumerState<ChatListView>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshIfStale(ChatListFilter.active);
-    });
-
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) return;
-      _refreshIfStale(
-        _tabController.index == 0
-            ? ChatListFilter.active
-            : ChatListFilter.archived,
-      );
     });
   }
 
@@ -87,7 +75,6 @@ class _ChatListViewState extends ConsumerState<ChatListView>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _activeScrollController.dispose();
     _archivedScrollController.dispose();
     super.dispose();
@@ -100,47 +87,21 @@ class _ChatListViewState extends ConsumerState<ChatListView>
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: Column(
+      body: AppTabs(
+        titles: [l10n.chatsActiveTab, l10n.chatsArchiveTab],
+        onChanged: (index) => _refreshIfStale(
+          index == 0 ? ChatListFilter.active : ChatListFilter.archived,
+        ),
         children: [
-          ColoredBox(
-            color: theme.cardColor,
-            child: TabBar(
-              controller: _tabController,
-              indicatorWeight: 4,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicatorColor: theme.colorScheme.onPrimary,
-              labelColor: theme.colorScheme.onPrimary,
-              unselectedLabelColor: theme.hintColor,
-              labelStyle: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              unselectedLabelStyle: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.normal,
-                fontSize: 16,
-              ),
-              tabs: [
-                Tab(text: l10n.chatsActiveTab),
-                Tab(text: l10n.chatsArchiveTab),
-              ],
-            ),
+          _ChatListPane(
+            isOwner: widget.isOwner,
+            filter: ChatListFilter.active,
+            scrollController: _activeScrollController,
           ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _ChatListPane(
-                  isOwner: widget.isOwner,
-                  filter: ChatListFilter.active,
-                  scrollController: _activeScrollController,
-                ),
-                _ChatListPane(
-                  isOwner: widget.isOwner,
-                  filter: ChatListFilter.archived,
-                  scrollController: _archivedScrollController,
-                ),
-              ],
-            ),
+          _ChatListPane(
+            isOwner: widget.isOwner,
+            filter: ChatListFilter.archived,
+            scrollController: _archivedScrollController,
           ),
         ],
       ),
