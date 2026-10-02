@@ -189,8 +189,9 @@ class _CompanyInformationScreenState
             .valueOrNull?['self']?['role'] ==
         'OWNER';
     return Scaffold(
-      appBar: AppBar(
+      appBar: ProkatAppBar(
         title: const Text('Информация компании'),
+        onBack: () => Navigator.of(context).pop(),
         actions: const [NotificationBadge()],
       ),
       body: ListView(

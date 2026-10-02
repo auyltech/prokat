@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -149,8 +150,12 @@ Future<void> _confirmDelete(
       .read(equipmentMutationProvider.notifier)
       .deleteEquipment(equipmentId);
 
-  if (context.mounted) {
-    context.pop();
+  if (result && context.mounted) {
+    if (ref.read(equipmentServiceProvider).companyId != null) {
+      Navigator.of(context).pop();
+    } else {
+      context.pop();
+    }
   }
 
   AppToast.show(

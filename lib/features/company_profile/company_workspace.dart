@@ -14,6 +14,7 @@ import 'package:prokat/features/equipment/state/equipment_service.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_details_notifier.dart';
 import 'package:prokat/features/equipment/screens/owner_equipment_detail_screen.dart';
+import 'package:prokat/features/equipment/widgets/owner/owner_equipment_detail_title.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 
 import 'company_profile_api.dart';
@@ -157,8 +158,9 @@ class CompanyEquipmentDetailsPage extends StatelessWidget {
   const CompanyEquipmentDetailsPage({super.key, required this.id});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Детали техники'),
+    appBar: ProkatAppBar(
+      title: OwnerEquipmentDetailTitle(equipmentId: id),
+      onBack: () => Navigator.of(context).pop(),
       actions: const [NotificationBadge()],
     ),
     body: OwnerEquipmentDetailScreen(equipmentId: id),

@@ -28,8 +28,9 @@ class CompanyParkScreen extends ConsumerWidget {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => Scaffold(
-          appBar: AppBar(
+          appBar: ProkatAppBar(
             title: const Text('Добавить технику'),
+            onBack: () => Navigator.of(context).pop(),
             actions: const [NotificationBadge()],
           ),
           body: const CreateEquipmentScreen(),
@@ -41,13 +42,10 @@ class CompanyParkScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(
+    appBar: ProkatAppBar(
       title: const Text('Техника компании'),
       actions: [
-        IconButton(
-          onPressed: () => _add(context, ref),
-          icon: const Icon(Icons.add),
-        ),
+        AppIconButton(onTap: () => _add(context, ref), icon: Icons.add),
         const NotificationBadge(),
       ],
     ),
@@ -118,18 +116,20 @@ class CompanyParkScreen extends ConsumerWidget {
                                           : Colors.grey,
                                     ),
                                     const SizedBox(width: 8),
-                                    Flexible(
-                                      child: _CardBadge(
-                                        label: catalogCityLabelOf(
-                                          ref,
-                                          context,
-                                          company['city'],
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: _CardBadge(
+                                          label: catalogCityLabelOf(
+                                            ref,
+                                            context,
+                                            company['city'],
+                                          ),
+                                          color: Colors.black87,
                                         ),
-                                        color: Colors.black87,
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    const Spacer(),
                                     AppIconButton(
                                       icon: LucideIcons.share2,
                                       variant: AppIconButtonVariant.soft,
@@ -331,7 +331,11 @@ class CompanyCategoryScreen extends ConsumerWidget {
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: Text(title)),
+    appBar: ProkatAppBar(
+      title: Text(title),
+      onBack: () => Navigator.of(context).pop(),
+      actions: const [NotificationBadge()],
+    ),
     body: ref
         .watch(ownerEquipmentProvider)
         .when(
