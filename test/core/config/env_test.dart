@@ -75,6 +75,10 @@ void main() {
     expect(Env.firebaseServicesEnabled, firebaseEnabled);
   });
 
+  test('disables analytics collection without firebase services', () {
+    expect(Env.analyticsCollectionEnabled, isFalse);
+  }, skip: firebaseEnabled ? 'requires ENABLE_FIREBASE_SERVICES=false' : false);
+
   test('builds an equipment share URL on the default host', () {
     expect(Env.shareBaseUrl, 'https://prokat-bfbec.web.app');
     expect(

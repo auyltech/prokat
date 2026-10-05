@@ -28,6 +28,9 @@ class Env {
     'ENABLE_FIREBASE_SERVICES',
     defaultValue: true,
   );
+  static const _analyticsForceCollection = bool.fromEnvironment(
+    'ANALYTICS_FORCE_COLLECTION',
+  );
   static const _defaultShareBaseUrl = 'https://prokat-bfbec.web.app';
   static const _shareBaseUrl = String.fromEnvironment(
     'SHARE_BASE_URL',
@@ -47,6 +50,11 @@ class Env {
   };
 
   static bool get isLocal => environment == AppEnvironment.local;
+
+  static bool get analyticsCollectionEnabled =>
+      firebaseServicesEnabled &&
+      ((environment == AppEnvironment.production && !kDebugMode) ||
+          _analyticsForceCollection);
 
   static String get baseUrl => _resolveEndpoint(
     name: 'API_BASE_URL',
