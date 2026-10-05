@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/analytics/analytics_client.dart';
 import 'package:prokat/core/analytics/analytics_events.dart';
+import 'package:prokat/core/analytics/analytics_identity.dart';
 import 'package:prokat/core/analytics/firebase_analytics_client.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -9,6 +10,16 @@ class AnalyticsService {
   AnalyticsService(this._client);
 
   final AnalyticsClient _client;
+
+  Future<void> setIdentity(AnalyticsIdentity identity) async {
+    try {
+      await _client.setUserId(identity.userId);
+      await _client.setUserProperty(
+        AnalyticsUserProperties.userRole,
+        identity.role,
+      );
+    } catch (_) {}
+  }
 
   Future<void> logSignUp({String? shareId}) => _log(AnalyticsEvents.signUp, {
     AnalyticsParams.method: AnalyticsValues.methodPhoneOtp,

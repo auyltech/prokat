@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/analytics/analytics_identity.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -55,6 +56,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     ref.watch(workflowBootstrapProvider);
     ref.watch(catalogBootstrapProvider);
     ref.watch(billingBootstrapProvider);
+    ref.watch(analyticsIdentityBootstrapProvider);
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);

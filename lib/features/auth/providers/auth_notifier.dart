@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/analytics/pending_sign_up.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
@@ -218,12 +219,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await api.verifyOtp(phone, otp);
 
       if (result.success && result.data != null) {
-        await storage.saveSession(result.data!);
+        final verification = result.data!;
+        final session = verification.session;
+        await storage.saveSession(session);
+
+        // Must precede the state change that updates the analytics identity.
+        final newUserId = session.user?.id;
+        if (verification.isNewUser && newUserId != null) {
+          ref.read(pendingSignUpProvider).markPending(newUserId);
+        }
 
         // Keep the OTP form mounted until the post-auth route is ready.
         // Clearing OTP here briefly shows the phone screen before redirect.
         state = state.copyWith(
-          session: result.data,
+          session: session,
           isLoading: true,
           error: null,
           errorCode: null,
