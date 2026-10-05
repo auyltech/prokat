@@ -22,12 +22,16 @@ class OwnerEquipmentCard extends ConsumerWidget {
   final Equipment equipment;
   final VoidCallback? onOpen;
   final bool showShare;
+  final bool companyControls;
+  final bool readOnly;
 
   const OwnerEquipmentCard({
     super.key,
     required this.equipment,
     this.onOpen,
     this.showShare = true,
+    this.companyControls = false,
+    this.readOnly = false,
   });
 
   void _openEditor(BuildContext context, WidgetRef ref) {
@@ -54,7 +58,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
-    final locationText = (equipment.city == null || equipment.city!.isEmpty)
+    final locationText = readOnly ? (equipment.ownerComment ?? '') : (equipment.city == null || equipment.city!.isEmpty)
         ? l10n.noLocationSet
         : catalogCityLabelOf(ref, context, equipment.city);
     final priceEntry = equipment.prices
@@ -95,7 +99,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
+                              "${equipment.model.toUpperCase()} ${!readOnly && equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: ghostGray,
                               ),
@@ -106,7 +110,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Icon(
+                                if (!readOnly) Icon(
                                   Icons.location_on_outlined,
                                   size: 20,
                                   color: ghostGray,
@@ -135,7 +139,8 @@ class OwnerEquipmentCard extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  EquipmentStatusBadge(status: equipment.status),
+                  if (readOnly) Text(priceDisplay, style: theme.textTheme.labelMedium)
+                  else EquipmentStatusBadge(status: equipment.status),
                   if (showShare && canShowShareButton(equipment)) ...[
                     const SizedBox(height: 8),
                     ShareEquipmentButton(
@@ -150,7 +155,31 @@ class OwnerEquipmentCard extends ConsumerWidget {
 
           const SizedBox(height: 4),
 
-          Row(
+          if (companyControls && equipment.isVisible &&
+              equipment.isModerated)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(equipment.status == EquipmentStatus.booked ? 'Занята' : 'Свободна',
+                  style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Transform.scale(
+                  scale: 0.8,
+                  child: Switch(
+                    value: equipment.status != EquipmentStatus.booked,
+                    onChanged: (free) async {
+                      final result = await ref.read(equipmentMutationProvider.notifier)
+                        .updateEquipmentStatus(equipment.id,
+                          free ? EquipmentStatus.available : EquipmentStatus.booked);
+                      if (!result.success) {
+                        AppToast.show(message: result.message, type: AppToastType.error);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+          if (!readOnly) Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
@@ -185,7 +214,8 @@ class OwnerEquipmentCard extends ConsumerWidget {
                 ),
               ),
               if (equipment.status == EquipmentStatus.available ||
-                  equipment.status == EquipmentStatus.accepted) ...[
+                  equipment.status == EquipmentStatus.accepted ||
+                  (companyControls && equipment.status == EquipmentStatus.booked)) ...[
                 const SizedBox(width: 8),
                 OnlineToggle(
                   id: equipment.id,

@@ -24,8 +24,10 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateBookingScreen extends ConsumerStatefulWidget {
   final String equipmentId;
+  final String? companyId;
+  final Widget? beforeOrderFields;
 
-  const CreateBookingScreen({super.key, required this.equipmentId});
+  const CreateBookingScreen({super.key, required this.equipmentId, this.companyId, this.beforeOrderFields});
 
   @override
   ConsumerState<CreateBookingScreen> createState() =>
@@ -197,7 +199,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final result = await ref
         .read(bookingMutationProvider.notifier)
-        .createBooking();
+        .createBooking(companyId: widget.companyId);
 
     AppToast.show(
       message: result.success
@@ -321,9 +323,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             ),
                           ),
                           const SizedBox(width: AppDimens.s08$sm),
-                          ShareEquipmentButton(equipment: equipment),
+                          if (widget.companyId == null) ShareEquipmentButton(equipment: equipment),
                           const SizedBox(width: AppDimens.s08$sm),
-                          AppIconButton(
+                          if (widget.companyId == null) AppIconButton(
                             icon: isFavorite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
@@ -345,6 +347,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         Text(ownerComment, style: AppFonts.body14(context)),
                       ],
                       const SizedBox(height: AppDimens.s16$base),
+                      if (widget.beforeOrderFields != null) widget.beforeOrderFields!,
                       BookingOrderFields(
                         isEquipmentGroup: bookingIsEquipmentGroup(equipment),
                         address:

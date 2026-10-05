@@ -1,3 +1,6 @@
+import 'package:prokat/features/company_profile/company_scope.dart';
+import 'package:prokat/features/company_profile/company_profile_api.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -54,6 +57,11 @@ class EquipmentMutationNotifier
     ref.invalidate(ownerEquipmentDetailsProvider(equipmentId));
     await ref.read(ownerEquipmentProvider.notifier).refresh();
     ref.invalidate(ownerFleetGroupsProvider);
+    final companyId = ref.read(activeCompanyIdProvider);
+    if (companyId != null) {
+      ref.invalidate(companyDashboardProvider(companyId));
+      ref.invalidate(companyBalanceProvider(companyId));
+    }
   }
 
   /// CREATE
@@ -79,6 +87,11 @@ class EquipmentMutationNotifier
       if (result.success) {
         await ref.read(ownerEquipmentProvider.notifier).refresh();
         ref.invalidate(ownerFleetGroupsProvider);
+        final companyId = ref.read(activeCompanyIdProvider);
+        if (companyId != null) {
+          ref.invalidate(companyDashboardProvider(companyId));
+          ref.invalidate(companyBalanceProvider(companyId));
+        }
       }
 
       return result.success;

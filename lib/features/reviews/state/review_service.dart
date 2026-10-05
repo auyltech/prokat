@@ -6,7 +6,9 @@ import 'package:prokat/features/reviews/models/review_model.dart';
 class ReviewService {
   final ApiClient apiClient;
 
-  ReviewService(this.apiClient);
+  final String? companyId;
+  ReviewService(this.apiClient, {this.companyId});
+  String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
 
@@ -18,7 +20,7 @@ class ReviewService {
   }) async {
     try {
       final res = await _dio.post(
-        '/reviews',
+        '$prefix/reviews',
         data: {
           'bookingId': bookingId,
           'revieweeId': revieweeId,

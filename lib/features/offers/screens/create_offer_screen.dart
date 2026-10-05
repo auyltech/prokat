@@ -1,3 +1,5 @@
+import 'package:prokat/features/company_profile/company_scope.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -57,6 +59,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final companyId = ref.watch(activeCompanyIdProvider);
 
     final offersState = ref.watch(offerMutationProvider);
     final offersNotifier = ref.read(offerMutationProvider.notifier);
@@ -68,7 +71,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
 
     final canSubmit =
         offersState.priceRate != null &&
-        offersState.selectedEquipment != null &&
+        (companyId != null || offersState.selectedEquipment != null) &&
         offersState.selectedRequest != null &&
         !ref.watch(offerMutationProvider).isSubmitting;
 
@@ -81,7 +84,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
         return;
       }
 
-      if (ref.read(billingProvider).isOutOfPaidMinutes) {
+      if (companyId == null && ref.read(billingProvider).isOutOfPaidMinutes) {
         AppToast.show(
           message: l10n.cannotRespondWithZeroBalance,
           type: AppToastType.error,
@@ -151,21 +154,22 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppDropdownField<EquipmentSummaryModel>(
-                title: l10n.navEquipment,
-                hint: l10n.selectEquipment,
-                sheetTitle: l10n.selectEquipment,
-                value: offersState.selectedEquipment,
-                options: equipmentOptions
-                    .map(
-                      (e) => DropdownOption(
-                        value: e,
-                        label: '${e.name}-${e.plateNumber}',
-                      ),
-                    )
-                    .toList(),
-                onChanged: offersNotifier.selectEquipment,
-              ),
+              if (companyId == null)
+                AppDropdownField<EquipmentSummaryModel>(
+                  title: l10n.navEquipment,
+                  hint: l10n.selectEquipment,
+                  sheetTitle: l10n.selectEquipment,
+                  value: offersState.selectedEquipment,
+                  options: equipmentOptions
+                      .map(
+                        (e) => DropdownOption(
+                          value: e,
+                          label: '${e.name}-${e.plateNumber}',
+                        ),
+                      )
+                      .toList(),
+                  onChanged: offersNotifier.selectEquipment,
+                ),
 
               const SizedBox(height: AppDimens.s16$base),
 

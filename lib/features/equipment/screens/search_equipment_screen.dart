@@ -248,6 +248,16 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
         children: [
           CategoryHeaderCard(group: widget.group),
           const SizedBox(height: AppDimens.s16$base),
+          AppCard(
+            child: ListTile(
+              leading: const Icon(Icons.business_outlined),
+              title: const Text('Компании'),
+              subtitle: const Text('Техника и оборудование компаний'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/search/companies'),
+            ),
+          ),
+          const SizedBox(height: AppDimens.s16$base),
           if (equipmentAsync.isLoading && items.isEmpty)
             const EquipmentListSkeleton()
           else if (equipmentAsync.hasError)

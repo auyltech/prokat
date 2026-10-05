@@ -9,7 +9,9 @@ import 'package:dio/dio.dart';
 class RequestService {
   final ApiClient apiClient;
 
-  RequestService(this.apiClient);
+  final String? companyId;
+  RequestService(this.apiClient, {this.companyId});
+  String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
 
@@ -20,7 +22,7 @@ class RequestService {
   }) async {
     try {
       final response = await _dio.get(
-        '/requests',
+        '$prefix/requests',
         queryParameters: {
           "page": page,
           "itemsPerPage": itemsPerPage,
@@ -90,7 +92,7 @@ class RequestService {
     try {
       final trimmedCapacity = capacity?.trim();
       final response = await _dio.post(
-        '/requests',
+        '$prefix/requests',
         data: {
           "categoryId": categoryId,
           "locationId": locationId,
@@ -135,7 +137,7 @@ class RequestService {
   }) async {
     try {
       final response = await _dio.patch(
-        '/requests/$id',
+        '$prefix/requests/$id',
         data: {
           "locationId": ?locationId,
           if (requiredOn != null)
@@ -171,7 +173,7 @@ class RequestService {
   Future<ApiResponse<void>> cancelRequest(String id) async {
     try {
       final response = await _dio.patch(
-        '/requests/$id/cancel',
+        '$prefix/requests/$id/cancel',
         data: {"id": id, "status": "CANCELLED"},
       );
 
@@ -200,7 +202,7 @@ class RequestService {
   Future<ApiResponse<void>> viewRequest(String id) async {
     try {
       final response = await _dio.patch(
-        '/requests/$id/view',
+        '$prefix/requests/$id/view',
         data: {"id": id, "status": "hidden"},
       );
 
@@ -234,7 +236,7 @@ class RequestService {
   }) async {
     try {
       final response = await _dio.get(
-        '/requests/owner',
+        '$prefix/requests/owner',
         queryParameters: {
           "page": page,
           "itemsPerPage": itemsPerPage,

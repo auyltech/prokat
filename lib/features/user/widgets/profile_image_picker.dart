@@ -17,11 +17,15 @@ import 'package:prokat/l10n/app_localizations.dart';
 class ProfileImagePicker extends ConsumerStatefulWidget {
   final String? initialImageUrl;
   final AppMode mode;
+  final Future<void> Function(File)? onUpload;
+  final double radius;
 
   const ProfileImagePicker({
     super.key,
     this.initialImageUrl,
     required this.mode,
+    this.onUpload,
+    this.radius = 80,
   });
 
   @override
@@ -147,7 +151,9 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
 
   Future<void> onImageSelected(File? file) async {
     if (file != null) {
-      if (widget.mode == AppMode.ownerMode) {
+      if (widget.onUpload != null) {
+        await widget.onUpload!(file);
+      } else if (widget.mode == AppMode.ownerMode) {
         await ref
             .read(ownerRegistrationMutationProvider.notifier)
             .uploadProfileImage(file);
@@ -179,7 +185,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                 // ],
               ),
               child: CircleAvatar(
-                radius: 80,
+                radius: widget.radius,
                 backgroundColor: Colors.white,
                 backgroundImage: _selectedImage != null
                     ? FileImage(_selectedImage!)
@@ -202,7 +208,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                     ? ClipOval(
                         child: Transform.translate(
                           offset: const Offset(-30, -20),
-                          child: const Icon(Icons.person, size: 220),
+                          child: Icon(Icons.person, size: widget.radius * 2),
                         ),
                       )
                     : null,

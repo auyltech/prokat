@@ -29,14 +29,16 @@ class MainScaffold extends StatelessWidget {
         currentPath == AppRoutes.clientPinAddress ||
         currentPath == AppRoutes.ownerAddressMap;
 
-    final bool hideAppBar = [
-      AppRoutes.launch,
-      AppRoutes.main,
-      AppRoutes.login,
-      AppRoutes.about,
-      AppRoutes.clientProfile,
-      AppRoutes.ownerProfile,
-    ].contains(currentPath);
+    final bool hideAppBar =
+        [
+          AppRoutes.launch,
+          AppRoutes.main,
+          AppRoutes.login,
+          AppRoutes.about,
+          AppRoutes.clientProfile,
+          AppRoutes.ownerProfile,
+        ].contains(currentPath) ||
+        currentPath == '/search/companies';
 
     return Scaffold(
       key: _scaffoldKey,

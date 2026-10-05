@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:prokat/features/company_profile/company_scope.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -57,7 +61,14 @@ class _NotificationBadgeState extends ConsumerState<NotificationBadge>
       children: [
         AppIconButton(
           icon: LucideIcons.bell,
-          onTap: () => context.push(notificationsRoute),
+          onTap: () {
+            final rootNavigation = ref.read(companyRootNavigationProvider);
+            if (rootNavigation != null) {
+              rootNavigation(notificationsRoute);
+            } else {
+              unawaited(context.push(notificationsRoute));
+            }
+          },
           tone: widget.color == null
               ? AppIconButtonTone.neutral
               : AppIconButtonTone.inverse,

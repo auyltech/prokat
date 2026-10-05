@@ -58,13 +58,13 @@ void main() {
     expect(user.displayNameOr('Name not specified'), 'Name not specified');
   });
 
-  test('UserModel.fromJson accepts backend ratingAverage as a double', () {
+  test('UserModel.fromJson preserves fractional backend ratingAverage', () {
     final user = UserModel.fromJson(const {
       'id': 'user-1',
       'ratingAverage': 4.5,
     });
 
-    expect(user.rating, 5);
+    expect(user.rating, 4.5);
   });
 
   test('displayName uses companyName when personal name is empty', () {

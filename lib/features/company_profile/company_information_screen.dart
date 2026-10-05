@@ -25,6 +25,9 @@ import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 
 import 'company_profile_api.dart';
 
+import 'package:prokat/features/user/widgets/profile_image_picker.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+
 class CompanyInformationScreen extends ConsumerStatefulWidget {
   final String companyId;
   final Map<String, dynamic> dashboard;
@@ -179,6 +182,26 @@ class _CompanyInformationScreenState
     }
   }
 
+  Future<void> uploadAvatar(File file) async {
+    try {
+      final api = ref.read(companyProfileApiProvider);
+      final response = await api.dio.post(
+        '/company-profile/${widget.companyId}/avatar',
+        data: FormData.fromMap({
+          'equipmentImage': await MultipartFile.fromFile(file.path),
+        }),
+      );
+      if (mounted) {
+        setState(
+          () => dashboard = Map<String, dynamic>.from(response.data['data']),
+        );
+      }
+      ref.invalidate(companyDashboardProvider(widget.companyId));
+    } catch (e) {
+      AppToast.show(message: companyProfileError(e), type: AppToastType.error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final company = dashboard['company'] as Map;
@@ -268,6 +291,44 @@ class _CompanyInformationScreenState
                         maxLines: 4,
                         readOnly: !editable,
                         onFocusLost: save,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Аватарка компании',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 88,
+                            height: 88,
+                            child: AbsorbPointer(
+                              absorbing: !editable,
+                              child: ProfileImagePicker(
+                                mode: AppMode.ownerMode,
+                                radius: 36,
+                                initialImageUrl: company['avatarUrl'],
+                                onUpload: uploadAvatar,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  company['name'],
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                Text(
+                                  '★ ${company['ratingAverage']} · ${company['orderCount'] ?? 0} заказов',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -436,8 +497,9 @@ Future<void> shareCompany(
       name: name,
       description: company['description'],
       coverUrl: (company['images'] as List).firstOrNull?['imageUrl'],
-      priceLine:
-          'Техника: ${dashboard['machinery']['total']} · Оборудование: ${dashboard['equipment']['total']}',
+      priceLine: dashboard['machinery'] != null
+          ? 'Техника: ${dashboard['machinery']['total']} · Оборудование: ${dashboard['equipment']['total']}'
+          : company['name'],
       cta: company['name'],
     );
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);

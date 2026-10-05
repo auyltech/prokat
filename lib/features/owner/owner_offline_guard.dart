@@ -1,3 +1,5 @@
+import 'package:prokat/features/company_profile/company_scope.dart';
+import 'package:prokat/features/company_profile/company_profile_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
@@ -15,9 +17,27 @@ enum OwnerGoOnlineBlockReason { none, zeroBalance, noOnlineEquipment }
 
 OwnerStatus? ownerOnlineStatusOf(Object ref) {
   if (ref is WidgetRef) {
+    final id = ref.read(activeCompanyIdProvider);
+    if (id != null) {
+      return ref
+                  .read(companyBalanceProvider(id))
+                  .valueOrNull?['onlineStatus'] ==
+              'ONLINE'
+          ? OwnerStatus.online
+          : OwnerStatus.offline;
+    }
     return ref.read(ownerProfileProvider).valueOrNull?.onlineStatus;
   }
   if (ref is Ref) {
+    final id = ref.read(activeCompanyIdProvider);
+    if (id != null) {
+      return ref
+                  .read(companyBalanceProvider(id))
+                  .valueOrNull?['onlineStatus'] ==
+              'ONLINE'
+          ? OwnerStatus.online
+          : OwnerStatus.offline;
+    }
     return ref.read(ownerProfileProvider).valueOrNull?.onlineStatus;
   }
   return null;
@@ -34,6 +54,13 @@ T _read<T>(Object ref, ProviderListenable<T> provider) {
 }
 
 OwnerGoOnlineBlockReason ownerGoOnlineBlockReason(Object ref) {
+  final companyId = _read(ref, activeCompanyIdProvider);
+  if (companyId != null) {
+    final balance = _read(ref, companyBalanceProvider(companyId)).valueOrNull;
+    return (balance?['secondsRemaining'] as num? ?? 0) <= 0
+        ? OwnerGoOnlineBlockReason.zeroBalance
+        : OwnerGoOnlineBlockReason.none;
+  }
   final billing = _read(ref, billingProvider);
   if (billing.isOutOfPaidMinutes) {
     return OwnerGoOnlineBlockReason.zeroBalance;
@@ -66,6 +93,24 @@ String ownerGoOnlineBlockMessage({
 
 /// Client pre-check + PATCH ONLINE. Does not wait for catalog:visibility.
 Future<bool> requestOwnerGoOnline(Object ref) async {
+  final companyId = _read(ref, activeCompanyIdProvider);
+  if (companyId != null) {
+    try {
+      await _read(
+        ref,
+        companyProfileApiProvider,
+      ).request('/$companyId/online', method: 'PATCH', body: {'online': true});
+      if (ref is WidgetRef) {
+        ref.invalidate(companyBalanceProvider(companyId));
+      }
+      if (ref is Ref) {
+        ref.invalidate(companyBalanceProvider(companyId));
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
   final block = ownerGoOnlineBlockReason(ref);
   if (block != OwnerGoOnlineBlockReason.none) {
     return false;

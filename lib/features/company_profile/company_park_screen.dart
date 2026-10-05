@@ -357,6 +357,7 @@ class CompanyCategoryScreen extends ConsumerWidget {
                   OwnerEquipmentCard(
                     equipment: unit,
                     showShare: false,
+                    companyControls: true,
                     onOpen: () async {
                       await Navigator.of(context).push(
                         MaterialPageRoute(

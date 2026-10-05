@@ -16,11 +16,15 @@ import 'package:prokat/l10n/app_localizations.dart';
 class ClientEquipmentTile extends ConsumerWidget {
   final Equipment equipment;
   final VoidCallback onTap;
+  final bool companyCard;
+  final VoidCallback? onShare;
 
   const ClientEquipmentTile({
     super.key,
     required this.equipment,
     required this.onTap,
+    this.companyCard = false,
+    this.onShare,
   });
 
   @override
@@ -98,9 +102,10 @@ class ClientEquipmentTile extends ConsumerWidget {
                 right: 8,
                 child: Row(
                   children: [
-                    ShareEquipmentButton(equipment: equipment),
+                    if (companyCard) AppIconButton(icon: Icons.share_outlined, onTap: onShare)
+                    else ShareEquipmentButton(equipment: equipment),
                     const SizedBox(width: 8),
-                    AppIconButton(
+                    if (!companyCard) AppIconButton(
                       icon: isFavorite ? Icons.favorite : Icons.favorite_border,
                       tone: AppIconButtonTone.destructive,
                       variant: AppIconButtonVariant.soft,
@@ -170,6 +175,10 @@ class ClientEquipmentTile extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (companyCard && (equipment.ownerComment ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(equipment.ownerComment!, style: theme.textTheme.bodySmall),
+                ],
                 // Text(
                 //   equipment.model,
                 //   style: theme.textTheme.titleSmall,

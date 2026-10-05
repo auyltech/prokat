@@ -1,3 +1,4 @@
+import 'package:prokat/features/company_profile/company_catalog_screen.dart';
 import 'package:prokat/features/company_profile/company_workspace.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/company_profile/company_access_screen.dart';
@@ -261,6 +262,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           /// Client
           StatefulShellBranch(
             routes: [
+              GoRoute(
+                path: '/search/companies',
+                builder: (_, _) => const CompanyCatalogScreen(),
+              ),
               GoRoute(
                 path: AppRoutes.searchList,
                 builder: (context, state) {

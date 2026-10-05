@@ -1,7 +1,7 @@
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 
-enum UserRole { client, owner }
+enum UserRole { client, owner, company }
 
 UserRole? parseUserRole(dynamic value) {
   if (value == null) return null;
@@ -24,7 +24,7 @@ class UserModel {
   final String? firstName;
   final String? lastName;
   final String? companyName;
-  final int? rating;
+  final num? rating;
   final int? orderCount;
   final UserRole? role;
   final String? imageUrl;
@@ -83,7 +83,7 @@ class UserModel {
     String? firstName,
     String? lastName,
     String? companyName,
-    int? rating,
+    num? rating,
     int? orderCount,
     UserRole? role,
     String? imageUrl,
@@ -116,7 +116,9 @@ class UserModel {
         username: json['username']?.toString(),
         companyName: json['companyName']?.toString(),
         phoneNumber: json['phoneNumber']?.toString(),
-        rating: parseNullableInt(json['rating'] ?? json['ratingAverage']),
+        rating: num.tryParse(
+          (json['rating'] ?? json['ratingAverage'])?.toString() ?? '',
+        ),
         orderCount: parseNullableInt(json['orderCount']),
         role: parseUserRole(json['role']) ?? UserRole.client,
         imageUrl: json['imageUrl']?.toString(),

@@ -64,7 +64,7 @@ class UserInfoTile extends ConsumerWidget {
                   const SizedBox(width: 2),
                   Flexible(
                     child: Text(
-                      '${user?.rating ?? 0} • ${l10n.ordersCount(user?.orderCount ?? 0)}',
+                      '${(user?.rating ?? 0).toStringAsFixed(1)} • ${l10n.ordersCount(user?.orderCount ?? 0)}',
                       style: theme.textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

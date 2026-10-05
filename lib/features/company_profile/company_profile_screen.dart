@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'company_scope.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +25,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 import 'company_profile_api.dart';
 import 'company_member_screen.dart';
+import 'company_online_card.dart';
 
 class CompanyProfileScreen extends ConsumerWidget {
   final String companyId, companyName;
@@ -133,13 +138,16 @@ class CompanyProfileScreen extends ConsumerWidget {
                                     balance,
                                   ),
                                 ),
-                                ownerOnline: false,
-                                onlineEquipment: 0,
+                                ownerOnline:
+                                    balance['onlineStatus'] == 'ONLINE',
+                                onlineEquipment: balance['categoryCount'] ?? 0,
                                 onTopUp: () => AppToast.show(
                                   message: l10n.paymentFeatureComingSoon,
                                 ),
                               ),
                             ),
+                        const SizedBox(height: 20),
+                        CompanyOnlineCard(companyId: companyId),
                         const SizedBox(height: 40),
                         ProkatListTile(
                           icon: LucideIcons.briefcase,
@@ -172,7 +180,14 @@ class CompanyProfileScreen extends ConsumerWidget {
                       await ref
                           .read(appStartupProvider.notifier)
                           .setClientMode();
-                      if (context.mounted) context.go(AppRoutes.clientProfile);
+                      if (context.mounted) {
+                        final exit = ref.read(exitCompanyProvider);
+                        if (exit != null) {
+                          exit();
+                        } else {
+                          context.go(AppRoutes.clientProfile);
+                        }
+                      }
                     },
                   ),
                 ),
@@ -187,7 +202,18 @@ class CompanyProfileScreen extends ConsumerWidget {
                           iconBgColor: accent.withValues(alpha: .15),
                           title: l10n.legalDocuments,
                           subtitle: l10n.legalDocumentsSubtitle,
-                          onTap: () => context.push(AppRoutes.clientDocuments),
+                          onTap: () {
+                            final root = ref.read(
+                              companyRootNavigationProvider,
+                            );
+                            if (root != null) {
+                              root(AppRoutes.clientDocuments);
+                            } else {
+                              unawaited(
+                                context.push(AppRoutes.clientDocuments),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 20),
                         ProkatListTile(
@@ -196,7 +222,16 @@ class CompanyProfileScreen extends ConsumerWidget {
                           iconBgColor: accent.withValues(alpha: .15),
                           title: l10n.appSettings,
                           subtitle: l10n.appSettingsSubtitle,
-                          onTap: () => context.push(AppRoutes.clientSettings),
+                          onTap: () {
+                            final root = ref.read(
+                              companyRootNavigationProvider,
+                            );
+                            if (root != null) {
+                              root(AppRoutes.clientSettings);
+                            } else {
+                              unawaited(context.push(AppRoutes.clientSettings));
+                            }
+                          },
                         ),
                         const SizedBox(height: 20),
                         ProkatListTile(

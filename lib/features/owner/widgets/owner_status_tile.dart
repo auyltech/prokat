@@ -1,3 +1,4 @@
+import 'package:prokat/core/widgets/account_status_card.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -115,42 +116,12 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
         hasKnownBalance &&
         !isOutOfPaidMinutes;
 
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            leading: CircleAvatar(
-              radius: 6,
-              backgroundColor: isOnline ? Colors.green : Colors.grey,
-            ),
-            title: Text(
-              isOnline ? l10n.youAreOnline : l10n.youAreOffline,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-            subtitle: Text(
-              isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-            ),
-            trailing: Switch.adaptive(
-              value: isOnline,
-              activeThumbColor: const Color(0xFF0F5A56),
-              onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
-                  ? null
-                  : _onToggleMethod,
-            ),
-          ),
-          if (!isOnline && hasProfile)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Text(
-                l10n.ownerOfflineMustBeOnlineToAccept,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-              ),
-            ),
-        ],
-      ),
+    return AccountStatusCard(
+      isOnline: isOnline,
+      title: isOnline ? l10n.youAreOnline : l10n.youAreOffline,
+      subtitle: isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
+      explanation: hasProfile ? l10n.ownerOfflineMustBeOnlineToAccept : null,
+      onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading ? null : _onToggleMethod,
     );
   }
 }
