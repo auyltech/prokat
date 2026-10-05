@@ -36,6 +36,7 @@ class AppRoutes {
   static const String userAgreement = '/user-agreement';
   static const String privacyPolicy = '/privacy-policy';
   static const String personalDataConsent = '/personal-data-consent';
+  static const String devEquipmentIdentity = '/dev/equipment-identity';
 
   // Client Screens
   static const String clientMain = '/client';

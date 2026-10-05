@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -84,6 +85,14 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                 title: l10n.contactSupport,
                 onTap: () => unawaited(context.push(AppRoutes.contactSupport)),
               ),
+              if (kDebugMode) ...[
+                const SizedBox(height: 24),
+                AppOutlinedButton(
+                  title: 'OCR spike',
+                  onTap: () =>
+                      unawaited(context.push(AppRoutes.devEquipmentIdentity)),
+                ),
+              ],
             ],
           ),
         ),

@@ -79,3 +79,8 @@ android/app/*.jks
 .problems/
 # Widget Preview related
 .widget_preview/
+
+# Local OCR samples for the identity spike. Keep the readme, never commit photos.
+/dev_samples/equipment_identity/**
+!/dev_samples/equipment_identity/README.md
+

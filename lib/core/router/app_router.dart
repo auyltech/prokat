@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -55,6 +56,7 @@ import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
 import 'package:prokat/features/notifications/screens/notifications_screen.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_screen.dart';
+import 'package:prokat/dev/equipment_identity/equipment_identity_harness_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = GoRouterRefreshNotifier<AppStartupStatus>(
@@ -205,6 +207,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.personalDataConsent,
         builder: (_, _) => const PersonalDataConsentScreen(),
       ),
+      if (kDebugMode)
+        GoRoute(
+          path: AppRoutes.devEquipmentIdentity,
+          builder: (_, _) => const EquipmentIdentityHarnessScreen(),
+        ),
 
       /// 🧱 MAIN APP
       StatefulShellRoute.indexedStack(
