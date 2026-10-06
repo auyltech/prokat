@@ -9,10 +9,15 @@ import 'package:prokat/features/chat/providers/chat_list_providers.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/providers/current_chat_provider.dart';
+import 'package:prokat/features/chat/service/chat_send_rejected.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
+import 'package:prokat/features/user_safety/user_safety_error_message.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/providers/locale_provider.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/chat/utils/chat_resume_sync_observer.dart';
 import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
@@ -436,6 +441,20 @@ class ChatMessagesNotifier
     } catch (error) {
       if (isAuthenticatedSessionScopeCurrent(ref, scope)) {
         markFailed(clientTempId);
+        if (error is ChatSendRejected &&
+            error.code == userBlockedErrorCode &&
+            ref.exists(currentChatProvider(chatId))) {
+          unawaited(ref.read(currentChatProvider(chatId).notifier).refresh());
+        }
+        if (error is ChatSendRejected &&
+            error.code == contentNotAllowedErrorCode) {
+          AppToast.show(
+            message: lookupAppLocalizations(
+              ref.read(localeProvider),
+            ).contentNotAllowed,
+            type: AppToastType.error,
+          );
+        }
       }
       return false;
     }

@@ -7323,6 +7323,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}\n{priceLine}\n{url}'**
   String shareEquipmentMessage(String name, String priceLine, String url);
+
+  /// No description provided for @reportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportAction;
+
+  /// No description provided for @blockUserAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get blockUserAction;
+
+  /// No description provided for @unblockUserAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get unblockUserAction;
+
+  /// No description provided for @blockedUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked users'**
+  String get blockedUsersTitle;
+
+  /// No description provided for @blockedUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t blocked anyone'**
+  String get blockedUsersEmpty;
+
+  /// No description provided for @reportSentToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent'**
+  String get reportSentToast;
+
+  /// No description provided for @reportSentBlockPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Also block this user?'**
+  String get reportSentBlockPrompt;
+
+  /// No description provided for @blockUserConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block this user?'**
+  String get blockUserConfirmTitle;
+
+  /// No description provided for @blockUserConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will stop seeing their listings and requests, and messaging will be unavailable. You can unblock them in Settings.'**
+  String get blockUserConfirmBody;
+
+  /// No description provided for @userBlockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked'**
+  String get userBlockedToast;
+
+  /// No description provided for @userUnblockedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'User unblocked'**
+  String get userUnblockedToast;
+
+  /// No description provided for @reportReasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for report'**
+  String get reportReasonTitle;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonAbuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Abuse or inappropriate behavior'**
+  String get reportReasonAbuse;
+
+  /// No description provided for @reportReasonFraud.
+  ///
+  /// In en, this message translates to:
+  /// **'Fraud'**
+  String get reportReasonFraud;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (optional)'**
+  String get reportCommentHint;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportSubmit;
+
+  /// No description provided for @userBlockedBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User is blocked'**
+  String get userBlockedBannerTitle;
+
+  /// No description provided for @interactionUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction with this user is unavailable'**
+  String get interactionUnavailableBody;
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @blockedUsersSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Users you have blocked'**
+  String get blockedUsersSettingsSubtitle;
+
+  /// No description provided for @contentNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'The text contains content that is not allowed. Please edit it and try again.'**
+  String get contentNotAllowed;
 }
 
 class _AppLocalizationsDelegate

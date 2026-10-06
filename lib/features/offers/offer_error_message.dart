@@ -1,3 +1,4 @@
+import 'package:prokat/features/user_safety/user_safety_error_message.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 const offerCreateRequestNotFoundCode = 'NOT_FOUND:OFFERS:CREATE';
@@ -16,6 +17,8 @@ String offerCreateErrorMessage({
       return l10n.cannotRespondWithZeroBalance;
     case offerCreateOwnerOfflineCode:
       return l10n.ownerOfflineMustBeOnlineToAccept;
+    case userBlockedErrorCode:
+      return l10n.interactionUnavailableBody;
     default:
       final trimmed = fallback?.trim() ?? '';
       return trimmed.isEmpty ? l10n.somethingWentWrong : trimmed;

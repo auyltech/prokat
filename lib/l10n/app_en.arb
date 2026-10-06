@@ -1411,5 +1411,28 @@
       "priceLine": { "type": "String" },
       "url": { "type": "String" }
     }
-  }
+  },
+  "reportAction": "Report",
+  "blockUserAction": "Block",
+  "unblockUserAction": "Unblock",
+  "blockedUsersTitle": "Blocked users",
+  "blockedUsersEmpty": "You haven't blocked anyone",
+  "reportSentToast": "Report sent",
+  "reportSentBlockPrompt": "Also block this user?",
+  "blockUserConfirmTitle": "Block this user?",
+  "blockUserConfirmBody": "You will stop seeing their listings and requests, and messaging will be unavailable. You can unblock them in Settings.",
+  "userBlockedToast": "User blocked",
+  "userUnblockedToast": "User unblocked",
+  "reportReasonTitle": "Reason for report",
+  "reportReasonSpam": "Spam",
+  "reportReasonAbuse": "Abuse or inappropriate behavior",
+  "reportReasonFraud": "Fraud",
+  "reportReasonOther": "Other",
+  "reportCommentHint": "Comment (optional)",
+  "reportSubmit": "Send report",
+  "userBlockedBannerTitle": "User is blocked",
+  "interactionUnavailableBody": "Interaction with this user is unavailable",
+  "notNow": "Not now",
+  "blockedUsersSettingsSubtitle": "Users you have blocked",
+  "contentNotAllowed": "The text contains content that is not allowed. Please edit it and try again."
 }
