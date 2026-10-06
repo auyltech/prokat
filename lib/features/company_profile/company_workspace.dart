@@ -1,3 +1,4 @@
+import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
@@ -310,6 +311,17 @@ class _CompanyNavigation extends ConsumerStatefulWidget {
 }
 
 class _CompanyNavigationState extends ConsumerState<_CompanyNavigation> {
+  late final StateController<String?> notificationScope = ref.read(
+    notificationCompanyScopeProvider.notifier,
+  );
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) notificationScope.state = widget.companyId;
+    });
+  }
+
   late final GoRouter router = GoRouter(
     initialLocation: '/company/profile',
     routes: [
@@ -431,6 +443,13 @@ class _CompanyNavigationState extends ConsumerState<_CompanyNavigation> {
   );
   @override
   void dispose() {
+    unawaited(
+      Future.microtask(() {
+        if (notificationScope.state == widget.companyId) {
+          notificationScope.state = null;
+        }
+      }),
+    );
     router.dispose();
     super.dispose();
   }

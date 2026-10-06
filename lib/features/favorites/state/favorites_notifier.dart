@@ -31,7 +31,7 @@ class FavoriteNotifier extends StateNotifier<FavoritesState> {
     return state.favoritesIds?.contains(id) ?? false;
   }
 
-  Future<bool> toggleFavorite(String equipmentId) async {
+  Future<bool> toggleFavorite(String equipmentId, {String? companyId}) async {
     try {
       state = state.copyWith(isLoading: true);
 
@@ -49,7 +49,10 @@ class FavoriteNotifier extends StateNotifier<FavoritesState> {
 
       state = state.copyWith(favoritesIds: updated);
 
-      final result = await service.toggleFavorite(equipmentId);
+      final result = await service.toggleFavorite(
+        equipmentId,
+        companyId: companyId,
+      );
 
       state = state.copyWith(isLoading: false);
 

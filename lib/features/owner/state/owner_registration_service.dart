@@ -233,6 +233,10 @@ class OwnerRegistrationService {
     }
   }
 
+  Future<void> deleteProfileImage() async {
+    await _dio.delete(ApiRoutes.ownerProfileImage);
+  }
+
   Future<ApiResponse<void>> uploadProfileImage(File imageFile) async {
     try {
       String fileName = imageFile.path.split('/').last;

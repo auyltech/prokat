@@ -39,6 +39,7 @@ Equipment companyDisplayEquipment(Map company) {
       .toList();
   return Equipment(
     id: company['id'],
+    companyId: company['id'],
     name: company['advertisingName'],
     model: '',
     status: EquipmentStatus.available,
@@ -447,3 +448,15 @@ class _ClientCompanyUnitScreenState
     ),
   );
 }
+
+Map<String, dynamic> companyForShare(Equipment equipment) => {
+  'id': equipment.id,
+  'name': equipment.owner?.companyName ?? equipment.name,
+  'advertisingName': equipment.name,
+  'description': equipment.ownerComment ?? '',
+  'city': equipment.city ?? '',
+  'isVisible': true,
+  'images': [
+    for (final image in equipment.images) {'imageUrl': image.imageUrl},
+  ],
+};

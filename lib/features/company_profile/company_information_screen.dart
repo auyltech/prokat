@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'dart:async';
 import 'dart:ui' as ui;
 
@@ -47,6 +48,7 @@ class _CompanyInformationScreenState
   late String city;
   late List<TariffDraft> tariffs;
   bool expanded = true, dataExpanded = false, busy = false, queued = false;
+  String? savedFingerprint;
   late Map<String, dynamic> dashboard;
   @override
   void initState() {
@@ -67,6 +69,7 @@ class _CompanyInformationScreenState
           ),
         )
         .toList();
+    savedFingerprint = fingerprint;
   }
 
   @override
@@ -81,8 +84,22 @@ class _CompanyInformationScreenState
           .read(companyMembersProvider(widget.companyId))
           .valueOrNull?['self']?['role'] ==
       'OWNER';
+  String get fingerprint => jsonEncode({
+    'city': city,
+    'name': name.text.trim(),
+    'description': description.text.trim(),
+    'tariffs': [
+      for (final t in tariffs.where((t) => t.isSavable))
+        {
+          'label': t.persistedLabel(),
+          'price': t.price,
+          'rate': t.priceRate.value,
+          'starting': t.isStartingFrom,
+        },
+    ],
+  });
   Future<void> save() async {
-    if (!canEdit) return;
+    if (!mounted || !canEdit) return;
     if (name.text.trim().isEmpty ||
         city.isEmpty ||
         tariffs.any((t) => t.id != null && !t.isSavable)) {
@@ -96,6 +113,8 @@ class _CompanyInformationScreenState
       queued = true;
       return;
     }
+    final submittedFingerprint = fingerprint;
+    if (submittedFingerprint == savedFingerprint) return;
     setState(() => busy = true);
     try {
       final result = await ref
@@ -118,10 +137,12 @@ class _CompanyInformationScreenState
               ],
             },
           );
+      if (!mounted) return;
+      savedFingerprint = submittedFingerprint;
       if (mounted) {
         setState(() => dashboard = Map<String, dynamic>.from(result));
       }
-      if (!queued && mounted) {
+      if (mounted) {
         final saved = ((result['company'] as Map)['tariffs'] as List)
             .map(
               (t) => TariffDraft.fromEntry(
@@ -133,9 +154,15 @@ class _CompanyInformationScreenState
           () => tariffs = adoptServerTariffs(server: saved, local: tariffs),
         );
       }
-      ref.invalidate(companyDashboardProvider(widget.companyId));
+      if (mounted) ref.invalidate(companyDashboardProvider(widget.companyId));
     } catch (e) {
-      AppToast.show(message: companyProfileError(e), type: AppToastType.error);
+      queued = false;
+      if (mounted) {
+        AppToast.show(
+          message: companyProfileError(e),
+          type: AppToastType.error,
+        );
+      }
     } finally {
       if (mounted) setState(() => busy = false);
       if (queued && mounted) {
@@ -150,7 +177,7 @@ class _CompanyInformationScreenState
     String method = 'PATCH',
     File? file,
   }) async {
-    if (busy) return false;
+    if (!mounted || busy) return false;
     setState(() => busy = true);
     try {
       final api = ref.read(companyProfileApiProvider);
@@ -168,10 +195,15 @@ class _CompanyInformationScreenState
       if (mounted) {
         setState(() => dashboard = Map<String, dynamic>.from(result));
       }
-      ref.invalidate(companyDashboardProvider(widget.companyId));
+      if (mounted) ref.invalidate(companyDashboardProvider(widget.companyId));
       return true;
     } catch (e) {
-      AppToast.show(message: companyProfileError(e), type: AppToastType.error);
+      if (mounted) {
+        AppToast.show(
+          message: companyProfileError(e),
+          type: AppToastType.error,
+        );
+      }
       return false;
     } finally {
       if (mounted) setState(() => busy = false);
@@ -182,24 +214,29 @@ class _CompanyInformationScreenState
     }
   }
 
+  Future<void> deleteAvatar() async {
+    final result = await ref
+        .read(companyProfileApiProvider)
+        .request('/${widget.companyId}/avatar', method: 'DELETE');
+    if (!mounted) return;
+    setState(() => dashboard = Map<String, dynamic>.from(result));
+    ref.invalidate(companyDashboardProvider(widget.companyId));
+  }
+
   Future<void> uploadAvatar(File file) async {
-    try {
-      final api = ref.read(companyProfileApiProvider);
-      final response = await api.dio.post(
-        '/company-profile/${widget.companyId}/avatar',
-        data: FormData.fromMap({
-          'equipmentImage': await MultipartFile.fromFile(file.path),
-        }),
-      );
-      if (mounted) {
-        setState(
-          () => dashboard = Map<String, dynamic>.from(response.data['data']),
-        );
-      }
-      ref.invalidate(companyDashboardProvider(widget.companyId));
-    } catch (e) {
-      AppToast.show(message: companyProfileError(e), type: AppToastType.error);
-    }
+    if (!mounted) return;
+    final api = ref.read(companyProfileApiProvider);
+    final response = await api.dio.post(
+      '/company-profile/${widget.companyId}/avatar',
+      data: FormData.fromMap({
+        'equipmentImage': await MultipartFile.fromFile(file.path),
+      }),
+    );
+    if (!mounted) return;
+    setState(
+      () => dashboard = Map<String, dynamic>.from(response.data['data']),
+    );
+    ref.invalidate(companyDashboardProvider(widget.companyId));
   }
 
   @override
@@ -308,8 +345,10 @@ class _CompanyInformationScreenState
                               child: ProfileImagePicker(
                                 mode: AppMode.ownerMode,
                                 radius: 36,
+                                showEditIcon: false,
                                 initialImageUrl: company['avatarUrl'],
                                 onUpload: uploadAvatar,
+                                onDelete: deleteAvatar,
                               ),
                             ),
                           ),
@@ -440,9 +479,13 @@ class _CompanyInformationScreenState
                                       () => company['isVisible'] = value,
                                     );
                                   }
-                                  ref.invalidate(
-                                    companyDashboardProvider(widget.companyId),
-                                  );
+                                  if (mounted) {
+                                    ref.invalidate(
+                                      companyDashboardProvider(
+                                        widget.companyId,
+                                      ),
+                                    );
+                                  }
                                 } catch (e) {
                                   AppToast.show(
                                     message: companyProfileError(e),
@@ -510,19 +553,20 @@ Future<void> shareCompany(
     );
     await file.writeAsBytes(bytes.buffer.asUint8List());
     if (!context.mounted) return;
-    final box = context.findRenderObject() as RenderBox?;
+    final box = context.findRenderObject();
     if (!context.mounted) return;
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'image/png')],
         text: '$name\n${Env.shareBaseUrl}/c/${company['id']}',
         subject: name,
-        sharePositionOrigin: box == null
-            ? null
-            : box.localToGlobal(Offset.zero) & box.size,
+        sharePositionOrigin: box is RenderBox && box.hasSize && !box.size.isEmpty
+            ? box.localToGlobal(Offset.zero) & box.size
+            : null,
       ),
     );
-  } catch (e) {
+  } catch (e, stack) {
+    debugPrint('Company share failed: $e\n$stack');
     if (context.mounted) {
       AppToast.show(
         message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,

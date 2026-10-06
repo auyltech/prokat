@@ -35,6 +35,8 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
         refreshOwnerOrderBadge(ref);
       }
     },
+    accepts: (notification) =>
+        ref.read(notificationApiServiceProvider).accepts(notification),
     currentLocale: () => ref.read(localeProvider).languageCode,
     shouldSuppressDisplay: (id) => ref
         .read(notificationProvider)

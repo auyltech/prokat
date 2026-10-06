@@ -1,3 +1,6 @@
+import 'package:prokat/features/company_profile/company_catalog_screen.dart';
+import 'package:prokat/features/company_profile/company_information_screen.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -248,16 +251,6 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
         children: [
           CategoryHeaderCard(group: widget.group),
           const SizedBox(height: AppDimens.s16$base),
-          AppCard(
-            child: ListTile(
-              leading: const Icon(Icons.business_outlined),
-              title: const Text('Компании'),
-              subtitle: const Text('Техника и оборудование компаний'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('/search/companies'),
-            ),
-          ),
-          const SizedBox(height: AppDimens.s16$base),
           if (equipmentAsync.isLoading && items.isEmpty)
             const EquipmentListSkeleton()
           else if (equipmentAsync.hasError)
@@ -294,7 +287,23 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
                 final equipment = items[index];
                 return ClientEquipmentTile(
                   equipment: equipment,
+                  companyCard: equipment.companyId != null,
+                  onShare: equipment.companyId == null
+                      ? null
+                      : () => shareCompany(context, ref, {
+                          'company': companyForShare(equipment),
+                        }),
                   onTap: () {
+                    if (equipment.companyId != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ClientCompanyDetailsScreen(
+                            companyId: equipment.companyId!,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                     bookingNotifier.selectEquipment(equipment);
                     unawaited(
                       context.push(

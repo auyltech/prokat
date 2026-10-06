@@ -19,6 +19,8 @@ class ProfileImagePicker extends ConsumerStatefulWidget {
   final AppMode mode;
   final Future<void> Function(File)? onUpload;
   final double radius;
+  final bool showEditIcon;
+  final Future<void> Function()? onDelete;
 
   const ProfileImagePicker({
     super.key,
@@ -26,6 +28,8 @@ class ProfileImagePicker extends ConsumerStatefulWidget {
     required this.mode,
     this.onUpload,
     this.radius = 80,
+    this.showEditIcon = true,
+    this.onDelete,
   });
 
   @override
@@ -35,6 +39,14 @@ class ProfileImagePicker extends ConsumerStatefulWidget {
 class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void didUpdateWidget(covariant ProfileImagePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialImageUrl != widget.initialImageUrl) {
+      _selectedImage = null;
+    }
+  }
 
   Future<void> _pickAndCropImage(ImageSource source) async {
     final l10n = AppLocalizations.of(context)!;
@@ -68,7 +80,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
         ],
       );
 
-      if (croppedFile != null) {
+      if (croppedFile != null && mounted) {
         setState(() => _selectedImage = File(croppedFile.path));
         await onImageSelected(_selectedImage);
       }
@@ -79,6 +91,10 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
         message: denied ? l10n.mediaAccessDenied : l10n.somethingWentWrong,
         type: AppToastType.error,
       );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _selectedImage = null);
+      AppToast.show(message: l10n.somethingWentWrong, type: AppToastType.error);
     }
   }
 
@@ -141,6 +157,16 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                     unawaited(_pickAndCropImage(ImageSource.camera));
                   },
                 ),
+                if (_selectedImage != null ||
+                    (widget.initialImageUrl ?? '').isNotEmpty)
+                  ListTile(
+                    leading: const Icon(LucideIcons.trash2),
+                    title: const Text('Удалить фото'),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      unawaited(_deleteImage());
+                    },
+                  ),
               ],
             ),
           ),
@@ -149,18 +175,44 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
     );
   }
 
+  Future<void> _deleteImage() async {
+    try {
+      if (widget.onDelete != null) {
+        await widget.onDelete!();
+      } else if (widget.mode == AppMode.ownerMode) {
+        await ref
+            .read(ownerRegistrationMutationProvider.notifier)
+            .deleteProfileImage();
+      } else {
+        await ref
+            .read(clientProfileMutationProvider.notifier)
+            .deleteProfileImage();
+      }
+      if (mounted) setState(() => _selectedImage = null);
+    } catch (_) {
+      if (mounted) {
+        AppToast.show(
+          message: AppLocalizations.of(context)!.somethingWentWrong,
+          type: AppToastType.error,
+        );
+      }
+    }
+  }
+
   Future<void> onImageSelected(File? file) async {
     if (file != null) {
       if (widget.onUpload != null) {
         await widget.onUpload!(file);
       } else if (widget.mode == AppMode.ownerMode) {
-        await ref
+        final ok = await ref
             .read(ownerRegistrationMutationProvider.notifier)
             .uploadProfileImage(file);
+        if (!ok) throw StateError('Upload failed');
       } else {
-        await ref
+        final ok = await ref
             .read(clientProfileMutationProvider.notifier)
             .uploadProfileImage(file);
+        if (!ok) throw StateError('Upload failed');
       }
     }
   }
@@ -206,31 +258,29 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                         (widget.initialImageUrl == null ||
                             widget.initialImageUrl!.isEmpty))
                     ? ClipOval(
-                        child: Transform.translate(
-                          offset: const Offset(-30, -20),
-                          child: Icon(Icons.person, size: widget.radius * 2),
-                        ),
+                        child: Icon(Icons.person, size: widget.radius * 2),
                       )
                     : null,
               ),
             ),
-            Positioned(
-              bottom: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey, width: 1),
-                ),
-                child: const Icon(
-                  LucideIcons.pencil,
-                  color: Colors.white,
-                  size: 22,
+            if (widget.showEditIcon)
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey, width: 1),
+                  ),
+                  child: const Icon(
+                    LucideIcons.pencil,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

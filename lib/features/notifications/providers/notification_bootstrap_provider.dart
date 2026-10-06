@@ -128,6 +128,25 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     unawaited(navigation.flushPendingRouteIfAny());
   }
 
+  Future<void> syncProfilePush() async {
+    final session = ref.read(authProvider).session;
+    if (push == null || session == null) return;
+    try {
+      await push.syncCurrentDevice(session: session, force: true);
+    } catch (error) {
+      Logger.log('push profile sync failed: $error');
+    }
+  }
+
+  ref.listen(
+    notificationCompanyScopeProvider,
+    (_, _) => unawaited(syncProfilePush()),
+  );
+  ref.listen(
+    appStartupProvider.select((s) => s.routeState),
+    (_, _) => unawaited(syncProfilePush()),
+  );
+
   void stopForLogout() {
     if (!started && !pushStarted) return;
 

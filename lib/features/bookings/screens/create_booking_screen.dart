@@ -1,6 +1,10 @@
+import 'package:prokat/features/company_profile/company_information_screen.dart';
+import 'package:prokat/features/company_profile/company_catalog_screen.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -27,7 +31,12 @@ class CreateBookingScreen extends ConsumerStatefulWidget {
   final String? companyId;
   final Widget? beforeOrderFields;
 
-  const CreateBookingScreen({super.key, required this.equipmentId, this.companyId, this.beforeOrderFields});
+  const CreateBookingScreen({
+    super.key,
+    required this.equipmentId,
+    this.companyId,
+    this.beforeOrderFields,
+  });
 
   @override
   ConsumerState<CreateBookingScreen> createState() =>
@@ -323,9 +332,18 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             ),
                           ),
                           const SizedBox(width: AppDimens.s08$sm),
-                          if (widget.companyId == null) ShareEquipmentButton(equipment: equipment),
+                          if (widget.companyId == null)
+                            ShareEquipmentButton(equipment: equipment)
+                          else
+                            AppIconButton(
+                              icon: LucideIcons.share2,
+                              variant: AppIconButtonVariant.soft,
+                              onTap: () => shareCompany(context, ref, {
+                                'company': companyForShare(equipment),
+                              }),
+                            ),
                           const SizedBox(width: AppDimens.s08$sm),
-                          if (widget.companyId == null) AppIconButton(
+                          AppIconButton(
                             icon: isFavorite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
@@ -334,7 +352,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                                 ? () async {
                                     await ref
                                         .read(favoritesProvider.notifier)
-                                        .toggleFavorite(equipment.id);
+                                        .toggleFavorite(
+                                          equipment.id,
+                                          companyId: widget.companyId,
+                                        );
                                   }
                                 : null,
                           ),
@@ -347,7 +368,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         Text(ownerComment, style: AppFonts.body14(context)),
                       ],
                       const SizedBox(height: AppDimens.s16$base),
-                      if (widget.beforeOrderFields != null) widget.beforeOrderFields!,
+                      if (widget.beforeOrderFields != null)
+                        widget.beforeOrderFields!,
                       BookingOrderFields(
                         isEquipmentGroup: bookingIsEquipmentGroup(equipment),
                         address:

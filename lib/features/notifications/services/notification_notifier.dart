@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +15,20 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   NotificationNotifier(this.api) : super(const NotificationState());
 
+  int _scopeEpoch = 0;
+  void changeScope() {
+    _scopeEpoch++;
+    state = const NotificationState();
+    unawaited(loadInitial());
+  }
+
   void clearOnLogout() {
+    _scopeEpoch++;
     state = const NotificationState();
   }
 
   Future<void> loadInitial() async {
+    final epoch = _scopeEpoch;
     if (state.isLoading) return;
 
     state = state.copyWith(
@@ -30,6 +40,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
     try {
       final items = await api.getNotifications(page: 1, limit: _defaultLimit);
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         isLoading: false,
         items: items,
@@ -38,7 +49,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       );
 
       await fetchUnreadCount();
+      if (!mounted || epoch != _scopeEpoch) return;
     } catch (error) {
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         isLoading: false,
         error: error.toString().replaceFirst('Exception: ', ''),
@@ -47,12 +60,14 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> refresh() async {
+    final epoch = _scopeEpoch;
     if (state.isRefreshing) return;
 
     state = state.copyWith(isRefreshing: true, error: null);
 
     try {
       final items = await api.getNotifications(page: 1, limit: _defaultLimit);
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         isRefreshing: false,
         items: items,
@@ -62,7 +77,9 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
       );
 
       await syncUnreadCountFromServer();
+      if (!mounted || epoch != _scopeEpoch) return;
     } catch (error) {
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         isRefreshing: false,
         error: error.toString().replaceFirst('Exception: ', ''),
@@ -71,6 +88,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> loadMore() async {
+    final epoch = _scopeEpoch;
     if (state.isLoadingMore || !state.hasMore) return;
 
     final nextPage = state.page + 1;
@@ -81,6 +99,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         page: nextPage,
         limit: _defaultLimit,
       );
+      if (!mounted || epoch != _scopeEpoch) return;
 
       state = state.copyWith(
         isLoadingMore: false,
@@ -89,6 +108,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
         items: [...state.items, ...more],
       );
     } catch (error) {
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         isLoadingMore: false,
         error: error.toString().replaceFirst('Exception: ', ''),
@@ -97,8 +117,10 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> fetchUnreadCount() async {
+    final epoch = _scopeEpoch;
     try {
       final count = await api.getUnreadCount();
+      if (!mounted || epoch != _scopeEpoch) return;
       // Treat server as source of truth when it is reachable.
       state = state.copyWith(unreadCount: count);
     } catch (_) {
@@ -107,13 +129,16 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> syncUnreadCountFromServer() async {
+    final epoch = _scopeEpoch;
     await fetchUnreadCount();
+    if (!mounted || epoch != _scopeEpoch) return;
   }
 
   void handleIncomingNotification(
     AppNotification notification, {
     required NotificationSource source,
   }) {
+    if (!api.accepts(notification)) return;
     final id = notification.id.trim();
 
     if (id.isEmpty) return;
@@ -151,6 +176,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> markAsRead(String id) async {
+    final epoch = _scopeEpoch;
     final trimmed = id.trim();
     if (trimmed.isEmpty) return;
 
@@ -174,8 +200,11 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
     try {
       await api.markAsRead(trimmed);
+      if (!mounted || epoch != _scopeEpoch) return;
       await syncUnreadCountFromServer();
+      if (!mounted || epoch != _scopeEpoch) return;
     } catch (error) {
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         error: error.toString().replaceFirst('Exception: ', ''),
       );
@@ -183,6 +212,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> markAllAsRead() async {
+    final epoch = _scopeEpoch;
     final now = DateTime.now();
 
     final updatedItems = state.items
@@ -193,8 +223,11 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
     try {
       await api.markAllAsRead();
+      if (!mounted || epoch != _scopeEpoch) return;
       await syncUnreadCountFromServer();
+      if (!mounted || epoch != _scopeEpoch) return;
     } catch (error) {
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         error: error.toString().replaceFirst('Exception: ', ''),
       );
@@ -207,6 +240,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   /// Removes every loaded row in a grouped chat notification.
   Future<void> deleteNotifications(List<String> ids) async {
+    final epoch = _scopeEpoch;
     final idSet = ids
         .map((id) => id.trim())
         .where((id) => id.isNotEmpty)
@@ -232,9 +266,12 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     try {
       for (final id in idSet) {
         await api.deleteNotification(id);
+        if (!mounted || epoch != _scopeEpoch) return;
       }
       await syncUnreadCountFromServer();
+      if (!mounted || epoch != _scopeEpoch) return;
     } catch (error) {
+      if (!mounted || epoch != _scopeEpoch) return;
       state = state.copyWith(
         error: error.toString().replaceFirst('Exception: ', ''),
       );

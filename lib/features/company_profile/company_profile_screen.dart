@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
+
 import 'company_scope.dart';
 
 import 'package:flutter/material.dart';
@@ -20,7 +22,6 @@ import 'package:prokat/features/owner/models/owner_profile_model.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/widgets/balance_tile.dart';
 import 'package:prokat/features/owner/widgets/owner_profile_header.dart';
-import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 import 'company_profile_api.dart';
@@ -61,12 +62,11 @@ class CompanyProfileScreen extends ConsumerWidget {
       ),
       data: (data) {
         final self = data['self'] as Map<String, dynamic>;
-        final personal = ref.watch(clientProfileProvider).valueOrNull;
         final profile = OwnerProfileModel(
           id: companyId,
           firstName: self['firstName'],
           lastName: self['lastName'],
-          profileImageUrl: personal?.profileImageUrl,
+          profileImageUrl: self['profileImageUrl'] as String?,
           onlineStatus: OwnerStatus.offline,
         );
         return Scaffold(
@@ -94,6 +94,30 @@ class CompanyProfileScreen extends ConsumerWidget {
                       gradientColors: const [Color(0xff482133), accent],
                       avatarMode: AppMode.clientMode,
                       showRating: false,
+                      onAvatarUpload: (file) async {
+                        final api = ref.read(companyProfileApiProvider);
+                        await api.dio.post(
+                          '/company-profile/$companyId/member-avatar',
+                          data: FormData.fromMap({
+                            'equipmentImage': await MultipartFile.fromFile(
+                              file.path,
+                            ),
+                          }),
+                        );
+                        if (context.mounted) {
+                          ref.invalidate(companyMembersProvider(companyId));
+                        }
+                      },
+                      onAvatarDelete: () async {
+                        final api = ref.read(companyProfileApiProvider);
+                        await api.request(
+                          '/$companyId/member-avatar',
+                          method: 'DELETE',
+                        );
+                        if (context.mounted) {
+                          ref.invalidate(companyMembersProvider(companyId));
+                        }
+                      },
                     ),
                   ),
                 ),

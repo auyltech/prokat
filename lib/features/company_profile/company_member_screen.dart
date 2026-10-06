@@ -31,7 +31,9 @@ class CompanyMemberScreen extends ConsumerWidget {
         ),
       ),
     );
-    if (saved == true) ref.invalidate(companyMembersProvider(companyId));
+    if (context.mounted && saved == true) {
+      ref.invalidate(companyMembersProvider(companyId));
+    }
   }
 
   Future<void> remove(BuildContext context, WidgetRef ref, String path) async {
@@ -118,6 +120,14 @@ class CompanyMemberScreen extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 24),
+                  if (self['profileStatus'] == 'CHANGES_PENDING_REVIEW')
+                    const AppCard(child: Text('Изменения данных на проверке')),
+                  if (self['profileStatus'] == 'CHANGES_REJECTED')
+                    AppCard(
+                      child: Text(
+                        'Изменения отклонены: ${self['adminComment'] ?? ''}',
+                      ),
+                    ),
                   value('Имя', self['firstName']),
                   value('Фамилия', self['lastName']),
                   value(
@@ -131,7 +141,9 @@ class CompanyMemberScreen extends ConsumerWidget {
                     const SizedBox(height: AppDimens.s32$xxl),
                     AppElevatedButton(
                       title: 'Изменить данные',
-                      onTap: () => edit(context, ref, member: self),
+                      onTap: self['profileStatus'] == 'CHANGES_PENDING_REVIEW'
+                          ? null
+                          : () => edit(context, ref, member: self),
                     ),
                     const SizedBox(height: 20),
                     AppElevatedButton(
@@ -257,6 +269,12 @@ class _PersonState extends ConsumerState<CompanyPersonForm> {
     super.initState();
     first.text = (widget.member ?? widget.invitation)?['firstName'] ?? '';
     last.text = (widget.member ?? widget.invitation)?['lastName'] ?? '';
+    if (widget.member?['profileStatus'] == 'CHANGES_REJECTED') {
+      for (final change in (widget.member?['pendingChanges'] as List? ?? [])) {
+        if (change['field'] == 'firstName') first.text = change['to'];
+        if (change['field'] == 'lastName') last.text = change['to'];
+      }
+    }
   }
 
   @override
@@ -269,6 +287,44 @@ class _PersonState extends ConsumerState<CompanyPersonForm> {
 
   Future<void> save() async {
     if (saving || !(form.currentState?.validate() ?? false)) return;
+    if (widget.member?['role'] == 'OWNER') {
+      final confirmed = await showModalBottomSheet<bool>(
+        context: context,
+        builder: (context) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Данные будут переданы на модерацию',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppElevatedButton(
+                        title: 'Нет',
+                        onTap: () => Navigator.pop(context, false),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppElevatedButton(
+                        title: 'Да',
+                        onTap: () => Navigator.pop(context, true),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
     setState(() => saving = true);
     try {
       final editing = widget.member != null || widget.invitation != null;

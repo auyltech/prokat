@@ -53,11 +53,19 @@ class FavoriteService {
     }
   }
 
-  Future<ApiResponse<void>> toggleFavorite(String equipmentId) async {
+  Future<ApiResponse<void>> toggleFavorite(
+    String equipmentId, {
+    String? companyId,
+  }) async {
     try {
       final response = await _dio.post(
         '/favorites/toggle',
-        data: {'equipmentId': equipmentId},
+        data: {
+          if (companyId != null)
+            'companyId': companyId
+          else
+            'equipmentId': equipmentId,
+        },
       );
 
       return handleEmptyApiResponse(

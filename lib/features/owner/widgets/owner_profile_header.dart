@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -11,12 +13,16 @@ class OwnerProfileHeader extends StatelessWidget {
   final List<Color> gradientColors;
   final AppMode avatarMode;
   final bool showRating;
+  final Future<void> Function(File)? onAvatarUpload;
+  final Future<void> Function()? onAvatarDelete;
   const OwnerProfileHeader({
     super.key,
     required this.ownerProfile,
     this.gradientColors = const [AppColors.teal800, AppColors.teal700],
     this.avatarMode = AppMode.ownerMode,
     this.showRating = true,
+    this.onAvatarUpload,
+    this.onAvatarDelete,
   });
 
   String _ownerDisplayName(AppLocalizations l10n) {
@@ -56,6 +62,8 @@ class OwnerProfileHeader extends StatelessWidget {
           ProfileImagePicker(
             initialImageUrl: ownerProfile?.profileImageUrl ?? "",
             mode: avatarMode,
+            onUpload: onAvatarUpload,
+            onDelete: onAvatarDelete,
           ),
 
           const SizedBox(height: 10),
