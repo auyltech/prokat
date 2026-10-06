@@ -3,6 +3,7 @@ import 'package:prokat/core/analytics/analytics_client.dart';
 import 'package:prokat/core/analytics/analytics_service.dart';
 import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 
 import '../../helpers/recording_analytics_client.dart';
 
@@ -78,6 +79,14 @@ void main() {
     );
     await expectLater(
       service.logEquipmentSubmittedForReview(isResubmit: true),
+      completes,
+    );
+    await expectLater(
+      service.logShareLinkOpened(
+        equipmentId: 'eq-1',
+        via: ShareOpenVia.appLink,
+        firstShareBootstrapRun: false,
+      ),
       completes,
     );
     await expectLater(

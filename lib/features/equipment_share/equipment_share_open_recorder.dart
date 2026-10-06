@@ -1,0 +1,70 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/analytics/analytics_service.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
+import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open.dart';
+
+/// First-touch sink for guests. Durable storage does not exist yet, so the
+/// default keeps nothing.
+class NoopFirstTouch {
+  const NoopFirstTouch();
+
+  Future<void> saveIfEmpty(EquipmentShareOpen open) async {}
+}
+
+/// Records one accepted share open. The three side effects start together and
+/// are isolated: a failure or delay in one never blocks or skips another.
+class ShareOpenRecorder {
+  ShareOpenRecorder({
+    required this.analytics,
+    required this.api,
+    required this.isAuthenticated,
+    this.firstTouch = const NoopFirstTouch(),
+  });
+
+  final AnalyticsService analytics;
+  final EquipmentShareEventsApi api;
+  final bool Function() isAuthenticated;
+  final NoopFirstTouch firstTouch;
+
+  Future<void> record(EquipmentShareOpen open) async {
+    final link = open.link;
+    await Future.wait([
+      _guard(
+        () => analytics.logShareLinkOpened(
+          equipmentId: link.equipmentId,
+          shareId: link.shareId,
+          via: open.via,
+          firstShareBootstrapRun: open.firstShareBootstrapRun,
+        ),
+      ),
+      _guard(
+        () => api.recordOpened(
+          equipmentId: link.equipmentId,
+          shareId: link.shareId,
+          openVia: open.via.api,
+          firstShareBootstrapRun: open.firstShareBootstrapRun,
+        ),
+      ),
+      _guard(() async {
+        if (!isAuthenticated()) await firstTouch.saveIfEmpty(open);
+      }),
+    ]);
+  }
+
+  static Future<void> _guard(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (_) {}
+  }
+}
+
+final shareOpenRecorderProvider = Provider<ShareOpenRecorder>(
+  (ref) => ShareOpenRecorder(
+    analytics: ref.watch(analyticsServiceProvider),
+    api: ref.watch(equipmentShareEventsApiProvider),
+    isAuthenticated: () => ref.read(authProvider).isAuthenticated,
+  ),
+);

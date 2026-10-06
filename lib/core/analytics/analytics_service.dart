@@ -6,6 +6,7 @@ import 'package:prokat/core/analytics/firebase_analytics_client.dart';
 import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 
 class AnalyticsService {
   AnalyticsService(this._client);
@@ -65,6 +66,18 @@ class AnalyticsService {
     AnalyticsParams.catalogGroup: group == null
         ? null
         : _catalogGroupValue(group),
+  });
+
+  Future<void> logShareLinkOpened({
+    required String equipmentId,
+    String? shareId,
+    required ShareOpenVia via,
+    required bool firstShareBootstrapRun,
+  }) => _log(AnalyticsEvents.shareLinkOpened, {
+    AnalyticsParams.itemId: equipmentId,
+    AnalyticsParams.shareId: shareId,
+    AnalyticsParams.openVia: via.wire,
+    AnalyticsParams.firstShareBootstrapRun: firstShareBootstrapRun,
   });
 
   Future<void> logShare({
