@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_sidebar_update.dart';
+import 'package:prokat/features/chat/service/chat_send_rejected.dart';
 import 'package:prokat/core/services/app_socket_service.dart';
 
 class ChatSocketService {
@@ -320,6 +321,13 @@ class ChatSocketService {
     }
 
     if (response is Map) {
+      final code = response['code'];
+      if (response['success'] == false && code is String && code.isNotEmpty) {
+        throw ChatSendRejected(
+          code,
+          response['message']?.toString() ?? fallbackMessage,
+        );
+      }
       if (response['success'] == false || response['error'] != null) {
         throw Exception(
           response['message'] ?? response['error'] ?? fallbackMessage,

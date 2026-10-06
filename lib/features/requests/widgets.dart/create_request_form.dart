@@ -22,6 +22,7 @@ import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:prokat/features/requests/providers/request_mutation_provider.dart';
+import 'package:prokat/features/requests/request_create_error_message.dart';
 import 'package:prokat/features/requests/state/request_comment_requirement.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -258,7 +259,13 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
         );
 
     AppToast.show(
-      message: result.success ? l10n.requestCreated : result.message,
+      message: result.success
+          ? l10n.requestCreated
+          : requestCreateErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: result.message,
+            ),
       type: result.success ? AppToastType.success : AppToastType.error,
     );
 

@@ -6,6 +6,7 @@
 - Empty `query` / `city` / `categoryId` (`""` or whitespace) is unset. Search/map init must not refetch when filters already match; map uses `refreshIfStale`. Do not `loadMore` while `isRefreshing`.
 - First catalog page uses `locationProvider.city`. Do not load every city when the header already has one (cold start and guest→auth).
 - Search screen favorites sit in `FavoritesOverlay` above the nav, not in the catalog list.
+- Client search excludes owners with a block in either direction on the server (blocked ids are part of the catalog cache key). After blocking from ⋮ on `ClientEquipmentTile`, `removeOwnerLocally(ownerId)` drops cards at once and refreshes in background. Booking such an owner → 409 `USER_BLOCKED` (`bookingCreateErrorMessage`). See `lib/features/user_safety/AGENTS.md`.
 - Tapping the already-selected search category clears it: highlight off, spec filters hide, list is unfiltered.
 - Spec filters: label is `name, unit`. NUMBER is min/max fields; STRING is text; SELECT/BOOLEAN open a city-style sheet; MULTI_SELECT uses checkboxes + Apply. Search refetches `spec` after 500ms.
 - Owner list sends `itemsPerPage: 100`. `AppTabs` («техника» / «оборудование») when the loaded listings already contain both groups, so returning to Park does not flash one mixed list while `GET /equipment/owner/catalog-groups` reloads. Title then is «Мой парк». One group: no tabs, title «Моя техника» or «Моё оборудование». Spec writes go to `PUT /equipment/:id/spec-values`.

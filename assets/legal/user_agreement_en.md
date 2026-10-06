@@ -63,6 +63,10 @@ The User agrees not to perform, and not to permit any third party to perform, an
 * circumvent technical restrictions or security mechanisms implemented within the Application;
 * use the Application in any manner that violates the laws of the Republic of Kazakhstan or the rights of third parties.
 
+### 2.2
+
+You may not post abusive, fraudulent, discriminatory or otherwise objectionable content or behave abusively towards other users. We do not allow such content or behavior. You can report a listing, request or conversation and block a user. We review reports of objectionable content and take appropriate action within a reasonable timeframe. We may remove content and restrict the offending account.
+
 ---
 
 ## 3. Intellectual Property

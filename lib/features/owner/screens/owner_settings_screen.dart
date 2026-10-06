@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/constants/app_colors.dart';
@@ -122,6 +124,17 @@ class _OwnerSettingsScreenState extends ConsumerState<OwnerSettingsScreen>
                       .syncCurrentDevice(session: session);
                 },
               ),
+
+            const SizedBox(height: 30),
+
+            ProkatListTile(
+              icon: LucideIcons.userX,
+              iconColor: ownerColor,
+              iconBgColor: ownerColor.withValues(alpha: 0.15),
+              title: l10n.blockedUsersTitle,
+              subtitle: l10n.blockedUsersSettingsSubtitle,
+              onTap: () => context.push(AppRoutes.ownerBlockedUsers),
+            ),
 
             const SizedBox(height: 60),
 

@@ -288,6 +288,26 @@ class ClientEquipmentNotifier
     state = AsyncData(current.copyWith(lastFetchedAt: () => null));
   }
 
+  /// Drops a blocked owner's cards now; the refetch realigns page-based `skip`.
+  void removeOwnerLocally(String ownerId) {
+    final current = state.valueOrNull;
+    if (current != null) {
+      final kept = current.items
+          .where((item) => item.owner?.id != ownerId)
+          .toList();
+      final removed = current.items.length - kept.length;
+      if (removed > 0) {
+        state = AsyncData(
+          current.copyWith(
+            items: kept,
+            count: (current.count - removed).clamp(0, current.count),
+          ),
+        );
+      }
+    }
+    unawaited(refresh());
+  }
+
   Future<void> refreshIfStale() async {
     final scope = readAuthenticatedSessionScope(ref);
     if (scope == null) return;

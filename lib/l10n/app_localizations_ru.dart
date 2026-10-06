@@ -3951,4 +3951,77 @@ class AppLocalizationsRu extends AppLocalizations {
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
+
+  @override
+  String get reportAction => 'Пожаловаться';
+
+  @override
+  String get blockUserAction => 'Заблокировать';
+
+  @override
+  String get unblockUserAction => 'Разблокировать';
+
+  @override
+  String get blockedUsersTitle => 'Заблокированные пользователи';
+
+  @override
+  String get blockedUsersEmpty => 'Вы никого не заблокировали';
+
+  @override
+  String get reportSentToast => 'Жалоба отправлена';
+
+  @override
+  String get reportSentBlockPrompt => 'Заблокировать этого пользователя тоже?';
+
+  @override
+  String get blockUserConfirmTitle => 'Заблокировать пользователя?';
+
+  @override
+  String get blockUserConfirmBody =>
+      'Вы перестанете видеть его объявления и запросы, переписка станет недоступна. Разблокировать можно в настройках.';
+
+  @override
+  String get userBlockedToast => 'Пользователь заблокирован';
+
+  @override
+  String get userUnblockedToast => 'Пользователь разблокирован';
+
+  @override
+  String get reportReasonTitle => 'Причина жалобы';
+
+  @override
+  String get reportReasonSpam => 'Спам';
+
+  @override
+  String get reportReasonAbuse => 'Оскорбления / неприемлемое поведение';
+
+  @override
+  String get reportReasonFraud => 'Мошенничество';
+
+  @override
+  String get reportReasonOther => 'Другое';
+
+  @override
+  String get reportCommentHint => 'Комментарий (необязательно)';
+
+  @override
+  String get reportSubmit => 'Отправить жалобу';
+
+  @override
+  String get userBlockedBannerTitle => 'Пользователь заблокирован';
+
+  @override
+  String get interactionUnavailableBody =>
+      'Взаимодействие с этим пользователем недоступно';
+
+  @override
+  String get notNow => 'Не сейчас';
+
+  @override
+  String get blockedUsersSettingsSubtitle =>
+      'Пользователи, которых вы заблокировали';
+
+  @override
+  String get contentNotAllowed =>
+      'Текст содержит недопустимое содержимое. Измените его и попробуйте снова.';
 }

@@ -3916,4 +3916,76 @@ class AppLocalizationsKk extends AppLocalizations {
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
+
+  @override
+  String get reportAction => 'Шағымдану';
+
+  @override
+  String get blockUserAction => 'Бұғаттау';
+
+  @override
+  String get unblockUserAction => 'Бұғаттан шығару';
+
+  @override
+  String get blockedUsersTitle => 'Бұғатталған пайдаланушылар';
+
+  @override
+  String get blockedUsersEmpty => 'Сіз ешкімді бұғаттаған жоқсыз';
+
+  @override
+  String get reportSentToast => 'Шағым жіберілді';
+
+  @override
+  String get reportSentBlockPrompt => 'Бұл пайдаланушыны да бұғаттау керек пе?';
+
+  @override
+  String get blockUserConfirmTitle => 'Пайдаланушыны бұғаттау керек пе?';
+
+  @override
+  String get blockUserConfirmBody =>
+      'Сіз оның хабарландырулары мен сұраныстарын көрмейсіз, хат алмасу қолжетімсіз болады. Бұғаттан шығаруды баптаулардан жасауға болады.';
+
+  @override
+  String get userBlockedToast => 'Пайдаланушы бұғатталды';
+
+  @override
+  String get userUnblockedToast => 'Пайдаланушы бұғаттан шығарылды';
+
+  @override
+  String get reportReasonTitle => 'Шағым себебі';
+
+  @override
+  String get reportReasonSpam => 'Спам';
+
+  @override
+  String get reportReasonAbuse => 'Қорлау / орынсыз мінез-құлық';
+
+  @override
+  String get reportReasonFraud => 'Алаяқтық';
+
+  @override
+  String get reportReasonOther => 'Басқа';
+
+  @override
+  String get reportCommentHint => 'Түсініктеме (міндетті емес)';
+
+  @override
+  String get reportSubmit => 'Шағым жіберу';
+
+  @override
+  String get userBlockedBannerTitle => 'Пайдаланушы бұғатталған';
+
+  @override
+  String get interactionUnavailableBody =>
+      'Бұл пайдаланушымен өзара әрекеттесу қолжетімсіз';
+
+  @override
+  String get notNow => 'Қазір емес';
+
+  @override
+  String get blockedUsersSettingsSubtitle => 'Сіз бұғаттаған пайдаланушылар';
+
+  @override
+  String get contentNotAllowed =>
+      'Мәтінде жол берілмейтін мазмұн бар. Оны өзгертіп, қайтадан көріңіз.';
 }
