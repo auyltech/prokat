@@ -29,46 +29,43 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({'app_locale': 'ru'});
   });
 
-  test(
-    'CONTENT_NOT_ALLOWED ack marks only the new message failed and keeps the thread usable',
-    () async {
-      final socket = _RejectingChatSocketService();
-      final container = ProviderContainer(
-        overrides: [
-          authProvider.overrideWith(signedInAuth),
-          chatServiceProvider.overrideWithValue(_HistoryChatService()),
-          chatSocketServiceProvider.overrideWithValue(socket),
-        ],
-      );
-      addTearDown(container.dispose);
-      final messages = chatMessagesProvider('chat-1');
-      final subscription = container.listen(messages, (_, _) {});
-      addTearDown(subscription.close);
-      await container.read(messages.future);
+  test('CONTENT_NOT_ALLOWED ack marks only the new message failed and keeps the thread usable', () async {
+    final socket = _RejectingChatSocketService();
+    final container = ProviderContainer(
+      overrides: [
+        authProvider.overrideWith(signedInAuth),
+        chatServiceProvider.overrideWithValue(_HistoryChatService()),
+        chatSocketServiceProvider.overrideWithValue(socket),
+      ],
+    );
+    addTearDown(container.dispose);
+    final messages = chatMessagesProvider('chat-1');
+    final subscription = container.listen(messages, (_, _) {});
+    addTearDown(subscription.close);
+    await container.read(messages.future);
 
-      socket.rejectWith = contentNotAllowedErrorCode;
-      final sent = await container
-          .read(messages.notifier)
-          .sendMessage('prohibited text');
+    socket.rejectWith = contentNotAllowedErrorCode;
+    final sent = await container
+        .read(messages.notifier)
+        .sendMessage('prohibited text');
 
-      expect(sent, isFalse);
-      final items = container.read(messages).requireValue.items;
-      expect(items.map((item) => item.id), contains('message-1'));
-      final rejected = items.singleWhere(
-        (item) => item.content == 'prohibited text',
-      );
-      expect(rejected.isFailed, isTrue);
-      expect(rejected.isPending, isFalse);
-      expect(items.where((item) => item.isFailed), hasLength(1));
+    expect(sent, isFalse);
+    final items = container.read(messages).requireValue.items;
+    expect(items.map((item) => item.id), contains('message-1'));
+    final rejected = items.singleWhere(
+      (item) => item.content == 'prohibited text',
+    );
+    expect(rejected.isFailed, isTrue);
+    expect(rejected.isPending, isFalse);
+    expect(items.where((item) => item.isFailed), hasLength(1));
 
-      socket.rejectWith = null;
-      expect(
-        await container.read(messages.notifier).sendMessage('normal text'),
-        isTrue,
-      );
-      expect(socket.sent, ['prohibited text', 'normal text']);
-    },
-  );
+    socket.rejectWith = null;
+    expect(
+      await container.read(messages.notifier).sendMessage('normal text'),
+      isTrue,
+    );
+    expect(socket.sent, ['prohibited text', 'normal text']);
+  });
 }
 
 class _TestApiClient implements ApiClient {

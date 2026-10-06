@@ -449,9 +449,8 @@ class ChatMessagesNotifier
         if (error is ChatSendRejected &&
             error.code == contentNotAllowedErrorCode) {
           AppToast.show(
-            message: lookupAppLocalizations(
-              ref.read(localeProvider),
-            ).contentNotAllowed,
+            message: lookupAppLocalizations(ref.read(localeProvider))
+                .contentNotAllowed,
             type: AppToastType.error,
           );
         }
