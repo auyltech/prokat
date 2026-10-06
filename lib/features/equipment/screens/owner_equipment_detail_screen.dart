@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/analytics/analytics_service.dart';
+import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -78,6 +80,7 @@ class _OwnerEquipmentDetailScreenState
     bool saveDirtyFirst = false,
   }) async {
     setState(() => _submitting = true);
+    final analytics = ref.read(analyticsServiceProvider);
     if (saveDirtyFirst) {
       final saveResult = await ref
           .read(ownerEquipmentEditorProvider(widget.equipmentId).notifier)
@@ -87,6 +90,11 @@ class _OwnerEquipmentDetailScreenState
         setState(() => _submitting = false);
         switch (saveResult) {
           case SaveAllResult.invalid:
+            unawaited(
+              analytics.logEquipmentSubmitBlocked(
+                EquipmentSubmitBlockReason.fieldsIncomplete,
+              ),
+            );
             AppToast.show(message: l10n.pleaseFillMissingInfo);
           case SaveAllResult.failed:
             AppToast.show(
@@ -110,18 +118,39 @@ class _OwnerEquipmentDetailScreenState
     if (!mounted) return;
     if (!equipmentHasImage(latest)) {
       setState(() => _submitting = false);
+      unawaited(
+        analytics.logEquipmentSubmitBlocked(
+          EquipmentSubmitBlockReason.photoMissing,
+        ),
+      );
       AppToast.show(message: l10n.equipmentSubmitPhotoRequired);
       return;
     }
     if (!isEquipmentReadyForReview(latest)) {
       setState(() => _submitting = false);
+      unawaited(
+        analytics.logEquipmentSubmitBlocked(
+          EquipmentSubmitBlockReason.fieldsIncomplete,
+        ),
+      );
       AppToast.show(message: l10n.pleaseCompleteRequiredFields);
       return;
     }
 
+    final isResubmit = latest.status == EquipmentStatus.rejected;
+    final group = ref.read(ownerEquipmentCatalogGroupProvider(latest.id));
     final res = await ref
         .read(equipmentMutationProvider.notifier)
         .updateEquipmentStatus(latest.id, EquipmentStatus.created);
+    if (res.success) {
+      unawaited(
+        analytics.logEquipmentSubmittedForReview(
+          isResubmit: isResubmit,
+          categoryId: latest.categoryId,
+          group: group,
+        ),
+      );
+    }
     if (!mounted) return;
     setState(() => _submitting = false);
     AppToast.show(

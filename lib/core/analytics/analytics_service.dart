@@ -3,6 +3,7 @@ import 'package:prokat/core/analytics/analytics_client.dart';
 import 'package:prokat/core/analytics/analytics_events.dart';
 import 'package:prokat/core/analytics/analytics_identity.dart';
 import 'package:prokat/core/analytics/firebase_analytics_client.dart';
+import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 
@@ -48,6 +49,11 @@ class AnalyticsService {
     AnalyticsParams.catalogGroup: _catalogGroupValue(group),
     AnalyticsParams.isFirstEquipment: isFirstEquipment,
   });
+
+  Future<void> logEquipmentSubmitBlocked(EquipmentSubmitBlockReason reason) =>
+      _log(AnalyticsEvents.equipmentSubmitBlocked, {
+        AnalyticsParams.reason: reason.wire,
+      });
 
   Future<void> logEquipmentSubmittedForReview({
     required bool isResubmit,

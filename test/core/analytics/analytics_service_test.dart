@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/analytics/analytics_client.dart';
 import 'package:prokat/core/analytics/analytics_service.dart';
+import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 
 import '../../helpers/recording_analytics_client.dart';
@@ -66,6 +67,12 @@ void main() {
       service.logEquipmentDraftCreated(
         categoryId: 'cat-1',
         group: CatalogGroup.machinery,
+      ),
+      completes,
+    );
+    await expectLater(
+      service.logEquipmentSubmitBlocked(
+        EquipmentSubmitBlockReason.photoMissing,
       ),
       completes,
     );
