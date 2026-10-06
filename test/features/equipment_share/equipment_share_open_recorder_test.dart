@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/analytics/analytics_service.dart';
 import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
+import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 import 'package:prokat/features/equipment_share/equipment_share_link.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open_recorder.dart';
@@ -49,15 +51,15 @@ class _StubAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-class _RecordingFirstTouch extends NoopFirstTouch {
+class _RecordingFirstTouch extends EquipmentShareFirstTouchStore {
   _RecordingFirstTouch({this.fail = false});
 
   final bool fail;
-  final saved = <EquipmentShareOpen>[];
+  final saved = <FirstTouchAttribution>[];
 
   @override
-  Future<void> saveIfEmpty(EquipmentShareOpen open) async {
-    saved.add(open);
+  Future<void> saveIfEmpty(FirstTouchAttribution attribution) async {
+    saved.add(attribution);
     if (fail) throw StateError('first touch failure');
   }
 }
@@ -78,6 +80,7 @@ class _Harness {
       api: EquipmentShareEventsApi(dio, newEventId: () => _eventId),
       isAuthenticated: () => authenticated,
       firstTouch: firstTouch,
+      now: () => DateTime.utc(2026, 10, 6, 12),
     );
   }
 
@@ -103,6 +106,12 @@ EquipmentShareOpen _open({
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
+  });
+
   test('logs share_link_opened with via and first run', () async {
     final h = _Harness();
 
@@ -176,11 +185,46 @@ void main() {
 
   test('guest reaches the first-touch boundary', () async {
     final h = _Harness();
-    final open = _open();
 
-    await h.recorder.record(open);
+    await h.recorder.record(_open());
 
-    expect(h.firstTouch.saved, [same(open)]);
+    final saved = h.firstTouch.saved.single;
+    expect(saved.shareId, _shareId);
+    expect(saved.equipmentId, 'eq-1');
+    expect(saved.via, ShareOpenVia.installReferrer);
+    expect(saved.firstShareBootstrapRun, isTrue);
+    expect(saved.receivedAt, DateTime.utc(2026, 10, 6, 12));
+  });
+
+  test('second guest share does not replace a valid first touch', () async {
+    final now = DateTime.utc(2026, 10, 6, 12);
+    final store = EquipmentShareFirstTouchStore(now: () => now);
+    final dio = Dio(BaseOptions(baseUrl: 'https://example.test'))
+      ..httpClientAdapter = _StubAdapter();
+    final recorder = ShareOpenRecorder(
+      analytics: AnalyticsService(RecordingAnalyticsClient()),
+      api: EquipmentShareEventsApi(dio, newEventId: () => _eventId),
+      isAuthenticated: () => false,
+      firstTouch: store,
+      now: () => now,
+    );
+
+    await recorder.record(_open());
+    await recorder.record(
+      EquipmentShareOpen(
+        link: EquipmentShareLink.tryParse(
+          Uri.parse(
+            'https://prokat-bfbec.web.app/e/eq-2?s=ZyXwVuTsRqPoNmLkJi_-98',
+          ),
+        )!,
+        via: ShareOpenVia.appLink,
+        firstShareBootstrapRun: false,
+      ),
+    );
+
+    final saved = await store.readValid();
+    expect(saved?.shareId, _shareId);
+    expect(saved?.equipmentId, 'eq-1');
   });
 
   test('first-touch failure does not escape or block the others', () async {
@@ -201,9 +245,5 @@ void main() {
     await expectLater(h.recorder.record(_open()), completes);
     expect(h.adapter.requests, hasLength(1));
     expect(h.firstTouch.saved, hasLength(1));
-  });
-
-  test('default first touch is a no-op', () async {
-    await expectLater(const NoopFirstTouch().saveIfEmpty(_open()), completes);
   });
 }

@@ -64,13 +64,16 @@ class AuthApiService {
 
   Future<ApiResponse<OtpVerification>> verifyOtp(
     String phone,
-    String otp,
-  ) async {
+    String otp, {
+    Map<String, Object?>? attribution,
+  }) async {
     try {
-      final response = await dio.post(
-        '/auth/otp/verify',
-        data: {"phoneNumber": phone, "otp": otp},
-      );
+      final data = <String, Object?>{"phoneNumber": phone, "otp": otp};
+      if (attribution != null) {
+        data["attribution"] = attribution;
+      }
+
+      final response = await dio.post('/auth/otp/verify', data: data);
 
       return handleApiResponse<OtpVerification>(
         response: response,

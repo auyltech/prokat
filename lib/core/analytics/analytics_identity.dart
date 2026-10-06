@@ -77,8 +77,11 @@ Future<void> _applyIdentity(
   try {
     await analytics.setIdentity(identity);
     final userId = identity.userId;
-    if (userId != null && pendingSignUp.consume(userId)) {
-      await analytics.logSignUp();
+    if (userId != null) {
+      final pending = pendingSignUp.consume(userId);
+      if (pending != null) {
+        await analytics.logSignUp(shareId: pending.shareId);
+      }
     }
   } catch (_) {}
 }

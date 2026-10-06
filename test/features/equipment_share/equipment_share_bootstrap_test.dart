@@ -15,6 +15,7 @@ import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_bootstrap.dart';
 import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
+import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open_recorder.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
@@ -55,6 +56,7 @@ class _RecordingRecorder extends ShareOpenRecorder {
     : super(
         analytics: AnalyticsService(RecordingAnalyticsClient()),
         api: EquipmentShareEventsApi(Dio()),
+        firstTouch: EquipmentShareFirstTouchStore(),
         isAuthenticated: () => false,
       );
 
