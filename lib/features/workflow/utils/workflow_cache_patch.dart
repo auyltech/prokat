@@ -222,6 +222,11 @@ ChatModel mergeChatPreferringNewerWorkflow(
     );
   }
 
+  // Only `GET /chats/id/:id` carries blockState; list and socket payloads do not.
+  if (incoming.blockState == null && previous.blockState != null) {
+    merged = merged.copyWith(blockState: previous.blockState);
+  }
+
   return merged;
 }
 

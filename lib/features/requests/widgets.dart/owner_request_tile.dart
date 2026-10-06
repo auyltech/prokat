@@ -21,6 +21,8 @@ import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/state/request_utils.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
+import 'package:prokat/features/user_safety/models/report_target.dart';
+import 'package:prokat/features/user_safety/widgets/ugc_more_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
@@ -81,6 +83,16 @@ class OwnerRequestTile extends ConsumerWidget {
                     mode: AppMode.ownerMode,
                   ),
                 ],
+              ),
+
+              UgcMoreButton(
+                counterpartUserId: request.client?.id,
+                counterpartName: request.client?.displayNameOr('') ?? '',
+                reportTarget: ReportTarget(
+                  ReportTargetType.request,
+                  request.id,
+                ),
+                variant: AppIconButtonVariant.plain,
               ),
             ],
           ),

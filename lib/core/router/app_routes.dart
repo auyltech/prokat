@@ -67,6 +67,7 @@ class AppRoutes {
   static const String clientProfile = '$clientMain/profile';
   static const String clientDocuments = '$clientMain/documents';
   static const String clientSettings = '$clientMain/settings';
+  static const String clientBlockedUsers = '$clientSettings/blocked-users';
   // Notifications
   static const String clientNotifications = '$clientMain/notifications';
 
@@ -110,6 +111,7 @@ class AppRoutes {
   static const String ownerProfile = '$ownerMain/profile';
   static const String ownerDocuments = '$ownerMain/documents';
   static const String ownerSettings = '$ownerMain/settings';
+  static const String ownerBlockedUsers = '$ownerSettings/blocked-users';
 
   static const String ownerPayment = '$ownerMain/payment';
   static const String ownerPaymentTopUp = '$ownerPayment/$topUp';

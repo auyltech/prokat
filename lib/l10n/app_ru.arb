@@ -1408,5 +1408,28 @@
       "priceLine": { "type": "String" },
       "url": { "type": "String" }
     }
-  }
+  },
+  "reportAction": "Пожаловаться",
+  "blockUserAction": "Заблокировать",
+  "unblockUserAction": "Разблокировать",
+  "blockedUsersTitle": "Заблокированные пользователи",
+  "blockedUsersEmpty": "Вы никого не заблокировали",
+  "reportSentToast": "Жалоба отправлена",
+  "reportSentBlockPrompt": "Заблокировать этого пользователя тоже?",
+  "blockUserConfirmTitle": "Заблокировать пользователя?",
+  "blockUserConfirmBody": "Вы перестанете видеть его объявления и запросы, переписка станет недоступна. Разблокировать можно в настройках.",
+  "userBlockedToast": "Пользователь заблокирован",
+  "userUnblockedToast": "Пользователь разблокирован",
+  "reportReasonTitle": "Причина жалобы",
+  "reportReasonSpam": "Спам",
+  "reportReasonAbuse": "Оскорбления / неприемлемое поведение",
+  "reportReasonFraud": "Мошенничество",
+  "reportReasonOther": "Другое",
+  "reportCommentHint": "Комментарий (необязательно)",
+  "reportSubmit": "Отправить жалобу",
+  "userBlockedBannerTitle": "Пользователь заблокирован",
+  "interactionUnavailableBody": "Взаимодействие с этим пользователем недоступно",
+  "notNow": "Не сейчас",
+  "blockedUsersSettingsSubtitle": "Пользователи, которых вы заблокировали",
+  "contentNotAllowed": "Текст содержит недопустимое содержимое. Измените его и попробуйте снова."
 }

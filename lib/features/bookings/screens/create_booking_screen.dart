@@ -20,6 +20,8 @@ import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
+import 'package:prokat/features/user_safety/models/report_target.dart';
+import 'package:prokat/features/user_safety/widgets/ugc_more_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class CreateBookingScreen extends ConsumerStatefulWidget {
@@ -320,6 +322,24 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               ],
                             ),
                           ),
+                          if (isClient) ...[
+                            const SizedBox(width: AppDimens.s08$sm),
+                            UgcMoreButton(
+                              counterpartUserId: equipment.owner?.id,
+                              counterpartName:
+                                  equipment.owner?.displayNameOr('') ?? '',
+                              reportTarget: ReportTarget(
+                                ReportTargetType.equipment,
+                                equipment.id,
+                              ),
+                              variant: AppIconButtonVariant.plain,
+                              onBlocked: () {
+                                if (context.mounted && context.canPop()) {
+                                  context.pop();
+                                }
+                              },
+                            ),
+                          ],
                           const SizedBox(width: AppDimens.s08$sm),
                           ShareEquipmentButton(equipment: equipment),
                           const SizedBox(width: AppDimens.s08$sm),

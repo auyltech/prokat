@@ -12,6 +12,7 @@
 - Отмена клиентом разрешена только пока тендер открыт: `CREATED` / `DRAFT` / `VIEWED` / `RESPONDED`. `ACCEPTED` → 409, отменять нужно заказ. `CANCELLED` / `EXPIRED` → 409.
 - Принятие оффера клиентом из «Мои заявки» (карточка или чат, открытый с неё) переключает раздел на «Мои заказы»; чат остаётся сверху.
 - Отмена/expire закрывает только чаты без `bookingId` (`Chat.status=CLOSED`). Живой заказ остаётся `ACTIVE`.
+- Блок: сервер исключает заявки клиентов, с которыми есть блок (в любую сторону), из ленты владельца и из `pendingRequests` в navigation-counts. Оффер такому клиенту → 409 `USER_BLOCKED` (`offerCreateErrorMessage`). После блока из ⋮ на `OwnerRequestTile` — `removeClientLocally` + refresh.
 
 ## Live
 
@@ -26,3 +27,4 @@
 ## Форма
 
 - Комментарий обязателен для slug `mc_type_other_machinery` и `eq_type_other_equipment` (и тех же названий ru/en/kk). Подсказка внутри поля зависит от группы категории.
+- Сервер проверяет `comment` фильтром текста до создания: 400 `CONTENT_NOT_ALLOWED`, заявка не создаётся. `RequestService.createRequest` отдаёт код через `handleDioException` → `MutationResponse.errorCode` → `requestCreateErrorMessage` (`contentNotAllowed`).

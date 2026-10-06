@@ -36,4 +36,7 @@ class ApiRoutes {
   static const logout = "/auth/logout";
   //
   static const deleteAccount = "/user/profile/delete-account";
+  // User safety
+  static const userBlocks = "/user-blocks";
+  static const reports = "/reports";
 }
