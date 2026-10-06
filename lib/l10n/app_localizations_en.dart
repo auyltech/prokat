@@ -3916,4 +3916,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareEquipmentMessage(String name, String priceLine, String url) {
     return '$name\n$priceLine\n$url';
   }
+
+  @override
+  String get reportAction => 'Report';
+
+  @override
+  String get blockUserAction => 'Block';
+
+  @override
+  String get unblockUserAction => 'Unblock';
+
+  @override
+  String get blockedUsersTitle => 'Blocked users';
+
+  @override
+  String get blockedUsersEmpty => 'You haven\'t blocked anyone';
+
+  @override
+  String get reportSentToast => 'Report sent';
+
+  @override
+  String get reportSentBlockPrompt => 'Also block this user?';
+
+  @override
+  String get blockUserConfirmTitle => 'Block this user?';
+
+  @override
+  String get blockUserConfirmBody =>
+      'You will stop seeing their listings and requests, and messaging will be unavailable. You can unblock them in Settings.';
+
+  @override
+  String get userBlockedToast => 'User blocked';
+
+  @override
+  String get userUnblockedToast => 'User unblocked';
+
+  @override
+  String get reportReasonTitle => 'Reason for report';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonAbuse => 'Abuse or inappropriate behavior';
+
+  @override
+  String get reportReasonFraud => 'Fraud';
+
+  @override
+  String get reportReasonOther => 'Other';
+
+  @override
+  String get reportCommentHint => 'Comment (optional)';
+
+  @override
+  String get reportSubmit => 'Send report';
+
+  @override
+  String get userBlockedBannerTitle => 'User is blocked';
+
+  @override
+  String get interactionUnavailableBody =>
+      'Interaction with this user is unavailable';
+
+  @override
+  String get notNow => 'Not now';
+
+  @override
+  String get blockedUsersSettingsSubtitle => 'Users you have blocked';
+
+  @override
+  String get contentNotAllowed =>
+      'The text contains content that is not allowed. Please edit it and try again.';
 }

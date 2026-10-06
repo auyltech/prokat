@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -134,6 +136,17 @@ class _ClientSettingsScreenState extends ConsumerState<ClientSettingsScreen> {
                 onTap: () {},
               ),
             ],
+
+            const SizedBox(height: 16),
+
+            ProkatListTile(
+              icon: LucideIcons.userX,
+              iconColor: theme.colorScheme.onPrimary,
+              iconBgColor: theme.colorScheme.primary.withValues(alpha: 0.15),
+              title: l10n.blockedUsersTitle,
+              subtitle: l10n.blockedUsersSettingsSubtitle,
+              onTap: () => context.push(AppRoutes.clientBlockedUsers),
+            ),
 
             const SizedBox(height: 60),
 

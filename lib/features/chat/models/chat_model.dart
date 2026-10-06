@@ -6,6 +6,7 @@ import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
+import 'package:prokat/features/user_safety/models/chat_block_state.dart';
 
 enum ChatType { direct, support, workflow, announcement }
 
@@ -60,6 +61,9 @@ class ChatModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  /// Only set by `GET /chats/id/:id`.
+  final ChatBlockState? blockState;
+
   const ChatModel({
     required this.id,
     this.type = ChatType.direct,
@@ -77,6 +81,7 @@ class ChatModel {
     this.createdAt,
     this.updatedAt,
     this.newMessagesCount,
+    this.blockState,
   });
 
   String displayTitle(
@@ -141,6 +146,7 @@ class ChatModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     int? newMessagesCount,
+    ChatBlockState? blockState,
   }) {
     return ChatModel(
       id: id ?? this.id,
@@ -159,6 +165,7 @@ class ChatModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       newMessagesCount: newMessagesCount ?? this.newMessagesCount,
+      blockState: blockState ?? this.blockState,
     );
   }
 
@@ -204,6 +211,7 @@ class ChatModel {
 
         createdAt: _parseDate(json["createdAt"]),
         updatedAt: _parseDate(json["updatedAt"]),
+        blockState: ChatBlockState.tryParse(json["blockState"]),
       );
     } catch (e) {
       rethrow;

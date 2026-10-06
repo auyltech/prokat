@@ -33,3 +33,7 @@ HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:jo
 Дополнительно: для прямой заявки `booking.status == created` и владельце оффлайн композер заменяется баннером (`owner_offline_chat_lock.dart`). Owner читает `ownerProfileProvider`; client — только явный `chat.owner.onlineStatus == offline` (`null` не лочит). Live-разлок клиента: `catalog:visibility` патчит `currentChat.owner` только для tracked open chat id (`openChatRegistrationProvider`). Тендерные и confirmed/terminal чаты этим локом не затрагиваются.
 
 Сервер режет `chat:message:send`, если `Chat.status` не `ACTIVE`. `SUPPORT` не блокируется.
+
+Блок пользователя (`lib/features/user_safety/AGENTS.md`): `GET /chats/id/:id` отдаёт `blockState {isBlocked, isBlockedByMe, counterpartUserId}` (в списке чатов его нет; `mergeChatPreferringNewerWorkflow` сохраняет прежний `blockState`, если входящий `null`). При `isBlocked` композер заменяется баннером «Пользователь заблокирован» (после веток `isLocked`, до оффлайн-лока); `ChatActionBar` остаётся, кнопка «Разблокировать» только при `isBlockedByMe`. Сервер отвечает на send ack `{success:false, code:'USER_BLOCKED'}` → `ChatSendRejected`, сообщение `failed`, `currentChatProvider` рефетчится.
+
+Фильтр текста: сервер проверяет TEXT в direct-чатах (не `SUPPORT`, не EVENT/IMAGE/LOCATION) до сохранения и рассылки. Отказ — ack `{success:false, code:'CONTENT_NOT_ALLOWED'}` → `ChatSendRejected`, сообщение `failed`, тост `contentNotAllowed`. Остальной тред не трогается. Какое слово сработало, сервер не сообщает.

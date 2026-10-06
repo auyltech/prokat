@@ -18,6 +18,11 @@ String resolveAppBarTitle(
   // Search Equipment Screen
   if (path == AppRoutes.searchList) return l10n.search;
 
+  if (path == AppRoutes.clientBlockedUsers ||
+      path == AppRoutes.ownerBlockedUsers) {
+    return l10n.blockedUsersTitle;
+  }
+
   // Create Order
   if (path.contains("equipment") && !path.contains("owner")) {
     return l10n.createOrder;
