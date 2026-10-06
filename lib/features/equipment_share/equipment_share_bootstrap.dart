@@ -19,6 +19,7 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
   DateTime? lastAt;
   var initialHandled = false;
   var consumeInFlight = false;
+  var consumeAgain = false;
 
   Future<void> writeOverlay({
     required String equipmentId,
@@ -32,34 +33,50 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
     );
   }
 
+  Future<void> consumeOnce() async {
+    final snapshot = await storage.readOverlaySnapshot();
+    final decision = decideShareOverlay(
+      overlay: snapshot.overlay,
+      routeState: ref.read(appStartupProvider).routeState,
+      currentPath: router.state.uri.path,
+    );
+
+    switch (decision.action) {
+      case ShareOverlayAction.wait:
+        return;
+      case ShareOverlayAction.clear:
+        await storage.clearOverlayIfUnchanged(snapshot.token);
+        return;
+      case ShareOverlayAction.push:
+        // Push only the overlay this pass actually removed. If a newer one
+        // was written meanwhile, it stays for the next pass.
+        final claimed = await storage.clearOverlayIfUnchanged(snapshot.token);
+        final path = decision.path;
+        if (!claimed || path == null || path.isEmpty) return;
+        unawaited(router.push(path));
+    }
+  }
+
+  // A request during an in-flight consume runs one more pass instead of being
+  // dropped, so an overlay written meanwhile is still opened. The flag is
+  // checked again after unlocking: a request in the finally-gap would
+  // otherwise be lost.
   Future<void> consumeOverlayIfAny() async {
-    if (consumeInFlight) return;
+    if (consumeInFlight) {
+      consumeAgain = true;
+      return;
+    }
     consumeInFlight = true;
     try {
-      final overlay = await storage.readOverlay();
-      final decision = decideShareOverlay(
-        overlay: overlay,
-        routeState: ref.read(appStartupProvider).routeState,
-        currentPath: router.state.uri.path,
-      );
-
-      switch (decision.action) {
-        case ShareOverlayAction.wait:
-          return;
-        case ShareOverlayAction.clear:
-          await storage.clearOverlay();
-          return;
-        case ShareOverlayAction.push:
-          final path = decision.path;
-          if (path == null || path.isEmpty) {
-            await storage.clearOverlay();
-            return;
-          }
-          await storage.clearOverlay();
-          unawaited(router.push(path));
-      }
+      do {
+        consumeAgain = false;
+        await consumeOnce();
+      } while (consumeAgain);
     } finally {
       consumeInFlight = false;
+    }
+    if (consumeAgain) {
+      unawaited(consumeOverlayIfAny());
     }
   }
 
