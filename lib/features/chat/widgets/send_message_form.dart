@@ -12,6 +12,9 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/utils/owner_offline_chat_lock.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
+import 'package:prokat/features/user_safety/models/chat_block_state.dart';
+import 'package:prokat/features/user_safety/widgets/block_user_flow.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class SendMessageForm extends ConsumerStatefulWidget {
@@ -42,12 +45,19 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   final FocusNode _focusNode = FocusNode();
   bool _goingOnline = false;
 
+  bool _unblocking = false;
+
   bool _isLockedFor(SendMessageForm target) {
     return isChatInputLocked(
       target.chatStatus,
       threadStatus: target.currentChat?.status,
       chatType: target.type,
     );
+  }
+
+  bool _isBlockedFor(SendMessageForm target) {
+    return target.type != ChatType.support &&
+        target.currentChat?.blockState?.isBlocked == true;
   }
 
   void _dismissKeyboard() {
@@ -70,6 +80,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     super.didUpdateWidget(oldWidget);
     final nowLocked =
         _isLockedFor(widget) ||
+        _isBlockedFor(widget) ||
         isDirectBookingOwnerOfflineLock(
           ref: ref,
           mode: widget.mode,
@@ -77,6 +88,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
         );
     final wasLocked =
         _isLockedFor(oldWidget) ||
+        _isBlockedFor(oldWidget) ||
         isDirectBookingOwnerOfflineLock(
           ref: ref,
           mode: oldWidget.mode,
@@ -138,6 +150,65 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     }
 
     setState(() => _goingOnline = false);
+  }
+
+  Future<void> _unblockFromBanner(String userId) async {
+    if (_unblocking) return;
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _unblocking = true);
+    await unblockUserWithToast(
+      l10n,
+      ref,
+      userId: userId,
+      chatId: widget.chatId,
+    );
+    if (mounted) setState(() => _unblocking = false);
+  }
+
+  Widget _blockedBanner(AppLocalizations l10n, ChatBlockState blockState) {
+    final colors = context.colors;
+    final counterpartUserId = blockState.counterpartUserId;
+    return Padding(
+      key: const ValueKey('chat-blocked-banner'),
+      padding: const EdgeInsets.symmetric(horizontal: AppDimens.s16$base),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppDimens.s08$sm,
+        children: [
+          Row(
+            spacing: AppDimens.s08$sm,
+            children: [
+              Icon(
+                LucideIcons.lock,
+                size: AppDimens.s20$lg,
+                color: colors.icons.main,
+              ),
+              Expanded(
+                child: Text(
+                  l10n.userBlockedBannerTitle,
+                  style: AppFonts.body16SemiBold(context),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            l10n.interactionUnavailableBody,
+            style: AppFonts.body14(context)
+                .copyWith(color: colors.text.secondary),
+          ),
+          if (blockState.isBlockedByMe &&
+              counterpartUserId != null &&
+              counterpartUserId.isNotEmpty)
+            AppOutlinedButton(
+              key: const ValueKey('chat-unblock-button'),
+              title: l10n.unblockUserAction,
+              isLoading: _unblocking,
+              onTap: () => _unblockFromBanner(counterpartUserId),
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -284,6 +355,27 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
           chatStatus: widget.chatStatus,
           mode: widget.mode,
           actionBarTitle: widget.actionBarTitle,
+        ),
+      );
+    }
+
+    final blockState = widget.currentChat?.blockState;
+    if (_isBlockedFor(widget) && blockState != null) {
+      return _roundedPanel(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppDimens.s12$md,
+          children: [
+            if (showActions)
+              ChatActionBar(
+                currentChat: widget.currentChat!,
+                chatStatus: widget.chatStatus,
+                mode: widget.mode,
+                actionBarTitle: widget.actionBarTitle,
+              ),
+            _blockedBanner(l10n, blockState),
+          ],
         ),
       );
     }

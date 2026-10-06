@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -214,6 +216,26 @@ class OwnerActiveRequestsNotifier
     if (current == null) return;
 
     state = AsyncData(current.copyWith(lastFetchedAt: () => null));
+  }
+
+  /// Drops a blocked client's requests now; the refetch realigns page-based `skip`.
+  void removeClientLocally(String clientId) {
+    final current = state.valueOrNull;
+    if (current != null) {
+      final kept = current.items
+          .where((item) => item.client?.id != clientId)
+          .toList();
+      final removed = current.items.length - kept.length;
+      if (removed > 0) {
+        state = AsyncData(
+          current.copyWith(
+            items: kept,
+            count: (current.count - removed).clamp(0, current.count),
+          ),
+        );
+      }
+    }
+    unawaited(refresh());
   }
 
   Future<void> refreshIfStale() async {

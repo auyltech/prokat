@@ -22,6 +22,7 @@ import 'package:prokat/features/layout/section_root_routes.dart';
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 import 'package:prokat/features/user/widgets/city_picker_trigger.dart';
+import 'package:prokat/features/user_safety/widgets/chat_safety_menu_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -106,6 +107,11 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
     }
 
     final actions = <Widget>[];
+    if (isChatByIdScreen) {
+      actions.add(
+        ChatSafetyMenuButton(chatId: segments[3], currentUserId: currentUserId),
+      );
+    }
     if (isSearchListScreen) {
       actions.add(const CityPickerTrigger());
     }

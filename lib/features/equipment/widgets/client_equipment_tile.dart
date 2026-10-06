@@ -10,6 +10,8 @@ import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
+import 'package:prokat/features/user_safety/models/report_target.dart';
+import 'package:prokat/features/user_safety/widgets/ugc_more_button.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -102,6 +104,18 @@ class ClientEquipmentTile extends ConsumerWidget {
                 right: 8,
                 child: Row(
                   children: [
+                    if (isClient && !companyCard) ...[
+                      UgcMoreButton(
+                        counterpartUserId: equipment.owner?.id,
+                        counterpartName:
+                            equipment.owner?.displayNameOr('') ?? '',
+                        reportTarget: ReportTarget(
+                          ReportTargetType.equipment,
+                          equipment.id,
+                        ),
+                      ),
+                      const SizedBox(width: AppDimens.s08$sm),
+                    ],
                     if (companyCard)
                       AppIconButton(
                         icon: LucideIcons.share2,

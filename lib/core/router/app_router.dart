@@ -53,6 +53,7 @@ import 'package:prokat/features/owner/screens/owner_settings_screen.dart';
 import 'package:prokat/features/owner/screens/register_owner_screen.dart';
 import 'package:prokat/features/user/screens/client_profile_screen.dart';
 import 'package:prokat/features/user/screens/client_settings_screen.dart';
+import 'package:prokat/features/user_safety/screens/blocked_users_screen.dart';
 import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/features/appstatic/screens/main_screen.dart';
 import 'package:prokat/features/favorites/screens/favorites_screen.dart';
@@ -393,6 +394,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const ClientSettingsScreen(),
               ),
               GoRoute(
+                path: AppRoutes.clientBlockedUsers,
+                builder: (_, _) => const BlockedUsersScreen(),
+              ),
+              GoRoute(
                 path: AppRoutes.becomeOwner,
                 builder: (_, _) => const RegisterOwnerPage(),
               ),
@@ -555,6 +560,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.ownerSettings,
                 builder: (_, _) => const OwnerSettingsScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.ownerBlockedUsers,
+                builder: (_, _) => const BlockedUsersScreen(),
               ),
             ],
           ),

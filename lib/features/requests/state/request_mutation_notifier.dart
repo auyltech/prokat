@@ -166,6 +166,7 @@ class RequestMutationNotifier extends MutationNotifier<RequestState> {
       return MutationResponse(
         success: result.success,
         message: result.success ? "Request created" : result.message,
+        errorCode: result.success ? null : result.errorCode,
       );
     } catch (error) {
       finishAction(

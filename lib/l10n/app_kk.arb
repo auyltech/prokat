@@ -1409,5 +1409,28 @@
       "priceLine": { "type": "String" },
       "url": { "type": "String" }
     }
-  }
+  },
+  "reportAction": "Шағымдану",
+  "blockUserAction": "Бұғаттау",
+  "unblockUserAction": "Бұғаттан шығару",
+  "blockedUsersTitle": "Бұғатталған пайдаланушылар",
+  "blockedUsersEmpty": "Сіз ешкімді бұғаттаған жоқсыз",
+  "reportSentToast": "Шағым жіберілді",
+  "reportSentBlockPrompt": "Бұл пайдаланушыны да бұғаттау керек пе?",
+  "blockUserConfirmTitle": "Пайдаланушыны бұғаттау керек пе?",
+  "blockUserConfirmBody": "Сіз оның хабарландырулары мен сұраныстарын көрмейсіз, хат алмасу қолжетімсіз болады. Бұғаттан шығаруды баптаулардан жасауға болады.",
+  "userBlockedToast": "Пайдаланушы бұғатталды",
+  "userUnblockedToast": "Пайдаланушы бұғаттан шығарылды",
+  "reportReasonTitle": "Шағым себебі",
+  "reportReasonSpam": "Спам",
+  "reportReasonAbuse": "Қорлау / орынсыз мінез-құлық",
+  "reportReasonFraud": "Алаяқтық",
+  "reportReasonOther": "Басқа",
+  "reportCommentHint": "Түсініктеме (міндетті емес)",
+  "reportSubmit": "Шағым жіберу",
+  "userBlockedBannerTitle": "Пайдаланушы бұғатталған",
+  "interactionUnavailableBody": "Бұл пайдаланушымен өзара әрекеттесу қолжетімсіз",
+  "notNow": "Қазір емес",
+  "blockedUsersSettingsSubtitle": "Сіз бұғаттаған пайдаланушылар",
+  "contentNotAllowed": "Мәтінде жол берілмейтін мазмұн бар. Оны өзгертіп, қайтадан көріңіз."
 }
