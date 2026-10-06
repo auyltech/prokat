@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:prokat/features/equipment_share/equipment_share_id.dart';
 
 enum AppEnvironment { production, local }
 
@@ -82,7 +83,7 @@ class Env {
     Uri.parse(shareBaseUrl).host.toLowerCase(),
   };
 
-  static String equipmentShareUrl(String equipmentId) {
+  static String equipmentShareUrl(String equipmentId, {String? shareId}) {
     final id = equipmentId.trim();
     if (id.isEmpty || id == '.' || id == '..' || id.contains('/')) {
       throw ArgumentError.value(
@@ -91,7 +92,16 @@ class Env {
         'must be a single non-empty path segment',
       );
     }
-    return '$shareBaseUrl/e/${Uri.encodeComponent(id)}';
+    if (shareId != null && !isValidShareId(shareId)) {
+      throw ArgumentError.value(
+        shareId,
+        'shareId',
+        'must be 22 unpadded base64url characters',
+      );
+    }
+    final url = '$shareBaseUrl/e/${Uri.encodeComponent(id)}';
+    if (shareId == null) return url;
+    return Uri.parse(url).replace(queryParameters: {'s': shareId}).toString();
   }
 
   static String parseShareBaseUrl(String raw) {

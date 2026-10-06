@@ -1,6 +1,8 @@
 # Equipment share
 
 - Ссылка: `Env.equipmentShareUrl(id)` → `https://<SHARE_BASE_URL>/e/<id>`. Хосты: `Env.shareTrustedHosts`.
+- Исходящий шаринг: `?s=<shareId>`. `shareId` — 22 символа base64url без `=`, непрозрачный, новый на каждый акт шаринга (`generateShareId` сразу перед `SharePlus`).
+- Analytics `share` и backend `SHARED` — только при `ShareResultStatus.success` (`reportShareResult`); `SHARED` только для авторизованного. Оба best-effort, независимы, не блокируют UI.
 - `isShareableNow`: `AVAILABLE` + `isVisible` + есть цена `> 0`. Только тогда PNG и ссылка.
 - `canShowShareButton`: `isModerated` (не draft / created / rejected / archived).
 - `needsPublishAlert`: кнопка есть, но `isShareableNow` ложно. Алерт, Share не открывается.
