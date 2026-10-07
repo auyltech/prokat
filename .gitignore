@@ -1,4 +1,5 @@
 # Miscellaneous
+/build-appbundle.bat
 *.class
 *.log
 *.pyc
