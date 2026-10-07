@@ -10,7 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/widgets/profile_read_only_row.dart';
+
+import 'company_stat_grid.dart';
+
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -293,6 +295,64 @@ class _CompanyInformationScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Text(
+                        'Аватарка компании',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 64,
+                            height: 64,
+                            child: AbsorbPointer(
+                              absorbing: !editable,
+                              child: ProfileImagePicker(
+                                mode: AppMode.ownerMode,
+                                radius: 32,
+                                showEditIcon: false,
+                                initialImageUrl: company['avatarUrl'],
+                                onUpload: uploadAvatar,
+                                onDelete: deleteAvatar,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  company['name'],
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      size: 14,
+                                      color: Colors.amber,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Flexible(
+                                      child: Text(
+                                        '${(company['ratingAverage'] as num).toStringAsFixed(1)} • ${l10n.ordersCount(company['orderCount'] ?? 0)}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(height: 1),
+                      const SizedBox(height: 24),
                       AppDropdownField<String>(
                         title: 'Город работы',
                         value: city,
@@ -328,46 +388,6 @@ class _CompanyInformationScreenState
                         maxLines: 4,
                         readOnly: !editable,
                         onFocusLost: save,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Аватарка компании',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 88,
-                            height: 88,
-                            child: AbsorbPointer(
-                              absorbing: !editable,
-                              child: ProfileImagePicker(
-                                mode: AppMode.ownerMode,
-                                radius: 36,
-                                showEditIcon: false,
-                                initialImageUrl: company['avatarUrl'],
-                                onUpload: uploadAvatar,
-                                onDelete: deleteAvatar,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  company['name'],
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                Text(
-                                  '★ ${company['ratingAverage']} · ${company['orderCount'] ?? 0} заказов',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -410,42 +430,48 @@ class _CompanyInformationScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const SizedBox(height: 8),
                       for (final group in [
                         ('Техника', 'machinery'),
                         ('Оборудование', 'equipment'),
                       ]) ...[
                         Text(
                           group.$1,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                         const SizedBox(height: 12),
-                        for (final field in [
-                          ('Категорий', 'categories'),
-                          ('Всего', 'total'),
-                          ('Показывается', 'showing'),
-                          ('Свободно', 'available'),
-                        ]) ...[
-                          ProfileReadOnlyRow(
-                            label: field.$1,
-                            value: '${dashboard[group.$2][field.$2]}',
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        const SizedBox(height: 12),
+                        CompanyStatGrid(
+                          items: [
+                            for (final field in [
+                              ('Категорий', 'categories'),
+                              ('Всего', 'total'),
+                              ('Показывается', 'showing'),
+                              ('Свободно', 'available'),
+                            ])
+                              (
+                                label: field.$1,
+                                value: '${dashboard[group.$2][field.$2]}',
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
                       ],
                       Text(
                         'Диспетчеры',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 12),
-                      ProfileReadOnlyRow(
-                        label: 'Онлайн',
-                        value: '${dashboard['dispatchers']['online']}',
-                      ),
-                      const SizedBox(height: 12),
-                      ProfileReadOnlyRow(
-                        label: 'Офлайн',
-                        value: '${dashboard['dispatchers']['offline']}',
+                      CompanyStatGrid(
+                        items: [
+                          (
+                            label: 'Онлайн',
+                            value: '${dashboard['dispatchers']['online']}',
+                          ),
+                          (
+                            label: 'Офлайн',
+                            value: '${dashboard['dispatchers']['offline']}',
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -560,7 +586,8 @@ Future<void> shareCompany(
         files: [XFile(file.path, mimeType: 'image/png')],
         text: '$name\n${Env.shareBaseUrl}/c/${company['id']}',
         subject: name,
-        sharePositionOrigin: box is RenderBox && box.hasSize && !box.size.isEmpty
+        sharePositionOrigin:
+            box is RenderBox && box.hasSize && !box.size.isEmpty
             ? box.localToGlobal(Offset.zero) & box.size
             : null,
       ),

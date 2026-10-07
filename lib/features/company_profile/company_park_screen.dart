@@ -13,6 +13,7 @@ import 'package:prokat/features/equipment/widgets/owner/owner_equipment_image_he
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
 
 import 'company_profile_api.dart';
+import 'company_stat_grid.dart';
 import 'company_information_screen.dart';
 import 'company_workspace.dart';
 
@@ -173,18 +174,25 @@ class CompanyParkScreen extends ConsumerWidget {
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              _CountsRow(
-                                left:
-                                    'Категорий техники ${data['machinery']['categories']}',
-                                right:
-                                    'Категорий оборудования ${data['equipment']['categories']}',
-                              ),
-                              const SizedBox(height: 8),
-                              _CountsRow(
-                                left:
-                                    'Диспетчеров онлайн ${data['dispatchers']['online']}',
-                                right:
-                                    'Диспетчеров офлайн ${data['dispatchers']['offline']}',
+                              CompanyStatGrid(
+                                items: [
+                                  (
+                                    label: 'Категорий техники',
+                                    value: '${data['machinery']['categories']}',
+                                  ),
+                                  (
+                                    label: 'Категорий оборудования',
+                                    value: '${data['equipment']['categories']}',
+                                  ),
+                                  (
+                                    label: 'Диспетчеров онлайн',
+                                    value: '${data['dispatchers']['online']}',
+                                  ),
+                                  (
+                                    label: 'Диспетчеров офлайн',
+                                    value: '${data['dispatchers']['offline']}',
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 20),
                               AppElevatedButton(
@@ -259,8 +267,27 @@ class CompanyParkScreen extends ConsumerWidget {
                                           .titleMedium,
                                     ),
                                     const SizedBox(height: 6),
-                                    Text(
-                                      'Всего ${group['total']} · Показывается ${group['showing']} · Свободно ${group['available']}',
+                                    Wrap(
+                                      spacing: 12,
+                                      runSpacing: 4,
+                                      children: [
+                                        for (final counter in [
+                                          ('Всего', group['total']),
+                                          ('Показывается', group['showing']),
+                                          ('Свободно', group['available']),
+                                        ])
+                                          Text(
+                                            '${counter.$1} ${counter.$2}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -305,20 +332,6 @@ class _CardBadge extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
     ),
-  );
-}
-
-class _CountsRow extends StatelessWidget {
-  final String left, right;
-  const _CountsRow({required this.left, required this.right});
-  @override
-  Widget build(BuildContext context) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded(child: Text(left)),
-      const SizedBox(width: 12),
-      Expanded(child: Text(right)),
-    ],
   );
 }
 
