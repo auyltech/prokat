@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:play_install_referrer/play_install_referrer.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/features/equipment_share/equipment_share_id.dart';
 import 'package:prokat/features/equipment_share/equipment_share_link.dart';
 
-/// Play returns either a share URL or `id=<equipmentId>` from the install page.
+/// Play returns either a share URL or `id=<equipmentId>[&s=<shareId>]` from
+/// the install page.
 EquipmentShareLink? shareLinkFromInstallReferrer(String? raw) {
   final value = raw?.trim() ?? '';
   if (value.isEmpty) return null;
@@ -28,8 +30,15 @@ EquipmentShareLink? shareLinkFromInstallReferrer(String? raw) {
   if (id.isEmpty) return null;
 
   final base = Uri.parse(Env.shareBaseUrl);
-  return EquipmentShareLink.tryParse(
+  final link = EquipmentShareLink.tryParse(
     base.replace(path: '/e/${Uri.encodeComponent(id)}'),
+  );
+  if (link == null) return null;
+  final s = params['s'];
+  return EquipmentShareLink(
+    equipmentId: link.equipmentId,
+    canonical: link.canonical,
+    shareId: isValidShareId(s) ? s : null,
   );
 }
 

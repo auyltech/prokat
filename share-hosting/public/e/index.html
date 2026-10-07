@@ -4,6 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PROKAT</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EV9JFVT6Z8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      try {
+        var analyticsSearch = new URLSearchParams(location.search);
+        gtag("js", new Date());
+        gtag("config", "G-EV9JFVT6Z8", {
+          send_page_view: false,
+          debug_mode: analyticsSearch.get("debug_analytics") === "1",
+        });
+      } catch (_) {}
+    </script>
     <style>
       body {
         margin: 0;
@@ -68,16 +83,55 @@
         } catch (e) {
           id = rawId;
         }
+        var s = "";
+        try {
+          s = new URLSearchParams(location.search).get("s") || "";
+        } catch (_) {
+          s = "";
+        }
+        if (!/^[A-Za-z0-9_-]{22}$/.test(s)) {
+          s = "";
+        }
         if (id && id !== "index.html") {
           var line = document.getElementById("card-line");
           line.textContent = "Карточка: " + id;
           line.classList.remove("hidden");
           var playLink = document.getElementById("play");
-          var referrer = "id=" + encodeURIComponent(id);
+          var referrer =
+            "id=" +
+            encodeURIComponent(id) +
+            (s ? "&s=" + s : "") +
+            "&utm_source=prokat_share" +
+            "&utm_medium=referral" +
+            "&utm_campaign=equipment_share";
           playLink.href =
             playLink.href.split("&referrer=")[0] +
             "&referrer=" +
             encodeURIComponent(referrer);
+
+          var openParams = {
+            item_id: id,
+            open_via: "web_landing",
+          };
+          if (s) {
+            openParams.share_id = s;
+          }
+          try {
+            gtag("event", "share_link_opened", openParams);
+          } catch (_) {}
+
+          playLink.addEventListener("click", function () {
+            var clickParams = {
+              item_id: id,
+              transport_type: "beacon",
+            };
+            if (s) {
+              clickParams.share_id = s;
+            }
+            try {
+              gtag("event", "store_link_clicked", clickParams);
+            } catch (_) {}
+          });
         }
 
         var ua = navigator.userAgent || "";

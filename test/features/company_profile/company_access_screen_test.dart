@@ -34,10 +34,10 @@ void main() {
             },
           ),
         ],
-        child: MaterialApp(
+        child: const MaterialApp(
           home: MediaQuery(
-            data: const MediaQueryData(disableAnimations: true),
-            child: const Scaffold(body: CompanyEntryTile()),
+            data: MediaQueryData(disableAnimations: true),
+            child: Scaffold(body: CompanyEntryTile()),
           ),
         ),
       ),

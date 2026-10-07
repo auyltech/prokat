@@ -52,7 +52,7 @@ void main() {
           'title': 'test',
           'data': {
             'audience': audience,
-            if (companyId != null) 'companyId': companyId,
+            'companyId': ?companyId,
           },
         });
     final client = notice('CLIENT');

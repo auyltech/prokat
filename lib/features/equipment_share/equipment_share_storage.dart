@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
 import 'package:prokat/features/equipment_share/equipment_share_booking_intent.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 
 final equipmentShareStorageProvider = Provider<EquipmentShareStorage>((ref) {
@@ -32,15 +33,21 @@ class EquipmentShareStorage {
       ? 'local_equipment_share_install_referrer_checked'
       : 'equipment_share_install_referrer_checked';
 
-  Future<void> savePendingUri(String uri) async {
-    await _storage.write(key: _pendingKey, value: uri);
+  Future<void> savePendingOpen(EquipmentShareOpen open) async {
+    await _storage.write(key: _pendingKey, value: jsonEncode(open.toJson()));
   }
 
-  Future<String?> readPendingUri() async {
+  /// Also reads the legacy plain-URI value written by older builds.
+  Future<EquipmentShareOpen?> readPendingOpen() async {
     try {
-      final value = await _storage.read(key: _pendingKey);
-      if (value == null || value.trim().isEmpty) return null;
-      return value.trim();
+      final raw = await _storage.read(key: _pendingKey);
+      if (raw == null || raw.trim().isEmpty) return null;
+      final open = EquipmentShareOpen.tryParse(raw);
+      if (open == null) {
+        await clearPendingUri();
+        return null;
+      }
+      return open;
     } catch (_) {
       await clearPendingUri();
       return null;
