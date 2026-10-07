@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/analytics/analytics_service.dart';
+import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
@@ -13,6 +15,7 @@ import 'package:prokat/features/categories/state/category_provider.dart';
 import 'package:prokat/features/categories/widgets/catalog_group_tabs.dart';
 import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
+import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
@@ -38,6 +41,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   bool _loading = false;
   String _city = '';
   bool _citySeeded = false;
+  bool? _isFirstEquipment;
+  bool _startedLogged = false;
 
   @override
   void initState() {
@@ -45,6 +50,19 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     _name.addListener(_onFieldsChanged);
     _model.addListener(_onFieldsChanged);
     _plateNumber.addListener(_onFieldsChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _startedLogged) return;
+      _startedLogged = true;
+      _isFirstEquipment = isFirstEquipment(
+        ref.read(ownerEquipmentProvider).valueOrNull,
+      );
+      unawaited(
+        ref
+            .read(analyticsServiceProvider)
+            .logEquipmentCreationStarted(isFirstEquipment: _isFirstEquipment),
+      );
+    });
 
     unawaited(
       Future.microtask(() async {
@@ -145,6 +163,7 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
     }
 
     setState(() => _loading = true);
+    final analytics = ref.read(analyticsServiceProvider);
 
     try {
       final plate = sanitizeKzPlate(_plateNumber.text).trim();
@@ -158,6 +177,15 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             if (plateRequired && plate.isNotEmpty) "plateNumber": plate,
           });
 
+      if (result == true) {
+        unawaited(
+          analytics.logEquipmentDraftCreated(
+            categoryId: category.id,
+            group: category.catalogGroup,
+            isFirstEquipment: _isFirstEquipment,
+          ),
+        );
+      }
       if (result == true && mounted) {
         context.pop();
         AppToast.show(message: l10n.equipmentAdded, type: AppToastType.success);

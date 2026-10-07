@@ -1,17 +1,22 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:prokat/core/analytics/analytics_service.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
-import 'package:prokat/features/equipment_share/equipment_share_analytics.dart';
+import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
 import 'package:prokat/features/equipment_share/equipment_share_gate.dart';
+import 'package:prokat/features/equipment_share/equipment_share_id.dart';
 import 'package:prokat/features/equipment_share/equipment_share_message.dart';
 import 'package:prokat/features/equipment_share/equipment_share_renderer.dart';
+import 'package:prokat/features/equipment_share/equipment_share_result.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -50,7 +55,6 @@ class EquipmentShareService {
       final priceLine = sharePriceLine(current, l10n);
       if (priceLine == null) return;
 
-      EquipmentShareAnalytics.shareStarted(current.id);
       image = await EquipmentShareRenderer.render(
         context: context,
         ref: ref,
@@ -72,22 +76,34 @@ class EquipmentShareService {
       if (!context.mounted) return;
 
       final origin = _shareOrigin(context);
-      await SharePlus.instance.share(
+      final analytics = ref.read(analyticsServiceProvider);
+      final eventsApi = ref.read(equipmentShareEventsApiProvider);
+      final isAuthenticated = ref.read(authProvider).isAuthenticated;
+      final shareId = generateShareId();
+      final result = await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path, mimeType: 'image/png', name: 'prokat.png')],
           text: equipmentShareMessage(
             l10n,
             name: current.name,
             priceLine: priceLine,
-            url: Env.equipmentShareUrl(current.id),
+            url: Env.equipmentShareUrl(current.id, shareId: shareId),
           ),
           subject: current.name,
           sharePositionOrigin: origin,
         ),
       );
-      EquipmentShareAnalytics.shareCompleted(current.id);
+      unawaited(
+        reportShareResult(
+          result: result,
+          shareId: shareId,
+          equipmentId: current.id,
+          analytics: analytics,
+          api: eventsApi,
+          isAuthenticated: isAuthenticated,
+        ),
+      );
     } catch (_) {
-      EquipmentShareAnalytics.shareFailed(equipment.id);
       if (context.mounted) {
         AppToast.show(
           message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,

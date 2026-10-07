@@ -7,6 +7,7 @@ class ApiRoutes {
   static const guestEquipment = "$equipment/guest";
   static const publicEquipment = "$equipment/public";
   static const ownerEquipment = "$equipment/owner";
+  static const equipmentShareEvents = "/equipment-shares/events";
   static const locations = "/locations";
   static const ownerLocations = "/locations/owner";
   static const locationSearch = "$locations/search";

@@ -75,6 +75,10 @@ void main() {
     expect(Env.firebaseServicesEnabled, firebaseEnabled);
   });
 
+  test('disables analytics collection without firebase services', () {
+    expect(Env.analyticsCollectionEnabled, isFalse);
+  }, skip: firebaseEnabled ? 'requires ENABLE_FIREBASE_SERVICES=false' : false);
+
   test('builds an equipment share URL on the default host', () {
     expect(Env.shareBaseUrl, 'https://prokat-bfbec.web.app');
     expect(
@@ -106,6 +110,52 @@ void main() {
     );
     expect(() => Env.equipmentShareUrl(''), throwsArgumentError);
     expect(() => Env.equipmentShareUrl('a/b'), throwsArgumentError);
+  });
+
+  test('share url without share id unchanged', () {
+    expect(
+      Env.equipmentShareUrl('equipment-1'),
+      'https://prokat-bfbec.web.app/e/equipment-1',
+    );
+    expect(
+      Env.equipmentShareUrl('equipment-1', shareId: null),
+      'https://prokat-bfbec.web.app/e/equipment-1',
+    );
+  });
+
+  test('share url with share id', () {
+    const shareId = 'AbCdEfGhIjKlMnOpQr_-12';
+    expect(
+      Env.equipmentShareUrl('equipment-1', shareId: shareId),
+      'https://prokat-bfbec.web.app/e/equipment-1?s=$shareId',
+    );
+    expect(
+      Uri.parse(Env.equipmentShareUrl('equipment-1', shareId: shareId))
+          .queryParameters,
+      {'s': shareId},
+    );
+  });
+
+  test('invalid share id throws', () {
+    expect(
+      () => Env.equipmentShareUrl('equipment-1', shareId: ''),
+      throwsArgumentError,
+    );
+    expect(
+      () => Env.equipmentShareUrl('equipment-1', shareId: 'a' * 21),
+      throwsArgumentError,
+    );
+    expect(
+      () => Env.equipmentShareUrl('equipment-1', shareId: 'a' * 23),
+      throwsArgumentError,
+    );
+    expect(
+      () => Env.equipmentShareUrl(
+        'equipment-1',
+        shareId: 'AbCdEfGhIjKlMnOpQrSt==',
+      ),
+      throwsArgumentError,
+    );
   });
 }
 
