@@ -6,8 +6,14 @@ class AccountStatusCard extends StatelessWidget {
   final String title, subtitle;
   final String? explanation;
   final ValueChanged<bool>? onChanged;
-  const AccountStatusCard({super.key, required this.isOnline, required this.title,
-    required this.subtitle, this.explanation, this.onChanged});
+  const AccountStatusCard({
+    super.key,
+    required this.isOnline,
+    required this.title,
+    required this.subtitle,
+    this.explanation,
+    this.onChanged,
+  });
   @override
   Widget build(BuildContext context) {
     return AppCard(
