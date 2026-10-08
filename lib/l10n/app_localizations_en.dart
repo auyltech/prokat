@@ -485,7 +485,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeletionDataWithinDays =>
-      'Core account data will be deleted within 30 days. Details are in the documents.';
+      'Personal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation. Details are in the documents.';
 
   @override
   String get learnMoreAboutDeletion => 'Learn more about deletion';
@@ -505,18 +505,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeletionScheduledBody =>
-      'Your account is now scheduled for deletion.\n\nYou will be signed out immediately. Core account data will be deleted within 30 calendar days.';
+      'Your account is now scheduled for deletion.\n\nYou will be signed out immediately. Personal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation.';
 
   @override
   String get accountDeletionConfirmationBody =>
-      'After confirmation, access to the account will stop.\n\nCore account data will be deleted within 30 days. Details are in the documents.';
+      'After confirmation, access to the account will stop.\n\nPersonal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation. Details are in the documents.';
 
   @override
   String get permanentlyDeleteAccount => 'Permanently Delete Account';
 
   @override
   String get accountDeletionHoldDescription =>
-      'From the moment the deletion request is received, access to the account stops. Core account data is deleted within 30 calendar days.';
+      'Access to the account stops when the deletion request is received. Personal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation.';
 
   @override
   String get failedToLoadVersion => 'Failed to load version';
