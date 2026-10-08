@@ -64,9 +64,9 @@ class RemoteLegalDocumentScreen extends ConsumerWidget {
               onTapLink: (text, href, _) async {
                 final uri = Uri.tryParse(href ?? '');
                 if (uri == null) return;
-                final internal = !uri.hasScheme ||
-                    (uri.scheme == 'https' &&
-                        uri.host == 'prokat.auyltech.kz');
+                final internal =
+                    !uri.hasScheme ||
+                    (uri.scheme == 'https' && uri.host == 'prokat.auyltech.kz');
                 if (internal &&
                     uri.pathSegments.length == 2 &&
                     uri.pathSegments.first == 'legal-documents') {
