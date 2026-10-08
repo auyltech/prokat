@@ -1,4 +1,5 @@
 import 'package:prokat/core/widgets/account_status_card.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -121,7 +122,9 @@ class _OwnerStatusTileState extends ConsumerState<OwnerStatusTile> {
       title: isOnline ? l10n.youAreOnline : l10n.youAreOffline,
       subtitle: isOnline ? l10n.readyToAcceptOrders : l10n.notAcceptingOrders,
       explanation: hasProfile ? l10n.ownerOfflineMustBeOnlineToAccept : null,
-      onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading ? null : _onToggleMethod,
+      onChanged: ref.watch(ownerRegistrationMutationProvider).isLoading
+          ? null
+          : _onToggleMethod,
     );
   }
 }
