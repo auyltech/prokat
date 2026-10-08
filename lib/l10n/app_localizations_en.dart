@@ -590,7 +590,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get equipmentCatalogDeleteWarning =>
-      'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.';
+      'This equipment unit will be removed from your fleet and the catalog. Related orders and their history will be preserved.';
 
   @override
   String get equipmentCatalogDelete => 'Delete equipment unit';
@@ -2146,7 +2146,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteEquipmentWarning =>
-      'Deleting this equipment will permanently remove it from your inventory, including all pricing and history.';
+      'This equipment will be removed from your fleet and the catalog. Related orders and their history will be preserved.';
 
   @override
   String get deleteEquipment => 'Delete Equipment';
@@ -2156,7 +2156,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteEquipmentConfirmation =>
-      'This will remove the item from the marketplace and delete all its rental history.';
+      'The listing will disappear from your fleet and the catalog. Related order history will be preserved. Equipment with an active order cannot be deleted.';
 
   @override
   String get failedToUploadPhoto => 'Failed to upload photo';

@@ -588,7 +588,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get equipmentCatalogDeleteWarning =>
-      'Жабдықты жою оны инвентарьдан, барлық баға және тарих деректерімен бірге біржола өшіреді.';
+      'Жабдық паркіңізден және каталогтан алынады. Байланысты тапсырыстар мен олардың тарихы сақталады.';
 
   @override
   String get equipmentCatalogDelete => 'Жабдықты жою';
@@ -2137,7 +2137,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get deleteEquipmentWarning =>
-      'Техниканы жою оны инвентарьдан, барлық баға және тарих деректерімен бірге біржола өшіреді.';
+      'Техника паркіңізден және каталогтан алынады. Байланысты тапсырыстар мен олардың тарихы сақталады.';
 
   @override
   String get deleteEquipment => 'Техниканы жою';
@@ -2147,7 +2147,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get deleteEquipmentConfirmation =>
-      'Бұл жарнаманы маркетплейстен жойып, барлық жалдау тарихын өшіреді.';
+      'Хабарландыру паркіңізден және каталогтан алынады. Байланысты тапсырыстар тарихы сақталады. Белсенді тапсырысы бар техниканы жоюға болмайды.';
 
   @override
   String get failedToUploadPhoto => 'Фотоны жүктеу сәтсіз аяқталды';

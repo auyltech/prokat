@@ -594,7 +594,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get equipmentCatalogDeleteWarning =>
-      'Удаление оборудования навсегда уберёт его из инвентаря, включая все данные о ценах и истории.';
+      'Оборудование будет убрано из вашего парка и каталога. Связанные заказы и их история сохранятся.';
 
   @override
   String get equipmentCatalogDelete => 'Удалить оборудование';
@@ -2153,7 +2153,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deleteEquipmentWarning =>
-      'Удаление техники навсегда уберёт её из инвентаря, включая все данные о ценах и истории.';
+      'Техника будет убрана из вашего парка и каталога. Связанные заказы и их история сохранятся.';
 
   @override
   String get deleteEquipment => 'Удалить технику';
@@ -2163,7 +2163,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deleteEquipmentConfirmation =>
-      'Это удалит объявление с маркетплейса и всю историю аренды.';
+      'Объявление исчезнет из вашего парка и каталога. История связанных заказов сохранится. Технику с активным заказом удалить нельзя.';
 
   @override
   String get failedToUploadPhoto => 'Не удалось загрузить фото';

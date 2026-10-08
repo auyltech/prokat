@@ -1159,7 +1159,7 @@ abstract class AppLocalizations {
   /// No description provided for @equipmentCatalogDeleteWarning.
   ///
   /// In en, this message translates to:
-  /// **'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.'**
+  /// **'This equipment unit will be removed from your fleet and the catalog. Related orders and their history will be preserved.'**
   String get equipmentCatalogDeleteWarning;
 
   /// No description provided for @equipmentCatalogDelete.
@@ -4153,7 +4153,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteEquipmentWarning.
   ///
   /// In en, this message translates to:
-  /// **'Deleting this equipment will permanently remove it from your inventory, including all pricing and history.'**
+  /// **'This equipment will be removed from your fleet and the catalog. Related orders and their history will be preserved.'**
   String get deleteEquipmentWarning;
 
   /// No description provided for @deleteEquipment.
@@ -4171,7 +4171,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteEquipmentConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'This will remove the item from the marketplace and delete all its rental history.'**
+  /// **'The listing will disappear from your fleet and the catalog. Related order history will be preserved. Equipment with an active order cannot be deleted.'**
   String get deleteEquipmentConfirmation;
 
   /// No description provided for @failedToUploadPhoto.
