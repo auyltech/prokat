@@ -1,3 +1,5 @@
+import 'package:prokat/features/company_profile/company_catalog_screen.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -69,6 +71,16 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                   return _FavoriteCard(
                     equipment: item,
                     onTap: () {
+                      if (item.companyId != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ClientCompanyDetailsScreen(
+                              companyId: item.companyId!,
+                            ),
+                          ),
+                        );
+                        return;
+                      }
                       ref
                           .read(bookingMutationProvider.notifier)
                           .selectEquipment(item);

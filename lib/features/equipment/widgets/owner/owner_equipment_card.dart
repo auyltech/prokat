@@ -20,10 +20,25 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerEquipmentCard extends ConsumerWidget {
   final Equipment equipment;
+  final VoidCallback? onOpen;
+  final bool showShare;
+  final bool companyControls;
+  final bool readOnly;
 
-  const OwnerEquipmentCard({super.key, required this.equipment});
+  const OwnerEquipmentCard({
+    super.key,
+    required this.equipment,
+    this.onOpen,
+    this.showShare = true,
+    this.companyControls = false,
+    this.readOnly = false,
+  });
 
   void _openEditor(BuildContext context, WidgetRef ref) {
+    if (onOpen != null) {
+      onOpen!();
+      return;
+    }
     ref
         .read(equipmentMutationProvider.notifier)
         .selectEditEquipment(equipment.id);
@@ -43,7 +58,9 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
     final ghostGray = colorScheme.onSurface.withValues(alpha: 0.5);
-    final locationText = (equipment.city == null || equipment.city!.isEmpty)
+    final locationText = readOnly
+        ? (equipment.ownerComment ?? '')
+        : (equipment.city == null || equipment.city!.isEmpty)
         ? l10n.noLocationSet
         : catalogCityLabelOf(ref, context, equipment.city);
     final priceEntry = equipment.prices
@@ -54,6 +71,189 @@ class OwnerEquipmentCard extends ConsumerWidget {
     final priceDisplay = hasPrice
         ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
         : l10n.noPriceSet;
+
+    if (companyControls && !readOnly) {
+      final showVisibility =
+          equipment.status == EquipmentStatus.available ||
+          equipment.status == EquipmentStatus.accepted ||
+          equipment.status == EquipmentStatus.booked;
+      final showAvailability = equipment.isVisible && equipment.isModerated;
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              InkWell(
+                onTap: () => _openEditor(context, ref),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 96,
+                      height: 80,
+                      child: _buildImage(equipment.imageUrl),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            equipment.name,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: ghostGray,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: 18,
+                                color: ghostGray,
+                              ),
+                              const SizedBox(width: 2),
+                              Expanded(
+                                child: Text(
+                                  locationText,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: ghostGray,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Tooltip(
+                    message: hasPrice
+                        ? l10n.hasPricesListed
+                        : l10n.noPricesListed,
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: Icon(
+                      hasPrice
+                          ? Icons.check_circle_outline
+                          : Icons.error_outline,
+                      size: 18,
+                      color: hasPrice ? Colors.green : colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      priceDisplay,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: hasPrice ? colorScheme.primary : ghostGray,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  EquipmentStatusBadge(status: equipment.status),
+                ],
+              ),
+              if (showAvailability || showVisibility) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.045),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (showAvailability)
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                equipment.status == EquipmentStatus.booked
+                                    ? 'Занята'
+                                    : 'Свободна',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Transform.scale(
+                                scale: 0.8,
+                                child: Switch(
+                                  value:
+                                      equipment.status !=
+                                      EquipmentStatus.booked,
+                                  onChanged: (free) async {
+                                    final result = await ref
+                                        .read(
+                                          equipmentMutationProvider.notifier,
+                                        )
+                                        .updateEquipmentStatus(
+                                          equipment.id,
+                                          free
+                                              ? EquipmentStatus.available
+                                              : EquipmentStatus.booked,
+                                        );
+                                    if (!result.success) {
+                                      AppToast.show(
+                                        message: result.message,
+                                        type: AppToastType.error,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (showVisibility)
+                        Expanded(
+                          child: OnlineToggle(
+                            id: equipment.id,
+                            isVisible: equipment.isVisible,
+                            canShow: hasPrice,
+                            vertical: true,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+              if (showShare && canShowShareButton(equipment))
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ShareEquipmentButton(
+                    equipment: equipment,
+                    variant: AppIconButtonVariant.filled,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Container(
       decoration: BoxDecoration(color: theme.cardColor),
@@ -84,7 +284,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              "${equipment.model.toUpperCase()} ${equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
+                              "${equipment.model.toUpperCase()} ${!readOnly && equipment.plateNumber != null ? '• ${equipment.plateNumber!.toUpperCase()}' : ''}",
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: ghostGray,
                               ),
@@ -95,11 +295,12 @@ class OwnerEquipmentCard extends ConsumerWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.location_on_outlined,
-                                  size: 20,
-                                  color: ghostGray,
-                                ),
+                                if (!readOnly)
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 20,
+                                    color: ghostGray,
+                                  ),
                                 const SizedBox(width: 2),
                                 Expanded(
                                   child: Text(
@@ -124,8 +325,11 @@ class OwnerEquipmentCard extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  EquipmentStatusBadge(status: equipment.status),
-                  if (canShowShareButton(equipment)) ...[
+                  if (readOnly)
+                    Text(priceDisplay, style: theme.textTheme.labelMedium)
+                  else
+                    EquipmentStatusBadge(status: equipment.status),
+                  if (showShare && canShowShareButton(equipment)) ...[
                     const SizedBox(height: 8),
                     ShareEquipmentButton(
                       equipment: equipment,
@@ -139,51 +343,54 @@ class OwnerEquipmentCard extends ConsumerWidget {
 
           const SizedBox(height: 4),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Tooltip(
-                      message: hasPrice
-                          ? l10n.hasPricesListed
-                          : l10n.noPricesListed,
-                      triggerMode: TooltipTriggerMode.tap,
-                      child: Icon(
-                        hasPrice
-                            ? Icons.check_circle_outline
-                            : Icons.error_outline,
-                        size: 18,
-                        color: hasPrice ? Colors.green : colorScheme.error,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        priceDisplay,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: hasPrice ? colorScheme.primary : ghostGray,
-                          fontWeight: FontWeight.bold,
+          if (!readOnly)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Tooltip(
+                        message: hasPrice
+                            ? l10n.hasPricesListed
+                            : l10n.noPricesListed,
+                        triggerMode: TooltipTriggerMode.tap,
+                        child: Icon(
+                          hasPrice
+                              ? Icons.check_circle_outline
+                              : Icons.error_outline,
+                          size: 18,
+                          color: hasPrice ? Colors.green : colorScheme.error,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          priceDisplay,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: hasPrice ? colorScheme.primary : ghostGray,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (equipment.status == EquipmentStatus.available ||
-                  equipment.status == EquipmentStatus.accepted) ...[
-                const SizedBox(width: 8),
-                OnlineToggle(
-                  id: equipment.id,
-                  isVisible: equipment.isVisible,
-                  canShow: hasPrice,
-                ),
+                if (equipment.status == EquipmentStatus.available ||
+                    equipment.status == EquipmentStatus.accepted ||
+                    (companyControls &&
+                        equipment.status == EquipmentStatus.booked)) ...[
+                  const SizedBox(width: 8),
+                  OnlineToggle(
+                    id: equipment.id,
+                    isVisible: equipment.isVisible,
+                    canShow: hasPrice,
+                  ),
+                ],
               ],
-            ],
-          ),
+            ),
         ],
       ),
     );

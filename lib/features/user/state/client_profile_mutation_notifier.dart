@@ -129,6 +129,11 @@ class ClientProfileMutationNotifier extends StateNotifier<ClientProfileState> {
     }
   }
 
+  Future<void> deleteProfileImage() async {
+    await service.deleteProfileImage();
+    await _refreshProfile();
+  }
+
   Future<bool> deleteAccount() async {
     state = state.copyWith(isLoading: true);
     try {

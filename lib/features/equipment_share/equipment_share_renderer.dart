@@ -20,7 +20,27 @@ class EquipmentShareRenderer {
     required String priceLine,
     required String cta,
   }) async {
-    final cover = await _precacheCover(context, ref, equipment.primaryImageUrl);
+    return renderCard(
+      context: context,
+      ref: ref,
+      name: equipment.name,
+      description: shareDescriptionOf(equipment),
+      coverUrl: equipment.primaryImageUrl,
+      priceLine: priceLine,
+      cta: cta,
+    );
+  }
+
+  static Future<ui.Image> renderCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String name,
+    required String? description,
+    String? coverUrl,
+    required String priceLine,
+    required String cta,
+  }) async {
+    final cover = await _precacheCover(context, ref, coverUrl);
     if (!context.mounted) {
       throw StateError('Share card context was unmounted.');
     }
@@ -44,8 +64,8 @@ class EquipmentShareRenderer {
               child: RepaintBoundary(
                 key: boundaryKey,
                 child: EquipmentShareCard(
-                  name: equipment.name,
-                  description: shareDescriptionOf(equipment),
+                  name: name,
+                  description: description,
                   priceLine: priceLine,
                   cta: cta,
                   cover: cover,

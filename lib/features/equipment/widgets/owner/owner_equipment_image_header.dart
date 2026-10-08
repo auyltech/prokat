@@ -21,6 +21,10 @@ class OwnerEquipmentImageHeader extends ConsumerStatefulWidget {
   final List<EquipmentImage> images;
   final String? legacyImageUrl;
   final bool canEditImages;
+  final String? emptyText;
+  final Future<bool> Function(File file)? onUpload;
+  final Future<bool> Function(String imageId)? onDelete;
+  final Future<bool> Function(String imageId)? onPrimary;
 
   const OwnerEquipmentImageHeader({
     super.key,
@@ -28,6 +32,10 @@ class OwnerEquipmentImageHeader extends ConsumerStatefulWidget {
     required this.images,
     required this.legacyImageUrl,
     this.canEditImages = true,
+    this.emptyText,
+    this.onUpload,
+    this.onDelete,
+    this.onPrimary,
   });
 
   @override
@@ -113,12 +121,14 @@ class _OwnerEquipmentImageHeaderState
 
       if (cropped == null) return;
 
-      final ok = await ref
-          .read(equipmentMutationProvider.notifier)
-          .uploadEquipmentImage(
-            equipmentId: widget.equipmentId,
-            imageFile: File(cropped.path),
-          );
+      final ok = widget.onUpload != null
+          ? await widget.onUpload!(File(cropped.path))
+          : await ref
+                .read(equipmentMutationProvider.notifier)
+                .uploadEquipmentImage(
+                  equipmentId: widget.equipmentId,
+                  imageFile: File(cropped.path),
+                );
 
       if (!mounted) return;
 
@@ -165,12 +175,14 @@ class _OwnerEquipmentImageHeaderState
 
     if (confirmed != true) return;
 
-    final ok = await ref
-        .read(equipmentMutationProvider.notifier)
-        .deleteEquipmentImage(
-          equipmentId: widget.equipmentId,
-          imageId: image.id,
-        );
+    final ok = widget.onDelete != null
+        ? await widget.onDelete!(image.id)
+        : await ref
+              .read(equipmentMutationProvider.notifier)
+              .deleteEquipmentImage(
+                equipmentId: widget.equipmentId,
+                imageId: image.id,
+              );
 
     if (!mounted) return;
 
@@ -189,12 +201,14 @@ class _OwnerEquipmentImageHeaderState
   }
 
   Future<void> _setAsCover(EquipmentImage image) async {
-    final ok = await ref
-        .read(equipmentMutationProvider.notifier)
-        .setPrimaryEquipmentImage(
-          equipmentId: widget.equipmentId,
-          imageId: image.id,
-        );
+    final ok = widget.onPrimary != null
+        ? await widget.onPrimary!(image.id)
+        : await ref
+              .read(equipmentMutationProvider.notifier)
+              .setPrimaryEquipmentImage(
+                equipmentId: widget.equipmentId,
+                imageId: image.id,
+              );
 
     if (!mounted) return;
 
@@ -355,11 +369,12 @@ class _OwnerEquipmentImageHeaderState
   }
 
   Widget _emptyState(BuildContext context) {
-    return const OwnerEquipmentPhotoPlaceholder();
+    return OwnerEquipmentPhotoPlaceholder(text: widget.emptyText);
   }
 }
 
 class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
+  final String? text;
   final double? width;
   final double? height;
   final bool compact;
@@ -369,6 +384,7 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
     this.width,
     this.height,
     this.compact = false,
+    this.text,
   });
 
   @override
@@ -387,7 +403,7 @@ class OwnerEquipmentPhotoPlaceholder extends StatelessWidget {
         vertical: compact ? AppDimens.inputHelperGap : AppDimens.s12$md,
       ),
       child: Text(
-        l10n.equipmentPhotoRequiredPlaceholder,
+        text ?? l10n.equipmentPhotoRequiredPlaceholder,
         textAlign: TextAlign.center,
         maxLines: compact ? 4 : 3,
         overflow: TextOverflow.ellipsis,

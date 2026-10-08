@@ -11,7 +11,9 @@ import 'package:prokat/features/bookings/models/work_status.dart';
 class BookingService {
   final ApiClient apiClient;
 
-  BookingService(this.apiClient);
+  final String? companyId;
+  BookingService(this.apiClient, {this.companyId});
+  String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
 
@@ -22,7 +24,7 @@ class BookingService {
   }) async {
     try {
       final response = await _dio.get(
-        "/bookings",
+        "$prefix/bookings",
         queryParameters: {
           "page": page,
           "itemsPerPage": itemsPerPage,
@@ -86,7 +88,7 @@ class BookingService {
   }) async {
     try {
       final response = await _dio.get(
-        "/bookings/owner",
+        "$prefix/bookings/owner",
         queryParameters: {
           "page": page,
           "itemsPerPage": itemsPerPage,
@@ -145,7 +147,7 @@ class BookingService {
 
   Future<ApiResponse<void>> createBooking(Map<String, dynamic> data) async {
     try {
-      final response = await _dio.post("/bookings", data: data);
+      final response = await _dio.post("$prefix/bookings", data: data);
 
       return handleEmptyApiResponse(
         response: response,
@@ -166,7 +168,7 @@ class BookingService {
   }) async {
     try {
       final response = await _dio.patch(
-        "/bookings/$id/status",
+        "$prefix/bookings/$id/status",
         data: {
           "id": id,
           "status": status?.name,
@@ -193,7 +195,7 @@ class BookingService {
   }) async {
     try {
       final response = await _dio.patch(
-        "/bookings/$id/workstatus",
+        "$prefix/bookings/$id/workstatus",
         data: {
           "id": id,
           "status": status?.name,

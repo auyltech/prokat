@@ -104,6 +104,9 @@ class ChatModel {
   }
 
   UserModel? _counterpart(String? currentUserId) {
+    if (owner?.role == UserRole.company && currentUserId != client?.id) {
+      return client;
+    }
     if (currentUserId != null && currentUserId == client?.id) {
       return owner;
     }

@@ -4,6 +4,7 @@ import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 
 import '../models/auth_session.dart';
+import '../models/otp_verification.dart';
 
 class AuthApiService {
   final Dio dio;
@@ -61,21 +62,30 @@ class AuthApiService {
     }
   }
 
-  Future<ApiResponse<AuthSession>> verifyOtp(String phone, String otp) async {
+  Future<ApiResponse<OtpVerification>> verifyOtp(
+    String phone,
+    String otp, {
+    Map<String, Object?>? attribution,
+  }) async {
     try {
-      final response = await dio.post(
-        '/auth/otp/verify',
-        data: {"phoneNumber": phone, "otp": otp},
-      );
+      final data = <String, Object?>{"phoneNumber": phone, "otp": otp};
+      if (attribution != null) {
+        data["attribution"] = attribution;
+      }
 
-      return handleApiResponse<AuthSession>(
+      final response = await dio.post('/auth/otp/verify', data: data);
+
+      return handleApiResponse<OtpVerification>(
         response: response,
         parser: (data) {
           if (data is! Map<String, dynamic>) {
             throw const FormatException("Invalid session item");
           }
 
-          return AuthSession.fromJson(data);
+          return OtpVerification(
+            session: AuthSession.fromJson(data),
+            isNewUser: data['isNewUser'] == true,
+          );
         },
         fallbackMessage: "Failed to verify OTP",
       );

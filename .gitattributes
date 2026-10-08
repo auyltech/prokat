@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Flutter regenerates this with LF on every pub get; a CRLF checkout makes it look modified.
+macos/Flutter/GeneratedPluginRegistrant.swift text eol=lf

@@ -13,6 +13,7 @@ import 'package:prokat/features/notifications/providers/notification_navigation_
 import 'package:prokat/features/notifications/providers/notification_provider.dart';
 import 'package:prokat/features/notifications/providers/push_notification_service_provider.dart';
 import 'package:flutter/widgets.dart';
+import 'package:prokat/features/company_profile/company_profile_api.dart';
 
 final notificationBootstrapProvider = Provider<void>((ref) {
   final appSocket = ref.watch(appSocketProvider);
@@ -33,6 +34,14 @@ final notificationBootstrapProvider = Provider<void>((ref) {
       final notification = _parseSocketNotification(payload);
 
       if (notification == null) return;
+
+      if (notification.route == '/company-profile') {
+        ref.invalidate(companyAccessProvider);
+        final companyId = notification.data['companyId'];
+        if (companyId is String) {
+          ref.invalidate(companyMembersProvider(companyId));
+        }
+      }
 
       notificationNotifier.handleIncomingNotification(
         notification,
@@ -119,6 +128,25 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     unawaited(navigation.flushPendingRouteIfAny());
   }
 
+  Future<void> syncProfilePush() async {
+    final session = ref.read(authProvider).session;
+    if (push == null || session == null) return;
+    try {
+      await push.syncCurrentDevice(session: session, force: true);
+    } catch (error) {
+      Logger.log('push profile sync failed: $error');
+    }
+  }
+
+  ref.listen(
+    notificationCompanyScopeProvider,
+    (_, _) => unawaited(syncProfilePush()),
+  );
+  ref.listen(
+    appStartupProvider.select((s) => s.routeState),
+    (_, _) => unawaited(syncProfilePush()),
+  );
+
   void stopForLogout() {
     if (!started && !pushStarted) return;
 
@@ -153,6 +181,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
   final lifecycleObserver = _NotificationSocketLifecycleObserver(
     onResume: () {
       lifecyclePaused = false;
+      ref.invalidate(companyAccessProvider);
       unawaited(startIfReady());
     },
     onPause: () {

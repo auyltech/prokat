@@ -70,6 +70,10 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     state = state.copyWith(selectedEquipment: equipment);
   }
 
+  void startBooking(Equipment equipment) {
+    state = BookingMutationState(selectedEquipment: equipment);
+  }
+
   void selectPriceEntry(PriceEntry priceEntry) {
     state = state.copyWith(selectedPriceEntry: priceEntry);
   }
@@ -97,7 +101,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     state = state.copyWith(comment: comment);
   }
 
-  Future<MutationResponse> createBooking() async {
+  Future<MutationResponse> createBooking({String? companyId}) async {
     const actionId = "booking:create";
 
     try {
@@ -115,7 +119,8 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
       startAction(actionId);
 
       final result = await api.createBooking({
-        "equipmentId": state.selectedEquipment?.id,
+        if (companyId == null) "equipmentId": state.selectedEquipment?.id,
+        "companyId": ?companyId,
         "price": int.tryParse((state.selectedPriceEntry?.price ?? 0).toString())
             .toString(),
         "priceRate": state.selectedPriceEntry?.priceRate.value ?? "",

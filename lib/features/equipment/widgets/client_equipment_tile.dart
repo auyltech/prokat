@@ -18,11 +18,15 @@ import 'package:prokat/l10n/app_localizations.dart';
 class ClientEquipmentTile extends ConsumerWidget {
   final Equipment equipment;
   final VoidCallback onTap;
+  final bool companyCard;
+  final VoidCallback? onShare;
 
   const ClientEquipmentTile({
     super.key,
     required this.equipment,
     required this.onTap,
+    this.companyCard = false,
+    this.onShare,
   });
 
   @override
@@ -100,7 +104,7 @@ class ClientEquipmentTile extends ConsumerWidget {
                 right: 8,
                 child: Row(
                   children: [
-                    if (isClient) ...[
+                    if (isClient && !companyCard) ...[
                       UgcMoreButton(
                         counterpartUserId: equipment.owner?.id,
                         counterpartName:
@@ -112,14 +116,24 @@ class ClientEquipmentTile extends ConsumerWidget {
                       ),
                       const SizedBox(width: AppDimens.s08$sm),
                     ],
-                    ShareEquipmentButton(equipment: equipment),
+                    if (companyCard)
+                      AppIconButton(
+                        icon: LucideIcons.share2,
+                        variant: AppIconButtonVariant.soft,
+                        onTap: onShare,
+                      )
+                    else
+                      ShareEquipmentButton(equipment: equipment),
                     const SizedBox(width: 8),
                     AppIconButton(
                       icon: isFavorite ? Icons.favorite : Icons.favorite_border,
                       tone: AppIconButtonTone.destructive,
                       variant: AppIconButtonVariant.soft,
                       onTap: isClient
-                          ? () => notifier.toggleFavorite(equipment.id)
+                          ? () => notifier.toggleFavorite(
+                              equipment.id,
+                              companyId: equipment.companyId,
+                            )
                           : null,
                     ),
                   ],
@@ -127,44 +141,45 @@ class ClientEquipmentTile extends ConsumerWidget {
               ),
 
               // Price
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainer.withValues(
-                      alpha: 1,
+              if (!companyCard || priceEntry != null)
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        priceEntry == null
-                            ? l10n.poa
-                            : formatPrice(priceEntry.price),
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.primary,
-                        ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainer.withValues(
+                        alpha: 1,
                       ),
-                      Text(
-                        priceRate,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color.fromARGB(255, 65, 65, 65),
-                          fontWeight: FontWeight.w700,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          priceEntry == null
+                              ? l10n.poa
+                              : formatPrice(priceEntry.price),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
-                      ),
-                    ],
+                        Text(
+                          priceRate,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color.fromARGB(255, 65, 65, 65),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
 
@@ -184,6 +199,14 @@ class ClientEquipmentTile extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (companyCard &&
+                    (equipment.ownerComment ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    equipment.ownerComment!,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
                 // Text(
                 //   equipment.model,
                 //   style: theme.textTheme.titleSmall,

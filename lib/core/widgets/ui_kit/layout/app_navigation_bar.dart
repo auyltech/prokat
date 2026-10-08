@@ -3,7 +3,7 @@ import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
 
-enum AppNavigationBarTone { primary, owner }
+enum AppNavigationBarTone { primary, owner, company }
 
 final class AppNavigationBarItem {
   final IconData icon;
@@ -40,6 +40,7 @@ class AppNavigationBar extends StatelessWidget {
     final selectedColor = switch (tone) {
       AppNavigationBarTone.primary => navigationBarTheme.selected,
       AppNavigationBarTone.owner => navigationBarTheme.ownerSelected,
+      AppNavigationBarTone.company => const Color(0xff702d45),
     };
 
     return Material(

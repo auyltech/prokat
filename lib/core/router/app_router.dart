@@ -1,4 +1,7 @@
+import 'package:prokat/features/company_profile/company_catalog_screen.dart';
+import 'package:prokat/features/company_profile/company_workspace.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/company_profile/company_access_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/post_login_location.dart';
@@ -162,6 +165,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
+      GoRoute(
+        path: '/company/:id',
+        builder: (_, state) =>
+            CompanyWorkspace(companyId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/company-profile',
+        builder: (_, _) => const CompanyAccessScreen(),
+      ),
+
       /// 🚀 PUBLIC
       /// Routes outside StatefulShellRoute are fully separate navigation trees.
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
@@ -250,6 +263,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           /// Client
           StatefulShellBranch(
             routes: [
+              GoRoute(
+                path: '/search/companies',
+                builder: (_, _) => const CompanyCatalogScreen(),
+              ),
               GoRoute(
                 path: AppRoutes.searchList,
                 builder: (context, state) {

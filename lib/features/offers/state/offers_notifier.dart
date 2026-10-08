@@ -143,7 +143,7 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
 
   Future<MutationResponse> createOffer() async {
     const actionId = 'offer:create';
-    if (state.selectedEquipment == null ||
+    if ((service.companyId == null && state.selectedEquipment == null) ||
         state.selectedRequest == null ||
         state.price == null ||
         state.priceRate == null) {
@@ -156,7 +156,7 @@ class OfferMutationNotifier extends MutationNotifier<OffersState> {
     try {
       final result = await service.createOffer(
         requestId: state.selectedRequest!.id,
-        equipmentId: state.selectedEquipment!.id ?? '',
+        equipmentId: state.selectedEquipment?.id,
         price: state.price!,
         priceRate: state.priceRate!.value,
         comment: state.comment,

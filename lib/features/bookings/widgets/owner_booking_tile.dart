@@ -163,7 +163,15 @@ class OwnerBookingTile extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          EquipmentInfoTile(equipment: booking.equipment),
+          booking.companyId != null
+              ? InfoTile(
+                  label: 'Комментарий к заказу',
+                  value: booking.comment?.isNotEmpty == true
+                      ? booking.comment!
+                      : 'Не указан',
+                  icon: Icons.comment_outlined,
+                )
+              : EquipmentInfoTile(equipment: booking.equipment),
 
           const SizedBox(height: 16),
 

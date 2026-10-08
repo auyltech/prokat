@@ -13,7 +13,27 @@ class NotificationApiService {
 
   final Dio dio;
 
-  NotificationApiService(this.dio);
+  final String Function()? scope;
+  NotificationApiService(this.dio, {this.scope});
+  String get currentScope => scope?.call() ?? 'CLIENT';
+  Map<String, dynamic> get scopeQuery => {
+    'profile': currentScope == 'OWNER' || currentScope == 'CLIENT'
+        ? currentScope
+        : 'COMPANY',
+    if (currentScope != 'OWNER' && currentScope != 'CLIENT')
+      'companyId': currentScope,
+  };
+  bool accepts(AppNotification notification) {
+    final audience = notification.audience ?? 'CLIENT';
+    final companyId = notification.data['companyId'];
+    if (currentScope == 'CLIENT') {
+      return audience != 'OWNER' && audience != 'ADMIN';
+    }
+    if (currentScope == 'OWNER') {
+      return audience == 'OWNER' && companyId == null;
+    }
+    return audience == 'OWNER' && companyId == currentScope;
+  }
 
   Future<void> registerDeviceToken({
     required String token,
@@ -55,7 +75,7 @@ class NotificationApiService {
     try {
       final res = await dio.get(
         _notificationsPath,
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: {'page': page, 'limit': limit, ...scopeQuery},
       );
 
       final data = res.data is Map<String, dynamic> ? res.data['data'] : null;
@@ -83,7 +103,7 @@ class NotificationApiService {
 
   Future<int> getUnreadCount() async {
     try {
-      final res = await dio.get(_unreadCountPath);
+      final res = await dio.get(_unreadCountPath, queryParameters: scopeQuery);
       final body = res.data;
 
       if (body is Map<String, dynamic>) {
@@ -120,7 +140,7 @@ class NotificationApiService {
 
   Future<void> markAllAsRead() async {
     try {
-      await dio.patch(_readAllPath);
+      await dio.patch(_readAllPath, queryParameters: scopeQuery);
     } on DioException catch (error) {
       throw Exception(extractBackendMessage(error));
     } catch (error) {

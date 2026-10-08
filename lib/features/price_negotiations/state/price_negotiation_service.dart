@@ -10,7 +10,9 @@ import 'package:prokat/features/bookings/models/query_result.dart';
 class PriceNegotiationService {
   final ApiClient apiClient;
 
-  PriceNegotiationService(this.apiClient);
+  final String? companyId;
+  PriceNegotiationService(this.apiClient, {this.companyId});
+  String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
 
@@ -22,8 +24,8 @@ class PriceNegotiationService {
       final isBooking = query.bookingId != null;
       final offerId = query.offerId?.trim() ?? '';
       final path = isBooking
-          ? '/price-negotiations/booking'
-          : '/price-negotiations/offer/$offerId';
+          ? '$prefix/price-negotiations/booking'
+          : '$prefix/price-negotiations/offer/$offerId';
       final response = await _dio.get(
         path,
         queryParameters: {
@@ -100,7 +102,9 @@ class PriceNegotiationService {
 
     try {
       final response = await _dio.post(
-        hasOffer ? '/price-negotiations/offer' : '/price-negotiations',
+        hasOffer
+            ? '$prefix/price-negotiations/offer'
+            : '$prefix/price-negotiations',
         data: {
           'type': type,
           if (hasBooking) 'bookingId': bookingId,
@@ -139,7 +143,7 @@ class PriceNegotiationService {
   }) async {
     try {
       final response = await _dio.post(
-        '/price-negotiations/$negotiationId/respond',
+        '$prefix/price-negotiations/$negotiationId/respond',
         data: {
           'action': decision == PriceNegotiationResponse.accept
               ? "ACCEPT"
@@ -171,7 +175,9 @@ class PriceNegotiationService {
 
   Future<ApiResponse<void>> cancelPriceNegotiation(String negotiationId) async {
     try {
-      final response = await _dio.delete('/price-negotiations/$negotiationId');
+      final response = await _dio.delete(
+        '$prefix/price-negotiations/$negotiationId',
+      );
 
       return handleEmptyApiResponse(
         response: response,

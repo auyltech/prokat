@@ -10,7 +10,9 @@ import 'package:dio/dio.dart';
 class OffersService {
   final ApiClient apiClient;
 
-  OffersService(this.apiClient);
+  final String? companyId;
+  OffersService(this.apiClient, {this.companyId});
+  String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
 
@@ -21,7 +23,7 @@ class OffersService {
     String? requestId,
   }) {
     return _getOffers(
-      path: '/offers',
+      path: '$prefix/offers',
       page: page,
       itemsPerPage: itemsPerPage,
       filter: filter,
@@ -102,7 +104,7 @@ class OffersService {
     String? requestId,
   }) {
     return _getOffers(
-      path: '/offers/owner',
+      path: '$prefix/offers/owner',
       page: page,
       itemsPerPage: itemsPerPage,
       filter: filter,
@@ -112,17 +114,17 @@ class OffersService {
 
   Future<ApiResponse<void>> createOffer({
     required String requestId,
-    required String equipmentId,
+    String? equipmentId,
     required int price,
     required String priceRate,
     String? comment,
   }) async {
     try {
       final response = await _dio.post(
-        '/offers',
+        '$prefix/offers',
         data: {
           "requestId": requestId,
-          "equipmentId": equipmentId,
+          if (companyId == null) "equipmentId": equipmentId,
           "price": price,
           "priceRate": priceRate,
           "comment": comment,
@@ -142,7 +144,10 @@ class OffersService {
 
   Future<ApiResponse<void>> acceptOffer({required String id}) async {
     try {
-      final response = await _dio.post('/offers/$id/accept', data: {"id": id});
+      final response = await _dio.post(
+        '$prefix/offers/$id/accept',
+        data: {"id": id},
+      );
 
       return handleEmptyApiResponse(
         response: response,
@@ -168,7 +173,10 @@ class OffersService {
 
   Future<ApiResponse<void>> rejectOffer({required String id}) async {
     try {
-      final response = await _dio.post('/offers/$id/reject', data: {"id": id});
+      final response = await _dio.post(
+        '$prefix/offers/$id/reject',
+        data: {"id": id},
+      );
 
       return handleEmptyApiResponse(
         response: response,
@@ -194,7 +202,10 @@ class OffersService {
 
   Future<ApiResponse<void>> cancelOffer({required String id}) async {
     try {
-      final response = await _dio.patch('/offers/$id/cancel', data: {"id": id});
+      final response = await _dio.patch(
+        '$prefix/offers/$id/cancel',
+        data: {"id": id},
+      );
 
       return handleEmptyApiResponse(
         response: response,

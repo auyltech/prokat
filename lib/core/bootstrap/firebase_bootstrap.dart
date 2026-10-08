@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/app.dart';
+import 'package:prokat/core/analytics/firebase_analytics_client.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/services/crash_reporting_service.dart';
@@ -22,6 +23,12 @@ Future<void> initializeFirebaseServices() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  try {
+    await FirebaseAnalyticsClient().setCollectionEnabled(
+      Env.analyticsCollectionEnabled,
+    );
+  } catch (_) {}
 
   await CrashReportingService.initialize();
 

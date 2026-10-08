@@ -191,6 +191,10 @@ class ClientProfileService {
     }
   }
 
+  Future<void> deleteProfileImage() async {
+    await _dio.delete(ApiRoutes.userProfileImage);
+  }
+
   Future<bool> deleteAccount() async {
     try {
       final res = await _dio.post(ApiRoutes.deleteAccount);

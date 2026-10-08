@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/analytics/analytics_service.dart';
+import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/kz_phone_mask.dart';
@@ -43,6 +45,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
   bool _prefilledFromRequest = false;
   bool _showFieldErrors = false;
   bool _cityPickerOpen = false;
+  bool _startedLogged = false;
 
   void _clearFormForAccountChange() {
     _formKey.currentState?.reset();
@@ -83,6 +86,18 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     }
     if (_redirectIfOwnerApplicationResolved()) return;
     if (mounted) _tryPrefill();
+    _logStartedOnce();
+  }
+
+  void _logStartedOnce() {
+    if (_startedLogged || !mounted) return;
+    if (!ownerApplicationIsStartable(
+      ref.read(ownerRegistrationRequestProvider).valueOrNull,
+    )) {
+      return;
+    }
+    _startedLogged = true;
+    unawaited(ref.read(analyticsServiceProvider).logOwnerApplicationStarted());
   }
 
   bool _redirectIfOwnerApplicationResolved() {
@@ -224,6 +239,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     final request = ref.read(ownerRegistrationRequestProvider).valueOrNull;
 
     if (request != null && !request.isRejected) return;
+    final isResubmit = request?.isRejected == true;
 
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
@@ -244,6 +260,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
     }
 
     final notifier = ref.read(ownerRegistrationMutationProvider.notifier);
+    final analytics = ref.read(analyticsServiceProvider);
 
     final success = await notifier.createOwnerRegistrationRequest(
       firstName: firstName,
@@ -253,6 +270,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
       message: message,
     );
 
+    if (success) {
+      unawaited(analytics.logOwnerApplicationSubmitted(isResubmit: isResubmit));
+    }
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
 

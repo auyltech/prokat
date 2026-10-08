@@ -11,7 +11,9 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 class ChatService {
   final ApiClient apiClient;
 
-  ChatService(this.apiClient);
+  final String? companyId;
+  ChatService(this.apiClient, {this.companyId});
+  String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
 
@@ -25,7 +27,7 @@ class ChatService {
   }) async {
     try {
       final response = await _dio.get(
-        "/chats/client",
+        "$prefix/chats/client",
         queryParameters: {
           "page": page,
           "itemsPerPage": itemsPerPage,
@@ -89,7 +91,7 @@ class ChatService {
   }) async {
     try {
       final response = await _dio.get(
-        "/chats/owner",
+        "$prefix/chats/owner",
         queryParameters: {
           "page": page,
           "itemsPerPage": itemsPerPage,
@@ -152,7 +154,7 @@ class ChatService {
   }) async {
     try {
       final response = await _dio.get(
-        '/chats/id/$chatId/messages',
+        '$prefix/chats/id/$chatId/messages',
         queryParameters: {"page": page, "itemsPerPage": itemsPerPage},
       );
 
@@ -207,7 +209,7 @@ class ChatService {
 
   Future<ApiResponse<ChatModel>> getChatById(String chatId) async {
     try {
-      final response = await _dio.get('/chats/id/$chatId');
+      final response = await _dio.get('$prefix/chats/id/$chatId');
 
       return handleApiResponse<ChatModel>(
         response: response,
@@ -234,7 +236,9 @@ class ChatService {
 
   Future<ApiResponse<ChatModel>> getChatByType(ChatType type) async {
     try {
-      final response = await _dio.get('/chats/type/${type.name.toUpperCase()}');
+      final response = await _dio.get(
+        '$prefix/chats/type/${type.name.toUpperCase()}',
+      );
 
       return handleApiResponse<ChatModel>(
         response: response,
@@ -267,7 +271,7 @@ class ChatService {
   }) async {
     try {
       final response = await _dio.post(
-        "/chats/messages",
+        "$prefix/chats/messages",
         data: {
           "chatId": chatId,
           "content": content,
@@ -304,7 +308,7 @@ class ChatService {
   }) async {
     try {
       final response = await _dio.post(
-        '/chats/id/$chatId/read',
+        '$prefix/chats/id/$chatId/read',
         data: {'upToMessageId': messageId},
       );
 

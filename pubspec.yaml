@@ -4,7 +4,7 @@ description: "Equipment renting platform in Kazakhstan"
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.8+16
+version: 1.2.1+17
 
 environment:
   sdk: ^3.13.0
@@ -57,6 +57,7 @@ dependencies:
   app_links: ^6.4.0
   flutter_svg: ^2.2.1
   play_install_referrer: ^0.5.0
+  firebase_analytics: 12.6.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

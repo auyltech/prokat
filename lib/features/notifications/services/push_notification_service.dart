@@ -28,6 +28,7 @@ class PushNotificationService {
   final void Function(AppNotification notification) onIncoming;
   final bool Function(String id)? shouldSuppressDisplay;
   final String Function()? currentLocale;
+  final bool Function(AppNotification)? accepts;
 
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
@@ -36,6 +37,7 @@ class PushNotificationService {
   bool _initialized = false;
   bool _localNotificationsReady = false;
   bool _syncInFlight = false;
+  String? _registeredScope;
   bool _apnsSyncPending = false;
   final Map<String, DateTime> _displayedIds = {};
 
@@ -60,6 +62,7 @@ class PushNotificationService {
     required this.onIncoming,
     this.shouldSuppressDisplay,
     this.currentLocale,
+    this.accepts,
   });
 
   Future<void> initialize({required AuthSession session}) async {
@@ -200,18 +203,24 @@ class PushNotificationService {
         lastToken == normalizedToken &&
         lastUserId == userId &&
         tooSoon &&
-        !localeChanged) {
+        !localeChanged &&
+        _registeredScope == api.currentScope) {
       return;
     }
 
     final platform = _platformName();
+    final registeredScope = api.currentScope;
 
     await api.registerDeviceToken(
       token: normalizedToken,
       platform: platform,
-      metadata: resolvedLocale.isEmpty ? null : {'locale': resolvedLocale},
+      metadata: {
+        if (resolvedLocale.isNotEmpty) 'locale': resolvedLocale,
+        'notificationScope': registeredScope,
+      },
     );
 
+    _registeredScope = registeredScope;
     await storage.saveLastRegisteredToken(
       token: normalizedToken,
       at: DateTime.now(),
@@ -336,6 +345,7 @@ class PushNotificationService {
   /// Heads-up banner while the app is open. FCM does not draw a system tray
   /// notification in the foreground, so socket events must use the same path.
   Future<void> presentIncoming(AppNotification notification) async {
+    if (!(accepts?.call(notification) ?? true)) return;
     if (kIsWeb) return;
     if (defaultTargetPlatform != TargetPlatform.android &&
         defaultTargetPlatform != TargetPlatform.iOS) {
@@ -471,8 +481,9 @@ class PushNotificationService {
       return false;
     }
     _syncInFlight = true;
+    late bool synced;
     try {
-      return await _syncCurrentDevice(
+      synced = await _syncCurrentDevice(
         session: session,
         locale: locale,
         force: force,
@@ -480,6 +491,10 @@ class PushNotificationService {
     } finally {
       _syncInFlight = false;
     }
+    if (synced && _registeredScope != api.currentScope) {
+      return syncCurrentDevice(session: session, locale: locale, force: true);
+    }
+    return synced;
   }
 
   Future<bool> _syncCurrentDevice({

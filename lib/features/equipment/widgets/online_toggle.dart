@@ -8,12 +8,14 @@ class OnlineToggle extends ConsumerWidget {
   final String id;
   final bool isVisible;
   final bool canShow;
+  final bool vertical;
 
   const OnlineToggle({
     super.key,
     required this.id,
     required this.isVisible,
     this.canShow = true,
+    this.vertical = false,
   });
 
   @override
@@ -27,7 +29,9 @@ class OnlineToggle extends ConsumerWidget {
         .watch(equipmentMutationProvider.notifier)
         .isActionActive(actionId);
 
-    return Row(
+    return Flex(
+      direction: vertical ? Axis.vertical : Axis.horizontal,
+      mainAxisSize: vertical ? MainAxisSize.min : MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (isSubmitting) const CircularProgressIndicator(),

@@ -151,6 +151,7 @@ String resolveNotificationRoute({
 }
 
 bool isTrustedNotificationAppRoute(String route) {
-  return route.startsWith(AppRoutes.clientMain) ||
+  return route == '/company-profile' ||
+      route.startsWith(AppRoutes.clientMain) ||
       route.startsWith(AppRoutes.ownerMain);
 }

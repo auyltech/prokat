@@ -1,3 +1,5 @@
+import 'package:prokat/features/company_profile/company_scope.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -128,7 +130,9 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       pendingFromMe:
           pendingNegotiationId.isNotEmpty &&
           currentUserId.isNotEmpty &&
-          (pendingNegotiation?.senderId ?? '').trim() != currentUserId,
+          (ref.watch(activeCompanyIdProvider) != null
+              ? pendingNegotiation?.senderId == currentChat?.client?.id
+              : (pendingNegotiation?.senderId ?? '').trim() != currentUserId),
       reviewSubmitted: reviewSubmitted,
       l10n: l10n,
       mode: AppMode.ownerMode,

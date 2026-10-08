@@ -8,6 +8,7 @@ import 'package:prokat/utils/date_time.dart';
 
 class BookingModel {
   final String id;
+  final String? companyId;
   final BookingStatus status;
   final WorkStatus workStatus;
 
@@ -35,6 +36,7 @@ class BookingModel {
 
   BookingModel({
     required this.id,
+    this.companyId,
     required this.status,
     this.workStatus = WorkStatus.pending,
     this.bookedOn,
@@ -75,6 +77,7 @@ class BookingModel {
   }) {
     return BookingModel(
       id: id ?? this.id,
+      companyId: companyId,
       status: status ?? this.status,
       workStatus: workStatus ?? this.workStatus,
       bookedOn: bookedOn ?? this.bookedOn,
@@ -96,6 +99,7 @@ class BookingModel {
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
+      companyId: json['companyId'] as String?,
       id: json['id']?.toString() ?? '',
 
       status: parseBookingStatus(json['status']),

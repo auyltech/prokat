@@ -33,6 +33,7 @@ EquipmentStatus parseEquipmentStatus(dynamic value) {
 
 class Equipment {
   final String id;
+  final String? companyId;
 
   final String name;
   final String model;
@@ -63,6 +64,7 @@ class Equipment {
 
   Equipment({
     required this.id,
+    this.companyId,
     required this.name,
     required this.model,
     this.plateNumber,
@@ -129,6 +131,7 @@ class Equipment {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{
       "id": id,
+      "companyId": companyId,
       "name": name,
       "model": model,
       "plateNumber": plateNumber,
@@ -180,6 +183,7 @@ class Equipment {
       }).toList();
 
       return Equipment(
+        companyId: json["companyId"]?.toString(),
         id: json["id"] ?? '',
 
         name: json["name"] ?? '',
@@ -231,6 +235,7 @@ class Equipment {
   }
 
   Equipment copyWith({
+    String? companyId,
     String? id,
     String? name,
     String? model,
@@ -253,6 +258,7 @@ class Equipment {
   }) {
     return Equipment(
       id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
       name: name ?? this.name,
       model: model ?? this.model,
       plateNumber: plateNumber ?? this.plateNumber,

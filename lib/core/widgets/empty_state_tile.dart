@@ -10,6 +10,7 @@ class EmptyStateTile extends StatelessWidget {
   final BoxFit imageFit;
   final Color? color;
   final Widget? actionButton;
+  final bool compact;
 
   const EmptyStateTile({
     super.key,
@@ -21,6 +22,7 @@ class EmptyStateTile extends StatelessWidget {
     this.imageFit = BoxFit.cover,
     this.color,
     this.actionButton,
+    this.compact = false,
   });
 
   @override
@@ -28,6 +30,40 @@ class EmptyStateTile extends StatelessWidget {
     final theme = Theme.of(context);
     final displayColor = color ?? theme.colorScheme.outline;
     final hasImage = imageName?.trim().isNotEmpty ?? false;
+
+    if (compact) {
+      return AppCard(
+        child: Row(
+          children: [
+            if (hasImage) ...[
+              Image.asset(
+                'assets/media/$imageName',
+                width: 72,
+                height: 72,
+                fit: BoxFit.contain,
+                excludeFromSemantics: true,
+              ),
+              const SizedBox(width: 16),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (title != null)
+                    Text(title!, style: theme.textTheme.bodyLarge),
+                  if (subtitle != null)
+                    Text(subtitle!, style: theme.textTheme.labelMedium),
+                  if (actionButton != null) ...[
+                    const SizedBox(height: 12),
+                    actionButton!,
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return AppCard(
       width: double.infinity,

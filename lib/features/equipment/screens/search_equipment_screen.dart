@@ -1,3 +1,6 @@
+import 'package:prokat/features/company_profile/company_catalog_screen.dart';
+import 'package:prokat/features/company_profile/company_information_screen.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -284,7 +287,23 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
                 final equipment = items[index];
                 return ClientEquipmentTile(
                   equipment: equipment,
+                  companyCard: equipment.companyId != null,
+                  onShare: equipment.companyId == null
+                      ? null
+                      : () => shareCompany(context, ref, {
+                          'company': companyForShare(equipment),
+                        }),
                   onTap: () {
+                    if (equipment.companyId != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ClientCompanyDetailsScreen(
+                            companyId: equipment.companyId!,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                     bookingNotifier.selectEquipment(equipment);
                     unawaited(
                       context.push(

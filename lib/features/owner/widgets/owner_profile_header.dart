@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -8,7 +10,20 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class OwnerProfileHeader extends StatelessWidget {
   final OwnerProfileModel? ownerProfile;
-  const OwnerProfileHeader({super.key, required this.ownerProfile});
+  final List<Color> gradientColors;
+  final AppMode avatarMode;
+  final bool showRating;
+  final Future<void> Function(File)? onAvatarUpload;
+  final Future<void> Function()? onAvatarDelete;
+  const OwnerProfileHeader({
+    super.key,
+    required this.ownerProfile,
+    this.gradientColors = const [AppColors.teal800, AppColors.teal700],
+    this.avatarMode = AppMode.ownerMode,
+    this.showRating = true,
+    this.onAvatarUpload,
+    this.onAvatarDelete,
+  });
 
   String _ownerDisplayName(AppLocalizations l10n) {
     final name = [ownerProfile?.firstName, ownerProfile?.lastName]
@@ -30,13 +45,10 @@ class OwnerProfileHeader extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.teal800,
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.teal800, // Your original primary color
-            AppColors.teal700, // A lighter blue for the gradient effect
-          ],
+          colors: gradientColors,
         ),
         borderRadius: BorderRadius.circular(0),
       ),
@@ -49,7 +61,9 @@ class OwnerProfileHeader extends StatelessWidget {
           // ── Avatar ──
           ProfileImagePicker(
             initialImageUrl: ownerProfile?.profileImageUrl ?? "",
-            mode: AppMode.ownerMode,
+            mode: avatarMode,
+            onUpload: onAvatarUpload,
+            onDelete: onAvatarDelete,
           ),
 
           const SizedBox(height: 10),
@@ -67,34 +81,35 @@ class OwnerProfileHeader extends StatelessWidget {
           ),
 
           // ── Rating ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(LucideIcons.star, size: 20, color: Colors.amber),
+          if (showRating)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(LucideIcons.star, size: 20, color: Colors.amber),
 
-              const SizedBox(width: 4),
+                const SizedBox(width: 4),
 
-              Text(
-                (ownerProfile?.ratingAverage ?? 0).toStringAsFixed(1),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+                Text(
+                  (ownerProfile?.ratingAverage ?? 0).toStringAsFixed(1),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
 
-              // TODO(Vadim): Временно скрыто (Разобраться)
-              // const SizedBox(width: 12),
-              //
-              // Text(
-              //   "${ownerProfile?.ratingCount ?? 0} rating${ownerProfile?.ratingCount == 1 ? "" : "s"}",
-              //   style: TextStyle(
-              //     color: Colors.white.withValues(alpha: 0.75),
-              //     fontSize: 14,
-              //   ),
-              // ),
-            ],
-          ),
+                // TODO(Vadim): Временно скрыто (Разобраться)
+                // const SizedBox(width: 12),
+                //
+                // Text(
+                //   "${ownerProfile?.ratingCount ?? 0} rating${ownerProfile?.ratingCount == 1 ? "" : "s"}",
+                //   style: TextStyle(
+                //     color: Colors.white.withValues(alpha: 0.75),
+                //     fontSize: 14,
+                //   ),
+                // ),
+              ],
+            ),
         ],
       ),
     );

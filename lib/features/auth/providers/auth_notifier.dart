@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/analytics/pending_sign_up.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/constants/otp_cooldown.dart';
 import 'package:prokat/features/auth/models/auth_session.dart';
 import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 
 import 'auth_api_service.dart';
 import 'auth_state.dart';
@@ -215,15 +217,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null, errorCode: null);
 
     try {
-      final result = await api.verifyOtp(phone, otp);
+      final firstTouchStore = ref.read(equipmentShareFirstTouchStoreProvider);
+      FirstTouchAttribution? firstTouch;
+      try {
+        firstTouch = await firstTouchStore.readValid();
+      } catch (_) {}
+
+      final result = await api.verifyOtp(
+        phone,
+        otp,
+        attribution: firstTouch?.toApiJson(),
+      );
 
       if (result.success && result.data != null) {
-        await storage.saveSession(result.data!);
+        final verification = result.data!;
+        final session = verification.session;
+        await storage.saveSession(session);
+
+        // Must precede the state change that updates the analytics identity.
+        final newUserId = session.user?.id;
+        if (verification.isNewUser && newUserId != null) {
+          ref
+              .read(pendingSignUpProvider)
+              .markPending(newUserId, shareId: firstTouch?.shareId);
+        }
+
+        unawaited(_clearFirstTouch(firstTouchStore));
 
         // Keep the OTP form mounted until the post-auth route is ready.
         // Clearing OTP here briefly shows the phone screen before redirect.
         state = state.copyWith(
-          session: result.data,
+          session: session,
           isLoading: true,
           error: null,
           errorCode: null,
@@ -250,6 +274,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       return false;
     }
+  }
+
+  Future<void> _clearFirstTouch(EquipmentShareFirstTouchStore store) async {
+    try {
+      await store.clear();
+    } catch (_) {}
   }
 
   Future<void> _finishPostOtpLogin() async {

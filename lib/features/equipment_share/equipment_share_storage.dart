@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
 import 'package:prokat/features/equipment_share/equipment_share_booking_intent.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 
 final equipmentShareStorageProvider = Provider<EquipmentShareStorage>((ref) {
@@ -32,15 +33,21 @@ class EquipmentShareStorage {
       ? 'local_equipment_share_install_referrer_checked'
       : 'equipment_share_install_referrer_checked';
 
-  Future<void> savePendingUri(String uri) async {
-    await _storage.write(key: _pendingKey, value: uri);
+  Future<void> savePendingOpen(EquipmentShareOpen open) async {
+    await _storage.write(key: _pendingKey, value: jsonEncode(open.toJson()));
   }
 
-  Future<String?> readPendingUri() async {
+  /// Also reads the legacy plain-URI value written by older builds.
+  Future<EquipmentShareOpen?> readPendingOpen() async {
     try {
-      final value = await _storage.read(key: _pendingKey);
-      if (value == null || value.trim().isEmpty) return null;
-      return value.trim();
+      final raw = await _storage.read(key: _pendingKey);
+      if (raw == null || raw.trim().isEmpty) return null;
+      final open = EquipmentShareOpen.tryParse(raw);
+      if (open == null) {
+        await clearPendingUri();
+        return null;
+      }
+      return open;
     } catch (_) {
       await clearPendingUri();
       return null;
@@ -79,27 +86,68 @@ class EquipmentShareStorage {
     } catch (_) {}
   }
 
-  Future<void> saveOverlay(EquipmentShareOverlay overlay) async {
-    await _storage.write(key: _overlayKey, value: jsonEncode(overlay.toJson()));
+  // Secure storage calls are separate native round-trips, so "read, then
+  // delete" is not atomic. Overlay operations run one at a time, and every
+  // mutation bumps the generation, so a consumer can delete only the exact
+  // overlay it read. Holds only for callers sharing this instance — use
+  // [equipmentShareStorageProvider].
+  Future<void> _overlayQueue = Future<void>.value();
+  int _overlayGeneration = 0;
+
+  Future<T> _overlayOp<T>(Future<T> Function() op) {
+    final run = _overlayQueue.then((_) => op());
+    _overlayQueue = run.then((_) {}, onError: (Object _) {});
+    return run;
   }
 
-  Future<EquipmentShareOverlay?> readOverlay() async {
+  Future<void> saveOverlay(EquipmentShareOverlay overlay) {
+    return _overlayOp(() async {
+      _overlayGeneration++;
+      await _storage.write(
+        key: _overlayKey,
+        value: jsonEncode(overlay.toJson()),
+      );
+    });
+  }
+
+  /// The stored overlay plus a token for [clearOverlayIfUnchanged].
+  Future<({EquipmentShareOverlay? overlay, int token})> readOverlaySnapshot() {
+    return _overlayOp(() async {
+      final overlay = await _readOverlay();
+      return (overlay: overlay, token: _overlayGeneration);
+    });
+  }
+
+  /// Deletes the overlay only if nothing wrote or cleared it since [token]
+  /// was read. Returns false and keeps the newer overlay otherwise.
+  Future<bool> clearOverlayIfUnchanged(int token) {
+    return _overlayOp(() async {
+      if (token != _overlayGeneration) return false;
+      await _deleteOverlay();
+      return true;
+    });
+  }
+
+  Future<void> clearOverlay() => _overlayOp(_deleteOverlay);
+
+  Future<EquipmentShareOverlay?> _readOverlay() async {
     try {
       final raw = await _storage.read(key: _overlayKey);
       if (raw == null || raw.trim().isEmpty) return null;
       final overlay = EquipmentShareOverlay.tryParse(raw);
       if (overlay == null) {
-        await clearOverlay();
+        await _deleteOverlay();
         return null;
       }
       return overlay;
     } catch (_) {
-      await clearOverlay();
+      await _deleteOverlay();
       return null;
     }
   }
 
-  Future<void> clearOverlay() async {
+  Future<void> _deleteOverlay() async {
+    _overlayGeneration++;
     try {
       await _storage.delete(key: _overlayKey);
     } catch (_) {}

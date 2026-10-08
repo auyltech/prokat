@@ -182,6 +182,11 @@ class OwnerRegistrationMutationNotifier
     }
   }
 
+  Future<void> deleteProfileImage() async {
+    await api.deleteProfileImage();
+    await ref.read(ownerProfileProvider.notifier).refresh();
+  }
+
   Future<bool> uploadProfileImage(File file) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
